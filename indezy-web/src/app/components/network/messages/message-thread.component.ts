@@ -24,10 +24,11 @@ import { NetworkStreamService } from '../../../services/network/network-stream.s
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
+import { SharedPostComponent } from '../shared-post/shared-post.component';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { saveBlob } from '../../../shared/utils/download-file';
 import { SwipeReplyDirective } from '../../../shared/directives/swipe-reply.directive';
-import { ThreadDay, byDay, memberNames, reactionEmoji, seenMessageId } from './message-thread.utils';
+import { ThreadDay, byDay, memberNames, reactionEmoji, seenMessageId, sharedPostId } from './message-thread.utils';
 import { FilePickerComponent } from '../files/file-picker.component';
 import { NetworkFilesComponent } from '../files/network-files.component';
 
@@ -48,13 +49,16 @@ const GROUP_MAX = 20;
  */
 @Component({
   selector: 'app-message-thread',
-  imports: [MemberAvatarComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatIconModule, MatMenuModule,
+  imports: [SharedPostComponent, MemberAvatarComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatIconModule, MatMenuModule,
     MatTooltipModule, TranslateModule, SwipeReplyDirective, FilePickerComponent, NetworkFilesComponent],
   templateUrl: './message-thread.component.html',
   styleUrls: ['./message-thread.component.scss', './message-cards.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class MessageThreadComponent implements OnChanges, AfterViewChecked {
+  /** The network post a message links to, shown as its card. */
+  readonly sharedPost = sharedPostId;
+
   private readonly api = inject(NetworkMessagesService);
   private readonly notices = inject(NetworkNoticesService);
   private readonly notifications = inject(NotificationService);

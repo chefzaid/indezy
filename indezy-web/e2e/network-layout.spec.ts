@@ -293,3 +293,50 @@ test('shows the post a member pinned first, their About section and the missions
   const audit = await new AxeBuilder({ page }).include('app-member-page').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(violation => violation.id)).toEqual([]);
 });
+
+test('sends a post in a message, read there as the post\'s card', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await mockWorkspaceSession(page, 'en');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  await page.route('**/api/network/members/camille/followers', route => route.fulfill({ json: [card('ines_b', 'Inès')] }));
+  await page.route('**/api/network/members/camille/following', route => route.fulfill({ json: [card('leo_m', 'Léo')] }));
+  const leo = card('leo_m', 'Léo');
+  const post = { id: 8, text: 'Retour sur une migration Kafka', tags: [], createdAt: '2026-11-15T09:00:00', own: false, likes: 0, liked: false,
+    comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST',
+    details: null, answerCommentId: null, poll: null, taken: null, author: leo };
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [post], page: 0, more: false } }));
+  await page.route('**/api/network/posts/8', route => route.fulfill({ json: post }));
+  const conversation = { id: 4, with: leo, group: null, last: null, unread: 0, muted: false, archived: false, closed: null,
+    lastMessageAt: null };
+  await page.route('**/api/network/conversations?**', route => route.fulfill({ json: [conversation] }));
+  const sent: { conversation: string; text: string }[] = [];
+  let thread: Record<string, unknown>[] = [];
+  await page.route('**/api/network/conversations/*/messages', route => {
+    const text = route.request().postDataJSON().text as string;
+    sent.push({ conversation: route.request().url().split('/').at(-2)!, text });
+    const message = { id: 30, mine: true, from: null, text, sentAt: new Date().toISOString(), edited: false, deleted: false, editable: true,
+      replyTo: null, reactions: [], myReaction: null, card: null };
+    thread = [message];
+    return route.fulfill({ status: 201, json: message });
+  });
+  await page.route('**/api/network/conversations', route => route.fulfill({ json: { ...conversation, id: 9, with: card('ines_b', 'Inès') } }));
+
+  await page.goto('/network');
+  await page.locator('[data-post="8"] [data-post-send]').click();
+  await page.locator('[data-send-target="c4"] input').check();
+  await page.locator('[data-send-target="mines_b"] input').check();
+  await page.locator('[data-send-note]').fill('À lire');
+  const audit = await new AxeBuilder({ page }).include('app-send-post-dialog').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  await page.locator('[data-send-submit]').click();
+  await expect(page.getByText('Sent in 2 conversations')).toBeVisible();
+  expect(sent.map(message => message.conversation).sort()).toEqual(['4', '9']);
+  expect(sent[0].text).toMatch(/^À lire\nhttp:\/\/[^/]+\/network\/posts\/8$/);
+
+  await page.route('**/api/network/conversations/4', route => route.fulfill({ json: { conversation, more: false, messages: thread } }));
+  await page.route('**/api/network/conversations/4/read', route => route.fulfill({ json: conversation }));
+  await page.goto('/network/messages/4');
+  await expect(page.locator('[data-shared-post]')).toContainText('Retour sur une migration Kafka');
+  await expect(page.locator('[data-shared-post]')).toHaveAttribute('href', '/network/posts/8');
+});

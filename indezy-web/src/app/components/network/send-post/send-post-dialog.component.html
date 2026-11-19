@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>{{ 'network.send.title' | translate }}</h2>
+<mat-dialog-content class="content">
+  <p class="excerpt" data-send-excerpt>{{ post.author.firstName }} {{ post.author.lastName }} · {{ post.text.slice(0, 140) }}{{ post.text.length > 140 ? '…' : '' }}</p>
+  <mat-form-field appearance="outline" class="note">
+    <mat-label>{{ 'network.send.note' | translate }}</mat-label>
+    <textarea matInput [formControl]="note" rows="2" maxlength="500" data-send-note></textarea>
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="filter" subscriptSizing="dynamic">
+    <mat-icon matPrefix>search</mat-icon>
+    <mat-label>{{ 'network.send.filter' | translate }}</mat-label>
+    <input matInput [formControl]="filter" data-send-filter>
+  </mat-form-field>
+  @if (targets === null) {
+    <p class="hint" role="status">{{ 'common.loading' | translate }}</p>
+  } @else if (targets.length === 0) {
+    <p class="hint" data-send-none>{{ 'network.send.none' | translate }}</p>
+  } @else {
+    <ul class="targets" [attr.aria-label]="'network.send.to' | translate">
+      @for (target of shown; track target.key) {
+        <li>
+          <mat-checkbox [checked]="chosen.has(target.key)" [disabled]="!chosen.has(target.key) && chosen.size >= room" (change)="toggle(target)"
+            [attr.data-send-target]="target.key">
+            <span class="target">
+              @if (target.member && !target.conversation?.group) {
+                <app-member-avatar [subject]="target.member" [size]="28"></app-member-avatar>
+              } @else {
+                <mat-icon class="group" aria-hidden="true">groups</mat-icon>
+              }
+              {{ target.label }}
+            </span>
+          </mat-checkbox>
+        </li>
+      }
+    </ul>
+  }
+  @if (failed) {
+    <p class="error" role="alert" data-send-failed>{{ 'network.send.failed' | translate }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-flat-button type="button" (click)="send()" [disabled]="!chosen.size || sending || note.invalid" data-send-submit>
+    {{ 'network.send.submit' | translate: { count: chosen.size } }}
+  </button>
+</mat-dialog-actions>

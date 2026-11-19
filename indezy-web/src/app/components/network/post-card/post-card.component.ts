@@ -14,6 +14,7 @@ import { MentionsDirective } from '../mentions/mentions.directive';
 
 import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW, Poll, PostDetails, PostStats, REACTIONS } from '../../../models';
 import { PostImpressionsService } from '../../../services/network/post-impressions.service';
+import { SendPostDialogComponent } from '../send-post/send-post-dialog.component';
 import { ReactionButtonComponent } from './reaction-button.component';
 import { NetworkService } from '../../../services/network/network.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
@@ -321,6 +322,15 @@ export class PostCardComponent implements AfterViewInit, OnDestroy {
         this.cardChanges.markForCheck();
       },
       error: () => this.notifications.error('network.post.pinError')
+    });
+  }
+
+  /** Sends the post in a message to one or more conversations or members. */
+  send(): void {
+    SendPostDialogComponent.open(this.dialog, this.post).subscribe(sent => {
+      if (sent) {
+        this.notifications.success(sent === 1 ? 'network.send.doneOne' : 'network.send.done', undefined, { count: sent });
+      }
     });
   }
 }

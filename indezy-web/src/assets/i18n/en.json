@@ -4003,6 +4003,19 @@
       "followers": "Followers gained in 30 days",
       "missions": "Missions passed on in 30 days",
       "taken": "Taken by members in 30 days"
+    },
+    "send": {
+      "action": "Send",
+      "title": "Send in a message",
+      "note": "Add a word (optional)",
+      "filter": "Find a conversation or a member",
+      "to": "Send to",
+      "none": "No conversation yet: follow members, or be followed, to write to them.",
+      "failed": "It could not be sent to every one of them. Try again.",
+      "submit": "Send ({{count}})",
+      "done": "Sent in {{count}} conversations",
+      "doneOne": "Sent in 1 conversation",
+      "gone": "This post is no longer available"
     }
   }
 }

@@ -105,10 +105,14 @@
                 <span class="text">{{ 'network.messages.deleted' | translate }}</span>
               } @else if (message.text) {
                 <span class="text">{{ message.text }}</span>
+                @if (sharedPost(message.text); as postId) {
+                  <app-shared-post [postId]="postId"></app-shared-post>
+                }
               }
               @if (message.files?.length && !message.deleted) {
                 <app-network-files [files]="message.files" [compact]="true"></app-network-files>
               }
+              @if (message.preview && !sharedPost(message.text)) {
               @if (message.preview; as link) {
                 <a class="link-card" [href]="link.url" target="_blank" rel="noopener noreferrer nofollow ugc" data-message-preview>
                   <span class="link-site"><mat-icon aria-hidden="true">link</mat-icon>{{ link.site }}</span>
@@ -117,6 +121,7 @@
                     <span class="link-description">{{ link.description }}</span>
                   }
                 </a>
+              }
               }
               @if (message.card; as card) {
                 <span class="opportunity" data-message-card>

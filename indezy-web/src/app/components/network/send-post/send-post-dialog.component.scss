@@ -1,0 +1,47 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.excerpt {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--app-link);
+  border-radius: 8px;
+  background: var(--app-hover);
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
+}
+
+.note,
+.filter {
+  width: 100%;
+}
+
+.targets {
+  max-height: 280px;
+  margin: 8px 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.target {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  .group {
+    color: var(--app-link);
+  }
+}
+
+.hint {
+  color: var(--app-text-muted);
+}
+
+.error {
+  margin: 8px 0 0;
+  color: var(--mat-sys-error);
+}

@@ -255,6 +255,10 @@
         <span class="label">{{ 'network.post.repost' | translate }}</span>
       </button>
     }
+    <button type="button" class="action" (click)="send()" data-post-send>
+      <mat-icon>send</mat-icon>
+      <span class="label">{{ 'network.send.action' | translate }}</span>
+    </button>
     <button type="button" class="action save" (click)="toggleBookmark()" [attr.aria-pressed]="post.bookmarked" data-bookmark [class.on]="post.bookmarked">
       <mat-icon>{{ post.bookmarked ? 'bookmark' : 'bookmark_border' }}</mat-icon>
       <span class="label">{{ (post.bookmarked ? 'network.post.saved' : 'network.post.save') | translate }}</span>

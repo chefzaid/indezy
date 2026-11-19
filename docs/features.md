@@ -271,7 +271,10 @@ time; **Drafts**, a tab of the reader's own page, lists them, the scheduled firs
 most). A member's page shows their posts too. Its author **edits** a post in the 15 minutes after posting it; it then reads **edited**, which opens its earlier
 texts. **Save** keeps a post in the reader's private **Saved** list, a tab of their own page, the latest saved first and
 filtered by the tags of the posts saved; a post taken off, deleted or from a member blocked either way leaves it.
-**Repost** shares a post with an optional comment, the original shown inside it (a repost of a repost reposts the
+**Send**, under a post, sends it in a message, as on LinkedIn: to up to ten of the reader's open conversations (with a
+member or a group) or members they can write to (a conversation opening with each), with a word if wanted; the message
+carries the post's link, which the conversation shows as the post's card (its author and first words, opening it; "This
+post is no longer available" once out of the reader's reach). **Repost** shares a post with an optional comment, the original shown inside it (a repost of a repost reposts the
 original; once the original is gone or out of reach, the repost says so); a post's author turns its reposts off.
 **For you**, the feed's second tab, gathers the posts of the last 30 days from every member the reader can read (but
 their own and those muted), ranked by what they share with the reader (3 points a tag they follow, 2 a tag among the

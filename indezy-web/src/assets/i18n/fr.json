@@ -4003,6 +4003,19 @@
       "followers": "Abonnés gagnés en 30 jours",
       "missions": "Missions transmises en 30 jours",
       "taken": "Prises par des membres en 30 jours"
+    },
+    "send": {
+      "action": "Envoyer",
+      "title": "Envoyer dans un message",
+      "note": "Ajouter un mot (facultatif)",
+      "filter": "Trouver une conversation ou un membre",
+      "to": "Envoyer à",
+      "none": "Aucune conversation pour l’instant : suivez des membres, ou soyez suivi, pour leur écrire.",
+      "failed": "L’envoi n’a pas abouti pour tous. Réessayez.",
+      "submit": "Envoyer ({{count}})",
+      "done": "Envoyé dans {{count}} conversations",
+      "doneOne": "Envoyé dans 1 conversation",
+      "gone": "Cette publication n’est plus disponible"
     }
   }
 }

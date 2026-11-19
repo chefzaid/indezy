@@ -31,3 +31,9 @@ export function reactionEmoji(reaction: Reaction): string {
 export function memberNames(members: MemberCard[]): string {
   return members.map(member => `${member.firstName} ${member.lastName}`).join(', ');
 }
+
+/** The network post a message's text links to (a post sent in a message), if any: its id. */
+export function sharedPostId(text: string | null | undefined): number | null {
+  const found = /(?:^|\s)(?:https?:\/\/[^\s/]+)?\/network\/posts\/(\d+)(?=\s|$)/.exec(text ?? '');
+  return found ? Number(found[1]) : null;
+}

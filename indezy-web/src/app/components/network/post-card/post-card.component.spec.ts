@@ -7,6 +7,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { PostImpressionsService } from '../../../services/network/post-impressions.service';
+import { SendPostDialogComponent } from '../send-post/send-post-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PostCardComponent, segments } from './post-card.component';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
@@ -59,6 +60,20 @@ describe('PostCardComponent', () => {
     component.togglePin();
     expect(component.pinned).toBeFalse();
     expect(notifications.error).toHaveBeenCalledWith('network.post.pinError');
+  });
+
+  it('sends the post in a message, saying in how many conversations', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', post);
+    fixture.detectChanges();
+    const open = spyOn(SendPostDialogComponent, 'open').and.returnValue(of(3));
+    (fixture.nativeElement.querySelector('[data-post-send]') as HTMLButtonElement).click();
+    expect(open).toHaveBeenCalledWith(jasmine.anything(), post);
+    expect(notifications.success).toHaveBeenCalledWith('network.send.done', undefined, { count: 3 });
+    open.and.returnValue(of(undefined));
+    fixture.componentInstance.send();
+    expect(notifications.success).toHaveBeenCalledTimes(1);
   });
 
   it('shows its author the post\'s analytics, and counts another member\'s post once half of it is seen', async () => {

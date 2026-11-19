@@ -76,8 +76,8 @@ export class NetworkService {
     return pinned ? this.http.put<void>(`${this.API_URL}/posts/${id}/pin`, null) : this.http.delete<void>(`${this.API_URL}/posts/${id}/pin`);
   }
 
-  onePost(id: number): Observable<NetworkPost> {
-    return this.http.get<NetworkPost>(`${this.API_URL}/posts/${id}`);
+  onePost(id: number, silent = false): Observable<NetworkPost> {
+    return this.http.get<NetworkPost>(`${this.API_URL}/posts/${id}`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
   }
 
   /** Picks a comment under the reader's own question as its answer, or none. */
