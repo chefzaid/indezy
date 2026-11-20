@@ -101,14 +101,14 @@ public class NetworkFeedService {
     }
 
     /**
-     * The network's search for posts: those holding what was typed (case aside, a # or @ before it kept as typed), from
+     * The network's search for posts: those holding what was typed (case and accents aside, a # or @ kept as typed), from
      * every member the reader can read (their own included, but those muted or blocked either way), the newest first;
      * of the kinds asked, in the last days asked, from the members followed only when asked.
      */
     @Transactional(readOnly = true)
     public NetworkDtos.Posts search(Long userId, String typed, int page, PostFilters filters) {
         network.requireMember(userId);
-        String phrase = Optional.ofNullable(typed).orElse("").strip().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+        String phrase = Optional.ofNullable(NetworkPost.fold(typed)).orElse("");
         PageRequest asked = PageRequest.of(Math.max(0, page), NetworkPostService.PAGE_SIZE);
         if (phrase.length() < SEARCHED_AT_LEAST) {
             return new NetworkDtos.Posts(List.of(), asked.getPageNumber(), false);

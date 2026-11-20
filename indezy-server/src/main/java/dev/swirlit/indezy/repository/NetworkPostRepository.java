@@ -32,24 +32,24 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
     Page<NetworkPost> feed(@Param("authors") Collection<Long> authors, @Param("tags") Collection<String> tags,
                            @Param("excluded") Collection<Long> excluded, Pageable page);
 
-    /** The posts whose text holds what was searched (a LIKE pattern on the lower-case text) but the excluded authors', the newest first. */
-    @Query(value = "select p from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId not in :excluded " +
+    /** The posts whose text holds what was searched (a LIKE pattern on the folded text) but the excluded authors', the newest first. */
+    @Query(value = "select p from NetworkPost p where p.searchText like :pattern escape '\\' and p.authorId not in :excluded " +
         "order by p.createdAt desc, p.id desc",
-        countQuery = "select count(p) from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId not in :excluded")
+        countQuery = "select count(p) from NetworkPost p where p.searchText like :pattern escape '\\' and p.authorId not in :excluded")
     Page<NetworkPost> search(@Param("pattern") String pattern, @Param("excluded") Collection<Long> excluded, Pageable page);
 
     /** The search with its filters: posts of the kinds given, since a time, but the excluded authors', the newest first. */
-    @Query(value = "select p from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId not in :excluded " +
+    @Query(value = "select p from NetworkPost p where p.searchText like :pattern escape '\\' and p.authorId not in :excluded " +
         "and p.kind in :kinds and p.createdAt >= :since order by p.createdAt desc, p.id desc",
-        countQuery = "select count(p) from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId not in :excluded " +
+        countQuery = "select count(p) from NetworkPost p where p.searchText like :pattern escape '\\' and p.authorId not in :excluded " +
             "and p.kind in :kinds and p.createdAt >= :since")
     Page<NetworkPost> searchFiltered(@Param("pattern") String pattern, @Param("excluded") Collection<Long> excluded,
                                      @Param("kinds") Collection<NetworkPostKind> kinds, @Param("since") LocalDateTime since, Pageable page);
 
     /** The same, from the authors given only (the members the reader follows). */
-    @Query(value = "select p from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId in :authors " +
+    @Query(value = "select p from NetworkPost p where p.searchText like :pattern escape '\\' and p.authorId in :authors " +
         "and p.authorId not in :excluded and p.kind in :kinds and p.createdAt >= :since order by p.createdAt desc, p.id desc",
-        countQuery = "select count(p) from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId in :authors " +
+        countQuery = "select count(p) from NetworkPost p where p.searchText like :pattern escape '\\' and p.authorId in :authors " +
             "and p.authorId not in :excluded and p.kind in :kinds and p.createdAt >= :since")
     Page<NetworkPost> searchFrom(@Param("pattern") String pattern, @Param("authors") Collection<Long> authors,
                                  @Param("excluded") Collection<Long> excluded, @Param("kinds") Collection<NetworkPostKind> kinds,
@@ -91,4 +91,7 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
     Page<NetworkPost> tagByLikes(@Param("tag") String tag, @Param("excluded") Collection<Long> excluded, Pageable page);
 
     long countByAuthorIdAndKindAndCreatedAtAfter(Long authorId, NetworkPostKind kind, LocalDateTime since);
+
+    /** Posts saved before the folded text was kept, to fill it in. */
+    List<NetworkPost> findTop500BySearchTextIsNull();
 }

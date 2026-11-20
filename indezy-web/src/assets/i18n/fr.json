@@ -3967,7 +3967,9 @@
       "clearFilters": "Effacer les filtres",
       "lastDays": "{{days}} derniers jours",
       "followedOnly": "Des membres que je suis",
-      "forget": "Effacer les recherches récentes"
+      "forget": "Effacer les recherches récentes",
+      "mutualOne": "Suivi par 1 membre que vous suivez",
+      "mutualMany": "Suivi par {{count}} membres que vous suivez"
     },
     "me": {
       "followers": "abonnés",
@@ -4028,6 +4030,30 @@
       "done": "Envoyé dans {{count}} conversations",
       "doneOne": "Envoyé dans 1 conversation",
       "gone": "Cette publication n’est plus disponible"
+    },
+    "strength": {
+      "title": "Force de votre carte",
+      "levels": {
+        "low": "Complétez votre carte pour être trouvé par les membres et les missions.",
+        "good": "Une bonne carte : quelques éléments encore pour être trouvé plus souvent.",
+        "complete": "Votre carte montre tout ce que les membres cherchent."
+      },
+      "add": {
+        "photo": "Ajouter une photo",
+        "headline": "Ajouter un titre",
+        "skills": "Indiquer au moins trois compétences",
+        "city": "Ajouter votre ville",
+        "availability": "Indiquer votre disponibilité",
+        "about": "Rédiger votre section À propos"
+      },
+      "show": {
+        "photo": "Afficher votre photo sur votre carte",
+        "headline": "Afficher votre titre sur votre carte",
+        "skills": "Afficher vos compétences sur votre carte",
+        "city": "Afficher votre ville sur votre carte",
+        "availability": "Afficher votre disponibilité sur votre carte",
+        "about": "Rédiger votre section À propos"
+      }
     }
   }
 }

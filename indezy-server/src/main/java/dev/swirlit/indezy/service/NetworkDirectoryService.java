@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -132,8 +134,18 @@ public class NetworkDirectoryService {
         List<String> requested = shown.stream()
             .filter(hit -> requests.findByRequesterIdAndMemberId(viewerId, hit.member().getUserId()).isPresent()).map(Found::handle).toList();
         List<String> privateCards = shown.stream().filter(hit -> hit.member().isPrivate()).map(Found::handle).toList();
+        // How many members the viewer follows follow each member found ("3 members you follow follow them"), blocked ones aside.
+        Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(viewerId));
+        Map<String, Integer> mutual = new HashMap<>();
+        for (Found hit : shown) {
+            long both = follows.followers(hit.member().getUserId()).stream()
+                .filter(follower -> followed.contains(follower.getUserId()) && !blocked.contains(follower.getUserId())).count();
+            if (both > 0) {
+                mutual.put(hit.handle(), (int) both);
+            }
+        }
         return new NetworkDtos.Directory(shown.stream().map(Found::card).toList(), found.size(), asked, PAGE_SIZE, following, requested,
-            privateCards);
+            privateCards, mutual);
     }
 
     /** The members in the network the viewer may see, with the cards they read: neither the viewer nor one blocked either way. */

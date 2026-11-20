@@ -377,6 +377,8 @@ export interface MemberDirectory {
   followed: string[];
   requested: string[];
   privateCards: string[];
+  /** In the search, how many members the reader follows follow each member found (by handle; none when no one). */
+  mutual?: Record<string, number>;
 }
 
 /** The members the viewer mutes and blocks. */

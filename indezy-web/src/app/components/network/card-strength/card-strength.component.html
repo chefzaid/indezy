@@ -1,0 +1,25 @@
+@if (percent !== null) {
+  <section class="strength" [attr.data-card-strength]="percent" [attr.aria-label]="'network.strength.title' | translate">
+    <h2>{{ 'network.strength.title' | translate }}</h2>
+    <div class="gauge">
+      <div class="bar" role="progressbar" [attr.aria-valuenow]="percent" aria-valuemin="0" aria-valuemax="100"
+        [attr.aria-label]="'network.strength.title' | translate">
+        <span class="fill" [class]="'fill ' + level" [style.width.%]="percent"></span>
+      </div>
+      <strong>{{ percent }}%</strong>
+    </div>
+    <p class="level" [attr.data-strength-level]="level">{{ 'network.strength.levels.' + level | translate }}</p>
+    @if (gaps.length) {
+      <ul>
+        @for (gap of gaps; track gap.item) {
+          <li [attr.data-strength-gap]="gap.item">
+            <a routerLink="/profile" [queryParams]="gap.tab ? { tab: gap.tab } : {}">
+              <mat-icon aria-hidden="true">add_circle_outline</mat-icon>
+              {{ (gap.hidden ? 'network.strength.show.' : 'network.strength.add.') + gap.item | translate }}
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

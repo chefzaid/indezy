@@ -63,6 +63,11 @@ class NetworkMutualFollowsIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat((List<Map<String, Object>>) mutual.get("members")).extracting(card -> card.get("handle"))
             .containsExactly(carolHandle, bobHandle);
 
+        // The search tells it too, for each member found.
+        Map<String, Object> found = call(alice, HttpMethod.GET, "/network/search/members?q=" + danHandle, null, Map.class).getBody();
+        assertThat((Map<String, Object>) found.get("mutual")).containsEntry(danHandle, 2);
+        assertThat((Map<String, Object>) call(alice, HttpMethod.GET, "/network/members", null, Map.class).getBody().get("mutual")).isEmpty();
+
         call(carol, HttpMethod.PUT, "/network/members/" + aliceHandle + "/block", null, Map.class);
         assertThat(call(alice, HttpMethod.GET, "/network/members/" + danHandle + "/mutual", null, Map.class).getBody())
             .containsEntry("count", 1);

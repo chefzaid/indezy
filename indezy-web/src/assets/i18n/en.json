@@ -3967,7 +3967,9 @@
       "clearFilters": "Clear filters",
       "lastDays": "Last {{days}} days",
       "followedOnly": "From members I follow",
-      "forget": "Clear recent searches"
+      "forget": "Clear recent searches",
+      "mutualOne": "Followed by 1 member you follow",
+      "mutualMany": "Followed by {{count}} members you follow"
     },
     "me": {
       "followers": "followers",
@@ -4028,6 +4030,30 @@
       "done": "Sent in {{count}} conversations",
       "doneOne": "Sent in 1 conversation",
       "gone": "This post is no longer available"
+    },
+    "strength": {
+      "title": "Card strength",
+      "levels": {
+        "low": "Complete your card to be found by members and missions.",
+        "good": "A good card: a few things left to be found more often.",
+        "complete": "Your card shows all members look for."
+      },
+      "add": {
+        "photo": "Add a photo",
+        "headline": "Add a headline",
+        "skills": "Show at least three skills",
+        "city": "Add your city",
+        "availability": "Say when you are available",
+        "about": "Write your About section"
+      },
+      "show": {
+        "photo": "Show your photo on your card",
+        "headline": "Show your headline on your card",
+        "skills": "Show your skills on your card",
+        "city": "Show your city on your card",
+        "availability": "Show your availability on your card",
+        "about": "Write your About section"
+      }
     }
   }
 }

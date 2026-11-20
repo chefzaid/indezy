@@ -27,6 +27,7 @@ import { NetworkDraftsComponent } from '../drafts/network-drafts.component';
 import { NetworkMeCardComponent } from '../me-card/network-me-card.component';
 import { NetworkSideComponent } from '../side/network-side.component';
 import { NetworkViewersComponent } from '../viewers/network-viewers.component';
+import { CardStrengthComponent } from '../card-strength/card-strength.component';
 
 /** Which list of the page is open: the member's followers or follows, or, on the reader's own page, their saved posts or drafts. */
 export type MemberList = 'followers' | 'following' | 'saved' | 'drafts' | 'recommendations' | 'viewers';
@@ -40,7 +41,7 @@ const OWN_LISTS: MemberList[] = ['saved', 'drafts', 'viewers'];
  */
 @Component({
   selector: 'app-member-page',
-  imports: [DatePipe, SavedPostsComponent, NetworkDraftsComponent, NetworkViewersComponent, NetworkMeCardComponent, NetworkSideComponent, NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
+  imports: [DatePipe, CardStrengthComponent, SavedPostsComponent, NetworkDraftsComponent, NetworkViewersComponent, NetworkMeCardComponent, NetworkSideComponent, NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
   templateUrl: './member-page.component.html',
   styleUrls: ['./member-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

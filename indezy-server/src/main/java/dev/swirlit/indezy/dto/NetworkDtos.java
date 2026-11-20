@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /** The member network: an account's membership, its member card, and the requests that join, change and leave. */
@@ -318,13 +319,20 @@ public final class NetworkDtos {
      * follows, has asked to follow, and whose cards are private (to ask rather than follow).
      */
     public record Directory(List<MemberCard> members, int total, int page, int size, List<String> followed, List<String> requested,
-                            List<String> privateCards) {
+                            List<String> privateCards, Map<String, Integer> mutual) {
 
         public Directory {
             members = List.copyOf(members);
             followed = List.copyOf(followed);
             requested = List.copyOf(requested);
             privateCards = List.copyOf(privateCards);
+            mutual = Map.copyOf(mutual);
+        }
+
+        /** Without mutual follows, as the directory lists members. */
+        public Directory(List<MemberCard> members, int total, int page, int size, List<String> followed, List<String> requested,
+                         List<String> privateCards) {
+            this(members, total, page, size, followed, requested, privateCards, Map.of());
         }
     }
 

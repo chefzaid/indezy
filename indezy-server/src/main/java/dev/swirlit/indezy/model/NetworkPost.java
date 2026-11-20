@@ -2,6 +2,8 @@ package dev.swirlit.indezy.model;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
@@ -15,7 +17,9 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.text.Normalizer;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -33,6 +37,10 @@ public class NetworkPost extends BaseEntity {
 
     @Column(name = "text", nullable = false, length = TEXT_MAX)
     private String text;
+
+    /** Its text folded for the search: lower case, accents and repeated spaces dropped; kept with the text. */
+    @Column(name = "search_text", length = TEXT_MAX)
+    private String searchText;
 
     /** When its author last changed its text, within the edit window; none while never edited. */
     @Column(name = "edited_at")
@@ -94,5 +102,20 @@ public class NetworkPost extends BaseEntity {
 
     public void setTags(final Set<String> tags) {
         this.tags = tags != null ? new LinkedHashSet<>(tags) : new LinkedHashSet<>();
+    }
+
+    /** Keeps the folded text with the text, on every save. */
+    @PrePersist
+    @PreUpdate
+    void foldText() {
+        searchText = fold(text);
+    }
+
+    /** A text as the search compares it: lower case, accents and repeated spaces dropped ("Développeur  Java" reads "developpeur java"). */
+    public static String fold(String text) {
+        if (text == null) {
+            return null;
+        }
+        return Normalizer.normalize(text, Normalizer.Form.NFD).replaceAll("\\p{M}", "").replaceAll("\\s+", " ").strip().toLowerCase(Locale.ROOT);
     }
 }

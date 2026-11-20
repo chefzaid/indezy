@@ -257,6 +257,9 @@
         </ul>
       </section>
     }
+    @if (page?.own) {
+      <app-card-strength></app-card-strength>
+    }
     @if (page?.own && activity; as mine) {
       <section class="side-card activity" data-activity>
         <h2>{{ 'network.activity.title' | translate }}</h2>

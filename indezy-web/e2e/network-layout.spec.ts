@@ -423,3 +423,24 @@ test('marks the notifications read, deletes one and turns a kind off', async ({ 
   await expect(page.getByText('You will no longer get these notifications')).toBeVisible();
   expect(saved).toEqual({ off: ['FOLLOW'], emailed: [] });
 });
+
+test('measures the strength of one\'s card, each gap one click from where it is set', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await mockWorkspaceSession(page, 'fr');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille',
+    fields: { ...fields, location: false }, card: { ...card('camille', 'Camille'), city: null } } }));
+  await page.route('**/api/network/membership/about', route => route.fulfill({ json: { about: null, showMissions: false } }));
+  await page.route('**/api/network/members/camille/page', route => route.fulfill({ json: { card: card('camille', 'Camille'), followers: 1,
+    following: 1, sharedSkills: [], followed: false, followsYou: false, own: true, muted: false, blocked: false, privateCard: false,
+    requested: false } }));
+  await page.route('**/api/network/members/camille/posts?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+
+  await page.goto('/m/camille');
+  const strength = page.locator('[data-card-strength]');
+  await expect(strength).toContainText('Force de votre carte');
+  await expect(strength.locator('[data-strength-gap="city"]')).toContainText('Afficher votre ville');
+  await expect(strength.locator('[data-strength-gap="about"] a')).toHaveAttribute('href', '/profile?tab=network');
+  const audit = await new AxeBuilder({ page }).include('app-card-strength').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+});

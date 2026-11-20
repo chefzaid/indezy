@@ -61,6 +61,8 @@ export class NetworkSearchResultsComponent implements OnInit {
   postsPage = 0;
   morePosts = false;
   tags: string[] = [];
+  /** How many members the reader follows follow each member found. */
+  mutual: Record<string, number> = {};
   private followed = new Set<string>();
   private requested = new Set<string>();
   private privateCards = new Set<string>();
@@ -194,6 +196,7 @@ export class NetworkSearchResultsComponent implements OnInit {
     found.followed.forEach(handle => this.followed.add(handle));
     found.requested.forEach(handle => this.requested.add(handle));
     found.privateCards.forEach(handle => this.privateCards.add(handle));
+    this.mutual = append ? { ...this.mutual, ...(found.mutual ?? {}) } : { ...(found.mutual ?? {}) };
     this.changes.markForCheck();
   }
 

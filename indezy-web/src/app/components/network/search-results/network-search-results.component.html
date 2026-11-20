@@ -84,6 +84,10 @@
                   @if (member.headline) {
                     <span class="headline">{{ member.headline }}</span>
                   }
+                  @if (mutual[member.handle]; as both) {
+                    <span class="mutual" [attr.data-search-mutual]="member.handle"><mat-icon aria-hidden="true">group</mat-icon>
+                      {{ (both === 1 ? 'network.search.mutualOne' : 'network.search.mutualMany') | translate: { count: both } }}</span>
+                  }
                   @if (member.city || member.stack.length) {
                     <span class="facts">
                       @if (member.city) {

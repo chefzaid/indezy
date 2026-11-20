@@ -184,6 +184,8 @@ Deletion rules:
 - `network_members.pinned_post_id` names the member's own post pinned on their page, cleared when that post is deleted;
   `about` and `show_missions` hold their About section and whether their won missions are listed (read from the
   workspace's projects, never stored twice).
+- `network_posts.search_text` keeps each post's text folded (lower case, without accents or repeated spaces) for the
+  search, set on every save; posts saved before it are folded once when the server is ready.
 - Page views are dropped every night 90 days after they happened; `network_members.private_viewing` keeps a member
   out of the names their views show, and their own viewers' names from them.
 

@@ -2,6 +2,7 @@ package dev.swirlit.indezy.integration;
 
 import dev.swirlit.indezy.model.enums.FeatureFlag;
 import dev.swirlit.indezy.service.FeatureFlagService;
+import dev.swirlit.indezy.service.NetworkSearchTextBackfill;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ class NetworkSearchIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Autowired
     private FeatureFlagService flags;
+
+    @Autowired
+    private NetworkSearchTextBackfill backfill;
 
     @AfterEach
     void reopenTheNetwork() {
@@ -89,6 +93,16 @@ class NetworkSearchIntegrationTest extends TwoAccountsIntegrationTest {
             .getBody().get("id");
         assertThat(posts(bob, word)).containsExactly(carols, own, kafka);
         assertThat(posts(bob, word + " et kafka")).containsExactly(kafka);
+        // Accents and case aside, both ways.
+        Object accented = call(carol, HttpMethod.POST, "/network/posts", Map.of("text", "Retour d'expérience " + word + " Développeur  JAVA"),
+            Map.class).getBody().get("id");
+        assertThat(posts(bob, word + " developpeur java")).containsExactly(accented);
+        assertThat(posts(bob, "EXPÉRIENCE " + word)).containsExactly(accented);
+        // A post saved before the folded text was kept is folded once the server is ready.
+        jdbcTemplate.update("UPDATE network_posts SET search_text = NULL WHERE id = ?", accented);
+        assertThat(posts(bob, word + " developpeur java")).isEmpty();
+        backfill.foldExistingPosts();
+        assertThat(posts(bob, word + " developpeur java")).containsExactly(accented);
         // The pattern's own characters are searched as written: an underscore is no wildcard.
         assertThat(posts(bob, word + " 100")).containsExactly(carols);
         assertThat(posts(bob, word + " 1_0")).isEmpty();

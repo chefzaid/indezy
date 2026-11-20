@@ -29,7 +29,7 @@ describe('NetworkSearchResultsComponent', () => {
   function create(params: Record<string, string> = { q: 'kafka' }): ComponentFixture<NetworkSearchResultsComponent> {
     network = jasmine.createSpyObj('NetworkService', ['searchMembers', 'searchPosts', 'suggestTags', 'follow', 'unfollow']);
     network.searchMembers.and.returnValue(of(directory(['leo_m', 'ines_b', 'paul_d', 'zoe_l'], 24, 0,
-      { followed: ['ines_b'], privateCards: ['paul_d'] })));
+      { followed: ['ines_b'], privateCards: ['paul_d'], mutual: { leo_m: 3, ines_b: 1 } })));
     network.searchPosts.and.returnValue(of({ posts: [post(1), post(2), post(3), post(4)], page: 0, more: true }));
     network.suggestTags.and.returnValue(of(['kafka', 'kafka-streams']));
     notifications = jasmine.createSpyObj('NotificationService', ['error']);
@@ -62,6 +62,9 @@ describe('NetworkSearchResultsComponent', () => {
     expect(element.querySelector('[data-search-result-tag="kafka-streams"]')?.getAttribute('href')).toBe('/network/tags/kafka-streams');
     expect(element.querySelectorAll('[data-search-posts] app-post-card').length).toBe(SEARCH_PREVIEW);
     expect(element.querySelector('[data-search-follow="ines_b"]')?.textContent).toContain('Following');
+    expect(element.querySelector('[data-search-mutual="leo_m"]')?.textContent).toContain('Followed by 3 members you follow');
+    expect(element.querySelector('[data-search-mutual="ines_b"]')?.textContent).toContain('Followed by 1 member you follow');
+    expect(element.querySelector('[data-search-mutual="paul_d"]')).toBeNull();
     expect(element.querySelector('[data-search-follow="paul_d"]')?.textContent).toContain('Ask to follow');
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
     (element.querySelector('[data-search-all-members]') as HTMLButtonElement).click();

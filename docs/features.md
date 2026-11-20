@@ -218,16 +218,29 @@ stack, from when to when; never the client), the latest first, ten at most; both
 (`PUT /api/network/membership/about`) and read like the member's posts (a private card's by its followers only,
 `GET /api/network/members/<handle>/about`); one's own page invites one to write it. Beside another member's page, **About Léo** says
 how many follow them and whom they follow, whether they follow the reader and how many skills both cards show. On their
-own page a member **removes** a follower, without them being told. **Viewers**, a tab of one's own page (and **n views of your page** on the card beside the
-feed), tells **who viewed my page**: how many members opened it in the last 90 days and how many times in the last 7, the
-members named, the latest first (50 at most, never one blocked either way or away from the network), and how many browsed
-privately. A member's page is counted once a day per viewer, as it opens (`POST /api/network/members/<handle>/views`, never
-for one's own), and kept 90 days, dropped every night after. **Browse privately**, in that tab
-(`PUT /api/network/page-views/private?on=`), opens pages without being named, counted among the private viewers; as on
-LinkedIn, the member then sees no names among their own viewers either. (always on one's own), shows the
-testimonials the member approved for their public page (see [Testimonials](#testimonials)), each as a quote with its
-author's name and title, the latest first (`GET /api/network/members/<handle>/recommendations`; a private card's to its
-followers only); on one's own page, **Ask for a recommendation** opens **Profile → Public profile** (`/profile?tab=public`). A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
+own page a member **removes** a follower, without them being told.
+
+**Recommendations**, a tab of the page once there is one (always on one's own), shows the testimonials the member
+approved for their public page (see [Testimonials](#testimonials)), each as a quote with its author's name and title, the
+latest first (`GET /api/network/members/<handle>/recommendations`; a private card's to its followers only); on one's own
+page, **Ask for a recommendation** opens **Profile → Public profile** (`/profile?tab=public`). **Viewers**, a tab of one's
+own page (and **n views of your page** on the card beside the feed), tells **who viewed my page**: how many members opened
+it in the last 90 days and how many times in the last 7, the members named, the latest first (50 at most, never one
+blocked either way or away from the network), and how many browsed privately. A member's page is counted once a day per
+viewer, as it opens (`POST /api/network/members/<handle>/views`, never for one's own), and kept 90 days, dropped every
+night after. **Browse privately**, in that tab (`PUT /api/network/page-views/private?on=`), opens pages without being
+named, counted among the private viewers; as on LinkedIn, the member then sees no names among their own viewers either.
+
+**Analytics**, under each of one's own posts, shows how many times it was shown (in a feed, a page or the search: a post
+counts once half of it is in view, once per page read, reported in the background every few seconds,
+`POST /api/network/posts/impressions`), to how many members, and its reactions, comments, reposts and saves
+(`GET /api/network/posts/<id>/stats`, its author alone). Beside one's own page, **Card strength** measures what members
+search the card shows (a photo, a headline, three skills, a city, an availability, an About section) as a gauge and a
+level, each missing item one click from where it is set (the profile for what it holds, **Profile → Network** for what the
+card hides or adds), and **Your activity** counts the posts of the last 7 days and the members they reached, and over 30
+days the followers gained and the missions passed on and taken by members (`GET /api/network/activity`).
+
+A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
 to join first.
 
 From a member's page, **Mute** hides their posts while the follow stays, and **Block** (once confirmed) ends both
@@ -429,8 +442,9 @@ of it, for a compound name: "bob mar" finds Bob Martin), one of their card's ski
 accents and case aside, on what their card shows only; a tag when it starts with the one word typed. `@` looks for members
 only, `#` for tags only. **Enter**, or **See all results**, opens the results (`/network/search?q=`): **All** shows the
 first three members found (those named by their name first, the whole name before a word of it, then those the reader
-follows, then by last name; with their headline, city and first skills, and **Follow**, **Ask to follow** a private card
-or **Following**), the tags, and the first three posts holding what was typed (case aside, the newest first, from every
+follows, then by last name; with their headline, city and first skills, **Followed by 3 members you follow** when
+some do, and **Follow**, **Ask to follow** a private card
+or **Following**), the tags, and the first three posts holding what was typed (case and accents aside: "developpeur" finds "Développeur", the newest first, from every
 member the reader can read, their own included, but those muted or blocked either way and the private cards they do not
 follow); **Members**, **Posts** and **Tags** show each kind alone, 20 at a time, the tab kept in the address
 (`?tab=`). **Members** narrows the members found by availability (available, open to offers, on a mission), remote work and a city, and **Posts** the posts by kind, to the last 7 or 30 days, or to the members followed, as chips kept in the address with **Clear filters**. The empty field offers the last five searches made on the device (kept in the browser only), with **Clear recent searches**. The server searches members with `GET /api/network/search/members?q=&page=&city=&availability=&remote=` and posts with

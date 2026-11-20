@@ -1,0 +1,86 @@
+// The card's strength: a gauge, its level, and each missing item one click from where it is set.
+.strength {
+  padding: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px rgba(15, 12, 40, 0.04);
+
+  h2 {
+    margin: 0 0 12px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+}
+
+.gauge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  strong {
+    min-width: 40px;
+    font-size: 0.9375rem;
+    text-align: right;
+  }
+}
+
+.bar {
+  flex: 1;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--app-hover);
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--app-link);
+  transition: width 300ms ease;
+
+  &.complete {
+    background: #1b8a4c;
+  }
+
+  &.low {
+    background: #c26b00;
+  }
+}
+
+.level {
+  margin: 6px 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.8125rem;
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    border-radius: 8px;
+    color: var(--app-link);
+    font-size: 0.8125rem;
+    text-decoration: none;
+
+    &:hover {
+      background: var(--app-hover);
+    }
+  }
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
