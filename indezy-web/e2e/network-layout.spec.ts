@@ -382,3 +382,44 @@ test('narrows the search results with filters, and offers the last searches', as
   await page.locator('[data-search-recent="lyon"]').click();
   await expect(page).toHaveURL(/\/network\/search\?q=lyon$/);
 });
+
+test('marks the notifications read, deletes one and turns a kind off', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await mockWorkspaceSession(page, 'en');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  const leo = card('leo_m', 'Léo');
+  const notice = (type: string, read: boolean) => ({ type, count: 1, read, postId: type === 'FOLLOW' ? null : 4,
+    postExcerpt: type === 'FOLLOW' ? null : 'Une question sur Kafka', latestAt: new Date().toISOString(), actors: [leo] });
+  await page.route('**/api/network/notifications', route => route.request().method() === 'DELETE' ? route.fulfill({ status: 204 }) :
+    route.fulfill({ json: [notice('MENTION', false), notice('FOLLOW', false)] }));
+  const dismissed: string[] = [];
+  await page.route('**/api/network/notifications?**', route => {
+    dismissed.push(new URL(route.request().url()).search);
+    return route.fulfill({ status: 204 });
+  });
+  await page.route('**/api/network/notifications/read', route => route.fulfill({ status: 204 }));
+  let saved: unknown = null;
+  await page.route('**/api/network/notifications/settings', route => {
+    if (route.request().method() === 'PUT') {
+      saved = route.request().postDataJSON();
+    }
+    return route.fulfill({ json: { off: [], emailed: ['FOLLOW'] } });
+  });
+
+  await page.goto('/network/notifications');
+  await expect(page.locator('li.unread')).toHaveCount(2);
+  await page.locator('[data-notices-mark-all]').click();
+  await expect(page.locator('li.unread')).toHaveCount(0);
+  const audit = await new AxeBuilder({ page }).include('app-network-notifications').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  await page.locator('[data-notice="MENTION"] [data-notice-menu]').click();
+  await page.locator('[data-notice-dismiss]').click();
+  await expect(page.locator('[data-notice="MENTION"]')).toHaveCount(0);
+  expect(dismissed).toEqual(['?type=MENTION&postId=4']);
+  await page.locator('[data-notice="FOLLOW"] [data-notice-menu]').click();
+  await page.locator('[data-notice-turn-off]').click();
+  await expect(page.getByText('You will no longer get these notifications')).toBeVisible();
+  expect(saved).toEqual({ off: ['FOLLOW'], emailed: [] });
+});

@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { switchMap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -39,7 +42,7 @@ export const NOTICE_FILTER_ICONS: Record<NoticeFilter, string> = {
  */
 @Component({
   selector: 'app-network-notifications',
-  imports: [NetworkNavComponent, NetworkMeCardComponent, NetworkSideComponent, DatePipe, NgTemplateOutlet, MemberAvatarComponent, TimeAgoPipe, RouterLink, MatIconModule, TranslateModule, PageHeaderComponent],
+  imports: [NetworkNavComponent, NetworkMeCardComponent, NetworkSideComponent, MatButtonModule, MatMenuModule, DatePipe, NgTemplateOutlet, MemberAvatarComponent, TimeAgoPipe, RouterLink, MatIconModule, TranslateModule, PageHeaderComponent],
   templateUrl: './network-notifications.component.html',
   styleUrls: ['./network-notifications.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -95,6 +98,46 @@ export class NetworkNotificationsComponent implements OnInit {
       return true;
     }
     return filter === 'unread' ? !group.read : (FILTER_TYPES[filter] ?? []).includes(group.type);
+  }
+
+  /** Whether any notification shows unread. */
+  get anyUnread(): boolean {
+    return this.groups.some(group => !group.read);
+  }
+
+  /** Marks every notification read: the tints and dots go, and the counts. */
+  markAllRead(): void {
+    this.network.readNotifications().subscribe({
+      next: () => {
+        this.groups = this.groups.map(group => ({ ...group, read: true }));
+        this.sections = NetworkNotificationsComponent.byPeriod(this.shown(), new Date());
+        this.notices.refresh();
+        this.changes.markForCheck();
+      },
+      error: () => this.notifications.error('network.notices.actionError')
+    });
+  }
+
+  /** Deletes a notification (its group). */
+  dismiss(group: NotificationGroup): void {
+    this.network.dismissNotification(group.type, group.postId).subscribe({
+      next: () => {
+        this.groups = this.groups.filter(item => item.type !== group.type || item.postId !== group.postId);
+        this.sections = NetworkNotificationsComponent.byPeriod(this.shown(), new Date());
+        this.changes.markForCheck();
+      },
+      error: () => this.notifications.error('network.notices.actionError')
+    });
+  }
+
+  /** Turns its kind off, as Profile → Network does: no more of these, in the app nor by email. */
+  turnOff(group: NotificationGroup): void {
+    this.network.notificationSettings().pipe(switchMap(settings => this.network.saveNotificationSettings(
+      [...settings.off.filter(type => type !== group.type), group.type], (settings.emailed ?? []).filter(type => type !== group.type))))
+      .subscribe({
+        next: () => this.notifications.success('network.notices.turnedOff'),
+        error: () => this.notifications.error('network.notices.actionError')
+      });
   }
 
   /** Whether the moderators, not a member, tell it. */

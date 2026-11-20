@@ -168,6 +168,13 @@ describe('NetworkService', () => {
     service.saveAbout({ about: 'Hi', showMissions: true }).subscribe();
     expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/membership/about')).request.body)
       .toEqual({ about: 'Hi', showMissions: true });
+    service.dismissNotification('LIKE', 4).subscribe();
+    const dismissed = http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/notifications'));
+    expect(dismissed.request.params.get('type')).toBe('LIKE');
+    expect(dismissed.request.params.get('postId')).toBe('4');
+    service.dismissNotification('FOLLOW', null).subscribe();
+    expect(http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/notifications')).request.params.has('postId'))
+      .toBeFalse();
     service.mutual('camille').subscribe();
     http.expectOne(call => call.url.endsWith('/network/members/camille/mutual'));
     service.postStats(4).subscribe();

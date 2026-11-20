@@ -340,6 +340,15 @@ export class NetworkService {
     return this.http.get<{ unread: number }>(`${this.API_URL}/notifications/unread`);
   }
 
+  /** Deletes a group of the reader's notifications: those of a kind about a post, or about none. */
+  dismissNotification(type: NetworkNotificationType, postId: number | null): Observable<void> {
+    let params = new HttpParams().set('type', type);
+    if (postId !== null) {
+      params = params.set('postId', postId);
+    }
+    return this.http.delete<void>(`${this.API_URL}/notifications`, { params });
+  }
+
   readNotifications(): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/notifications/read`, null);
   }

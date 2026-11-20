@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.TestimonialDtos;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
+import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.service.NetworkAboutService;
 import dev.swirlit.indezy.service.NetworkDirectoryService;
 import dev.swirlit.indezy.service.NetworkFollowRequestService;
@@ -235,6 +236,13 @@ public class NetworkController {
     @GetMapping("/notifications")
     public List<NetworkDtos.NotificationGroup> notifications() {
         return notices.list(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Delete a group of the viewer's notifications", description = "Those of a kind about a post, or about none")
+    @DeleteMapping("/notifications")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void dismissNotifications(@RequestParam NetworkNotificationType type, @RequestParam(required = false) Long postId) {
+        notices.dismiss(SecurityUtils.getCurrentUserId(), type, postId);
     }
 
     @Operation(summary = "How many of the viewer's notifications are unread")

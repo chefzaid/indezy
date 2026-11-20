@@ -25,7 +25,8 @@ describe('NetworkNotificationsComponent', () => {
     actors: [member('leo_m', 'Léo'), member('ines_b', 'Inès'), member('paul_d', 'Paul')].slice(0, Math.min(count, 3)) });
 
   function create(groups = of([group('LIKE', 4), group('FOLLOW', 1), group('COMMENT', 2, true)])): HTMLElement {
-    network = jasmine.createSpyObj('NetworkService', ['notifications', 'readNotifications']);
+    network = jasmine.createSpyObj('NetworkService', ['notifications', 'readNotifications', 'dismissNotification', 'notificationSettings',
+      'saveNotificationSettings']);
     network.notifications.and.returnValue(groups);
     network.readNotifications.and.returnValue(of(undefined));
     notices = jasmine.createSpyObj('NetworkNoticesService', ['refresh']);
@@ -63,7 +64,7 @@ describe('NetworkNotificationsComponent', () => {
     expect(element.querySelector('[data-notice="SUSPENDED"] p')?.textContent).toContain('The moderators suspended you');
     expect(element.querySelector('[data-notice="SUSPENDED"] a')).toBeNull();
     expect(element.querySelector('[data-notice="REPORT_ACTED"] p')?.textContent).toContain('acted on a report you made');
-    expect(element.querySelector('[data-notice="REPORT_ACTED"] mat-icon')?.textContent).toBe('gavel');
+    expect(element.querySelector('[data-notice="REPORT_ACTED"] mat-icon.kind')?.textContent).toBe('gavel');
   });
 
   it('marks nothing read when all is read, and says when there is nothing or it cannot be loaded', () => {
@@ -97,6 +98,36 @@ describe('NetworkNotificationsComponent', () => {
     detect(element);
     expect(shown().length).toBe(4);
     expect(element.querySelector('[data-notice-settings]')?.getAttribute('href')).toBe('/profile?tab=network');
+  });
+
+  it('marks all read, deletes a notification, and turns its kind off, saying when it cannot', () => {
+    const element = create(of([group('LIKE', 4), group('FOLLOW', 1)]));
+    const component = fixture.componentInstance;
+    notices.refresh.calls.reset();
+    expect(element.querySelector('[data-notices-mark-all]')).not.toBeNull();
+    (element.querySelector('[data-notices-mark-all]') as HTMLButtonElement).click();
+    detect(element);
+    expect(element.querySelector('li.unread')).toBeNull();
+    expect(element.querySelector('[data-notices-mark-all]')).toBeNull();
+    expect(notices.refresh).toHaveBeenCalled();
+
+    network.dismissNotification.and.returnValue(of(undefined));
+    component.dismiss(component.groups[0]);
+    detect(element);
+    expect(network.dismissNotification).toHaveBeenCalledWith('LIKE', 4);
+    expect(element.querySelector('[data-notice="LIKE"]')).toBeNull();
+    network.dismissNotification.and.returnValue(throwError(() => new Error('down')));
+    component.dismiss(component.groups[0]);
+    expect(notifications.error).toHaveBeenCalledWith('network.notices.actionError');
+
+    network.notificationSettings.and.returnValue(of({ off: ['REPOST'], emailed: ['FOLLOW', 'LIKE'] }));
+    network.saveNotificationSettings.and.returnValue(of({ off: ['REPOST', 'FOLLOW'], emailed: ['LIKE'] }));
+    component.turnOff(component.groups[0]);
+    expect(network.saveNotificationSettings).toHaveBeenCalledWith(['REPOST', 'FOLLOW'], ['LIKE']);
+    expect(notifications.success).toHaveBeenCalledWith('network.notices.turnedOff');
+    network.readNotifications.and.returnValue(throwError(() => new Error('down')));
+    component.markAllRead();
+    expect(notifications.error).toHaveBeenCalledTimes(2);
   });
 
   it('groups by period and leads to the post, the member, or nowhere for the moderators', () => {

@@ -376,7 +376,10 @@ member who followed them, liked, commented or reposted their post, liked or repl
 follow. Opening the page marks them read. A menu on the left (chips above the list below 1,440 pixels) shows them **All**
 or only the **Unread** ones (those unread when the page opened), the **Mentions**, the **Comments and replies**, the
 **Reactions and reposts**, the **Follows** or the moderators' word, each with how many it holds, and links to
-**Notification settings** (`/profile?tab=network`, the profile opening on its Network tab). **Profile → Network** sends each kind nowhere, to the app (the default) or by
+**Notification settings** (`/profile?tab=network`, the profile opening on its Network tab). **Mark all as read** takes the tints and
+dots off at once; each notification's menu **deletes** it (its group: those of its kind about the same post, or about
+none, `DELETE /api/network/notifications?type=&postId=`) or **turns its kind off**, as Profile → Network would (no more of
+them, in the app nor by email; the moderators' word cannot be turned off). **Profile → Network** sends each kind nowhere, to the app (the default) or by
 email too: an hour after a notification of a kind chosen for email is still unread, one email groups all those still
 unread (at most one every three hours, names and the post's first words, never a comment's text), with a one-click
 unsubscribe that stops every kind.

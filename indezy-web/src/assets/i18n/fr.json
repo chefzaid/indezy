@@ -3641,7 +3641,13 @@
       },
       "settings": "Réglages des notifications",
       "noneFiltered": "Aucune notification de ce type.",
-      "showAll": "Tout afficher"
+      "showAll": "Tout afficher",
+      "markAllRead": "Tout marquer comme lu",
+      "menu": "Plus sur cette notification",
+      "dismiss": "Supprimer cette notification",
+      "turnOff": "Désactiver ce type de notification",
+      "turnedOff": "Vous ne recevrez plus ces notifications. Profil → Réseau les réactive.",
+      "actionError": "L’action n’a pas abouti. Réessayez."
     },
     "drafts": {
       "title": "Brouillons",

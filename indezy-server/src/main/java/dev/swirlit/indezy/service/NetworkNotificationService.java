@@ -145,6 +145,17 @@ public class NetworkNotificationService {
         notifications.markRead(userId);
     }
 
+    /** Deletes a group of the reader's notifications: those of a kind about a post, or about none. */
+    @Transactional
+    public void dismiss(Long userId, NetworkNotificationType type, Long postId) {
+        network.requireMember(userId);
+        if (postId == null) {
+            notifications.dismissWithoutPost(userId, type);
+        } else {
+            notifications.dismiss(userId, type, postId);
+        }
+    }
+
     @Transactional(readOnly = true)
     public NetworkDtos.NotificationSettings settings(Long userId) {
         NetworkMember member = network.requireMember(userId);

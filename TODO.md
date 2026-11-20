@@ -610,7 +610,7 @@ Data, privacy and quality
   - [ ] **Events**: meetups and webinars with a time, a place or a link, **Going** / **Interested**, a reminder the day before, added to the calendar (.ics); a tag's page lists those naming it.
   - [ ] **Invite to the network** from Contacts: an email with a link (once per contact, never to one who said no), the contact then suggested as **In your contacts** once a member.
   - [ ] **Network digest** email, weekly and optional: the posts most reacted to among the members followed, the missions passed on matching one's card, new followers and who viewed one's page.
-  - [ ] Notifications: **Mark all as read**, and a menu on each to delete it or turn its kind off, as in Profile → Network.
+  - [x] Notifications: **Mark all as read**, and a menu on each to delete it or turn its kind off, as in Profile → Network. Done on 2026-11-19 (`DELETE /api/network/notifications?type=&postId=`): the menu deletes a group or turns its kind off (in the app and by email), never the moderators' word.
   - [ ] **Not interested** on a post in **For you**: hides it and counts against its tags and author in the ranking.
   - [ ] **Card strength** on one's own page: what the card lacks to be found (photo, headline, three skills, city), each one click from Profile → Network.
 - [x] The network's sections (Home, Notifications, Messages, Members, Saved, Drafts, My page) as a row of tabs at the top of every network page, staying at the top as the page scrolls, the open one marked; Back before them on a post, a tag or a member's page. Done on 2026-11-19 (`NetworkNavComponent`).

@@ -3641,7 +3641,13 @@
       },
       "settings": "Notification settings",
       "noneFiltered": "No notification of this kind.",
-      "showAll": "Show them all"
+      "showAll": "Show them all",
+      "markAllRead": "Mark all as read",
+      "menu": "More about this notification",
+      "dismiss": "Delete this notification",
+      "turnOff": "Turn off notifications like this",
+      "turnedOff": "You will no longer get these notifications. Profile → Network turns them back on.",
+      "actionError": "That could not be done. Try again."
     },
     "drafts": {
       "title": "Drafts",

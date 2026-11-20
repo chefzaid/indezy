@@ -29,6 +29,11 @@
   <main class="main">
   <app-page-header icon="notifications" [title]="'network.notices.title' | translate" [subtitle]="'network.notices.subtitle' | translate">
   </app-page-header>
+  @if (anyUnread) {
+    <button mat-stroked-button type="button" class="mark-all" (click)="markAllRead()" data-notices-mark-all>
+      <mat-icon>done_all</mat-icon>{{ 'network.notices.markAllRead' | translate }}
+    </button>
+  }
   <div class="chips" role="group" [attr.aria-label]="'network.notices.filters.label' | translate" data-notice-chips>
     <ng-container *ngTemplateOutlet="filterList; context: { chips: true }"></ng-container>
   </div>
@@ -81,6 +86,20 @@
                 <span class="dot" aria-hidden="true"></span>
               }
             </ng-template>
+            <button mat-icon-button type="button" class="more" [matMenuTriggerFor]="noticeMenu"
+              [attr.aria-label]="'network.notices.menu' | translate" data-notice-menu>
+              <mat-icon>more_horiz</mat-icon>
+            </button>
+            <mat-menu #noticeMenu="matMenu">
+              <button mat-menu-item type="button" (click)="dismiss(group)" data-notice-dismiss>
+                <mat-icon>delete</mat-icon>{{ 'network.notices.dismiss' | translate }}
+              </button>
+              @if (!moderation(group)) {
+                <button mat-menu-item type="button" (click)="turnOff(group)" data-notice-turn-off>
+                  <mat-icon>notifications_off</mat-icon>{{ 'network.notices.turnOff' | translate }}
+                </button>
+              }
+            </mat-menu>
             @if (link(group); as target) {
               <a class="row" [routerLink]="target" data-notice-link>
                 <ng-container *ngTemplateOutlet="row"></ng-container>
