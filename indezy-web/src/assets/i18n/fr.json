@@ -4316,5 +4316,47 @@
     "declinedMessage": "Aucun membre ne pourra plus vous inviter sur le réseau Indezy.",
     "invalidTitle": "Lien invalide",
     "invalidMessage": "Cette invitation n’existe pas ou plus."
+  },
+  "referral": {
+    "title": "Cooptation",
+    "empty": "Personne n’a recommandé cette mission ? Notez qui, et la prime de cooptation.",
+    "add": "Noter une cooptation",
+    "referrer": "Qui",
+    "referrerHint": "Un nom, ou un membre du réseau : @pseudo",
+    "directionLabel": "Sens",
+    "direction": {
+      "I_PAY": "Je verse une prime à qui m’a recommandé",
+      "I_RECEIVE": "Je reçois une prime pour avoir recommandé"
+    },
+    "kindLabel": "Prime",
+    "noBonus": "Sans prime",
+    "kind": {
+      "FIXED": "Montant fixe",
+      "PER_DAY": "Par jour travaillé",
+      "PERCENT": "Part de la mission"
+    },
+    "euros": "Montant (€)",
+    "percent": "Part (%)",
+    "amountInvalid": "Une prime a un montant ; une part est de 100 % au plus.",
+    "statusLabel": "Où en est-elle",
+    "status": {
+      "PROMISED": "Promise",
+      "DUE": "À régler",
+      "PAID": "Réglée"
+    },
+    "paidOn": "Réglée le",
+    "note": "Note",
+    "who": {
+      "I_PAY": "Recommandée par {{name}}",
+      "I_RECEIVE": "Vous avez recommandé {{name}}"
+    },
+    "basis": {
+      "FIXED": "montant fixe",
+      "PER_DAY": "{{amount}} € × {{days}} jours travaillés",
+      "PERCENT": "{{amount}} % de {{earned}} € gagnés ({{days}} jours)"
+    },
+    "saved": "Cooptation enregistrée.",
+    "saveError": "Impossible d’enregistrer la cooptation : réessayez.",
+    "removeConfirm": "Supprimer cette cooptation ?"
   }
 }

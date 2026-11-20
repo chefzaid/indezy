@@ -454,3 +454,32 @@ export interface TrainingFundingDue {
   title: string;
   deadline: string;
 }
+
+/** Who pays a co-optation bonus: the freelancer to who referred the mission, or someone to the freelancer. */
+export type ReferralDirection = 'I_PAY' | 'I_RECEIVE';
+/** How a co-optation bonus is counted: fixed, per day worked, or a share of what the mission earns. */
+export type ReferralBonusKind = 'FIXED' | 'PER_DAY' | 'PERCENT';
+/** Where a co-optation bonus stands. */
+export type ReferralStatus = 'PROMISED' | 'DUE' | 'PAID';
+
+/** A mission's co-optation as saved. */
+export interface ProjectReferral {
+  referrer: string;
+  direction: ReferralDirection;
+  bonusKind: ReferralBonusKind | null;
+  bonusAmount: number | null;
+  status: ReferralStatus;
+  paidOn: string | null;
+  note: string | null;
+}
+
+/** A mission's co-optation as read: with the days worked, what the mission earned, and the bonus that comes of it. */
+export interface ProjectReferralView {
+  projectId: number;
+  role: string;
+  clientName: string | null;
+  referral: ProjectReferral;
+  workedDays: number;
+  earned: number;
+  bonus: number | null;
+}

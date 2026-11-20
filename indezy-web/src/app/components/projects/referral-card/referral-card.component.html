@@ -1,0 +1,102 @@
+<mat-card class="referral-card" data-referral>
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>handshake</mat-icon>
+      {{ 'referral.title' | translate }}
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (loading) {
+      <span class="cdk-visually-hidden" role="status">{{ 'common.loading' | translate }}</span>
+    } @else if (editing) {
+      <form [formGroup]="form" (submit)="$event.preventDefault(); save()" data-referral-form>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'referral.referrer' | translate }}</mat-label>
+          <input matInput formControlName="referrer" maxlength="120" required data-referral-referrer>
+          <mat-hint>{{ 'referral.referrerHint' | translate }}</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'referral.directionLabel' | translate }}</mat-label>
+          <mat-select formControlName="direction" data-referral-direction>
+            @for (direction of directions; track direction) {
+              <mat-option [value]="direction">{{ 'referral.direction.' + direction | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'referral.kindLabel' | translate }}</mat-label>
+            <mat-select formControlName="bonusKind" (selectionChange)="kindChanged()" data-referral-kind>
+              <mat-option [value]="null">{{ 'referral.noBonus' | translate }}</mat-option>
+              @for (kind of kinds; track kind) {
+                <mat-option [value]="kind">{{ 'referral.kind.' + kind | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          @if (form.controls.bonusKind.value) {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ (form.controls.bonusKind.value === 'PERCENT' ? 'referral.percent' : 'referral.euros') | translate }}</mat-label>
+              <input matInput type="number" min="0" formControlName="bonusAmount" required data-referral-amount>
+            </mat-form-field>
+          }
+        </div>
+        @if (amountInvalid && form.touched) {
+          <p class="error" role="alert">{{ 'referral.amountInvalid' | translate }}</p>
+        }
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'referral.statusLabel' | translate }}</mat-label>
+            <mat-select formControlName="status" data-referral-status>
+              @for (status of statuses; track status) {
+                <mat-option [value]="status">{{ 'referral.status.' + status | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          @if (form.controls.status.value === 'PAID') {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'referral.paidOn' | translate }}</mat-label>
+              <input matInput type="date" formControlName="paidOn" data-referral-paid-on>
+            </mat-form-field>
+          }
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'referral.note' | translate }}</mat-label>
+          <textarea matInput formControlName="note" rows="2" maxlength="500" data-referral-note></textarea>
+        </mat-form-field>
+        <div class="actions">
+          <button mat-button type="button" (click)="editing = false">{{ 'common.cancel' | translate }}</button>
+          <button mat-flat-button type="submit" [disabled]="saving" data-referral-save>{{ 'common.save' | translate }}</button>
+        </div>
+      </form>
+    } @else if (view; as current) {
+      <p class="who" data-referral-who>
+        {{ ('referral.who.' + current.referral.direction) | translate: { name: current.referral.referrer } }}
+      </p>
+      @if (current.referral.bonusKind && current.bonus !== null) {
+        <p class="bonus" data-referral-bonus>
+          <strong>{{ current.bonus | number:'1.0-2' }} €</strong>
+          <span>{{ ('referral.basis.' + current.referral.bonusKind) | translate: { amount: (current.referral.bonusAmount | number:'1.0-2'),
+            days: (current.workedDays | number:'1.0-2'), earned: (current.earned | number:'1.0-0') } }}</span>
+        </p>
+      }
+      <p class="status" [attr.data-status]="current.referral.status" data-referral-state>
+        {{ 'referral.status.' + current.referral.status | translate }}
+        @if (current.referral.paidOn) {
+          · {{ current.referral.paidOn | date:'mediumDate' }}
+        }
+      </p>
+      @if (current.referral.note) {
+        <p class="note">{{ current.referral.note }}</p>
+      }
+      <div class="actions">
+        <button mat-button type="button" (click)="remove()" data-referral-remove>{{ 'common.delete' | translate }}</button>
+        <button mat-stroked-button type="button" (click)="edit()" data-referral-edit><mat-icon>edit</mat-icon>{{ 'common.edit' | translate }}</button>
+      </div>
+    } @else {
+      <p class="empty">{{ 'referral.empty' | translate }}</p>
+      <div class="actions">
+        <button mat-stroked-button type="button" (click)="edit()" data-referral-add><mat-icon>add</mat-icon>{{ 'referral.add' | translate }}</button>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

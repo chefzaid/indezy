@@ -598,6 +598,17 @@ place of work. Each is ticked and noted (up to 500 characters, an example as pla
 note left, with the count checked (`2/7`). `PUT /api/projects/{id}/contract-checks` replaces it whole, each point at most
 once; editing the mission leaves it as it is, and the account export carries it with the mission.
 
+### Co-optation
+
+An opportunity's page holds a **Co-optation** card: who referred the mission to the freelancer (**I pay a bonus to who
+referred me**), or whom they referred to it (**I receive a bonus for referring**), by name or as a network member's
+`@handle` (taken from its source, `Indezy @handle`, when it was added from the network), and the bonus that goes with it:
+none, a fixed amount, an amount per day worked, or a share of what the mission earns (100% at most). The bonus is counted
+from the mission's timesheets (days worked, at its daily rate for a share: **20 € × 12 days worked = 240 €**), and stands
+**Promised**, **Due** or **Paid** on a day, with a note. `GET /api/projects/referrals/{freelanceId}` lists the account's
+co-optations with what is still to pay and to receive (`GET`, `PUT`, `DELETE /api/projects/{id}/referral`); deleting the
+mission or the account deletes it.
+
 ## Kanban And Pipeline View
 
 The dashboard's Kanban mode shows the pipeline in the six stage columns and follows the selected season. Hovering a

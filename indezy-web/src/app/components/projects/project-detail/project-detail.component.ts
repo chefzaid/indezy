@@ -1,6 +1,7 @@
 import { ProjectResourcesComponent } from './project-resources.component';
 import { ActivityReportCardComponent } from '../activity-report-card/activity-report-card.component';
 import { PurchaseOrdersCardComponent } from '../purchase-orders/purchase-orders-card.component';
+import { ReferralCardComponent } from '../referral-card/referral-card.component';
 import { ProjectLinkComponent } from '../../../shared/components/project-link/project-link.component';
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, Injector, ViewChild, afterNextRender, inject } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
@@ -68,7 +69,7 @@ import { CompanyHealthComponent } from '../../../shared/components/company-healt
         ProjectLinkComponent, ShareToNetworkComponent,
         ProjectResourcesComponent,
         ActivityReportCardComponent,
-        PurchaseOrdersCardComponent,
+        PurchaseOrdersCardComponent, ReferralCardComponent,
         StepChecklistComponent,
         ProjectArchiveActionComponent,
         StepTemplatesComponent,

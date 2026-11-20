@@ -4316,5 +4316,47 @@
     "declinedMessage": "No member can invite you to the Indezy network any more.",
     "invalidTitle": "Invalid link",
     "invalidMessage": "This invitation does not exist or no longer does."
+  },
+  "referral": {
+    "title": "Co-optation",
+    "empty": "Did someone refer this mission? Note who, and the referral bonus.",
+    "add": "Note a co-optation",
+    "referrer": "Who",
+    "referrerHint": "A name, or a network member: @handle",
+    "directionLabel": "Way",
+    "direction": {
+      "I_PAY": "I pay a bonus to who referred me",
+      "I_RECEIVE": "I receive a bonus for referring"
+    },
+    "kindLabel": "Bonus",
+    "noBonus": "No bonus",
+    "kind": {
+      "FIXED": "Fixed amount",
+      "PER_DAY": "Per day worked",
+      "PERCENT": "Share of the mission"
+    },
+    "euros": "Amount (€)",
+    "percent": "Share (%)",
+    "amountInvalid": "A bonus has an amount; a share is 100% at most.",
+    "statusLabel": "Where it stands",
+    "status": {
+      "PROMISED": "Promised",
+      "DUE": "Due",
+      "PAID": "Paid"
+    },
+    "paidOn": "Paid on",
+    "note": "Note",
+    "who": {
+      "I_PAY": "Referred by {{name}}",
+      "I_RECEIVE": "You referred {{name}}"
+    },
+    "basis": {
+      "FIXED": "fixed amount",
+      "PER_DAY": "{{amount}} € × {{days}} days worked",
+      "PERCENT": "{{amount}}% of {{earned}} € earned ({{days}} days)"
+    },
+    "saved": "Co-optation saved.",
+    "saveError": "Could not save the co-optation: try again.",
+    "removeConfirm": "Delete this co-optation?"
   }
 }

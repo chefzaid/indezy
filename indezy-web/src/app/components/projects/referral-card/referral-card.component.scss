@@ -1,0 +1,92 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+mat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+
+  mat-form-field {
+    flex: 1 1 180px;
+  }
+}
+
+p {
+  margin: 0;
+}
+
+.who {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.bonus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+
+  strong {
+    font-size: 1.25rem;
+  }
+
+  span {
+    color: var(--app-text-muted);
+    font-size: 0.875rem;
+  }
+}
+
+.status {
+  align-self: flex-start;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--app-selected-bg);
+  color: var(--app-link);
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  &[data-status='PAID'] {
+    background: var(--app-chip-positive-bg);
+    color: var(--app-chip-positive-text);
+  }
+}
+
+.note,
+.empty {
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
+  white-space: pre-line;
+}
+
+.error {
+  color: var(--mat-sys-error);
+  font-size: 0.8125rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}

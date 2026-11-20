@@ -30,7 +30,7 @@ public class AccountPurge {
         "network_meetup_attendees", "network_meetups", "network_invitations", "network_members",
         "webhook_events", "webhook_deliveries", "webhooks", "activity_report_days", "interview_step_checklist",
         "interview_steps", "contact_interactions", "contact_relations", "project_attachments", "project_notes",
-        "purchase_orders", "project_contract_checks", "project_documents", "job_offer_states", "invoice_lines", "invoices",
+        "purchase_orders", "project_referrals", "project_contract_checks", "project_documents", "job_offer_states", "invoice_lines", "invoices",
         "invoice_counters", "activity_reports", "quote_lines", "quotes", "quote_counters", "testimonials", "projects",
         "pipeline_template_steps", "pipeline_templates", "contacts", "clients", "sources", "seasons", "email_templates",
         "offer_board_visits", "offer_publisher_blocks", "offer_site_exclusions", "offer_suggestion_dismissals",
@@ -142,7 +142,7 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM interview_steps WHERE project_id IN " + PROJECTS, f);
         rows += jdbc.update("DELETE FROM contact_interactions WHERE contact_id IN " + CONTACTS + " OR project_id IN " + PROJECTS, f, f);
         rows += jdbc.update("DELETE FROM contact_relations WHERE first_contact_id IN " + CONTACTS + " OR second_contact_id IN " + CONTACTS, f, f);
-        for (String table : List.of("project_attachments", "project_notes", "project_contract_checks", "project_documents")) {
+        for (String table : List.of("project_attachments", "project_notes", "project_contract_checks", "project_documents", "project_referrals")) {
             rows += jdbc.update("DELETE FROM " + table + " WHERE project_id IN " + PROJECTS, f);
         }
         rows += jdbc.update("UPDATE purchase_orders SET amends_id = NULL WHERE project_id IN " + PROJECTS, f);

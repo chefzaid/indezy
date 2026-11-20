@@ -73,6 +73,7 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `ProjectNote` | `project_notes` | project | by hand, or with its project |
 | `ProjectAttachment` | `project_attachments` | project | by hand, or with its project |
 | `ActivityReport` | `activity_reports`, `activity_report_days` | project | with its project |
+| `ProjectReferral` | `project_referrals` | project, once | by hand, or with its project |
 | `PurchaseOrder` | `purchase_orders` | project | by hand (an order with its amendments), or with its project |
 | `Client` | `clients` | freelance | by hand, only while no project uses it |
 | `Contact` | `contacts` | freelance and client | by hand, or with its client |
