@@ -133,6 +133,8 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkTagFollow` | `network_tag_follows` | member (by id) | by hand, or with its account |
 | `NetworkIdea` | `network_ideas` | shared by the members, suggested by one (by id, none once their account is deleted) | by its author while only they support it, or by the administrators; kept when its author's account is deleted |
 | `NetworkIdeaVote` | `network_idea_votes` | idea and member (by id), once each | taken back, moved when its idea is merged, with its idea or the member's account |
+| `NetworkMeetup` | `network_meetups` | organizer (by id) | never by hand (cancelled instead), with its organizer's account |
+| `NetworkMeetupAttendee` | `network_meetup_attendees` | event and member (by id), once each, going or interested | taken back, with its event or the member's account |
 | `NetworkNotification` | `network_notifications` | member (by id) | with its post, or the recipient's or actor's account; never otherwise, read or not |
 | `NetworkReport` | `network_reports` | member (by id), on a post, comment, message or member | never once decided (the audit trail); with the reporter's or target's account |
 | `NetworkConversation` | `network_conversations` | shared by its members | never, not even once its last member's account is gone (TODO.md, Bugs to fix) |
@@ -199,6 +201,9 @@ Deletion rules:
 - `network_conversations.request_status` marks a conversation opened with a member neither followed: PENDING (one
   message from its creator, then waiting), ACCEPTED or DECLINED; none between members who follow each other.
   `network_members.message_requests` set to false refuses requests (none reads as taking them).
+- `network_meetups` keeps Paris times (`ends_at` none reads as two hours after `starts_at`), its tags comma-separated,
+  and `cancelled`; `network_meetup_attendees.reminded` marks the reminder sent the day before;
+  `network_notifications.meetup_id` names the event a reminder or a cancellation is about.
 - `network_ideas.status` is OPEN, PLANNED, IN_PROGRESS, DONE, DECLINED or MERGED (`merged_into_id` then naming the idea
   kept, its votes moved there); `network_notifications.idea_id` names the idea an `IDEA_STATUS` notification is about,
   deleted with the idea.

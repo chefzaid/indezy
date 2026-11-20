@@ -1506,7 +1506,9 @@
         "COMMUNITY_ACCEPTED": "Being let into a private community",
         "COMMUNITY_MODERATOR": "Being named a community moderator",
         "MISSION_MATCH": "A mission passed on that matches my card",
-        "IDEA_STATUS": "An idea I support moves on"
+        "IDEA_STATUS": "An idea I support moves on",
+        "MEETUP_REMINDER": "An event I answered starts tomorrow",
+        "MEETUP_CANCELLED": "An event I answered is cancelled"
       },
       "banned": "The moderators ended this account’s membership: it cannot join again.",
       "privateTitle": "Private card",
@@ -3584,7 +3586,10 @@
       "missions": "Open missions for #{{tag}}",
       "noMissions": "No open mission names this skill right now.",
       "allMissions": "See them all in the offer feed",
-      "mostLiked": "Most liked"
+      "mostLiked": "Most liked",
+      "events": "Events #{{tag}}",
+      "noEvents": "No upcoming events for this tag.",
+      "allEvents": "All events of this tag"
     },
     "suggestions": {
       "title": "Members to follow",
@@ -3619,7 +3624,9 @@
         "COMMUNITY_ACCEPTED": "let you into a community",
         "COMMUNITY_MODERATOR": "made you a moderator of a community",
         "MISSION_MATCH": "passed on a mission matching your card",
-        "IDEA_STATUS": "An idea you support moves on"
+        "IDEA_STATUS": "An idea you support moves on",
+        "MEETUP_REMINDER": "Event reminder",
+        "MEETUP_CANCELLED": "Event cancelled"
       },
       "typesMany": {
         "FOLLOW": "started following you",
@@ -3636,7 +3643,9 @@
         "COMMUNITY_ACCEPTED": "let you into a community",
         "COMMUNITY_MODERATOR": "made you a moderator of a community",
         "MISSION_MATCH": "passed on missions matching your card",
-        "IDEA_STATUS": "An idea you support moves on"
+        "IDEA_STATUS": "An idea you support moves on",
+        "MEETUP_REMINDER": "Event reminder",
+        "MEETUP_CANCELLED": "Event cancelled"
       },
       "moderation": {
         "WARNED": "The moderators warned you about a post, a comment or your conduct in the network.",
@@ -3671,7 +3680,11 @@
       "turnOff": "Turn off notifications like this",
       "turnedOff": "You will no longer get these notifications. Profile → Network turns them back on.",
       "actionError": "That could not be done. Try again.",
-      "idea": "An idea you support is now: {{status}}"
+      "idea": "An idea you support is now: {{status}}",
+      "meetup": {
+        "MEETUP_REMINDER": "Tomorrow: an event you answered",
+        "MEETUP_CANCELLED": "Cancelled: an event you answered"
+      }
     },
     "drafts": {
       "title": "Drafts",
@@ -4207,6 +4220,68 @@
       "merged": "Merged into “{{title}}”, its supporters too.",
       "supporter": "supporter",
       "supporters": "supporters"
+    },
+    "events": {
+      "title": "Events",
+      "subtitle": "Members’ meetups and webinars: answer, add them to your calendar, a reminder the day before.",
+      "filter": "Search events",
+      "organize": "Organize an event",
+      "scopeLabel": "Which events",
+      "scope": {
+        "UPCOMING": "Upcoming",
+        "ATTENDING": "My answers",
+        "ORGANIZED": "Organized by me"
+      },
+      "clearTag": "Show the events of every tag",
+      "none": {
+        "UPCOMING": "No upcoming events: organize the first one.",
+        "ATTENDING": "You answered no upcoming event.",
+        "ORGANIZED": "You organized no event."
+      },
+      "noneFound": "No event matches.",
+      "more": "Show more",
+      "online": "Online",
+      "cancelled": "Cancelled",
+      "goingOne": "{{count}} going",
+      "goingMany": "{{count}} going",
+      "interestedCount": "{{count}} interested",
+      "answer": "Your answer",
+      "going": "Going",
+      "interested": "Interested",
+      "loadError": "Could not load the events.",
+      "saveError": "Could not save: try again.",
+      "invalid": "Check the event: it starts in the future, and has an address or a link.",
+      "tooMany": "You organized 5 events today: come back tomorrow.",
+      "created": "Event published: you are going.",
+      "saved": "Event changed.",
+      "notFound": "This event no longer exists.",
+      "all": "All events",
+      "addToCalendar": "Add to my calendar",
+      "icsError": "Could not download the calendar file.",
+      "join": "Join online",
+      "page": "Event page",
+      "cancelEvent": "Cancel the event",
+      "cancelConfirm": "Cancel this event? Those who answered will be told.",
+      "cancelledDone": "Event cancelled: those who answered are told.",
+      "about": "About",
+      "goingTitle": "Going ({{count}})",
+      "interestedTitle": "Interested ({{count}})",
+      "form": {
+        "title": "Title",
+        "startsAt": "Starts",
+        "endsAt": "Ends",
+        "endsHint": "Optional: two hours by default",
+        "order": "The end comes after the start.",
+        "online": "Online (webinar)",
+        "link": "Link to join",
+        "linkInvalid": "A web address, starting http:// or https://",
+        "place": "Address",
+        "pageLink": "Link to its page (optional)",
+        "tags": "Tags",
+        "tagsHint": "E.g. #kafka #lyon, ten at most",
+        "description": "Description",
+        "create": "Publish the event"
+      }
     }
   }
 }

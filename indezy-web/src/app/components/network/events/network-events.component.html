@@ -1,0 +1,69 @@
+<div class="events-page">
+  <app-network-nav></app-network-nav>
+  <aside class="left">
+    <app-network-me-card></app-network-me-card>
+  </aside>
+
+  <main class="main">
+    <app-page-header icon="event" [title]="'network.events.title' | translate" [subtitle]="'network.events.subtitle' | translate">
+    </app-page-header>
+
+    <div class="toolbar">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="filter">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>{{ 'network.events.filter' | translate }}</mat-label>
+        <input matInput [formControl]="filter" maxlength="80" data-events-filter>
+      </mat-form-field>
+      <button mat-flat-button type="button" (click)="creating = !creating" [attr.aria-expanded]="creating" data-event-new>
+        <mat-icon>add</mat-icon>{{ 'network.events.organize' | translate }}
+      </button>
+    </div>
+
+    @if (creating) {
+      <section class="card create" [attr.aria-label]="'network.events.organize' | translate">
+        <app-event-form [saving]="saving" (saved)="create($event)" (closed)="creating = false"></app-event-form>
+      </section>
+    }
+
+    <div class="filters">
+      <div class="scopes" role="group" [attr.aria-label]="'network.events.scopeLabel' | translate">
+        @for (choice of scopes; track choice) {
+          <button type="button" class="chip" [class.on]="scope === choice" [attr.aria-pressed]="scope === choice" (click)="show(choice)"
+            [attr.data-events-scope]="choice">{{ 'network.events.scope.' + choice | translate }}</button>
+        }
+      </div>
+      @if (tag) {
+        <span class="tag-filter" data-events-tag>
+          #{{ tag }}
+          <button type="button" (click)="clearTag()" [attr.aria-label]="'network.events.clearTag' | translate" data-events-tag-clear>
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
+        </span>
+      }
+    </div>
+
+    @if (list === null) {
+      <p class="status" role="status">{{ 'common.loading' | translate }}</p>
+    } @else if (list.length === 0) {
+      <section class="card empty" data-events-none>
+        <mat-icon aria-hidden="true">event</mat-icon>
+        <p>{{ (filter.value || tag ? 'network.events.noneFound' : 'network.events.none.' + scope) | translate }}</p>
+      </section>
+    } @else {
+      <ul class="list">
+        @for (meetup of list; track meetup.id) {
+          <li><app-event-card [meetup]="meetup" (changed)="changed($event)"></app-event-card></li>
+        }
+      </ul>
+      @if (more) {
+        <button mat-stroked-button type="button" class="more" (click)="loadMore()" [disabled]="loadingMore" data-events-more>
+          {{ 'network.events.more' | translate }}
+        </button>
+      }
+    }
+  </main>
+
+  <aside class="right">
+    <app-network-side></app-network-side>
+  </aside>
+</div>

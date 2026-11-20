@@ -54,6 +54,19 @@
           </ul>
         </section>
 
+        @if (events !== null) {
+          <section class="card" data-tag-events>
+            <h2>{{ 'network.tags.events' | translate: { tag: page.tag } }}</h2>
+            @if (events.length === 0) {
+              <p class="empty">{{ 'network.tags.noEvents' | translate }}</p>
+            }
+            @for (meetup of events; track meetup.id) {
+              <app-event-card [meetup]="meetup" [compact]="true"></app-event-card>
+            }
+            <a class="all" routerLink="/network/events" [queryParams]="{ tag: page.tag }" data-tag-events-all>{{ 'network.tags.allEvents' | translate }}</a>
+          </section>
+        }
+
         @if (missions !== null) {
           <section class="card" data-tag-missions>
             <h2>{{ 'network.tags.missions' | translate: { tag: page.tag } }}</h2>

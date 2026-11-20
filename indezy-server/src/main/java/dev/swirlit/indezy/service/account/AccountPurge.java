@@ -27,7 +27,7 @@ public class AccountPurge {
         "network_file_contents", "network_files", "network_held", "network_posts", "network_follows",
         "network_follow_requests", "network_restrictions", "network_tag_follows", "network_drafts", "network_reports",
         "network_message_reactions", "network_conversation_members", "network_page_views", "network_community_members", "network_idea_votes",
-        "network_members",
+        "network_meetup_attendees", "network_meetups", "network_members",
         "webhook_events", "webhook_deliveries", "webhooks", "activity_report_days", "interview_step_checklist",
         "interview_steps", "contact_interactions", "contact_relations", "project_attachments", "project_notes",
         "purchase_orders", "project_contract_checks", "project_documents", "job_offer_states", "invoice_lines", "invoices",
@@ -105,9 +105,15 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM network_posts WHERE author_id = ?", u);
         for (String table : List.of("network_likes", "network_comment_likes", "network_mission_takes",
             "network_poll_votes", "network_bookmarks", "network_tag_follows", "network_message_reactions",
-            "network_conversation_members", "network_community_members", "network_post_dismissals", "network_idea_votes", "network_members")) {
+            "network_conversation_members", "network_community_members", "network_post_dismissals", "network_idea_votes", "network_meetup_attendees",
+            "network_members")) {
             rows += jdbc.update("DELETE FROM " + table + " WHERE user_id = ?", u);
         }
+        // The events the account organizes go, with their answers and what told of them.
+        String meetups = "(SELECT id FROM network_meetups WHERE organizer_id = ?)";
+        rows += jdbc.update("DELETE FROM network_meetup_attendees WHERE meetup_id IN " + meetups, u);
+        rows += jdbc.update("DELETE FROM network_notifications WHERE meetup_id IN " + meetups, u);
+        rows += jdbc.update("DELETE FROM network_meetups WHERE organizer_id = ?", u);
         rows += jdbc.update("DELETE FROM network_notifications WHERE recipient_id = ? OR actor_id = ?", u, u);
         // The ideas proposed stay for those who voted for them, from a former member.
         rows += jdbc.update("UPDATE network_ideas SET author_id = NULL WHERE author_id = ?", u);

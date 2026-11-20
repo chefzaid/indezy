@@ -490,6 +490,20 @@ community and leading to the post or to the community. Reports of its posts reac
 (`/api/network/communities`, `/<slug>`, `/<slug>/membership`, `/<slug>/posts`, `/<slug>/members`, `/<slug>/moderators/<handle>`,
 `/<slug>/requests/<handle>`).
 
+**Events** (`/network/events`, from **Events** on the reader's card) are the members' meetups in a place and webinars
+online. A member organizes one (5 a day at most) with a title, when it starts and ends (two hours when no end is given,
+Paris time), its address or its link to join, its tags and a description, and goes to it. The list shows the coming
+events the soonest first (**Upcoming**), those the reader answered (**My answers**) and those they organize, past ones
+too (**Organized by me**), found by words or by a tag (`?tag=`); each card gives the date, the time, the place or
+**Online**, the tags, the organizer and how many go, with **Going** and **Interested** answered in a click (again to take
+it back). An event's page (`/network/events/<id>`) adds its description, the link to join or its page, who goes and who
+is interested, and **Add to my calendar**: an .ics file any calendar reads, its times in UTC. Its organizer (or an
+administrator) changes it until it ends (a new time reminds again) and cancels it; those who answered are reminded the
+day before (**Tomorrow: an event you answered**) and told when it is cancelled, two notification kinds of their own that
+Profile → Network turns off or emails. A tag's page lists the three next events naming it, with a link to all of them.
+A cancelled or past event takes no answer; an event whose organizer left or with whom either blocks the other is not
+found (`/api/network/events`, `/<id>`, `/<id>/attendance?status=`, `/<id>/attendees`, `/<id>/ics`).
+
 **Ideas for Indezy** (`/network/ideas`, from **Ideas** on the reader's card) is the ideas board: members suggest what
 they miss in Indezy (a sentence of 5 to 120 characters and an optional detail, 5 a day at most), their own support
 counted, and support the ideas they want, once each, taking it back at will. While an idea is written, the three most

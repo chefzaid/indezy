@@ -29,7 +29,8 @@ class NetworkNoticeEmailComposerTest {
     @Test
     void writesEveryKindInBothLanguages() {
         for (NetworkNotificationType type : NetworkNotificationType.values()) {
-            if (type == NetworkNotificationType.IDEA_STATUS) {
+            if (type == NetworkNotificationType.IDEA_STATUS || type == NetworkNotificationType.MEETUP_REMINDER ||
+                type == NetworkNotificationType.MEETUP_CANCELLED) {
                 continue;
             }
             assertThat(NetworkNoticeEmailComposer.sentence(new NetworkNoticeEmailComposer.Line(type, "Léo", 0, null), true)).startsWith("Léo ");
@@ -45,6 +46,8 @@ class NetworkNoticeEmailComposerTest {
             .isEqualTo("Une idée que vous soutenez a avancé “Thème sombre”");
         assertThat(NetworkNoticeEmailComposer.sentence(new NetworkNoticeEmailComposer.Line(NetworkNotificationType.IDEA_STATUS, "Léo", 0, null), true))
             .isEqualTo("An idea you voted for moved on");
+        assertThat(NetworkNoticeEmailComposer.sentence(new NetworkNoticeEmailComposer.Line(NetworkNotificationType.MEETUP_REMINDER, "Léo", 0, "Apéro Kafka"), false))
+            .isEqualTo("Demain : un événement auquel vous avez répondu “Apéro Kafka”");
         Email english = composer.compose(new NetworkNoticeEmailComposer.Notices(null, "x@example.com", DocumentLanguage.EN, "tok",
             List.of(new NetworkNoticeEmailComposer.Line(NetworkNotificationType.REPOST, "Léo", 1, null)), "k"));
         assertThat(english.text()).startsWith("Hello,").contains("Léo and 1 other reposted your post");

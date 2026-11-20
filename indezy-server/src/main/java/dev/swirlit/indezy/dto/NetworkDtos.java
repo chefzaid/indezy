@@ -261,11 +261,12 @@ public final class NetworkDtos {
 
     /**
      * Notifications grouped as they read: one kind about one post (or one kind of follow) with up to three of the members
-     * who did it, how many did, when the latest did, and whether the group was read; the community or the idea of the
-     * ideas board it is about, if any.
+     * who did it, how many did, when the latest did, and whether the group was read; the community, the idea of the
+     * ideas board or the event it is about, if any.
      */
     public record NotificationGroup(NetworkNotificationType type, Long postId, String postExcerpt,
-                                    List<MemberCard> actors, int count, LocalDateTime latestAt, boolean read, CommunityRef community, IdeaRef idea) {
+                                    List<MemberCard> actors, int count, LocalDateTime latestAt, boolean read, CommunityRef community, IdeaRef idea,
+                                    MeetupRef meetup) {
 
         public NotificationGroup {
             actors = List.copyOf(actors);
@@ -274,7 +275,7 @@ public final class NetworkDtos {
         /** Not about a community. */
         public NotificationGroup(NetworkNotificationType type, Long postId, String postExcerpt, List<MemberCard> actors, int count,
                                  LocalDateTime latestAt, boolean read) {
-            this(type, postId, postExcerpt, actors, count, latestAt, read, null, null);
+            this(type, postId, postExcerpt, actors, count, latestAt, read, null, null, null);
         }
     }
 
@@ -385,6 +386,10 @@ public final class NetworkDtos {
         public MemberAbout {
             missions = List.copyOf(missions);
         }
+    }
+
+    /** An event of the network, as a notification names it: its title and when it starts. */
+    public record MeetupRef(Long id, String title, LocalDateTime startsAt) {
     }
 
     /** An idea of the ideas board, as a notification names it: where it stands. */

@@ -1,0 +1,57 @@
+<form class="event-form" [formGroup]="form" (submit)="$event.preventDefault(); submit()" data-event-form>
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'network.events.form.title' | translate }}</mat-label>
+    <input matInput formControlName="title" maxlength="120" required data-event-title>
+  </mat-form-field>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'network.events.form.startsAt' | translate }}</mat-label>
+      <input matInput type="datetime-local" formControlName="startsAt" required data-event-starts>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'network.events.form.endsAt' | translate }}</mat-label>
+      <input matInput type="datetime-local" formControlName="endsAt" data-event-ends>
+      <mat-hint>{{ 'network.events.form.endsHint' | translate }}</mat-hint>
+    </mat-form-field>
+  </div>
+  @if (form.hasError('order')) {
+    <p class="error" role="alert" data-event-order>{{ 'network.events.form.order' | translate }}</p>
+  }
+  <mat-slide-toggle formControlName="online" data-event-online>{{ 'network.events.form.online' | translate }}</mat-slide-toggle>
+  @if (form.controls.online.value) {
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'network.events.form.link' | translate }}</mat-label>
+      <input matInput type="url" formControlName="link" maxlength="500" required data-event-link>
+      @if (form.controls.link.hasError('pattern')) {
+        <mat-error>{{ 'network.events.form.linkInvalid' | translate }}</mat-error>
+      }
+    </mat-form-field>
+  } @else {
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'network.events.form.place' | translate }}</mat-label>
+      <input matInput formControlName="place" maxlength="200" required data-event-place>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'network.events.form.pageLink' | translate }}</mat-label>
+      <input matInput type="url" formControlName="link" maxlength="500" data-event-page-link>
+      @if (form.controls.link.hasError('pattern')) {
+        <mat-error>{{ 'network.events.form.linkInvalid' | translate }}</mat-error>
+      }
+    </mat-form-field>
+  }
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'network.events.form.tags' | translate }}</mat-label>
+    <input matInput formControlName="tags" maxlength="300" data-event-tags>
+    <mat-hint>{{ 'network.events.form.tagsHint' | translate }}</mat-hint>
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'network.events.form.description' | translate }}</mat-label>
+    <textarea matInput formControlName="description" rows="4" maxlength="2000" data-event-description></textarea>
+  </mat-form-field>
+  <div class="actions">
+    <button mat-button type="button" (click)="closed.emit()">{{ 'common.cancel' | translate }}</button>
+    <button mat-flat-button type="submit" [disabled]="form.invalid || saving" data-event-save>
+      {{ (initial ? 'common.save' : 'network.events.form.create') | translate }}
+    </button>
+  </div>
+</form>

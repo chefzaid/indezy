@@ -19,6 +19,7 @@ public class WeeklyDigestScheduler {
     private final BookingNoticeService bookingNotices;
     private final NetworkMessageEmailService messageEmails;
     private final NetworkNoticeEmailService noticeEmails;
+    private final NetworkMeetupService meetups;
 
     @Scheduled(initialDelayString = "PT3M", fixedDelayString = "PT15M")
     public void sendDue() {
@@ -27,6 +28,12 @@ public class WeeklyDigestScheduler {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    /** Reminds those who answered the network's events starting within a day, every quarter of an hour. */
+    @Scheduled(initialDelayString = "PT5M", fixedDelayString = "PT15M")
+    public void remindEvents() {
+        meetups.remindDue();
     }
 
     /** Emails the member network's messages and chosen notifications still unread after an hour, every quarter of an hour. */

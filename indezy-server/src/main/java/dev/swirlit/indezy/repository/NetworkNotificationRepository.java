@@ -44,6 +44,10 @@ public interface NetworkNotificationRepository extends JpaRepository<NetworkNoti
     @Query("delete from NetworkNotification n where n.ideaId = :ideaId")
     void deleteByIdeaId(@Param("ideaId") Long ideaId);
 
+    @Modifying
+    @Query("delete from NetworkNotification n where n.meetupId = :meetupId")
+    void deleteByMeetupId(@Param("meetupId") Long meetupId);
+
     /** Deletes the reader's notifications of a kind about a post: the group they dismissed. */
     @Modifying
     @Query("delete from NetworkNotification n where n.recipientId = :recipientId and n.type = :type and n.postId = :postId")

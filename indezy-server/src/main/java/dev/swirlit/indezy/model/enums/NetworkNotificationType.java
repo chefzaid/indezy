@@ -41,5 +41,9 @@ public enum NetworkNotificationType {
     /** A member passed on a mission matching the recipient's card. */
     MISSION_MATCH,
     /** An idea of the ideas board the recipient voted for moved on: planned, being built, shipped, declined or merged. */
-    IDEA_STATUS
+    IDEA_STATUS,
+    /** An event the recipient goes to or is interested in starts within a day. */
+    MEETUP_REMINDER,
+    /** An event the recipient goes to or is interested in was cancelled. */
+    MEETUP_CANCELLED
 }

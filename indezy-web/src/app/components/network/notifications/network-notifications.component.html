@@ -60,7 +60,7 @@
               <span class="faces" aria-hidden="true">
                 <mat-icon class="kind" [attr.data-kind]="group.type">{{ icons[group.type] }}</mat-icon>
                 @if (system(group)) {
-                  <span class="system"><mat-icon>{{ moderation(group) ? 'shield' : 'lightbulb' }}</mat-icon></span>
+                  <span class="system"><mat-icon>{{ systemIcon(group) }}</mat-icon></span>
                 } @else {
                   <app-member-avatar [subject]="group.actors[0]" [size]="44"></app-member-avatar>
                 }
@@ -72,6 +72,8 @@
                   }
                   @if (moderation(group)) {
                     {{ 'network.notices.moderation.' + group.type | translate }}
+                  } @else if (group.meetup) {
+                    <span data-notice-meetup>{{ 'network.notices.meetup.' + group.type | translate }}</span>
                   } @else if (group.idea; as idea) {
                     <span data-notice-idea>{{ 'network.notices.idea' | translate: { status: ('network.ideas.status.' + idea.status | translate) } }}</span>
                   } @else {
@@ -82,8 +84,8 @@
                     }
                   }
                 </p>
-                @if (group.postExcerpt || group.idea) {
-                  <span class="excerpt">« {{ group.postExcerpt || group.idea?.title }} »</span>
+                @if (group.postExcerpt || group.idea || group.meetup) {
+                  <span class="excerpt">« {{ group.postExcerpt || group.idea?.title || group.meetup?.title }} »</span>
                 }
                 <time [attr.datetime]="group.latestAt" [title]="group.latestAt | date:'medium'">{{ group.latestAt | timeAgo }}</time>
               </span>

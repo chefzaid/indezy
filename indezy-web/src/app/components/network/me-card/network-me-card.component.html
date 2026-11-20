@@ -31,6 +31,7 @@
       <a [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'drafts' }" data-me-drafts>
         <mat-icon aria-hidden="true">edit_note</mat-icon>{{ 'network.drafts.title' | translate }}
       </a>
+      <a routerLink="/network/events" data-me-events><mat-icon aria-hidden="true">event</mat-icon>{{ 'network.events.title' | translate }}</a>
       <a routerLink="/network/ideas" data-me-ideas><mat-icon aria-hidden="true">lightbulb</mat-icon>{{ 'network.ideas.title' | translate }}</a>
     </nav>
   </section>

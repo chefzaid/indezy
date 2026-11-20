@@ -7,15 +7,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { map, switchMap } from 'rxjs';
 
-import { NetworkPost, Offer, TagPage } from '../../../models';
+import { NetworkPost, Offer, TagPage, NetworkMeetup } from '../../../models';
 import { OfferService } from '../../../services/offer/offer.service';
 import { defaultOfferQuery, offerQueryToParams } from '../../../services/offer/offer-query';
 import { CapabilitiesService } from '../../../services/admin/capabilities.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
+import { NetworkMeetupsService } from '../../../services/network/network-meetups.service';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PostCardComponent } from '../post-card/post-card.component';
+import { EventCardComponent } from '../events/event-card.component';
 import { NetworkNavComponent } from '../nav/network-nav.component';
 
 /** How many of the skill's open missions the page shows. */
@@ -27,7 +29,7 @@ const MISSIONS_SHOWN = 5;
  */
 @Component({
   selector: 'app-tag-page',
-  imports: [NetworkNavComponent, MemberAvatarComponent, MatButtonToggleModule, PageHeaderComponent, RouterLink, MatButtonModule, MatIconModule, TranslateModule, PostCardComponent],
+  imports: [EventCardComponent, NetworkNavComponent, MemberAvatarComponent, MatButtonToggleModule, PageHeaderComponent, RouterLink, MatButtonModule, MatIconModule, TranslateModule, PostCardComponent],
   templateUrl: './tag-page.component.html',
   styleUrls: ['./tag-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -40,6 +42,7 @@ export class TagPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly offers = inject(OfferService);
   private readonly capabilities = inject(CapabilitiesService);
+  private readonly meetups = inject(NetworkMeetupsService);
 
   page: TagPage | null = null;
   posts: NetworkPost[] = [];
@@ -47,6 +50,8 @@ export class TagPageComponent implements OnInit {
   sort: 'recent' | 'liked' = 'recent';
   /** The feed's newest open missions for the skill; none asked while the offer feed is off. */
   missions: Offer[] | null = null;
+  /** The coming events naming the tag, three at most; none when they cannot be read. */
+  events: NetworkMeetup[] | null = null;
   /** The offer feed's address for every mission of the skill. */
   allMissions: Record<string, unknown> = {};
 
@@ -101,8 +106,21 @@ export class TagPageComponent implements OnInit {
     this.posts = page.posts.posts;
     if (changed) {
       this.loadMissions(page.tag);
+      this.loadEvents(page.tag);
     }
     this.changes.markForCheck();
+  }
+
+  /** The coming events naming the tag, the soonest first; their failure leaves the section out. */
+  private loadEvents(tag: string): void {
+    this.events = null;
+    this.meetups.list('UPCOMING', tag).subscribe({
+      next: found => {
+        this.events = found.meetups.slice(0, 3);
+        this.changes.markForCheck();
+      },
+      error: () => undefined
+    });
   }
 
   /** The offer feed's newest missions naming the skill, while the feed is on; its failure leaves the section out. */

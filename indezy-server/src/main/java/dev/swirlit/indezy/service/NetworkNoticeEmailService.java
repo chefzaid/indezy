@@ -13,6 +13,7 @@ import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.FeatureFlag;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.repository.NetworkIdeaRepository;
+import dev.swirlit.indezy.repository.NetworkMeetupRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.NetworkNotificationRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
@@ -66,6 +67,7 @@ public class NetworkNoticeEmailService {
     private final NetworkRestrictionRepository restrictions;
     private final NetworkPostRepository posts;
     private final NetworkIdeaRepository ideas;
+    private final NetworkMeetupRepository meetups;
     private final UserRepository users;
     private final NetworkNoticeEmailComposer composer;
     private final FeatureFlagService flags;
@@ -132,7 +134,8 @@ public class NetworkNoticeEmailService {
         List<Long> marked = new ArrayList<>();
         for (NetworkNotification notification : notifications.toEmail(userId, before)) {
             if (emailed.contains(notification.getType()) && !blocked.contains(notification.getActorId())) {
-                groups.computeIfAbsent(notification.getType() + ":" + notification.getPostId() + ":" + notification.getIdeaId(), key -> new ArrayList<>()).add(notification);
+                groups.computeIfAbsent(notification.getType() + ":" + notification.getPostId() + ":" + notification.getIdeaId() + ":" +
+                    notification.getMeetupId(), key -> new ArrayList<>()).add(notification);
                 notification.setEmailed(true);
                 marked.add(notification.getId());
             }
@@ -159,6 +162,11 @@ public class NetworkNoticeEmailService {
         Optional<NetworkDtos.MemberCard> first = actors.stream().map(actor -> members.findByUserId(actor).filter(NetworkMember::isActive)
             .flatMap(network::liveCard)).flatMap(Optional::stream).findFirst();
         Long postId = group.getFirst().getPostId();
+        Long meetupId = group.getFirst().getMeetupId();
+        if (meetupId != null) {
+            return meetups.findById(meetupId).flatMap(meetup -> first.map(card -> new NetworkNoticeEmailComposer.Line(group.getFirst().getType(),
+                card.firstName(), 0, meetup.getTitle())));
+        }
         Long ideaId = group.getFirst().getIdeaId();
         if (ideaId != null) {
             // An idea moved on: its title, the reader's own name standing for no member.

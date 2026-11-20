@@ -1,0 +1,82 @@
+<div class="event-page">
+  <app-network-nav [back]="true"></app-network-nav>
+  <aside class="left">
+    <app-network-me-card></app-network-me-card>
+  </aside>
+
+  <main class="main">
+    @if (missing) {
+      <section class="card empty" data-event-missing>
+        <mat-icon aria-hidden="true">event_busy</mat-icon>
+        <p>{{ 'network.events.notFound' | translate }}</p>
+        <a mat-stroked-button routerLink="/network/events">{{ 'network.events.all' | translate }}</a>
+      </section>
+    } @else if (meetup; as meetup) {
+      @if (editing) {
+        <section class="card form" [attr.aria-label]="'common.edit' | translate">
+          <app-event-form [initial]="meetup" [saving]="saving" (saved)="save($event)" (closed)="editing = false"></app-event-form>
+        </section>
+      } @else {
+        <app-event-card [meetup]="meetup" (changed)="changed($event)"></app-event-card>
+      }
+
+      <section class="card details" data-event-details>
+        <div class="actions">
+          <button mat-stroked-button type="button" (click)="addToCalendar()" data-event-ics>
+            <mat-icon>calendar_add_on</mat-icon>{{ 'network.events.addToCalendar' | translate }}
+          </button>
+          @if (meetup.link && !meetup.cancelled) {
+            <a mat-stroked-button [href]="meetup.link" target="_blank" rel="noopener noreferrer" data-event-open-link>
+              <mat-icon>open_in_new</mat-icon>{{ (meetup.online ? 'network.events.join' : 'network.events.page') | translate }}
+            </a>
+          }
+          @if (meetup.editable && !editing) {
+            <button mat-stroked-button type="button" (click)="editing = true" data-event-edit><mat-icon>edit</mat-icon>{{ 'common.edit' | translate }}</button>
+            <button mat-stroked-button type="button" class="danger" (click)="cancel()" data-event-cancel>
+              <mat-icon>event_busy</mat-icon>{{ 'network.events.cancelEvent' | translate }}
+            </button>
+          }
+        </div>
+        @if (meetup.description) {
+          <h2>{{ 'network.events.about' | translate }}</h2>
+          <p class="description" data-event-about>{{ meetup.description }}</p>
+        }
+      </section>
+
+      @if (attendees; as attendees) {
+        <section class="card people" data-event-attendees>
+          <h2>{{ 'network.events.goingTitle' | translate: { count: attendees.going.length } }}</h2>
+          <ul>
+            @for (member of attendees.going; track member.handle) {
+              <li>
+                <a [routerLink]="['/m', member.handle]">
+                  <app-member-avatar [subject]="member" [size]="32"></app-member-avatar>
+                  <span class="name">{{ member.firstName }} {{ member.lastName }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+          @if (attendees.interested.length) {
+            <h2>{{ 'network.events.interestedTitle' | translate: { count: attendees.interested.length } }}</h2>
+            <ul>
+              @for (member of attendees.interested; track member.handle) {
+                <li>
+                  <a [routerLink]="['/m', member.handle]">
+                    <app-member-avatar [subject]="member" [size]="32"></app-member-avatar>
+                    <span class="name">{{ member.firstName }} {{ member.lastName }}</span>
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    } @else {
+      <p class="status" role="status">{{ 'common.loading' | translate }}</p>
+    }
+  </main>
+
+  <aside class="right">
+    <app-network-side></app-network-side>
+  </aside>
+</div>

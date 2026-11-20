@@ -1,0 +1,56 @@
+<article class="event" [class.compact]="compact" [class.cancelled]="meetup.cancelled" [attr.data-event]="meetup.id">
+  <span class="date" aria-hidden="true">
+    <span class="month">{{ meetup.startsAt | date:'MMM' }}</span>
+    <span class="day">{{ meetup.startsAt | date:'d' }}</span>
+  </span>
+  <div class="body">
+    <h3><a [routerLink]="['/network/events', meetup.id]">{{ meetup.title }}</a></h3>
+    <p class="when">
+      <mat-icon aria-hidden="true">schedule</mat-icon>
+      <time [attr.datetime]="meetup.startsAt">{{ meetup.startsAt | date:'EEEE d MMMM, HH:mm' }}</time>
+      @if (meetup.endsAt) {
+        <span>– {{ meetup.endsAt | date:'HH:mm' }}</span>
+      }
+    </p>
+    <p class="where">
+      <mat-icon aria-hidden="true">{{ meetup.online ? 'videocam' : 'place' }}</mat-icon>
+      <span>{{ meetup.online ? ('network.events.online' | translate) : meetup.place }}</span>
+    </p>
+    @if (meetup.cancelled) {
+      <p class="cancelled-note" data-event-cancelled><mat-icon aria-hidden="true">event_busy</mat-icon>{{ 'network.events.cancelled' | translate }}</p>
+    }
+    @if (!compact && meetup.tags.length) {
+      <p class="tags">
+        @for (tag of meetup.tags; track tag) {
+          <a [routerLink]="['/network/tags', tag]">#{{ tag }}</a>
+        }
+      </p>
+    }
+    <div class="foot">
+      @if (meetup.organizer; as organizer) {
+        <a class="organizer" [routerLink]="['/m', organizer.handle]">
+          <app-member-avatar [subject]="organizer" [size]="24"></app-member-avatar>
+          <span>{{ organizer.firstName }} {{ organizer.lastName }}</span>
+        </a>
+      }
+      <span class="count" data-event-going>
+        {{ (meetup.going === 1 ? 'network.events.goingOne' : 'network.events.goingMany') | translate: { count: meetup.going } }}
+        @if (meetup.interested) {
+          · {{ 'network.events.interestedCount' | translate: { count: meetup.interested } }}
+        }
+      </span>
+    </div>
+    @if (!compact && !meetup.cancelled) {
+      <div class="answers" role="group" [attr.aria-label]="'network.events.answer' | translate">
+        <button mat-stroked-button type="button" [class.on]="meetup.mine === 'GOING'" [attr.aria-pressed]="meetup.mine === 'GOING'"
+          [disabled]="answering" (click)="answer('GOING')" data-event-going-button>
+          <mat-icon aria-hidden="true">{{ meetup.mine === 'GOING' ? 'check_circle' : 'event_available' }}</mat-icon>{{ 'network.events.going' | translate }}
+        </button>
+        <button mat-stroked-button type="button" [class.on]="meetup.mine === 'INTERESTED'" [attr.aria-pressed]="meetup.mine === 'INTERESTED'"
+          [disabled]="answering" (click)="answer('INTERESTED')" data-event-interested-button>
+          <mat-icon aria-hidden="true">{{ meetup.mine === 'INTERESTED' ? 'star' : 'star_outline' }}</mat-icon>{{ 'network.events.interested' | translate }}
+        </button>
+      </div>
+    }
+  </div>
+</article>

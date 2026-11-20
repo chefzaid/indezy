@@ -7,6 +7,7 @@ import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.repository.NetworkCommunityRepository;
 import dev.swirlit.indezy.repository.NetworkIdeaRepository;
+import dev.swirlit.indezy.repository.NetworkMeetupRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.NetworkNotificationRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
@@ -59,6 +60,7 @@ public class NetworkNotificationService {
 
     private final NetworkCommunityRepository communities;
     private final NetworkIdeaRepository ideas;
+    private final NetworkMeetupRepository meetups;
     private final NetworkService network;
     private final NetworkMemberRepository members;
     private final NetworkNotificationRepository notifications;
@@ -99,15 +101,25 @@ public class NetworkNotificationService {
      * themselves, since the administrators answer for Indezy, not as members.
      */
     void idea(Long recipientId, Long ideaId) {
+        system(recipientId, NetworkNotificationType.IDEA_STATUS, ideaId, null);
+    }
+
+    /** Tells a member who answered an event that it starts within a day, or was cancelled; kept as by themselves. */
+    void meetup(Long recipientId, NetworkNotificationType type, Long meetupId) {
+        system(recipientId, type, null, meetupId);
+    }
+
+    private void system(Long recipientId, NetworkNotificationType type, Long ideaId, Long meetupId) {
         Optional<NetworkMember> recipient = members.findByUserId(recipientId).filter(NetworkMember::isActive);
-        if (recipient.isEmpty() || off(recipient.get()).contains(NetworkNotificationType.IDEA_STATUS)) {
+        if (recipient.isEmpty() || off(recipient.get()).contains(type)) {
             return;
         }
         NetworkNotification notification = new NetworkNotification();
         notification.setRecipientId(recipientId);
         notification.setActorId(recipientId);
-        notification.setType(NetworkNotificationType.IDEA_STATUS);
+        notification.setType(type);
         notification.setIdeaId(ideaId);
+        notification.setMeetupId(meetupId);
         notifications.save(notification);
         events.notice(recipientId);
     }
@@ -142,7 +154,7 @@ public class NetworkNotificationService {
         for (NetworkNotification notification : notifications.findByRecipientIdOrderByCreatedAtDescIdDesc(userId, PageRequest.of(0, READ_BACK))) {
             if (!blocked.contains(notification.getActorId())) {
                 groups.computeIfAbsent(notification.getType() + ":" + notification.getPostId() + ":" + notification.getCommunityId() + ":" +
-                    notification.getIdeaId() + ":" + notification.isRead(), key -> new ArrayList<>()).add(notification);
+                    notification.getIdeaId() + ":" + notification.getMeetupId() + ":" + notification.isRead(), key -> new ArrayList<>()).add(notification);
             }
         }
         Map<Long, Optional<NetworkDtos.MemberCard>> cards = new LinkedHashMap<>();
@@ -154,7 +166,13 @@ public class NetworkNotificationService {
                 NetworkDtos.IdeaRef idea = latest.getIdeaId() == null ? null : ideas.findById(latest.getIdeaId())
                     .map(found -> new NetworkDtos.IdeaRef(found.getId(), found.getTitle(), found.getStatus())).orElse(null);
                 return idea == null ? null : new NetworkDtos.NotificationGroup(latest.getType(), null, null, List.of(), group.size(),
-                    latest.getCreatedAt(), latest.isRead(), null, idea);
+                    latest.getCreatedAt(), latest.isRead(), null, idea, null);
+            }
+            if (latest.getMeetupId() != null) {
+                NetworkDtos.MeetupRef meetup = meetups.findById(latest.getMeetupId())
+                    .map(found -> new NetworkDtos.MeetupRef(found.getId(), found.getTitle(), found.getStartsAt())).orElse(null);
+                return meetup == null ? null : new NetworkDtos.NotificationGroup(latest.getType(), null, null, List.of(), group.size(),
+                    latest.getCreatedAt(), latest.isRead(), null, null, meetup);
             }
             if (MODERATION.contains(latest.getType())) {
                 return new NetworkDtos.NotificationGroup(latest.getType(), null, null, List.of(), group.size(), latest.getCreatedAt(),
@@ -166,7 +184,7 @@ public class NetworkNotificationService {
             NetworkDtos.CommunityRef place = latest.getCommunityId() == null ? null : places.computeIfAbsent(latest.getCommunityId(),
                 id -> communities.findById(id).map(found -> new NetworkDtos.CommunityRef(found.getSlug(), found.getName()))).orElse(null);
             return actors.isEmpty() ? null : new NetworkDtos.NotificationGroup(latest.getType(), latest.getPostId(), excerpt,
-                actors.stream().limit(ACTORS_SHOWN).toList(), actors.size(), latest.getCreatedAt(), latest.isRead(), place, null);
+                actors.stream().limit(ACTORS_SHOWN).toList(), actors.size(), latest.getCreatedAt(), latest.isRead(), place, null, null);
         }).filter(Objects::nonNull).limit(GROUPS_SHOWN).toList();
     }
 

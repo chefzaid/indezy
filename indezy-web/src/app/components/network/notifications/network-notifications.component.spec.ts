@@ -150,6 +150,15 @@ describe('NetworkNotificationsComponent', () => {
     expect(notice.querySelector('[data-notice-link]')?.getAttribute('href')).toBe('/network/ideas/12');
   });
 
+  it('reminds of an event the reader answered and leads to it', () => {
+    const element = create(of([{ ...group('MEETUP_REMINDER', 1), postId: null, postExcerpt: null, actors: [],
+      meetup: { id: 6, title: 'Apéro Kafka', startsAt: '2026-12-03T18:30:00' } }]));
+    const notice = element.querySelector('[data-notice="MEETUP_REMINDER"]') as HTMLElement;
+    expect(notice.querySelector('[data-notice-meetup]')?.textContent).toContain('Tomorrow: an event you answered');
+    expect(notice.textContent).toContain('« Apéro Kafka »');
+    expect(notice.querySelector('[data-notice-link]')?.getAttribute('href')).toBe('/network/events/6');
+  });
+
   it('groups by period and leads to the post, the member, or nowhere for the moderators', () => {
     const element = create();
     const now = new Date('2026-11-15T12:00:00');

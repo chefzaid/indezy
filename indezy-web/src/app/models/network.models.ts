@@ -300,7 +300,7 @@ export interface MemberSuggestion {
 /** What a network notification tells. */
 export type NetworkNotificationType = 'FOLLOW' | 'FOLLOW_REQUEST' | 'FOLLOW_ACCEPTED' | 'LIKE' | 'COMMENT_LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
   'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED' | 'COMMUNITY_POST' | 'COMMUNITY_REQUEST' | 'COMMUNITY_ACCEPTED' | 'COMMUNITY_MODERATOR' | 'MISSION_MATCH' |
-  'IDEA_STATUS';
+  'IDEA_STATUS' | 'MEETUP_REMINDER' | 'MEETUP_CANCELLED';
 
 /** A community's activity: a post in it, a request to join, an answer, being named a moderator. */
 export const COMMUNITY_NOTICES: readonly NetworkNotificationType[] = ['COMMUNITY_POST', 'COMMUNITY_REQUEST', 'COMMUNITY_ACCEPTED',
@@ -388,6 +388,67 @@ export interface NotificationGroup {
   community?: CommunityRef | null;
   /** The idea of the ideas board it is about, for an idea that moved on. */
   idea?: IdeaRef | null;
+  /** The event it is about, for a reminder or a cancellation. */
+  meetup?: MeetupRef | null;
+}
+
+/** How a member answers an event. */
+export type MeetupAttendance = 'GOING' | 'INTERESTED';
+
+/** An event as a notification names it. */
+export interface MeetupRef {
+  id: number;
+  title: string;
+  startsAt: string;
+}
+
+/** An event of the network: a meetup in a place, or a webinar online, its times in Paris time. */
+export interface NetworkMeetup {
+  id: number;
+  title: string;
+  description: string | null;
+  startsAt: string;
+  /** When it ends; none reads as two hours after it starts. */
+  endsAt: string | null;
+  online: boolean;
+  place: string | null;
+  link: string | null;
+  tags: string[];
+  /** Who organizes it; none once that member is out of reach. */
+  organizer: MemberCard | null;
+  going: number;
+  interested: number;
+  /** The reader's answer, if any. */
+  mine: MeetupAttendance | null;
+  own: boolean;
+  /** The reader may change or cancel it: its organizer, or an administrator, until it ends. */
+  editable: boolean;
+  cancelled: boolean;
+}
+
+/** A page of events. */
+export interface NetworkMeetups {
+  meetups: NetworkMeetup[];
+  page: number;
+  more: boolean;
+}
+
+/** An event to organize, or its details changed. */
+export interface NewMeetup {
+  title: string;
+  description: string | null;
+  startsAt: string;
+  endsAt: string | null;
+  online: boolean;
+  place: string | null;
+  link: string | null;
+  tags: string[];
+}
+
+/** Who answered an event. */
+export interface MeetupAttendees {
+  going: MemberCard[];
+  interested: MemberCard[];
 }
 
 /** Where an idea of the ideas board stands, set by the administrators. */

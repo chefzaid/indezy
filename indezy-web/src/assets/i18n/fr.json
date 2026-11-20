@@ -1506,7 +1506,9 @@
         "COMMUNITY_ACCEPTED": "Être accepté dans une communauté privée",
         "COMMUNITY_MODERATOR": "Être nommé modérateur d’une communauté",
         "MISSION_MATCH": "Une mission transmise qui correspond à ma carte",
-        "IDEA_STATUS": "Une idée que je soutiens avance"
+        "IDEA_STATUS": "Une idée que je soutiens avance",
+        "MEETUP_REMINDER": "Un événement auquel j’ai répondu commence demain",
+        "MEETUP_CANCELLED": "Un événement auquel j’ai répondu est annulé"
       },
       "banned": "Les modérateurs ont mis fin à l’adhésion de ce compte : il ne peut plus rejoindre le réseau.",
       "privateTitle": "Carte privée",
@@ -3584,7 +3586,10 @@
       "missions": "Missions ouvertes pour #{{tag}}",
       "noMissions": "Aucune mission ouverte ne cite cette compétence pour l'instant.",
       "allMissions": "Les voir toutes dans le fil des offres",
-      "mostLiked": "Les plus aimés"
+      "mostLiked": "Les plus aimés",
+      "events": "Événements #{{tag}}",
+      "noEvents": "Aucun événement à venir pour ce tag.",
+      "allEvents": "Tous les événements de ce tag"
     },
     "suggestions": {
       "title": "Membres à suivre",
@@ -3619,7 +3624,9 @@
         "COMMUNITY_ACCEPTED": "vous a accepté dans une communauté",
         "COMMUNITY_MODERATOR": "vous a nommé modérateur d’une communauté",
         "MISSION_MATCH": "a transmis une mission qui correspond à votre carte",
-        "IDEA_STATUS": "Une idée que vous soutenez avance"
+        "IDEA_STATUS": "Une idée que vous soutenez avance",
+        "MEETUP_REMINDER": "Rappel d’un événement",
+        "MEETUP_CANCELLED": "Événement annulé"
       },
       "typesMany": {
         "FOLLOW": "vous suivent désormais",
@@ -3636,7 +3643,9 @@
         "COMMUNITY_ACCEPTED": "vous ont accepté dans une communauté",
         "COMMUNITY_MODERATOR": "vous ont nommé modérateur d’une communauté",
         "MISSION_MATCH": "ont transmis des missions qui correspondent à votre carte",
-        "IDEA_STATUS": "Une idée que vous soutenez avance"
+        "IDEA_STATUS": "Une idée que vous soutenez avance",
+        "MEETUP_REMINDER": "Rappel d’un événement",
+        "MEETUP_CANCELLED": "Événement annulé"
       },
       "moderation": {
         "WARNED": "Les modérateurs vous ont adressé un avertissement au sujet d’une publication, d’un commentaire ou de votre conduite dans le réseau.",
@@ -3671,7 +3680,11 @@
       "turnOff": "Désactiver ce type de notification",
       "turnedOff": "Vous ne recevrez plus ces notifications. Profil → Réseau les réactive.",
       "actionError": "L’action n’a pas abouti. Réessayez.",
-      "idea": "Une idée que vous soutenez est désormais : {{status}}"
+      "idea": "Une idée que vous soutenez est désormais : {{status}}",
+      "meetup": {
+        "MEETUP_REMINDER": "Demain : un événement auquel vous avez répondu",
+        "MEETUP_CANCELLED": "Annulé : un événement auquel vous avez répondu"
+      }
     },
     "drafts": {
       "title": "Brouillons",
@@ -4207,6 +4220,68 @@
       "merged": "Fusionnée dans « {{title}} », ses soutiens avec.",
       "supporter": "soutien",
       "supporters": "soutiens"
+    },
+    "events": {
+      "title": "Événements",
+      "subtitle": "Meetups et webinaires des membres : répondez, ajoutez-les à votre agenda, rappel la veille.",
+      "filter": "Chercher un événement",
+      "organize": "Organiser un événement",
+      "scopeLabel": "Quels événements",
+      "scope": {
+        "UPCOMING": "À venir",
+        "ATTENDING": "Mes réponses",
+        "ORGANIZED": "Organisés par moi"
+      },
+      "clearTag": "Voir les événements de tous les tags",
+      "none": {
+        "UPCOMING": "Aucun événement à venir : organisez le premier.",
+        "ATTENDING": "Vous n’avez répondu à aucun événement à venir.",
+        "ORGANIZED": "Vous n’avez organisé aucun événement."
+      },
+      "noneFound": "Aucun événement ne correspond.",
+      "more": "Voir plus",
+      "online": "En ligne",
+      "cancelled": "Annulé",
+      "goingOne": "{{count}} participant",
+      "goingMany": "{{count}} participants",
+      "interestedCount": "{{count}} intéressé(s)",
+      "answer": "Votre réponse",
+      "going": "J’y vais",
+      "interested": "Intéressé",
+      "loadError": "Impossible de charger les événements.",
+      "saveError": "Impossible d’enregistrer : réessayez.",
+      "invalid": "Vérifiez l’événement : il commence dans le futur, et a une adresse ou un lien.",
+      "tooMany": "Vous avez organisé 5 événements aujourd’hui : revenez demain.",
+      "created": "Événement publié : vous y allez.",
+      "saved": "Événement modifié.",
+      "notFound": "Cet événement n’existe plus.",
+      "all": "Tous les événements",
+      "addToCalendar": "Ajouter à mon agenda",
+      "icsError": "Impossible de télécharger le fichier agenda.",
+      "join": "Rejoindre en ligne",
+      "page": "Page de l’événement",
+      "cancelEvent": "Annuler l’événement",
+      "cancelConfirm": "Annuler cet événement ? Ceux qui ont répondu seront prévenus.",
+      "cancelledDone": "Événement annulé : les participants sont prévenus.",
+      "about": "À propos",
+      "goingTitle": "Participants ({{count}})",
+      "interestedTitle": "Intéressés ({{count}})",
+      "form": {
+        "title": "Titre",
+        "startsAt": "Début",
+        "endsAt": "Fin",
+        "endsHint": "Facultatif : deux heures par défaut",
+        "order": "La fin vient après le début.",
+        "online": "En ligne (webinaire)",
+        "link": "Lien de connexion",
+        "linkInvalid": "Une adresse web, en http:// ou https://",
+        "place": "Adresse",
+        "pageLink": "Lien de la page (facultatif)",
+        "tags": "Tags",
+        "tagsHint": "Ex. : #kafka #lyon, dix au plus",
+        "description": "Description",
+        "create": "Publier l’événement"
+      }
     }
   }
 }

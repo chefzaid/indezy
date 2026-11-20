@@ -4,9 +4,11 @@ import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import org.springframework.stereotype.Component;
 
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static dev.swirlit.indezy.mail.SavedSearchEmailComposer.escape;
 
@@ -98,6 +100,8 @@ public class NetworkNoticeEmailComposer {
             case COMMUNITY_MODERATOR -> "made you a moderator of a community";
             case MISSION_MATCH -> "passed on a mission matching your card";
             case IDEA_STATUS -> "An idea you voted for moved on";
+            case MEETUP_REMINDER -> "Tomorrow: an event you answered";
+            case MEETUP_CANCELLED -> "Cancelled: an event you answered";
             default -> "did something";
         };
     }
@@ -120,9 +124,15 @@ public class NetworkNoticeEmailComposer {
             case COMMUNITY_MODERATOR -> many ? "vous ont nommé modérateur d’une communauté" : "vous a nommé modérateur d’une communauté";
             case MISSION_MATCH -> many ? "ont transmis des missions qui correspondent à votre carte" : "a transmis une mission qui correspond à votre carte";
             case IDEA_STATUS -> many ? "Des idées que vous soutenez ont avancé" : "Une idée que vous soutenez a avancé";
+            case MEETUP_REMINDER -> "Demain : un événement auquel vous avez répondu";
+            case MEETUP_CANCELLED -> "Annulé : un événement auquel vous avez répondu";
             default -> many ? "ont agi" : "a agi";
         };
     }
+
+    /** The kinds Indezy tells, naming no member. */
+    private static final Set<NetworkNotificationType> SYSTEM = EnumSet.of(NetworkNotificationType.IDEA_STATUS,
+        NetworkNotificationType.MEETUP_REMINDER, NetworkNotificationType.MEETUP_CANCELLED);
 
     /** "Léo Martin and 2 others liked your post “Retour sur Kafka…”", in the language asked. */
     static String sentence(Line line, boolean english) {
@@ -130,7 +140,7 @@ public class NetworkNoticeEmailComposer {
         String who = line.others() == 0 ? line.actor() : line.actor() + (english ? " and " : " et ") + line.others() + others;
         boolean many = line.others() > 0;
         String what = english ? english(line.type()) : french(line.type(), many);
-        if (line.type() == NetworkNotificationType.IDEA_STATUS) {
+        if (SYSTEM.contains(line.type())) {
             // The administrators answered for Indezy: no member to name.
             return what + (line.excerpt() == null ? "" : " “" + line.excerpt() + "”");
         }

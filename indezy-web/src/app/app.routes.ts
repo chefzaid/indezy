@@ -187,6 +187,17 @@ export const routes: Routes = [
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
   },
   {
+    // The network's events, and each event's page.
+    path: 'network/events',
+    loadComponent: () => import('./components/network/events/network-events.component').then(m => m.NetworkEventsComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
+    path: 'network/events/:id',
+    loadComponent: () => import('./components/network/events/network-event.component').then(m => m.NetworkEventComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     // The ideas board, and one idea shown first.
     path: 'network/ideas',
     loadComponent: () => import('./components/network/ideas/network-ideas.component').then(m => m.NetworkIdeasComponent),

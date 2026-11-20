@@ -39,6 +39,10 @@ public class NetworkNotification extends BaseEntity {
     @Column(name = "idea_id")
     private Long ideaId;
 
+    /** The event of the network it is about, if any. */
+    @Column(name = "meetup_id")
+    private Long meetupId;
+
     @Column(name = "is_read", nullable = false)
     private boolean read;
 
