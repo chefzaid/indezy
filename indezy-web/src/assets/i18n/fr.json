@@ -1505,7 +1505,8 @@
         "COMMUNITY_REQUEST": "Une demande pour rejoindre une communauté que je modère",
         "COMMUNITY_ACCEPTED": "Être accepté dans une communauté privée",
         "COMMUNITY_MODERATOR": "Être nommé modérateur d’une communauté",
-        "MISSION_MATCH": "Une mission transmise qui correspond à ma carte"
+        "MISSION_MATCH": "Une mission transmise qui correspond à ma carte",
+        "IDEA_STATUS": "Une idée que je soutiens avance"
       },
       "banned": "Les modérateurs ont mis fin à l’adhésion de ce compte : il ne peut plus rejoindre le réseau.",
       "privateTitle": "Carte privée",
@@ -3616,7 +3617,8 @@
         "COMMUNITY_REQUEST": "demande à rejoindre une communauté que vous modérez",
         "COMMUNITY_ACCEPTED": "vous a accepté dans une communauté",
         "COMMUNITY_MODERATOR": "vous a nommé modérateur d’une communauté",
-        "MISSION_MATCH": "a transmis une mission qui correspond à votre carte"
+        "MISSION_MATCH": "a transmis une mission qui correspond à votre carte",
+        "IDEA_STATUS": "Une idée que vous soutenez avance"
       },
       "typesMany": {
         "FOLLOW": "vous suivent désormais",
@@ -3632,7 +3634,8 @@
         "COMMUNITY_REQUEST": "demandent à rejoindre une communauté que vous modérez",
         "COMMUNITY_ACCEPTED": "vous ont accepté dans une communauté",
         "COMMUNITY_MODERATOR": "vous ont nommé modérateur d’une communauté",
-        "MISSION_MATCH": "ont transmis des missions qui correspondent à votre carte"
+        "MISSION_MATCH": "ont transmis des missions qui correspondent à votre carte",
+        "IDEA_STATUS": "Une idée que vous soutenez avance"
       },
       "moderation": {
         "WARNED": "Les modérateurs vous ont adressé un avertissement au sujet d’une publication, d’un commentaire ou de votre conduite dans le réseau.",
@@ -3666,7 +3669,8 @@
       "dismiss": "Supprimer cette notification",
       "turnOff": "Désactiver ce type de notification",
       "turnedOff": "Vous ne recevrez plus ces notifications. Profil → Réseau les réactive.",
-      "actionError": "L’action n’a pas abouti. Réessayez."
+      "actionError": "L’action n’a pas abouti. Réessayez.",
+      "idea": "Une idée que vous soutenez est désormais : {{status}}"
     },
     "drafts": {
       "title": "Brouillons",
@@ -4141,6 +4145,56 @@
       "before": "Début au plus tard",
       "remote": "{{days}} j+ de télétravail",
       "hideTaken": "Masquer celles de mon pipeline"
+    },
+    "ideas": {
+      "title": "Idées pour Indezy",
+      "subtitle": "Proposez ce qui vous manque, votez pour ce que vous voulez : les plus soutenues passent en premier.",
+      "asked": "L’idée demandée",
+      "mergedInto": "Fusionnée dans",
+      "filter": "Chercher une idée",
+      "propose": "Proposer une idée",
+      "titleLabel": "Votre idée, en une phrase",
+      "titleHint": "5 à 120 caractères",
+      "similar": "Des idées proches existent déjà : votez plutôt pour elles.",
+      "descriptionLabel": "Le détail : le besoin, un exemple (facultatif)",
+      "proposeSubmit": "Proposer",
+      "sortLabel": "Ordre",
+      "sortTop": "Les plus soutenues",
+      "sortNew": "Les plus récentes",
+      "statusLabel": "Statut",
+      "all": "Toutes",
+      "status": {
+        "OPEN": "Ouverte",
+        "PLANNED": "Prévue",
+        "IN_PROGRESS": "En cours",
+        "DONE": "Livrée",
+        "DECLINED": "Non retenue",
+        "MERGED": "Fusionnée"
+      },
+      "none": "Aucune idée pour l’instant : proposez la première.",
+      "noneFound": "Aucune idée ne correspond.",
+      "more": "Voir plus",
+      "vote": "Soutenir cette idée",
+      "unvote": "Retirer mon soutien",
+      "actions": "Actions sur l’idée",
+      "answer": "Répondre (statut)",
+      "merge": "Fusionner dans une autre idée",
+      "statusField": "Statut",
+      "noteField": "Un mot pour les membres (facultatif)",
+      "mergeField": "Numéro de l’idée gardée",
+      "mergeSubmit": "Fusionner",
+      "formerMember": "Un ancien membre",
+      "loadError": "Impossible de charger les idées.",
+      "saveError": "Impossible d’enregistrer : réessayez.",
+      "notFound": "Cette idée n’existe plus.",
+      "created": "Idée proposée, avec votre soutien.",
+      "tooMany": "Vous avez proposé 5 idées aujourd’hui : revenez demain.",
+      "deleteConfirm": "Supprimer cette idée ?",
+      "deleted": "Idée supprimée.",
+      "cannotDelete": "D’autres membres la soutiennent ou elle a reçu une réponse : elle reste.",
+      "merged": "Fusionnée dans « {{title}} », ses soutiens avec.",
+      "supporter": "soutien",
+      "supporters": "soutiens"
     }
   }
 }

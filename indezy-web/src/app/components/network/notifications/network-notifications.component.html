@@ -59,8 +59,8 @@
             <ng-template #row>
               <span class="faces" aria-hidden="true">
                 <mat-icon class="kind" [attr.data-kind]="group.type">{{ icons[group.type] }}</mat-icon>
-                @if (moderation(group)) {
-                  <span class="system"><mat-icon>shield</mat-icon></span>
+                @if (system(group)) {
+                  <span class="system"><mat-icon>{{ moderation(group) ? 'shield' : 'lightbulb' }}</mat-icon></span>
                 } @else {
                   <app-member-avatar [subject]="group.actors[0]" [size]="44"></app-member-avatar>
                 }
@@ -72,6 +72,8 @@
                   }
                   @if (moderation(group)) {
                     {{ 'network.notices.moderation.' + group.type | translate }}
+                  } @else if (group.idea; as idea) {
+                    <span data-notice-idea>{{ 'network.notices.idea' | translate: { status: ('network.ideas.status.' + idea.status | translate) } }}</span>
                   } @else {
                     <strong>{{ who(group).key | translate: who(group).params }}</strong>
                     {{ (group.count > 1 ? 'network.notices.typesMany.' : 'network.notices.types.') + group.type | translate }}
@@ -80,8 +82,8 @@
                     }
                   }
                 </p>
-                @if (group.postExcerpt) {
-                  <span class="excerpt">« {{ group.postExcerpt }} »</span>
+                @if (group.postExcerpt || group.idea) {
+                  <span class="excerpt">« {{ group.postExcerpt || group.idea?.title }} »</span>
                 }
                 <time [attr.datetime]="group.latestAt" [title]="group.latestAt | date:'medium'">{{ group.latestAt | timeAgo }}</time>
               </span>

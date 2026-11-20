@@ -512,7 +512,7 @@ Fills the profile from what the freelancer already wrote elsewhere instead of ty
 - [ ] Co-optation tracking (who referred whom, referral bonuses) Partly done on 2026-11-16: an opportunity added from a mission post or a shared card records who referred it as its source (`Indezy @handle`); referral bonuses remain.
 - [ ] Community TJM and client reviews (anonymized)
 - [x] Public profile page (shareable mini-portfolio with availability status). Done on 2026-10-27: Profile → **Public profile** shows `/p/<address>` to anyone with the link (`docs/features.md#public-profile`).
-- [ ] Feature request / community board with upvoting (already in roadmap - implement)
+- [x] Feature request / community board with upvoting (already in roadmap - implement). Done on 2026-11-20 as **Ideas for Indezy** (`/network/ideas`) for the network's members, answered and merged by the administrators as decided under **Member network audience**; supporters are told when an idea moves on (`docs/features.md#member-network`). Publishing accepted support requests to it waits on the support requests below.
 
 ### Member Network (added 2026-10-28)
 

@@ -485,6 +485,20 @@ community and leading to the post or to the community. Reports of its posts reac
 (`/api/network/communities`, `/<slug>`, `/<slug>/membership`, `/<slug>/posts`, `/<slug>/members`, `/<slug>/moderators/<handle>`,
 `/<slug>/requests/<handle>`).
 
+**Ideas for Indezy** (`/network/ideas`, from **Ideas** on the reader's card) is the ideas board: members suggest what
+they miss in Indezy (a sentence of 5 to 120 characters and an optional detail, 5 a day at most), their own support
+counted, and support the ideas they want, once each, taking it back at will. While an idea is written, the three most
+supported ideas sharing its words show under it, to support them rather than repeat them. The board lists the most
+supported first or the newest, narrowed by status (Open, Planned, In progress, Shipped, Not planned) or by words of the
+title or detail, 20 at a time; each idea shows its number, its supporters, its status, the administrators' word, and
+who suggested it (a former member once their account is deleted, the idea staying). Its author changes an open idea,
+and deletes it while no one else supports it. The administrators answer each idea with a status and a word, merge a
+duplicate into the idea it repeats by that idea's number (its supporters moved there, counted once) and delete any;
+those who support an idea are told when its status changes or it is merged (**An idea you support is now: Planned**, a
+notification of its own kind, which Profile → Network turns off or emails like the others). An idea's address
+(`/network/ideas/<number>`) shows it above the board, a merged one with a link to the idea kept. A shipped, declined or
+merged idea takes no more support (`/api/network/ideas`, `/<id>`, `/<id>/vote`, `/<id>/status`, `/<id>/merge?into=`).
+
 **Members** on the feed (`/network/members`) has five tabs, the one open kept in the address (`?tab=`). **All members**
 is the member directory: the members found by a skill and a city typed in its search bar, an availability and remote
 work picked as chips, 20 a page by last name, as a grid of tiles (the member's color, avatar, headline, city,

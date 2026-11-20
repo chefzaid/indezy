@@ -39,5 +39,7 @@ public enum NetworkNotificationType {
     /** The creator named the recipient a moderator of their community. */
     COMMUNITY_MODERATOR,
     /** A member passed on a mission matching the recipient's card. */
-    MISSION_MATCH
+    MISSION_MATCH,
+    /** An idea of the ideas board the recipient voted for moved on: planned, being built, shipped, declined or merged. */
+    IDEA_STATUS
 }

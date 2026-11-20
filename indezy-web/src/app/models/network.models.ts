@@ -297,7 +297,8 @@ export interface MemberSuggestion {
 
 /** What a network notification tells. */
 export type NetworkNotificationType = 'FOLLOW' | 'FOLLOW_REQUEST' | 'FOLLOW_ACCEPTED' | 'LIKE' | 'COMMENT_LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
-  'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED' | 'COMMUNITY_POST' | 'COMMUNITY_REQUEST' | 'COMMUNITY_ACCEPTED' | 'COMMUNITY_MODERATOR' | 'MISSION_MATCH';
+  'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED' | 'COMMUNITY_POST' | 'COMMUNITY_REQUEST' | 'COMMUNITY_ACCEPTED' | 'COMMUNITY_MODERATOR' | 'MISSION_MATCH' |
+  'IDEA_STATUS';
 
 /** A community's activity: a post in it, a request to join, an answer, being named a moderator. */
 export const COMMUNITY_NOTICES: readonly NetworkNotificationType[] = ['COMMUNITY_POST', 'COMMUNITY_REQUEST', 'COMMUNITY_ACCEPTED',
@@ -383,6 +384,46 @@ export interface NotificationGroup {
   read: boolean;
   /** The community it is about, for a community's activity. */
   community?: CommunityRef | null;
+  /** The idea of the ideas board it is about, for an idea that moved on. */
+  idea?: IdeaRef | null;
+}
+
+/** Where an idea of the ideas board stands, set by the administrators. */
+export type IdeaStatus = 'OPEN' | 'PLANNED' | 'IN_PROGRESS' | 'DONE' | 'DECLINED' | 'MERGED';
+/** The statuses the board is narrowed to, and the administrators answer with. */
+export const IDEA_STATUSES: readonly IdeaStatus[] = ['OPEN', 'PLANNED', 'IN_PROGRESS', 'DONE', 'DECLINED'];
+
+/** An idea as a notification names it. */
+export interface IdeaRef {
+  id: number;
+  title: string;
+  status: IdeaStatus;
+}
+
+/** An idea for Indezy a member proposed, with its votes and the administrators' answer. */
+export interface NetworkIdea {
+  id: number;
+  title: string;
+  description: string | null;
+  status: IdeaStatus;
+  statusNote: string | null;
+  votes: number;
+  voted: boolean;
+  own: boolean;
+  /** Who proposed it; none once that member is gone. */
+  author: MemberCard | null;
+  createdAt: string;
+  statusChangedAt: string | null;
+  /** The idea it was merged into, a duplicate. */
+  mergedInto: IdeaRef | null;
+}
+
+/** A page of the ideas board, and whether the reader administers it. */
+export interface NetworkIdeas {
+  ideas: NetworkIdea[];
+  page: number;
+  more: boolean;
+  administrator: boolean;
 }
 
 /** What the member directory is asked for; every criterion is optional. */

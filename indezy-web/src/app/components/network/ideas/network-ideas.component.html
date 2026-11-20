@@ -1,0 +1,227 @@
+<div class="ideas-page">
+  <app-network-nav></app-network-nav>
+  <aside class="left">
+    <app-network-me-card></app-network-me-card>
+  </aside>
+
+  <main class="main">
+    <app-page-header icon="lightbulb" [title]="'network.ideas.title' | translate" [subtitle]="'network.ideas.subtitle' | translate">
+    </app-page-header>
+
+    @if (focused; as idea) {
+      <section class="focused" [attr.aria-label]="'network.ideas.asked' | translate" data-idea-focused>
+        @if (idea.mergedInto; as into) {
+          <p class="merged-into" data-idea-merged-into>
+            <mat-icon aria-hidden="true">call_merge</mat-icon>
+            <span>{{ 'network.ideas.mergedInto' | translate }}</span>
+            <a [routerLink]="['/network/ideas', into.id]">#{{ into.id }} {{ into.title }}</a>
+          </p>
+        }
+        <ng-container *ngTemplateOutlet="card; context: { $implicit: idea }"></ng-container>
+      </section>
+    }
+
+    <div class="toolbar">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="filter">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>{{ 'network.ideas.filter' | translate }}</mat-label>
+        <input matInput [formControl]="filter" maxlength="80" data-ideas-filter>
+      </mat-form-field>
+      <button mat-flat-button type="button" (click)="creating = !creating" [attr.aria-expanded]="creating" data-idea-new>
+        <mat-icon>add</mat-icon>{{ 'network.ideas.propose' | translate }}
+      </button>
+    </div>
+
+    @if (creating) {
+      <form class="card create" (submit)="$event.preventDefault(); create()" data-idea-form>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'network.ideas.titleLabel' | translate }}</mat-label>
+          <input matInput [formControl]="title" maxlength="120" required data-idea-title>
+          <mat-hint>{{ 'network.ideas.titleHint' | translate }}</mat-hint>
+        </mat-form-field>
+        @if (similar.length) {
+          <div class="similar" role="status" data-idea-similar>
+            <p>{{ 'network.ideas.similar' | translate }}</p>
+            <ul>
+              @for (idea of similar; track idea.id) {
+                <li [attr.data-idea-similar-item]="idea.id">
+                  <a [routerLink]="['/network/ideas', idea.id]">{{ idea.title }}</a>
+                  <span class="status-chip" [attr.data-status]="idea.status">{{ 'network.ideas.status.' + idea.status | translate }}</span>
+                  @if (votable(idea) || idea.voted) {
+                    <button mat-stroked-button type="button" (click)="vote(idea)" [attr.aria-pressed]="idea.voted" [disabled]="pending.has(idea.id)"
+                      [title]="(idea.voted ? 'network.ideas.unvote' : 'network.ideas.vote') | translate">
+                      <mat-icon aria-hidden="true">{{ idea.voted ? 'check' : 'arrow_upward' }}</mat-icon>{{ idea.votes }}
+                      <span class="cdk-visually-hidden">{{ (idea.votes === 1 ? 'network.ideas.supporter' : 'network.ideas.supporters') | translate }}</span>
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'network.ideas.descriptionLabel' | translate }}</mat-label>
+          <textarea matInput [formControl]="description" rows="4" maxlength="2000" data-idea-description></textarea>
+        </mat-form-field>
+        <div class="actions">
+          <button mat-button type="button" (click)="creating = false">{{ 'common.cancel' | translate }}</button>
+          <button mat-flat-button type="submit" [disabled]="title.invalid || saving" data-idea-create>{{ 'network.ideas.proposeSubmit' | translate }}</button>
+        </div>
+      </form>
+    }
+
+    <div class="filters">
+      <div class="sort" role="group" [attr.aria-label]="'network.ideas.sortLabel' | translate">
+        <button type="button" class="chip" [class.on]="sort === 'TOP'" [attr.aria-pressed]="sort === 'TOP'" (click)="order('TOP')" data-ideas-sort-top>
+          {{ 'network.ideas.sortTop' | translate }}
+        </button>
+        <button type="button" class="chip" [class.on]="sort === 'NEW'" [attr.aria-pressed]="sort === 'NEW'" (click)="order('NEW')" data-ideas-sort-new>
+          {{ 'network.ideas.sortNew' | translate }}
+        </button>
+      </div>
+      <div class="statuses" role="group" [attr.aria-label]="'network.ideas.statusLabel' | translate">
+        <button type="button" class="chip" [class.on]="status === null" [attr.aria-pressed]="status === null" (click)="narrow(null)" data-ideas-status-all>
+          {{ 'network.ideas.all' | translate }}
+        </button>
+        @for (choice of statuses; track choice) {
+          <button type="button" class="chip" [class.on]="status === choice" [attr.aria-pressed]="status === choice" (click)="narrow(choice)"
+            [attr.data-ideas-status]="choice">{{ 'network.ideas.status.' + choice | translate }}</button>
+        }
+      </div>
+    </div>
+
+    @if (ideas === null) {
+      <p class="status-line" role="status">{{ 'common.loading' | translate }}</p>
+    } @else if (ideas.length === 0) {
+      <section class="card empty" data-ideas-none>
+        <mat-icon aria-hidden="true">lightbulb</mat-icon>
+        <p>{{ (filter.value || status ? 'network.ideas.noneFound' : 'network.ideas.none') | translate }}</p>
+      </section>
+    } @else {
+      <ul class="list">
+        @for (idea of ideas; track idea.id) {
+          <li>
+            <ng-container *ngTemplateOutlet="card; context: { $implicit: idea }"></ng-container>
+          </li>
+        }
+      </ul>
+      @if (more) {
+        <button mat-stroked-button type="button" class="more" (click)="loadMore()" [disabled]="loadingMore" data-ideas-more>
+          {{ 'network.ideas.more' | translate }}
+        </button>
+      }
+    }
+  </main>
+
+  <aside class="right">
+    <app-network-side></app-network-side>
+  </aside>
+</div>
+
+<ng-template #card let-idea>
+  <article class="card idea" [attr.data-idea]="idea.id">
+    <button type="button" class="vote" [class.on]="idea.voted" (click)="vote(idea)" [attr.aria-pressed]="idea.voted"
+      [disabled]="pending.has(idea.id) || (!idea.voted && !votable(idea))"
+      [title]="(idea.voted ? 'network.ideas.unvote' : 'network.ideas.vote') | translate" data-idea-vote>
+      <mat-icon aria-hidden="true">{{ idea.voted ? 'thumb_up' : 'arrow_upward' }}</mat-icon>
+      <strong data-idea-votes>{{ idea.votes }}</strong>
+      <span class="cdk-visually-hidden">{{ (idea.votes === 1 ? 'network.ideas.supporter' : 'network.ideas.supporters') | translate }}</span>
+    </button>
+    <div class="body">
+      <div class="head">
+        @if (editing === idea.id) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="grow">
+            <mat-label>{{ 'network.ideas.titleLabel' | translate }}</mat-label>
+            <input matInput [formControl]="editTitle" maxlength="120" data-idea-edit-title>
+          </mat-form-field>
+        } @else {
+          <h2><a [routerLink]="['/network/ideas', idea.id]"><span class="number">#{{ idea.id }}</span> {{ idea.title }}</a></h2>
+        }
+        <span class="status-chip" [attr.data-status]="idea.status" data-idea-status>
+          <mat-icon aria-hidden="true">{{ iconOf(idea) }}</mat-icon>{{ 'network.ideas.status.' + idea.status | translate }}
+        </span>
+        @if ((idea.own && idea.status === 'OPEN') || administrator) {
+          <button mat-icon-button type="button" class="menu" [matMenuTriggerFor]="ideaMenu" [attr.aria-label]="'network.ideas.actions' | translate"
+            data-idea-actions>
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+          <mat-menu #ideaMenu="matMenu">
+            @if (idea.own && idea.status === 'OPEN') {
+              <button mat-menu-item type="button" (click)="startEdit(idea)" data-idea-edit><mat-icon>edit</mat-icon>{{ 'common.edit' | translate }}</button>
+            }
+            @if (administrator && idea.status !== 'MERGED') {
+              <button mat-menu-item type="button" (click)="startAnswer(idea)" data-idea-answer>
+                <mat-icon>flag</mat-icon>{{ 'network.ideas.answer' | translate }}
+              </button>
+              <button mat-menu-item type="button" (click)="startMerge(idea)" data-idea-merge>
+                <mat-icon>call_merge</mat-icon>{{ 'network.ideas.merge' | translate }}
+              </button>
+            }
+            <button mat-menu-item type="button" (click)="remove(idea)" data-idea-delete><mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}</button>
+          </mat-menu>
+        }
+      </div>
+      @if (editing === idea.id) {
+        <form class="inline" (submit)="$event.preventDefault(); saveEdit(idea)" data-idea-edit-form>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ 'network.ideas.descriptionLabel' | translate }}</mat-label>
+            <textarea matInput [formControl]="editDescription" rows="4" maxlength="2000" data-idea-edit-description></textarea>
+          </mat-form-field>
+          <div class="actions">
+            <button mat-button type="button" (click)="editing = null">{{ 'common.cancel' | translate }}</button>
+            <button mat-flat-button type="submit" [disabled]="editTitle.invalid" data-idea-edit-save>{{ 'common.save' | translate }}</button>
+          </div>
+        </form>
+      } @else if (idea.description) {
+        <p class="description">{{ idea.description }}</p>
+      }
+      @if (idea.statusNote) {
+        <p class="note" data-idea-note><mat-icon aria-hidden="true">campaign</mat-icon><span>{{ idea.statusNote }}</span></p>
+      }
+      @if (answering === idea.id) {
+        <form class="inline" (submit)="$event.preventDefault(); saveAnswer(idea)" data-idea-answer-form>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ 'network.ideas.statusField' | translate }}</mat-label>
+            <mat-select [formControl]="answerStatus" data-idea-answer-status>
+              @for (choice of statuses; track choice) {
+                <mat-option [value]="choice">{{ 'network.ideas.status.' + choice | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ 'network.ideas.noteField' | translate }}</mat-label>
+            <textarea matInput [formControl]="answerNote" rows="2" maxlength="500" data-idea-answer-note></textarea>
+          </mat-form-field>
+          <div class="actions">
+            <button mat-button type="button" (click)="answering = null">{{ 'common.cancel' | translate }}</button>
+            <button mat-flat-button type="submit" data-idea-answer-save>{{ 'common.save' | translate }}</button>
+          </div>
+        </form>
+      }
+      @if (merging === idea.id) {
+        <form class="inline merge" (submit)="$event.preventDefault(); saveMerge(idea)" data-idea-merge-form>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ 'network.ideas.mergeField' | translate }}</mat-label>
+            <span matTextPrefix>#&nbsp;</span>
+            <input matInput type="number" min="1" [formControl]="mergeInto" data-idea-merge-into>
+          </mat-form-field>
+          <div class="actions">
+            <button mat-button type="button" (click)="merging = null">{{ 'common.cancel' | translate }}</button>
+            <button mat-flat-button type="submit" [disabled]="mergeInto.invalid" data-idea-merge-save>{{ 'network.ideas.mergeSubmit' | translate }}</button>
+          </div>
+        </form>
+      }
+      <p class="byline">
+        @if (idea.author; as author) {
+          <a [routerLink]="['/m', author.handle]" class="author">
+            <app-member-avatar [subject]="author" [size]="24"></app-member-avatar>{{ author.firstName }} {{ author.lastName }}
+          </a>
+        } @else {
+          <span>{{ 'network.ideas.formerMember' | translate }}</span>
+        }
+        <span aria-hidden="true">·</span>
+        <time [attr.datetime]="idea.createdAt">{{ idea.createdAt | date:'mediumDate' }}</time>
+      </p>
+    </div>
+  </article>
+</ng-template>

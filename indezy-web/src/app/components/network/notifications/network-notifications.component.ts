@@ -22,7 +22,8 @@ import { NetworkSideComponent } from '../side/network-side.component';
 export const NOTICE_ICONS: Record<NetworkNotificationType, string> = {
   FOLLOW: 'person_add', FOLLOW_REQUEST: 'person_search', FOLLOW_ACCEPTED: 'how_to_reg', LIKE: 'favorite', COMMENT_LIKE: 'favorite', COMMENT: 'chat_bubble', REPLY: 'reply', MENTION: 'alternate_email', REPOST: 'repeat',
   WARNED: 'report', CONTENT_REMOVED: 'delete', SUSPENDED: 'timer_off', REPORT_ACTED: 'gavel', REPORT_DISMISSED: 'flag',
-  COMMUNITY_POST: 'diversity_3', COMMUNITY_REQUEST: 'group_add', COMMUNITY_ACCEPTED: 'how_to_reg', COMMUNITY_MODERATOR: 'shield_person', MISSION_MATCH: 'work'
+  COMMUNITY_POST: 'diversity_3', COMMUNITY_REQUEST: 'group_add', COMMUNITY_ACCEPTED: 'how_to_reg', COMMUNITY_MODERATOR: 'shield_person', MISSION_MATCH: 'work',
+  IDEA_STATUS: 'lightbulb'
 };
 
 /** The filters of the notifications, as on LinkedIn: all, the unread, and by what happened. */
@@ -156,10 +157,18 @@ export class NetworkNotificationsComponent implements OnInit {
       { key: 'network.notices.many', params: { name: first.firstName, others: group.count - 1 } };
   }
 
-  /** Where the notification leads: the post it is about, else the member who did it; nowhere for the moderators' word. */
+  /** Told by Indezy, not a member: the moderators' word, an idea that moved on. */
+  system(group: NotificationGroup): boolean {
+    return this.moderation(group) || group.type === 'IDEA_STATUS';
+  }
+
+  /** Where the notification leads: the idea or post it is about, else the member who did it; nowhere for the moderators' word. */
   link(group: NotificationGroup): (string | number)[] | null {
     if (this.moderation(group)) {
       return null;
+    }
+    if (group.idea) {
+      return ['/network/ideas', group.idea.id];
     }
     if (group.postId !== null) {
       return ['/network/posts', group.postId];

@@ -3,6 +3,7 @@ package dev.swirlit.indezy.dto;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkPostDetails;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
+import dev.swirlit.indezy.model.enums.NetworkIdeaStatus;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
@@ -260,10 +261,11 @@ public final class NetworkDtos {
 
     /**
      * Notifications grouped as they read: one kind about one post (or one kind of follow) with up to three of the members
-     * who did it, how many did, when the latest did, and whether the group was read.
+     * who did it, how many did, when the latest did, and whether the group was read; the community or the idea of the
+     * ideas board it is about, if any.
      */
     public record NotificationGroup(NetworkNotificationType type, Long postId, String postExcerpt,
-                                    List<MemberCard> actors, int count, LocalDateTime latestAt, boolean read, CommunityRef community) {
+                                    List<MemberCard> actors, int count, LocalDateTime latestAt, boolean read, CommunityRef community, IdeaRef idea) {
 
         public NotificationGroup {
             actors = List.copyOf(actors);
@@ -272,11 +274,10 @@ public final class NetworkDtos {
         /** Not about a community. */
         public NotificationGroup(NetworkNotificationType type, Long postId, String postExcerpt, List<MemberCard> actors, int count,
                                  LocalDateTime latestAt, boolean read) {
-            this(type, postId, postExcerpt, actors, count, latestAt, read, null);
+            this(type, postId, postExcerpt, actors, count, latestAt, read, null, null);
         }
     }
 
-    /** The kinds of notification the member turned off. */
     /** The kinds of notification turned off, and those also emailed (none given keeps them as they are). */
     public record NotificationSettings(@NotNull List<NetworkNotificationType> off, List<NetworkNotificationType> emailed) {
 
@@ -383,6 +384,10 @@ public final class NetworkDtos {
         public MemberAbout {
             missions = List.copyOf(missions);
         }
+    }
+
+    /** An idea of the ideas board, as a notification names it: where it stands. */
+    public record IdeaRef(Long id, String title, NetworkIdeaStatus status) {
     }
 
     /** The community a post was posted in: its address and name. */

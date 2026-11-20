@@ -187,6 +187,17 @@ export const routes: Routes = [
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
   },
   {
+    // The ideas board, and one idea shown first.
+    path: 'network/ideas',
+    loadComponent: () => import('./components/network/ideas/network-ideas.component').then(m => m.NetworkIdeasComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
+    path: 'network/ideas/:id',
+    loadComponent: () => import('./components/network/ideas/network-ideas.component').then(m => m.NetworkIdeasComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     // The network's search results: members, posts and tags for what was typed (`?q=`), a tab in `?tab=`.
     path: 'network/search',
     loadComponent: () => import('./components/network/search-results/network-search-results.component').then(m => m.NetworkSearchResultsComponent),

@@ -26,7 +26,8 @@ public class AccountPurge {
         "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications", "network_comments",
         "network_file_contents", "network_files", "network_held", "network_posts", "network_follows",
         "network_follow_requests", "network_restrictions", "network_tag_follows", "network_drafts", "network_reports",
-        "network_message_reactions", "network_conversation_members", "network_page_views", "network_community_members", "network_members",
+        "network_message_reactions", "network_conversation_members", "network_page_views", "network_community_members", "network_idea_votes",
+        "network_members",
         "webhook_events", "webhook_deliveries", "webhooks", "activity_report_days", "interview_step_checklist",
         "interview_steps", "contact_interactions", "contact_relations", "project_attachments", "project_notes",
         "purchase_orders", "project_contract_checks", "project_documents", "job_offer_states", "invoice_lines", "invoices",
@@ -40,11 +41,12 @@ public class AccountPurge {
     /**
      * Tables that hold no account's data: the shared offer feed and its indexes, places, flags; the conversations and
      * messages, kept for the other side (an account's own conversations go with their last member); and the communities,
-     * kept for their members when their creator goes (the administrators then name their moderators).
+     * kept for their members when their creator goes (the administrators then name their moderators); and the ideas of the
+     * ideas board, kept for those who voted for them, their author forgotten.
      */
     static final Set<String> SHARED = Set.of("job_offers", "job_offer_skills", "job_offer_changes", "offer_appearances",
         "offer_mentions", "offer_rate_benchmarks", "offer_rate_history", "offer_site_statuses", "offer_skips", "offer_terms",
-        "geo_places", "feature_flags", "network_conversations", "network_messages", "network_communities");
+        "geo_places", "feature_flags", "network_conversations", "network_messages", "network_communities", "network_ideas");
 
     private static final String POSTS = "(SELECT id FROM network_posts WHERE author_id = ?)";
     private static final String COMMENTS = "(SELECT id FROM network_comments WHERE author_id = ? OR post_id IN " + POSTS + ")";
@@ -103,10 +105,12 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM network_posts WHERE author_id = ?", u);
         for (String table : List.of("network_likes", "network_comment_likes", "network_mission_takes",
             "network_poll_votes", "network_bookmarks", "network_tag_follows", "network_message_reactions",
-            "network_conversation_members", "network_community_members", "network_post_dismissals", "network_members")) {
+            "network_conversation_members", "network_community_members", "network_post_dismissals", "network_idea_votes", "network_members")) {
             rows += jdbc.update("DELETE FROM " + table + " WHERE user_id = ?", u);
         }
         rows += jdbc.update("DELETE FROM network_notifications WHERE recipient_id = ? OR actor_id = ?", u, u);
+        // The ideas proposed stay for those who voted for them, from a former member.
+        rows += jdbc.update("UPDATE network_ideas SET author_id = NULL WHERE author_id = ?", u);
         rows += jdbc.update("DELETE FROM network_follows WHERE follower_id = ? OR followed_id = ?", u, u);
         rows += jdbc.update("DELETE FROM network_follow_requests WHERE member_id = ? OR requester_id = ?", u, u);
         rows += jdbc.update("DELETE FROM network_restrictions WHERE owner_id = ? OR target_id = ?", u, u);

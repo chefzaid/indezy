@@ -1505,7 +1505,8 @@
         "COMMUNITY_REQUEST": "A request to join a community I moderate",
         "COMMUNITY_ACCEPTED": "Being let into a private community",
         "COMMUNITY_MODERATOR": "Being named a community moderator",
-        "MISSION_MATCH": "A mission passed on that matches my card"
+        "MISSION_MATCH": "A mission passed on that matches my card",
+        "IDEA_STATUS": "An idea I support moves on"
       },
       "banned": "The moderators ended this account’s membership: it cannot join again.",
       "privateTitle": "Private card",
@@ -3616,7 +3617,8 @@
         "COMMUNITY_REQUEST": "asks to join a community you moderate",
         "COMMUNITY_ACCEPTED": "let you into a community",
         "COMMUNITY_MODERATOR": "made you a moderator of a community",
-        "MISSION_MATCH": "passed on a mission matching your card"
+        "MISSION_MATCH": "passed on a mission matching your card",
+        "IDEA_STATUS": "An idea you support moves on"
       },
       "typesMany": {
         "FOLLOW": "started following you",
@@ -3632,7 +3634,8 @@
         "COMMUNITY_REQUEST": "ask to join a community you moderate",
         "COMMUNITY_ACCEPTED": "let you into a community",
         "COMMUNITY_MODERATOR": "made you a moderator of a community",
-        "MISSION_MATCH": "passed on missions matching your card"
+        "MISSION_MATCH": "passed on missions matching your card",
+        "IDEA_STATUS": "An idea you support moves on"
       },
       "moderation": {
         "WARNED": "The moderators warned you about a post, a comment or your conduct in the network.",
@@ -3666,7 +3669,8 @@
       "dismiss": "Delete this notification",
       "turnOff": "Turn off notifications like this",
       "turnedOff": "You will no longer get these notifications. Profile → Network turns them back on.",
-      "actionError": "That could not be done. Try again."
+      "actionError": "That could not be done. Try again.",
+      "idea": "An idea you support is now: {{status}}"
     },
     "drafts": {
       "title": "Drafts",
@@ -4141,6 +4145,56 @@
       "before": "Starting by",
       "remote": "{{days}}+ days remote",
       "hideTaken": "Hide those in my pipeline"
+    },
+    "ideas": {
+      "title": "Ideas for Indezy",
+      "subtitle": "Suggest what you miss, vote for what you want: the most supported come first.",
+      "asked": "The idea asked for",
+      "mergedInto": "Merged into",
+      "filter": "Search ideas",
+      "propose": "Suggest an idea",
+      "titleLabel": "Your idea, in one sentence",
+      "titleHint": "5 to 120 characters",
+      "similar": "Similar ideas already exist: vote for them instead.",
+      "descriptionLabel": "The details: the need, an example (optional)",
+      "proposeSubmit": "Suggest",
+      "sortLabel": "Order",
+      "sortTop": "Most supported",
+      "sortNew": "Newest",
+      "statusLabel": "Status",
+      "all": "All",
+      "status": {
+        "OPEN": "Open",
+        "PLANNED": "Planned",
+        "IN_PROGRESS": "In progress",
+        "DONE": "Shipped",
+        "DECLINED": "Not planned",
+        "MERGED": "Merged"
+      },
+      "none": "No ideas yet: suggest the first one.",
+      "noneFound": "No idea matches.",
+      "more": "Show more",
+      "vote": "Support this idea",
+      "unvote": "Take back my support",
+      "actions": "Idea actions",
+      "answer": "Answer (status)",
+      "merge": "Merge into another idea",
+      "statusField": "Status",
+      "noteField": "A word for the members (optional)",
+      "mergeField": "Number of the idea kept",
+      "mergeSubmit": "Merge",
+      "formerMember": "A former member",
+      "loadError": "Could not load the ideas.",
+      "saveError": "Could not save: try again.",
+      "notFound": "This idea no longer exists.",
+      "created": "Idea suggested, with your support.",
+      "tooMany": "You suggested 5 ideas today: come back tomorrow.",
+      "deleteConfirm": "Delete this idea?",
+      "deleted": "Idea deleted.",
+      "cannotDelete": "Other members support it or it was answered: it stays.",
+      "merged": "Merged into “{{title}}”, its supporters too.",
+      "supporter": "supporter",
+      "supporters": "supporters"
     }
   }
 }

@@ -97,6 +97,7 @@ public class NetworkNoticeEmailComposer {
             case COMMUNITY_ACCEPTED -> "let you into a community";
             case COMMUNITY_MODERATOR -> "made you a moderator of a community";
             case MISSION_MATCH -> "passed on a mission matching your card";
+            case IDEA_STATUS -> "An idea you voted for moved on";
             default -> "did something";
         };
     }
@@ -118,6 +119,7 @@ public class NetworkNoticeEmailComposer {
             case COMMUNITY_ACCEPTED -> many ? "vous ont accepté dans une communauté" : "vous a accepté dans une communauté";
             case COMMUNITY_MODERATOR -> many ? "vous ont nommé modérateur d’une communauté" : "vous a nommé modérateur d’une communauté";
             case MISSION_MATCH -> many ? "ont transmis des missions qui correspondent à votre carte" : "a transmis une mission qui correspond à votre carte";
+            case IDEA_STATUS -> many ? "Des idées que vous soutenez ont avancé" : "Une idée que vous soutenez a avancé";
             default -> many ? "ont agi" : "a agi";
         };
     }
@@ -128,6 +130,10 @@ public class NetworkNoticeEmailComposer {
         String who = line.others() == 0 ? line.actor() : line.actor() + (english ? " and " : " et ") + line.others() + others;
         boolean many = line.others() > 0;
         String what = english ? english(line.type()) : french(line.type(), many);
+        if (line.type() == NetworkNotificationType.IDEA_STATUS) {
+            // The administrators answered for Indezy: no member to name.
+            return what + (line.excerpt() == null ? "" : " “" + line.excerpt() + "”");
+        }
         return who + " " + what + (line.excerpt() == null ? "" : " “" + line.excerpt() + "”");
     }
 }

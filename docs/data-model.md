@@ -131,6 +131,8 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkFollowRequest` | `network_follow_requests` | two members (by id) | once answered or withdrawn, on a block, when the card turns public (approved), or with either account |
 | `NetworkRestriction` | `network_restrictions` | member (by id), on another | by hand, or with either account |
 | `NetworkTagFollow` | `network_tag_follows` | member (by id) | by hand, or with its account |
+| `NetworkIdea` | `network_ideas` | shared by the members, suggested by one (by id, none once their account is deleted) | by its author while only they support it, or by the administrators; kept when its author's account is deleted |
+| `NetworkIdeaVote` | `network_idea_votes` | idea and member (by id), once each | taken back, moved when its idea is merged, with its idea or the member's account |
 | `NetworkNotification` | `network_notifications` | member (by id) | with its post, or the recipient's or actor's account; never otherwise, read or not |
 | `NetworkReport` | `network_reports` | member (by id), on a post, comment, message or member | never once decided (the audit trail); with the reporter's or target's account |
 | `NetworkConversation` | `network_conversations` | shared by its members | never, not even once its last member's account is gone (TODO.md, Bugs to fix) |
@@ -194,6 +196,9 @@ Deletion rules:
 - `network_communities.private_community` makes a community joined on request (`network_community_members.pending`
   until a moderator answers) and its posts read by its members alone; `network_notifications.community_id` names the
   community a notification is about.
+- `network_ideas.status` is OPEN, PLANNED, IN_PROGRESS, DONE, DECLINED or MERGED (`merged_into_id` then naming the idea
+  kept, its votes moved there); `network_notifications.idea_id` names the idea an `IDEA_STATUS` notification is about,
+  deleted with the idea.
 - Page views are dropped every night 90 days after they happened; `network_members.private_viewing` keeps a member
   out of the names their views show, and their own viewers' names from them.
 

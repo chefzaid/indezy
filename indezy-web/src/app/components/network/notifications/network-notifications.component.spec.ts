@@ -140,6 +140,16 @@ describe('NetworkNotificationsComponent', () => {
     expect(element.querySelector('[data-notice-filter="communities"] .n')?.textContent?.trim()).toBe('2');
   });
 
+  it('tells an idea the reader supports moved on, from Indezy, and leads to it', () => {
+    const element = create(of([{ ...group('IDEA_STATUS', 1), postId: null, postExcerpt: null, actors: [],
+      idea: { id: 12, title: 'Thème sombre', status: 'PLANNED' } }]));
+    const notice = element.querySelector('[data-notice="IDEA_STATUS"]') as HTMLElement;
+    expect(notice.querySelector('[data-notice-idea]')?.textContent).toContain('An idea you support is now: Planned');
+    expect(notice.textContent).toContain('« Thème sombre »');
+    expect(notice.querySelector('app-member-avatar')).toBeNull();
+    expect(notice.querySelector('[data-notice-link]')?.getAttribute('href')).toBe('/network/ideas/12');
+  });
+
   it('groups by period and leads to the post, the member, or nowhere for the moderators', () => {
     const element = create();
     const now = new Date('2026-11-15T12:00:00');

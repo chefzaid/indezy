@@ -6,6 +6,7 @@ import dev.swirlit.indezy.model.NetworkNotification;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.repository.NetworkCommunityRepository;
+import dev.swirlit.indezy.repository.NetworkIdeaRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.NetworkNotificationRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
@@ -57,6 +58,7 @@ public class NetworkNotificationService {
         NetworkNotificationType.REPORT_DISMISSED);
 
     private final NetworkCommunityRepository communities;
+    private final NetworkIdeaRepository ideas;
     private final NetworkService network;
     private final NetworkMemberRepository members;
     private final NetworkNotificationRepository notifications;
@@ -92,6 +94,24 @@ public class NetworkNotificationService {
         events.notice(recipientId);
     }
 
+    /**
+     * Tells a member who voted for an idea that it moved on, unless they are away or turned the kind off; kept as by
+     * themselves, since the administrators answer for Indezy, not as members.
+     */
+    void idea(Long recipientId, Long ideaId) {
+        Optional<NetworkMember> recipient = members.findByUserId(recipientId).filter(NetworkMember::isActive);
+        if (recipient.isEmpty() || off(recipient.get()).contains(NetworkNotificationType.IDEA_STATUS)) {
+            return;
+        }
+        NetworkNotification notification = new NetworkNotification();
+        notification.setRecipientId(recipientId);
+        notification.setActorId(recipientId);
+        notification.setType(NetworkNotificationType.IDEA_STATUS);
+        notification.setIdeaId(ideaId);
+        notifications.save(notification);
+        events.notice(recipientId);
+    }
+
     /** Tells a member the moderators' decision; kept as by themselves, since no member acted. */
     void moderation(Long recipientId, NetworkNotificationType type) {
         NetworkNotification notification = new NetworkNotification();
@@ -122,7 +142,7 @@ public class NetworkNotificationService {
         for (NetworkNotification notification : notifications.findByRecipientIdOrderByCreatedAtDescIdDesc(userId, PageRequest.of(0, READ_BACK))) {
             if (!blocked.contains(notification.getActorId())) {
                 groups.computeIfAbsent(notification.getType() + ":" + notification.getPostId() + ":" + notification.getCommunityId() + ":" +
-                    notification.isRead(), key -> new ArrayList<>()).add(notification);
+                    notification.getIdeaId() + ":" + notification.isRead(), key -> new ArrayList<>()).add(notification);
             }
         }
         Map<Long, Optional<NetworkDtos.MemberCard>> cards = new LinkedHashMap<>();
@@ -130,6 +150,12 @@ public class NetworkNotificationService {
         Map<Long, Optional<NetworkDtos.CommunityRef>> places = new LinkedHashMap<>();
         return groups.values().stream().map(group -> {
             NetworkNotification latest = group.getFirst();
+            if (latest.getType() == NetworkNotificationType.IDEA_STATUS) {
+                NetworkDtos.IdeaRef idea = latest.getIdeaId() == null ? null : ideas.findById(latest.getIdeaId())
+                    .map(found -> new NetworkDtos.IdeaRef(found.getId(), found.getTitle(), found.getStatus())).orElse(null);
+                return idea == null ? null : new NetworkDtos.NotificationGroup(latest.getType(), null, null, List.of(), group.size(),
+                    latest.getCreatedAt(), latest.isRead(), null, idea);
+            }
             if (MODERATION.contains(latest.getType())) {
                 return new NetworkDtos.NotificationGroup(latest.getType(), null, null, List.of(), group.size(), latest.getCreatedAt(),
                     latest.isRead());
@@ -140,7 +166,7 @@ public class NetworkNotificationService {
             NetworkDtos.CommunityRef place = latest.getCommunityId() == null ? null : places.computeIfAbsent(latest.getCommunityId(),
                 id -> communities.findById(id).map(found -> new NetworkDtos.CommunityRef(found.getSlug(), found.getName()))).orElse(null);
             return actors.isEmpty() ? null : new NetworkDtos.NotificationGroup(latest.getType(), latest.getPostId(), excerpt,
-                actors.stream().limit(ACTORS_SHOWN).toList(), actors.size(), latest.getCreatedAt(), latest.isRead(), place);
+                actors.stream().limit(ACTORS_SHOWN).toList(), actors.size(), latest.getCreatedAt(), latest.isRead(), place, null);
         }).filter(Objects::nonNull).limit(GROUPS_SHOWN).toList();
     }
 
