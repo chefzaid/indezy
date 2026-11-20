@@ -1,0 +1,242 @@
+@use '../layout/network-columns' as columns;
+
+// A community in the feed's columns: its head, its tabs, its feed with a composer for its members, or its members.
+.community-page {
+  @include columns.grid;
+}
+
+.left {
+  @include columns.left;
+}
+
+.main {
+  @include columns.main;
+}
+
+.right {
+  @include columns.right;
+}
+
+.card {
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px rgba(15, 12, 40, 0.04);
+}
+
+.head {
+  padding: 20px;
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    > mat-icon {
+      color: var(--app-link);
+    }
+
+    h1 {
+      flex: 1;
+      margin: 0;
+      font-size: 1.375rem;
+      font-weight: 700;
+    }
+  }
+
+  .description {
+    margin: 8px 0 0;
+    color: var(--app-text-muted);
+    line-height: 1.5;
+    white-space: pre-line;
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin-top: 12px;
+    color: var(--app-text-muted);
+    font-size: 0.875rem;
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+
+    a {
+      color: var(--app-link);
+    }
+  }
+
+  .membership {
+    margin-left: auto;
+    border-radius: 999px;
+
+    &.joined {
+      background: var(--app-hover);
+      color: var(--app-text);
+    }
+  }
+
+  .edit {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.tab {
+  flex: 1;
+  padding: 12px 8px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &.active {
+    border-bottom-color: var(--app-link);
+    color: var(--app-link);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: -2px;
+  }
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.join-hint,
+.status {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
+}
+
+.posts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.moderate {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 0;
+    background: none;
+    color: var(--mat-sys-error);
+    font: inherit;
+    font-size: 0.8125rem;
+    cursor: pointer;
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+  }
+}
+
+.more {
+  align-self: center;
+  border-radius: 999px;
+}
+
+.members {
+  padding: 8px 16px;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+
+    & + li {
+      border-top: 1px solid var(--app-border);
+    }
+  }
+
+  .who {
+    flex: 1;
+    color: var(--app-text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .remove {
+    color: var(--mat-sys-error);
+  }
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--app-selected-bg);
+  color: var(--app-link);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: var(--app-text-muted);
+  text-align: center;
+
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    color: var(--app-link);
+    font-size: 40px;
+  }
+
+  p {
+    margin: 0;
+  }
+}

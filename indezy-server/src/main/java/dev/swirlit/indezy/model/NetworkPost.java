@@ -38,6 +38,10 @@ public class NetworkPost extends BaseEntity {
     @Column(name = "text", nullable = false, length = TEXT_MAX)
     private String text;
 
+    /** The community it was posted in, if any: its feed shows it. */
+    @Column(name = "community_id")
+    private Long communityId;
+
     /** Its text folded for the search: lower case, accents and repeated spaces dropped; kept with the text. */
     @Column(name = "search_text", length = TEXT_MAX)
     private String searchText;

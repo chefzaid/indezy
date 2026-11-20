@@ -34,7 +34,7 @@ describe('NetworkNavComponent', () => {
   it('links every section after the search, marks the one open, and counts what is unread', async () => {
     const element = await create(false, '/network/members');
     const links = Array.from(element.querySelectorAll('a.nav-link')).map(link => link.getAttribute('href'));
-    expect(links).toEqual(['/network', '/network/messages', '/network/members', '/network/notifications']);
+    expect(links).toEqual(['/network', '/network/messages', '/network/members', '/network/communities', '/network/notifications']);
     expect(element.querySelector('app-network-search')).not.toBeNull();
     expect(element.querySelector('[data-feed-members]')?.getAttribute('aria-current')).toBe('page');
     // Home is open on the feed only, not under it.

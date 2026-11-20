@@ -189,7 +189,7 @@ public class NetworkFeedService {
     }
 
     /** The members muted or blocked either way, and the private cards the reader does not follow. */
-    private Set<Long> excluded(Long userId) {
+    Set<Long> excluded(Long userId) {
         Set<Long> excluded = new HashSet<>(restrictions.blockedEitherWay(userId));
         restrictions.targets(userId, NetworkRestrictionKind.MUTE).forEach(member -> excluded.add(member.getUserId()));
         excluded.addAll(follows.locked(userId));

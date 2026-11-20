@@ -117,6 +117,8 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkCommentLike` | `network_comment_likes` | member and comment (by id) | by hand, or with its comment, its post or either account |
 | `NetworkPageView` | `network_page_views` | viewer and member (by id), once a day per pair | nightly, 90 days after it; with either account |
 | `NetworkPostImpression` | `network_post_impressions` | post and viewer (by id), one row per pair with how many times | with its post, or the viewer's account |
+| `NetworkCommunity` | `network_communities` | shared by its members, created by a member (by id) | by its creator or an administrator (its posts stay, out of it); kept when its creator's account goes |
+| `NetworkCommunityMember` | `network_community_members` | community and member (by id), a moderator or not, removed or not | on leaving, with its community, or with its account |
 | `NetworkPollVote` | `network_poll_votes` | member and post (by id) | with its post or either account; a change rewrites it |
 | `NetworkMissionTake` | `network_mission_takes` | member and post (by id) | with its post or either account; kept when its project is deleted, and reused if the mission is taken again |
 | `NetworkBookmark` | `network_bookmarks` | member and post (by id) | by hand, or with its post or either account |
@@ -186,6 +188,8 @@ Deletion rules:
   workspace's projects, never stored twice).
 - `network_posts.search_text` keeps each post's text folded (lower case, without accents or repeated spaces) for the
   search, set on every save; posts saved before it are folded once when the server is ready.
+- `network_posts.community_id` names the community a post was posted in; deleting the community clears it, the post
+  staying.
 - Page views are dropped every night 90 days after they happened; `network_members.private_viewing` keeps a member
   out of the names their views show, and their own viewers' names from them.
 

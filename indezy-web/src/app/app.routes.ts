@@ -176,6 +176,17 @@ export const routes: Routes = [
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK'), ownNetworkTab('saved')]
   },
   {
+    // The network's communities, and each community's page.
+    path: 'network/communities',
+    loadComponent: () => import('./components/network/communities/network-communities.component').then(m => m.NetworkCommunitiesComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
+    path: 'network/communities/:slug',
+    loadComponent: () => import('./components/network/communities/network-community.component').then(m => m.NetworkCommunityComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     // The network's search results: members, posts and tags for what was typed (`?q=`), a tab in `?tab=`.
     path: 'network/search',
     loadComponent: () => import('./components/network/search-results/network-search-results.component').then(m => m.NetworkSearchResultsComponent),

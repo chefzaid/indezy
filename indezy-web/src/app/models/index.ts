@@ -36,3 +36,4 @@ export * from './training.models';
 export * from './testimonial.models';
 export * from './webhook.models';
 export * from './booking.models';
+export * from './network-communities.models';

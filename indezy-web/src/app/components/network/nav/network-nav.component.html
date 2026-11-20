@@ -17,6 +17,9 @@
     <a routerLink="/network/members" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-link" data-feed-members>
       <mat-icon aria-hidden="true">group</mat-icon><span class="label">{{ 'network.feed.members' | translate }}</span>
     </a>
+    <a routerLink="/network/communities" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-link" data-feed-communities>
+      <mat-icon aria-hidden="true">diversity_3</mat-icon><span class="label">{{ 'network.communities.tab' | translate }}</span>
+    </a>
     <a routerLink="/network/notifications" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-link" data-feed-notifications>
       <mat-icon aria-hidden="true">notifications</mat-icon><span class="label">{{ 'network.notices.title' | translate }}</span>
       @if (unread$ | async; as unread) {

@@ -10,7 +10,7 @@ import { NetworkSearchComponent } from '../search/network-search.component';
 
 /**
  * The network's sections, at the top of each of its pages: its search, then a row of tabs (Home, Messages, Members,
- * Notifications, with what is unread), the one open marked, so that a section is one click away from any other. A page
+ * Communities, Notifications, with what is unread), the one open marked, so that a section is one click away from any other. A page
  * reached from another (a post, a tag, a member) opens the row with **Back**. The reader's own page, with their saved
  * posts and drafts, is the card beside the feed.
  */

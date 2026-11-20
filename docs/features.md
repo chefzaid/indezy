@@ -431,9 +431,9 @@ comment that looks like spam (see [Security](./security.md#member-network)) is h
 told so; **Moderation** lists what is held, with why, to **Publish** as its author's or **Reject**.
 
 Every page of the network opens with the same bar, staying at the top as the page scrolls: the network's **search**,
-then its sections as a row of tabs, **Home**, **Messages** (with how many are unread), **Members** and **Notifications**
+then its sections as a row of tabs, **Home**, **Messages** (with how many are unread), **Members**, **Communities** and **Notifications**
 (with how many are unread), the one open marked, so that any section is one click away; on a phone the search takes the
-whole row and the four tabs share the one under it as icons with their counts, the open one named too. The reader's own
+whole row and the five tabs share the one under it as icons with their counts, the open one named too. The reader's own
 page, with their saved posts and drafts, is the card on the left.
 
 The **search** suggests, from two characters typed, up to five members and up to five tags in use, each opening its page,
@@ -454,6 +454,19 @@ composer match names the same way, every word typed.
 A post's, a tag's or a member's page puts **Back** before the
 search: to the page the reader came from within the app, or to the feed when they opened it first, from a link or a
 bookmark.
+
+**Communities** (`/network/communities`, a tab of the network's bar) gather members around a stack, a city or a trade:
+listed with those the reader is in first, then the largest, found by name, each joined in a click. **Create a community**
+names one (60 characters, a description of 500 if wanted; ten at most a member), at an address made from its name
+(`/network/communities/kafka-a-lyon`). A community's page shows its name, description, members and moderators, **Join** /
+**Leave**, and its feed: its members post in it from its composer (a spam score holding a post as anywhere else), every
+member reads it (those muted or blocked either way aside). Its creator moderates it and names co-moderators among its
+members; moderators edit its name and description, **remove** a post from it (deleting it) and **remove** a member (who
+cannot join again; a co-moderator only by the creator, never the creator); when its last moderator leaves, its earliest
+member moderates it. The administrators have the creator's hand in every community, the last word, as decided in
+TODO.md (**Member network audience**); deleting a community (its creator or an administrator) keeps its posts as plain
+posts. Reports of its posts reach the administrators' moderation queue as any post's do
+(`/api/network/communities`, `/<slug>`, `/<slug>/membership`, `/<slug>/posts`, `/<slug>/members`, `/<slug>/moderators/<handle>`).
 
 **Members** on the feed (`/network/members`) has five tabs, the one open kept in the address (`?tab=`). **All members**
 is the member directory: the members found by a skill and a city typed in its search bar, an availability and remote

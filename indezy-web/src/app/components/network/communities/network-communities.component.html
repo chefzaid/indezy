@@ -1,0 +1,77 @@
+<div class="communities-page">
+  <app-network-nav></app-network-nav>
+  <aside class="left">
+    <app-network-me-card></app-network-me-card>
+  </aside>
+
+  <main class="main">
+    <app-page-header icon="diversity_3" [title]="'network.communities.title' | translate" [subtitle]="'network.communities.subtitle' | translate">
+    </app-page-header>
+
+    <div class="toolbar">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="filter">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>{{ 'network.communities.filter' | translate }}</mat-label>
+        <input matInput [formControl]="filter" maxlength="60" data-communities-filter>
+      </mat-form-field>
+      <button mat-flat-button type="button" (click)="creating = !creating" [attr.aria-expanded]="creating" data-community-new>
+        <mat-icon>add</mat-icon>{{ 'network.communities.create' | translate }}
+      </button>
+    </div>
+
+    @if (creating) {
+      <form class="card create" (submit)="$event.preventDefault(); create()" data-community-form>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'network.communities.name' | translate }}</mat-label>
+          <input matInput [formControl]="name" maxlength="60" required data-community-name>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'network.communities.description' | translate }}</mat-label>
+          <textarea matInput [formControl]="description" rows="3" maxlength="500" data-community-description></textarea>
+        </mat-form-field>
+        <p class="hint">{{ 'network.communities.createHint' | translate }}</p>
+        <div class="actions">
+          <button mat-button type="button" (click)="creating = false">{{ 'common.cancel' | translate }}</button>
+          <button mat-flat-button type="submit" [disabled]="name.invalid || saving" data-community-create>{{ 'network.communities.createSubmit' | translate }}</button>
+        </div>
+      </form>
+    }
+
+    @if (list === null) {
+      <p class="status" role="status">{{ 'common.loading' | translate }}</p>
+    } @else if (list.length === 0) {
+      <section class="card empty" data-communities-none>
+        <mat-icon aria-hidden="true">diversity_3</mat-icon>
+        <p>{{ (filter.value ? 'network.communities.noneFound' : 'network.communities.none') | translate }}</p>
+      </section>
+    } @else {
+      <ul class="list">
+        @for (community of list; track community.slug) {
+          <li class="card" [attr.data-community]="community.slug">
+            <a class="name" [routerLink]="['/network/communities', community.slug]">{{ community.name }}</a>
+            @if (community.description) {
+              <p class="description">{{ community.description }}</p>
+            }
+            <div class="foot">
+              <span class="count"><mat-icon aria-hidden="true">group</mat-icon>
+                {{ (community.members === 1 ? 'network.communities.membersOne' : 'network.communities.members') | translate: { count: community.members } }}</span>
+              @if (community.moderator) {
+                <span class="badge">{{ 'network.communities.moderator' | translate }}</span>
+              }
+              @if (community.joined) {
+                <span class="joined"><mat-icon aria-hidden="true">check</mat-icon>{{ 'network.communities.joined' | translate }}</span>
+              } @else {
+                <button mat-stroked-button type="button" (click)="join(community)" [disabled]="pending.has(community.slug)"
+                  [attr.data-community-join]="community.slug">{{ 'network.communities.join' | translate }}</button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </main>
+
+  <aside class="right">
+    <app-network-side></app-network-side>
+  </aside>
+</div>

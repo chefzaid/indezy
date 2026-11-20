@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -94,4 +95,15 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
 
     /** Posts saved before the folded text was kept, to fill it in. */
     List<NetworkPost> findTop500BySearchTextIsNull();
+
+    /** A community's posts but those of the excluded authors, the newest first. */
+    @Query(value = "select p from NetworkPost p where p.communityId = :communityId and p.authorId not in :excluded " +
+        "order by p.createdAt desc, p.id desc",
+        countQuery = "select count(p) from NetworkPost p where p.communityId = :communityId and p.authorId not in :excluded")
+    Page<NetworkPost> inCommunity(@Param("communityId") Long communityId, @Param("excluded") Collection<Long> excluded, Pageable page);
+
+    /** A community deleted, its posts stay as plain posts. */
+    @Modifying
+    @Query("update NetworkPost p set p.communityId = null where p.communityId = :communityId")
+    int clearCommunity(@Param("communityId") Long communityId);
 }

@@ -30,9 +30,9 @@ for (const [language, width] of [['en', 1920], ['fr', 1366], ['en', 390]] as con
     await page.goto('/network');
     // The tabs, after the search, in this order.
     const tabs = page.locator('[data-network-nav] a.nav-link');
-    await expect(tabs).toHaveCount(4);
+    await expect(tabs).toHaveCount(5);
     expect(await tabs.evaluateAll(links => links.map(link => link.getAttribute('href'))))
-      .toEqual(['/network', '/network/messages', '/network/members', '/network/notifications']);
+      .toEqual(['/network', '/network/messages', '/network/members', '/network/communities', '/network/notifications']);
     // Every tab in sight, a phone's too (icons, the open one named).
     for (const box of await tabs.evaluateAll(links => links.map(link => link.getBoundingClientRect().right))) {
       expect(box).toBeLessThanOrEqual(width);
@@ -444,3 +444,64 @@ test('measures the strength of one\'s card, each gap one click from where it is 
   const audit = await new AxeBuilder({ page }).include('app-card-strength').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(violation => violation.id)).toEqual([]);
 });
+
+for (const [language, width] of [['fr', 1600], ['en', 390]] as const) {
+  test(`creates a community, posts in it and moderates it (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
+    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+    await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+    let list: Record<string, unknown>[] = [{ slug: 'lyon-tech', name: 'Lyon Tech', description: 'Les freelances lyonnais', members: 12,
+      joined: false, moderator: false }];
+    await page.route('**/api/network/communities?**', route => route.fulfill({ json: list }));
+    const community = { slug: 'kafka', name: 'Kafka', description: 'Streams et brokers', members: 1, joined: true, moderator: true };
+    await page.route('**/api/network/communities', route => {
+      list = [community, ...list];
+      return route.fulfill({ status: 201, json: community });
+    });
+    await page.route('**/api/network/communities/kafka', route => route.fulfill({ json: { community, moderators: [card('camille', 'Camille')],
+      creator: true } }));
+    const post = (id: number, own: boolean, text: string) => ({ id, text, tags: [], createdAt: '2026-11-19T09:00:00', own, likes: 0,
+      liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false,
+      kind: 'POST', details: null, answerCommentId: null, poll: null, taken: null, author: own ? card('camille', 'Camille') : card('leo_m', 'Léo') });
+    await page.route('**/api/network/communities/kafka/posts?**', route => route.fulfill({ json: { posts: [post(8, false, 'Une offre hors sujet')],
+      page: 0, more: false } }));
+    const posted: unknown[] = [];
+    await page.route('**/api/network/communities/kafka/posts', route => {
+      posted.push(route.request().postDataJSON());
+      return route.fulfill({ status: 201, json: post(9, true, 'Qui utilise Kafka Streams ?') });
+    });
+    let removed = false;
+    await page.route('**/api/network/communities/kafka/posts/8', route => {
+      removed = true;
+      return route.fulfill({ status: 204 });
+    });
+
+    await page.goto('/network/communities');
+    await expect(page.locator('[data-community="lyon-tech"]')).toContainText(en ? '12 members' : '12 membres');
+    await page.locator('[data-community-new]').click();
+    await page.locator('[data-community-name]').fill('Kafka');
+    await page.locator('[data-community-description]').fill('Streams et brokers');
+    const audit = await new AxeBuilder({ page }).include('app-network-communities').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    await page.locator('[data-community-create]').click();
+    await expect(page).toHaveURL(/\/network\/communities\/kafka$/);
+    await expect(page.locator('[data-community-page="kafka"] h1')).toHaveText('Kafka');
+
+    await page.locator('[data-community-text]').fill('Qui utilise Kafka Streams ?');
+    await page.locator('[data-community-publish]').click();
+    await expect(page.locator('[data-post="9"]')).toBeVisible();
+    expect(posted).toEqual([{ text: 'Qui utilise Kafka Streams ?' }]);
+    await page.locator('[data-community-remove-post="8"]').click();
+    await page.locator('mat-dialog-container button').last().click();
+    await expect(page.locator('[data-post="8"]')).toHaveCount(0);
+    expect(removed).toBe(true);
+    const pageAudit = await new AxeBuilder({ page }).include('app-network-community').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(pageAudit.violations.map(violation => violation.id)).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}

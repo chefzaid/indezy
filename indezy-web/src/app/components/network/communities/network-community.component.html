@@ -1,0 +1,150 @@
+<div class="community-page">
+  <app-network-nav [back]="true"></app-network-nav>
+  <aside class="left">
+    <app-network-me-card></app-network-me-card>
+  </aside>
+
+  <main class="main">
+    @if (missing) {
+      <section class="card empty" data-community-missing>
+        <mat-icon aria-hidden="true">search_off</mat-icon>
+        <p>{{ 'network.communities.missing' | translate }}</p>
+        <a mat-stroked-button routerLink="/network/communities">{{ 'network.communities.all' | translate }}</a>
+      </section>
+    } @else if (page; as current) {
+      <section class="card head" [attr.data-community-page]="current.community.slug">
+        @if (editing) {
+          <form class="edit" (submit)="$event.preventDefault(); saveEdit()" data-community-edit-form>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'network.communities.name' | translate }}</mat-label>
+              <input matInput [formControl]="name" maxlength="60" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'network.communities.description' | translate }}</mat-label>
+              <textarea matInput [formControl]="description" rows="3" maxlength="500"></textarea>
+            </mat-form-field>
+            <div class="actions">
+              <button mat-button type="button" (click)="editing = false">{{ 'common.cancel' | translate }}</button>
+              <button mat-flat-button type="submit" [disabled]="name.invalid" data-community-save>{{ 'common.save' | translate }}</button>
+            </div>
+          </form>
+        } @else {
+          <div class="title">
+            <mat-icon aria-hidden="true">diversity_3</mat-icon>
+            <h1>{{ current.community.name }}</h1>
+            @if (current.community.moderator) {
+              <button mat-icon-button type="button" [matMenuTriggerFor]="manage" [attr.aria-label]="'network.communities.manage' | translate"
+                data-community-manage>
+                <mat-icon>more_horiz</mat-icon>
+              </button>
+              <mat-menu #manage="matMenu">
+                <button mat-menu-item type="button" (click)="startEditing()" data-community-edit><mat-icon>edit</mat-icon>{{ 'network.communities.edit' | translate }}</button>
+                @if (current.creator) {
+                  <button mat-menu-item type="button" (click)="deleteCommunity()" data-community-delete><mat-icon>delete</mat-icon>{{ 'network.communities.delete' | translate }}</button>
+                }
+              </mat-menu>
+            }
+          </div>
+          @if (current.community.description) {
+            <p class="description">{{ current.community.description }}</p>
+          }
+          <div class="facts">
+            <span><mat-icon aria-hidden="true">group</mat-icon>
+              {{ (current.community.members === 1 ? 'network.communities.membersOne' : 'network.communities.members') | translate: { count: current.community.members } }}</span>
+            @if (current.moderators.length) {
+              <span class="mods">{{ 'network.communities.moderatedBy' | translate }}
+                @for (moderator of current.moderators; track moderator.handle; let last = $last) {
+                  <a [routerLink]="['/m', moderator.handle]">{{ moderator.firstName }} {{ moderator.lastName }}</a>{{ last ? '' : ', ' }}
+                }
+              </span>
+            }
+            <button mat-flat-button type="button" class="membership" [class.joined]="current.community.joined" (click)="toggleMembership()"
+              [attr.aria-pressed]="current.community.joined" data-community-membership>
+              {{ (current.community.joined ? 'network.communities.leave' : 'network.communities.join') | translate }}
+            </button>
+          </div>
+        }
+      </section>
+
+      <div class="tabs" role="tablist" [attr.aria-label]="'network.communities.tabs' | translate">
+        <button type="button" role="tab" class="tab" [class.active]="tab === 'posts'" [attr.aria-selected]="tab === 'posts'" (click)="tab = 'posts'"
+          data-community-tab-posts>{{ 'network.page.posts' | translate }}</button>
+        <button type="button" role="tab" class="tab" [class.active]="tab === 'members'" [attr.aria-selected]="tab === 'members'" (click)="showMembers()"
+          data-community-tab-members>{{ 'network.communities.membersTab' | translate }}</button>
+      </div>
+
+      @if (tab === 'posts') {
+        @if (current.community.joined) {
+          <form class="card composer" (submit)="$event.preventDefault(); publish()" data-community-composer>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>{{ 'network.communities.write' | translate: { name: current.community.name } }}</mat-label>
+              <textarea matInput [formControl]="text" rows="2" maxlength="3000" data-community-text></textarea>
+            </mat-form-field>
+            <div class="actions">
+              <button mat-flat-button type="submit" [disabled]="text.invalid || posting" data-community-publish>{{ 'network.feed.publish' | translate }}</button>
+            </div>
+          </form>
+        } @else {
+          <p class="join-hint" data-community-join-hint>{{ 'network.communities.joinToPost' | translate }}</p>
+        }
+        @if (posts.length === 0) {
+          <section class="card empty" data-community-no-posts>
+            <mat-icon aria-hidden="true">forum</mat-icon>
+            <p>{{ 'network.communities.noPosts' | translate }}</p>
+          </section>
+        }
+        <ul class="posts">
+          @for (post of posts; track post.id) {
+            <li>
+              @if (current.community.moderator && !post.own) {
+                <div class="moderate">
+                  <button type="button" (click)="removePost(post)" [attr.data-community-remove-post]="post.id">
+                    <mat-icon aria-hidden="true">remove_circle_outline</mat-icon>{{ 'network.communities.removePost' | translate }}
+                  </button>
+                </div>
+              }
+              <app-post-card [post]="post"></app-post-card>
+            </li>
+          }
+        </ul>
+        @if (morePosts) {
+          <button mat-stroked-button type="button" class="more" (click)="loadPosts(postsPage + 1)" data-community-more>{{ 'network.feed.more' | translate }}</button>
+        }
+      } @else {
+        <section class="card members" data-community-members>
+          @if (members === null) {
+            <p class="status" role="status">{{ 'common.loading' | translate }}</p>
+          } @else {
+            <ul>
+              @for (member of members; track member.card.handle) {
+                <li [attr.data-community-member]="member.card.handle">
+                  <app-member-avatar [subject]="member.card" [size]="40"></app-member-avatar>
+                  <a class="who" [routerLink]="['/m', member.card.handle]">{{ member.card.firstName }} {{ member.card.lastName }}</a>
+                  @if (member.moderator) {
+                    <span class="badge">{{ 'network.communities.moderator' | translate }}</span>
+                  }
+                  @if (current.creator) {
+                    <button mat-button type="button" (click)="toggleModerator(member)" [attr.data-community-moderator]="member.card.handle">
+                      {{ (member.moderator ? 'network.communities.unmakeModerator' : 'network.communities.makeModerator') | translate }}
+                    </button>
+                  }
+                  @if (current.community.moderator && !member.moderator) {
+                    <button mat-button type="button" class="remove" (click)="removeMember(member)" [attr.data-community-remove-member]="member.card.handle">
+                      {{ 'network.communities.removeMember' | translate }}
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    } @else {
+      <p class="status" role="status">{{ 'common.loading' | translate }}</p>
+    }
+  </main>
+
+  <aside class="right">
+    <app-network-side></app-network-side>
+  </aside>
+</div>
