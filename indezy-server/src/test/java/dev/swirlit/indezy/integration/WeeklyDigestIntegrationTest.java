@@ -107,7 +107,7 @@ class WeeklyDigestIntegrationTest extends OfferIntegrationTestSupport {
             users.save(user);
         });
         Map<String, Object> settings = new HashMap<>(call(alice, HttpMethod.GET, "/users/notifications", null).getBody());
-        assertThat((List<String>) settings.get("weeklyDigestSections")).hasSize(8);
+        assertThat((List<String>) settings.get("weeklyDigestSections")).hasSize(11);
         settings.put("weeklyReports", true);
         settings.put("weeklyDigestSections", List.of("PIPELINE", "MISSIONS_ENDING"));
         assertThat((List<String>) call(alice, HttpMethod.PUT, "/users/notifications", settings).getBody().get("weeklyDigestSections"))

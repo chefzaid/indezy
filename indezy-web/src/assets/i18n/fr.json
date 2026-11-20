@@ -1079,7 +1079,10 @@
         "QUIET_OPPORTUNITIES": "Opportunités sans nouvelles",
         "MISSIONS_ENDING": "Missions qui se terminent",
         "OFFERS": "Nouvelles offres correspondant à votre profil",
-        "NETWORK_TAGS": "Publications les plus aimées des étiquettes suivies (réseau des membres)"
+        "NETWORK_TAGS": "Publications les plus aimées des étiquettes suivies (réseau des membres)",
+        "NETWORK_FOLLOWED": "Publications les plus suivies des membres que vous suivez (réseau des membres)",
+        "NETWORK_MISSIONS": "Missions transmises qui correspondent à votre carte (réseau des membres)",
+        "NETWORK_ACTIVITY": "Nouveaux abonnés et visites de votre page (réseau des membres)"
       },
       "bookingTitle": "Appels réservés",
       "booking": "M'envoyer chaque appel réservé par e-mail",

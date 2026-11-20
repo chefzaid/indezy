@@ -47,11 +47,14 @@ export interface UserProfile {
 
 /** A section of the weekly digest, which the account can leave out. */
 export type DigestSection = 'PIPELINE' | 'OVERDUE_INVOICES' | 'INTERVIEWS' | 'FOLLOW_UPS' | 'QUIET_OPPORTUNITIES' | 'MISSIONS_ENDING' | 'OFFERS' |
-  'NETWORK_TAGS';
+  'NETWORK_TAGS' | 'NETWORK_FOLLOWED' | 'NETWORK_MISSIONS' | 'NETWORK_ACTIVITY';
+
+/** The digest's sections about the member network, offered while it is on. */
+export const NETWORK_DIGEST_SECTIONS: readonly DigestSection[] = ['NETWORK_TAGS', 'NETWORK_FOLLOWED', 'NETWORK_MISSIONS', 'NETWORK_ACTIVITY'];
 
 /** The digest's sections in the order the email gives them. */
 export const DIGEST_SECTIONS: DigestSection[] = ['PIPELINE', 'OVERDUE_INVOICES', 'INTERVIEWS', 'FOLLOW_UPS', 'QUIET_OPPORTUNITIES',
-  'MISSIONS_ENDING', 'OFFERS', 'NETWORK_TAGS'];
+  'MISSIONS_ENDING', 'OFFERS', 'NETWORK_TAGS', 'NETWORK_FOLLOWED', 'NETWORK_MISSIONS', 'NETWORK_ACTIVITY'];
 
 /** Which notifications the account gets, by event and channel. */
 export interface UserNotificationSettings {

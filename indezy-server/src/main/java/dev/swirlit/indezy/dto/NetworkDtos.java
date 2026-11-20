@@ -464,6 +464,35 @@ public final class NetworkDtos {
     }
 
     /** A followed tag's most liked post of the week, as the weekly digest tells it: the author's name and its first words. */
+    /** A post as the weekly digest names it: its author, its first words and how many reacted to it. */
+    public record DigestLine(Long postId, String author, String excerpt, long reactions) {
+
+        @Override
+        public String toString() {
+            return "DigestLine[postId=" + postId + "]";
+        }
+    }
+
+    /**
+     * The member network's week, for the weekly digest: the posts most reacted to among the members followed, the missions
+     * passed on that match the member's card, their new followers (up to three named) and how many members viewed their page.
+     */
+    public record NetworkWeek(String handle, List<DigestLine> followed, List<DigestLine> missions, long newFollowers, List<String> followerNames,
+                              long viewers) {
+
+        public static final NetworkWeek NONE = new NetworkWeek(null, List.of(), List.of(), 0, List.of(), 0);
+
+        public NetworkWeek {
+            followed = List.copyOf(followed);
+            missions = List.copyOf(missions);
+            followerNames = List.copyOf(followerNames);
+        }
+
+        public boolean isEmpty() {
+            return followed.isEmpty() && missions.isEmpty() && newFollowers == 0 && viewers == 0;
+        }
+    }
+
     public record DigestPost(String tag, String author, String excerpt, long likes) {
 
         @Override

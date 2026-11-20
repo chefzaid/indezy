@@ -45,6 +45,16 @@ public class NetworkMissionAlerts {
         told.forEach(member -> notices.notify(member.getUserId(), post.getAuthorId(), NetworkNotificationType.MISSION_MATCH, post.getId()));
     }
 
+    /** Whether a mission's details match a member's card: a skill it asks that the card shows, and its city unless remote. */
+    static boolean matches(NetworkDtos.PostDetails details, NetworkDtos.MemberCard card) {
+        if (details == null || details.stack().isEmpty()) {
+            return false;
+        }
+        Set<String> asked = details.stack().stream().map(NetworkPost::fold).collect(Collectors.toSet());
+        String city = details.remoteDays() != null && details.remoteDays() >= FULLY_REMOTE ? null : NetworkPost.fold(details.city());
+        return matches(card, asked, city);
+    }
+
     private static boolean matches(NetworkDtos.MemberCard card, Set<String> asked, String city) {
         boolean skill = card.stack().stream().map(NetworkPost::fold).anyMatch(asked::contains);
         boolean place = city == null || city.isEmpty() || card.remote() || card.city() != null && NetworkPost.fold(card.city()).contains(city);

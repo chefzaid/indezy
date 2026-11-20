@@ -64,6 +64,7 @@ public class WeeklyDigestService {
     private final OfferSearchService offers;
     private final WeeklyDigestComposer composer;
     private final NetworkTagService tags;
+    private final NetworkDigestService networkDigest;
     private final FeatureFlagService flags;
     private final ResendMailer mailer;
     private final TransactionTemplate transactions;
@@ -157,7 +158,7 @@ public class WeeklyDigestService {
         WeeklyDigestComposer.Digest digest = new WeeklyDigestComposer.Digest(user.getId(), user.getFirstName(), user.getEmail(),
             "en".equalsIgnoreCase(user.getLanguagePreference()) ? DocumentLanguage.EN : DocumentLanguage.FR, user.getWeeklyDigestToken(),
             week, WeeklyDigestComposer.Week.of(dashboard.getDashboardStats(freelance.getId(), null)).only(kept), found.content(),
-            found.totalElements(), networkPosts(user.getId(), kept, now));
+            found.totalElements(), networkPosts(user.getId(), kept, now), networkWeek(user.getId(), kept, now));
         return digest.isEmpty() ? null : new Claim(composer.compose(digest), previous);
     }
 
@@ -167,6 +168,14 @@ public class WeeklyDigestService {
             return List.of();
         }
         return tags.weekTop(userId, LocalDateTime.ofInstant(now.minus(OFFERS_SINCE), ZoneId.systemDefault()), WeeklyDigestComposer.ITEMS);
+    }
+
+    /** The member network's week, while the network is on: the posts of the members followed, matching missions, activity. */
+    private NetworkDtos.NetworkWeek networkWeek(Long userId, Set<DigestSection> kept, Instant now) {
+        if (!flags.isEnabled(FeatureFlag.SOCIAL_NETWORK)) {
+            return NetworkDtos.NetworkWeek.NONE;
+        }
+        return networkDigest.week(userId, LocalDateTime.ofInstant(now.minus(OFFERS_SINCE), ZoneId.systemDefault()), kept, WeeklyDigestComposer.ITEMS);
     }
 
     /** The offers found in the last 7 days that match the profile, best match first; none without profile skills. */

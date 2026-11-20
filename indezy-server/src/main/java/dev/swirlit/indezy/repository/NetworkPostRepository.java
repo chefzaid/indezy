@@ -113,4 +113,7 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
 
     /** The latest 500 posts of a kind (the missions passed on) but the excluded authors', the newest first, to filter. */
     List<NetworkPost> findTop500ByKindAndAuthorIdNotInOrderByCreatedAtDescIdDesc(NetworkPostKind kind, Collection<Long> excluded);
+
+    /** The posts of some members since a moment, the newest first, 500 at most: the weekly digest's. */
+    List<NetworkPost> findTop500ByAuthorIdInAndCreatedAtAfterOrderByCreatedAtDesc(Collection<Long> authorIds, LocalDateTime since);
 }

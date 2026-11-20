@@ -1079,7 +1079,10 @@
         "QUIET_OPPORTUNITIES": "Opportunities gone quiet",
         "MISSIONS_ENDING": "Missions ending",
         "OFFERS": "New offers matching your profile",
-        "NETWORK_TAGS": "Most liked posts of the tags you follow (member network)"
+        "NETWORK_TAGS": "Most liked posts of the tags you follow (member network)",
+        "NETWORK_FOLLOWED": "Most reacted-to posts of the members you follow (member network)",
+        "NETWORK_MISSIONS": "Missions passed on that match your card (member network)",
+        "NETWORK_ACTIVITY": "New followers and views of your page (member network)"
       },
       "bookingTitle": "Booked calls",
       "booking": "Email me each call booked",

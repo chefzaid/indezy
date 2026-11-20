@@ -84,17 +84,20 @@ public class WeeklyDigestComposer {
 
     /** One account's week: its dashboard, the matching offers found in the last 7 days and how many there are. */
     public record Digest(Long userId, String firstName, String recipient, DocumentLanguage language, String token, LocalDate week,
-                         Week stats, List<OfferDto> offers, long offersFound, List<NetworkDtos.DigestPost> networkPosts) {
+                         Week stats, List<OfferDto> offers, long offersFound, List<NetworkDtos.DigestPost> networkPosts,
+                         NetworkDtos.NetworkWeek network) {
 
         public Digest {
             offers = List.copyOf(offers);
             networkPosts = List.copyOf(networkPosts);
+            network = network == null ? NetworkDtos.NetworkWeek.NONE : network;
         }
 
         /** Whether it has anything to say: a digest of an empty week is not sent. */
         public boolean isEmpty() {
             return stats.interviews().isEmpty() && stats.followUps().isEmpty() && stats.stale().isEmpty() && stats.ending().isEmpty() &&
-                stats.overdueInvoices().isEmpty() && offersFound == 0 && stats.open() == 0 && networkPosts.isEmpty();
+                stats.overdueInvoices().isEmpty() && offersFound == 0 && stats.open() == 0 && networkPosts.isEmpty() &&
+                network.isEmpty();
         }
 
         @Override
@@ -154,6 +157,8 @@ public class WeeklyDigestComposer {
             .map(post -> WeeklyDigestLabel.NETWORK_LINE.format(language, post.tag(), post.author(), post.excerpt(), post.likes())).toList(),
             line -> properties.appUrl() + "/network/tags/" + URLEncoder.encode(popular.get(line).tag(), StandardCharsets.UTF_8));
 
+        network(html, text, digest.network(), language);
+
         String app = properties.appUrl() + "/dashboard";
         html.append("<p style=\"margin:24px 0\"><a href=\"").append(escape(app)).append("\" style=\"color:").append(ACCENT).append("\">")
             .append(escape(WeeklyDigestLabel.OPEN.in(language))).append("</a></p>");
@@ -170,6 +175,28 @@ public class WeeklyDigestComposer {
         headers.put("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
         return new Email(digest.recipient(), WeeklyDigestLabel.SUBJECT.format(language, digest.week().format(day)),
             SavedSearchEmailComposer.page(html), text.toString(), headers, "weekly-digest/" + digest.userId() + "/" + digest.week());
+    }
+
+    /** The member network's sections: the posts of the members followed, the missions matching the card, the week's activity. */
+    private void network(StringBuilder html, StringBuilder text, NetworkDtos.NetworkWeek week, DocumentLanguage language) {
+        List<NetworkDtos.DigestLine> followed = week.followed();
+        section(html, text, WeeklyDigestLabel.NETWORK_FOLLOWED.in(language), followed.stream()
+            .map(line -> WeeklyDigestLabel.NETWORK_FOLLOWED_LINE.format(language, line.author(), line.excerpt(), line.reactions())).toList(),
+            index -> properties.appUrl() + "/network/posts/" + followed.get(index).postId());
+        List<NetworkDtos.DigestLine> missions = week.missions();
+        section(html, text, WeeklyDigestLabel.NETWORK_MISSIONS.in(language), missions.stream()
+            .map(line -> WeeklyDigestLabel.NETWORK_MISSION_LINE.format(language, line.author(), line.excerpt())).toList(),
+            index -> properties.appUrl() + "/network/posts/" + missions.get(index).postId());
+        List<String> activity = new ArrayList<>();
+        if (week.newFollowers() > 0) {
+            activity.add(week.newFollowers() == 1 ? WeeklyDigestLabel.FOLLOWERS_ONE.format(language, String.join(", ", week.followerNames())) :
+                WeeklyDigestLabel.FOLLOWERS_MANY.format(language, week.newFollowers(), String.join(", ", week.followerNames())));
+        }
+        if (week.viewers() > 0) {
+            activity.add(week.viewers() == 1 ? WeeklyDigestLabel.VIEWERS_ONE.in(language) : WeeklyDigestLabel.VIEWERS_MANY.format(language, week.viewers()));
+        }
+        String page = week.handle() == null ? null : properties.appUrl() + "/m/" + week.handle();
+        section(html, text, WeeklyDigestLabel.NETWORK_ACTIVITY.in(language), activity, index -> page);
     }
 
     private static String who(String what, String client) {

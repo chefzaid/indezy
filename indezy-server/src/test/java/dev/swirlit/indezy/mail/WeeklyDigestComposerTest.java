@@ -49,7 +49,7 @@ class WeeklyDigestComposerTest {
         when(offer.title()).thenReturn("Lead Java");
         Email email = composer.compose(new WeeklyDigestComposer.Digest(7L, "Zaid", "zaid@example.com", DocumentLanguage.FR, "tok", WEEK,
             WeeklyDigestComposer.Week.of(stats()), List.of(offer), 8,
-            List.of(new NetworkDtos.DigestPost("kafka", "Léo Martin", "Retour sur <Kafka> Streams", 12))));
+            List.of(new NetworkDtos.DigestPost("kafka", "Léo Martin", "Retour sur <Kafka> Streams", 12)), null));
 
         assertThat(email.subject()).isEqualTo("Votre semaine Indezy du 26 octobre 2026");
         assertThat(email.text()).contains("Bonjour Zaid, voici votre semaine", "3 opportunités en cours : 2 premier contact, 1 entretiens, 0 offres",
@@ -71,7 +71,7 @@ class WeeklyDigestComposerTest {
         stats.setUpcomingInterviews(List.of());
         stats.setFollowUpsDue(List.of());
         Email email = composer.compose(new WeeklyDigestComposer.Digest(7L, "Zaid", "zaid@example.com", DocumentLanguage.EN, "tok", WEEK,
-            WeeklyDigestComposer.Week.of(stats), List.of(), 0, List.of()));
+            WeeklyDigestComposer.Week.of(stats), List.of(), 0, List.of(), null));
 
         assertThat(email.subject()).isEqualTo("Your Indezy week of 26 October 2026");
         assertThat(email.text()).contains("3 open opportunities", "Opportunities gone quiet").doesNotContain("Interviews", "Follow-ups",
@@ -79,13 +79,28 @@ class WeeklyDigestComposerTest {
     }
 
     @Test
+    void tellsTheNetworksWeek() {
+        NetworkDtos.NetworkWeek network = new NetworkDtos.NetworkWeek("zaid_c",
+            List.of(new NetworkDtos.DigestLine(4L, "Léo Martin", "Retour sur Kafka", 9)), List.of(new NetworkDtos.DigestLine(5L, "Inès B", "Lead Spark à Lyon", 0)),
+            2, List.of("Léa Durand", "Paul Roy"), 1);
+        Email email = composer.compose(new WeeklyDigestComposer.Digest(7L, "Zaid", "zaid@example.com", DocumentLanguage.FR, "tok", WEEK,
+            WeeklyDigestComposer.Week.of(quiet()), List.of(), 0, List.of(), network));
+        assertThat(email.text()).contains("Les plus suivies chez les membres que vous suivez", "Léo Martin : « Retour sur Kafka » (9 réactions)",
+            "https://indezy.example/network/posts/4", "Missions transmises qui correspondent à votre carte", "Inès B : « Lead Spark à Lyon »",
+            "https://indezy.example/network/posts/5", "Votre réseau cette semaine", "2 nouveaux abonnés : Léa Durand, Paul Roy",
+            "1 membre a consulté votre page", "https://indezy.example/m/zaid_c");
+    }
+
+    @Test
     void tellsAnEmptyWeek() {
         assertThat(new WeeklyDigestComposer.Digest(7L, "Zaid", "z@example.com", DocumentLanguage.EN, "tok", WEEK, WeeklyDigestComposer.Week.of(quiet()), List.of(), 0,
-            List.of()).isEmpty()).isTrue();
+            List.of(), null).isEmpty()).isTrue();
         assertThat(new WeeklyDigestComposer.Digest(7L, "Zaid", "z@example.com", DocumentLanguage.EN, "tok", WEEK, WeeklyDigestComposer.Week.of(quiet()), List.of(), 2,
-            List.of()).isEmpty()).isFalse();
+            List.of(), null).isEmpty()).isFalse();
         assertThat(new WeeklyDigestComposer.Digest(7L, "Zaid", "z@example.com", DocumentLanguage.EN, "tok", WEEK, WeeklyDigestComposer.Week.of(quiet()), List.of(), 0,
-            List.of(new NetworkDtos.DigestPost("java", "Inès", "Bonjour", 1))).isEmpty()).isFalse();
+            List.of(new NetworkDtos.DigestPost("java", "Inès", "Bonjour", 1)), null).isEmpty()).isFalse();
+        assertThat(new WeeklyDigestComposer.Digest(7L, "Zaid", "z@example.com", DocumentLanguage.EN, "tok", WEEK, WeeklyDigestComposer.Week.of(quiet()), List.of(), 0,
+            List.of(), new NetworkDtos.NetworkWeek("zaid", List.of(), List.of(), 0, List.of(), 3)).isEmpty()).isFalse();
         assertThat(WeeklyDigestComposer.Week.of(DashboardStatsDto.builder().build()).open()).isZero();
     }
 }

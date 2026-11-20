@@ -10,5 +10,11 @@ public enum DigestSection {
     MISSIONS_ENDING,
     OFFERS,
     /** The week's most liked post of each tag followed in the member network. */
-    NETWORK_TAGS
+    NETWORK_TAGS,
+    /** The week's posts most reacted to among the members followed. */
+    NETWORK_FOLLOWED,
+    /** The missions passed on in the week that match the member's card. */
+    NETWORK_MISSIONS,
+    /** The member's new followers and who viewed their page in the week. */
+    NETWORK_ACTIVITY
 }

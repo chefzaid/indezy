@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { DIGEST_SECTIONS, DigestSection, UserNotificationSettings } from '../../../models/user-management.models';
+import { DIGEST_SECTIONS, NETWORK_DIGEST_SECTIONS, DigestSection, UserNotificationSettings } from '../../../models/user-management.models';
 import { CapabilitiesService } from '../../../services/admin/capabilities.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -40,7 +40,7 @@ export class ProfileNotificationsComponent implements OnInit {
   /** The sections offered: the network's while the member network is on. */
   get sections(): DigestSection[] {
     const network = this.capabilities.snapshot().features.SOCIAL_NETWORK === true;
-    return DIGEST_SECTIONS.filter(section => section !== 'NETWORK_TAGS' || network);
+    return DIGEST_SECTIONS.filter(section => network || !NETWORK_DIGEST_SECTIONS.includes(section));
   }
 
   ngOnInit(): void {

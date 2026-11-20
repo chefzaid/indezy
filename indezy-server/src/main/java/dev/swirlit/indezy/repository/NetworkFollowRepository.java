@@ -29,4 +29,7 @@ public interface NetworkFollowRepository extends JpaRepository<NetworkFollow, Lo
     List<NetworkMember> following(@Param("userId") Long userId);
 
     long countByFollowedIdAndCreatedAtAfter(Long followedId, LocalDateTime since);
+
+    /** Who began following a member since a moment, the latest first. */
+    List<NetworkFollow> findByFollowedIdAndCreatedAtAfterOrderByCreatedAtDesc(Long followedId, LocalDateTime since);
 }

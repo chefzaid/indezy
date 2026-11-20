@@ -103,7 +103,7 @@ describe('ProfileNotificationsComponent', () => {
     const fixture = create(of({ ...settings, weeklyReports: true, weeklyDigestSections: ['PIPELINE', 'OFFERS'] }));
     const element: HTMLElement = fixture.nativeElement;
     const box = (section: string): HTMLInputElement => element.querySelector(`[data-digest-section="${section}"] input`) as HTMLInputElement;
-    expect(element.querySelectorAll('[data-digest-section]').length).toBe(8);
+    expect(element.querySelectorAll('[data-digest-section]').length).toBe(11);
     expect(box('PIPELINE').checked).toBeTrue();
     expect(box('INTERVIEWS').checked).toBeFalse();
     expect(box('OFFERS').disabled).toBeFalse();
@@ -130,12 +130,14 @@ describe('ProfileNotificationsComponent', () => {
       features: { ...DEFAULT_CAPABILITIES.features, SOCIAL_NETWORK: false } });
     fixture.detectChanges();
     expect(element.querySelector('[data-digest-section="NETWORK_TAGS"]')).toBeNull();
+    expect(element.querySelector('[data-digest-section="NETWORK_ACTIVITY"]')).toBeNull();
     users.updateNotificationSettings.and.returnValue(of({ ...settings, weeklyReports: true, weeklyDigestSections: ['NETWORK_TAGS'] }));
     fixture.componentInstance.sectionChanged('PIPELINE', { checked: false, source: { checked: false } as MatCheckbox });
     expect(users.updateNotificationSettings).toHaveBeenCalledWith({ weeklyDigestSections: ['NETWORK_TAGS'] });
     snapshot.and.returnValue({ admin: false, features: { ...DEFAULT_CAPABILITIES.features, SOCIAL_NETWORK: true } });
     fixture.detectChanges();
     expect(element.querySelector('[data-digest-section="NETWORK_TAGS"]')?.textContent).toContain('Most liked posts of the tags you follow');
+    expect(element.querySelector('[data-digest-section="NETWORK_ACTIVITY"]')?.textContent).toContain('New followers and views of your page');
   });
 
   it('offers the unread messages email while the network is on, and turns it off', () => {

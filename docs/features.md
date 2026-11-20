@@ -100,7 +100,12 @@ the server cannot send email.
 Every Monday from 8:00 Paris time, in the interface language: open opportunities by stage, then up to five overdue
 invoices, interviews of the next 7 days, follow-ups due, quiet opportunities and missions ending, the five offers
 of the week matching the profile best and, while the member network is on, the week's most liked post of each tag the
-member follows (up to five, by other members neither blocking the other, linking to the tag's page). Empty sections are skipped and an empty week sends nothing. Each account gets
+member follows (up to five, by other members neither blocking the other, linking to the tag's page), then the network's
+week: the posts of the members followed that drew the most reactions (up to five, each linking to its post), the
+missions passed on that match the member's card (a skill it asks that the card shows, and its city unless fully remote),
+and the new followers (how many, three named) and how many members viewed the member's page, linking to it. Each of these
+network sections can be left out in Profile → Notifications like the others, and none is written for an account outside
+the network. Empty sections are skipped and an empty week sends nothing. Each account gets
 one digest a week whatever the number of servers; the email has a one-click unsubscribe and no tracking.
 
 ### Data Import
