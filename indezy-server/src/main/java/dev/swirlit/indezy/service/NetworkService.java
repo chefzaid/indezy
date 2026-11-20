@@ -16,6 +16,7 @@ import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -60,6 +61,7 @@ public class NetworkService {
     private final ProjectRepository projects;
     private final CompanyDirectory directory;
     private final Clock clock;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional(readOnly = true)
     public NetworkDtos.Membership membership(Long userId) {
@@ -84,7 +86,8 @@ public class NetworkService {
         if (member.getBannedAt() != null) {
             throw new InvalidStateException(BANNED);
         }
-        if (member.getId() == null || !member.isActive()) {
+        boolean first = member.getId() == null;
+        if (first || !member.isActive()) {
             member.setJoinedAt(clock.instant());
             log.info("Account {} joined the network", userId);
         }
@@ -103,7 +106,11 @@ public class NetworkService {
         member.setAvailabilityMode(availability.mode());
         boolean dated = availability.mode() == NetworkAvailability.AVAILABLE || availability.mode() == NetworkAvailability.ON_MISSION;
         member.setAvailabilityDate(dated ? availability.date() : null);
-        return membership(members.save(member), user);
+        NetworkMember saved = members.save(member);
+        if (first) {
+            publisher.publishEvent(new NetworkMemberJoined(userId));
+        }
+        return membership(saved, user);
     }
 
     /** Leaves: the card is no longer shown to anyone. */

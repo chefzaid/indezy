@@ -45,5 +45,7 @@ public enum NetworkNotificationType {
     /** An event the recipient goes to or is interested in starts within a day. */
     MEETUP_REMINDER,
     /** An event the recipient goes to or is interested in was cancelled. */
-    MEETUP_CANCELLED
+    MEETUP_CANCELLED,
+    /** A contact the recipient invited joined the network. */
+    INVITE_JOINED
 }

@@ -300,7 +300,7 @@ export interface MemberSuggestion {
 /** What a network notification tells. */
 export type NetworkNotificationType = 'FOLLOW' | 'FOLLOW_REQUEST' | 'FOLLOW_ACCEPTED' | 'LIKE' | 'COMMENT_LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
   'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED' | 'COMMUNITY_POST' | 'COMMUNITY_REQUEST' | 'COMMUNITY_ACCEPTED' | 'COMMUNITY_MODERATOR' | 'MISSION_MATCH' |
-  'IDEA_STATUS' | 'MEETUP_REMINDER' | 'MEETUP_CANCELLED';
+  'IDEA_STATUS' | 'MEETUP_REMINDER' | 'MEETUP_CANCELLED' | 'INVITE_JOINED';
 
 /** A community's activity: a post in it, a request to join, an answer, being named a moderator. */
 export const COMMUNITY_NOTICES: readonly NetworkNotificationType[] = ['COMMUNITY_POST', 'COMMUNITY_REQUEST', 'COMMUNITY_ACCEPTED',
@@ -390,6 +390,22 @@ export interface NotificationGroup {
   idea?: IdeaRef | null;
   /** The event it is about, for a reminder or a cancellation. */
   meetup?: MeetupRef | null;
+}
+
+/** Where a workspace contact stands toward the network. */
+export type ContactStandingKind = 'NO_EMAIL' | 'INVITABLE' | 'INVITED' | 'MEMBER' | 'DECLINED';
+
+/** A contact's standing, when the reader invited them, and their handle once a member. */
+export interface ContactStanding {
+  standing: ContactStandingKind;
+  invitedAt: string | null;
+  handle: string | null;
+}
+
+/** An invitation to the network as the person invited reads it from its link. */
+export interface PublicNetworkInvitation {
+  inviter: string;
+  declined: boolean;
 }
 
 /** How a member answers an event. */

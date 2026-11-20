@@ -1,0 +1,41 @@
+<main class="unsubscribe-page">
+  <header class="page-header">
+    <app-logo [height]="36"></app-logo>
+  </header>
+
+  <mat-card class="unsubscribe-card">
+    <mat-card-content>
+      @if (loading) {
+        <div class="state">
+          <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="40"></mat-spinner>
+        </div>
+      } @else if (invalidLink || !view) {
+        <div class="state" data-invalid-link>
+          <mat-icon class="state-icon">link_off</mat-icon>
+          <h1>{{ 'networkInvitation.invalidTitle' | translate }}</h1>
+          <p>{{ 'networkInvitation.invalidMessage' | translate }}</p>
+        </div>
+      } @else if (view.declined) {
+        <div class="state" data-invitation-declined>
+          <mat-icon class="state-icon">do_not_disturb_on</mat-icon>
+          <h1>{{ 'networkInvitation.declinedTitle' | translate }}</h1>
+          <p>{{ 'networkInvitation.declinedMessage' | translate }}</p>
+        </div>
+      } @else {
+        <div class="state" data-invitation>
+          <mat-icon class="state-icon">group_add</mat-icon>
+          <h1>{{ 'networkInvitation.title' | translate: { name: view.inviter } }}</h1>
+          <p>{{ 'networkInvitation.message' | translate }}</p>
+          <a mat-flat-button color="primary" routerLink="/register" data-invitation-register>{{ 'networkInvitation.register' | translate }}</a>
+          <a mat-button routerLink="/login">{{ 'networkInvitation.login' | translate }}</a>
+          @if (failed) {
+            <p class="error" role="alert">{{ 'networkInvitation.error' | translate }}</p>
+          }
+          <button mat-button type="button" [disabled]="sending" (click)="decline()" data-invitation-decline>
+            {{ 'networkInvitation.decline' | translate }}
+          </button>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</main>

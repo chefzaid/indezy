@@ -40,6 +40,11 @@ export const routes: Routes = [
       .then(m => m.ActivityReportValidationComponent)
   },
   {
+    // An invitation to the network, opened from its email without an account.
+    path: 'network-invitation',
+    loadComponent: () => import('./components/network-invitation/network-invitation.component').then(m => m.NetworkInvitationComponent)
+  },
+  {
     // Opened from a saved search email's unsubscribe link, without an account.
     path: 'emails/unsubscribe',
     loadComponent: () => import('./components/emails-unsubscribe/emails-unsubscribe.component').then(m => m.EmailsUnsubscribeComponent)

@@ -112,7 +112,7 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
   isVerifying = false;
   readonly noticeTypes: NetworkNotificationType[] = ['FOLLOW', 'FOLLOW_REQUEST', 'FOLLOW_ACCEPTED', 'LIKE', 'COMMENT_LIKE',
     'COMMENT', 'REPLY', 'MENTION', 'REPOST', 'COMMUNITY_POST', 'COMMUNITY_REQUEST', 'COMMUNITY_ACCEPTED', 'COMMUNITY_MODERATOR', 'MISSION_MATCH',
-    'IDEA_STATUS', 'MEETUP_REMINDER', 'MEETUP_CANCELLED'];
+    'IDEA_STATUS', 'MEETUP_REMINDER', 'MEETUP_CANCELLED', 'INVITE_JOINED'];
   /** The kinds of notification turned off; read once joined. */
   noticesOff: NetworkNotificationType[] | null = null;
   /** The kinds also emailed. */

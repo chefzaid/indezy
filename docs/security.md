@@ -200,6 +200,8 @@ The member network (`/api/network`) is on unless an administrator turns it off (
 - a member may post 10 times, comment 60 times, follow 100 members and report 20 times an hour (`NetworkLimits`), and
   send 200 messages an hour and open 20 conversations a day, 10 of them message requests to members who follow neither way
   (`NetworkMessageLimits`); beyond, `429` with `Retry-After`;
+- an invitation to the network goes once per contact, 20 a day at most, never to an address that declined, which is
+  kept only as a SHA-256 hash (as is every address invited); its link reads who invites and declines, nothing else;
 - a message request carries one message until its recipient accepts it; declined, its sender writes no more and is not
   told; a member who turns requests off is written to only by those they follow or who follow them;
 - a group gathers only members who follow its creator (`409` naming the first who does not), 20 at most, and only its

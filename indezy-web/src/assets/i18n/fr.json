@@ -1508,7 +1508,8 @@
         "MISSION_MATCH": "Une mission transmise qui correspond à ma carte",
         "IDEA_STATUS": "Une idée que je soutiens avance",
         "MEETUP_REMINDER": "Un événement auquel j’ai répondu commence demain",
-        "MEETUP_CANCELLED": "Un événement auquel j’ai répondu est annulé"
+        "MEETUP_CANCELLED": "Un événement auquel j’ai répondu est annulé",
+        "INVITE_JOINED": "Un contact que j’ai invité rejoint le réseau"
       },
       "banned": "Les modérateurs ont mis fin à l’adhésion de ce compte : il ne peut plus rejoindre le réseau.",
       "privateTitle": "Carte privée",
@@ -3626,7 +3627,8 @@
         "MISSION_MATCH": "a transmis une mission qui correspond à votre carte",
         "IDEA_STATUS": "Une idée que vous soutenez avance",
         "MEETUP_REMINDER": "Rappel d’un événement",
-        "MEETUP_CANCELLED": "Événement annulé"
+        "MEETUP_CANCELLED": "Événement annulé",
+        "INVITE_JOINED": "a rejoint le réseau grâce à votre invitation"
       },
       "typesMany": {
         "FOLLOW": "vous suivent désormais",
@@ -3645,7 +3647,8 @@
         "MISSION_MATCH": "ont transmis des missions qui correspondent à votre carte",
         "IDEA_STATUS": "Une idée que vous soutenez avance",
         "MEETUP_REMINDER": "Rappel d’un événement",
-        "MEETUP_CANCELLED": "Événement annulé"
+        "MEETUP_CANCELLED": "Événement annulé",
+        "INVITE_JOINED": "ont rejoint le réseau grâce à votre invitation"
       },
       "moderation": {
         "WARNED": "Les modérateurs vous ont adressé un avertissement au sujet d’une publication, d’un commentaire ou de votre conduite dans le réseau.",
@@ -4282,6 +4285,29 @@
         "description": "Description",
         "create": "Publier l’événement"
       }
+    },
+    "invite": {
+      "button": "Inviter sur le réseau",
+      "invited": "Invité sur le réseau le {{date}}",
+      "member": "Sa page sur le réseau",
+      "declined": "Ne souhaite pas être invité sur le réseau",
+      "confirm": "Envoyer à {{name}} un e-mail l’invitant sur le réseau Indezy, de votre part ? Une seule invitation par contact.",
+      "send": "Envoyer l’invitation",
+      "sent": "Invitation envoyée à {{name}}.",
+      "tooMany": "Vous avez invité 20 contacts aujourd’hui : revenez demain.",
+      "error": "L’invitation n’a pas pu partir : réessayez."
     }
+  },
+  "networkInvitation": {
+    "title": "{{name}} vous invite sur le réseau Indezy",
+    "message": "Des freelances de l’IT qui se transmettent des missions, partagent retours d’expérience et tarifs, et se suivent. Votre compte gère aussi votre pipeline, vos factures et vos CRA.",
+    "register": "Créer mon compte",
+    "login": "J’ai déjà un compte",
+    "decline": "Ne plus jamais être invité",
+    "error": "Impossible d’enregistrer votre choix : réessayez.",
+    "declinedTitle": "C’est noté",
+    "declinedMessage": "Aucun membre ne pourra plus vous inviter sur le réseau Indezy.",
+    "invalidTitle": "Lien invalide",
+    "invalidMessage": "Cette invitation n’existe pas ou plus."
   }
 }

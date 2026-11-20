@@ -135,6 +135,8 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkIdeaVote` | `network_idea_votes` | idea and member (by id), once each | taken back, moved when its idea is merged, with its idea or the member's account |
 | `NetworkMeetup` | `network_meetups` | organizer (by id) | never by hand (cancelled instead), with its organizer's account |
 | `NetworkMeetupAttendee` | `network_meetup_attendees` | event and member (by id), once each, going or interested | taken back, with its event or the member's account |
+| `NetworkInvitation` | `network_invitations` | inviter (by id), the contact (by id) and the address as its SHA-256 | with the inviter's account |
+| `NetworkInvitationOptOut` | `network_invitation_opt_outs` | no account: an address's SHA-256 that declined every invitation | never |
 | `NetworkNotification` | `network_notifications` | member (by id) | with its post, or the recipient's or actor's account; never otherwise, read or not |
 | `NetworkReport` | `network_reports` | member (by id), on a post, comment, message or member | never once decided (the audit trail); with the reporter's or target's account |
 | `NetworkConversation` | `network_conversations` | shared by its members | never, not even once its last member's account is gone (TODO.md, Bugs to fix) |

@@ -504,6 +504,15 @@ Profile → Network turns off or emails. A tag's page lists the three next event
 A cancelled or past event takes no answer; an event whose organizer left or with whom either blocks the other is not
 found (`/api/network/events`, `/<id>`, `/<id>/attendance?status=`, `/<id>/attendees`, `/<id>/ics`).
 
+**Invite to the network**, on a contact's page in Contacts, emails a contact with an address an invitation from the
+member, in the member's language, once per contact, after a confirmation (20 a day at most). The button gives way to
+**Invited on <date>**, to **Their page on the network** once the contact is a member, or to **Does not want to be
+invited** for an address that declined. The email's link opens a page without an account (`/network-invitation#<token>`)
+saying who invites, with **Create my account** and **Never invite me again**, also the email's one-click unsubscribe:
+no member invites that address again. The address is kept only as its SHA-256; when the person joins the network, each
+member who invited them is told (**joined the network from your invitation**), and they are suggested to each other as
+**In your contacts** (`/api/network/invitations/contacts/<id>`, `/api/public/network-invitations/<token>`).
+
 **Ideas for Indezy** (`/network/ideas`, from **Ideas** on the reader's card) is the ideas board: members suggest what
 they miss in Indezy (a sentence of 5 to 120 characters and an optional detail, 5 a day at most), their own support
 counted, and support the ideas they want, once each, taking it back at will. While an idea is written, the three most

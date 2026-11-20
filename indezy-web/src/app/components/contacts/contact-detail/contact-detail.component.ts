@@ -16,6 +16,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { ContactDto, contactName } from '../../../models';
 import { ContactInteractionsComponent } from '../contact-interactions/contact-interactions.component';
 import { ContactNetworkComponent } from '../contact-network/contact-network.component';
+import { ContactInviteComponent } from '../../network/invite/contact-invite.component';
 import { saveBlob } from '../../../shared/utils/download-file';
 
 @Component({
@@ -30,7 +31,8 @@ import { saveBlob } from '../../../shared/utils/download-file';
     MatProgressSpinnerModule,
     TranslateModule,
     ContactInteractionsComponent,
-    ContactNetworkComponent
+    ContactNetworkComponent,
+    ContactInviteComponent
 ],
     templateUrl: './contact-detail.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

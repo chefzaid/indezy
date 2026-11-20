@@ -35,6 +35,7 @@
             <mat-icon>delete</mat-icon>
             {{ 'common.delete' | translate }}
           </button>
+          <app-contact-invite [contactId]="contact.id!" [name]="getFullName()"></app-contact-invite>
         </mat-card-actions>
       </mat-card>
       <div class="details-grid">

@@ -102,6 +102,7 @@ public class NetworkNoticeEmailComposer {
             case IDEA_STATUS -> "An idea you voted for moved on";
             case MEETUP_REMINDER -> "Tomorrow: an event you answered";
             case MEETUP_CANCELLED -> "Cancelled: an event you answered";
+            case INVITE_JOINED -> "joined the network from your invitation";
             default -> "did something";
         };
     }
@@ -126,6 +127,7 @@ public class NetworkNoticeEmailComposer {
             case IDEA_STATUS -> many ? "Des idées que vous soutenez ont avancé" : "Une idée que vous soutenez a avancé";
             case MEETUP_REMINDER -> "Demain : un événement auquel vous avez répondu";
             case MEETUP_CANCELLED -> "Annulé : un événement auquel vous avez répondu";
+            case INVITE_JOINED -> many ? "ont rejoint le réseau grâce à votre invitation" : "a rejoint le réseau grâce à votre invitation";
             default -> many ? "ont agi" : "a agi";
         };
     }

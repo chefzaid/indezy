@@ -1508,7 +1508,8 @@
         "MISSION_MATCH": "A mission passed on that matches my card",
         "IDEA_STATUS": "An idea I support moves on",
         "MEETUP_REMINDER": "An event I answered starts tomorrow",
-        "MEETUP_CANCELLED": "An event I answered is cancelled"
+        "MEETUP_CANCELLED": "An event I answered is cancelled",
+        "INVITE_JOINED": "A contact I invited joins the network"
       },
       "banned": "The moderators ended this account’s membership: it cannot join again.",
       "privateTitle": "Private card",
@@ -3626,7 +3627,8 @@
         "MISSION_MATCH": "passed on a mission matching your card",
         "IDEA_STATUS": "An idea you support moves on",
         "MEETUP_REMINDER": "Event reminder",
-        "MEETUP_CANCELLED": "Event cancelled"
+        "MEETUP_CANCELLED": "Event cancelled",
+        "INVITE_JOINED": "joined the network from your invitation"
       },
       "typesMany": {
         "FOLLOW": "started following you",
@@ -3645,7 +3647,8 @@
         "MISSION_MATCH": "passed on missions matching your card",
         "IDEA_STATUS": "An idea you support moves on",
         "MEETUP_REMINDER": "Event reminder",
-        "MEETUP_CANCELLED": "Event cancelled"
+        "MEETUP_CANCELLED": "Event cancelled",
+        "INVITE_JOINED": "joined the network from your invitation"
       },
       "moderation": {
         "WARNED": "The moderators warned you about a post, a comment or your conduct in the network.",
@@ -4282,6 +4285,29 @@
         "description": "Description",
         "create": "Publish the event"
       }
+    },
+    "invite": {
+      "button": "Invite to the network",
+      "invited": "Invited to the network on {{date}}",
+      "member": "Their page on the network",
+      "declined": "Does not want to be invited to the network",
+      "confirm": "Email {{name}} an invitation to the Indezy network, from you? One invitation per contact.",
+      "send": "Send the invitation",
+      "sent": "Invitation sent to {{name}}.",
+      "tooMany": "You invited 20 contacts today: come back tomorrow.",
+      "error": "The invitation could not go: try again."
     }
+  },
+  "networkInvitation": {
+    "title": "{{name}} invites you to the Indezy network",
+    "message": "IT freelancers who pass on missions, share their experience and rates, and follow each other. Your account also runs your pipeline, invoices and timesheets.",
+    "register": "Create my account",
+    "login": "I already have an account",
+    "decline": "Never invite me again",
+    "error": "Your choice could not be saved: try again.",
+    "declinedTitle": "Noted",
+    "declinedMessage": "No member can invite you to the Indezy network any more.",
+    "invalidTitle": "Invalid link",
+    "invalidMessage": "This invitation does not exist or no longer does."
   }
 }
