@@ -56,7 +56,7 @@ External Secrets projects these Vault KV paths into `apps` (`infra/k8s/external-
 |---|---|---|---|
 | `apps/indezy/runtime` | `indezy-server-secret` | `DB_PASSWORD`, `JWT_SECRET` (from `database_password`, `jwt_secret`) | database password and JWT signing secret |
 | `apps/indezy/registry` | `indezy-registry-auth` | `registry`, `username`, `password` (rendered as a docker config) | read-only registry pull credential |
-| `apps/indezy/mail` | `indezy-mail` | `RESEND_API_KEY` | Resend key of the saved search emails; empty sends nothing |
+| `infra/smtp` | `indezy-mail` | `RESEND_API_KEY` (from `password`) | the platform mail relay's Resend key, restricted to swirlit.dev, for Indezy's emails |
 | `infra/postgres` | `indezy-db-admin-credentials` | `POSTGRES_ADMIN_USER`, `POSTGRES_ADMIN_PASSWORD` | shared administrator, used only by the database setup hook |
 
 Onboarding generates missing `apps/indezy/runtime` fields (24 random bytes for the database password and 48 for the JWT secret, hex encoded) and keeps existing values. Never commit plaintext or base64-encoded secret values. `GOOGLE_MAPS_API_KEY` (commute times) is not projected; add it to the contract before enabling the feature in production.
@@ -74,22 +74,19 @@ empty and documents are not scanned.
 ## Administrators
 
 The admin console (`/admin`) opens to the accounts whose emails `INDEZY_ADMIN_EMAILS` lists, comma-separated; the
-server reads it from the `indezy-server-config` ConfigMap (`infra/k8s/server.yaml`) at startup. It is empty by default,
-so nobody is an administrator: set it in Git, let Argo CD sync and restart the server Deployment. The account must
+server reads it from the `indezy-server-config` ConfigMap (`infra/k8s/server.yaml`) at startup; it names
+`zaid@swirlit.dev`. To change it, set it in Git, let Argo CD sync and restart the server Deployment. The account must
 exist (register or sign in through Keycloak once with that email).
 
 ## Saved search email credentials
 
 Saved search emails go through Resend, from `Indezy <noreply@swirlit.dev>` (`INDEZY_MAIL_FROM`), with links to
-`https://indezy.swirlit.dev` (`INDEZY_PUBLIC_URL`). `swirlit.dev` is already verified in Resend for the website; create
-a sending access key restricted to it for Indezy, separate from the website's, and store it as the `RESEND_API_KEY`
-field at Vault KV v2 path `secret/apps/indezy/mail`. The server reads the `indezy-mail` Secret through an optional
-`secretKeyRef`.
-
-The field must exist, even empty, or the ExternalSecret fails to sync, Argo CD reports the application degraded and the
-deploy job's health check fails. Onboarding seeds it empty when missing and keeps an existing value. With an empty key
-the server sends nothing and the saved search dialog says emails are not set up. After adding or rotating the key, wait
-for the ExternalSecret to be Ready and restart the server Deployment, which reads it at startup.
+`https://indezy.swirlit.dev` (`INDEZY_PUBLIC_URL`). The key is the platform mail relay's (swirl-cloud, Vault KV v2
+`secret/infra/smtp`, field `password`): a Resend key restricted to `swirlit.dev`, which Indezy sends from, read by the
+`indezy-mail` ExternalSecret (the `apps` namespace may read `infra/*`) and by the server through an optional
+`secretKeyRef`. Rotating the relay's key rotates Indezy's too; after a rotation, wait for the ExternalSecret to be Ready
+and restart the server Deployment, which reads it at startup. Without a key the server sends nothing and the saved
+search dialog says emails are not set up.
 
 Resend accepting an email means accepted for delivery, not delivered; its logs show bounces. Each email carries an
 idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 hours sends it once.
@@ -196,7 +193,7 @@ GITHUB_ADMIN_TOKEN=<github-token> \
   ./infra/scripts/configure-gitlab.sh
 ```
 
-It creates or updates the GitLab project and its settings (runner, job-token pushes, `main` protection, labels, badges, the Sonar binding and `SONAR_TOKEN`), the GitHub/GitLab synchronization, the registry deploy token and the `apps/indezy/registry` and `apps/indezy/runtime` Vault values, then applies the Argo CD `Application`. It does not seed `apps/indezy/mail` or reconcile DNS.
+It creates or updates the GitLab project and its settings (runner, job-token pushes, `main` protection, labels, badges, the Sonar binding and `SONAR_TOKEN`), the GitHub/GitLab synchronization, the registry deploy token and the `apps/indezy/registry` and `apps/indezy/runtime` Vault values, then applies the Argo CD `Application`. It does not reconcile DNS; the mail key is the platform relay's (`infra/smtp`), already in Vault.
 
 ## Validation And Manual Reconciliation
 

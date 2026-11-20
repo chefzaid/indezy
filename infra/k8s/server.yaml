@@ -13,7 +13,7 @@ data:
   INDEZY_SECURITY_KEYCLOAK_JWK_SET_URI: http://keycloak.swirl.internal:8080/auth/realms/swirl/protocol/openid-connect/certs
   INDEZY_SECURITY_KEYCLOAK_AUDIENCE: oauth2-proxy
   # Emails of the accounts that open the admin console, comma-separated; empty names no administrator.
-  INDEZY_ADMIN_EMAILS: ""
+  INDEZY_ADMIN_EMAILS: "zaid@swirlit.dev"
 
 ---
 apiVersion: apps/v1
