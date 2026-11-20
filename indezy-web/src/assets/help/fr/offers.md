@@ -1,0 +1,103 @@
+Le fil **Offres** réunit les missions freelance publiées sur une vingtaine de sites (Free-Work, Cherry Pick, LeHibou, Collective.work et d'autres), lues pour vous et notées selon votre profil. Seules les missions freelance y entrent : les CDI et CDD sont écartés.
+
+## Lire le fil
+
+Chaque carte montre le site, l'intitulé, l'éditeur, le TJM, le lieu avec sa distance de votre ville et le trajet estimé en voiture et en transports, le mode de travail, la durée, le démarrage, les compétences et l'âge de l'offre. Les offres que vous n'avez pas encore vues portent **Nouvelle**.
+
+![Le fil d'offres avec ses filtres, le score de correspondance et l'écart au marché sur chaque carte](/assets/screens/offers-fr-light.jpg)
+
+- **Voir le détail** déplie la description sur la carte.
+- Une même mission publiée sur plusieurs sites n'apparaît qu'une fois, avec des liens **Aussi sur**.
+- Les vues **Toutes**, **Sauvegardées**, **Candidatures** et **Masquées** trient ce que vous avez déjà traité.
+
+## Filtrer et trier
+
+1. Ouvrez **Filtres**.
+2. Combinez **Mots-clés**, **TJM (HT, par jour)**, **Régions**, **Départements**, **Distance de ma ville**, **Télétravail**, durée, **Démarrage au plus tard le**, **Séniorité**, **Compétences**, **Publiée depuis** et **Sites**.
+3. Cochez au besoin **Seulement les offres non vues**, **Correspond à mon profil** ou **Masquer les offres douteuses**.
+4. Triez par **Plus récentes**, **TJM le plus haut**, **Plus proches** ou **Meilleure correspondance**.
+
+Les filtres restent dans l'adresse de la page : vous pouvez la mettre en favori. Une offre qui n'indique ni durée, ni démarrage, ni séniorité reste affichée quand vous filtrez sur ces critères.
+
+## La correspondance avec votre profil
+
+Dès que votre profil nomme des compétences, chaque offre reçoit un score sur 100 : compétences (60 points), TJM par rapport à votre TJM cible (25), lieu (15) et date de démarrage par rapport à votre disponibilité (10). Le badge est vert à partir de 60 et orange à partir de 35 ; survolez-le pour voir le détail. **Correspond à mon profil** garde les offres à 60 ou plus.
+
+> **Astuce :** un profil sans ville, TJM cible ou date de disponibilité est noté sur le reste. Complétez-le depuis [Prise en main](/help/getting-started) pour des scores plus justes.
+
+## Le TJM face au marché
+
+Une carte qui indique un TJM le compare au TJM médian des offres ouvertes sur la même première compétence, dans sa région ou à défaut en France (par exemple « +12 % vs Java en Île-de-France »). Les médianes sont recalculées chaque nuit.
+
+Le bouton **Marché** ouvre un **Aperçu du marché** des offres que trouvent vos filtres : nombre d'offres, **TJM médian**, **Moitié centrale des TJM**, part qui atteint votre TJM cible, télétravail, **Compétences les plus citées**, **Intermédiaires les plus actifs** et publications des 30 derniers jours. Il se termine par les **Tendances** d'une de vos compétences sur 30 jours, 90 jours et un an.
+
+## Agir sur une offre
+
+- **Sauvegarder l'offre** la garde dans la vue **Sauvegardées** ; **Masquer l'offre** la retire du fil.
+- **Ajouter une note** (dans **Plus d'actions**) garde jusqu'à 2 000 caractères, retrouvés par les mots-clés et recopiés dans l'opportunité.
+- **J'ai postulé** note comment (**Formulaire du site**, **E-mail** ou **Téléphone**) et quand. La mission entre dans le pipeline avec une étape de candidature et, si vous cochez **Planifier une relance**, une relance dans votre [calendrier](/help/calendar). **Annuler la candidature** l'oublie.
+- **Masquer toutes les offres de …** bloque un éditeur, quelle que soit l'orthographe de son nom. La liste se gère dans **Profil → Fil d'offres**.
+- Les cases à cocher agissent sur plusieurs offres à la fois : **Sauvegarder**, **Masquer**, **Marquer comme vues**, **Ajouter au pipeline**.
+
+## Ajouter une offre au pipeline
+
+1. Cliquez sur **Ajouter au pipeline** sur la carte.
+2. Indezy crée une opportunité à l'étape Contact, au TJM le plus haut de l'offre (sinon votre TJM cible), avec l'éditeur comme client (créé comme ESN s'il manque) et le site comme source.
+3. La carte affiche ensuite **Dans le pipeline**. Une offre n'est ajoutée qu'une fois.
+
+Suivez ensuite l'opportunité dans le [pipeline](/help/pipeline).
+
+## Les recherches enregistrées
+
+1. Réglez vos filtres, puis cliquez sur **Enregistrer cette recherche**.
+2. Donnez-lui un nom et cliquez sur **Enregistrer**.
+3. Chaque recherche affiche le nombre d'offres nouvelles depuis votre dernière ouverture. Le menu **Offres** les additionne.
+
+Vous gardez jusqu'à 20 recherches. La cloche à côté d'une recherche règle ses e-mails :
+
+1. Cliquez sur la cloche (**Emails pour « … »**).
+2. Choisissez **Au fil de l'eau (regroupées toutes les 30 minutes)**, **Une fois par jour** à l'heure de votre choix (heure de Paris), ou **Jamais**.
+
+Chaque e-mail liste jusqu'à 20 offres. Sans aucune offre ouverte depuis ces e-mails pendant 60 jours, ils s'arrêtent et le disent. Leur lien **Arrêter ces emails** fonctionne sans vous connecter.
+
+## Les recherches suggérées
+
+**Recherches suggérées** propose jusqu'à cinq recherches tirées de votre profil et de votre pipeline, à votre TJM cible ou plus : votre intitulé près de chez vous, vos premières compétences, le full remote, l'hybride dans votre région, ou les compétences demandées par vos opportunités récentes qui manquent à votre profil.
+
+- **Aperçu** montre les offres de la suggestion.
+- **Sauvegarder** l'enregistre comme recherche.
+- **Écarter la suggestion** la retire pour de bon : elle n'est plus jamais proposée.
+
+Le panneau s'ouvre de lui-même tant que vous n'avez aucune recherche enregistrée, et indique quels champs du profil apporteraient plus de suggestions.
+
+## La page d'une offre et celle d'un éditeur
+
+**Ouvrir sa page** (dans **Plus d'actions**) affiche l'offre avec sa description complète, ses copies, sa correspondance et son **Historique** : TJM relevé ou baissé, démarrage déplacé, nombre de republications en 60 jours, signe d'une mission difficile à pourvoir. **Copier le lien** la partage avec un autre compte Indezy.
+
+Le nom de l'éditeur sur une carte ouvre ce qu'il publie dans le fil : ses missions ouvertes, leur TJM médian et leur âge, la part qu'il republie, ses sites, et s'il figure dans vos clients. **Masquer ses offres** le bloque.
+
+## Les offres douteuses
+
+Le badge **Douteuse** signale, avec la raison, une offre sans éditeur ni description, au TJM très éloigné du marché de sa compétence, au texte publié par quatre éditeurs ou plus, ou venant d'un éditeur connu pour ses fausses annonces. Cochez **Masquer les offres douteuses** pour ne plus les voir.
+
+## Depuis le lien d'une offre
+
+Pour une offre trouvée ailleurs, ouvrez **Opportunités** ou le tableau Kanban et cliquez sur **Depuis le lien d'une offre**.
+
+1. Collez l'adresse dans **Lien de l'offre**.
+2. Cliquez sur **Préremplir**.
+3. Vérifiez chaque champ, puis créez l'opportunité.
+
+Une offre du fil remplit le formulaire comme **Ajouter au pipeline** ; **Délier** garde le formulaire rempli sans lien avec l'offre. Une page d'un autre site est lue pour en tirer l'intitulé et le résumé. Une offre déjà dans le pipeline renvoie à son opportunité, et une offre salariée ou expirée est refusée avec la raison. Chaque espace lit au plus 20 liens par heure.
+
+## L'extension de navigateur
+
+L'extension **Indezy : ajouter cette offre**, pour Chrome et les navigateurs Chromium, envoie à Indezy la page ouverte dans votre navigateur. Indezy ouvre alors le formulaire de nouvelle opportunité, prérempli depuis cette offre.
+
+1. Dans les options de l'extension, vérifiez **Votre adresse Indezy**.
+2. Sur la page d'une offre, cliquez sur le bouton **Ajouter cette offre à Indezy**, ou faites un clic droit sur un lien et choisissez **Ajouter ce lien à Indezy**.
+3. Vérifiez le formulaire prérempli, puis enregistrez.
+
+L'extension utilise votre session Indezy du navigateur : connectez-vous d'abord. Elle ne garde ni mot de passe ni jeton et ne lit rien des pages que vous visitez. Elle n'est pas encore publiée sur le Chrome Web Store.
+
+> **Astuce :** la page **Sites d'offres**, liée depuis le fil, montre l'état de chaque site lu, vous permet d'en écarter un avec **Afficher dans mon fil**, et liste les **Sites à consulter vous-même**. Le fil se pilote aussi au clavier : voir [Raccourcis clavier](/help/shortcuts).

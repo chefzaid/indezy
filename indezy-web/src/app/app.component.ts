@@ -114,6 +114,7 @@ export class AppComponent implements OnInit {
     { labelKey: 'nav.quotes', route: '/quotes', icon: 'request_quote' },
     { labelKey: 'nav.documents', route: '/documents', icon: 'folder_shared' },
     { labelKey: 'nav.archive', route: '/archive', icon: 'inventory_2' },
+    { labelKey: 'nav.help', route: '/help', icon: 'help' },
     { labelKey: 'nav.admin', route: '/admin', icon: 'admin_panel_settings', admin: true }
   ];
 

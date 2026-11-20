@@ -1,0 +1,98 @@
+app-markdown-view {
+  display: block;
+  min-width: 0;
+}
+
+.markdown {
+  color: var(--app-text);
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+
+  :where(h2) {
+    margin: 32px 0 10px;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    scroll-margin-top: 80px;
+  }
+
+  :where(h3) {
+    margin: 22px 0 8px;
+    font-size: 1.0625rem;
+  }
+
+  :where(p, ul, ol, blockquote, table, figure) {
+    margin: 0 0 14px;
+  }
+
+  :where(ul, ol) {
+    padding-left: 24px;
+  }
+
+  :where(li) {
+    margin: 4px 0;
+  }
+
+  :where(a) {
+    color: var(--app-link);
+    font-weight: 500;
+  }
+
+  :where(code) {
+    padding: 1px 5px;
+    border-radius: 6px;
+    background: var(--app-selected-bg);
+    font-size: 0.875em;
+  }
+
+  :where(blockquote) {
+    padding: 10px 14px;
+    border-left: 3px solid var(--app-link);
+    border-radius: 8px;
+    background: var(--app-selected-bg);
+
+    p {
+      margin: 0;
+    }
+  }
+
+  :where(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  :where(th, td) {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--app-border);
+    text-align: left;
+  }
+
+  :where(figure) {
+    margin: 18px 0 22px;
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border: 1px solid var(--app-border);
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(15, 12, 40, 0.08);
+    }
+
+    figcaption {
+      margin-top: 6px;
+      color: var(--app-text-muted);
+      font-size: 0.8125rem;
+      text-align: center;
+    }
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+}
+
+app-markdown-view .missing {
+  color: var(--app-text-muted);
+}

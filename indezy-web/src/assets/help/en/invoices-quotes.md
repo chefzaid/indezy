@@ -1,0 +1,86 @@
+**Quotes** and **Invoices** cover a freelancer's billing: the quote for fixed-price work, the monthly invoice of a time-and-materials mission from its activity report, credit notes, payment tracking and the export for your accountant.
+
+## Complete your billing identity
+
+A French invoice must carry specific mentions. Fill them in once in **Profile → Billing**, on the **Billing identity** card:
+
+1. **Legal name** and **Legal form** (micro-entreprise, EI, EURL, SASU, SARL, SAS…).
+2. **SIRET**, and for a company its **Share capital** and **Registration**.
+3. The **VAT number** and **VAT rate** (20 % by default), or **Exempt from VAT (franchise en base, art. 293 B du CGI)**, ticked by default.
+4. The **Billing address**, **IBAN** and **BIC**.
+5. The **Payment term (days)** (30 by default, 60 at most) and the **Invoice number prefix** (`F` by default, giving F2026-0001).
+
+You can write drafts at any time, but issuing an invoice needs a SIRET, an address, an IBAN and, when VAT applies, a VAT number. A malformed IBAN, SIRET, VAT number or BIC is refused.
+
+> **Tip:** under portage salarial, the portage company invoices your clients: Indezy does not issue invoices for you.
+
+## The invoices list
+
+**Invoices** lists your invoices with their status and totals what is **Awaiting payment** and **Overdue**. The **Show** filter offers **All**, **Drafts**, **Awaiting payment**, **Overdue** or **Paid**.
+
+![The Invoices page with the awaiting and overdue totals, and the list of invoices](/assets/help/screens/invoices-en.jpg)
+
+An invoice goes through these statuses: **Draft**, **Issued**, **Overdue** once past its due date, **Paid**, or **Credited**.
+
+## Invoice an activity report
+
+1. On the **Invoices** page, click **From an activity report** (or **Create the invoice** on the mission's activity report card).
+2. Pick the month among those with days worked and not invoiced yet.
+3. Click **Create the invoice**.
+
+The draft is addressed to the mission's ESN, else its client, in the language of its activity report template, with the days at the mission's daily rate. A rejected month cannot be invoiced, and a month is invoiced only once. See [Timesheets and purchase orders](/help/activity-reports).
+
+## Create an invoice by hand
+
+1. Click **New invoice**.
+2. Pick the **Client**, optionally the **Mission**, the period (**Service from**, **Service to**) and the **Language**.
+3. For each line, enter the **Description**, **Quantity**, **Unit price** and **VAT**. Click **Add a line** to add more (50 at most).
+4. Optionally add **Notes (printed on the invoice)**, then save.
+
+A line with a negative quantity takes an amount off (a discount, a deposit already invoiced). An invoice totalling less than zero cannot be issued: that is what a credit note is for.
+
+## Issue, get paid, credit
+
+1. Review the draft: its PDF says it is not an invoice.
+2. Open the invoice's menu, click **Issue**, then pick the **Issue date** (never later than today, never before the last invoice).
+3. The invoice gets the year's next number, with no gap, and its due date. It can no longer change or be deleted.
+4. When the client pays, click **Mark as paid** and enter **Paid on**. **Mark as unpaid** fixes a mistake.
+
+To cancel all or part of an issued invoice, click **Create a credit note**: Indezy drafts one with the same lines, to reduce for a partial credit, then to issue. Fully credited, the invoice reads **Credited**.
+
+## Late payments
+
+- An issued invoice becomes **Overdue** after its due date. It shows under **Overdue invoices** on the [dashboard](/help/dashboard) and in the weekly digest.
+- The PDF carries the late payment penalties French law asks for.
+- Each client's page, and its opportunities' pages, says how it pays from its paid invoices, for example "Pays in 52 days on average, 12 days late".
+- **Revenue by client, last 12 months** splits your revenue and warns when one client makes up half of it or more, a risk of your contract being reclassified as employment.
+
+## Factur-X
+
+Issued invoices and credit notes download with **Download PDF** as Factur-X: a PDF/A-3 carrying the same data as embedded XML (EN 16931 profile). Drafts stay plain PDFs. Sending through an approved e-invoicing platform is not available yet.
+
+## The export for your accountant
+
+1. On the **Invoices** page, click **Export for the accountant**.
+2. Pick the year.
+3. Choose **Journal entries (FEC)**, the file French accounting tools import (sales journal `VE`, clients on `411000`, services on `706000`, VAT on `445710`, payments in the bank journal on `512000`), or **Invoice register (spreadsheet)**.
+
+The export holds the year's issued invoices and credit notes.
+
+## Quotes
+
+**Quotes** prepares fixed-price work: an audit, a training, a development.
+
+1. Click **New quote**.
+2. Pick the client, optionally the mission, the language, how long it is **Valid for** (30 days by default, 365 at most), an optional **Deposit on order** (1 to 100 %), notes and the lines.
+3. Click **Send** and pick the **Quote date**. The quote gets its own number (D2026-0001) and is frozen. Then send its PDF to the client: Indezy does not send it itself.
+4. Depending on the answer, click **Accepted by the client** or **Refused by the client**. Without an answer, it reads **Expired** once its validity ends.
+
+The PDF states the VAT or its exemption, the validity, the deposit, the payment term, the late payment penalties and a "Bon pour accord" box for the client's signature.
+
+For an accepted quote:
+
+- **Invoice the deposit** drafts a deposit invoice for the agreed share;
+- **Invoice the balance** drafts, once the deposit invoice is issued, the final invoice with the quote's lines, less the deposits already invoiced.
+
+The page totals the sent quotes awaiting an answer and the share of answered quotes accepted.

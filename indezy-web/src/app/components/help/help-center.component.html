@@ -1,0 +1,52 @@
+@if (!auth.isAuthenticated()) {
+  <app-public-page-header></app-public-page-header>
+}
+<div class="help-page">
+  <app-page-header icon="help" [title]="'help.title' | translate" [subtitle]="'help.subtitle' | translate"></app-page-header>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search">
+    <mat-icon matPrefix>search</mat-icon>
+    <mat-label>{{ 'help.search' | translate }}</mat-label>
+    <input matInput type="search" [formControl]="query" maxlength="80" data-help-search>
+  </mat-form-field>
+
+  @if (hits !== null) {
+    <section class="results" aria-live="polite" data-help-results>
+      @if (hits.length === 0) {
+        <p class="empty" data-help-none>{{ 'help.noResult' | translate }}</p>
+      }
+      @for (hit of hits; track hit.article.slug) {
+        <a class="result card" [routerLink]="['/help', hit.article.slug]" [attr.data-help-hit]="hit.article.slug">
+          <mat-icon aria-hidden="true">{{ hit.article.icon }}</mat-icon>
+          <span class="text">
+            <strong>{{ 'help.articles.' + hit.article.slug + '.title' | translate }}</strong>
+            <span class="excerpt">{{ hit.excerpt ?? ('help.articles.' + hit.article.slug + '.summary' | translate) }}</span>
+          </span>
+        </a>
+      }
+    </section>
+  } @else {
+    @for (section of sections; track section) {
+      <section class="section" [attr.aria-labelledby]="'help-section-' + section">
+        <h2 [id]="'help-section-' + section">{{ 'help.sections.' + section | translate }}</h2>
+        <ul class="cards">
+          @for (article of articles(section); track article.slug) {
+            <li>
+              <a class="card article" [routerLink]="['/help', article.slug]" [attr.data-help-article]="article.slug">
+                <mat-icon aria-hidden="true">{{ article.icon }}</mat-icon>
+                <strong>{{ 'help.articles.' + article.slug + '.title' | translate }}</strong>
+                <span>{{ 'help.articles.' + article.slug + '.summary' | translate }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  }
+
+  <footer class="legal">
+    <a routerLink="/legal/notice" data-help-legal="notice">{{ 'legal.notice' | translate }}</a>
+    <a routerLink="/legal/terms" data-help-legal="terms">{{ 'legal.terms' | translate }}</a>
+    <a routerLink="/legal/privacy" data-help-legal="privacy">{{ 'legal.privacy' | translate }}</a>
+  </footer>
+</div>

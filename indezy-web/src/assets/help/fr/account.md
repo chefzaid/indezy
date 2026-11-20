@@ -1,0 +1,95 @@
+Votre compte se règle dans **Profil**, depuis le menu de votre compte en haut à droite. Cet article couvre la connexion et la sécurité, les notifications et e-mails, les outils pour développeurs, vos données et l'affichage de l'application.
+
+## Se connecter et sécuriser son compte
+
+Selon votre instance, vous vous connectez avec votre e-mail et votre mot de passe, ou avec **Continuer avec SSO**. Un mot de passe compte au moins 8 caractères.
+
+Pour changer de mot de passe :
+
+1. Ouvrez **Profil → Sécurité**.
+2. Cliquez sur **Changer le mot de passe**, saisissez le **Mot de passe actuel** puis le **Nouveau mot de passe** deux fois.
+
+Un nouveau mot de passe déconnecte toutes vos autres sessions. Il n'existe pas encore de réinitialisation du mot de passe oublié pour les comptes locaux.
+
+### Activer l'authentification à deux facteurs
+
+1. Dans **Profil → Sécurité**, section **Authentification à deux facteurs**, cliquez sur **Activer**.
+2. Ajoutez le secret affiché à votre application d'authentification.
+3. Saisissez le **Code de vérification** à 6 chiffres, puis **Vérifier et activer**.
+
+À chaque connexion, votre application vous donnera le code demandé. Les codes de secours n'existent pas encore : gardez votre application d'authentification sauvegardée.
+
+## Sessions et activité du compte
+
+**Où vous êtes connecté**, dans **Profil → Sécurité**, liste chaque navigateur ou application connecté : son système, la façon dont il s'est connecté et sa dernière activité. **Ce navigateur** marque celui que vous utilisez.
+
+- **Déconnecter** ferme une session.
+- **Déconnecter partout ailleurs** ferme toutes les autres.
+
+**Activité du compte** liste les connexions (et celles refusées), les déconnexions, les changements de mot de passe et de double authentification, les exports et imports, et les actions des administrateurs, sur 12 mois.
+
+> **Astuce :** une session que vous ne reconnaissez pas ? Déconnectez-la, puis changez votre mot de passe.
+
+## Notifications et e-mails
+
+**Profil → Notifications** regroupe des interrupteurs enregistrés aussitôt :
+
+- **Résumé hebdomadaire** : **M'envoyer un résumé chaque semaine**, chaque lundi matin, désactivé par défaut. Choisissez ses sections sous **Ce que donne le résumé** (voir [Tableau de bord](/help/dashboard)).
+- **Appels réservés** : **M'envoyer chaque appel réservé par e-mail** (voir [Calendrier](/help/calendar)).
+- **Messages du réseau** : **M'envoyer par e-mail les messages non lus depuis une heure**. Un seul e-mail, au plus toutes les trois heures, sans le texte des messages.
+- **Nouvelles offres** : **Compter les nouvelles offres à côté d'Offres dans le menu**.
+
+Les rappels d'entretiens, de relances et d'opportunités sans nouvelles s'affichent toujours sur le tableau de bord. Chaque recherche enregistrée règle ses propres e-mails (voir [Offres](/help/offers)). Les notifications du réseau se règlent type par type dans **Profil → Réseau** (voir [Réseau](/help/network)). Chaque e-mail contient un lien de désinscription en un clic.
+
+## Jetons d'API
+
+Un jeton permet à un script, un tableur ou un service d'automatisation de **lire** votre espace. Il ne modifie jamais rien et n'accède pas aux réglages de votre compte.
+
+1. Ouvrez **Profil → Sécurité → Jetons d'API**.
+2. Saisissez le **Nom du jeton**, choisissez **Expire après** (30, 90 ou 365 jours, ou **Jamais**).
+3. Sous **Il lit**, limitez-le si besoin : **Opportunités et entretiens**, **CRA et bons de commande**, **Clients, contacts et sources**, **Factures**, **Documents de conformité**, **Offres**. Sans choix, il lit **Tout l'espace**.
+4. Cliquez sur **Créer le jeton**, puis **Copier le jeton** : il ne sera plus affiché.
+
+Un compte garde 10 jetons au plus. **Révoquer** coupe l'accès aussitôt.
+
+## Webhooks
+
+Un webhook prévient vos outils (Zapier, Make, n8n, un script) des événements de votre espace : opportunité ajoutée ou déplacée, CRA envoyé, validé ou refusé, facture émise ou payée, appel réservé.
+
+1. Ouvrez **Profil → Sécurité → Webhooks**.
+2. Saisissez l'**Adresse HTTPS** et cochez les **Événements**.
+3. Cliquez sur **Ajouter le webhook**, puis **Copier le secret** : il signe chaque envoi et n'est affiché qu'une fois.
+
+**Envoyer un test** vérifie la réception ; **Derniers envois** montre les 20 derniers. Un envoi refusé est réessayé plusieurs fois ; après 20 échecs d'affilée, le webhook se désactive jusqu'à ce que vous cliquiez sur **Activer**. Un espace a 5 webhooks au plus.
+
+## Exporter et importer vos données
+
+- **Profil → Compte → Exporter mes données** télécharge toutes vos données au format JSON.
+- **Profil → Compte → Importer des données** ajoute un export Indezy (50 Mo au plus) à votre espace.
+
+Pour importer :
+
+1. Cliquez sur **Choisir un fichier d'export**.
+2. Lisez l'aperçu : chaque élément est nouveau, déjà présent ou écarté (avec la raison).
+3. Cliquez sur **Importer** : rien n'est enregistré avant.
+
+L'import reprend les sources, clients et ESN, contacts, saisons, opportunités avec leurs étapes, et notes du journal. Importer deux fois le même fichier n'ajoute rien. Le profil, les CRA, les offres, les modèles et les pièces jointes ne sont pas importés.
+
+## Supprimer votre compte
+
+1. Ouvrez **Profil → Compte**.
+2. Cliquez sur **Supprimer mon compte**.
+3. Saisissez votre e-mail pour confirmer.
+
+Aussitôt, vous êtes déconnecté partout, personne ne peut se connecter, et votre carte, vos publications et votre page publique sont masquées. Un e-mail vous donne la date de suppression. Pendant 30 jours, vous connecter propose **Restaurer mon compte**, qui le rend tel qu'il était. Ensuite, tout est supprimé définitivement. Les messages que vous avez envoyés restent chez leurs destinataires, signés d'un **Ancien membre**.
+
+> **Astuce :** exportez vos données avant de supprimer votre compte si vous voulez les garder.
+
+## Langue et thème
+
+- La langue (français ou anglais) se change avec l'icône globe de la barre du haut, ou dans **Profil → Préférences → Langue**. Elle est enregistrée avec votre compte.
+- Le thème se règle dans **Profil → Préférences → Thème** : **Clair**, **Sombre** ou **Automatique**, puis **Sauvegarder**. L'icône lune ou soleil de la barre du haut bascule entre clair et sombre.
+
+## Utiliser Indezy hors ligne
+
+Sur l'instance de production, Indezy s'installe comme une application web. Sans connexion, il affiche ce qu'il a chargé en dernier des principales pages de votre espace, gardé sept jours, et un bandeau vous prévient. Les modifications demandent une connexion. Les téléchargements, les exports, vos sessions et vos jetons ne sont jamais gardés, et la déconnexion efface tout.

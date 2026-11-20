@@ -86,7 +86,8 @@
     "documents": "Documents",
     "activityReports": "CRA",
     "quotes": "Devis",
-    "network": "Réseau"
+    "network": "Réseau",
+    "help": "Aide"
   },
   "archive": {
     "title": "Archives",
@@ -4358,5 +4359,82 @@
     "saved": "Cooptation enregistrée.",
     "saveError": "Impossible d’enregistrer la cooptation : réessayez.",
     "removeConfirm": "Supprimer cette cooptation ?"
+  },
+  "help": {
+    "title": "Aide",
+    "subtitle": "Comment fonctionne Indezy et tout ce que vous pouvez y faire, écran par écran.",
+    "search": "Chercher dans l’aide",
+    "noResult": "Aucun article ne correspond.",
+    "notFound": "Cet article n’existe pas.",
+    "loadError": "Impossible de charger cet article.",
+    "onThisPage": "Sur cette page",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "sections": {
+      "start": "Bien démarrer",
+      "work": "Trouver et suivre vos missions",
+      "money": "Facturer et piloter",
+      "network": "Le réseau des membres"
+    },
+    "articles": {
+      "getting-started": {
+        "title": "Prise en main",
+        "summary": "Créer votre compte, les premières étapes, votre profil et votre identité de facturation."
+      },
+      "account": {
+        "title": "Compte, sécurité et données",
+        "summary": "Connexion, sessions, notifications, export, import et suppression du compte."
+      },
+      "shortcuts": {
+        "title": "Raccourcis clavier",
+        "summary": "Aller plus vite au clavier, partout dans l’application."
+      },
+      "faq": {
+        "title": "Questions fréquentes",
+        "summary": "Les réponses aux questions les plus posées."
+      },
+      "offers": {
+        "title": "Le flux d’offres",
+        "summary": "Les missions freelance des job boards, filtrées et comparées à votre profil."
+      },
+      "pipeline": {
+        "title": "Pipeline et opportunités",
+        "summary": "Le tableau Kanban, la fiche d’une opportunité, les entretiens et la cooptation."
+      },
+      "clients-contacts": {
+        "title": "Clients, ESN et contacts",
+        "summary": "Vos clients, ESN et interlocuteurs, leur historique et leur organisation."
+      },
+      "calendar": {
+        "title": "Calendrier et réservations",
+        "summary": "Vos entretiens et relances dans le temps, et votre page de prise de rendez-vous."
+      },
+      "activity-reports": {
+        "title": "CRA et bons de commande",
+        "summary": "Remplir et faire valider votre compte rendu d’activité, suivre vos bons de commande."
+      },
+      "invoices-quotes": {
+        "title": "Devis et factures",
+        "summary": "Devis, factures, Factur-X, retards de paiement et export comptable."
+      },
+      "documents": {
+        "title": "Documents et conformité",
+        "summary": "Vos documents, leurs échéances, les dossiers partagés et les modèles."
+      },
+      "dashboard": {
+        "title": "Tableau de bord et bilans",
+        "summary": "Vos chiffres, tendances, bilan annuel, taux de reversement et trajets."
+      },
+      "network": {
+        "title": "Le réseau des membres",
+        "summary": "Publier, transmettre des missions, échanger, communautés, événements et idées."
+      }
+    }
+  },
+  "legal": {
+    "title": "Informations légales",
+    "notice": "Mentions légales",
+    "terms": "Conditions d’utilisation",
+    "privacy": "Politique de confidentialité"
   }
 }

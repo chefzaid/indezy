@@ -1,0 +1,52 @@
+@if (!auth.isAuthenticated()) {
+  <app-public-page-header></app-public-page-header>
+}
+<div class="article-page">
+  <nav class="index" [attr.aria-label]="'help.title' | translate" data-help-index>
+    <a routerLink="/help" class="home"><mat-icon aria-hidden="true">arrow_back</mat-icon>{{ 'help.title' | translate }}</a>
+    @for (item of articles; track item.slug) {
+      <a [routerLink]="['/help', item.slug]" routerLinkActive="active" ariaCurrentWhenActive="page" [attr.data-help-index-item]="item.slug">
+        <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>{{ 'help.articles.' + item.slug + '.title' | translate }}
+      </a>
+    }
+  </nav>
+
+  <main class="content">
+    @if (article; as current) {
+      <article class="card" [attr.data-help-read]="current.slug">
+        <header>
+          <mat-icon aria-hidden="true">{{ current.icon }}</mat-icon>
+          <h1>{{ 'help.articles.' + current.slug + '.title' | translate }}</h1>
+        </header>
+        <app-markdown-view folder="help" [name]="current.slug" (headings)="showHeadings($event)"></app-markdown-view>
+        <footer class="pager">
+          @if (previous; as before) {
+            <a [routerLink]="['/help', before.slug]" class="previous" data-help-previous>
+              <span>{{ 'help.previous' | translate }}</span><strong>{{ 'help.articles.' + before.slug + '.title' | translate }}</strong>
+            </a>
+          }
+          @if (next; as after) {
+            <a [routerLink]="['/help', after.slug]" class="next" data-help-next>
+              <span>{{ 'help.next' | translate }}</span><strong>{{ 'help.articles.' + after.slug + '.title' | translate }}</strong>
+            </a>
+          }
+        </footer>
+      </article>
+    } @else {
+      <section class="card missing" data-help-not-found>
+        <mat-icon aria-hidden="true">help_center</mat-icon>
+        <p>{{ 'help.notFound' | translate }}</p>
+        <a routerLink="/help">{{ 'help.title' | translate }}</a>
+      </section>
+    }
+  </main>
+
+  @if (headings.length > 1) {
+    <nav class="toc" [attr.aria-label]="'help.onThisPage' | translate" data-help-toc>
+      <h2>{{ 'help.onThisPage' | translate }}</h2>
+      @for (heading of headings; track heading.id) {
+        <a [href]="'#' + heading.id" (click)="jump($event, heading.id)">{{ heading.text }}</a>
+      }
+    </nav>
+  }
+</div>

@@ -86,7 +86,8 @@
     "documents": "Documents",
     "activityReports": "Timesheets",
     "quotes": "Quotes",
-    "network": "Network"
+    "network": "Network",
+    "help": "Help"
   },
   "archive": {
     "title": "Archive",
@@ -4358,5 +4359,82 @@
     "saved": "Co-optation saved.",
     "saveError": "Could not save the co-optation: try again.",
     "removeConfirm": "Delete this co-optation?"
+  },
+  "help": {
+    "title": "Help",
+    "subtitle": "How Indezy works and everything you can do with it, screen by screen.",
+    "search": "Search the help",
+    "noResult": "No article matches.",
+    "notFound": "This article does not exist.",
+    "loadError": "This article could not be loaded.",
+    "onThisPage": "On this page",
+    "previous": "Previous",
+    "next": "Next",
+    "sections": {
+      "start": "Getting started",
+      "work": "Find and follow your missions",
+      "money": "Invoice and steer",
+      "network": "The member network"
+    },
+    "articles": {
+      "getting-started": {
+        "title": "Getting started",
+        "summary": "Create your account, the first steps, your profile and your billing identity."
+      },
+      "account": {
+        "title": "Account, security and data",
+        "summary": "Sign-in, sessions, notifications, export, import and account deletion."
+      },
+      "shortcuts": {
+        "title": "Keyboard shortcuts",
+        "summary": "Go faster with the keyboard, everywhere in the app."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "summary": "Answers to the questions asked most."
+      },
+      "offers": {
+        "title": "The offer feed",
+        "summary": "Freelance missions from the job boards, filtered and compared with your profile."
+      },
+      "pipeline": {
+        "title": "Pipeline and opportunities",
+        "summary": "The Kanban board, an opportunity’s page, interviews and co-optation."
+      },
+      "clients-contacts": {
+        "title": "Clients, ESNs and contacts",
+        "summary": "Your clients, ESNs and contacts, their history and their organization."
+      },
+      "calendar": {
+        "title": "Calendar and bookings",
+        "summary": "Your interviews and follow-ups over time, and your booking page."
+      },
+      "activity-reports": {
+        "title": "Timesheets and purchase orders",
+        "summary": "Fill in and get your monthly timesheet approved, follow your purchase orders."
+      },
+      "invoices-quotes": {
+        "title": "Quotes and invoices",
+        "summary": "Quotes, invoices, Factur-X, late payments and the accounting export."
+      },
+      "documents": {
+        "title": "Documents and compliance",
+        "summary": "Your documents, their expiry dates, shared packs and templates."
+      },
+      "dashboard": {
+        "title": "Dashboard and reviews",
+        "summary": "Your figures, trends, yearly review, reversion rate and commutes."
+      },
+      "network": {
+        "title": "The member network",
+        "summary": "Post, pass on missions, talk, communities, events and ideas."
+      }
+    }
+  },
+  "legal": {
+    "title": "Legal information",
+    "notice": "Legal notice",
+    "terms": "Terms of use",
+    "privacy": "Privacy policy"
   }
 }

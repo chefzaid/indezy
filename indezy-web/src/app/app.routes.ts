@@ -45,6 +45,25 @@ export const routes: Routes = [
     loadComponent: () => import('./components/network-invitation/network-invitation.component').then(m => m.NetworkInvitationComponent)
   },
   {
+    // The help center and its articles, open with or without an account.
+    path: 'help',
+    loadComponent: () => import('./components/help/help-center.component').then(m => m.HelpCenterComponent)
+  },
+  {
+    path: 'help/:slug',
+    loadComponent: () => import('./components/help/help-article.component').then(m => m.HelpArticleComponent)
+  },
+  {
+    // The legal notice, terms of use and privacy policy, open without an account.
+    path: 'legal/:document',
+    loadComponent: () => import('./components/legal/legal-page.component').then(m => m.LegalPageComponent)
+  },
+  {
+    path: 'legal',
+    pathMatch: 'full',
+    redirectTo: 'legal/notice'
+  },
+  {
     // Opened from a saved search email's unsubscribe link, without an account.
     path: 'emails/unsubscribe',
     loadComponent: () => import('./components/emails-unsubscribe/emails-unsubscribe.component').then(m => m.EmailsUnsubscribeComponent)

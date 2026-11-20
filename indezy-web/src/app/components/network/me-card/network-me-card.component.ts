@@ -39,7 +39,7 @@ export class NetworkMeCardComponent implements OnInit {
         if (this.page) {
           this.network.pageViews(true).subscribe({
             next: views => {
-              this.viewers = views.viewers;
+              this.viewers = views?.viewers ?? null;
               this.changes.markForCheck();
             },
             error: () => this.viewers = null

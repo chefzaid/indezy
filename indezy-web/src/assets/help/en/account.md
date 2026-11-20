@@ -1,0 +1,95 @@
+Your account is set up in **Profile**, from your account menu at the top right. This article covers sign-in and security, notifications and emails, developer tools, your data and how the app looks.
+
+## Sign in and secure your account
+
+Depending on your instance, you sign in with your email and password, or with **Continue with SSO**. A password has at least 8 characters.
+
+To change your password:
+
+1. Open **Profile → Security**.
+2. Click **Change password**, enter the **Current password**, then the **New password** twice.
+
+A new password signs out every other session. There is no reset for a forgotten password on local accounts yet.
+
+### Turn on two-factor authentication
+
+1. In **Profile → Security**, under **Two-factor authentication**, click **Enable**.
+2. Add the secret shown to your authenticator app.
+3. Enter the 6-digit **Verification code**, then **Verify & activate**.
+
+Each time you sign in, your app gives you the code asked for. Recovery codes do not exist yet: keep your authenticator app backed up.
+
+## Sessions and account activity
+
+**Where you're signed in**, in **Profile → Security**, lists each browser or app signed in: its system, how it signed in and when it was last active. **This browser** marks the one you are using.
+
+- **Sign out** ends one session.
+- **Sign out everywhere else** ends all the others.
+
+**Account activity** lists sign-ins (and refused ones), sign-outs, password and two-factor changes, exports and imports, and administrator actions, over 12 months.
+
+> **Tip:** a session you don't recognize? Sign it out, then change your password.
+
+## Notifications and emails
+
+**Profile → Notifications** holds switches saved at once:
+
+- **Weekly digest**: **Email me a weekly digest**, every Monday morning, off by default. Pick its sections under **What the digest gives** (see [Dashboard](/help/dashboard)).
+- **Booked calls**: **Email me each call booked** (see [Calendar](/help/calendar)).
+- **Network messages**: **Email me the messages unread for an hour**. One email, at most every three hours, without the messages' text.
+- **New offers**: **Count new offers next to Offers in the menu**.
+
+Reminders of interviews, follow-ups and opportunities gone quiet always show on the dashboard. Each saved search sets its own emails (see [Offers](/help/offers)). Network notifications are set kind by kind in **Profile → Network** (see [Network](/help/network)). Every email has a one-click unsubscribe link.
+
+## API tokens
+
+A token lets a script, a spreadsheet or an automation service **read** your workspace. It never changes anything and cannot reach your account settings.
+
+1. Open **Profile → Security → API tokens**.
+2. Enter the **Token name** and choose **Expires after** (30, 90 or 365 days, or **Never**).
+3. Under **It reads**, narrow it if you like: **Opportunities and interviews**, **Activity reports and purchase orders**, **Clients, contacts and sources**, **Invoices**, **Compliance documents**, **Offers**. With nothing ticked, it reads **The whole workspace**.
+4. Click **Create token**, then **Copy token**: it won't be shown again.
+
+An account holds 10 tokens at most. **Revoke** cuts access at once.
+
+## Webhooks
+
+A webhook tells your tools (Zapier, Make, n8n, a script) about your workspace's events: an opportunity added or moved, an activity report sent, approved or rejected, an invoice issued or paid, a call booked.
+
+1. Open **Profile → Security → Webhooks**.
+2. Enter the **HTTPS address** and tick the **Events**.
+3. Click **Add the webhook**, then **Copy the secret**: it signs each delivery and is shown only once.
+
+**Send a test** checks it arrives; **Latest deliveries** shows the last 20. A delivery that fails is tried again several times; after 20 failures in a row the webhook turns off until you click **Turn on**. A workspace has 5 webhooks at most.
+
+## Export and import your data
+
+- **Profile → Account → Export my data** downloads all your data as JSON.
+- **Profile → Account → Import data** brings an Indezy export (50 MB at most) into your workspace.
+
+To import:
+
+1. Click **Choose an export file**.
+2. Read the preview: each record is new, already here or left out (with the reason).
+3. Click **Import**: nothing is saved before.
+
+The import brings sources, clients and ESNs, contacts, seasons, opportunities with their steps, and journal notes. Importing the same file twice adds nothing. The profile, activity reports, offers, templates and attachments are not imported.
+
+## Delete your account
+
+1. Open **Profile → Account**.
+2. Click **Delete my account**.
+3. Type your email to confirm.
+
+At once, you are signed out everywhere, nobody can sign in, and your card, posts and public page are hidden. An email tells you the deletion date. For 30 days, signing in offers **Restore my account**, which brings it back as it was. After that, everything is deleted for good. Messages you sent stay with the members you wrote to, from a **Former member**.
+
+> **Tip:** export your data before deleting your account if you want to keep it.
+
+## Language and theme
+
+- Change the language (French or English) with the globe icon in the top bar, or in **Profile → Preferences → Language**. It is saved with your account.
+- Set the theme in **Profile → Preferences → Theme**: **Light**, **Dark** or **Auto**, then **Save**. The moon or sun icon in the top bar switches between light and dark.
+
+## Use Indezy offline
+
+On the production instance, Indezy installs as a web app. Without a connection, it shows what it last loaded of your workspace's main pages, kept seven days, and a banner tells you so. Changes need a connection. Downloads, exports, your sessions and tokens are never kept, and signing out forgets everything.

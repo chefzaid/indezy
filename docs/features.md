@@ -32,6 +32,25 @@ previews show (`src/assets/brand/og-image.png`, 1200 × 630) from `scripts/og-im
 both are retaken after a theme change. They keep their names, so nginx has browsers check them again on each visit
 instead of keeping them a year as it does the build's hashed scripts, styles and fonts.
 
+## Help Center And Legal Pages
+
+**Help** in the left menu (`/help`, open with or without an account) explains how Indezy works, area by area, for
+freelancers rather than developers: getting started, the account and its data, keyboard shortcuts, the FAQ, the offer
+feed, the pipeline and opportunities, clients and contacts, the calendar, timesheets and purchase orders, quotes and
+invoices, documents, the dashboard, and the member network. Each article is a Markdown file per language
+(`src/assets/help/<fr|en>/<slug>.md`, listed in `components/help/help-articles.ts`) with numbered steps naming the app's
+own labels and screenshots of a demo workspace (`src/assets/help/screens`, retaken with
+`npx playwright test -c pw.screenshots.config.ts help`; invented people, clients and offers). The help center lists the
+articles by section as cards and searches their titles, summaries and text (the articles read once in the browser), each
+result quoting the words found; an article page lists the articles on the left, its own sections on the right on a wide
+screen, and the previous and next article at its foot. `e2e/help.spec.ts` checks that every article exists in both
+languages, with its screenshots and the articles it links to.
+
+The legal texts (`/legal/notice`, `/legal/terms`, `/legal/privacy`: legal notice, terms of use, privacy policy) are
+Markdown files too (`src/assets/legal/<fr|en>/`), the French version prevailing, open without an account and linked from
+the presentation page's footer and the help center. What the publisher still has to give (legal form, address,
+registration) is marked **[à compléter]** in them.
+
 ## Authentication And Account Access
 
 Local accounts register and sign in with an email and a password of 8 characters to 72 bytes (an accented letter counts
