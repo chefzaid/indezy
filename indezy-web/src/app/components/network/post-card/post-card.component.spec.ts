@@ -62,6 +62,17 @@ describe('PostCardComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('network.post.pinError');
   });
 
+  it('names the community a post was posted in, but in that community\'s own feed', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', { ...post, community: { slug: 'kafka', name: 'Kafka' } });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-post-community]')?.getAttribute('href')).toBe('/network/communities/kafka');
+    fixture.componentRef.setInput('inCommunity', true);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-post-community]')).toBeNull();
+  });
+
   it('sends the post in a message, saying in how many conversations', () => {
     configure();
     const fixture = TestBed.createComponent(PostCardComponent);

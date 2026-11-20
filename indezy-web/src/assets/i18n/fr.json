@@ -1500,7 +1500,11 @@
         "COMMENT": "Quand un membre commente votre publication",
         "REPLY": "Quand un membre répond à votre commentaire",
         "MENTION": "Quand un membre vous mentionne",
-        "REPOST": "Quand un membre republie votre publication"
+        "REPOST": "Quand un membre republie votre publication",
+        "COMMUNITY_POST": "Une publication dans une de mes communautés",
+        "COMMUNITY_REQUEST": "Une demande pour rejoindre une communauté que je modère",
+        "COMMUNITY_ACCEPTED": "Être accepté dans une communauté privée",
+        "COMMUNITY_MODERATOR": "Être nommé modérateur d’une communauté"
       },
       "banned": "Les modérateurs ont mis fin à l’adhésion de ce compte : il ne peut plus rejoindre le réseau.",
       "privateTitle": "Carte privée",
@@ -3603,7 +3607,11 @@
         "COMMENT": "a commenté votre publication",
         "REPLY": "a répondu à votre commentaire",
         "MENTION": "vous a mentionné",
-        "REPOST": "a republié votre publication"
+        "REPOST": "a republié votre publication",
+        "COMMUNITY_POST": "a publié dans une de vos communautés",
+        "COMMUNITY_REQUEST": "demande à rejoindre une communauté que vous modérez",
+        "COMMUNITY_ACCEPTED": "vous a accepté dans une communauté",
+        "COMMUNITY_MODERATOR": "vous a nommé modérateur d’une communauté"
       },
       "typesMany": {
         "FOLLOW": "vous suivent désormais",
@@ -3614,7 +3622,11 @@
         "COMMENT": "ont commenté votre publication",
         "REPLY": "ont répondu à votre commentaire",
         "MENTION": "vous ont mentionné",
-        "REPOST": "ont republié votre publication"
+        "REPOST": "ont republié votre publication",
+        "COMMUNITY_POST": "ont publié dans une de vos communautés",
+        "COMMUNITY_REQUEST": "demandent à rejoindre une communauté que vous modérez",
+        "COMMUNITY_ACCEPTED": "vous ont accepté dans une communauté",
+        "COMMUNITY_MODERATOR": "vous ont nommé modérateur d’une communauté"
       },
       "moderation": {
         "WARNED": "Les modérateurs vous ont adressé un avertissement au sujet d’une publication, d’un commentaire ou de votre conduite dans le réseau.",
@@ -3637,7 +3649,8 @@
         "comments": "Commentaires et réponses",
         "reactions": "Réactions et partages",
         "follows": "Abonnements",
-        "moderation": "Modération"
+        "moderation": "Modération",
+        "communities": "Communautés"
       },
       "settings": "Réglages des notifications",
       "noneFiltered": "Aucune notification de ce type.",
@@ -4094,7 +4107,17 @@
       "deleteConfirm": "Supprimer cette communauté ? Ses publications restent, comme publications simples.",
       "makeModerator": "Nommer modérateur",
       "unmakeModerator": "Retirer le rôle de modérateur",
-      "removeMember": "Retirer"
+      "removeMember": "Retirer",
+      "private": "Privée : rejointe sur demande, ses publications lues par ses membres",
+      "privateHint": "Une communauté privée se rejoint sur demande : ses modérateurs répondent, et seuls ses membres lisent ses publications.",
+      "privateBadge": "Privée",
+      "requested": "Demande envoyée",
+      "ask": "Demander à rejoindre",
+      "withdraw": "Retirer la demande",
+      "requestsTab": "Demandes",
+      "noRequests": "Aucune demande en attente.",
+      "waiting": "Votre demande attend ses modérateurs : une fois accepté, vous lisez et publiez ici.",
+      "privateToRead": "Une communauté privée : demandez à la rejoindre pour la lire et y publier."
     }
   }
 }

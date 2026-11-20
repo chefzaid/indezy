@@ -505,3 +505,48 @@ for (const [language, width] of [['fr', 1600], ['en', 390]] as const) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 }
+
+test('names a post\'s community in the home feed, asks to join a private community, and answers its requests', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await mockWorkspaceSession(page, 'fr');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [{ id: 8, text: 'Bienvenue', tags: [],
+    createdAt: '2026-11-19T09:00:00', own: false, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false,
+    bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST', details: null, answerCommentId: null, poll: null,
+    taken: null, author: card('leo_m', 'Léo'), community: { slug: 'kafka', name: 'Kafka' } }], page: 0, more: false } }));
+  await page.goto('/network');
+  await expect(page.locator('[data-post="8"] [data-post-community]')).toHaveAttribute('href', '/network/communities/kafka');
+
+  let secret = { slug: 'secret', name: 'Club privé', description: null, members: 4, joined: false, moderator: false, privateCommunity: true,
+    requested: false };
+  await page.route('**/api/network/communities/secret', route => route.fulfill({ json: { community: secret, moderators: [], creator: false } }));
+  await page.route('**/api/network/communities/secret/posts?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  await page.route('**/api/network/communities/secret/membership', route => {
+    secret = { ...secret, requested: true };
+    return route.fulfill({ json: { community: secret, moderators: [], creator: false } });
+  });
+  await page.goto('/network/communities/secret');
+  await expect(page.locator('[data-community-is-private]')).toBeVisible();
+  await page.locator('[data-community-membership]').click();
+  await expect(page.locator('[data-community-membership]')).toContainText('Retirer la demande');
+  await expect(page.locator('[data-community-join-hint]')).toContainText('attend ses modérateurs');
+
+  const mine = { slug: 'kafka', name: 'Kafka', description: null, members: 2, joined: true, moderator: true, privateCommunity: true,
+    requested: false };
+  await page.route('**/api/network/communities/kafka', route => route.fulfill({ json: { community: mine, moderators: [card('camille', 'Camille')],
+    creator: true } }));
+  await page.route('**/api/network/communities/kafka/posts?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  let waiting = [card('zoe_l', 'Zoé')];
+  await page.route('**/api/network/communities/kafka/requests', route => route.fulfill({ json: waiting }));
+  await page.route('**/api/network/communities/kafka/requests/zoe_l', route => {
+    waiting = [];
+    return route.fulfill({ json: waiting });
+  });
+  await page.goto('/network/communities/kafka');
+  await page.locator('[data-community-tab-requests]').click();
+  await page.locator('[data-community-accept="zoe_l"]').click();
+  await expect(page.locator('[data-community-request]')).toHaveCount(0);
+  const audit = await new AxeBuilder({ page }).include('app-network-community').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+});

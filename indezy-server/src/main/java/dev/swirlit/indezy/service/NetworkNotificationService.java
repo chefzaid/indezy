@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkNotification;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
+import dev.swirlit.indezy.repository.NetworkCommunityRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.NetworkNotificationRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
@@ -55,6 +56,7 @@ public class NetworkNotificationService {
         NetworkNotificationType.CONTENT_REMOVED, NetworkNotificationType.SUSPENDED, NetworkNotificationType.REPORT_ACTED,
         NetworkNotificationType.REPORT_DISMISSED);
 
+    private final NetworkCommunityRepository communities;
     private final NetworkService network;
     private final NetworkMemberRepository members;
     private final NetworkNotificationRepository notifications;
@@ -64,6 +66,11 @@ public class NetworkNotificationService {
 
     /** Tells the recipient, unless it is the actor, they are away or turned the kind off, or a block stands between them. */
     void notify(Long recipientId, Long actorId, NetworkNotificationType type, Long postId) {
+        notify(recipientId, actorId, type, postId, null);
+    }
+
+    /** Tells a member of a community's activity: a post in it, a request to join, an answer, being named a moderator. */
+    void notify(Long recipientId, Long actorId, NetworkNotificationType type, Long postId, Long communityId) {
         if (recipientId == null || recipientId.equals(actorId)) {
             return;
         }
@@ -80,6 +87,7 @@ public class NetworkNotificationService {
         notification.setActorId(actorId);
         notification.setType(type);
         notification.setPostId(postId);
+        notification.setCommunityId(communityId);
         notifications.save(notification);
         events.notice(recipientId);
     }
@@ -113,12 +121,13 @@ public class NetworkNotificationService {
         Map<String, List<NetworkNotification>> groups = new LinkedHashMap<>();
         for (NetworkNotification notification : notifications.findByRecipientIdOrderByCreatedAtDescIdDesc(userId, PageRequest.of(0, READ_BACK))) {
             if (!blocked.contains(notification.getActorId())) {
-                groups.computeIfAbsent(notification.getType() + ":" + notification.getPostId() + ":" + notification.isRead(), key -> new ArrayList<>())
-                    .add(notification);
+                groups.computeIfAbsent(notification.getType() + ":" + notification.getPostId() + ":" + notification.getCommunityId() + ":" +
+                    notification.isRead(), key -> new ArrayList<>()).add(notification);
             }
         }
         Map<Long, Optional<NetworkDtos.MemberCard>> cards = new LinkedHashMap<>();
         Map<Long, String> excerpts = new LinkedHashMap<>();
+        Map<Long, Optional<NetworkDtos.CommunityRef>> places = new LinkedHashMap<>();
         return groups.values().stream().map(group -> {
             NetworkNotification latest = group.getFirst();
             if (MODERATION.contains(latest.getType())) {
@@ -128,8 +137,10 @@ public class NetworkNotificationService {
             List<NetworkDtos.MemberCard> actors = group.stream().map(NetworkNotification::getActorId).distinct()
                 .map(actor -> cards.computeIfAbsent(actor, this::card)).flatMap(Optional::stream).toList();
             String excerpt = latest.getPostId() == null ? null : excerpts.computeIfAbsent(latest.getPostId(), this::excerpt);
+            NetworkDtos.CommunityRef place = latest.getCommunityId() == null ? null : places.computeIfAbsent(latest.getCommunityId(),
+                id -> communities.findById(id).map(found -> new NetworkDtos.CommunityRef(found.getSlug(), found.getName()))).orElse(null);
             return actors.isEmpty() ? null : new NetworkDtos.NotificationGroup(latest.getType(), latest.getPostId(), excerpt,
-                actors.stream().limit(ACTORS_SHOWN).toList(), actors.size(), latest.getCreatedAt(), latest.isRead());
+                actors.stream().limit(ACTORS_SHOWN).toList(), actors.size(), latest.getCreatedAt(), latest.isRead(), place);
         }).filter(Objects::nonNull).limit(GROUPS_SHOWN).toList();
     }
 

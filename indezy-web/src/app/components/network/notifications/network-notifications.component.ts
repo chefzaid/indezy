@@ -7,7 +7,7 @@ import { switchMap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { MODERATION_NOTICES, NetworkNotificationType, NotificationGroup } from '../../../models';
+import { COMMUNITY_NOTICES, MODERATION_NOTICES, NetworkNotificationType, NotificationGroup } from '../../../models';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -21,19 +21,20 @@ import { NetworkSideComponent } from '../side/network-side.component';
 /** The icon of each kind of notification. */
 export const NOTICE_ICONS: Record<NetworkNotificationType, string> = {
   FOLLOW: 'person_add', FOLLOW_REQUEST: 'person_search', FOLLOW_ACCEPTED: 'how_to_reg', LIKE: 'favorite', COMMENT_LIKE: 'favorite', COMMENT: 'chat_bubble', REPLY: 'reply', MENTION: 'alternate_email', REPOST: 'repeat',
-  WARNED: 'report', CONTENT_REMOVED: 'delete', SUSPENDED: 'timer_off', REPORT_ACTED: 'gavel', REPORT_DISMISSED: 'flag'
+  WARNED: 'report', CONTENT_REMOVED: 'delete', SUSPENDED: 'timer_off', REPORT_ACTED: 'gavel', REPORT_DISMISSED: 'flag',
+  COMMUNITY_POST: 'diversity_3', COMMUNITY_REQUEST: 'group_add', COMMUNITY_ACCEPTED: 'how_to_reg', COMMUNITY_MODERATOR: 'shield_person'
 };
 
 /** The filters of the notifications, as on LinkedIn: all, the unread, and by what happened. */
-export type NoticeFilter = 'all' | 'unread' | 'mentions' | 'comments' | 'reactions' | 'follows' | 'moderation';
-export const NOTICE_FILTERS: NoticeFilter[] = ['all', 'unread', 'mentions', 'comments', 'reactions', 'follows', 'moderation'];
+export type NoticeFilter = 'all' | 'unread' | 'mentions' | 'comments' | 'reactions' | 'follows' | 'communities' | 'moderation';
+export const NOTICE_FILTERS: NoticeFilter[] = ['all', 'unread', 'mentions', 'comments', 'reactions', 'follows', 'communities', 'moderation'];
 const FILTER_TYPES: Partial<Record<NoticeFilter, readonly NetworkNotificationType[]>> = {
   mentions: ['MENTION'], comments: ['COMMENT', 'REPLY'], reactions: ['LIKE', 'COMMENT_LIKE', 'REPOST'],
-  follows: ['FOLLOW', 'FOLLOW_REQUEST', 'FOLLOW_ACCEPTED'], moderation: MODERATION_NOTICES
+  follows: ['FOLLOW', 'FOLLOW_REQUEST', 'FOLLOW_ACCEPTED'], communities: COMMUNITY_NOTICES, moderation: MODERATION_NOTICES
 };
 export const NOTICE_FILTER_ICONS: Record<NoticeFilter, string> = {
   all: 'notifications', unread: 'mark_email_unread', mentions: 'alternate_email', comments: 'chat_bubble', reactions: 'favorite',
-  follows: 'person_add', moderation: 'shield'
+  follows: 'person_add', communities: 'diversity_3', moderation: 'shield'
 };
 
 /**
@@ -162,6 +163,9 @@ export class NetworkNotificationsComponent implements OnInit {
     }
     if (group.postId !== null) {
       return ['/network/posts', group.postId];
+    }
+    if (group.community) {
+      return ['/network/communities', group.community.slug];
     }
     return group.actors.length ? ['/m', group.actors[0].handle] : null;
   }

@@ -17,7 +17,7 @@ describe('NetworkCommunitiesComponent', () => {
   let communities: jasmine.SpyObj<NetworkCommunitiesService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   const community = (slug: string, changes: Partial<Community> = {}): Community => ({ slug, name: slug.toUpperCase(), description: 'Les fans',
-    members: 3, joined: false, moderator: false, ...changes });
+    members: 3, joined: false, moderator: false, privateCommunity: false, requested: false, ...changes });
 
   function create(list: Observable<Community[]> = of([community('kafka', { joined: true, moderator: true }), community('lyon', { members: 1 })])) {
     communities = jasmine.createSpyObj('NetworkCommunitiesService', ['list', 'create', 'join']);
@@ -66,7 +66,7 @@ describe('NetworkCommunitiesComponent', () => {
     component.name.setValue(' Kafka Lyon ');
     communities.create.and.returnValue(of(community('kafka-lyon')));
     component.create();
-    expect(communities.create).toHaveBeenCalledWith('Kafka Lyon', null);
+    expect(communities.create).toHaveBeenCalledWith('Kafka Lyon', null, false);
     expect(navigate).toHaveBeenCalledWith(['/network/communities', 'kafka-lyon']);
     communities.create.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
     component.create();
@@ -74,6 +74,22 @@ describe('NetworkCommunitiesComponent', () => {
     component.name.setValue('');
     component.create();
     expect(communities.create).toHaveBeenCalledTimes(2);
+  });
+
+  it('marks a private community, asks to join it, and says a request waits', () => {
+    const fixture = create(of([community('secret', { privateCommunity: true }), community('asked', { privateCommunity: true, requested: true })]));
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-community="secret"] [data-community-is-private]')).not.toBeNull();
+    expect(element.querySelector('[data-community-join="secret"]')?.textContent).toContain('Ask to join');
+    expect(element.querySelector('[data-community="asked"] [data-community-requested]')?.textContent).toContain('Request sent');
+    const component = fixture.componentInstance;
+    component.creating = true;
+    component.privateCommunity.setValue(true);
+    component.name.setValue('Secret');
+    communities.create.and.returnValue(of(community('secret-2')));
+    spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    component.create();
+    expect(communities.create).toHaveBeenCalledWith('Secret', null, true);
   });
 
   it('says when the communities cannot be loaded', () => {

@@ -11,8 +11,12 @@ public final class NetworkCommunityDtos {
     private NetworkCommunityDtos() {
     }
 
-    /** A community as a member reads it: how many are in it, whether they are, and whether they moderate it. */
-    public record Community(String slug, String name, String description, int members, boolean joined, boolean moderator) {
+    /**
+     * A community as a member reads it: how many are in it, whether they are, whether they moderate it, whether it is private
+     * (joined on request, read by its members) and whether they asked to join it.
+     */
+    public record Community(String slug, String name, String description, int members, boolean joined, boolean moderator,
+                            boolean privateCommunity, boolean requested) {
     }
 
     /** A community's page: the community, its moderators and whether the reader created it or administers the network (who names moderators and deletes it). */
@@ -24,7 +28,11 @@ public final class NetworkCommunityDtos {
     }
 
     /** A community to create, or its name and description changed. */
-    public record NewCommunity(@NotBlank @Size(max = 60) String name, @Size(max = 500) String description) {
+    public record NewCommunity(@NotBlank @Size(max = 60) String name, @Size(max = 500) String description, Boolean privateCommunity) {
+
+        public NewCommunity(String name, String description) {
+            this(name, description, null);
+        }
     }
 
     /** A post in a community. */

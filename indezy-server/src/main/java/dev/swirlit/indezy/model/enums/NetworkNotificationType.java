@@ -29,5 +29,13 @@ public enum NetworkNotificationType {
     /** The moderators acted on a report they made. */
     REPORT_ACTED,
     /** The moderators found nothing against the rules in a report they made. */
-    REPORT_DISMISSED
+    REPORT_DISMISSED,
+    /** A member posted in a community the recipient is in. */
+    COMMUNITY_POST,
+    /** A member asked to join a private community the recipient moderates. */
+    COMMUNITY_REQUEST,
+    /** A moderator let the recipient into a private community. */
+    COMMUNITY_ACCEPTED,
+    /** The creator named the recipient a moderator of their community. */
+    COMMUNITY_MODERATOR
 }

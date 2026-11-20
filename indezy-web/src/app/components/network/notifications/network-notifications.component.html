@@ -75,6 +75,9 @@
                   } @else {
                     <strong>{{ who(group).key | translate: who(group).params }}</strong>
                     {{ (group.count > 1 ? 'network.notices.typesMany.' : 'network.notices.types.') + group.type | translate }}
+                    @if (group.community) {
+                      <span class="place" data-notice-community>· {{ group.community.name }}</span>
+                    }
                   }
                 </p>
                 @if (group.postExcerpt) {

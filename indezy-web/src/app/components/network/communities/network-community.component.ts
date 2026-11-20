@@ -8,10 +8,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { map, switchMap } from 'rxjs';
 
-import { CommunityMember, CommunityPage, NetworkPost } from '../../../models';
+import { CommunityMember, CommunityPage, MemberCard, NetworkPost } from '../../../models';
 import { NetworkCommunitiesService } from '../../../services/network/network-communities.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -28,7 +29,7 @@ import { NetworkSideComponent } from '../side/network-side.component';
  */
 @Component({
   selector: 'app-network-community',
-  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
+  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule, MatSlideToggleModule,
     TranslateModule, MemberAvatarComponent, NetworkMeCardComponent, NetworkNavComponent, PostCardComponent, NetworkSideComponent],
   templateUrl: './network-community.component.html',
   styleUrls: ['./network-community.component.scss'],
@@ -46,7 +47,9 @@ export class NetworkCommunityComponent implements OnInit {
   slug = '';
   page: CommunityPage | null = null;
   missing = false;
-  tab: 'posts' | 'members' = 'posts';
+  tab: 'posts' | 'members' | 'requests' = 'posts';
+  /** The members asking to join a private community, for its moderators. */
+  requests: MemberCard[] | null = null;
   posts: NetworkPost[] = [];
   postsPage = 0;
   morePosts = false;
@@ -56,6 +59,7 @@ export class NetworkCommunityComponent implements OnInit {
   editing = false;
   readonly name = new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(60)] });
   readonly description = new FormControl('', { nonNullable: true, validators: Validators.maxLength(500) });
+  readonly privateCommunity = new FormControl(false, { nonNullable: true });
 
   ngOnInit(): void {
     this.route.paramMap.pipe(map(params => params.get('slug') ?? ''), switchMap(slug => {
@@ -101,16 +105,42 @@ export class NetworkCommunityComponent implements OnInit {
     });
   }
 
-  /** Joins, or leaves, the community. */
+  /** Joins (or asks to join a private one), leaves, or withdraws the request. */
   toggleMembership(): void {
-    const joined = this.page!.community.joined;
-    (joined ? this.communities.leave(this.slug) : this.communities.join(this.slug)).subscribe({
+    const leaving = this.page!.community.joined || this.page!.community.requested;
+    (leaving ? this.communities.leave(this.slug) : this.communities.join(this.slug)).subscribe({
       next: page => {
         this.page = page;
         this.changes.markForCheck();
       },
       error: (error: HttpErrorResponse) =>
         this.notifications.error(error.status === 409 ? 'network.communities.removedFrom' : 'network.communities.saveError')
+    });
+  }
+
+  /** The requests to join, for its moderators. */
+  showRequests(): void {
+    this.tab = 'requests';
+    this.communities.requests(this.slug).subscribe({
+      next: requests => {
+        this.requests = requests;
+        this.changes.markForCheck();
+      },
+      error: () => this.notifications.error('network.communities.loadError')
+    });
+  }
+
+  /** Lets a member in, or declines; the community counts them in. */
+  answer(member: MemberCard, accepted: boolean): void {
+    this.communities.answer(this.slug, member.handle, accepted).subscribe({
+      next: requests => {
+        this.requests = requests;
+        if (accepted) {
+          this.page = { ...this.page!, community: { ...this.page!.community, members: this.page!.community.members + 1 } };
+        }
+        this.changes.markForCheck();
+      },
+      error: () => this.notifications.error('network.communities.saveError')
     });
   }
 
@@ -188,6 +218,7 @@ export class NetworkCommunityComponent implements OnInit {
   startEditing(): void {
     this.name.setValue(this.page!.community.name);
     this.description.setValue(this.page!.community.description ?? '');
+    this.privateCommunity.setValue(this.page!.community.privateCommunity);
     this.editing = true;
   }
 
@@ -195,7 +226,7 @@ export class NetworkCommunityComponent implements OnInit {
     if (this.name.invalid || this.description.invalid) {
       return;
     }
-    this.communities.update(this.slug, this.name.value.trim(), this.description.value.trim() || null).subscribe({
+    this.communities.update(this.slug, this.name.value.trim(), this.description.value.trim() || null, this.privateCommunity.value).subscribe({
       next: page => {
         this.page = page;
         this.editing = false;

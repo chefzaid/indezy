@@ -31,6 +31,10 @@ public class NetworkNotification extends BaseEntity {
     @Column(name = "post_id")
     private Long postId;
 
+    /** The community it is about, for a community's activity; none otherwise. */
+    @Column(name = "community_id")
+    private Long communityId;
+
     @Column(name = "is_read", nullable = false)
     private boolean read;
 

@@ -190,6 +190,9 @@ Deletion rules:
   search, set on every save; posts saved before it are folded once when the server is ready.
 - `network_posts.community_id` names the community a post was posted in; deleting the community clears it, the post
   staying.
+- `network_communities.private_community` makes a community joined on request (`network_community_members.pending`
+  until a moderator answers) and its posts read by its members alone; `network_notifications.community_id` names the
+  community a notification is about.
 - Page views are dropped every night 90 days after they happened; `network_members.private_viewing` keeps a member
   out of the names their views show, and their own viewers' names from them.
 

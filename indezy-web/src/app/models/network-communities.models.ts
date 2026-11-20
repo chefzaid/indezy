@@ -8,6 +8,10 @@ export interface Community {
   members: number;
   joined: boolean;
   moderator: boolean;
+  /** Joined on request, its posts read by its members alone. */
+  privateCommunity: boolean;
+  /** The reader asked to join it and waits for its moderators. */
+  requested: boolean;
 }
 
 /** A community's page: the community, its moderators and whether the reader created it (who names moderators). */

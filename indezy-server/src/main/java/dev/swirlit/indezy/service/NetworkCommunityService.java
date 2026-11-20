@@ -9,6 +9,7 @@ import dev.swirlit.indezy.model.NetworkCommunity;
 import dev.swirlit.indezy.model.NetworkCommunityMember;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkPost;
+import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.repository.NetworkCommunityMemberRepository;
 import dev.swirlit.indezy.repository.NetworkCommunityRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
@@ -51,6 +52,7 @@ public class NetworkCommunityService {
     private final NetworkMemberRepository members;
     private final NetworkPostRepository posts;
     private final AdminService admin;
+    private final NetworkNotificationService notices;
 
     /** The communities, those the reader is in first, then the largest; those whose name holds what was typed when asked. */
     @Transactional(readOnly = true)
@@ -79,6 +81,7 @@ public class NetworkCommunityService {
         community.setName(request.name().strip());
         community.setDescription(blankToNull(request.description()));
         community.setSlug(freeSlug(community.getName()));
+        community.setPrivateCommunity(Boolean.TRUE.equals(request.privateCommunity()));
         community.setCreatorId(userId);
         communities.save(community);
         NetworkCommunityMember creator = membership(community.getId(), userId);
@@ -93,8 +96,8 @@ public class NetworkCommunityService {
     public NetworkCommunityDtos.Page page(Long userId, String slug) {
         network.requireMember(userId);
         NetworkCommunity community = community(slug);
-        List<NetworkCommunityMember> in = memberships.findByCommunityIdAndRemovedFalseOrderByCreatedAtAsc(community.getId());
-        NetworkCommunityMember mine = in.stream().filter(membership -> membership.getUserId().equals(userId)).findFirst().orElse(null);
+        List<NetworkCommunityMember> in = in(community.getId());
+        NetworkCommunityMember mine = memberships.findByCommunityIdAndUserId(community.getId(), userId).orElse(null);
         List<NetworkDtos.MemberCard> moderators = in.stream().filter(NetworkCommunityMember::isModerator)
             .flatMap(membership -> members.findByUserId(membership.getUserId()).filter(NetworkMember::isActive).flatMap(network::liveCard).stream())
             .toList();
@@ -102,7 +105,8 @@ public class NetworkCommunityService {
         boolean administrator = admin.isAdmin(userId);
         // The administrators have the creator's hand in every community: the last word.
         return new NetworkCommunityDtos.Page(new NetworkCommunityDtos.Community(view.slug(), view.name(), view.description(), view.members(),
-            view.joined(), view.moderator() || administrator), moderators, community.getCreatorId().equals(userId) || administrator);
+            view.joined(), view.moderator() || administrator, view.privateCommunity(), view.requested()), moderators,
+            community.getCreatorId().equals(userId) || administrator);
     }
 
     /** Changes a community's name and description: its moderators. */
@@ -111,11 +115,18 @@ public class NetworkCommunityService {
         NetworkCommunity community = moderated(userId, slug);
         community.setName(request.name().strip());
         community.setDescription(blankToNull(request.description()));
+        if (request.privateCommunity() != null) {
+            community.setPrivateCommunity(request.privateCommunity());
+            if (!request.privateCommunity()) {
+                // Opened: every request waiting is let in.
+                pending(community.getId()).forEach(waiting -> accept(userId, community, waiting));
+            }
+        }
         communities.save(community);
         return page(userId, slug);
     }
 
-    /** Joins a community; one its moderators removed the member from refuses them (409). */
+    /** Joins a community, or asks to join a private one; one its moderators removed the member from refuses them (409). */
     @Transactional
     public NetworkCommunityDtos.Page join(Long userId, String slug) {
         network.requireMember(userId);
@@ -125,12 +136,19 @@ public class NetworkCommunityService {
             throw new InvalidStateException("The moderators removed this member from the community");
         }
         if (known.isEmpty()) {
-            memberships.save(membership(community.getId(), userId));
+            NetworkCommunityMember joining = membership(community.getId(), userId);
+            if (community.isPrivate()) {
+                // A private community: a request, told to its moderators.
+                joining.setPending(true);
+                in(community.getId()).stream().filter(NetworkCommunityMember::isModerator).forEach(moderator ->
+                    notices.notify(moderator.getUserId(), userId, NetworkNotificationType.COMMUNITY_REQUEST, null, community.getId()));
+            }
+            memberships.save(joining);
         }
         return page(userId, slug);
     }
 
-    /** Leaves a community; when its last moderator leaves, its earliest member moderates it. */
+    /** Leaves a community, or withdraws a request to join it; when its last moderator leaves, its earliest member moderates it. */
     @Transactional
     public NetworkCommunityDtos.Page leave(Long userId, String slug) {
         network.requireMember(userId);
@@ -138,7 +156,7 @@ public class NetworkCommunityService {
         memberships.findByCommunityIdAndUserId(community.getId(), userId).filter(membership -> !membership.isRemoved())
             .ifPresent(memberships::delete);
         memberships.flush();
-        List<NetworkCommunityMember> left = memberships.findByCommunityIdAndRemovedFalseOrderByCreatedAtAsc(community.getId());
+        List<NetworkCommunityMember> left = in(community.getId());
         if (!left.isEmpty() && left.stream().noneMatch(NetworkCommunityMember::isModerator)) {
             left.getFirst().setModerator(true);
             memberships.save(left.getFirst());
@@ -146,7 +164,10 @@ public class NetworkCommunityService {
         return page(userId, slug);
     }
 
-    /** A community's posts, the newest first, 20 a page: open to every member, those muted or blocked either way aside. */
+    /**
+     * A community's posts, the newest first, 20 a page: an open community's to every member, a private one's to its members
+     * (and the administrators), those muted or blocked either way aside.
+     */
     @Transactional(readOnly = true)
     public NetworkDtos.Posts posts(Long userId, String slug, int page) {
         network.requireMember(userId);
@@ -164,14 +185,17 @@ public class NetworkCommunityService {
     public Optional<NetworkDtos.Post> post(Long userId, String slug, NetworkCommunityDtos.NewCommunityPost request) {
         network.requireMember(userId);
         NetworkCommunity community = community(slug);
-        memberships.findByCommunityIdAndUserId(community.getId(), userId).filter(membership -> !membership.isRemoved())
+        memberships.findByCommunityIdAndUserId(community.getId(), userId).filter(membership -> !membership.isRemoved() && !membership.isPending())
             .orElseThrow(() -> new AccessDeniedException("Only its members post in a community"));
         Optional<NetworkDtos.Post> posted = postService.post(userId, new NetworkDtos.NewPost(request.text()));
         posted.flatMap(post -> posts.findById(post.id())).ifPresent(post -> {
             post.setCommunityId(community.getId());
             posts.save(post);
+            // Its members are told, as they choose in Profile → Network.
+            in(community.getId()).forEach(member ->
+                notices.notify(member.getUserId(), userId, NetworkNotificationType.COMMUNITY_POST, post.getId(), community.getId()));
         });
-        return posted;
+        return posted.map(post -> postService.one(userId, post.id()));
     }
 
     /** The members of a community, its moderators first. */
@@ -180,7 +204,7 @@ public class NetworkCommunityService {
         network.requireMember(userId);
         NetworkCommunity community = community(slug);
         Set<Long> blocked = Set.copyOf(feed.excluded(userId));
-        return memberships.findByCommunityIdAndRemovedFalseOrderByCreatedAtAsc(community.getId()).stream()
+        return in(community.getId()).stream()
             .filter(membership -> !blocked.contains(membership.getUserId()))
             .sorted(Comparator.comparing((NetworkCommunityMember membership) -> !membership.isModerator()))
             .flatMap(membership -> members.findByUserId(membership.getUserId()).filter(NetworkMember::isActive).flatMap(network::liveCard)
@@ -226,6 +250,9 @@ public class NetworkCommunityService {
         }
         target.setModerator(moderator);
         memberships.save(target);
+        if (moderator) {
+            notices.notify(target.getUserId(), userId, NetworkNotificationType.COMMUNITY_MODERATOR, null, community.getId());
+        }
         return members(userId, slug);
     }
 
@@ -262,8 +289,52 @@ public class NetworkCommunityService {
     private NetworkCommunityMember target(NetworkCommunity community, String handle) {
         NetworkMember member = members.findByHandle(Optional.ofNullable(handle).orElse(""))
             .orElseThrow(() -> new ResourceNotFoundException(NetworkService.NOT_FOUND));
-        return memberships.findByCommunityIdAndUserId(community.getId(), member.getUserId()).filter(membership -> !membership.isRemoved())
+        return memberships.findByCommunityIdAndUserId(community.getId(), member.getUserId())
+            .filter(membership -> !membership.isRemoved() && !membership.isPending())
             .orElseThrow(() -> new ResourceNotFoundException(NetworkService.NOT_FOUND));
+    }
+
+    /** The members in a community: neither removed nor waiting for an answer, the earliest first. */
+    private List<NetworkCommunityMember> in(Long communityId) {
+        return memberships.findByCommunityIdAndRemovedFalseOrderByCreatedAtAsc(communityId).stream().filter(membership -> !membership.isPending())
+            .toList();
+    }
+
+    /** The requests to join a community waiting for an answer, the earliest first. */
+    private List<NetworkCommunityMember> pending(Long communityId) {
+        return memberships.findByCommunityIdAndRemovedFalseOrderByCreatedAtAsc(communityId).stream().filter(NetworkCommunityMember::isPending)
+            .toList();
+    }
+
+    private void accept(Long moderatorId, NetworkCommunity community, NetworkCommunityMember waiting) {
+        waiting.setPending(false);
+        memberships.save(waiting);
+        notices.notify(waiting.getUserId(), moderatorId, NetworkNotificationType.COMMUNITY_ACCEPTED, null, community.getId());
+    }
+
+    /** The members waiting to join a private community: its moderators. */
+    @Transactional(readOnly = true)
+    public List<NetworkDtos.MemberCard> requests(Long userId, String slug) {
+        NetworkCommunity community = moderated(userId, slug);
+        return pending(community.getId()).stream()
+            .flatMap(waiting -> members.findByUserId(waiting.getUserId()).filter(NetworkMember::isActive).flatMap(network::liveCard).stream())
+            .toList();
+    }
+
+    /** Lets a member into a private community, who is told, or declines (untold): its moderators. */
+    @Transactional
+    public List<NetworkDtos.MemberCard> answer(Long userId, String slug, String handle, boolean accepted) {
+        NetworkCommunity community = moderated(userId, slug);
+        NetworkMember member = members.findByHandle(Optional.ofNullable(handle).orElse(""))
+            .orElseThrow(() -> new ResourceNotFoundException(NetworkService.NOT_FOUND));
+        NetworkCommunityMember waiting = memberships.findByCommunityIdAndUserId(community.getId(), member.getUserId())
+            .filter(NetworkCommunityMember::isPending).orElseThrow(() -> new ResourceNotFoundException(NetworkService.NOT_FOUND));
+        if (accepted) {
+            accept(userId, community, waiting);
+        } else {
+            memberships.delete(waiting);
+        }
+        return requests(userId, slug);
     }
 
     private NetworkCommunityMember membership(Long communityId, Long userId) {
@@ -280,9 +351,9 @@ public class NetworkCommunityService {
     }
 
     private static NetworkCommunityDtos.Community view(NetworkCommunity community, int size, NetworkCommunityMember mine) {
-        boolean joined = mine != null && !mine.isRemoved();
+        boolean joined = mine != null && !mine.isRemoved() && !mine.isPending();
         return new NetworkCommunityDtos.Community(community.getSlug(), community.getName(), community.getDescription(), size, joined,
-            joined && mine.isModerator());
+            joined && mine.isModerator(), community.isPrivate(), mine != null && mine.isPending());
     }
 
     /** A slug from the name ("Kafka à Lyon" reads "kafka-a-lyon"), made unique with a number when taken. */

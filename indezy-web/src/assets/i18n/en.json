@@ -1500,7 +1500,11 @@
         "COMMENT": "When a member comments your post",
         "REPLY": "When a member replies to your comment",
         "MENTION": "When a member mentions you",
-        "REPOST": "When a member reposts your post"
+        "REPOST": "When a member reposts your post",
+        "COMMUNITY_POST": "A post in one of my communities",
+        "COMMUNITY_REQUEST": "A request to join a community I moderate",
+        "COMMUNITY_ACCEPTED": "Being let into a private community",
+        "COMMUNITY_MODERATOR": "Being named a community moderator"
       },
       "banned": "The moderators ended this account’s membership: it cannot join again.",
       "privateTitle": "Private card",
@@ -3603,7 +3607,11 @@
         "COMMENT": "commented your post",
         "REPLY": "replied to your comment",
         "MENTION": "mentioned you",
-        "REPOST": "reposted your post"
+        "REPOST": "reposted your post",
+        "COMMUNITY_POST": "posted in one of your communities",
+        "COMMUNITY_REQUEST": "asks to join a community you moderate",
+        "COMMUNITY_ACCEPTED": "let you into a community",
+        "COMMUNITY_MODERATOR": "made you a moderator of a community"
       },
       "typesMany": {
         "FOLLOW": "started following you",
@@ -3614,7 +3622,11 @@
         "COMMENT": "commented your post",
         "REPLY": "replied to your comment",
         "MENTION": "mentioned you",
-        "REPOST": "reposted your post"
+        "REPOST": "reposted your post",
+        "COMMUNITY_POST": "posted in one of your communities",
+        "COMMUNITY_REQUEST": "ask to join a community you moderate",
+        "COMMUNITY_ACCEPTED": "let you into a community",
+        "COMMUNITY_MODERATOR": "made you a moderator of a community"
       },
       "moderation": {
         "WARNED": "The moderators warned you about a post, a comment or your conduct in the network.",
@@ -3637,7 +3649,8 @@
         "comments": "Comments and replies",
         "reactions": "Reactions and reposts",
         "follows": "Follows",
-        "moderation": "Moderation"
+        "moderation": "Moderation",
+        "communities": "Communities"
       },
       "settings": "Notification settings",
       "noneFiltered": "No notification of this kind.",
@@ -4094,7 +4107,17 @@
       "deleteConfirm": "Delete this community? Its posts stay, as plain posts.",
       "makeModerator": "Make moderator",
       "unmakeModerator": "No longer moderator",
-      "removeMember": "Remove"
+      "removeMember": "Remove",
+      "private": "Private: joined on request, its posts read by its members",
+      "privateHint": "A private community is joined on request: its moderators answer, and only its members read its posts.",
+      "privateBadge": "Private",
+      "requested": "Request sent",
+      "ask": "Ask to join",
+      "withdraw": "Withdraw the request",
+      "requestsTab": "Requests",
+      "noRequests": "No request waiting.",
+      "waiting": "Your request waits for its moderators: once let in, you read and post here.",
+      "privateToRead": "A private community: ask to join to read and post in it."
     }
   }
 }

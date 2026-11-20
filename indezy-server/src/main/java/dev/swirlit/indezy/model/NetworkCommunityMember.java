@@ -24,7 +24,15 @@ public class NetworkCommunityMember extends BaseEntity {
     @Column(name = "moderator", nullable = false)
     private boolean moderator;
 
+    /** Asked to join a private community, waiting for its moderators: not in it yet. None reads as in. */
+    @Column(name = "pending")
+    private Boolean pending;
+
     /** Removed by its moderators: no longer in it, and cannot join again. */
     @Column(name = "removed", nullable = false)
     private boolean removed;
+
+    public boolean isPending() {
+        return Boolean.TRUE.equals(pending);
+    }
 }

@@ -92,6 +92,10 @@ public class NetworkNoticeEmailComposer {
             case REPLY -> "replied to your comment";
             case MENTION -> "mentioned you";
             case REPOST -> "reposted your post";
+            case COMMUNITY_POST -> "posted in one of your communities";
+            case COMMUNITY_REQUEST -> "asked to join a community you moderate";
+            case COMMUNITY_ACCEPTED -> "let you into a community";
+            case COMMUNITY_MODERATOR -> "made you a moderator of a community";
             default -> "did something";
         };
     }
@@ -108,6 +112,10 @@ public class NetworkNoticeEmailComposer {
             case REPLY -> many ? "ont répondu à votre commentaire" : "a répondu à votre commentaire";
             case MENTION -> many ? "vous ont mentionné" : "vous a mentionné";
             case REPOST -> many ? "ont republié votre publication" : "a republié votre publication";
+            case COMMUNITY_POST -> many ? "ont publié dans une de vos communautés" : "a publié dans une de vos communautés";
+            case COMMUNITY_REQUEST -> many ? "demandent à rejoindre une communauté que vous modérez" : "demande à rejoindre une communauté que vous modérez";
+            case COMMUNITY_ACCEPTED -> many ? "vous ont accepté dans une communauté" : "vous a accepté dans une communauté";
+            case COMMUNITY_MODERATOR -> many ? "vous ont nommé modérateur d’une communauté" : "vous a nommé modérateur d’une communauté";
             default -> many ? "ont agi" : "a agi";
         };
     }

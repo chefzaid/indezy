@@ -26,7 +26,15 @@ public class NetworkCommunity extends BaseEntity {
     @Column(name = "description", length = DESCRIPTION_MAX)
     private String description;
 
+    /** Joined on request, its moderators answering; its posts read by its members alone. None reads as open. */
+    @Column(name = "private_community")
+    private Boolean privateCommunity;
+
     /** The member who created it, its first moderator. */
     @Column(name = "creator_id", nullable = false)
     private Long creatorId;
+
+    public boolean isPrivate() {
+        return Boolean.TRUE.equals(privateCommunity);
+    }
 }

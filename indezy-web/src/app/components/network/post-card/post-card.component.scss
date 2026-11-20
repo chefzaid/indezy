@@ -469,3 +469,23 @@ header {
     font-size: 14px;
   }
 }
+
+// The community a post was posted in, beside its time.
+.community {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--app-link);
+  font-weight: 600;
+  text-decoration: none;
+
+  mat-icon {
+    width: 15px;
+    height: 15px;
+    font-size: 15px;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

@@ -73,7 +73,7 @@ public final class NetworkDtos {
                        boolean liked, int comments, boolean commentsClosed, boolean edited, boolean bookmarked, Original repostOf,
                        int reposts, boolean repostsOff, NetworkPostKind kind, PostDetails details, Long answerCommentId, Poll poll,
                        Taken taken, List<ReactionCount> reactions, NetworkReaction myReaction, LinkPreview preview,
-                       List<NetworkFileDtos.File> files) {
+                       List<NetworkFileDtos.File> files, CommunityRef community) {
 
         public Post {
             tags = List.copyOf(tags);
@@ -263,10 +263,16 @@ public final class NetworkDtos {
      * who did it, how many did, when the latest did, and whether the group was read.
      */
     public record NotificationGroup(NetworkNotificationType type, Long postId, String postExcerpt,
-                                    List<MemberCard> actors, int count, LocalDateTime latestAt, boolean read) {
+                                    List<MemberCard> actors, int count, LocalDateTime latestAt, boolean read, CommunityRef community) {
 
         public NotificationGroup {
             actors = List.copyOf(actors);
+        }
+
+        /** Not about a community. */
+        public NotificationGroup(NetworkNotificationType type, Long postId, String postExcerpt, List<MemberCard> actors, int count,
+                                 LocalDateTime latestAt, boolean read) {
+            this(type, postId, postExcerpt, actors, count, latestAt, read, null);
         }
     }
 
@@ -377,6 +383,10 @@ public final class NetworkDtos {
         public MemberAbout {
             missions = List.copyOf(missions);
         }
+    }
+
+    /** The community a post was posted in: its address and name. */
+    public record CommunityRef(String slug, String name) {
     }
 
     /** The members the viewer follows who follow the member too: how many, and the first three. */

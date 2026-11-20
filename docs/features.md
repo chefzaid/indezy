@@ -465,8 +465,16 @@ members; moderators edit its name and description, **remove** a post from it (de
 cannot join again; a co-moderator only by the creator, never the creator); when its last moderator leaves, its earliest
 member moderates it. The administrators have the creator's hand in every community, the last word, as decided in
 TODO.md (**Member network audience**); deleting a community (its creator or an administrator) keeps its posts as plain
-posts. Reports of its posts reach the administrators' moderation queue as any post's do
-(`/api/network/communities`, `/<slug>`, `/<slug>/membership`, `/<slug>/posts`, `/<slug>/members`, `/<slug>/moderators/<handle>`).
+posts. A community is open, or **private** (chosen when creating it, or changed by its moderators): a private one is
+joined on request (**Ask to join**, **Withdraw the request**), its moderators told and answering in a **Requests** tab
+(the member let in is told, one declined is not), and only its members (and the administrators) read its posts, anywhere:
+its feed, the home feed, a member's page, the search, a post's own page; opened again, every request waiting is let in.
+A community's posts reach its members' home feed, and every post posted in a community names it beside its time
+(opening it), but in its own feed. Its members are told of each post in it (**Profile → Network** turns it off, like any
+kind), its moderators of a request to join, a member of being let in or named a moderator, each notification naming the
+community and leading to the post or to the community. Reports of its posts reach the administrators' moderation queue as any post's do
+(`/api/network/communities`, `/<slug>`, `/<slug>/membership`, `/<slug>/posts`, `/<slug>/members`, `/<slug>/moderators/<handle>`,
+`/<slug>/requests/<handle>`).
 
 **Members** on the feed (`/network/members`) has five tabs, the one open kept in the address (`?tab=`). **All members**
 is the member directory: the members found by a skill and a city typed in its search bar, an availability and remote

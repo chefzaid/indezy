@@ -64,7 +64,7 @@ public class NetworkCommunityController {
         communities.delete(SecurityUtils.getCurrentUserId(), slug);
     }
 
-    @Operation(summary = "Join a community", description = "409 for a member its moderators removed")
+    @Operation(summary = "Join a community, or ask to join a private one", description = "409 for a member its moderators removed")
     @PutMapping("/{slug}/membership")
     public NetworkCommunityDtos.Page join(@PathVariable String slug) {
         return communities.join(SecurityUtils.getCurrentUserId(), slug);
@@ -94,6 +94,24 @@ public class NetworkCommunityController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removePost(@PathVariable String slug, @PathVariable Long postId) {
         communities.removePost(SecurityUtils.getCurrentUserId(), slug, postId);
+    }
+
+    @Operation(summary = "The members asking to join a private community: its moderators")
+    @GetMapping("/{slug}/requests")
+    public List<NetworkDtos.MemberCard> requests(@PathVariable String slug) {
+        return communities.requests(SecurityUtils.getCurrentUserId(), slug);
+    }
+
+    @Operation(summary = "Let a member into a private community, who is told: its moderators")
+    @PutMapping("/{slug}/requests/{handle}")
+    public List<NetworkDtos.MemberCard> accept(@PathVariable String slug, @PathVariable String handle) {
+        return communities.answer(SecurityUtils.getCurrentUserId(), slug, handle, true);
+    }
+
+    @Operation(summary = "Decline a request to join a private community, untold: its moderators")
+    @DeleteMapping("/{slug}/requests/{handle}")
+    public List<NetworkDtos.MemberCard> decline(@PathVariable String slug, @PathVariable String handle) {
+        return communities.answer(SecurityUtils.getCurrentUserId(), slug, handle, false);
     }
 
     @Operation(summary = "A community's members, its moderators first")

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { Community, CommunityMember, CommunityPage, NetworkPost, NetworkPosts } from '../../models';
+import { Community, CommunityMember, CommunityPage, MemberCard, NetworkPost, NetworkPosts } from '../../models';
 
 /** The member network's communities: listed, created, joined, read and moderated. */
 @Injectable({ providedIn: 'root' })
@@ -15,16 +15,27 @@ export class NetworkCommunitiesService {
     return this.http.get<Community[]>(this.url, { params: new HttpParams().set('q', typed) });
   }
 
-  create(name: string, description: string | null): Observable<Community> {
-    return this.http.post<Community>(this.url, { name, description });
+  create(name: string, description: string | null, privateCommunity = false): Observable<Community> {
+    return this.http.post<Community>(this.url, { name, description, privateCommunity });
   }
 
   page(slug: string): Observable<CommunityPage> {
     return this.http.get<CommunityPage>(`${this.url}/${encodeURIComponent(slug)}`);
   }
 
-  update(slug: string, name: string, description: string | null): Observable<CommunityPage> {
-    return this.http.put<CommunityPage>(`${this.url}/${encodeURIComponent(slug)}`, { name, description });
+  update(slug: string, name: string, description: string | null, privateCommunity: boolean): Observable<CommunityPage> {
+    return this.http.put<CommunityPage>(`${this.url}/${encodeURIComponent(slug)}`, { name, description, privateCommunity });
+  }
+
+  /** The members asking to join a private community, for its moderators. */
+  requests(slug: string): Observable<MemberCard[]> {
+    return this.http.get<MemberCard[]>(`${this.url}/${encodeURIComponent(slug)}/requests`);
+  }
+
+  /** Lets a member in, or declines. */
+  answer(slug: string, handle: string, accepted: boolean): Observable<MemberCard[]> {
+    const path = `${this.url}/${encodeURIComponent(slug)}/requests/${encodeURIComponent(handle)}`;
+    return accepted ? this.http.put<MemberCard[]>(path, null) : this.http.delete<MemberCard[]>(path);
   }
 
   remove(slug: string): Observable<void> {

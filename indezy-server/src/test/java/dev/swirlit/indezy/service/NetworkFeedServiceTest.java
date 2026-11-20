@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.model.NetworkPost;
+import dev.swirlit.indezy.repository.NetworkCommunityMemberRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
@@ -36,7 +37,7 @@ class NetworkFeedServiceTest {
     private final NetworkPostRepository posts = mock(NetworkPostRepository.class);
     private final NetworkRestrictionRepository restrictions = mock(NetworkRestrictionRepository.class);
     private final NetworkFeedService service = new NetworkFeedService(mock(NetworkService.class), postService, follows, posts,
-        mock(NetworkFollowRepository.class), restrictions, mock(NetworkTagFollowRepository.class),
+        mock(NetworkFollowRepository.class), restrictions, mock(NetworkTagFollowRepository.class), mock(NetworkCommunityMemberRepository.class),
         Clock.fixed(Instant.parse("2026-11-16T10:00:00Z"), ZoneOffset.UTC));
 
     private static NetworkPost post(long author, String... tags) {

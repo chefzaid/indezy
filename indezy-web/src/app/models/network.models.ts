@@ -109,6 +109,8 @@ export interface NetworkPost {
   preview: LinkPreview | null;
   /** Its images and documents, in their order. */
   files?: NetworkFile[];
+  /** The community it was posted in, if any. */
+  community?: CommunityRef | null;
 }
 
 export interface LinkPreview {
@@ -282,7 +284,17 @@ export interface MemberSuggestion {
 
 /** What a network notification tells. */
 export type NetworkNotificationType = 'FOLLOW' | 'FOLLOW_REQUEST' | 'FOLLOW_ACCEPTED' | 'LIKE' | 'COMMENT_LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
-  'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED';
+  'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED' | 'COMMUNITY_POST' | 'COMMUNITY_REQUEST' | 'COMMUNITY_ACCEPTED' | 'COMMUNITY_MODERATOR';
+
+/** A community's activity: a post in it, a request to join, an answer, being named a moderator. */
+export const COMMUNITY_NOTICES: readonly NetworkNotificationType[] = ['COMMUNITY_POST', 'COMMUNITY_REQUEST', 'COMMUNITY_ACCEPTED',
+  'COMMUNITY_MODERATOR'];
+
+/** The community a post or a notification is about: its address and name. */
+export interface CommunityRef {
+  slug: string;
+  name: string;
+}
 
 /** The moderators' word: told whatever the settings, with no member as its author. */
 export const MODERATION_NOTICES: readonly NetworkNotificationType[] = ['WARNED', 'CONTENT_REMOVED', 'SUSPENDED', 'REPORT_ACTED',
@@ -356,6 +368,8 @@ export interface NotificationGroup {
   count: number;
   latestAt: string;
   read: boolean;
+  /** The community it is about, for a community's activity. */
+  community?: CommunityRef | null;
 }
 
 /** What the member directory is asked for; every criterion is optional. */

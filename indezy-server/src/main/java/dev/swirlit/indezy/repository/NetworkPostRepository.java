@@ -25,13 +25,16 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
 
     List<NetworkPost> findByRepostOfIdIn(Collection<Long> originalIds);
 
-    /** The posts of these authors, or naming one of these tags but by the excluded authors, the newest first. */
-    @Query(value = "select distinct p from NetworkPost p left join p.tags t where (p.authorId in :authors or t in :tags) " +
-        "and p.authorId not in :excluded order by p.createdAt desc, p.id desc",
-        countQuery = "select count(distinct p) from NetworkPost p left join p.tags t where (p.authorId in :authors or t in :tags) " +
-            "and p.authorId not in :excluded")
+    /**
+     * The posts of these authors, naming one of these tags or posted in one of these communities, but by the excluded
+     * authors, the newest first.
+     */
+    @Query(value = "select distinct p from NetworkPost p left join p.tags t where (p.authorId in :authors or t in :tags " +
+        "or p.communityId in :communities) and p.authorId not in :excluded order by p.createdAt desc, p.id desc",
+        countQuery = "select count(distinct p) from NetworkPost p left join p.tags t where (p.authorId in :authors or t in :tags " +
+            "or p.communityId in :communities) and p.authorId not in :excluded")
     Page<NetworkPost> feed(@Param("authors") Collection<Long> authors, @Param("tags") Collection<String> tags,
-                           @Param("excluded") Collection<Long> excluded, Pageable page);
+                           @Param("communities") Collection<Long> communities, @Param("excluded") Collection<Long> excluded, Pageable page);
 
     /** The posts whose text holds what was searched (a LIKE pattern on the folded text) but the excluded authors', the newest first. */
     @Query(value = "select p from NetworkPost p where p.searchText like :pattern escape '\\' and p.authorId not in :excluded " +
@@ -62,9 +65,10 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
     Page<NetworkPost> ofKind(@Param("kind") NetworkPostKind kind, @Param("excluded") Collection<Long> excluded, Pageable page);
 
     /** How many posts of the home feed (as {@link #feed}) by others than the reader came after the given time. */
-    @Query("select count(distinct p) from NetworkPost p left join p.tags t where (p.authorId in :authors or t in :tags) " +
-        "and p.authorId not in :excluded and p.authorId <> :reader and p.createdAt > :since")
+    @Query("select count(distinct p) from NetworkPost p left join p.tags t where (p.authorId in :authors or t in :tags " +
+        "or p.communityId in :communities) and p.authorId not in :excluded and p.authorId <> :reader and p.createdAt > :since")
     long feedNewer(@Param("authors") Collection<Long> authors, @Param("tags") Collection<String> tags,
+                   @Param("communities") Collection<Long> communities,
                    @Param("excluded") Collection<Long> excluded, @Param("reader") Long reader, @Param("since") LocalDateTime since);
 
     /** The posts since then, with their tags. */

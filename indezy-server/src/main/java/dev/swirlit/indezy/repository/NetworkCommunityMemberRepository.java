@@ -20,7 +20,8 @@ public interface NetworkCommunityMemberRepository extends JpaRepository<NetworkC
     List<NetworkCommunityMember> findByUserIdAndRemovedFalse(Long userId);
 
     /** How many members each community has, as [communityId, count]. */
-    @Query("select m.communityId, count(m) from NetworkCommunityMember m where m.removed = false group by m.communityId")
+    @Query("select m.communityId, count(m) from NetworkCommunityMember m where m.removed = false and (m.pending is null or m.pending = false) " +
+        "group by m.communityId")
     List<Object[]> sizes();
 
     @Modifying

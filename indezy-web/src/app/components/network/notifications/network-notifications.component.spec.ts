@@ -130,6 +130,16 @@ describe('NetworkNotificationsComponent', () => {
     expect(notifications.error).toHaveBeenCalledTimes(2);
   });
 
+  it('names the community a notification is about and leads to it, or to the post posted in it', () => {
+    const element = create(of([{ ...group('COMMUNITY_REQUEST', 1), postId: null, postExcerpt: null, community: { slug: 'kafka', name: 'Kafka' } },
+      { ...group('COMMUNITY_POST', 2), community: { slug: 'kafka', name: 'Kafka' } }]));
+    expect(element.querySelector('[data-notice="COMMUNITY_REQUEST"] [data-notice-community]')?.textContent).toContain('Kafka');
+    expect(element.querySelector('[data-notice="COMMUNITY_REQUEST"] [data-notice-link]')?.getAttribute('href')).toBe('/network/communities/kafka');
+    expect(element.querySelector('[data-notice="COMMUNITY_POST"] [data-notice-link]')?.getAttribute('href')).toBe('/network/posts/4');
+    expect(element.querySelector('[data-notice="COMMUNITY_POST"] p')?.textContent).toContain('posted in one of your communities');
+    expect(element.querySelector('[data-notice-filter="communities"] .n')?.textContent?.trim()).toBe('2');
+  });
+
   it('groups by period and leads to the post, the member, or nowhere for the moderators', () => {
     const element = create();
     const now = new Date('2026-11-15T12:00:00');

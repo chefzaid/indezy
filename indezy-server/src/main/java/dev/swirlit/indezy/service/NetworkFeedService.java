@@ -1,10 +1,12 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
+import dev.swirlit.indezy.model.NetworkCommunityMember;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkTagFollow;
 import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
+import dev.swirlit.indezy.repository.NetworkCommunityMemberRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
@@ -53,21 +55,22 @@ public class NetworkFeedService {
     private final NetworkFollowRepository followRepository;
     private final NetworkRestrictionRepository restrictions;
     private final NetworkTagFollowRepository tagFollows;
+    private final NetworkCommunityMemberRepository communityMembers;
     private final Clock clock;
 
     /** Where the home feed's posts come from; a value no row holds stands in for an empty list, not valid everywhere. */
-    private record Sources(Set<Long> authors, List<String> tags, List<Long> excluded) {
+    private record Sources(Set<Long> authors, List<String> tags, List<Long> communities, List<Long> excluded) {
     }
 
     /**
-     * The reader's posts, those of the members they follow and those naming a tag they follow, still in the network, but
-     * those of members muted or blocked either way.
+     * The reader's posts, those of the members they follow, those naming a tag they follow and those posted in the
+     * communities they are in, still in the network, but those of members muted or blocked either way.
      */
     @Transactional(readOnly = true)
     public NetworkDtos.Posts feed(Long userId, int page) {
         network.requireMember(userId);
         Sources sources = sources(userId);
-        return postService.page(posts.feed(sources.authors(), sources.tags(), sources.excluded(),
+        return postService.page(posts.feed(sources.authors(), sources.tags(), sources.communities(), sources.excluded(),
             PageRequest.of(Math.max(0, page), NetworkPostService.PAGE_SIZE)), userId);
     }
 
@@ -129,7 +132,7 @@ public class NetworkFeedService {
     public NetworkDtos.Newer newer(Long userId, LocalDateTime since) {
         network.requireMember(userId);
         Sources sources = sources(userId);
-        return new NetworkDtos.Newer(posts.feedNewer(sources.authors(), sources.tags(), sources.excluded(), userId, since));
+        return new NetworkDtos.Newer(posts.feedNewer(sources.authors(), sources.tags(), sources.communities(), sources.excluded(), userId, since));
     }
 
     /**
@@ -141,7 +144,7 @@ public class NetworkFeedService {
         network.requireMember(userId);
         List<Long> left = placeholder(excluded(userId), -1L);
         PageRequest asked = PageRequest.of(Math.max(0, page), NetworkPostService.PAGE_SIZE);
-        return postService.page(byLikes ? posts.tagByLikes(tag, left, asked) : posts.feed(List.of(-1L), List.of(tag), left, asked), userId);
+        return postService.page(byLikes ? posts.tagByLikes(tag, left, asked) : posts.feed(List.of(-1L), List.of(tag), List.of(-1L), left, asked), userId);
     }
 
     /**
@@ -185,7 +188,9 @@ public class NetworkFeedService {
         Set<Long> excluded = excluded(userId);
         authors.removeAll(excluded);
         List<String> tags = tagFollows.findByUserIdOrderByTagAsc(userId).stream().map(NetworkTagFollow::getTag).toList();
-        return new Sources(authors, placeholder(tags, ""), placeholder(excluded, -1L));
+        List<Long> communities = communityMembers.findByUserIdAndRemovedFalse(userId).stream().filter(membership -> !membership.isPending())
+            .map(NetworkCommunityMember::getCommunityId).toList();
+        return new Sources(authors, placeholder(tags, ""), placeholder(communities, -1L), placeholder(excluded, -1L));
     }
 
     /** The members muted or blocked either way, and the private cards the reader does not follow. */

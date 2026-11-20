@@ -23,6 +23,7 @@
               <mat-label>{{ 'network.communities.description' | translate }}</mat-label>
               <textarea matInput [formControl]="description" rows="3" maxlength="500"></textarea>
             </mat-form-field>
+            <mat-slide-toggle [formControl]="privateCommunity" data-community-edit-private>{{ 'network.communities.private' | translate }}</mat-slide-toggle>
             <div class="actions">
               <button mat-button type="button" (click)="editing = false">{{ 'common.cancel' | translate }}</button>
               <button mat-flat-button type="submit" [disabled]="name.invalid" data-community-save>{{ 'common.save' | translate }}</button>
@@ -32,6 +33,9 @@
           <div class="title">
             <mat-icon aria-hidden="true">diversity_3</mat-icon>
             <h1>{{ current.community.name }}</h1>
+            @if (current.community.privateCommunity) {
+              <span class="private" data-community-is-private><mat-icon aria-hidden="true">lock</mat-icon>{{ 'network.communities.privateBadge' | translate }}</span>
+            }
             @if (current.community.moderator) {
               <button mat-icon-button type="button" [matMenuTriggerFor]="manage" [attr.aria-label]="'network.communities.manage' | translate"
                 data-community-manage>
@@ -58,9 +62,10 @@
                 }
               </span>
             }
-            <button mat-flat-button type="button" class="membership" [class.joined]="current.community.joined" (click)="toggleMembership()"
-              [attr.aria-pressed]="current.community.joined" data-community-membership>
-              {{ (current.community.joined ? 'network.communities.leave' : 'network.communities.join') | translate }}
+            <button mat-flat-button type="button" class="membership" [class.joined]="current.community.joined || current.community.requested"
+              (click)="toggleMembership()" [attr.aria-pressed]="current.community.joined || current.community.requested" data-community-membership>
+              {{ (current.community.joined ? 'network.communities.leave' : current.community.requested ? 'network.communities.withdraw' :
+                current.community.privateCommunity ? 'network.communities.ask' : 'network.communities.join') | translate }}
             </button>
           </div>
         }
@@ -71,6 +76,10 @@
           data-community-tab-posts>{{ 'network.page.posts' | translate }}</button>
         <button type="button" role="tab" class="tab" [class.active]="tab === 'members'" [attr.aria-selected]="tab === 'members'" (click)="showMembers()"
           data-community-tab-members>{{ 'network.communities.membersTab' | translate }}</button>
+        @if (current.community.moderator && current.community.privateCommunity) {
+          <button type="button" role="tab" class="tab" [class.active]="tab === 'requests'" [attr.aria-selected]="tab === 'requests'"
+            (click)="showRequests()" data-community-tab-requests>{{ 'network.communities.requestsTab' | translate }}</button>
+        }
       </div>
 
       @if (tab === 'posts') {
@@ -84,6 +93,8 @@
               <button mat-flat-button type="submit" [disabled]="text.invalid || posting" data-community-publish>{{ 'network.feed.publish' | translate }}</button>
             </div>
           </form>
+        } @else if (current.community.privateCommunity) {
+          <p class="join-hint" data-community-join-hint>{{ (current.community.requested ? 'network.communities.waiting' : 'network.communities.privateToRead') | translate }}</p>
         } @else {
           <p class="join-hint" data-community-join-hint>{{ 'network.communities.joinToPost' | translate }}</p>
         }
@@ -103,13 +114,34 @@
                   </button>
                 </div>
               }
-              <app-post-card [post]="post"></app-post-card>
+              <app-post-card [post]="post" [inCommunity]="true"></app-post-card>
             </li>
           }
         </ul>
         @if (morePosts) {
           <button mat-stroked-button type="button" class="more" (click)="loadPosts(postsPage + 1)" data-community-more>{{ 'network.feed.more' | translate }}</button>
         }
+      } @else if (tab === 'requests') {
+        <section class="card members" data-community-requests>
+          @if (requests === null) {
+            <p class="status" role="status">{{ 'common.loading' | translate }}</p>
+          } @else if (requests.length === 0) {
+            <p class="status">{{ 'network.communities.noRequests' | translate }}</p>
+          } @else {
+            <ul>
+              @for (member of requests; track member.handle) {
+                <li [attr.data-community-request]="member.handle">
+                  <app-member-avatar [subject]="member" [size]="40"></app-member-avatar>
+                  <a class="who" [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }}</a>
+                  <button mat-flat-button type="button" (click)="answer(member, true)" [attr.data-community-accept]="member.handle">
+                    {{ 'network.members.approve' | translate }}</button>
+                  <button mat-button type="button" (click)="answer(member, false)" [attr.data-community-decline]="member.handle">
+                    {{ 'network.members.decline' | translate }}</button>
+                </li>
+              }
+            </ul>
+          }
+        </section>
       } @else {
         <section class="card members" data-community-members>
           @if (members === null) {

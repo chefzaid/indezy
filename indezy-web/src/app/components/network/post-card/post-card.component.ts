@@ -77,6 +77,8 @@ export class PostCardComponent implements AfterViewInit, OnDestroy {
   loadingInsights = false;
 
   @Input({ required: true }) post!: NetworkPost;
+  /** Shown in its community's own feed: the community it was posted in goes without saying. */
+  @Input() inCommunity = false;
   /** Whether the post is the one its author pinned on their page (shown there with a badge). */
   @Input() pinned = false;
   /** The author pinned or unpinned the post. */

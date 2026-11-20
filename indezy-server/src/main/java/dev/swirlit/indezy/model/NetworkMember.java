@@ -74,11 +74,11 @@ public class NetworkMember extends BaseEntity {
     private Instant verifiedAt;
 
     /** The kinds of notification the member turned off, comma-separated ({@code LIKE,REPOST}); none when empty. */
-    @Column(name = "notifications_off", length = 100)
+    @Column(name = "notifications_off", length = 300)
     private String notificationsOff;
 
     /** The kinds of notification also emailed, comma-separated; none (null or empty) by default. */
-    @Column(name = "notifications_emailed", length = 100)
+    @Column(name = "notifications_emailed", length = 300)
     private String notificationsEmailed;
 
     /** When the latest notifications email was sent, so at most one goes every three hours. */

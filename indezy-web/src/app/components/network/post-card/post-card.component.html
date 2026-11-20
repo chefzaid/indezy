@@ -16,6 +16,12 @@
         <a [routerLink]="['/network/posts', post.id]" class="permalink" data-post-permalink>
           <time [attr.datetime]="post.createdAt" [title]="post.createdAt | date:'medium'">{{ post.createdAt | timeAgo }}</time>
         </a>
+        @if (post.community && !inCommunity) {
+          <span aria-hidden="true">·</span>
+          <a [routerLink]="['/network/communities', post.community.slug]" class="community" data-post-community>
+            <mat-icon aria-hidden="true">diversity_3</mat-icon>{{ post.community.name }}
+          </a>
+        }
         @if (post.edited) {
           <span aria-hidden="true">·</span>
           <button type="button" class="edited" (click)="toggleVersions()" [attr.aria-expanded]="versions !== null" data-post-edited>

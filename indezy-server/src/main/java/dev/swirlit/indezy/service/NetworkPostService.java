@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.admin.AdminService;
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.NetworkFileDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
@@ -9,6 +10,8 @@ import dev.swirlit.indezy.model.NetworkComment;
 import dev.swirlit.indezy.model.NetworkCommentLike;
 import dev.swirlit.indezy.model.NetworkLike;
 import dev.swirlit.indezy.model.NetworkMember;
+import dev.swirlit.indezy.model.NetworkCommunity;
+import dev.swirlit.indezy.model.NetworkCommunityMember;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkPostDetails;
 import dev.swirlit.indezy.model.NetworkPostVersion;
@@ -18,6 +21,8 @@ import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
 import dev.swirlit.indezy.repository.NetworkBookmarkRepository;
 import dev.swirlit.indezy.repository.NetworkPostImpressionRepository;
+import dev.swirlit.indezy.repository.NetworkCommunityMemberRepository;
+import dev.swirlit.indezy.repository.NetworkCommunityRepository;
 import dev.swirlit.indezy.repository.NetworkCommentLikeRepository;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
@@ -86,6 +91,9 @@ public class NetworkPostService {
     private final NetworkPostVersionRepository versions;
     private final NetworkBookmarkRepository bookmarks;
     private final NetworkPostImpressionRepository impressions;
+    private final NetworkCommunityRepository communities;
+    private final NetworkCommunityMemberRepository communityMembers;
+    private final AdminService admin;
     private final NetworkTagFollowRepository tagFollows;
     private final Clock clock;
     private final NetworkLimits limits;
@@ -140,7 +148,7 @@ public class NetworkPostService {
         log.info("Member {} posted {}", userId, post.getId());
         return toDto(post, network.card(author), userId, List.of(), new Seen(0, false, null, 0, polls.views(List.of(post), userId)
             .get(post.getId()), missionTakes.views(List.of(post), userId).get(post.getId()),
-            files.forPosts(List.of(post.getId())).getOrDefault(post.getId(), List.of())));
+            files.forPosts(List.of(post.getId())).getOrDefault(post.getId(), List.of()), communityRef(post.getCommunityId())));
     }
 
     /** Deletes the reader's own post; another member's, like an unknown one, is not found. */
@@ -232,12 +240,16 @@ public class NetworkPostService {
         Map<Long, NetworkDtos.Poll> pollViews = polls.views(found.getContent(), readerId);
         Map<Long, NetworkDtos.Taken> taken = missionTakes.views(found.getContent(), readerId);
         Map<Long, List<NetworkFileDtos.File>> carried = files.forPosts(ids);
+        Set<Long> closed = closedCommunities(readerId);
+        Map<Long, NetworkDtos.CommunityRef> places = new HashMap<>();
         List<NetworkDtos.Post> shown = found.getContent().stream()
+            .filter(post -> post.getCommunityId() == null || !closed.contains(post.getCommunityId()))
             .map(post -> cards.computeIfAbsent(post.getAuthorId(), this::authorCard)
                 .map(card -> toDto(post, card, readerId, liked.getOrDefault(post.getId(), List.of()),
                     new Seen(seenComments(post, readerId, blocked, commented.getOrDefault(post.getId(), List.of())), saved.contains(post.getId()),
                         originals.get(post.getId()), reposts.getOrDefault(post.getId(), 0), pollViews.get(post.getId()),
-                        taken.get(post.getId()), carried.getOrDefault(post.getId(), List.of())))))
+                        taken.get(post.getId()), carried.getOrDefault(post.getId(), List.of()),
+                        post.getCommunityId() == null ? null : places.computeIfAbsent(post.getCommunityId(), this::communityRef)))))
             .flatMap(Optional::stream).toList();
         return new NetworkDtos.Posts(shown, found.getNumber(), found.hasNext());
     }
@@ -259,9 +271,9 @@ public class NetworkPostService {
 
     /** What a post shows its reader beyond itself: the comments they see, whether they saved it, its original and reposts. */
     private record Seen(int comments, boolean bookmarked, NetworkDtos.Original original, int reposts, NetworkDtos.Poll poll,
-                        NetworkDtos.Taken taken, List<NetworkFileDtos.File> files) {
+                        NetworkDtos.Taken taken, List<NetworkFileDtos.File> files, NetworkDtos.CommunityRef community) {
 
-        static final Seen NOTHING = new Seen(0, false, null, 0, null, null, List.of());
+        static final Seen NOTHING = new Seen(0, false, null, 0, null, null, List.of(), null);
     }
 
     private static NetworkDtos.Post toDto(NetworkPost post, NetworkDtos.MemberCard author, Long readerId, List<NetworkLike> postLikes,
@@ -271,7 +283,8 @@ public class NetworkPostService {
             seen.comments(), post.isCommentsClosed(), post.getEditedAt() != null, seen.bookmarked(), seen.original(), seen.reposts(),
             post.isRepostsOff(), post.getKind(), NetworkPostKinds.toDto(post.getDetails()), post.getAnswerCommentId(), seen.poll(),
             seen.taken(), reactions(postLikes), postLikes.stream().filter(like -> like.getUserId().equals(readerId))
-            .map(NetworkLike::reactionOrLike).findFirst().orElse(null), NetworkLinkPreviews.view(post.getPreview()), seen.files());
+            .map(NetworkLike::reactionOrLike).findFirst().orElse(null), NetworkLinkPreviews.view(post.getPreview()), seen.files(),
+            seen.community());
     }
 
 
@@ -344,7 +357,25 @@ public class NetworkPostService {
             new Seen(seenComments(post, readerId, blocked, comments.findByPostIdIn(List.of(post.getId()))),
                 bookmarks.findByUserIdAndPostId(readerId, post.getId()).isPresent(), originals(List.of(post), blocked).get(post.getId()),
                 repostCounts(List.of(post.getId())).getOrDefault(post.getId(), 0), polls.views(List.of(post), readerId).get(post.getId()),
-                missionTakes.views(List.of(post), readerId).get(post.getId()), files.forPosts(List.of(post.getId())).getOrDefault(post.getId(), List.of())));
+                missionTakes.views(List.of(post), readerId).get(post.getId()), files.forPosts(List.of(post.getId())).getOrDefault(post.getId(), List.of()),
+                communityRef(post.getCommunityId())));
+    }
+
+    /** The community a post was posted in, as its card names it; none outside one. */
+    private NetworkDtos.CommunityRef communityRef(Long communityId) {
+        return communityId == null ? null : communities.findById(communityId)
+            .map(community -> new NetworkDtos.CommunityRef(community.getSlug(), community.getName())).orElse(null);
+    }
+
+    /** The private communities the reader is not in (an administrator is in every one): their posts are not theirs to read. */
+    Set<Long> closedCommunities(Long readerId) {
+        List<NetworkCommunity> closed = communities.findByPrivateCommunityTrue();
+        if (closed.isEmpty() || admin.isAdmin(readerId)) {
+            return Set.of();
+        }
+        Set<Long> in = communityMembers.findByUserIdAndRemovedFalse(readerId).stream().filter(membership -> !membership.isPending())
+            .map(NetworkCommunityMember::getCommunityId).collect(Collectors.toSet());
+        return closed.stream().map(NetworkCommunity::getId).filter(id -> !in.contains(id)).collect(Collectors.toSet());
     }
 
     /** Saves a post the reader can read to their private list, or takes it off. */
@@ -456,7 +487,8 @@ public class NetworkPostService {
         network.requireMember(userId);
         NetworkPost post = posts.findById(postId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
         if (authorCard(post.getAuthorId()).isEmpty() || restrictions.blockedEitherWay(userId).contains(post.getAuthorId()) ||
-            follows.locked(userId).contains(post.getAuthorId())) {
+            follows.locked(userId).contains(post.getAuthorId()) ||
+            post.getCommunityId() != null && closedCommunities(userId).contains(post.getCommunityId())) {
             throw new ResourceNotFoundException(NOT_FOUND);
         }
         return post;

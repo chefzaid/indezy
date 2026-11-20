@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
@@ -24,7 +25,7 @@ import { NetworkSideComponent } from '../side/network-side.component';
  */
 @Component({
   selector: 'app-network-communities',
-  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslateModule,
+  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule, TranslateModule,
     PageHeaderComponent, NetworkMeCardComponent, NetworkNavComponent, NetworkSideComponent],
   templateUrl: './network-communities.component.html',
   styleUrls: ['./network-communities.component.scss'],
@@ -40,6 +41,7 @@ export class NetworkCommunitiesComponent implements OnInit {
   readonly filter = new FormControl('', { nonNullable: true });
   readonly name = new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(60)] });
   readonly description = new FormControl('', { nonNullable: true, validators: Validators.maxLength(500) });
+  readonly privateCommunity = new FormControl(false, { nonNullable: true });
   list: Community[] | null = null;
   creating = false;
   saving = false;
@@ -67,7 +69,7 @@ export class NetworkCommunitiesComponent implements OnInit {
       return;
     }
     this.saving = true;
-    this.communities.create(this.name.value.trim(), this.description.value.trim() || null).subscribe({
+    this.communities.create(this.name.value.trim(), this.description.value.trim() || null, this.privateCommunity.value).subscribe({
       next: community => {
         this.saving = false;
         void this.router.navigate(['/network/communities', community.slug]);

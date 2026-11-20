@@ -15,4 +15,6 @@ public interface NetworkCommunityRepository extends JpaRepository<NetworkCommuni
     List<NetworkCommunity> findAllByOrderByNameAsc();
 
     long countByCreatorId(Long creatorId);
+
+    List<NetworkCommunity> findByPrivateCommunityTrue();
 }

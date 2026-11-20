@@ -21,7 +21,8 @@ describe('NetworkCommunityComponent', () => {
   const card = (handle: string): MemberCard => ({ handle, firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [],
     city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false });
   const page = (changes: Partial<CommunityPage['community']> = {}, creator = false): CommunityPage => ({ community: { slug: 'kafka',
-    name: 'Kafka', description: 'Les fans', members: 3, joined: true, moderator: true, ...changes }, moderators: [card('alice_d')], creator });
+    name: 'Kafka', description: 'Les fans', members: 3, joined: true, moderator: true, privateCommunity: false, requested: false, ...changes },
+    moderators: [card('alice_d')], creator });
   const post = (id: number, own = false) => ({ id, text: `Post ${id}`, own, author: card('leo_m'), tags: [], createdAt: '2026-11-19T10:00:00',
     likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0,
     repostsOff: false, kind: 'POST', details: null, answerCommentId: null, poll: null, taken: null, reactions: [], myReaction: null,
@@ -29,7 +30,7 @@ describe('NetworkCommunityComponent', () => {
 
   function create(read: Observable<CommunityPage> = of(page())) {
     communities = jasmine.createSpyObj('NetworkCommunitiesService', ['page', 'posts', 'post', 'join', 'leave', 'members', 'removePost',
-      'removeMember', 'setModerator', 'update', 'remove']);
+      'removeMember', 'setModerator', 'update', 'remove', 'requests', 'answer']);
     communities.page.and.returnValue(read);
     communities.posts.and.returnValue(of({ posts: [post(2), post(1, true)], page: 0, more: true }));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -120,6 +121,41 @@ describe('NetworkCommunityComponent', () => {
     expect(component.page?.community.members).toBe(2);
   });
 
+  it('asks to join a private community, withdraws, and lets its moderators answer the requests', () => {
+    let fixture = create(of(page({ privateCommunity: true, joined: false, moderator: false })));
+    let element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-community-is-private]')).not.toBeNull();
+    expect(element.querySelector('[data-community-membership]')?.textContent).toContain('Ask to join');
+    expect(element.querySelector('[data-community-tab-requests]')).toBeNull();
+    communities.join.and.returnValue(of(page({ privateCommunity: true, joined: false, moderator: false, requested: true })));
+    fixture.componentInstance.toggleMembership();
+    fixture.detectChanges();
+    expect(element.querySelector('[data-community-membership]')?.textContent).toContain('Withdraw the request');
+    expect(element.querySelector('[data-community-join-hint]')?.textContent).toContain('waits for its moderators');
+    communities.leave.and.returnValue(of(page({ privateCommunity: true, joined: false, moderator: false })));
+    fixture.componentInstance.toggleMembership();
+    expect(communities.leave).toHaveBeenCalledWith('kafka');
+
+    TestBed.resetTestingModule();
+    fixture = create(of(page({ privateCommunity: true })));
+    element = fixture.nativeElement;
+    communities.requests.and.returnValue(of([card('zoe_l'), card('paul_d')]));
+    (element.querySelector('[data-community-tab-requests]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(element.querySelectorAll('[data-community-request]').length).toBe(2);
+    communities.answer.and.returnValue(of([card('paul_d')]));
+    (element.querySelector('[data-community-accept="zoe_l"]') as HTMLButtonElement).click();
+    expect(communities.answer).toHaveBeenCalledWith('kafka', 'zoe_l', true);
+    expect(fixture.componentInstance.page?.community.members).toBe(4);
+    communities.answer.and.returnValue(of([]));
+    fixture.componentInstance.answer(card('paul_d'), false);
+    expect(communities.answer).toHaveBeenCalledWith('kafka', 'paul_d', false);
+    expect(fixture.componentInstance.page?.community.members).toBe(4);
+    communities.requests.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.showRequests();
+    expect(notifications.error).toHaveBeenCalledWith('network.communities.loadError');
+  });
+
   it('edits and deletes the community, and says when it does not exist', () => {
     let fixture = create(of(page({}, true)));
     const component = fixture.componentInstance;
@@ -128,7 +164,7 @@ describe('NetworkCommunityComponent', () => {
     component.name.setValue('Kafka Lyon');
     communities.update.and.returnValue(of(page({ name: 'Kafka Lyon' }, true)));
     component.saveEdit();
-    expect(communities.update).toHaveBeenCalledWith('kafka', 'Kafka Lyon', 'Les fans');
+    expect(communities.update).toHaveBeenCalledWith('kafka', 'Kafka Lyon', 'Les fans', false);
     expect(component.editing).toBeFalse();
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
     communities.remove.and.returnValue(of(undefined));

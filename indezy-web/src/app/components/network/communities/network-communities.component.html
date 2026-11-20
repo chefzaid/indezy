@@ -29,7 +29,8 @@
           <mat-label>{{ 'network.communities.description' | translate }}</mat-label>
           <textarea matInput [formControl]="description" rows="3" maxlength="500" data-community-description></textarea>
         </mat-form-field>
-        <p class="hint">{{ 'network.communities.createHint' | translate }}</p>
+        <mat-slide-toggle [formControl]="privateCommunity" data-community-private>{{ 'network.communities.private' | translate }}</mat-slide-toggle>
+        <p class="hint">{{ (privateCommunity.value ? 'network.communities.privateHint' : 'network.communities.createHint') | translate }}</p>
         <div class="actions">
           <button mat-button type="button" (click)="creating = false">{{ 'common.cancel' | translate }}</button>
           <button mat-flat-button type="submit" [disabled]="name.invalid || saving" data-community-create>{{ 'network.communities.createSubmit' | translate }}</button>
@@ -49,6 +50,9 @@
         @for (community of list; track community.slug) {
           <li class="card" [attr.data-community]="community.slug">
             <a class="name" [routerLink]="['/network/communities', community.slug]">{{ community.name }}</a>
+            @if (community.privateCommunity) {
+              <span class="private" data-community-is-private><mat-icon aria-hidden="true">lock</mat-icon>{{ 'network.communities.privateBadge' | translate }}</span>
+            }
             @if (community.description) {
               <p class="description">{{ community.description }}</p>
             }
@@ -60,9 +64,11 @@
               }
               @if (community.joined) {
                 <span class="joined"><mat-icon aria-hidden="true">check</mat-icon>{{ 'network.communities.joined' | translate }}</span>
+              } @else if (community.requested) {
+                <span class="joined" data-community-requested><mat-icon aria-hidden="true">schedule</mat-icon>{{ 'network.communities.requested' | translate }}</span>
               } @else {
                 <button mat-stroked-button type="button" (click)="join(community)" [disabled]="pending.has(community.slug)"
-                  [attr.data-community-join]="community.slug">{{ 'network.communities.join' | translate }}</button>
+                  [attr.data-community-join]="community.slug">{{ (community.privateCommunity ? 'network.communities.ask' : 'network.communities.join') | translate }}</button>
               }
             </div>
           </li>

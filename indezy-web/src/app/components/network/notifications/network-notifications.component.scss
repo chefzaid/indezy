@@ -350,3 +350,9 @@ time {
   align-self: flex-end;
   border-radius: 999px;
 }
+
+// The community a notification is about.
+.place {
+  color: var(--app-link);
+  font-weight: 600;
+}
