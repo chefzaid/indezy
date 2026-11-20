@@ -1,20 +1,35 @@
-// Messages: the network's sections above, then the conversations on the left and the one open on the right; on a phone,
-// one or the other.
+@use '../layout/network-columns' as columns;
+
+// Messages in the feed's columns: the reader's page on the left, the cards to go further on the right, and in the middle
+// the conversations beside the one open; on a phone, one or the other.
 .messages-shell {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  @include columns.grid;
+}
+
+.left {
+  @include columns.left;
+}
+
+.main {
+  @include columns.main;
+}
+
+.right {
+  @include columns.right;
+
+  // On one column, nothing under the conversation, which takes the screen's height.
+  @media (max-width: 1099.98px) {
+    display: none;
+  }
 }
 
 .messages-page {
   display: grid;
-  grid-template-columns: 360px minmax(0, 1fr);
+  grid-template-columns: 280px minmax(0, 1fr);
   box-sizing: border-box;
   height: calc(100vh - 180px);
   min-height: 420px;
   width: 100%;
-  max-width: var(--app-network-width);
-  margin: 0 auto;
   overflow: hidden;
 }
 

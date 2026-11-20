@@ -3,7 +3,8 @@
 // go further on the right, wider, the room left going between them. Two columns on a laptop, one below 1,100 pixels.
 @mixin grid {
   display: grid;
-  grid-template-columns: minmax(240px, 320px) minmax(0, 720px) minmax(300px, 420px);
+  // The middle column keeps a reading width when the room runs short, whatever its content (a conversation, tiles).
+  grid-template-columns: minmax(240px, 320px) minmax(560px, 720px) minmax(300px, 420px);
   grid-template-areas:
     'nav nav nav'
     'left main right';
@@ -19,7 +20,7 @@
   }
 
   @media (max-width: 1439.98px) {
-    grid-template-columns: minmax(0, 720px) minmax(300px, 400px);
+    grid-template-columns: minmax(480px, 720px) minmax(300px, 400px);
     grid-template-areas:
       'nav nav'
       'main right';

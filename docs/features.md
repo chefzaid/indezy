@@ -260,12 +260,15 @@ lists the members muted and blocked, each to unmute or unblock.
 Every page of the network takes the full width of the page, as the workspace's other pages do, following the screen, so
 that nothing moves from one tab to the next, and lays itself out for it: lists of posts (a tag's, the saved ones on a wide
 page) as many columns of cards as the width holds, a notification reading like an inbox row (when it happened on the
-right, up to three lines of the post or comment it is about, 280 characters at most, rather than one line cut short), a
+right, what happened on one line and the start of the post or comment it is about on another, 120 characters at most,
+each cut with an ellipsis, so that every notification has the same height), a
 single post in a readable column with its author's card beside it, and the members' search bar kept to a comfortable
-length. The feed, a member's page, the notifications and the search results share the same three columns from 1,440
+length. The network's bar centers its search and its sections above the columns (**Back** before them on a page reached
+from another), the search giving way first when room runs short. The feed, a member's page, the notifications, Messages, Members and the search
+results share the same three columns from 1,440
 pixels, as on LinkedIn, so that their middle column stays in place from one to the other: on the left the reader's own
 page in short (their cover, avatar, name and headline, how many follow them and whom they follow, and **My posts**,
-**Saved** and **Drafts**, each one click away), in the middle the page's content at a reading width (720 pixels at most,
+**Saved** and **Drafts**, each one click away, and on the notifications their filters under it), in the middle the page's content at a reading width (720 pixels at most,
 the text never stretching out), and on the right, wider (420 pixels at most), the cards to go further, the room left going
 between the columns. Beside the feed the right column holds the tags followed, the members to follow and the trending
 tags; on the other pages, four members to follow (each with its reason and **Follow**, never the member whose page it is,

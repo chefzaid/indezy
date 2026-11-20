@@ -16,6 +16,7 @@
         </button>
       }
     </ng-template>
+    <app-network-me-card></app-network-me-card>
     <nav class="filters-card" [attr.aria-label]="'network.notices.filters.label' | translate" data-notice-filters>
       <h2>{{ 'network.notices.filters.title' | translate }}</h2>
       <ng-container *ngTemplateOutlet="filterList; context: { chips: false }"></ng-container>
@@ -23,7 +24,6 @@
         <mat-icon aria-hidden="true">tune</mat-icon>{{ 'network.notices.settings' | translate }}
       </a>
     </nav>
-    <app-network-me-card></app-network-me-card>
   </aside>
 
   <main class="main">
@@ -84,9 +84,11 @@
                     }
                   }
                 </p>
-                @if (group.postExcerpt || group.idea || group.meetup) {
-                  <span class="excerpt">« {{ group.postExcerpt || group.idea?.title || group.meetup?.title }} »</span>
-                }
+                <span class="excerpt" [attr.title]="group.postExcerpt || group.idea?.title || group.meetup?.title || null">
+                  @if (group.postExcerpt || group.idea || group.meetup) {
+                    « {{ group.postExcerpt || group.idea?.title || group.meetup?.title }} »
+                  }
+                </span>
                 <time [attr.datetime]="group.latestAt" [title]="group.latestAt | date:'medium'">{{ group.latestAt | timeAgo }}</time>
               </span>
               @if (!group.read) {

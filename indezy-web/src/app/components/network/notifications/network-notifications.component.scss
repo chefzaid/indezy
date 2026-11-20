@@ -302,8 +302,12 @@ a.row {
 }
 
 .text {
+  // One line each, cut with an ellipsis, so that every notification has the same height.
+  overflow: hidden;
   margin: 0;
   line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   strong {
     font-weight: 600;
@@ -311,16 +315,15 @@ a.row {
 }
 
 .excerpt {
-  // The post's start, wrapped over three lines at most rather than cut on one.
-  display: -webkit-box;
+  // The post's start on one line, kept even empty so that a notification without one is as high as the others.
+  display: block;
   overflow: hidden;
+  min-height: 1.45em;
   color: var(--app-text-muted);
   font-size: 0.8125rem;
   line-height: 1.45;
-  overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 time {

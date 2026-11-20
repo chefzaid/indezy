@@ -1,5 +1,9 @@
 <div class="messages-shell">
 <app-network-nav></app-network-nav>
+<aside class="left">
+  <app-network-me-card></app-network-me-card>
+</aside>
+<main class="main">
 <div class="messages-page card" [class.open]="openId !== null" data-messages-page>
   <section class="list-pane" [attr.aria-label]="'network.messages.title' | translate">
     <header class="list-head">
@@ -133,4 +137,8 @@
     }
   </section>
 </div>
+</main>
+<aside class="right">
+  <app-network-side></app-network-side>
+</aside>
 </div>

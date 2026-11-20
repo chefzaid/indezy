@@ -11,15 +11,23 @@
   background: var(--app-bg);
 }
 
+// The search and the sections, centered on the page, Back before them when there is one.
 .network-nav {
   display: flex;
   align-items: center;
+  justify-content: safe center;
   gap: 8px;
   min-width: 0;
 }
 
 .back {
   flex: none;
+}
+
+// Short of room, the search gives way first, down to a usable length, before the sections scroll.
+app-network-search {
+  flex: 0 20 320px;
+  min-width: 180px;
 }
 
 .links {

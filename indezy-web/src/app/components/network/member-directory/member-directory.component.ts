@@ -15,7 +15,9 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { MemberAvatarComponent, memberGradient } from '../avatar/member-avatar.component';
+import { NetworkMeCardComponent } from '../me-card/network-me-card.component';
 import { NetworkNavComponent } from '../nav/network-nav.component';
+import { NetworkSideComponent } from '../side/network-side.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 type Availability = Exclude<NetworkAvailability, 'AUTO'>;
@@ -39,7 +41,7 @@ export const MEMBERS_TABS: MembersTab[] = ['all', 'following', 'followers', 'rec
 @Component({
   selector: 'app-member-directory',
   imports: [NetworkNavComponent, PageHeaderComponent, ReactiveFormsModule, RouterLink, NgTemplateOutlet, MatButtonModule, MatIconModule, MatTooltipModule, MatPaginatorModule, TranslateModule,
-    MemberAvatarComponent],
+    MemberAvatarComponent, NetworkMeCardComponent, NetworkSideComponent],
   templateUrl: './member-directory.component.html',
   styleUrls: ['./member-directory.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

@@ -1,11 +1,21 @@
-// The member directory: a search bar, chips for the availability and remote work, then the members as a grid of tiles.
+@use '../layout/network-columns' as columns;
+
+// The member directory in the feed's columns: the reader's page on the left, then in the middle a search bar, chips for
+// the availability and remote work and the members as a grid of tiles, the cards to go further on the right.
 .directory-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  max-width: var(--app-network-width);
-  margin: 0 auto;
+  @include columns.grid;
+}
+
+.left {
+  @include columns.left;
+}
+
+.main {
+  @include columns.main;
+}
+
+.right {
+  @include columns.right;
 }
 
 .card {

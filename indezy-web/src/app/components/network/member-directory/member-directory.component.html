@@ -1,111 +1,121 @@
 <div class="directory-page">
   <app-network-nav></app-network-nav>
-  <app-page-header icon="group" [title]="'network.directory.title' | translate" [subtitle]="'network.directory.subtitle' | translate">
-  </app-page-header>
+  <aside class="left">
+    <app-network-me-card></app-network-me-card>
+  </aside>
 
-  @if (!notMember) {
-    <nav class="tabs card" role="tablist" [attr.aria-label]="'network.members.tabs' | translate" data-members-tabs>
-      @for (item of tabs; track item) {
-        <button type="button" role="tab" class="tab" [class.active]="tab === item" [attr.aria-selected]="tab === item" (click)="show(item)"
-          [attr.data-members-tab]="item">
-          {{ 'network.members.tab.' + item | translate }}
-          @if (item === 'received' && received) {
-            <span class="badge" [attr.aria-label]="'network.members.waiting' | translate: { count: received }">{{ received }}</span>
-          }
-        </button>
-      }
-    </nav>
-  }
+  <main class="main">
+    <app-page-header icon="group" [title]="'network.directory.title' | translate" [subtitle]="'network.directory.subtitle' | translate">
+    </app-page-header>
 
-  @if (notMember) {
-    <section class="problem card" data-directory-not-member>
-      <mat-icon aria-hidden="true">diversity_3</mat-icon>
-      <p>{{ 'network.directory.notMember' | translate }}</p>
-      <a mat-flat-button routerLink="/profile">{{ 'network.directory.join' | translate }}</a>
-    </section>
-  } @else if (tab !== 'all') {
-    @if (list === null) {
-      <ul class="grid" aria-hidden="true">
-        @for (bone of [1, 2, 3]; track bone) {
-          <li class="member card skeleton"><span class="cover"></span><span class="face"></span></li>
+    @if (!notMember) {
+      <nav class="tabs card" role="tablist" [attr.aria-label]="'network.members.tabs' | translate" data-members-tabs>
+        @for (item of tabs; track item) {
+          <button type="button" role="tab" class="tab" [class.active]="tab === item" [attr.aria-selected]="tab === item" (click)="show(item)"
+            [attr.data-members-tab]="item">
+            {{ 'network.members.tab.' + item | translate }}
+            @if (item === 'received' && received) {
+              <span class="badge" [attr.aria-label]="'network.members.waiting' | translate: { count: received }">{{ received }}</span>
+            }
+          </button>
         }
-      </ul>
-      <span class="cdk-visually-hidden" role="status">{{ 'common.loading' | translate }}</span>
-    } @else if (list.length === 0) {
-      <section class="empty card" [attr.data-members-empty]="tab">
-        <mat-icon aria-hidden="true">{{ tab === 'received' || tab === 'sent' ? 'mark_email_read' : 'group' }}</mat-icon>
-        <p>{{ 'network.members.empty.' + tab | translate }}</p>
+      </nav>
+    }
+
+    @if (notMember) {
+      <section class="problem card" data-directory-not-member>
+        <mat-icon aria-hidden="true">diversity_3</mat-icon>
+        <p>{{ 'network.directory.notMember' | translate }}</p>
+        <a mat-flat-button routerLink="/profile">{{ 'network.directory.join' | translate }}</a>
       </section>
-    } @else {
-      <ul class="grid" [attr.data-members-list]="tab">
-        @for (member of list; track member.handle) {
-          <ng-container *ngTemplateOutlet="tile; context: { $implicit: member }"></ng-container>
-        }
-      </ul>
-    }
-  } @else {
-    <form [formGroup]="form" (ngSubmit)="search()" class="search card" role="search" data-directory-filters>
-      <label class="field">
-        <mat-icon aria-hidden="true">search</mat-icon>
-        <input formControlName="skill" data-directory-skill maxlength="60" [placeholder]="'network.directory.skillPlaceholder' | translate"
-          [attr.aria-label]="'network.directory.skill' | translate">
-      </label>
-      <label class="field">
-        <mat-icon aria-hidden="true">place</mat-icon>
-        <input formControlName="city" data-directory-city maxlength="60" [placeholder]="'network.directory.cityPlaceholder' | translate"
-          [attr.aria-label]="'network.directory.city' | translate">
-      </label>
-      <button mat-flat-button type="submit" class="go" data-directory-search>{{ 'network.directory.search' | translate }}</button>
-    </form>
-
-    <div class="chips">
-      <div class="chip-group" role="group" [attr.aria-label]="'network.directory.availability' | translate" data-directory-availability>
-        <button type="button" class="chip" [class.on]="!form.value.availability" [attr.aria-pressed]="!form.value.availability"
-          (click)="pickAvailability(null)" data-directory-availability-option="ANY">{{ 'network.directory.any' | translate }}</button>
-        @for (mode of availabilities; track mode) {
-          <button type="button" class="chip" [class.on]="form.value.availability === mode" [attr.aria-pressed]="form.value.availability === mode"
-            (click)="pickAvailability(mode)" [attr.data-directory-availability-option]="mode">
-            <span class="dot" [attr.data-mode]="mode" aria-hidden="true"></span>{{ 'network.directory.modes.' + mode | translate }}
-          </button>
-        }
-      </div>
-      <button type="button" class="chip open-chip" [class.on]="form.value.now" [attr.aria-pressed]="!!form.value.now" (click)="toggleNow()"
-        data-directory-now><span class="dot" data-mode="AVAILABLE" aria-hidden="true"></span>{{ 'network.openToWork.filter' | translate }}</button>
-      <div class="chip-group" role="group" [attr.aria-label]="'network.directory.remote' | translate" data-directory-remote>
-        @for (remote of remotes; track $index) {
-          <button type="button" class="chip" [class.on]="form.value.remote === remote" [attr.aria-pressed]="form.value.remote === remote"
-            (click)="pickRemote(remote)" [attr.data-directory-remote-option]="remote === null ? 'ANY' : remote">
-            {{ remoteLabel(remote) | translate }}
-          </button>
-        }
-      </div>
-    </div>
-
-    @if (loading && !directory) {
-      <ul class="grid" aria-hidden="true">
-        @for (bone of [1, 2, 3, 4, 5, 6]; track bone) {
-          <li class="member card skeleton"><span class="cover"></span><span class="face"></span></li>
-        }
-      </ul>
-    } @else if (directory) {
-      <p class="count" data-directory-count aria-live="polite">{{ 'network.directory.count' | translate: { count: directory.total } }}</p>
-      @if (directory.members.length === 0) {
-        <section class="empty card">
-          <mat-icon aria-hidden="true">person_search</mat-icon>
-          <p>{{ 'network.directory.none' | translate }}</p>
+    } @else if (tab !== 'all') {
+      @if (list === null) {
+        <ul class="grid" aria-hidden="true">
+          @for (bone of [1, 2, 3]; track bone) {
+            <li class="member card skeleton"><span class="cover"></span><span class="face"></span></li>
+          }
+        </ul>
+        <span class="cdk-visually-hidden" role="status">{{ 'common.loading' | translate }}</span>
+      } @else if (list.length === 0) {
+        <section class="empty card" [attr.data-members-empty]="tab">
+          <mat-icon aria-hidden="true">{{ tab === 'received' || tab === 'sent' ? 'mark_email_read' : 'group' }}</mat-icon>
+          <p>{{ 'network.members.empty.' + tab | translate }}</p>
         </section>
+      } @else {
+        <ul class="grid" [attr.data-members-list]="tab">
+          @for (member of list; track member.handle) {
+            <ng-container *ngTemplateOutlet="tile; context: { $implicit: member }"></ng-container>
+          }
+        </ul>
       }
-      <ul class="grid">
-        @for (member of directory.members; track member.handle) {
-          <ng-container *ngTemplateOutlet="tile; context: { $implicit: member }"></ng-container>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="search()" class="search card" role="search" data-directory-filters>
+        <label class="field">
+          <mat-icon aria-hidden="true">search</mat-icon>
+          <input formControlName="skill" data-directory-skill maxlength="60" [placeholder]="'network.directory.skillPlaceholder' | translate"
+            [attr.aria-label]="'network.directory.skill' | translate">
+        </label>
+        <label class="field">
+          <mat-icon aria-hidden="true">place</mat-icon>
+          <input formControlName="city" data-directory-city maxlength="60" [placeholder]="'network.directory.cityPlaceholder' | translate"
+            [attr.aria-label]="'network.directory.city' | translate">
+        </label>
+        <button mat-flat-button type="submit" class="go" data-directory-search>{{ 'network.directory.search' | translate }}</button>
+      </form>
+
+      <div class="chips">
+        <div class="chip-group" role="group" [attr.aria-label]="'network.directory.availability' | translate" data-directory-availability>
+          <button type="button" class="chip" [class.on]="!form.value.availability" [attr.aria-pressed]="!form.value.availability"
+            (click)="pickAvailability(null)" data-directory-availability-option="ANY">{{ 'network.directory.any' | translate }}</button>
+          @for (mode of availabilities; track mode) {
+            <button type="button" class="chip" [class.on]="form.value.availability === mode" [attr.aria-pressed]="form.value.availability === mode"
+              (click)="pickAvailability(mode)" [attr.data-directory-availability-option]="mode">
+              <span class="dot" [attr.data-mode]="mode" aria-hidden="true"></span>{{ 'network.directory.modes.' + mode | translate }}
+            </button>
+          }
+        </div>
+        <button type="button" class="chip open-chip" [class.on]="form.value.now" [attr.aria-pressed]="!!form.value.now" (click)="toggleNow()"
+          data-directory-now><span class="dot" data-mode="AVAILABLE" aria-hidden="true"></span>{{ 'network.openToWork.filter' | translate }}</button>
+        <div class="chip-group" role="group" [attr.aria-label]="'network.directory.remote' | translate" data-directory-remote>
+          @for (remote of remotes; track $index) {
+            <button type="button" class="chip" [class.on]="form.value.remote === remote" [attr.aria-pressed]="form.value.remote === remote"
+              (click)="pickRemote(remote)" [attr.data-directory-remote-option]="remote === null ? 'ANY' : remote">
+              {{ remoteLabel(remote) | translate }}
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (loading && !directory) {
+        <ul class="grid" aria-hidden="true">
+          @for (bone of [1, 2, 3, 4, 5, 6]; track bone) {
+            <li class="member card skeleton"><span class="cover"></span><span class="face"></span></li>
+          }
+        </ul>
+      } @else if (directory) {
+        <p class="count" data-directory-count aria-live="polite">{{ 'network.directory.count' | translate: { count: directory.total } }}</p>
+        @if (directory.members.length === 0) {
+          <section class="empty card">
+            <mat-icon aria-hidden="true">person_search</mat-icon>
+            <p>{{ 'network.directory.none' | translate }}</p>
+          </section>
         }
-      </ul>
-      @if (directory.total > directory.size) {
-        <mat-paginator [length]="directory.total" [pageSize]="directory.size" [pageIndex]="directory.page" [hidePageSize]="true"
-          (page)="onPage($event)"></mat-paginator>
+        <ul class="grid">
+          @for (member of directory.members; track member.handle) {
+            <ng-container *ngTemplateOutlet="tile; context: { $implicit: member }"></ng-container>
+          }
+        </ul>
+        @if (directory.total > directory.size) {
+          <mat-paginator [length]="directory.total" [pageSize]="directory.size" [pageIndex]="directory.page" [hidePageSize]="true"
+            (page)="onPage($event)"></mat-paginator>
+        }
       }
     }
-  }
+  </main>
+
+  <aside class="right">
+    <app-network-side></app-network-side>
+  </aside>
 </div>
 
 <ng-template #tile let-member>

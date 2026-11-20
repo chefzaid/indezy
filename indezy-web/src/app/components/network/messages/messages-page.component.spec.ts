@@ -14,6 +14,7 @@ import { NetworkEvent, NetworkStreamService } from '../../../services/network/ne
 import { GroupDialogComponent } from './group-dialog.component';
 import en from '../../../../assets/i18n/en.json';
 import { stubNetworkNav } from '../nav/network-nav.stub';
+import { stubNetworkColumns } from '../side/network-columns.stub';
 
 describe('MessagesPageComponent', () => {
   let api: jasmine.SpyObj<NetworkMessagesService>;
@@ -46,6 +47,7 @@ describe('MessagesPageComponent', () => {
         { provide: NotificationService, useValue: notifications }, { provide: NetworkStreamService, useValue: stream }]
     });
     stubNetworkNav(MessagesPageComponent);
+    stubNetworkColumns(MessagesPageComponent);
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
     translate.use('en');

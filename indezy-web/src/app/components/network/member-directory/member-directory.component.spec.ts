@@ -12,6 +12,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { MemberDirectoryComponent } from './member-directory.component';
 import en from '../../../../assets/i18n/en.json';
 import { stubNetworkNav } from '../nav/network-nav.stub';
+import { stubNetworkColumns } from '../side/network-columns.stub';
 
 describe('MemberDirectoryComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -42,6 +43,7 @@ describe('MemberDirectoryComponent', () => {
         { provide: NetworkMessagesService, useValue: messages }]
     });
     stubNetworkNav(MemberDirectoryComponent);
+    stubNetworkColumns(MemberDirectoryComponent);
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
     translate.use('en');
