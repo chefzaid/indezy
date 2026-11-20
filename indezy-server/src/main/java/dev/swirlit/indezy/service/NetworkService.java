@@ -143,6 +143,19 @@ public class NetworkService {
         return membership(member, user(userId));
     }
 
+    /**
+     * **Open to work** in one click: the card says available now (its badge shown wherever members show), or goes back to
+     * the availability the won missions tell.
+     */
+    @Transactional
+    public NetworkDtos.Membership setOpenToWork(Long userId, boolean on) {
+        NetworkMember member = requireMember(userId);
+        member.setAvailabilityMode(on ? NetworkAvailability.AVAILABLE : NetworkAvailability.AUTO);
+        member.setAvailabilityDate(null);
+        member.setShowAvailability(member.isShowAvailability() || on);
+        return membership(member, user(userId));
+    }
+
     /** Whether the account is in the network. */
     boolean isMember(Long userId) {
         return members.findByUserId(userId).filter(NetworkMember::isActive).isPresent();

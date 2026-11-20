@@ -53,7 +53,7 @@ describe('NetworkSearchResultsComponent', () => {
   it('shows the first members, tags and posts found under All, each with See all', () => {
     const fixture = create();
     const element: HTMLElement = fixture.nativeElement;
-    expect(network.searchMembers).toHaveBeenCalledWith('kafka', 0, { city: null, availability: null, remote: false });
+    expect(network.searchMembers).toHaveBeenCalledWith('kafka', 0, { city: null, availability: null, remote: false, now: false });
     expect(network.searchPosts).toHaveBeenCalledWith('kafka', 0, { kinds: [], days: null, followed: false });
     expect(element.querySelector('[data-search-title]')?.textContent).toContain('Results for “kafka”');
     expect(element.querySelectorAll('[data-search-result-member]').length).toBe(SEARCH_PREVIEW);
@@ -105,7 +105,7 @@ describe('NetworkSearchResultsComponent', () => {
     const fixture = create({ q: 'kafka', tab: 'members', city: 'Lyon', availability: 'LISTENING', remote: 'true' });
     const component = fixture.componentInstance;
     const element: HTMLElement = fixture.nativeElement;
-    expect(network.searchMembers).toHaveBeenCalledWith('kafka', 0, { city: 'Lyon', availability: 'LISTENING', remote: true });
+    expect(network.searchMembers).toHaveBeenCalledWith('kafka', 0, { city: 'Lyon', availability: 'LISTENING', remote: true, now: false });
     expect(element.querySelector('[data-filter-availability="LISTENING"]')?.getAttribute('aria-pressed')).toBe('true');
     expect(component.cityField.value).toBe('Lyon');
     expect(component.filtering).toBeTrue();
@@ -113,7 +113,7 @@ describe('NetworkSearchResultsComponent', () => {
     (element.querySelector('[data-filter-remote]') as HTMLButtonElement).click();
     expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { remote: null }, queryParamsHandling: 'merge' }));
     component.clearFilters();
-    expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { city: null, availability: null, remote: null } }));
+    expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { city: null, availability: null, remote: null, now: null } }));
 
     query.next(convertToParamMap({ q: 'kafka', tab: 'posts', kind: ['MISSION', 'NOPE'], days: '7', followed: 'true' }));
     fixture.detectChanges();

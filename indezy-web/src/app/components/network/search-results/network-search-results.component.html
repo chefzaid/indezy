@@ -21,6 +21,8 @@
       </div>
       @if (tab === 'members') {
         <div class="filters" role="group" [attr.aria-label]="'network.search.filters' | translate" data-search-member-filters>
+          <button type="button" class="chip" [class.on]="memberFilters.now" [attr.aria-pressed]="!!memberFilters.now"
+            (click)="setFilter({ now: memberFilters.now ? null : true })" data-filter-now>{{ 'network.openToWork.filter' | translate }}</button>
           @for (mode of availabilities; track mode) {
             <button type="button" class="chip" [class.on]="memberFilters.availability === mode" [attr.aria-pressed]="memberFilters.availability === mode"
               (click)="setFilter({ availability: memberFilters.availability === mode ? null : mode })" [attr.data-filter-availability]="mode">

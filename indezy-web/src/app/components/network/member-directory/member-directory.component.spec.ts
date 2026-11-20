@@ -58,14 +58,14 @@ describe('MemberDirectoryComponent', () => {
     const fixture = create();
     const component = fixture.componentInstance;
     const element: HTMLElement = fixture.nativeElement;
-    expect(network.directory).toHaveBeenCalledWith({ skill: '', city: '', availability: null, remote: null, page: 0 });
+    expect(network.directory).toHaveBeenCalledWith({ skill: '', city: '', availability: null, remote: null, now: false, page: 0 });
     expect(element.querySelector('[data-directory-count]')?.textContent).toContain('Members found: 22');
     expect(element.querySelector('[data-directory-member="leo_m"]')?.getAttribute('href')).toBe('/m/leo_m');
     expect(element.querySelector('mat-paginator')).not.toBeNull();
 
     component.form.patchValue({ skill: 'Kafka', remote: true });
     component.onPage({ pageIndex: 1, pageSize: 20, length: 22 });
-    expect(network.directory).toHaveBeenCalledWith({ skill: 'Kafka', city: '', availability: null, remote: true, page: 1 });
+    expect(network.directory).toHaveBeenCalledWith({ skill: 'Kafka', city: '', availability: null, remote: true, now: false, page: 1 });
     network.directory.and.returnValue(of({ members: [], total: 0, page: 0, size: 20, followed: [], requested: [], privateCards: [] }));
     component.search();
     fixture.detectChanges();
@@ -76,16 +76,26 @@ describe('MemberDirectoryComponent', () => {
     const fixture = create();
     const element: HTMLElement = fixture.nativeElement;
     (element.querySelector('[data-directory-availability-option="LISTENING"]') as HTMLButtonElement).click();
-    expect(network.directory).toHaveBeenCalledWith({ skill: '', city: '', availability: 'LISTENING', remote: null, page: 0 });
+    expect(network.directory).toHaveBeenCalledWith({ skill: '', city: '', availability: 'LISTENING', remote: null, now: false, page: 0 });
     (element.querySelector('[data-directory-remote-option="false"]') as HTMLButtonElement).click();
     fixture.detectChanges();
-    expect(network.directory).toHaveBeenCalledWith({ skill: '', city: '', availability: 'LISTENING', remote: false, page: 0 });
+    expect(network.directory).toHaveBeenCalledWith({ skill: '', city: '', availability: 'LISTENING', remote: false, now: false, page: 0 });
     expect(element.querySelector('[data-directory-remote-option="false"]')?.getAttribute('aria-pressed')).toBe('true');
     expect(element.querySelector('[data-directory-remote-option="ANY"]')?.getAttribute('aria-pressed')).toBe('false');
     (element.querySelector('[data-directory-remote-option="ANY"]') as HTMLButtonElement).click();
     (element.querySelector('[data-directory-availability-option="ANY"]') as HTMLButtonElement).click();
     expect(network.directory).toHaveBeenCalledTimes(5);
-    expect(network.directory.calls.mostRecent().args[0]).toEqual({ skill: '', city: '', availability: null, remote: null, page: 0 });
+    expect(network.directory.calls.mostRecent().args[0]).toEqual({ skill: '', city: '', availability: null, remote: null, now: false, page: 0 });
+  });
+
+  it('shows the members open to work alone, or everyone again', () => {
+    const fixture = create();
+    (fixture.nativeElement.querySelector('[data-directory-now]') as HTMLButtonElement).click();
+    expect(network.directory).toHaveBeenCalledWith({ skill: '', city: '', availability: null, remote: null, now: true, page: 0 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-directory-now]')?.getAttribute('aria-pressed')).toBe('true');
+    fixture.componentInstance.toggleNow();
+    expect(network.directory).toHaveBeenCalledWith({ skill: '', city: '', availability: null, remote: null, now: false, page: 0 });
   });
 
   it('shows each member as a tile with the first skills, and follows, asks to follow or unfollows from it', () => {
@@ -216,7 +226,7 @@ describe('MemberDirectoryComponent', () => {
     const fixture = TestBed.createComponent(MemberDirectoryComponent);
     fixture.detectChanges();
     expect(fixture.componentInstance.form.controls.skill.value).toBe('Kafka');
-    expect(network.directory).toHaveBeenCalledWith({ skill: 'Kafka', city: '', availability: null, remote: null, page: 0 });
+    expect(network.directory).toHaveBeenCalledWith({ skill: 'Kafka', city: '', availability: null, remote: null, now: false, page: 0 });
   });
 
   it('asks a visitor to join first, and says when the members cannot be loaded', () => {

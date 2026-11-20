@@ -4118,6 +4118,14 @@
       "noRequests": "No request waiting.",
       "waiting": "Your request waits for its moderators: once let in, you read and post here.",
       "privateToRead": "A private community: ask to join to read and post in it."
+    },
+    "openToWork": {
+      "badge": "OPEN",
+      "filter": "Open to work now",
+      "on": "Open to work",
+      "off": "I am open to work",
+      "onDone": "Your card says you are open to work: members see the badge on your photo.",
+      "offDone": "Your card tells your availability from your missions again."
     }
   }
 }

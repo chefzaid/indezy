@@ -20,7 +20,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberCardComponent } from '../member-card/member-card.component';
 import { PostCardComponent } from '../post-card/post-card.component';
-import { MemberAvatarComponent, memberGradient } from '../avatar/member-avatar.component';
+import { MemberAvatarComponent, memberGradient, openToWork } from '../avatar/member-avatar.component';
 import { NetworkNavComponent } from '../nav/network-nav.component';
 import { SavedPostsComponent } from '../saved/saved-posts.component';
 import { NetworkDraftsComponent } from '../drafts/network-drafts.component';
@@ -62,6 +62,23 @@ export class MemberPageComponent implements OnInit {
   problem: 'notMember' | 'notFound' | 'error' | null = null;
   loading = true;
   list: MemberList | null = null;
+  readonly openToWork = openToWork;
+
+  /** **Open to work** in one click from one's own page, or back to the availability the won missions tell. */
+  toggleOpenToWork(): void {
+    const on = !openToWork(this.page!.card);
+    this.network.setOpenToWork(on).subscribe({
+      next: membership => {
+        if (membership.card && this.page) {
+          this.page = { ...this.page, card: membership.card };
+        }
+        this.notifications.success(on ? 'network.openToWork.onDone' : 'network.openToWork.offDone');
+        this.changes.markForCheck();
+      },
+      error: () => this.notifications.error('network.page.followError')
+    });
+  }
+
   /** The member's About section and the missions they list. */
   about: MemberAbout | null = null;
   /** The post the member pinned at the top of their page, when the viewer may read it. */

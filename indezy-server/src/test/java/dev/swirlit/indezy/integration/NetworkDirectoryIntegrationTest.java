@@ -49,6 +49,27 @@ class NetworkDirectoryIntegrationTest extends TwoAccountsIntegrationTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void tellsWhoIsOpenToWork() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        String skill = "Skill" + UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+        join(alice, "Lyon", List.of(skill), ALL_SHOWN, Map.of("mode", "AUTO"));
+        String bobHandle = join(bob, "Lyon", List.of(skill), ALL_SHOWN, Map.of("mode", "AVAILABLE", "date", "2099-01-04"));
+        assertThat(found(alice, "skill=" + skill + "&now=true")).isEmpty();
+
+        Map<String, Object> open = call(bob, HttpMethod.PUT, "/network/membership/open-to-work?on=true", null, Map.class).getBody();
+        assertThat((Map<String, Object>) open.get("availability")).containsEntry("mode", "AVAILABLE").containsEntry("date", null);
+        assertThat((Map<String, Object>) open.get("card")).containsEntry("availability", "AVAILABLE").containsEntry("availabilityDate", null);
+        assertThat(found(alice, "skill=" + skill + "&now=true")).containsExactly(bobHandle);
+        Map<String, Object> searched = call(alice, HttpMethod.GET, "/network/search/members?q=" + skill + "&now=true", null, Map.class).getBody();
+        assertThat((List<Map<String, Object>>) searched.get("members")).extracting(card -> card.get("handle")).containsExactly(bobHandle);
+
+        Map<String, Object> closed = call(bob, HttpMethod.PUT, "/network/membership/open-to-work?on=false", null, Map.class).getBody();
+        assertThat((Map<String, Object>) closed.get("availability")).containsEntry("mode", "AUTO");
+        assertThat(found(alice, "skill=" + skill + "&now=true")).isEmpty();
+    }
+
+    @Test
     void findsMembersByWhatTheirCardsShow() {
         flags.set(FeatureFlag.SOCIAL_NETWORK, true);
         assertThat(call(alice, HttpMethod.GET, "/network/members", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);

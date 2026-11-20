@@ -271,6 +271,11 @@ export class NetworkService {
     return this.http.get<AuthorActivity>(`${this.API_URL}/activity`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
   }
 
+  /** **Open to work** in one click, or back to the availability the won missions tell. */
+  setOpenToWork(on: boolean): Observable<NetworkMembership> {
+    return this.http.put<NetworkMembership>(`${this.API_URL}/membership/open-to-work`, null, { params: { on } });
+  }
+
   /** The reader opened a member's page (kept once a day; nothing for their own), in the background. */
   recordView(handle: string): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/members/${encodeURIComponent(handle)}/views`, null,
@@ -305,6 +310,9 @@ export class NetworkService {
     if (filters.remote) {
       params = params.set('remote', true);
     }
+    if (filters.now) {
+      params = params.set('now', true);
+    }
     return this.http.get<MemberDirectory>(`${this.API_URL}/search/members`, { params });
   }
 
@@ -328,6 +336,9 @@ export class NetworkService {
       if (value !== null && value !== undefined && value !== '') {
         params = params.set(key, String(value).trim());
       }
+    }
+    if (search.now) {
+      params = params.set('now', true);
     }
     return this.http.get<MemberDirectory>(`${this.API_URL}/members`, { params });
   }

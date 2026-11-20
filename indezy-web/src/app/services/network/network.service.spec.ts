@@ -39,11 +39,17 @@ describe('NetworkService', () => {
     expect(filtered.request.params.getAll('kind')).toEqual(['MISSION', 'POLL']);
     expect(filtered.request.params.get('days')).toBe('7');
     expect(filtered.request.params.get('followed')).toBe('true');
-    service.searchMembers('kafka', 0, { city: 'Lyon', availability: 'LISTENING', remote: true }).subscribe();
+    service.setOpenToWork(true).subscribe();
+    expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/membership/open-to-work')).request.params.get('on'))
+      .toBe('true');
+    service.directory({ now: true }).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/members')).request.params.get('now')).toBe('true');
+    service.searchMembers('kafka', 0, { city: 'Lyon', availability: 'LISTENING', remote: true, now: true }).subscribe();
     const narrowed = http.expectOne(call => call.url.endsWith('/network/search/members'));
     expect(narrowed.request.params.get('city')).toBe('Lyon');
     expect(narrowed.request.params.get('availability')).toBe('LISTENING');
     expect(narrowed.request.params.get('remote')).toBe('true');
+    expect(narrowed.request.params.get('now')).toBe('true');
     http.verify();
   });
 

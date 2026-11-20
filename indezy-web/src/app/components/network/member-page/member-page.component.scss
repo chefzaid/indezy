@@ -552,3 +552,13 @@
     font-size: 0.8125rem;
   }
 }
+
+// **Open to work**, switched in one click from one's own page.
+.open-to-work {
+  border-radius: 999px;
+
+  &.on {
+    border-color: #15803d;
+    color: #15803d;
+  }
+}

@@ -87,8 +87,9 @@ public class NetworkController {
     @GetMapping("/members")
     public NetworkDtos.Directory directory(@RequestParam(required = false) String skill, @RequestParam(required = false) String city,
                                            @RequestParam(required = false) NetworkAvailability availability,
-                                           @RequestParam(required = false) Boolean remote, @RequestParam(defaultValue = "0") int page) {
-        return directory.search(SecurityUtils.getCurrentUserId(), new NetworkDirectoryService.Search(skill, city, availability, remote, page));
+                                           @RequestParam(required = false) Boolean remote, @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "false") boolean now) {
+        return directory.search(SecurityUtils.getCurrentUserId(), new NetworkDirectoryService.Search(skill, city, availability, remote, page, now));
     }
 
     @Operation(summary = "Members to mention: handle, first or last name starting with what was typed, those followed first, 5 at most")
@@ -156,8 +157,9 @@ public class NetworkController {
     public NetworkDtos.Directory searchMembers(@RequestParam(defaultValue = "") String q, @RequestParam(defaultValue = "0") int page,
                                                @RequestParam(required = false) String city,
                                                @RequestParam(required = false) NetworkAvailability availability,
-                                               @RequestParam(required = false) Boolean remote) {
-        return directory.find(SecurityUtils.getCurrentUserId(), q, page, new NetworkDirectoryService.Search(null, city, availability, remote, page));
+                                               @RequestParam(required = false) Boolean remote,
+                                               @RequestParam(defaultValue = "false") boolean now) {
+        return directory.find(SecurityUtils.getCurrentUserId(), q, page, new NetworkDirectoryService.Search(null, city, availability, remote, page, now));
     }
 
     @Operation(summary = "Members to follow, each with its reason: followed by members the viewer follows, same skills or city")
@@ -275,6 +277,12 @@ public class NetworkController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeFollower(@PathVariable String handle) {
         follows.removeFollower(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "Open to work: the card says available now, or goes back to the availability the won missions tell")
+    @PutMapping("/membership/open-to-work")
+    public NetworkDtos.Membership setOpenToWork(@RequestParam boolean on) {
+        return network.setOpenToWork(SecurityUtils.getCurrentUserId(), on);
     }
 
     @Operation(summary = "Suggest members who went through the same ESNs, or no longer", description = "Only between members who both turn it on")

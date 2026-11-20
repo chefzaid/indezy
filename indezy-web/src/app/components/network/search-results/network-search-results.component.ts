@@ -70,7 +70,7 @@ export class NetworkSearchResultsComponent implements OnInit {
   readonly kinds = POST_KINDS;
   readonly periods = PERIODS;
   readonly availabilities = AVAILABILITIES;
-  memberFilters: MemberSearchFilters = { city: null, availability: null, remote: false };
+  memberFilters: MemberSearchFilters = { city: null, availability: null, remote: false, now: false };
   postFilters: PostSearchFilters = { kinds: [], days: null, followed: false };
   readonly cityField = new FormControl('', { nonNullable: true });
 
@@ -96,7 +96,7 @@ export class NetworkSearchResultsComponent implements OnInit {
   static memberFilters(params: ParamMap): MemberSearchFilters {
     const availability = params.get('availability') as NetworkAvailability | null;
     return { city: params.get('city') || null, availability: availability && AVAILABILITIES.includes(availability) ? availability : null,
-      remote: params.get('remote') === 'true' };
+      remote: params.get('remote') === 'true', now: params.get('now') === 'true' };
   }
 
   /** The posts' filters the address holds. */
@@ -118,12 +118,12 @@ export class NetworkSearchResultsComponent implements OnInit {
 
   /** Clears every filter of the tab open. */
   clearFilters(): void {
-    this.setFilter(this.tab === 'posts' ? { kind: null, days: null, followed: null } : { city: null, availability: null, remote: null });
+    this.setFilter(this.tab === 'posts' ? { kind: null, days: null, followed: null } : { city: null, availability: null, remote: null, now: null });
   }
 
   get filtering(): boolean {
     return this.tab === 'posts' ? !!(this.postFilters.kinds?.length || this.postFilters.days || this.postFilters.followed) :
-      !!(this.memberFilters.city || this.memberFilters.availability || this.memberFilters.remote);
+      !!(this.memberFilters.city || this.memberFilters.availability || this.memberFilters.remote || this.memberFilters.now);
   }
 
   /** Opens a tab, kept in the address. */

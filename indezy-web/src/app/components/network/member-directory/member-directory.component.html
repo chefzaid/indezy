@@ -69,6 +69,8 @@
           </button>
         }
       </div>
+      <button type="button" class="chip open-chip" [class.on]="form.value.now" [attr.aria-pressed]="!!form.value.now" (click)="toggleNow()"
+        data-directory-now><span class="dot" data-mode="AVAILABLE" aria-hidden="true"></span>{{ 'network.openToWork.filter' | translate }}</button>
       <div class="chip-group" role="group" [attr.aria-label]="'network.directory.remote' | translate" data-directory-remote>
         @for (remote of remotes; track $index) {
           <button type="button" class="chip" [class.on]="form.value.remote === remote" [attr.aria-pressed]="form.value.remote === remote"

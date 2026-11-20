@@ -53,6 +53,11 @@
               </button>
             </mat-menu>
           } @else {
+            <button mat-stroked-button type="button" class="open-to-work" [class.on]="openToWork(page.card)" (click)="toggleOpenToWork()"
+              [disabled]="isOpening" [attr.aria-pressed]="openToWork(page.card)" data-open-to-work-toggle>
+              <mat-icon>{{ openToWork(page.card) ? 'work' : 'work_outline' }}</mat-icon>
+              {{ (openToWork(page.card) ? 'network.openToWork.on' : 'network.openToWork.off') | translate }}
+            </button>
             <a mat-stroked-button routerLink="/profile" class="edit-profile" data-edit-card>
               <mat-icon>edit</mat-icon>{{ 'network.page.editCard' | translate }}
             </a>

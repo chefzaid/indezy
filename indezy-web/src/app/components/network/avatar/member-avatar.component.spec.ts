@@ -1,6 +1,7 @@
+import { TranslateModule } from '@ngx-translate/core';
 import { TestBed } from '@angular/core/testing';
 
-import { MemberAvatarComponent } from './member-avatar.component';
+import { MemberAvatarComponent, openToWork } from './member-avatar.component';
 
 describe('MemberAvatarComponent', () => {
   function render(avatar: string | null, size?: number): HTMLElement {
@@ -22,5 +23,25 @@ describe('MemberAvatarComponent', () => {
     const photo = render('https://example.test/leo.jpg').querySelector('img') as HTMLImageElement;
     expect(photo.getAttribute('src')).toBe('https://example.test/leo.jpg');
     expect(photo.getAttribute('alt')).toBe('');
+  });
+
+  it('wears the Open to work badge for a member available now, on an avatar large enough to read it', () => {
+    TestBed.configureTestingModule({ imports: [MemberAvatarComponent, TranslateModule.forRoot()] });
+    const fixture = TestBed.createComponent(MemberAvatarComponent);
+    fixture.componentRef.setInput('subject', { handle: 'leo', firstName: 'Léo', lastName: 'Martin', avatar: null, availability: 'AVAILABLE',
+      availabilityDate: null });
+    fixture.componentRef.setInput('size', 44);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-open-to-work]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.frame.open')).not.toBeNull();
+    fixture.componentRef.setInput('size', 24);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-open-to-work]')).toBeNull();
+    fixture.componentRef.setInput('subject', { handle: 'leo', firstName: 'Léo', lastName: 'Martin', avatar: null, availability: 'AVAILABLE',
+      availabilityDate: '2099-01-04' });
+    fixture.componentRef.setInput('size', 44);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.frame.open')).toBeNull();
+    expect(openToWork({ handle: 'x', firstName: 'A', lastName: 'B', avatar: null, availability: 'LISTENING' })).toBeFalse();
   });
 });

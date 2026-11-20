@@ -206,6 +206,8 @@ export interface MemberSearchFilters {
   city?: string | null;
   availability?: NetworkAvailability | null;
   remote?: boolean;
+  /** Available now only: the members **Open to work**. */
+  now?: boolean;
 }
 
 /** The filters of the search for posts: kinds (none for all), the last days (none for any time), the members followed only. */
@@ -378,6 +380,8 @@ export interface DirectorySearch {
   city?: string | null;
   availability?: Exclude<NetworkAvailability, 'AUTO'> | null;
   remote?: boolean | null;
+  /** Available now only: the members **Open to work**. */
+  now?: boolean;
   page?: number;
 }
 

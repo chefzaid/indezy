@@ -4118,6 +4118,14 @@
       "noRequests": "Aucune demande en attente.",
       "waiting": "Votre demande attend ses modérateurs : une fois accepté, vous lisez et publiez ici.",
       "privateToRead": "Une communauté privée : demandez à la rejoindre pour la lire et y publier."
+    },
+    "openToWork": {
+      "badge": "DISPO",
+      "filter": "Disponibles maintenant",
+      "on": "Disponible",
+      "off": "Je suis disponible",
+      "onDone": "Votre carte dit que vous êtes disponible : les membres voient le badge sur votre photo.",
+      "offDone": "Votre carte dit de nouveau votre disponibilité d’après vos missions."
     }
   }
 }

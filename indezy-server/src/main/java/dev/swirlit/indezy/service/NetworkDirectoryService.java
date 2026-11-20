@@ -40,7 +40,16 @@ public class NetworkDirectoryService {
     private final NetworkFollowRequestRepository requests;
 
     /** What the directory is asked for; every criterion is optional. */
-    public record Search(String skill, String city, NetworkAvailability availability, Boolean remote, int page) {
+    public record Search(String skill, String city, NetworkAvailability availability, Boolean remote, int page, boolean availableNow) {
+
+        public Search(String skill, String city, NetworkAvailability availability, Boolean remote, int page) {
+            this(skill, city, availability, remote, page, false);
+        }
+    }
+
+    /** Available now: the card says available, from no later day (an **Open to work** badge). */
+    static boolean availableNow(NetworkDtos.MemberCard card) {
+        return card.availability() == NetworkAvailability.AVAILABLE && card.availabilityDate() == null;
     }
 
     /** A member found, with the card the viewer reads. */
@@ -63,6 +72,7 @@ public class NetworkDirectoryService {
             .filter(hit -> skill.isEmpty() || hit.card().stack().stream().anyMatch(name -> plain(name).equals(skill)))
             .filter(hit -> city.isEmpty() || (hit.card().city() != null && plain(hit.card().city()).contains(city)))
             .filter(hit -> search.availability() == null || hit.card().availability() == search.availability())
+            .filter(hit -> !search.availableNow() || availableNow(hit.card()))
             .filter(hit -> search.remote() == null || hit.card().remote() == search.remote())
             .sorted(Comparator.comparing((Found hit) -> plain(hit.card().lastName())).thenComparing(hit -> plain(hit.card().firstName())))
             .toList();
@@ -124,6 +134,7 @@ public class NetworkDirectoryService {
             .filter(hit -> words.stream().allMatch(word -> namedBy(hit, word) || describedBy(hit, word)))
             .filter(hit -> city.isEmpty() || (hit.card().city() != null && plain(hit.card().city()).contains(city)))
             .filter(hit -> filters.availability() == null || hit.card().availability() == filters.availability())
+            .filter(hit -> !filters.availableNow() || availableNow(hit.card()))
             .filter(hit -> filters.remote() == null || hit.card().remote() == filters.remote())
             .sorted(Comparator.comparingInt((Found hit) -> rank(hit, whole, words))
                 .thenComparing(hit -> !followed.contains(hit.member().getUserId()))

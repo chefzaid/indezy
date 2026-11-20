@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 
-import { Conversation, MemberCard, MemberPage, NetworkPost, PastMission } from '../../../models';
+import { Conversation, MemberCard, MemberPage, NetworkMembership, NetworkPost, PastMission } from '../../../models';
 import { ShownTestimonial } from '../../../models/testimonial.models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -36,7 +36,7 @@ describe('MemberPageComponent', () => {
 
   function create(read = of(page), tab: string | null = null, recommended = of([] as ShownTestimonial[])): ComponentFixture<MemberPageComponent> {
     network = jasmine.createSpyObj('NetworkService', ['page', 'follow', 'unfollow', 'followers', 'following', 'removeFollower', 'mute',
-      'block', 'memberPosts', 'deletePost', 'saved', 'drafts', 'recommendations', 'recordView', 'pageViews', 'activity', 'mutual', 'onePost', 'memberAbout']);
+      'block', 'memberPosts', 'deletePost', 'saved', 'drafts', 'recommendations', 'recordView', 'pageViews', 'activity', 'mutual', 'onePost', 'memberAbout', 'setOpenToWork']);
     network.memberAbout.and.returnValue(aboutAnswer);
     network.onePost.and.returnValue(pinnedAnswer);
     network.mutual.and.returnValue(mutualFollows);
@@ -252,6 +252,26 @@ describe('MemberPageComponent', () => {
     fixture = create(of({ ...page, own: true }));
     element = fixture.nativeElement;
     expect(element.querySelector('[data-about-edit]')?.getAttribute('href')).toBe('/profile?tab=network');
+  });
+
+  it('says one is open to work in one click from one\'s own page, the badge then on one\'s photo', () => {
+    const fixture = create(of({ ...page, own: true, card: card('camille', { availability: 'ON_MISSION' }) }));
+    const element: HTMLElement = fixture.nativeElement;
+    const toggle = () => element.querySelector('[data-open-to-work-toggle]') as HTMLButtonElement;
+    expect(toggle().getAttribute('aria-pressed')).toBe('false');
+    network.setOpenToWork.and.returnValue(of({ card: card('camille', { availability: 'AVAILABLE', availabilityDate: null }) } as NetworkMembership));
+    toggle().click();
+    fixture.detectChanges();
+    expect(network.setOpenToWork).toHaveBeenCalledWith(true);
+    expect(toggle().getAttribute('aria-pressed')).toBe('true');
+    expect(notifications.success).toHaveBeenCalledWith('network.openToWork.onDone');
+    network.setOpenToWork.and.returnValue(throwError(() => new Error('down')));
+    toggle().click();
+    expect(network.setOpenToWork).toHaveBeenCalledWith(false);
+    expect(notifications.error).toHaveBeenCalledWith('network.page.followError');
+    // Another member's page has no such switch.
+    TestBed.resetTestingModule();
+    expect(create().nativeElement.querySelector('[data-open-to-work-toggle]')).toBeNull();
   });
 
   it('keeps another member\'s page off the saved and drafts tabs', () => {

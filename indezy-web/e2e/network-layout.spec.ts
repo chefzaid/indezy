@@ -550,3 +550,36 @@ test('names a post\'s community in the home feed, asks to join a private communi
   const audit = await new AxeBuilder({ page }).include('app-network-community').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(violation => violation.id)).toEqual([]);
 });
+
+test('says one is open to work in one click, the badge on one\'s photo, and finds those open to work', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await mockWorkspaceSession(page, 'fr');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  let mine = { ...card('camille', 'Camille'), availability: 'ON_MISSION', availabilityDate: '2027-03-31' };
+  await page.route('**/api/network/members/camille/page', route => route.fulfill({ json: { card: mine, followers: 1, following: 1,
+    sharedSkills: [], followed: false, followsYou: false, own: true, muted: false, blocked: false, privateCard: false, requested: false } }));
+  await page.route('**/api/network/members/camille/posts?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  await page.route('**/api/network/membership/open-to-work?**', route => {
+    mine = { ...mine, availability: 'AVAILABLE', availabilityDate: null as unknown as string };
+    return route.fulfill({ json: { joined: true, handle: 'camille', fields, card: mine } });
+  });
+  await page.goto('/m/camille');
+  await expect(page.locator('[data-member-card="camille"] [data-open-to-work]')).toHaveCount(0);
+  await page.locator('[data-open-to-work-toggle]').click();
+  await expect(page.locator('[data-open-to-work-toggle]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-member-card="camille"] [data-open-to-work]')).toHaveText('DISPO');
+
+  const asked: string[] = [];
+  await page.route('**/api/network/members?**', route => {
+    asked.push(new URL(route.request().url()).search);
+    return route.fulfill({ json: { members: [{ ...card('leo_m', 'Léo'), availability: 'AVAILABLE', availabilityDate: null }], total: 1, page: 0,
+      size: 20, followed: [], requested: [], privateCards: [] } });
+  });
+  await page.goto('/network/members');
+  await expect(page.locator('[data-open-to-work]').first()).toBeVisible();
+  await page.locator('[data-directory-now]').click();
+  await expect.poll(() => asked.at(-1)).toContain('now=true');
+  const audit = await new AxeBuilder({ page }).include('app-member-directory').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+});

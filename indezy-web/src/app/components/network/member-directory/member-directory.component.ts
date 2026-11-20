@@ -58,7 +58,8 @@ export class MemberDirectoryComponent implements OnInit {
     skill: '',
     city: '',
     availability: null as Availability | null,
-    remote: null as boolean | null
+    remote: null as boolean | null,
+    now: false
   });
   directory: MemberDirectory | null = null;
   notMember = false;
@@ -196,6 +197,12 @@ export class MemberDirectoryComponent implements OnInit {
   /** Picks an availability chip (null for any) and searches again. */
   pickAvailability(availability: Availability | null): void {
     this.form.controls.availability.setValue(availability);
+    this.search();
+  }
+
+  /** Shows the members **Open to work** alone, or everyone again. */
+  toggleNow(): void {
+    this.form.controls.now.setValue(!this.form.controls.now.value);
     this.search();
   }
 

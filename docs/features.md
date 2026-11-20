@@ -190,7 +190,11 @@ or hidden, and whether the member works remotely. The card's availability is, by
 ("On a mission until March 2027" while one runs, through its last day, with no end said for an open-ended one), else
 the profile's availability date ("Available from 2 December 2026", or now); or it is set by hand: available (from a
 day or now), on a mission (until a day), or **Open to offers**. A coloured ring around the photo tells it at a glance:
-green available, orange on a mission, indigo open to offers. Only members see members' cards
+green available, orange on a mission, indigo open to offers. A member available now (from no later day) wears the
+**Open to work** badge (**DISPO**) on their photo, framed in green, wherever members show (posts, Members, their page,
+the search, the messenger corner); **I am open to work**, on one's own page, says so in one click, and again goes back to
+the availability the won missions tell (`PUT /api/network/membership/open-to-work?on=`). **Open to work now**, in
+Members and the search, finds them alone (`now=true`). Only members see members' cards
 (`GET /api/network/members/<handle>`).
 
 **Verify with my SIRET** shows members they talk to an independent and not to a recruiter posing as one: the public
