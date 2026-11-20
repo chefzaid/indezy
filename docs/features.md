@@ -309,7 +309,10 @@ Its filters narrow them (among the latest 500): a skill or role, a city, a daily
 than a day, at least 2, 3 or 5 remote days a week, and **Hide those in my pipeline** (`skill=`, `city=`, `rate=`,
 `before=`, `remote=`, `hideTaken=true`). When a mission is passed on, the members whose card shows one of the skills it asks
 (and its city, unless it is fully remote) are told, 200 at most, never its author (**A mission matching my card**, turned
-off or emailed in **Profile → Network**).
+off or emailed in **Profile → Network**). After the members' missions, once their list ends, and while the offer feed is
+on, **On the job boards, for your profile** shows the five collected offers matching the reader's profile best (the
+skill filtered, when one is), each marked **Job board · <site>** and opening the offer, which adds it to the pipeline,
+with a link to all of them in **Offers**: the members' missions come first.
 
 A tag's page lists its posts **Newest** or **Most liked** (whatever the reaction) first. **Like** a post, once, or no
 longer; a hover, a long press or the up arrow on **Like** offers the other reactions

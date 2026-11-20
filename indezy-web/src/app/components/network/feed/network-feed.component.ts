@@ -14,10 +14,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MentionsDirective } from '../mentions/mentions.directive';
 
-import { MemberCard, MemberSuggestion, NetworkPost, TrendingTag, isHeld } from '../../../models';
+import { MemberCard, MemberSuggestion, NetworkPost, Offer, TrendingTag, isHeld } from '../../../models';
 import { InViewDirective } from '../../../shared/directives/in-view.directive';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
+import { OfferService } from '../../../services/offer/offer.service';
+import { defaultOfferQuery, offerQueryToParams } from '../../../services/offer/offer-query';
+import { CapabilitiesService } from '../../../services/admin/capabilities.service';
 import { NetworkService } from '../../../services/network/network.service';
 import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { PostKindFieldsComponent } from '../post-kind/post-kind-fields.component';
@@ -40,6 +43,8 @@ const PHONE = '(max-width: 599.98px)';
 /** The home feed (`/network`): writing a post, then the reader's posts and those of the members they follow, newest first. */
 /** The feed's tabs: the members and tags followed, For you, and the missions members pass on (each to add to the pipeline). */
 export type FeedTab = 'following' | 'forYou' | 'missions';
+/** How many job-board offers the Missions tab shows after the members' missions. */
+const BOARD_OFFERS = 5;
 
 @Component({
   selector: 'app-network-feed',
@@ -51,6 +56,8 @@ export type FeedTab = 'following' | 'forYou' | 'missions';
 })
 export class NetworkFeedComponent implements OnInit {
   private readonly network = inject(NetworkService);
+  private readonly offers = inject(OfferService);
+  private readonly capabilities = inject(CapabilitiesService);
   private readonly confidentiality = inject(ConfidentialityGuardService);
   private readonly notifications = inject(NotificationService);
   private readonly confirm = inject(ConfirmDialogService);
@@ -223,6 +230,36 @@ export class NetworkFeedComponent implements OnInit {
   /** Which tab of the feed is shown: the members and tags followed, For you, or the missions members pass on. */
   tab: FeedTab = 'following';
 
+  /** The job boards' offers matching the reader's profile, after the members' missions; none while the offer feed is off. */
+  boardOffers: Offer[] | null = null;
+  /** The offer feed's address for all of them. */
+  boardAll: Record<string, unknown> = {};
+
+  /** The offer feed's best matches for the reader's profile (and the skill filtered), the members' missions coming first. */
+  private loadBoardOffers(): void {
+    if (this.capabilities.snapshot().features.OFFER_FEED !== true) {
+      this.boardOffers = null;
+      return;
+    }
+    const skill = this.missionFilters.controls.skill.value.trim();
+    const query = { ...defaultOfferQuery(), matchesProfile: true, sort: 'MATCH' as const, size: BOARD_OFFERS, skills: skill ? [skill] : [] };
+    this.boardAll = offerQueryToParams({ ...query, size: defaultOfferQuery().size });
+    this.offers.searchQuietly(query).subscribe({
+      next: found => {
+        this.boardOffers = found.content;
+        this.changes.markForCheck();
+      },
+      error: () => this.boardOffers = null
+    });
+  }
+
+  /** The rate range of an offer, in euros a day. */
+  rate(offer: Offer): string {
+    const low = offer.rateMin ?? offer.rateMax;
+    const high = offer.rateMax ?? offer.rateMin;
+    return low === high ? `${low} €` : `${low}–${high} €`;
+  }
+
   /** Shows another tab, from its first page. */
   show(tab: FeedTab): void {
     if (tab === this.tab) {
@@ -264,6 +301,9 @@ export class NetworkFeedComponent implements OnInit {
 
   load(page: number): void {
     this.loadingMore = page > 0;
+    if (this.tab === 'missions' && page === 0) {
+      this.loadBoardOffers();
+    }
     (this.tab === 'forYou' ? this.network.forYou(page) : this.tab === 'missions' ? this.network.missions(page, this.missionFilters.getRawValue()) : this.network.feed(page)).subscribe({
       next: found => {
         this.posts = page === 0 ? found.posts : [...this.posts, ...found.posts];

@@ -3509,7 +3509,11 @@
       "newPost": "New post",
       "missions": "Missions",
       "missionsHint": "The missions members pass on, from the whole network: add those you like to your pipeline.",
-      "missionsNone": "No mission passed on yet."
+      "missionsNone": "No mission passed on yet.",
+      "boardTitle": "On the job boards, for your profile",
+      "boardHint": "The collected offers matching your profile best, after the members’ missions.",
+      "boardSource": "Job board · {{site}}",
+      "boardAll": "All matching offers"
     },
     "post": {
       "actions": "Actions on the post",

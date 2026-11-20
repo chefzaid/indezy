@@ -162,3 +162,28 @@ test('hides a For you post the reader is not interested in, and brings it back o
   await expect(page.locator('[data-post="2"]')).toBeVisible();
   expect(calls).toEqual(['PUT', 'DELETE']);
 });
+
+test('shows the job boards\' offers matching the profile after the members\' missions', async ({ page }) => {
+  await mockWorkspaceSession(page, 'fr');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false,
+    features: { SOCIAL_NETWORK: true, OFFER_FEED: true } } }));
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  await page.route('**/api/network/feed/missions?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  const asked: string[] = [];
+  await page.route('**/api/offers?**', route => {
+    asked.push(route.request().url());
+    return route.fulfill({ json: { content: [{ id: 42, title: 'Lead Kafka', siteName: 'Free-Work', rateMin: 650, rateMax: 700,
+      city: 'Lyon' }], totalElements: 1, totalPages: 1, page: 0, size: 5, hasMore: false, capped: false } });
+  });
+
+  await page.goto('/network');
+  await page.locator('[data-feed-tab-missions]').click();
+  const board = page.locator('[data-feed-board]');
+  await expect(board).toContainText('Sur les job boards, pour votre profil');
+  await expect(board.locator('[data-feed-board-offer="42"]')).toContainText('Job board · Free-Work');
+  expect(asked.some(url => url.includes('matchesProfile=true'))).toBe(true);
+  const audit = await new AxeBuilder({ page }).include('[data-feed-board]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  await board.locator('[data-feed-board-offer="42"]').click();
+  await expect(page).toHaveURL(/\/offers\/42$/);
+});

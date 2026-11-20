@@ -5,7 +5,8 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, of, throwError } from 'rxjs';
 
-import { MemberPage, MemberSuggestion, NetworkPost, NetworkPosts } from '../../../models';
+import { MemberPage, MemberSuggestion, NetworkPost, NetworkPosts, Offer, OfferPage } from '../../../models';
+import { OfferService } from '../../../services/offer/offer.service';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -304,6 +305,31 @@ describe('NetworkFeedComponent', () => {
     component.posts = [];
     fixture.detectChanges();
     expect(element.textContent).toContain(en.network.feed.missionsNone);
+  });
+
+  it('shows the job boards\' offers matching the profile after the members\' missions, the skill filtered', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const offers = TestBed.inject(OfferService);
+    const offer = { id: 42, title: 'Lead Kafka', siteName: 'Free-Work', rateMin: 650, rateMax: 700, city: 'Lyon' } as Offer;
+    const search = spyOn(offers, 'searchQuietly').and.returnValue(of({ content: [offer], totalElements: 1 } as OfferPage));
+    network.missions.and.returnValue(of({ posts: [{ ...post(5), kind: 'MISSION' as const }], page: 0, more: true }));
+    component.show('missions');
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(search).toHaveBeenCalledWith(jasmine.objectContaining({ matchesProfile: true, sort: 'MATCH', size: 5, skills: [] }));
+    // The members' missions come first: the job boards wait for their end.
+    expect(element.querySelector('[data-feed-board]')).toBeNull();
+    network.missions.and.returnValue(of({ posts: [], page: 1, more: false }));
+    component.loadMore();
+    fixture.detectChanges();
+    const board = element.querySelector('[data-feed-board]') as HTMLElement;
+    expect(board.querySelector('[data-feed-board-offer="42"]')?.getAttribute('href')).toBe('/offers/42');
+    expect(board.textContent).toContain('Job board · Free-Work');
+    expect(board.textContent).toContain('650–700 €');
+    component.missionFilters.patchValue({ skill: 'Kafka' });
+    component.filterMissions();
+    expect(search).toHaveBeenCalledWith(jasmine.objectContaining({ skills: ['Kafka'] }));
   });
 
   it('narrows the missions with filters, read again from their first page', () => {

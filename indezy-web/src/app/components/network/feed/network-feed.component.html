@@ -135,6 +135,31 @@
               (reposted)="posts = [$event].concat(posts)"></app-post-card></li>
           }
         </ul>
+        @if (tab === 'missions' && !more && boardOffers?.length) {
+          <section class="card board" [attr.aria-labelledby]="'board-title'" data-feed-board>
+            <h2 id="board-title"><mat-icon aria-hidden="true">travel_explore</mat-icon>{{ 'network.feed.boardTitle' | translate }}</h2>
+            <p class="board-hint">{{ 'network.feed.boardHint' | translate }}</p>
+            <ul class="board-offers">
+              @for (offer of boardOffers; track offer.id) {
+                <li>
+                  <a [routerLink]="['/offers', offer.id]" [attr.data-feed-board-offer]="offer.id">
+                    <span class="title">{{ offer.title }}</span>
+                    <span class="facts">
+                      <span class="source">{{ 'network.feed.boardSource' | translate: { site: offer.siteName } }}</span>
+                      @if (offer.rateMin || offer.rateMax) {
+                        <span>{{ rate(offer) }}</span>
+                      }
+                      @if (offer.city) {
+                        <span>{{ offer.city }}</span>
+                      }
+                    </span>
+                  </a>
+                </li>
+              }
+            </ul>
+            <a class="board-all" routerLink="/offers" [queryParams]="boardAll" data-feed-board-all>{{ 'network.feed.boardAll' | translate }}</a>
+          </section>
+        }
         @if (more) {
           <div class="more-zone" (appInView)="loadMore()">
             @if (loadingMore) {
