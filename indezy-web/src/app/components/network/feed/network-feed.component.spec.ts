@@ -294,16 +294,40 @@ describe('NetworkFeedComponent', () => {
     network.missions.and.returnValue(of({ posts: [{ ...post(5), kind: 'MISSION' as const }], page: 0, more: true }));
     (element.querySelector('[data-feed-tab-missions]') as HTMLButtonElement).click();
     fixture.detectChanges();
-    expect(network.missions).toHaveBeenCalledWith(0);
+    expect(network.missions).toHaveBeenCalledWith(0, { skill: '', city: '', remote: null, rate: null, before: '', hideTaken: false });
     expect(component.posts.map(found => found.id)).toEqual([5]);
     expect(element.querySelector('[data-feed-tab-missions]')?.getAttribute('aria-selected')).toBe('true');
     expect(element.querySelector('[data-feed-missions-hint]')).not.toBeNull();
     network.missions.and.returnValue(of({ posts: [], page: 1, more: false }));
     component.loadMore();
-    expect(network.missions).toHaveBeenCalledWith(1);
+    expect(network.missions).toHaveBeenCalledWith(1, jasmine.anything());
     component.posts = [];
     fixture.detectChanges();
     expect(element.textContent).toContain(en.network.feed.missionsNone);
+  });
+
+  it('narrows the missions with filters, read again from their first page', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    network.missions.and.returnValue(of({ posts: [], page: 0, more: false }));
+    component.show('missions');
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    component.missionFilters.patchValue({ skill: 'Kafka', city: 'Lyon', rate: 600, before: '2027-01-31' });
+    component.filterMissions();
+    expect(network.missions).toHaveBeenCalledWith(0, { skill: 'Kafka', city: 'Lyon', remote: null, rate: 600, before: '2027-01-31',
+      hideTaken: false });
+    (element.querySelector('[data-mission-filter-remote="3"]') as HTMLButtonElement).click();
+    expect(component.missionFilters.value.remote).toBe(3);
+    component.pickRemote(3);
+    expect(component.missionFilters.value.remote).toBeNull();
+    (element.querySelector('[data-mission-filter-hide-taken]') as HTMLButtonElement).click();
+    expect(network.missions).toHaveBeenCalledWith(0, jasmine.objectContaining({ hideTaken: true }));
+    fixture.detectChanges();
+    expect(component.filteringMissions).toBeTrue();
+    (element.querySelector('[data-mission-filter-clear]') as HTMLButtonElement).click();
+    expect(component.filteringMissions).toBeFalse();
+    expect(network.missions).toHaveBeenCalledWith(0, { skill: '', city: '', remote: null, rate: null, before: '', hideTaken: false });
   });
 
   it('says why each member is suggested, opens the time to publish on its own, and shows the reader\'s avatar', () => {

@@ -87,6 +87,26 @@
       </div>
       @if (tab === 'missions') {
         <p class="tab-hint" data-feed-missions-hint>{{ 'network.feed.missionsHint' | translate }}</p>
+        <form class="mission-filters" [formGroup]="missionFilters" (submit)="$event.preventDefault(); filterMissions()"
+          [attr.aria-label]="'network.missionFilters.label' | translate" data-mission-filters>
+          <input formControlName="skill" maxlength="60" [placeholder]="'network.missionFilters.skill' | translate"
+            [attr.aria-label]="'network.missionFilters.skill' | translate" (change)="filterMissions()" data-mission-filter-skill>
+          <input formControlName="city" maxlength="60" [placeholder]="'network.missionFilters.city' | translate"
+            [attr.aria-label]="'network.missionFilters.city' | translate" (change)="filterMissions()" data-mission-filter-city>
+          <input formControlName="rate" type="number" min="0" max="5000" [placeholder]="'network.missionFilters.rate' | translate"
+            [attr.aria-label]="'network.missionFilters.rate' | translate" (change)="filterMissions()" data-mission-filter-rate>
+          <label class="before"><span>{{ 'network.missionFilters.before' | translate }}</span>
+            <input formControlName="before" type="date" (change)="filterMissions()" data-mission-filter-before></label>
+          @for (days of remoteChoices; track days) {
+            <button type="button" class="chip" [class.on]="missionFilters.value.remote === days" [attr.aria-pressed]="missionFilters.value.remote === days"
+              (click)="pickRemote(days)" [attr.data-mission-filter-remote]="days">{{ 'network.missionFilters.remote' | translate: { days: days } }}</button>
+          }
+          <button type="button" class="chip" [class.on]="missionFilters.value.hideTaken" [attr.aria-pressed]="!!missionFilters.value.hideTaken"
+            (click)="toggleHideTaken()" data-mission-filter-hide-taken>{{ 'network.missionFilters.hideTaken' | translate }}</button>
+          @if (filteringMissions) {
+            <button type="button" class="clear" (click)="clearMissionFilters()" data-mission-filter-clear>{{ 'network.search.clearFilters' | translate }}</button>
+          }
+        </form>
       }
 
       @if (loading) {

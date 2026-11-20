@@ -300,6 +300,11 @@ whole divided by 1 plus a third of the post's age in days. **Missions**, the thi
 every **Mission to pass on** the reader can read, from all members and not only those followed (but their own, and those
 of members muted, blocked either way or away from the network), the newest first, 20 at a time
 (`GET /api/network/feed/missions`); each card has **Add to my pipeline**, which turns it into an opportunity (below).
+Its filters narrow them (among the latest 500): a skill or role, a city, a daily rate the mission reaches, a start no later
+than a day, at least 2, 3 or 5 remote days a week, and **Hide those in my pipeline** (`skill=`, `city=`, `rate=`,
+`before=`, `remote=`, `hideTaken=true`). When a mission is passed on, the members whose card shows one of the skills it asks
+(and its city, unless it is fully remote) are told, 200 at most, never its author (**A mission matching my card**, turned
+off or emailed in **Profile → Network**).
 
 A tag's page lists its posts **Newest** or **Most liked** (whatever the reaction) first. **Like** a post, once, or no
 longer; a hover, a long press or the up arrow on **Like** offers the other reactions

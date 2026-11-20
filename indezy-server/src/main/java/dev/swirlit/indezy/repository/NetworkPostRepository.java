@@ -110,4 +110,7 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
     @Modifying
     @Query("update NetworkPost p set p.communityId = null where p.communityId = :communityId")
     int clearCommunity(@Param("communityId") Long communityId);
+
+    /** The latest 500 posts of a kind (the missions passed on) but the excluded authors', the newest first, to filter. */
+    List<NetworkPost> findTop500ByKindAndAuthorIdNotInOrderByCreatedAtDescIdDesc(NetworkPostKind kind, Collection<Long> excluded);
 }

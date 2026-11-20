@@ -27,4 +27,6 @@ public interface NetworkMissionTakeRepository extends JpaRepository<NetworkMissi
     @Query("select count(t) from NetworkMissionTake t where t.createdAt >= :since and t.postId in " +
         "(select p.id from NetworkPost p where p.authorId = :authorId)")
     long takenSince(@Param("authorId") Long authorId, @Param("since") LocalDateTime since);
+
+    List<NetworkMissionTake> findByUserId(Long userId);
 }

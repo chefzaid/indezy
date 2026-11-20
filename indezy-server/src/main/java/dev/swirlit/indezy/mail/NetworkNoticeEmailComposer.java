@@ -96,6 +96,7 @@ public class NetworkNoticeEmailComposer {
             case COMMUNITY_REQUEST -> "asked to join a community you moderate";
             case COMMUNITY_ACCEPTED -> "let you into a community";
             case COMMUNITY_MODERATOR -> "made you a moderator of a community";
+            case MISSION_MATCH -> "passed on a mission matching your card";
             default -> "did something";
         };
     }
@@ -116,6 +117,7 @@ public class NetworkNoticeEmailComposer {
             case COMMUNITY_REQUEST -> many ? "demandent à rejoindre une communauté que vous modérez" : "demande à rejoindre une communauté que vous modérez";
             case COMMUNITY_ACCEPTED -> many ? "vous ont accepté dans une communauté" : "vous a accepté dans une communauté";
             case COMMUNITY_MODERATOR -> many ? "vous ont nommé modérateur d’une communauté" : "vous a nommé modérateur d’une communauté";
+            case MISSION_MATCH -> many ? "ont transmis des missions qui correspondent à votre carte" : "a transmis une mission qui correspond à votre carte";
             default -> many ? "ont agi" : "a agi";
         };
     }

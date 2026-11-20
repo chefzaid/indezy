@@ -583,3 +583,28 @@ test('says one is open to work in one click, the badge on one\'s photo, and find
   const audit = await new AxeBuilder({ page }).include('app-member-directory').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(violation => violation.id)).toEqual([]);
 });
+
+test('narrows the Missions tab with its filters', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await mockWorkspaceSession(page, 'fr');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  const asked: string[] = [];
+  await page.route('**/api/network/feed/missions?**', route => {
+    asked.push(new URL(route.request().url()).search);
+    return route.fulfill({ json: { posts: [], page: 0, more: false } });
+  });
+  await page.goto('/network');
+  await page.locator('[data-feed-tab-missions]').click();
+  await page.locator('[data-mission-filter-skill]').fill('Kafka');
+  await page.locator('[data-mission-filter-skill]').press('Enter');
+  await expect.poll(() => asked.at(-1)).toContain('skill=Kafka');
+  await page.locator('[data-mission-filter-remote="3"]').click();
+  await page.locator('[data-mission-filter-hide-taken]').click();
+  await expect.poll(() => asked.at(-1)).toMatch(/remote=3.*hideTaken=true/);
+  const audit = await new AxeBuilder({ page }).include('[data-mission-filters]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  await page.locator('[data-mission-filter-clear]').click();
+  await expect.poll(() => asked.at(-1)).toBe('?page=0');
+});

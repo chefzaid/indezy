@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -298,8 +299,12 @@ public class NetworkPostController {
 
     @Operation(summary = "The missions members pass on, from every member the viewer can read but themselves, the newest first, 20 a page")
     @GetMapping("/feed/missions")
-    public NetworkDtos.Posts missions(@RequestParam(defaultValue = "0") int page) {
-        return feed.missions(SecurityUtils.getCurrentUserId(), page);
+    public NetworkDtos.Posts missions(@RequestParam(defaultValue = "0") int page, @RequestParam(required = false) String skill,
+                                      @RequestParam(required = false) String city, @RequestParam(required = false) Integer remote,
+                                      @RequestParam(required = false) Integer rate, @RequestParam(required = false) LocalDate before,
+                                      @RequestParam(defaultValue = "false") boolean hideTaken) {
+        return feed.missions(SecurityUtils.getCurrentUserId(), page, new NetworkFeedService.MissionFilters(skill, city, remote, rate, before,
+            hideTaken));
     }
 
     @Operation(summary = "The home feed: the viewer's posts, those of the members and tags they follow, the newest first, 20 a page")

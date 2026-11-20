@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Elem
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { A11yModule } from '@angular/cdk/a11y';
 import { interval } from 'rxjs';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -168,6 +168,38 @@ export class NetworkFeedComponent implements OnInit {
     });
   }
 
+  /** The **Missions** tab's filters; changed, the tab is read again from its first page. */
+  readonly missionFilters = inject(FormBuilder).nonNullable.group({
+    skill: '', city: '', remote: null as number | null, rate: null as number | null, before: '', hideTaken: false
+  });
+  readonly remoteChoices = [2, 3, 5];
+
+  /** Reads the missions again with the filters chosen. */
+  filterMissions(): void {
+    this.load(0);
+  }
+
+  /** Picks a minimum of remote days (again to drop it). */
+  pickRemote(days: number): void {
+    this.missionFilters.controls.remote.setValue(this.missionFilters.controls.remote.value === days ? null : days);
+    this.filterMissions();
+  }
+
+  toggleHideTaken(): void {
+    this.missionFilters.controls.hideTaken.setValue(!this.missionFilters.controls.hideTaken.value);
+    this.filterMissions();
+  }
+
+  clearMissionFilters(): void {
+    this.missionFilters.reset();
+    this.filterMissions();
+  }
+
+  get filteringMissions(): boolean {
+    const value = this.missionFilters.getRawValue();
+    return !!(value.skill || value.city || value.remote || value.rate || value.before || value.hideTaken);
+  }
+
   /** Which tab of the feed is shown: the members and tags followed, For you, or the missions members pass on. */
   tab: FeedTab = 'following';
 
@@ -212,7 +244,7 @@ export class NetworkFeedComponent implements OnInit {
 
   load(page: number): void {
     this.loadingMore = page > 0;
-    (this.tab === 'forYou' ? this.network.forYou(page) : this.tab === 'missions' ? this.network.missions(page) : this.network.feed(page)).subscribe({
+    (this.tab === 'forYou' ? this.network.forYou(page) : this.tab === 'missions' ? this.network.missions(page, this.missionFilters.getRawValue()) : this.network.feed(page)).subscribe({
       next: found => {
         this.posts = page === 0 ? found.posts : [...this.posts, ...found.posts];
         this.page = found.page;

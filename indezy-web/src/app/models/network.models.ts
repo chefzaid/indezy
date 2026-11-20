@@ -201,6 +201,17 @@ export interface TrendingTag {
   posts: number;
 }
 
+/** The filters of the **Missions** tab: a skill, a city, remote days at least, a rate reached, a start no later than a day. */
+export interface MissionFilters {
+  skill?: string | null;
+  city?: string | null;
+  remote?: number | null;
+  rate?: number | null;
+  before?: string | null;
+  /** The missions already in the reader's pipeline left out. */
+  hideTaken?: boolean;
+}
+
 /** The filters of the search for members. */
 export interface MemberSearchFilters {
   city?: string | null;
@@ -286,7 +297,7 @@ export interface MemberSuggestion {
 
 /** What a network notification tells. */
 export type NetworkNotificationType = 'FOLLOW' | 'FOLLOW_REQUEST' | 'FOLLOW_ACCEPTED' | 'LIKE' | 'COMMENT_LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
-  'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED' | 'COMMUNITY_POST' | 'COMMUNITY_REQUEST' | 'COMMUNITY_ACCEPTED' | 'COMMUNITY_MODERATOR';
+  'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED' | 'COMMUNITY_POST' | 'COMMUNITY_REQUEST' | 'COMMUNITY_ACCEPTED' | 'COMMUNITY_MODERATOR' | 'MISSION_MATCH';
 
 /** A community's activity: a post in it, a request to join, an answer, being named a moderator. */
 export const COMMUNITY_NOTICES: readonly NetworkNotificationType[] = ['COMMUNITY_POST', 'COMMUNITY_REQUEST', 'COMMUNITY_ACCEPTED',

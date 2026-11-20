@@ -39,17 +39,24 @@ describe('NetworkService', () => {
     expect(filtered.request.params.getAll('kind')).toEqual(['MISSION', 'POLL']);
     expect(filtered.request.params.get('days')).toBe('7');
     expect(filtered.request.params.get('followed')).toBe('true');
+    service.missions(1, { skill: 'Kafka', city: '', remote: 3, rate: null, before: '2027-01-31', hideTaken: true }).subscribe();
+    const narrowed = http.expectOne(call => call.url.endsWith('/network/feed/missions'));
+    expect(narrowed.request.params.get('skill')).toBe('Kafka');
+    expect(narrowed.request.params.has('city')).toBeFalse();
+    expect(narrowed.request.params.get('remote')).toBe('3');
+    expect(narrowed.request.params.get('before')).toBe('2027-01-31');
+    expect(narrowed.request.params.get('hideTaken')).toBe('true');
     service.setOpenToWork(true).subscribe();
     expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/membership/open-to-work')).request.params.get('on'))
       .toBe('true');
     service.directory({ now: true }).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/members')).request.params.get('now')).toBe('true');
     service.searchMembers('kafka', 0, { city: 'Lyon', availability: 'LISTENING', remote: true, now: true }).subscribe();
-    const narrowed = http.expectOne(call => call.url.endsWith('/network/search/members'));
-    expect(narrowed.request.params.get('city')).toBe('Lyon');
-    expect(narrowed.request.params.get('availability')).toBe('LISTENING');
-    expect(narrowed.request.params.get('remote')).toBe('true');
-    expect(narrowed.request.params.get('now')).toBe('true');
+    const narrowedMembers = http.expectOne(call => call.url.endsWith('/network/search/members'));
+    expect(narrowedMembers.request.params.get('city')).toBe('Lyon');
+    expect(narrowedMembers.request.params.get('availability')).toBe('LISTENING');
+    expect(narrowedMembers.request.params.get('remote')).toBe('true');
+    expect(narrowedMembers.request.params.get('now')).toBe('true');
     http.verify();
   });
 

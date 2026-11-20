@@ -57,12 +57,62 @@ class NetworkMissionsFeedIntegrationTest extends TwoAccountsIntegrationTest {
         Object kafka = mission(alice, "Lead Kafka");
         call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Un simple message"), Map.class);
         Object angular = mission(carol, "Lead Angular");
-        mission(bob, "Son propre poste");
+        Object own = mission(bob, "Son propre poste");
 
-        // Bob follows nobody: the missions of every member reach him, the newest first, but his own.
-        assertThat(missions(bob)).containsExactly(angular, kafka);
+        // Bob follows nobody: the missions of every member reach him, the newest first, but his own (other tests' too).
+        assertThat(missions(bob)).containsSubsequence(angular, kafka).doesNotContain(own);
         call(bob, HttpMethod.PUT, "/network/members/" + carolHandle + "/mute", null, Map.class);
-        assertThat(missions(bob)).containsExactly(kafka);
+        assertThat(missions(bob)).contains(kafka).doesNotContain(angular, own);
         assertThat(aliceHandle).isNotBlank();
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object> missions(Account reader, String query) {
+        Map<String, Object> page = call(reader, HttpMethod.GET, "/network/feed/missions?" + query, null, Map.class).getBody();
+        return ((List<Map<String, Object>>) page.get("posts")).stream().map(post -> post.get("id")).toList();
+    }
+
+    private String joinWith(Account account, String city, List<String> skills) {
+        Map<String, Object> profile = call(account, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        profile.put("city", city);
+        profile.put("skills", skills);
+        call(account, HttpMethod.PUT, "/users/profile", profile, Map.class);
+        return join(account);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object> told(Account reader) {
+        return ((List<Map<String, Object>>) call(reader, HttpMethod.GET, "/network/notifications", null, List.class).getBody()).stream()
+            .filter(group -> "MISSION_MATCH".equals(group.get("type"))).map(group -> group.get("postId")).toList();
+    }
+
+    @Test
+    void narrowsTheMissionsAndTellsTheMembersTheyMatch() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        String skill = "Skill" + UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+        joinWith(alice, "Lyon", List.of("Java"));
+        joinWith(bob, "Lyon", List.of(skill, "Java"));
+        Account carol = register("carol");
+        joinWith(carol, "Brest", List.of(skill));
+        Object lyon = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Mission à Lyon", "kind", "MISSION", "details",
+            Map.of("role", "Lead " + skill, "rateMin", 600, "rateMax", 700, "city", "Lyon", "remoteDays", 2, "start", "2027-01-04",
+                "stack", List.of(skill))), Map.class).getBody().get("id");
+        Object remote = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Mission à distance", "kind", "MISSION", "details",
+            Map.of("role", "Dev " + skill, "rateMin", 450, "rateMax", 500, "city", "Paris", "remoteDays", 5, "stack", List.of(skill))), Map.class)
+            .getBody().get("id");
+
+        // Filters: a skill, a city, remote days, a rate reached, a start, and the missions already taken.
+        assertThat(missions(bob, "skill=" + skill.toLowerCase())).containsExactly(remote, lyon);
+        assertThat(missions(bob, "skill=" + skill + "&city=lyon")).containsExactly(lyon);
+        assertThat(missions(bob, "skill=" + skill + "&remote=3")).containsExactly(remote);
+        assertThat(missions(bob, "skill=" + skill + "&rate=650")).containsExactly(lyon);
+        assertThat(missions(bob, "skill=" + skill + "&before=2026-12-31")).containsExactly(remote);
+        call(bob, HttpMethod.POST, "/network/posts/" + lyon + "/pipeline?named=false", null, Map.class);
+        assertThat(missions(bob, "skill=" + skill + "&hideTaken=true")).containsExactly(remote);
+
+        // Alerts: a skill the card shows, and the city unless fully remote.
+        assertThat(told(bob)).contains(lyon, remote);
+        assertThat(told(carol)).contains(remote).doesNotContain(lyon);
+        assertThat(told(alice)).isEmpty();
     }
 }

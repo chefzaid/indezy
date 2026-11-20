@@ -94,6 +94,7 @@ public class NetworkPostService {
     private final NetworkCommunityRepository communities;
     private final NetworkCommunityMemberRepository communityMembers;
     private final AdminService admin;
+    private final NetworkMissionAlerts missionAlerts;
     private final NetworkTagFollowRepository tagFollows;
     private final Clock clock;
     private final NetworkLimits limits;
@@ -145,6 +146,9 @@ public class NetworkPostService {
         files.attachToPost(userId, attached, post.getId());
         previews.refresh(post);
         notices.mentions(post.getText(), userId, post.getId());
+        if (kind == NetworkPostKind.MISSION) {
+            missionAlerts.published(post);
+        }
         log.info("Member {} posted {}", userId, post.getId());
         return toDto(post, network.card(author), userId, List.of(), new Seen(0, false, null, 0, polls.views(List.of(post), userId)
             .get(post.getId()), missionTakes.views(List.of(post), userId).get(post.getId()),

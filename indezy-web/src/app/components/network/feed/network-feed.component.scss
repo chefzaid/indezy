@@ -497,3 +497,63 @@
   color: var(--app-text-muted);
   font-size: 0.875rem;
 }
+
+// The **Missions** tab's filters: fields and chips on one wrapping row.
+.mission-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+
+  input {
+    width: 130px;
+    padding: 5px 12px;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: 0.8125rem;
+  }
+
+  .before {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--app-text-muted);
+    font-size: 0.8125rem;
+
+    input {
+      width: 140px;
+    }
+  }
+
+  .chip {
+    padding: 4px 12px;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: 0.8125rem;
+    cursor: pointer;
+
+    &.on {
+      border-color: transparent;
+      background: var(--app-selected-bg);
+      color: var(--app-link);
+      font-weight: 600;
+    }
+  }
+
+  .clear {
+    border: 0;
+    background: none;
+    color: var(--app-link);
+    font: inherit;
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}

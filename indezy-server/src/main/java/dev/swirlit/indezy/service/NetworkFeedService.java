@@ -8,16 +8,19 @@ import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
 import dev.swirlit.indezy.repository.NetworkCommunityMemberRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
+import dev.swirlit.indezy.repository.NetworkMissionTakeRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
 import dev.swirlit.indezy.repository.NetworkTagFollowRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * What the network's home reads (see docs/features.md#member-network): the home feed, whether newer posts reached it,
@@ -56,6 +60,7 @@ public class NetworkFeedService {
     private final NetworkRestrictionRepository restrictions;
     private final NetworkTagFollowRepository tagFollows;
     private final NetworkCommunityMemberRepository communityMembers;
+    private final NetworkMissionTakeRepository takes;
     private final Clock clock;
 
     /** Where the home feed's posts come from; a value no row holds stands in for an empty list, not valid everywhere. */
@@ -80,11 +85,58 @@ public class NetworkFeedService {
      */
     @Transactional(readOnly = true)
     public NetworkDtos.Posts missions(Long userId, int page) {
+        return missions(userId, page, MissionFilters.NONE);
+    }
+
+    /**
+     * The filters of the **Missions** tab: a skill the mission asks, its city, at least so many remote days a week, a daily
+     * rate it reaches, a start no later than a day, and the missions already in the reader's pipeline left out.
+     */
+    public record MissionFilters(String skill, String city, Integer remoteDays, Integer rate, LocalDate startBy, boolean hideTaken) {
+
+        public static final MissionFilters NONE = new MissionFilters(null, null, null, null, null, false);
+
+        boolean none() {
+            return equals(NONE) || (blank(skill) && blank(city) && remoteDays == null && rate == null && startBy == null && !hideTaken);
+        }
+
+        private static boolean blank(String text) {
+            return text == null || text.isBlank();
+        }
+    }
+
+    /** The **Missions** tab narrowed by its filters, among the latest 500 missions passed on. */
+    @Transactional(readOnly = true)
+    public NetworkDtos.Posts missions(Long userId, int page, MissionFilters filters) {
         network.requireMember(userId);
         Set<Long> left = excluded(userId);
         left.add(userId);
-        return postService.page(posts.ofKind(NetworkPostKind.MISSION, List.copyOf(left), PageRequest.of(Math.max(0, page),
-            NetworkPostService.PAGE_SIZE)), userId);
+        PageRequest asked = PageRequest.of(Math.max(0, page), NetworkPostService.PAGE_SIZE);
+        if (filters.none()) {
+            return postService.page(posts.ofKind(NetworkPostKind.MISSION, List.copyOf(left), asked), userId);
+        }
+        Set<Long> taken = filters.hideTaken() ? takes.findByUserId(userId).stream().map(take -> take.getPostId()).collect(Collectors.toSet()) : Set.of();
+        List<NetworkPost> found = posts.findTop500ByKindAndAuthorIdNotInOrderByCreatedAtDescIdDesc(NetworkPostKind.MISSION, List.copyOf(left))
+            .stream().filter(post -> !taken.contains(post.getId()) && matches(post, filters)).toList();
+        int from = (int) Math.min(found.size(), asked.getOffset());
+        List<NetworkPost> shown = found.subList(from, Math.min(found.size(), from + asked.getPageSize()));
+        return postService.page(new PageImpl<>(shown, asked, found.size()), userId);
+    }
+
+    private static boolean matches(NetworkPost post, MissionFilters filters) {
+        NetworkDtos.PostDetails details = NetworkPostKinds.toDto(post.getDetails());
+        if (details == null) {
+            return false;
+        }
+        String skill = NetworkPost.fold(filters.skill());
+        String city = NetworkPost.fold(filters.city());
+        return (skill == null || skill.isEmpty() || details.stack().stream().anyMatch(name -> NetworkPost.fold(name).startsWith(skill)) ||
+                NetworkPost.fold(details.role()).contains(skill)) &&
+            (city == null || city.isEmpty() || details.city() != null && NetworkPost.fold(details.city()).contains(city)) &&
+            (filters.remoteDays() == null || details.remoteDays() != null && details.remoteDays() >= filters.remoteDays()) &&
+            (filters.rate() == null || details.rateMax() != null && details.rateMax() >= filters.rate() ||
+                details.rateMax() == null && details.rateMin() != null && details.rateMin() >= filters.rate()) &&
+            (filters.startBy() == null || details.start() == null || !details.start().isAfter(filters.startBy()));
     }
 
     /** The filters of the search for posts: kinds (none for every kind), the last days (none for any time), the members followed only. */

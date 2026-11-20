@@ -22,7 +22,7 @@ import { NetworkSideComponent } from '../side/network-side.component';
 export const NOTICE_ICONS: Record<NetworkNotificationType, string> = {
   FOLLOW: 'person_add', FOLLOW_REQUEST: 'person_search', FOLLOW_ACCEPTED: 'how_to_reg', LIKE: 'favorite', COMMENT_LIKE: 'favorite', COMMENT: 'chat_bubble', REPLY: 'reply', MENTION: 'alternate_email', REPOST: 'repeat',
   WARNED: 'report', CONTENT_REMOVED: 'delete', SUSPENDED: 'timer_off', REPORT_ACTED: 'gavel', REPORT_DISMISSED: 'flag',
-  COMMUNITY_POST: 'diversity_3', COMMUNITY_REQUEST: 'group_add', COMMUNITY_ACCEPTED: 'how_to_reg', COMMUNITY_MODERATOR: 'shield_person'
+  COMMUNITY_POST: 'diversity_3', COMMUNITY_REQUEST: 'group_add', COMMUNITY_ACCEPTED: 'how_to_reg', COMMUNITY_MODERATOR: 'shield_person', MISSION_MATCH: 'work'
 };
 
 /** The filters of the notifications, as on LinkedIn: all, the unread, and by what happened. */

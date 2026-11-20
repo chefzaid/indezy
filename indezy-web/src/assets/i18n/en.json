@@ -1504,7 +1504,8 @@
         "COMMUNITY_POST": "A post in one of my communities",
         "COMMUNITY_REQUEST": "A request to join a community I moderate",
         "COMMUNITY_ACCEPTED": "Being let into a private community",
-        "COMMUNITY_MODERATOR": "Being named a community moderator"
+        "COMMUNITY_MODERATOR": "Being named a community moderator",
+        "MISSION_MATCH": "A mission passed on that matches my card"
       },
       "banned": "The moderators ended this account’s membership: it cannot join again.",
       "privateTitle": "Private card",
@@ -3611,7 +3612,8 @@
         "COMMUNITY_POST": "posted in one of your communities",
         "COMMUNITY_REQUEST": "asks to join a community you moderate",
         "COMMUNITY_ACCEPTED": "let you into a community",
-        "COMMUNITY_MODERATOR": "made you a moderator of a community"
+        "COMMUNITY_MODERATOR": "made you a moderator of a community",
+        "MISSION_MATCH": "passed on a mission matching your card"
       },
       "typesMany": {
         "FOLLOW": "started following you",
@@ -3626,7 +3628,8 @@
         "COMMUNITY_POST": "posted in one of your communities",
         "COMMUNITY_REQUEST": "ask to join a community you moderate",
         "COMMUNITY_ACCEPTED": "let you into a community",
-        "COMMUNITY_MODERATOR": "made you a moderator of a community"
+        "COMMUNITY_MODERATOR": "made you a moderator of a community",
+        "MISSION_MATCH": "passed on missions matching your card"
       },
       "moderation": {
         "WARNED": "The moderators warned you about a post, a comment or your conduct in the network.",
@@ -4126,6 +4129,15 @@
       "off": "I am open to work",
       "onDone": "Your card says you are open to work: members see the badge on your photo.",
       "offDone": "Your card tells your availability from your missions again."
+    },
+    "missionFilters": {
+      "label": "Narrow the missions",
+      "skill": "Skill or role",
+      "city": "City",
+      "rate": "Rate ≥ (€/day)",
+      "before": "Starting by",
+      "remote": "{{days}}+ days remote",
+      "hideTaken": "Hide those in my pipeline"
     }
   }
 }

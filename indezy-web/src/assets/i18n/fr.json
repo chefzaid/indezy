@@ -1504,7 +1504,8 @@
         "COMMUNITY_POST": "Une publication dans une de mes communautés",
         "COMMUNITY_REQUEST": "Une demande pour rejoindre une communauté que je modère",
         "COMMUNITY_ACCEPTED": "Être accepté dans une communauté privée",
-        "COMMUNITY_MODERATOR": "Être nommé modérateur d’une communauté"
+        "COMMUNITY_MODERATOR": "Être nommé modérateur d’une communauté",
+        "MISSION_MATCH": "Une mission transmise qui correspond à ma carte"
       },
       "banned": "Les modérateurs ont mis fin à l’adhésion de ce compte : il ne peut plus rejoindre le réseau.",
       "privateTitle": "Carte privée",
@@ -3611,7 +3612,8 @@
         "COMMUNITY_POST": "a publié dans une de vos communautés",
         "COMMUNITY_REQUEST": "demande à rejoindre une communauté que vous modérez",
         "COMMUNITY_ACCEPTED": "vous a accepté dans une communauté",
-        "COMMUNITY_MODERATOR": "vous a nommé modérateur d’une communauté"
+        "COMMUNITY_MODERATOR": "vous a nommé modérateur d’une communauté",
+        "MISSION_MATCH": "a transmis une mission qui correspond à votre carte"
       },
       "typesMany": {
         "FOLLOW": "vous suivent désormais",
@@ -3626,7 +3628,8 @@
         "COMMUNITY_POST": "ont publié dans une de vos communautés",
         "COMMUNITY_REQUEST": "demandent à rejoindre une communauté que vous modérez",
         "COMMUNITY_ACCEPTED": "vous ont accepté dans une communauté",
-        "COMMUNITY_MODERATOR": "vous ont nommé modérateur d’une communauté"
+        "COMMUNITY_MODERATOR": "vous ont nommé modérateur d’une communauté",
+        "MISSION_MATCH": "ont transmis des missions qui correspondent à votre carte"
       },
       "moderation": {
         "WARNED": "Les modérateurs vous ont adressé un avertissement au sujet d’une publication, d’un commentaire ou de votre conduite dans le réseau.",
@@ -4126,6 +4129,15 @@
       "off": "Je suis disponible",
       "onDone": "Votre carte dit que vous êtes disponible : les membres voient le badge sur votre photo.",
       "offDone": "Votre carte dit de nouveau votre disponibilité d’après vos missions."
+    },
+    "missionFilters": {
+      "label": "Affiner les missions",
+      "skill": "Compétence ou poste",
+      "city": "Ville",
+      "rate": "TJM ≥ (€/jour)",
+      "before": "Début au plus tard",
+      "remote": "{{days}} j+ de télétravail",
+      "hideTaken": "Masquer celles de mon pipeline"
     }
   }
 }

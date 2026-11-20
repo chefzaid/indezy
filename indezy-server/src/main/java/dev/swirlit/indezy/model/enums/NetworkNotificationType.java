@@ -37,5 +37,7 @@ public enum NetworkNotificationType {
     /** A moderator let the recipient into a private community. */
     COMMUNITY_ACCEPTED,
     /** The creator named the recipient a moderator of their community. */
-    COMMUNITY_MODERATOR
+    COMMUNITY_MODERATOR,
+    /** A member passed on a mission matching the recipient's card. */
+    MISSION_MATCH
 }

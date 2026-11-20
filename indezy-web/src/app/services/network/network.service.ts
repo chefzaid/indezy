@@ -7,7 +7,7 @@ import { ShownTestimonial } from '../../models/testimonial.models';
 import {
   ConfidentialMatch, DirectorySearch, FileRef, HeldForReview, MemberCard, MemberDirectory, MemberPage, MemberSuggestion,
   NetworkAvailabilitySetting, NetworkComment, NetworkDraft, NetworkFields, NetworkMembership, NetworkNotificationType, NetworkPost,
-  NetworkPostVersion, NetworkPosts, PageViews, PostStats, AuthorActivity, MutualFollows, MemberAbout, NetworkAbout, MemberSearchFilters, PostSearchFilters, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
+  NetworkPostVersion, NetworkPosts, PageViews, PostStats, AuthorActivity, MutualFollows, MemberAbout, NetworkAbout, MemberSearchFilters, PostSearchFilters, MissionFilters, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
   ReportReason, ReportTarget, SavedPosts, TagPage, TrendingTag
 } from '../../models';
 
@@ -211,8 +211,18 @@ export class NetworkService {
 
   /** For you: the recent posts of every member the reader can read, ranked by what they share with the reader. */
   /** The missions members pass on, from every member the reader can read but themselves, the newest first. */
-  missions(page = 0): Observable<NetworkPosts> {
-    return this.http.get<NetworkPosts>(`${this.API_URL}/feed/missions`, { params: new HttpParams().set('page', page) });
+  missions(page = 0, filters: MissionFilters = {}): Observable<NetworkPosts> {
+    let params = new HttpParams().set('page', page);
+    for (const key of ['skill', 'city', 'remote', 'rate', 'before'] as const) {
+      const value = filters[key];
+      if (value !== null && value !== undefined && value !== '') {
+        params = params.set(key, String(value).trim());
+      }
+    }
+    if (filters.hideTaken) {
+      params = params.set('hideTaken', true);
+    }
+    return this.http.get<NetworkPosts>(`${this.API_URL}/feed/missions`, { params });
   }
 
   forYou(page = 0): Observable<NetworkPosts> {
