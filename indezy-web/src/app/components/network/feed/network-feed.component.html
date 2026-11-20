@@ -131,7 +131,8 @@
         }
         <ul class="posts">
           @for (post of posts; track post.id) {
-            <li><app-post-card [post]="post" (deleted)="remove($event)" (reposted)="posts = [$event].concat(posts)"></app-post-card></li>
+            <li><app-post-card [post]="post" [dismissible]="tab === 'forYou'" (dismissed)="notInterested($event)" (deleted)="remove($event)"
+              (reposted)="posts = [$event].concat(posts)"></app-post-card></li>
           }
         </ul>
         @if (more) {

@@ -49,6 +49,11 @@
       <button mat-menu-item type="button" (click)="copyLink()" data-post-copy-link>
         <mat-icon>link</mat-icon>{{ 'network.post.copyLink' | translate }}
       </button>
+      @if (dismissible && !post.own) {
+        <button mat-menu-item type="button" (click)="dismissed.emit(post)" data-post-not-interested>
+          <mat-icon>visibility_off</mat-icon>{{ 'network.post.notInterested' | translate }}
+        </button>
+      }
       @if (!post.own) {
         <button mat-menu-item type="button" (click)="report()" data-post-report>
           <mat-icon>flag</mat-icon>{{ 'network.report.action' | translate }}

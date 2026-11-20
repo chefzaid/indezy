@@ -120,6 +120,7 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkCommunity` | `network_communities` | shared by its members, created by a member (by id) | by its creator or an administrator (its posts stay, out of it); kept when its creator's account goes |
 | `NetworkCommunityMember` | `network_community_members` | community and member (by id), a moderator or not, removed or not | on leaving, with its community, or with its account |
 | `NetworkPollVote` | `network_poll_votes` | member and post (by id) | with its post or either account; a change rewrites it |
+| `NetworkPostDismissal` | `network_post_dismissals` | member and post (by id), once each | with its post or the member's account |
 | `NetworkMissionTake` | `network_mission_takes` | member and post (by id) | with its post or either account; kept when its project is deleted, and reused if the mission is taken again |
 | `NetworkBookmark` | `network_bookmarks` | member and post (by id) | by hand, or with its post or either account |
 | `NetworkDraft` | `network_drafts` | member (by id) | by hand, once published (by hand or at its time), or with its account |

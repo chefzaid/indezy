@@ -338,6 +338,20 @@ public class NetworkPostController {
         analytics.shown(SecurityUtils.getCurrentUserId(), request.ids());
     }
 
+    @Operation(summary = "Not interested in a post: hidden from For you, counting against its author and tags")
+    @PutMapping("/posts/{id}/not-interested")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void notInterested(@PathVariable Long id) {
+        forYou.dismiss(SecurityUtils.getCurrentUserId(), id, true);
+    }
+
+    @Operation(summary = "Interested again in a post dismissed from For you")
+    @DeleteMapping("/posts/{id}/not-interested")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void interestedAgain(@PathVariable Long id) {
+        forYou.dismiss(SecurityUtils.getCurrentUserId(), id, false);
+    }
+
     @Operation(summary = "A post's analytics, for its author", description = "How many times it was shown, to how many members, and saved")
     @GetMapping("/posts/{id}/stats")
     public NetworkDtos.PostStats stats(@PathVariable Long id) {

@@ -21,6 +21,7 @@ import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
 import dev.swirlit.indezy.repository.NetworkBookmarkRepository;
 import dev.swirlit.indezy.repository.NetworkPostImpressionRepository;
+import dev.swirlit.indezy.repository.NetworkPostDismissalRepository;
 import dev.swirlit.indezy.repository.NetworkCommunityMemberRepository;
 import dev.swirlit.indezy.repository.NetworkCommunityRepository;
 import dev.swirlit.indezy.repository.NetworkCommentLikeRepository;
@@ -91,6 +92,7 @@ public class NetworkPostService {
     private final NetworkPostVersionRepository versions;
     private final NetworkBookmarkRepository bookmarks;
     private final NetworkPostImpressionRepository impressions;
+    private final NetworkPostDismissalRepository dismissals;
     private final NetworkCommunityRepository communities;
     private final NetworkCommunityMemberRepository communityMembers;
     private final AdminService admin;
@@ -186,6 +188,7 @@ public class NetworkPostService {
         bookmarks.deleteByPostId(post.getId());
         notificationRepository.deleteByPostId(post.getId());
         impressions.deleteByPostId(post.getId());
+        dismissals.deleteByPostId(post.getId());
         files.deleteForPost(post.getId());
         members.findByUserId(post.getAuthorId()).filter(author -> post.getId().equals(author.getPinnedPostId())).ifPresent(author -> {
             author.setPinnedPostId(null);

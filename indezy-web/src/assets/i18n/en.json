@@ -3552,7 +3552,10 @@
       "linkCopyError": "The link could not be copied",
       "pinnedDone": "Pinned at the top of your page",
       "unpinnedDone": "Unpinned",
-      "pinError": "The post could not be pinned. Try again."
+      "pinError": "The post could not be pinned. Try again.",
+      "notInterested": "Not interested",
+      "notInterestedDone": "Hidden: For you will show fewer posts like this one.",
+      "undo": "Undo"
     },
     "savedPosts": {
       "title": "Saved posts",

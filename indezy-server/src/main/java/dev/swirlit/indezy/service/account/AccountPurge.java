@@ -22,7 +22,7 @@ public class AccountPurge {
 
     /** The tables that hold an account's data, deleted in this order (children before what they point to). */
     static final List<String> PURGED = List.of(
-        "network_post_tags", "network_post_versions", "network_post_impressions", "network_likes", "network_comment_likes",
+        "network_post_tags", "network_post_versions", "network_post_impressions", "network_post_dismissals", "network_likes", "network_comment_likes",
         "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications", "network_comments",
         "network_file_contents", "network_files", "network_held", "network_posts", "network_follows",
         "network_follow_requests", "network_restrictions", "network_tag_follows", "network_drafts", "network_reports",
@@ -85,7 +85,8 @@ public class AccountPurge {
         rows += jdbc.update("UPDATE network_posts SET answer_comment_id = NULL WHERE answer_comment_id IN " + COMMENTS, u, u);
         rows += jdbc.update("UPDATE network_posts SET pinned_comment_id = NULL WHERE pinned_comment_id IN " + COMMENTS, u, u);
         for (String table : List.of("network_post_tags", "network_post_versions", "network_likes",
-            "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications", "network_post_impressions")) {
+            "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications", "network_post_impressions",
+            "network_post_dismissals")) {
             rows += jdbc.update("DELETE FROM " + table + " WHERE post_id IN " + POSTS, u);
         }
         rows += jdbc.update("DELETE FROM network_comment_likes WHERE post_id IN " + POSTS + " OR comment_id IN " + COMMENTS +
@@ -102,7 +103,7 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM network_posts WHERE author_id = ?", u);
         for (String table : List.of("network_likes", "network_comment_likes", "network_mission_takes",
             "network_poll_votes", "network_bookmarks", "network_tag_follows", "network_message_reactions",
-            "network_conversation_members", "network_community_members", "network_members")) {
+            "network_conversation_members", "network_community_members", "network_post_dismissals", "network_members")) {
             rows += jdbc.update("DELETE FROM " + table + " WHERE user_id = ?", u);
         }
         rows += jdbc.update("DELETE FROM network_notifications WHERE recipient_id = ? OR actor_id = ?", u, u);

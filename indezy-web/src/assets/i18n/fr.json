@@ -3552,7 +3552,10 @@
       "linkCopyError": "Le lien n'a pas pu être copié",
       "pinnedDone": "Épinglé en haut de votre page",
       "unpinnedDone": "Désépinglé",
-      "pinError": "La publication n’a pas pu être épinglée. Réessayez."
+      "pinError": "La publication n’a pas pu être épinglée. Réessayez.",
+      "notInterested": "Pas intéressé",
+      "notInterestedDone": "Masquée : Pour vous montrera moins de publications comme celle-ci.",
+      "undo": "Annuler"
     },
     "savedPosts": {
       "title": "Publications enregistrées",

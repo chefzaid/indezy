@@ -168,6 +168,26 @@ export class NetworkFeedComponent implements OnInit {
     });
   }
 
+  /** **Not interested**: the post leaves For you at once, **Undo** bringing it back where it was. */
+  notInterested(post: NetworkPost): void {
+    const at = this.posts.indexOf(post);
+    this.network.notInterested(post.id, true).subscribe({
+      next: () => {
+        this.posts = this.posts.filter(item => item !== post);
+        this.notifications.successWithAction('network.post.notInterestedDone', 'network.post.undo').subscribe(() =>
+          this.network.notInterested(post.id, false).subscribe({
+            next: () => {
+              const posts = [...this.posts];
+              posts.splice(Math.max(0, at), 0, post);
+              this.posts = posts;
+            },
+            error: () => this.notifications.error('network.feed.postError')
+          }));
+      },
+      error: () => this.notifications.error('network.feed.postError')
+    });
+  }
+
   /** The **Missions** tab's filters; changed, the tab is read again from its first page. */
   readonly missionFilters = inject(FormBuilder).nonNullable.group({
     skill: '', city: '', remote: null as number | null, rate: null as number | null, before: '', hideTaken: false

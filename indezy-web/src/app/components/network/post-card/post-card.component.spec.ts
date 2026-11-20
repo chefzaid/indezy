@@ -73,6 +73,23 @@ describe('PostCardComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-post-community]')).toBeNull();
   });
 
+  it('offers Not interested on another member\'s post in For you only', async () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', { ...post, own: false });
+    fixture.componentRef.setInput('dismissible', true);
+    fixture.detectChanges();
+    const hidden: NetworkPost[] = [];
+    fixture.componentInstance.dismissed.subscribe(item => hidden.push(item));
+    (fixture.nativeElement.querySelector('[data-post-actions]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const item = document.querySelector('[data-post-not-interested]') as HTMLButtonElement;
+    expect(item).not.toBeNull();
+    item.click();
+    expect(hidden.map(found => found.id)).toEqual([4]);
+  });
+
   it('sends the post in a message, saying in how many conversations', () => {
     configure();
     const fixture = TestBed.createComponent(PostCardComponent);

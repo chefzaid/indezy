@@ -296,7 +296,7 @@ original; once the original is gone or out of reach, the repost says so); a post
 **For you**, the feed's second tab, gathers the posts of the last 30 days from every member the reader can read (but
 their own and those muted), ranked by what they share with the reader (3 points a tag they follow, 2 a tag among the
 skills their card shows, 2 the author in their city) and by the members who reacted to them (1 each, 5 at most), the
-whole divided by 1 plus a third of the post's age in days. **Missions**, the third tab, is the job board of the network:
+whole divided by 1 plus a third of the post's age in days. **Not interested**, in a For you post's menu, hides it there for good (Undo brings it back) and counts against what is like it: 2 points off the author's other posts for each of theirs set aside (6 at most) and 1 off each tag it names for each post set aside naming it (3 at most a tag), from the reader's last 200 set aside. **Missions**, the third tab, is the job board of the network:
 every **Mission to pass on** the reader can read, from all members and not only those followed (but their own, and those
 of members muted, blocked either way or away from the network), the newest first, 20 at a time
 (`GET /api/network/feed/missions`); each card has **Add to my pipeline**, which turns it into an opportunity (below).

@@ -137,3 +137,28 @@ test('switches the feed to For you and back', async ({ page }) => {
   await page.locator('[data-feed-tab-following]').click();
   await expect(page.locator('[data-post="1"]')).toBeVisible();
 });
+
+test('hides a For you post the reader is not interested in, and brings it back on Undo', async ({ page }) => {
+  await mockWorkspaceSession(page, 'fr');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  const author = { handle: 'ines_b', firstName: 'Inès', lastName: 'Bernard', avatar: null, headline: null, stack: [], city: null,
+    remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
+  const post = (id: number, text: string) => ({ id, text, tags: [], createdAt: '2026-11-15T09:00:00', own: false, likes: 0, liked: false,
+    comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST',
+    details: null, answerCommentId: null, poll: null, taken: null, author });
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  await page.route('**/api/network/feed/for-you?**', route => route.fulfill({ json: { posts: [post(2, 'Pour vous'), post(3, 'Autre')], page: 0, more: false } }));
+  const calls: string[] = [];
+  await page.route('**/api/network/posts/2/not-interested', route => { calls.push(route.request().method()); return route.fulfill({ status: 204 }); });
+
+  await page.goto('/network');
+  await page.locator('[data-feed-tab-for-you]').click();
+  await expect(page.locator('[data-post="2"]')).toBeVisible();
+  await page.locator('[data-post="2"] [data-post-actions]').click();
+  await page.locator('[data-post-not-interested]').click();
+  await expect(page.locator('[data-post="2"]')).toHaveCount(0);
+  await expect(page.locator('[data-post="3"]')).toBeVisible();
+  await page.getByRole('button', { name: 'Annuler' }).click();
+  await expect(page.locator('[data-post="2"]')).toBeVisible();
+  expect(calls).toEqual(['PUT', 'DELETE']);
+});

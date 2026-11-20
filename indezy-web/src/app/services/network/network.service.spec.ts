@@ -170,6 +170,10 @@ describe('NetworkService', () => {
     service.recommendations('camille').subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/members/camille/recommendations')).request.context.get(SILENT_HTTP_ERRORS))
       .toBeTrue();
+    service.notInterested(4, true).subscribe();
+    http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/4/not-interested'));
+    service.notInterested(4, false).subscribe();
+    http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/posts/4/not-interested'));
     service.pinPost(4, true).subscribe();
     http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/4/pin'));
     service.pinPost(4, false).subscribe();

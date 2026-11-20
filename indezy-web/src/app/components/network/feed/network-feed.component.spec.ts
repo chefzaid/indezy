@@ -28,7 +28,7 @@ describe('NetworkFeedComponent', () => {
       city: 'Lyon' } });
 
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou', 'membership', 'trendingTags', 'newerCount', 'missions', 'page']);
+    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou', 'membership', 'trendingTags', 'newerCount', 'missions', 'page', 'notInterested']);
     network.page.and.returnValue(throwError(() => new Error('not here')));
     network.newerCount.and.returnValue(of(0));
     network.trendingTags.and.returnValue(of([{ tag: 'kafka', posts: 4 }, { tag: 'java', posts: 1 }]));
@@ -39,7 +39,7 @@ describe('NetworkFeedComponent', () => {
         languages: true, remote: false } }));
     network.suggestions.and.returnValue(of([suggestion('ines_b', 'FOLLOWED_BY', 3), suggestion('paul_d', 'SAME_STACK'),
       suggestion('zoe_l', 'SAME_CITY'), suggestion('jade_k', 'FOLLOWED_BY', 1), suggestion('marc_c', 'CONTACT')]));
-    notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
+    notifications = jasmine.createSpyObj('NotificationService', ['success', 'error', 'successWithAction']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     guard = jasmine.createSpyObj('ConfidentialityGuardService', ['review']);
     guard.review.and.callFake((text: string) => of({ action: 'publish' as const, text }));
@@ -328,6 +328,28 @@ describe('NetworkFeedComponent', () => {
     (element.querySelector('[data-mission-filter-clear]') as HTMLButtonElement).click();
     expect(component.filteringMissions).toBeFalse();
     expect(network.missions).toHaveBeenCalledWith(0, { skill: '', city: '', remote: null, rate: null, before: '', hideTaken: false });
+  });
+
+  it('hides a post of For you the reader is not interested in, Undo bringing it back where it was', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    network.forYou.and.returnValue(of({ posts: [post(7), post(8), post(9)], page: 0, more: false }));
+    component.show('forYou');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-post="8"] app-post-card, [data-post="8"]')).not.toBeNull();
+    const undo = new Subject<void>();
+    notifications.successWithAction.and.returnValue(undo);
+    network.notInterested.and.returnValue(of(undefined));
+    component.notInterested(component.posts[1]);
+    expect(network.notInterested).toHaveBeenCalledWith(8, true);
+    expect(component.posts.map(item => item.id)).toEqual([7, 9]);
+    undo.next();
+    expect(network.notInterested).toHaveBeenCalledWith(8, false);
+    expect(component.posts.map(item => item.id)).toEqual([7, 8, 9]);
+    network.notInterested.and.returnValue(throwError(() => new Error('down')));
+    component.notInterested(component.posts[0]);
+    expect(notifications.error).toHaveBeenCalledWith('network.feed.postError');
+    expect(component.posts.length).toBe(3);
   });
 
   it('says why each member is suggested, opens the time to publish on its own, and shows the reader\'s avatar', () => {

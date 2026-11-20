@@ -71,6 +71,12 @@ export class NetworkService {
   }
 
   /** One post, as the reader may read it. */
+  /** **Not interested** in a post of For you: hidden there, counting against its author and tags; or interested again. */
+  notInterested(id: number, dismissed: boolean): Observable<void> {
+    const url = `${this.API_URL}/posts/${id}/not-interested`;
+    return dismissed ? this.http.put<void>(url, null) : this.http.delete<void>(url);
+  }
+
   /** Pins one of the reader's posts at the top of their page (replacing the one pinned), or unpins it. */
   pinPost(id: number, pinned: boolean): Observable<void> {
     return pinned ? this.http.put<void>(`${this.API_URL}/posts/${id}/pin`, null) : this.http.delete<void>(`${this.API_URL}/posts/${id}/pin`);
