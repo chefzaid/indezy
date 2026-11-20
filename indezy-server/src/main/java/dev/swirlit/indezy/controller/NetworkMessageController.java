@@ -45,10 +45,30 @@ public class NetworkMessageController {
     }
 
     @Operation(summary = "Open the conversation with a member, or find the one open",
-        description = "409 when the member does not follow the reader, either blocks the other, or the day's limit is reached")
+        description = "A message request when neither follows the other; 409 when the member takes no requests or either blocks the other, " +
+            "429 past the day's limit")
     @PostMapping("/conversations")
     public NetworkMessageDtos.Conversation open(@Valid @RequestBody NetworkMessageDtos.Open request) {
         return conversations.open(SecurityUtils.getCurrentUserId(), request.handle());
+    }
+
+    @Operation(summary = "The message requests waiting for the reader's answer, the latest first")
+    @GetMapping("/conversations/requests")
+    public List<NetworkMessageDtos.Conversation> requests() {
+        return conversations.requests(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Accept a message request, opening the conversation to both")
+    @PutMapping("/conversations/{id}/request")
+    public NetworkMessageDtos.Conversation accept(@PathVariable Long id) {
+        return conversations.answer(SecurityUtils.getCurrentUserId(), id, true).orElseThrow();
+    }
+
+    @Operation(summary = "Decline a message request: hidden from the reader, its sender untold")
+    @DeleteMapping("/conversations/{id}/request")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void decline(@PathVariable Long id) {
+        conversations.answer(SecurityUtils.getCurrentUserId(), id, false);
     }
 
     @Operation(summary = "The messages of the reader's conversations holding what was typed (2 characters or more), 20 at most")

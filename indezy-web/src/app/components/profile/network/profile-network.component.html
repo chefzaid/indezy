@@ -123,6 +123,9 @@
     <mat-slide-toggle [checked]="messaging.presence" (change)="setMessaging('presence', $event.checked)" data-messaging="presence">
       {{ 'profile.network.presence' | translate }}
     </mat-slide-toggle>
+    <mat-slide-toggle [checked]="messaging.requests ?? true" (change)="setMessaging('requests', $event.checked)" data-messaging="requests">
+      {{ 'profile.network.messageRequests' | translate }}
+    </mat-slide-toggle>
   </section>
 }
 

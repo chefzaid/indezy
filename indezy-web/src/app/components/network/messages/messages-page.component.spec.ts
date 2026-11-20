@@ -28,9 +28,10 @@ describe('MessagesPageComponent', () => {
     sentAt: '2026-11-16T09:00:00' }, unread: id === 1 ? 2 : 0, muted: id === 2, archived: false, closed: null,
     lastMessageAt: `2026-11-16T0${9 - id}:00:00`, ...changes });
 
-  function create(list = of([conversation(1), conversation(2)]), id: string | null = null): HTMLElement {
-    api = jasmine.createSpyObj('NetworkMessagesService', ['conversations', 'thread', 'read', 'search', 'createGroup', 'open']);
+  function create(list = of([conversation(1), conversation(2)]), id: string | null = null, requests = of([] as Conversation[])): HTMLElement {
+    api = jasmine.createSpyObj('NetworkMessagesService', ['conversations', 'thread', 'read', 'search', 'createGroup', 'open', 'requests']);
     api.conversations.and.returnValue(list);
+    api.requests.and.returnValue(requests);
     api.thread.and.returnValue(of({ conversation: conversation(1), messages: [], more: false }));
     api.read.and.returnValue(of(conversation(1, { unread: 0 })));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -182,6 +183,31 @@ describe('MessagesPageComponent', () => {
     api.open.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
     component.newMessage();
     expect(notifications.error).toHaveBeenCalledWith('network.messages.openError');
+    discardPeriodicTasks();
+  }));
+
+  it('lists the message requests apart, with how many wait, each leaving once answered', fakeAsync(() => {
+    const element = create(undefined, null, of([conversation(7, { closed: 'REQUEST_RECEIVED' }), conversation(8, { closed: 'REQUEST_RECEIVED' })]));
+    const tab = element.querySelector('[data-messages-requests]') as HTMLButtonElement;
+    expect(tab.querySelector('[data-messages-request-count]')?.textContent?.trim()).toBe('2');
+    tab.click();
+    fixture.detectChanges();
+    expect(api.conversations).toHaveBeenCalledTimes(1);
+    expect(Array.from(element.querySelectorAll('[data-conversation]')).map(row => row.getAttribute('data-conversation'))).toEqual(['7', '8']);
+    // Accepted, a request leaves the requests; declined, it leaves the list.
+    spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    fixture.componentInstance.updated(conversation(7, { closed: null }));
+    fixture.componentInstance.left(8);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.conversations).toEqual([]);
+    expect(fixture.componentInstance.requestCount).toBe(0);
+    expect(element.querySelector('[data-messages-empty]')?.textContent).toContain('No message requests waiting.');
+    discardPeriodicTasks();
+  }));
+
+  it('hides the Requests tab while none waits', fakeAsync(() => {
+    const element = create();
+    expect(element.querySelector('[data-messages-requests]')).toBeNull();
     discardPeriodicTasks();
   }));
 

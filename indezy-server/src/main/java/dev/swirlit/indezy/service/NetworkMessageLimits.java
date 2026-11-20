@@ -22,6 +22,8 @@ public class NetworkMessageLimits {
     static final int MESSAGES_PER_HOUR = 200;
     /** Many first messages are what spam looks like. */
     static final int CONVERSATIONS_PER_DAY = 20;
+    /** Message requests, to members who follow neither way, are fewer. */
+    static final int REQUESTS_PER_DAY = 10;
 
     private final NetworkLimits limits;
     private final NetworkMessageRepository messages;
@@ -39,6 +41,14 @@ public class NetworkMessageLimits {
         limits.notSuspended(userId);
         if (conversations.countByCreatedByAndCreatedAtAfter(userId, ago(Duration.ofDays(1))) >= CONVERSATIONS_PER_DAY) {
             throw new TooManyRequestsException("Too many new conversations today: try again tomorrow", Duration.ofDays(1));
+        }
+    }
+
+    /** A message request: a new conversation, and {@value #REQUESTS_PER_DAY} requests a day at most. */
+    void request(Long userId) {
+        conversation(userId);
+        if (conversations.countByCreatedByAndRequestStatusIsNotNullAndCreatedAtAfter(userId, ago(Duration.ofDays(1))) >= REQUESTS_PER_DAY) {
+            throw new TooManyRequestsException("Too many message requests today: try again tomorrow", Duration.ofDays(1));
         }
     }
 

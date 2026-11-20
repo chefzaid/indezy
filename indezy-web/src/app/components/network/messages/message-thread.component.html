@@ -230,9 +230,21 @@
     }
   </div>
 
-  @if (current.closed) {
+  @if (current.closed === 'REQUEST_RECEIVED') {
+    <section class="request" [attr.aria-label]="'network.messages.request.title' | translate" data-thread-request>
+      <p><mat-icon aria-hidden="true">mark_email_unread</mat-icon>{{ 'network.messages.request.received' | translate: { name: label } }}</p>
+      <div class="request-actions">
+        <button mat-stroked-button type="button" (click)="answerRequest(false)" [disabled]="answering" data-request-decline>
+          {{ 'network.messages.request.decline' | translate }}
+        </button>
+        <button mat-flat-button type="button" (click)="answerRequest(true)" [disabled]="answering" data-request-accept>
+          {{ 'network.messages.request.accept' | translate }}
+        </button>
+      </div>
+    </section>
+  } @else if (current.closed) {
     <p class="closed" role="status" data-thread-closed>
-      <mat-icon aria-hidden="true">lock</mat-icon>
+      <mat-icon aria-hidden="true">{{ current.closed === 'REQUEST_SENT' ? 'schedule_send' : 'lock' }}</mat-icon>
       {{ 'network.messages.closed.' + current.closed | translate: { name: label } }}
     </p>
   }

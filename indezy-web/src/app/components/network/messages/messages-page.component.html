@@ -14,9 +14,17 @@
       </button>
     </header>
     <div class="tabs" role="tablist" [attr.aria-label]="'network.messages.title' | translate">
-      <button type="button" role="tab" class="tab" [class.active]="!archived" [attr.aria-selected]="!archived" (click)="showArchived(false)"
+      <button type="button" role="tab" class="tab" [class.active]="box === 'inbox'" [attr.aria-selected]="box === 'inbox'" (click)="show('inbox')"
         data-messages-inbox>{{ 'network.messages.inbox' | translate }}</button>
-      <button type="button" role="tab" class="tab" [class.active]="archived" [attr.aria-selected]="archived" (click)="showArchived(true)"
+      @if (requestCount > 0 || box === 'requests') {
+        <button type="button" role="tab" class="tab" [class.active]="box === 'requests'" [attr.aria-selected]="box === 'requests'" (click)="show('requests')"
+          data-messages-requests>{{ 'network.messages.request.tab' | translate }}
+          @if (requestCount > 0) {
+            <span class="count" data-messages-request-count>{{ requestCount }}</span>
+          }
+        </button>
+      }
+      <button type="button" role="tab" class="tab" [class.active]="box === 'archived'" [attr.aria-selected]="box === 'archived'" (click)="show('archived')"
         data-messages-archived>{{ 'network.messages.archived' | translate }}</button>
     </div>
 
@@ -59,7 +67,8 @@
     } @else if (conversations.length === 0) {
       <div class="empty" data-messages-empty>
         <mat-icon aria-hidden="true">chat</mat-icon>
-        <p>{{ (archived ? 'network.messages.noneArchived' : 'network.messages.none') | translate }}</p>
+        <p>{{ (box === 'archived' ? 'network.messages.noneArchived' : box === 'requests' ? 'network.messages.request.none' :
+          'network.messages.none') | translate }}</p>
       </div>
     } @else {
       <ul class="conversations">

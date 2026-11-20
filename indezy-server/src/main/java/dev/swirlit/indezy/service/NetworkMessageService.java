@@ -74,7 +74,10 @@ public class NetworkMessageService {
         return new NetworkMessageDtos.Thread(conversation, views(shown, userId), more);
     }
 
-    /** Sends a message, refused (409) with the reason when the other member no longer follows the sender. */
+    /**
+     * Sends a message, refused (409) with the reason when the other member no longer follows the sender, or a message
+     * request waits for its answer after its one message.
+     */
     @Transactional
     public NetworkMessageDtos.Message send(Long userId, Long conversationId, NetworkMessageDtos.NewMessage request) {
         network.requireMember(userId);
@@ -82,7 +85,7 @@ public class NetworkMessageService {
         NetworkConversations.Seen seen = conversationService.seen(conversation, userId);
         NetworkConversationMember mine = shared.mine(userId, conversationId);
         if (!conversation.isGroup()) {
-            shared.closed(userId, seen.otherId()).ifPresent(closed -> {
+            shared.closed(userId, seen.otherId(), conversation).ifPresent(closed -> {
                 throw new InvalidStateException(NetworkConversationService.reason(closed));
             });
         }

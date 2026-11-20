@@ -1538,7 +1538,8 @@
       "aboutHint": "Shown on your page to members. Your won missions are listed by role, stack and period, never their client.",
       "about": "About you",
       "showMissions": "List my won missions on my page",
-      "aboutSaved": "Your About section is saved"
+      "aboutSaved": "Your About section is saved",
+      "messageRequests": "Receive message requests from members I don’t follow and who don’t follow me"
     },
     "deletion": {
       "title": "Delete my account",
@@ -3857,7 +3858,9 @@
       "closed": {
         "NOT_FOLLOWED": "{{name}} does not follow you: you can read your messages, not send new ones.",
         "BLOCKED": "No message between you and {{name}}.",
-        "LEFT": "{{name}} left the network."
+        "LEFT": "{{name}} left the network.",
+        "REQUEST_SENT": "Your message request waits for {{name}}’s answer.",
+        "REQUEST_RECEIVED": "Accept {{name}}’s request to answer."
       },
       "loadError": "The messages could not be loaded",
       "sendError": "The message could not be sent",
@@ -3884,7 +3887,16 @@
       "newTitle": "New message",
       "newHint": "The members you follow and those who follow you.",
       "noOne": "No one to write to yet: follow a member, or wait for one to follow you.",
-      "online": "Online"
+      "online": "Online",
+      "request": {
+        "title": "Message request",
+        "tab": "Requests",
+        "received": "{{name}} is not one of your connections and writes to you: accept to answer. Declining hides the conversation, without telling them.",
+        "accept": "Accept",
+        "decline": "Decline",
+        "declined": "Request declined.",
+        "none": "No message requests waiting."
+      }
     },
     "groups": {
       "new": "New group",

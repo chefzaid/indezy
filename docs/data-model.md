@@ -196,6 +196,9 @@ Deletion rules:
 - `network_communities.private_community` makes a community joined on request (`network_community_members.pending`
   until a moderator answers) and its posts read by its members alone; `network_notifications.community_id` names the
   community a notification is about.
+- `network_conversations.request_status` marks a conversation opened with a member neither followed: PENDING (one
+  message from its creator, then waiting), ACCEPTED or DECLINED; none between members who follow each other.
+  `network_members.message_requests` set to false refuses requests (none reads as taking them).
 - `network_ideas.status` is OPEN, PLANNED, IN_PROGRESS, DONE, DECLINED or MERGED (`merged_into_id` then naming the idea
   kept, its votes moved there); `network_notifications.idea_id` names the idea an `IDEA_STATUS` notification is about,
   deleted with the idea.

@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.NetworkMessageDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
+import dev.swirlit.indezy.model.enums.NetworkMessageRequestStatus;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkConversation;
 import dev.swirlit.indezy.model.NetworkConversationMember;
@@ -29,12 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Conversations between two members (see docs/features.md#member-network): opened once either follows the other,
- * listed by their latest message, each with what its reader has not read, muted or archived for them alone.
+ * Conversations between two members (see docs/features.md#member-network): opened once either follows the other, or as a
+ * message request the other member accepts or declines; listed by their latest message, each with what its reader has not
+ * read, muted or archived for them alone, the requests received apart.
  */
 @Service
 @RequiredArgsConstructor
@@ -54,7 +57,7 @@ public class NetworkConversationService {
 
     /**
      * The conversation with the member holding the handle: the one already open, or a new one when either follows the
-     * other; refused (409) with the reason otherwise.
+     * other, else a message request when the member takes them; refused (409) with the reason otherwise.
      */
     @Transactional
     public NetworkMessageDtos.Conversation open(Long userId, String handle) {
@@ -70,9 +73,17 @@ public class NetworkConversationService {
         shared.closed(userId, other.getUserId()).ifPresent(closed -> {
             throw new InvalidStateException(reason(closed));
         });
-        limits.conversation(userId);
+        boolean request = !shared.connected(userId, other.getUserId());
+        if (request) {
+            limits.request(userId);
+        } else {
+            limits.conversation(userId);
+        }
         NetworkConversation conversation = new NetworkConversation();
         conversation.setCreatedBy(userId);
+        if (request) {
+            conversation.setRequestStatus(NetworkMessageRequestStatus.PENDING);
+        }
         conversation.setPairKey(NetworkConversation.pairKey(userId, other.getUserId()));
         conversations.save(conversation);
         for (Long member : List.of(userId, other.getUserId())) {
@@ -101,7 +112,8 @@ public class NetworkConversationService {
         List<NetworkMessageDtos.Conversation> shown = new ArrayList<>();
         for (NetworkConversationMember participant : mine) {
             NetworkConversation conversation = found.get(participant.getConversationId());
-            if (conversation == null || conversation.getLastMessageAt() == null && !conversation.getCreatedBy().equals(userId)) {
+            if (conversation == null || conversation.getLastMessageAt() == null && !conversation.getCreatedBy().equals(userId) ||
+                shared.requestTo(userId, conversation)) {
                 continue;
             }
             shared.seen(userId, conversation).ifPresent(seen -> shown.add(shared.view(seen, participant, latest.get(conversation.getId()))));
@@ -111,20 +123,75 @@ public class NetworkConversationService {
         return shown;
     }
 
-    /** How many conversations have messages the reader has not read, the muted aside; none away from the network. */
+    /**
+     * How many conversations have messages the reader has not read, the muted and the requests aside, and how many message
+     * requests wait for their answer; none away from the network.
+     */
     @Transactional(readOnly = true)
     public NetworkMessageDtos.Unread unread(Long userId) {
         if (!network.isMember(userId)) {
             return new NetworkMessageDtos.Unread(0);
         }
         int count = 0;
+        int requests = 0;
         for (NetworkConversationMember participant : participants.findByUserId(userId)) {
-            if (!participant.isMuted() && messages.unread(participant.getConversationId(), userId, participant.getLastReadAt()) > 0 &&
-                conversations.findById(participant.getConversationId()).flatMap(conversation -> shared.seen(userId, conversation)).isPresent()) {
+            Optional<NetworkConversation> conversation = conversations.findById(participant.getConversationId())
+                .filter(found -> shared.seen(userId, found).isPresent());
+            if (conversation.isEmpty()) {
+                continue;
+            }
+            if (shared.requestTo(userId, conversation.get())) {
+                requests += waiting(conversation.get()) ? 1 : 0;
+            } else if (!participant.isMuted() && messages.unread(participant.getConversationId(), userId, participant.getLastReadAt()) > 0) {
                 count++;
             }
         }
-        return new NetworkMessageDtos.Unread(count);
+        return new NetworkMessageDtos.Unread(count, requests);
+    }
+
+    /** The message requests waiting for the reader's answer, the latest first. */
+    @Transactional(readOnly = true)
+    public List<NetworkMessageDtos.Conversation> requests(Long userId) {
+        network.requireMember(userId);
+        List<NetworkMessageDtos.Conversation> shown = new ArrayList<>();
+        for (NetworkConversationMember participant : participants.findByUserId(userId)) {
+            conversations.findById(participant.getConversationId())
+                .filter(conversation -> shared.requestTo(userId, conversation) && waiting(conversation))
+                .flatMap(conversation -> shared.seen(userId, conversation))
+                .ifPresent(seen -> shown.add(shared.view(seen, participant, messages.latest(Set.of(seen.conversation().getId())).stream().findFirst()
+                    .orElse(null))));
+        }
+        shown.sort(Comparator.comparing((NetworkMessageDtos.Conversation conversation) -> Objects.requireNonNullElse(
+            conversation.lastMessageAt(), LocalDateTime.MIN)).reversed());
+        return shown;
+    }
+
+    /**
+     * Accepts a message request the reader received, opening the conversation to both, or declines it: hidden from the
+     * reader, its sender untold. Refused (409) for a conversation that is no request waiting for the reader.
+     */
+    @Transactional
+    public Optional<NetworkMessageDtos.Conversation> answer(Long userId, Long conversationId, boolean accepted) {
+        network.requireMember(userId);
+        NetworkConversation conversation = conversations.findById(conversationId)
+            .orElseThrow(() -> new ResourceNotFoundException(NetworkConversations.NOT_FOUND));
+        seen(conversation, userId);
+        if (!shared.requestTo(userId, conversation) || conversation.getRequestStatus() != NetworkMessageRequestStatus.PENDING) {
+            throw new InvalidStateException("No message request waits for your answer here");
+        }
+        conversation.setRequestStatus(accepted ? NetworkMessageRequestStatus.ACCEPTED : NetworkMessageRequestStatus.DECLINED);
+        conversations.save(conversation);
+        log.info("Member {} {} message request {}", userId, accepted ? "accepted" : "declined", conversationId);
+        if (!accepted) {
+            return Optional.empty();
+        }
+        events.message(List.of(userId, conversation.getCreatedBy()), conversationId);
+        return Optional.of(view(conversation, userId));
+    }
+
+    /** A request with its message sent: one still empty waits for its sender. */
+    private static boolean waiting(NetworkConversation conversation) {
+        return conversation.getRequestStatus() == NetworkMessageRequestStatus.PENDING && conversation.getLastMessageAt() != null;
     }
 
     /** Mutes or archives the conversation for the reader alone. */
@@ -203,6 +270,8 @@ public class NetworkConversationService {
             case NOT_FOLLOWED -> "Messages are open once you follow this member or they follow you";
             case BLOCKED -> "No message between members when either blocks the other";
             case LEFT -> "This member left the network";
+            case REQUEST_SENT -> "Your message request waits for this member's answer";
+            case REQUEST_RECEIVED -> "Accept this member's message request to answer it";
         };
     }
 

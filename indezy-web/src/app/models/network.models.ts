@@ -66,6 +66,8 @@ export interface MemberPage {
   requested: boolean;
   /** Their post pinned at the top of their page, if any. */
   pinnedPostId?: number | null;
+  /** The viewer may write to them: either follows the other, or they take message requests. */
+  messageable?: boolean;
 }
 
 /** A post as members read it. */

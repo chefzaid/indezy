@@ -287,6 +287,41 @@
   font-size: 0.875rem;
 }
 
+.request {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--app-border);
+  background: var(--app-selected-bg);
+
+  p {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    color: var(--app-text);
+    font-size: 0.875rem;
+    line-height: 1.45;
+
+    mat-icon {
+      flex: none;
+      color: var(--app-link);
+    }
+  }
+
+  .request-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+
+    button {
+      border-radius: 999px;
+    }
+  }
+}
+
 .composer {
   flex: none;
   padding: 8px 12px 12px;

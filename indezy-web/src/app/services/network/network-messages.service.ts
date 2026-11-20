@@ -20,7 +20,10 @@ export class NetworkMessagesService {
       { params: { archived }, context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
   }
 
-  /** The conversation with a member: the one open, or a new one when they follow the reader (409 with the reason otherwise). */
+  /**
+   * The conversation with a member: the one open, or a new one when either follows the other, else a message request
+   * when they take them (409 with the reason otherwise).
+   */
   open(handle: string): Observable<Conversation> {
     return this.http.post<Conversation>(`${this.API_URL}/conversations`, { handle });
   }
@@ -40,6 +43,17 @@ export class NetworkMessagesService {
 
   leaveGroup(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/groups/${id}/members/me`);
+  }
+
+  /** The message requests waiting for the reader's answer, the latest first. */
+  requests(): Observable<Conversation[]> {
+    return this.http.get<Conversation[]>(`${this.API_URL}/conversations/requests`);
+  }
+
+  /** Accepts a message request, answering the conversation opened to both, or declines it. */
+  answerRequest(id: number, accepted: boolean): Observable<Conversation | null> {
+    const url = `${this.API_URL}/conversations/${id}/request`;
+    return accepted ? this.http.put<Conversation>(url, null) : this.http.delete<void>(url).pipe(map(() => null));
   }
 
   /** The reader's messages holding what was typed, the latest first. */

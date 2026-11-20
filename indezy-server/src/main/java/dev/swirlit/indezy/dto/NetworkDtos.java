@@ -354,12 +354,13 @@ public final class NetworkDtos {
 
     /**
      * A member's page as a member sees it: the card, how many members follow them and they follow, the skills they share
-     * with the viewer, whether the viewer follows them and they follow the viewer, whether it is the viewer's own, and
-     * whether the viewer mutes or blocks them.
+     * with the viewer, whether the viewer follows them and they follow the viewer, whether it is the viewer's own, whether
+     * the viewer mutes or blocks them, and whether the viewer may write to them (as a message request when neither follows
+     * the other).
      */
     public record MemberPage(MemberCard card, int followers, int following, List<String> sharedSkills, boolean followed,
                              boolean followsYou, boolean own, boolean muted, boolean blocked, boolean privateCard, boolean requested,
-                             Long pinnedPostId) {
+                             Long pinnedPostId, boolean messageable) {
 
         public MemberPage {
             sharedSkills = List.copyOf(sharedSkills);

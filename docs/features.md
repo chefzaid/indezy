@@ -356,7 +356,12 @@ on the choice of their store.
 menu) holds one-to-one conversations and groups. Messages are open between two members once either follows the other
 (a follow accepted; a request waiting does not count). **New message** picks one member among those the reader follows
 or who follow them and opens their conversation (a new one if none); **Message** on a member's page, or on their tile in
-**Members**, does the same. **New group** names a group and gathers up to 19 of those members, for a collective or a
+**Members**, does the same. **Message** on the page of a member neither follows sends a **message request**: one message,
+then it waits (**Your message request waits for Léo's answer.**). The recipient finds it under **Requests** in Messages,
+with how many wait, out of their conversations and unread count; they read it and **Accept** (both write since, as
+members who follow each other do) or **Decline** (it leaves their list, its sender untold, who writes no more). Profile →
+Network → **Receive message requests** turns them off, a member then writable only by those they follow or who follow
+them; a member sends 10 requests a day at most. **New group** names a group and gathers up to 19 of those members, for a collective or a
 mission team: every member writes in it, each message showing who wrote it; its creator renames it and adds members, and
 anyone leaves it, reading it no more. Once neither follows the other any more, either blocks the other or one leaves the
 network, the past stays readable but no new message goes, the conversation saying why. The list shows each conversation's latest message and how many are unread, the

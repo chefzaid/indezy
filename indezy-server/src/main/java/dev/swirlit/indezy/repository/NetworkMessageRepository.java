@@ -67,5 +67,7 @@ public interface NetworkMessageRepository extends JpaRepository<NetworkMessage, 
 
     long countBySenderIdAndCreatedAtAfter(Long senderId, LocalDateTime since);
 
+    boolean existsByConversationIdAndSenderId(Long conversationId, Long senderId);
+
     List<NetworkMessage> findBySenderIdOrderByCreatedAtAsc(Long senderId);
 }

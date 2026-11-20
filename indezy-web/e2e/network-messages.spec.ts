@@ -190,3 +190,40 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 }
+
+for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
+  test(`answers a message request from a member who follows neither way (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
+    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+    const request = { ...conversation, closed: 'REQUEST_RECEIVED' };
+    await page.route('**/api/network/conversations/unread', route => route.fulfill({ json: { conversations: 0, requests: 1 } }));
+    await page.route('**/api/network/conversations?**', route => route.fulfill({ json: [] }));
+    await page.route('**/api/network/conversations/requests', route => route.fulfill({ json: [request] }));
+    await page.route('**/api/network/conversations/4', route => route.fulfill({ json: { conversation: request, more: false,
+      messages: [message(1, false, 'Bonjour, une mission Kafka à Lyon ?')] } }));
+    await page.route('**/api/network/conversations/4/read', route => route.fulfill({ json: { ...request, unread: 0 } }));
+    const answers: string[] = [];
+    await page.route('**/api/network/conversations/4/request', route => {
+      answers.push(route.request().method());
+      return route.fulfill({ json: { ...conversation, unread: 0 } });
+    });
+
+    await page.goto('/network/messages');
+    await expect(page.locator('[data-messages-request-count]')).toHaveText('1');
+    await page.locator('[data-messages-requests]').click();
+    await page.locator('[data-conversation="4"]').click();
+    const thread = page.locator('app-message-thread');
+    await expect(thread.locator('[data-thread-request]')).toContainText(en ? 'Léo is not one of your connections' :
+      'Léo ne fait pas partie de vos relations');
+    await expect(thread.locator('[data-thread-composer]')).toHaveCount(0);
+    const audit = await new AxeBuilder({ page }).include('app-message-thread').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    await thread.locator('[data-request-accept]').click();
+    await expect(thread.locator('[data-thread-request]')).toHaveCount(0);
+    await expect(thread.locator('[data-thread-composer]')).toBeVisible();
+    expect(answers).toEqual(['PUT']);
+  });
+}

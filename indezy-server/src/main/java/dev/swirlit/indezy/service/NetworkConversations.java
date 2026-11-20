@@ -7,6 +7,7 @@ import dev.swirlit.indezy.model.NetworkConversation;
 import dev.swirlit.indezy.model.NetworkConversationMember;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkMessage;
+import dev.swirlit.indezy.model.enums.NetworkMessageRequestStatus;
 import dev.swirlit.indezy.repository.NetworkConversationMemberRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
 import dev.swirlit.indezy.realtime.NetworkPresence;
@@ -112,10 +113,20 @@ class NetworkConversations {
     }
 
     /**
-     * Why the sender cannot write to the recipient: the recipient left, either blocks the other, or neither follows the
-     * other (a follow counts once accepted, a request waiting does not).
+     * Why the sender cannot write to the recipient, before any conversation between them: the recipient left, either blocks
+     * the other, or neither follows the other (a follow counts once accepted, a request waiting does not) and the recipient
+     * takes no message requests.
      */
     Optional<NetworkMessageDtos.Closed> closed(Long senderId, Long recipientId) {
+        return closed(senderId, recipientId, null);
+    }
+
+    /**
+     * Why the sender cannot write to the recipient in their conversation (none yet when null): as above, unless it is a
+     * message request. A request accepted opens it; one waiting lets its sender write one message, then waits for the
+     * recipient, who answers before writing; one declined reads to its sender as still waiting.
+     */
+    Optional<NetworkMessageDtos.Closed> closed(Long senderId, Long recipientId, NetworkConversation conversation) {
         // A member who left, or whose account is on hold before its deletion, reads as gone.
         if (members.findByUserId(recipientId).filter(NetworkMember::isActive).flatMap(network::liveCard).isEmpty()) {
             return Optional.of(NetworkMessageDtos.Closed.LEFT);
@@ -123,11 +134,40 @@ class NetworkConversations {
         if (restrictions.blockedEitherWay(senderId).contains(recipientId)) {
             return Optional.of(NetworkMessageDtos.Closed.BLOCKED);
         }
-        if (follows.findByFollowerIdAndFollowedId(recipientId, senderId).isEmpty() &&
-            follows.findByFollowerIdAndFollowedId(senderId, recipientId).isEmpty()) {
-            return Optional.of(NetworkMessageDtos.Closed.NOT_FOLLOWED);
+        if (connected(senderId, recipientId)) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        NetworkMessageRequestStatus status = conversation == null ? null : conversation.getRequestStatus();
+        if (status == NetworkMessageRequestStatus.ACCEPTED) {
+            return Optional.empty();
+        }
+        if (status != null) {
+            if (!conversation.getCreatedBy().equals(senderId)) {
+                return Optional.of(status == NetworkMessageRequestStatus.PENDING ? NetworkMessageDtos.Closed.REQUEST_RECEIVED :
+                    NetworkMessageDtos.Closed.NOT_FOLLOWED);
+            }
+            boolean first = status == NetworkMessageRequestStatus.PENDING && !messages.existsByConversationIdAndSenderId(conversation.getId(), senderId);
+            return first ? Optional.empty() : Optional.of(NetworkMessageDtos.Closed.REQUEST_SENT);
+        }
+        // No conversation yet: one opened would be a request, if the recipient takes them.
+        boolean requestable = conversation == null && members.findByUserId(recipientId).filter(NetworkMember::acceptsMessageRequests).isPresent();
+        return requestable ? Optional.empty() : Optional.of(NetworkMessageDtos.Closed.NOT_FOLLOWED);
+    }
+
+    /** Whether either member follows the other, a follow counting once accepted. */
+    boolean connected(Long first, Long second) {
+        return follows.findByFollowerIdAndFollowedId(first, second).isPresent() || follows.findByFollowerIdAndFollowedId(second, first).isPresent();
+    }
+
+    /**
+     * Whether the conversation is a message request the reader received and has not accepted: waiting for their answer, or
+     * declined. It stays out of their conversations, a waiting one listed among their requests; a follow either way since
+     * makes it an ordinary conversation.
+     */
+    boolean requestTo(Long readerId, NetworkConversation conversation) {
+        NetworkMessageRequestStatus status = conversation.getRequestStatus();
+        return (status == NetworkMessageRequestStatus.PENDING || status == NetworkMessageRequestStatus.DECLINED) &&
+            !conversation.getCreatedBy().equals(readerId) && !connected(readerId, conversation.getCreatedBy());
     }
 
     /** The conversation as its reader's list shows it. */
@@ -137,7 +177,7 @@ class NetworkConversations {
             last.isDeleted() ? "" : excerpt(last.getText()), last.isDeleted(), last.getCreatedAt());
         int unread = (int) messages.unread(conversation.getId(), mine.getUserId(), mine.getLastReadAt());
         // In a group, its members write while they are in it.
-        NetworkMessageDtos.Closed closed = seen.group() != null ? null : closed(mine.getUserId(), seen.otherId()).orElse(null);
+        NetworkMessageDtos.Closed closed = seen.group() != null ? null : closed(mine.getUserId(), seen.otherId(), conversation).orElse(null);
         return new NetworkMessageDtos.Conversation(conversation.getId(), seen.with(), seen.group(), preview, unread, mine.isMuted(),
             mine.isArchived(), closed, conversation.getLastMessageAt(), seenAt(seen, mine), online(seen, mine));
     }

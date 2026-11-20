@@ -51,7 +51,10 @@ export class MessagesPageComponent implements OnInit {
   private readonly stream = inject(NetworkStreamService);
 
   conversations: Conversation[] = [];
-  archived = false;
+  /** The list shown: the inbox, the message requests waiting for the reader's answer, or the archived conversations. */
+  box: 'inbox' | 'requests' | 'archived' = 'inbox';
+  /** How many message requests wait for the reader's answer. */
+  requestCount = 0;
   loading = true;
   notMember = false;
   /** The conversation open beside the list. */
@@ -85,7 +88,25 @@ export class MessagesPageComponent implements OnInit {
     });
   }
 
+  get archived(): boolean {
+    return this.box === 'archived';
+  }
+
   load(): void {
+    this.api.requests().subscribe({
+      next: requests => {
+        this.requestCount = requests.length;
+        if (this.box === 'requests') {
+          this.conversations = requests;
+          this.loading = false;
+        }
+        this.changes.markForCheck();
+      },
+      error: () => undefined
+    });
+    if (this.box === 'requests') {
+      return;
+    }
     this.api.conversations(this.archived).subscribe({
       next: conversations => {
         this.conversations = conversations;
@@ -103,8 +124,11 @@ export class MessagesPageComponent implements OnInit {
     });
   }
 
-  /** The reader left a group: it leaves the list, and the page goes back to it. */
+  /** The reader left a group, or declined a message request: it leaves the list, and the page goes back to it. */
   left(id: number): void {
+    if (this.box === 'requests' && this.conversations.some(item => item.id === id)) {
+      this.requestCount = Math.max(0, this.requestCount - 1);
+    }
     this.conversations = this.conversations.filter(item => item.id !== id);
     void this.router.navigate(['/network/messages']);
   }
@@ -144,8 +168,13 @@ export class MessagesPageComponent implements OnInit {
 
   /** The inbox, or the archived conversations. */
   showArchived(archived: boolean): void {
-    if (archived !== this.archived) {
-      this.archived = archived;
+    this.show(archived ? 'archived' : 'inbox');
+  }
+
+  /** The inbox, the message requests, or the archived conversations. */
+  show(box: 'inbox' | 'requests' | 'archived'): void {
+    if (box !== this.box) {
+      this.box = box;
       this.loading = true;
       this.load();
     }
@@ -154,7 +183,11 @@ export class MessagesPageComponent implements OnInit {
   /** The open conversation changed: its row follows, moved to the top when a message went, gone when it left this list. */
   updated(conversation: Conversation): void {
     const others = this.conversations.filter(item => item.id !== conversation.id);
-    const belongs = conversation.archived === this.archived;
+    const belongs = this.box === 'requests' ? conversation.closed === 'REQUEST_RECEIVED' :
+      conversation.archived === this.archived && conversation.closed !== 'REQUEST_RECEIVED';
+    if (this.box === 'requests' && !belongs) {
+      this.requestCount = Math.max(0, this.requestCount - 1);
+    }
     const sent = this.conversations.find(item => item.id === conversation.id)?.lastMessageAt !== conversation.lastMessageAt;
     if (!belongs) {
       this.conversations = others;

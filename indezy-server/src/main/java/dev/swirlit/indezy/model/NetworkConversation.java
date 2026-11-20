@@ -1,7 +1,10 @@
 package dev.swirlit.indezy.model;
 
+import dev.swirlit.indezy.model.enums.NetworkMessageRequestStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
@@ -34,6 +37,11 @@ public class NetworkConversation extends BaseEntity {
     /** When its latest message was sent; none before the first. */
     @Column(name = "last_message_at")
     private LocalDateTime lastMessageAt;
+
+    /** Opened with a member neither followed: a message request and its answer; none between members who follow each other. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "request_status", length = 10)
+    private NetworkMessageRequestStatus requestStatus;
 
     public boolean isGroup() {
         return pairKey == null;

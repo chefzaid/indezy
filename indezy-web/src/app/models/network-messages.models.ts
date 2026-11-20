@@ -2,7 +2,8 @@ import { LinkPreview, MemberCard, Reaction, ReactionCount } from './network.mode
 import { NetworkFile } from './network-files.models';
 
 /** Why no message can go in a conversation: the other member does not follow the reader, either blocks the other, or left. */
-export type ConversationClosed = 'NOT_FOLLOWED' | 'BLOCKED' | 'LEFT';
+/** Why the reader cannot write: no follow either way, a block, a member gone, or a message request waiting (sent or received). */
+export type ConversationClosed = 'NOT_FOLLOWED' | 'BLOCKED' | 'LEFT' | 'REQUEST_SENT' | 'REQUEST_RECEIVED';
 
 /** A conversation in the reader's list: with another member, or a group (`with` then none). */
 export interface Conversation {
@@ -27,6 +28,8 @@ export interface MessagingSettings {
   typing: boolean;
   /** Whether the member shows and sees who is online, both ways. */
   presence: boolean;
+  /** Whether members neither following the other may write to the member, as a request they answer. */
+  requests?: boolean;
 }
 
 /**

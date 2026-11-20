@@ -206,12 +206,14 @@ public class NetworkFollowService {
             .collect(Collectors.toSet());
         List<String> shared = own ? List.of() : card.stack().stream().filter(skill -> viewerSkills.contains(skill.toLowerCase(Locale.ROOT)))
             .toList();
+        boolean followed = follows.findByFollowerIdAndFollowedId(viewer.getUserId(), member.getUserId()).isPresent();
+        boolean followsYou = follows.findByFollowerIdAndFollowedId(member.getUserId(), viewer.getUserId()).isPresent();
+        boolean blocked = restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.BLOCK);
+        boolean messageable = !own && !blocked && (followed || followsYou || member.acceptsMessageRequests());
         return new NetworkDtos.MemberPage(card, follows.followers(member.getUserId()).size(), follows.following(member.getUserId()).size(),
-            shared, follows.findByFollowerIdAndFollowedId(viewer.getUserId(), member.getUserId()).isPresent(),
-            follows.findByFollowerIdAndFollowedId(member.getUserId(), viewer.getUserId()).isPresent(), own,
-            restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.MUTE),
-            restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.BLOCK), member.isPrivate(),
-            requests.findByRequesterIdAndMemberId(viewer.getUserId(), member.getUserId()).isPresent(), member.getPinnedPostId());
+            shared, followed, followsYou, own, restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.MUTE), blocked,
+            member.isPrivate(), requests.findByRequesterIdAndMemberId(viewer.getUserId(), member.getUserId()).isPresent(), member.getPinnedPostId(),
+            messageable);
     }
 
     /**

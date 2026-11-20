@@ -120,6 +120,9 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
         String bobHandle = join(bob);
         Account carol = register("carol");
         join(carol);
+        // Bob takes no message requests: members who follow neither way do not write to him.
+        assertThat(call(bob, HttpMethod.PUT, "/network/messages/settings", Map.of("requests", false), Map.class).getBody())
+            .containsEntry("requests", false);
 
         // Open once either follows the other (here Bob following Alice), once.
         ResponseEntity<Map> refused = call(alice, HttpMethod.POST, "/network/conversations", Map.of("handle", bobHandle), Map.class);
@@ -238,6 +241,7 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
         flags.set(FeatureFlag.SOCIAL_NETWORK, true);
         join(alice);
         String bobHandle = join(bob);
+        call(bob, HttpMethod.PUT, "/network/messages/settings", Map.of("requests", false), Map.class);
         assertThat(call(alice, HttpMethod.POST, "/network/conversations", Map.of("handle", bobHandle), String.class).getStatusCode())
             .isEqualTo(HttpStatus.CONFLICT);
         call(alice, HttpMethod.PUT, "/network/members/" + bobHandle + "/follow", null, Map.class);

@@ -198,7 +198,10 @@ The member network (`/api/network`) is on unless an administrator turns it off (
   private members the reader does not follow (`NetworkFollowService.locked`), and a single post of theirs is not found;
   a follow request counts against the follow limit;
 - a member may post 10 times, comment 60 times, follow 100 members and report 20 times an hour (`NetworkLimits`), and
-  send 200 messages an hour and open 20 conversations a day (`NetworkMessageLimits`); beyond, `429` with `Retry-After`;
+  send 200 messages an hour and open 20 conversations a day, 10 of them message requests to members who follow neither way
+  (`NetworkMessageLimits`); beyond, `429` with `Retry-After`;
+- a message request carries one message until its recipient accepts it; declined, its sender writes no more and is not
+  told; a member who turns requests off is written to only by those they follow or who follow them;
 - a group gathers only members who follow its creator (`409` naming the first who does not), 20 at most, and only its
   creator renames it or adds members; a member outside a conversation or a group reads, searches and downloads none of it;
 - the suggestions through a shared ESN read the workspaces' ESNs (the intermediary, or a client not final) only between

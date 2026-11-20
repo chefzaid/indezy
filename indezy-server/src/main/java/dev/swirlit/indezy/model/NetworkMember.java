@@ -120,6 +120,10 @@ public class NetworkMember extends BaseEntity {
     @Column(name = "presence_shown")
     private Boolean presenceShown;
 
+    /** Whether members neither following the other may write to the member, as a request they answer; none reads as on. */
+    @Column(name = "message_requests")
+    private Boolean messageRequests;
+
     /** A few words about the member, shown on their page (1,000 characters at most); none until written. */
     @Column(name = "about", length = 1000)
     private String about;
@@ -153,6 +157,10 @@ public class NetworkMember extends BaseEntity {
 
     public boolean showsReadReceipts() {
         return !Boolean.FALSE.equals(readReceipts);
+    }
+
+    public boolean acceptsMessageRequests() {
+        return !Boolean.FALSE.equals(messageRequests);
     }
 
     public boolean showsTyping() {

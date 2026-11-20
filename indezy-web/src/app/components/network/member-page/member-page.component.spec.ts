@@ -321,6 +321,13 @@ describe('MemberPageComponent', () => {
     fixture.componentInstance.page = { ...page, followsYou: false, followed: false, requested: true };
     fixture.detectChanges();
     expect(element.querySelector('[data-message]')).toBeNull();
+    // The server says when a message request can go to a member neither follows, or when they take none.
+    fixture.componentInstance.page = { ...page, followsYou: false, followed: false, messageable: true };
+    fixture.detectChanges();
+    expect(element.querySelector('[data-message]')).not.toBeNull();
+    fixture.componentInstance.page = { ...page, followsYou: true, followed: false, messageable: false };
+    fixture.detectChanges();
+    expect(element.querySelector('[data-message]')).toBeNull();
   });
 
   it('reports the member to the moderators', () => {

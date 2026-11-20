@@ -24,7 +24,11 @@ public final class NetworkMessageDtos {
         /** One of the two blocks the other. */
         BLOCKED,
         /** The other member left the network. */
-        LEFT
+        LEFT,
+        /** The reader's message request waits for the other member's answer. */
+        REQUEST_SENT,
+        /** The other member's message request waits for the reader's answer. */
+        REQUEST_RECEIVED
     }
 
     /**
@@ -170,14 +174,22 @@ public final class NetworkMessageDtos {
     }
 
     /** How many conversations have unread messages, the muted aside. */
-    public record Unread(int conversations) {
+    public record Unread(int conversations, int requests) {
+
+        public Unread(int conversations) {
+            this(conversations, 0);
+        }
     }
 
     /** Whether the member shows and sees read receipts, who is typing and who is online; each left as it is when not given. */
-    public record Messaging(Boolean readReceipts, Boolean typing, Boolean presence) {
+    public record Messaging(Boolean readReceipts, Boolean typing, Boolean presence, Boolean requests) {
 
         public Messaging(Boolean readReceipts, Boolean typing) {
-            this(readReceipts, typing, null);
+            this(readReceipts, typing, null, null);
+        }
+
+        public Messaging(Boolean readReceipts, Boolean typing, Boolean presence) {
+            this(readReceipts, typing, presence, null);
         }
     }
 

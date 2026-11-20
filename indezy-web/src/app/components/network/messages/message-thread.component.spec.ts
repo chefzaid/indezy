@@ -40,7 +40,7 @@ describe('MessageThreadComponent', () => {
     ...changes });
 
   function create(first = of(thread([message(1), message(2), message(3, { mine: true, editable: true })], { more: true }))): HTMLElement {
-    api = jasmine.createSpyObj('NetworkMessagesService', ['thread', 'read', 'send', 'edit', 'remove', 'react', 'settings', 'pdf', 'take', 'addMembers', 'renameGroup', 'leaveGroup', 'typing']);
+    api = jasmine.createSpyObj('NetworkMessagesService', ['thread', 'read', 'send', 'edit', 'remove', 'react', 'settings', 'pdf', 'take', 'addMembers', 'renameGroup', 'leaveGroup', 'typing', 'answerRequest']);
     api.thread.and.returnValue(first);
     api.typing.and.returnValue(of(undefined));
     events = new Subject<NetworkEvent>();
@@ -192,6 +192,38 @@ describe('MessageThreadComponent', () => {
     expect(element.querySelector('[data-thread-former-member]')?.textContent).toContain('Former member');
     expect(fixture.componentInstance.label).toBe('Former member');
     expect(element.querySelector('[data-thread-closed]')).not.toBeNull();
+    discardPeriodicTasks();
+  }));
+
+  it('answers a message request: accepted, the reader writes; declined, it leaves the list', fakeAsync(() => {
+    const element = create(of(thread([message(1)], { conversation: { ...conversation, closed: 'REQUEST_RECEIVED' } })));
+    const left: number[] = [];
+    fixture.componentInstance.left.subscribe(id => left.push(id));
+    expect(element.querySelector('[data-thread-request]')?.textContent).toContain('Léo is not one of your connections');
+    expect(element.querySelector('[data-thread-composer]')).toBeNull();
+    api.answerRequest.and.returnValue(of({ ...conversation, closed: null }));
+    (element.querySelector('[data-request-accept]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(api.answerRequest).toHaveBeenCalledWith(4, true);
+    expect(emitted.at(-1)?.closed).toBeNull();
+    expect(element.querySelector('[data-thread-request]')).toBeNull();
+    expect(element.querySelector('[data-thread-composer]')).not.toBeNull();
+    expect(notices.refreshMessages).toHaveBeenCalled();
+    api.answerRequest.and.returnValue(of(null));
+    fixture.componentInstance.answerRequest(false);
+    expect(api.answerRequest).toHaveBeenCalledWith(4, false);
+    expect(left).toEqual([4]);
+    expect(notifications.success).toHaveBeenCalledWith('network.messages.request.declined');
+    api.answerRequest.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.answerRequest(true);
+    expect(notifications.error).toHaveBeenCalledWith('network.messages.changeError');
+    discardPeriodicTasks();
+  }));
+
+  it('tells the sender of a message request that it waits for an answer', fakeAsync(() => {
+    const element = create(of(thread([message(1, { mine: true })], { conversation: { ...conversation, closed: 'REQUEST_SENT' } })));
+    expect(element.querySelector('[data-thread-closed]')?.textContent).toContain('Your message request waits for Léo’s answer.');
+    expect(element.querySelector('[data-thread-composer]')).toBeNull();
     discardPeriodicTasks();
   }));
 

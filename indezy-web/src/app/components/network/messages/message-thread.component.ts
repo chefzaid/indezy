@@ -457,6 +457,36 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
     this.changes.markForCheck();
   }
 
+  /** Whether an answer to a message request is on its way. */
+  answering = false;
+
+  /**
+   * Answers the message request this conversation is: accepted, it opens to both and the reader writes; declined, it
+   * leaves the reader's list, its sender untold.
+   */
+  answerRequest(accepted: boolean): void {
+    this.answering = true;
+    this.api.answerRequest(this.conversationId, accepted).subscribe({
+      next: conversation => {
+        this.answering = false;
+        this.notices.refreshMessages();
+        if (conversation) {
+          this.conversation = conversation;
+          this.changed.emit(conversation);
+        } else {
+          this.notifications.success('network.messages.request.declined');
+          this.left.emit(this.conversationId);
+        }
+        this.changes.markForCheck();
+      },
+      error: () => {
+        this.answering = false;
+        this.notifications.error('network.messages.changeError');
+        this.changes.markForCheck();
+      }
+    });
+  }
+
   /** Mutes or archives the conversation, for the reader alone. */
   set(settings: { muted?: boolean; archived?: boolean }): void {
     this.api.settings(this.conversationId, settings).subscribe({

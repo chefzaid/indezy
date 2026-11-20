@@ -1538,7 +1538,8 @@
       "aboutHint": "Affiché sur votre page pour les membres. Vos missions gagnées sont listées par poste, stack et période, jamais leur client.",
       "about": "À propos de vous",
       "showMissions": "Lister mes missions gagnées sur ma page",
-      "aboutSaved": "Votre section À propos est enregistrée"
+      "aboutSaved": "Votre section À propos est enregistrée",
+      "messageRequests": "Recevoir des demandes de message des membres que je ne suis pas et qui ne me suivent pas"
     },
     "deletion": {
       "title": "Supprimer mon compte",
@@ -3857,7 +3858,9 @@
       "closed": {
         "NOT_FOLLOWED": "{{name}} ne vous suit pas : vous pouvez lire vos messages, pas en envoyer.",
         "BLOCKED": "Aucun message entre vous et {{name}}.",
-        "LEFT": "{{name}} a quitté le réseau."
+        "LEFT": "{{name}} a quitté le réseau.",
+        "REQUEST_SENT": "Votre demande de message attend la réponse de {{name}}.",
+        "REQUEST_RECEIVED": "Acceptez la demande de {{name}} pour lui répondre."
       },
       "loadError": "Les messages n'ont pas pu être chargés",
       "sendError": "Le message n'a pas pu être envoyé",
@@ -3884,7 +3887,16 @@
       "newTitle": "Nouveau message",
       "newHint": "Les membres que vous suivez et ceux qui vous suivent.",
       "noOne": "Personne à qui écrire pour l'instant : suivez un membre, ou attendez qu'un membre vous suive.",
-      "online": "En ligne"
+      "online": "En ligne",
+      "request": {
+        "title": "Demande de message",
+        "tab": "Demandes",
+        "received": "{{name}} ne fait pas partie de vos relations et vous écrit : acceptez pour lui répondre. Refuser masque la conversation, sans le lui dire.",
+        "accept": "Accepter",
+        "decline": "Refuser",
+        "declined": "Demande refusée.",
+        "none": "Aucune demande de message en attente."
+      }
     },
     "groups": {
       "new": "Nouveau groupe",

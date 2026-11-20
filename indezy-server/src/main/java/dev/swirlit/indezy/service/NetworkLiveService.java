@@ -80,10 +80,14 @@ public class NetworkLiveService {
         if (settings.presence() != null) {
             member.setPresenceShown(settings.presence());
         }
+        if (settings.requests() != null) {
+            member.setMessageRequests(settings.requests());
+        }
         return view(member);
     }
 
     private static NetworkMessageDtos.Messaging view(NetworkMember member) {
-        return new NetworkMessageDtos.Messaging(member.showsReadReceipts(), member.showsTyping(), member.showsPresence());
+        return new NetworkMessageDtos.Messaging(member.showsReadReceipts(), member.showsTyping(), member.showsPresence(),
+            member.acceptsMessageRequests());
     }
 }

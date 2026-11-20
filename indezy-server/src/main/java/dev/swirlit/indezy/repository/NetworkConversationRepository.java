@@ -11,4 +11,7 @@ public interface NetworkConversationRepository extends JpaRepository<NetworkConv
     Optional<NetworkConversation> findByPairKey(String pairKey);
 
     long countByCreatedByAndCreatedAtAfter(Long createdBy, LocalDateTime since);
+
+    /** How many message requests a member opened since a moment. */
+    long countByCreatedByAndRequestStatusIsNotNullAndCreatedAtAfter(Long createdBy, LocalDateTime since);
 }
