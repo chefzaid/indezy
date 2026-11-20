@@ -89,51 +89,51 @@ Bugs, failing checks, security findings and code smells found while working on a
 Parts of tasks that cannot advance without the owner's decision or information. Only the part needing input is set aside here; the rest of the task keeps moving. Answer under the item, and the next agent run applies the answer and removes the entry.
 
 - [ ] **AI provider and costs** (AI & Automation: message polish, job description parsing, suggested rate, job fit, recommendations, CV adaptation, follow-up messages, project chat, semantic search, CV generator, status suggestions, local LLM; the profile import's CV reading; and the voice memo transcription). Options: (a) bring-your-own key only, each user pays their provider (which providers first: Anthropic, OpenAI, Mistral?); (b) an Indezy key in Vault with per-plan limits and a monthly spending cap; (c) a model run on the cluster (Ollama, whisper.cpp), which needs CPU/GPU budget. Bring-your-own-key support itself can be built once the providers are chosen.
-  - Answer:
+  - Answer: (2026-11-20) (b) and (a) both: an Indezy key in Vault (Anthropic first) with per-plan limits and a monthly spending cap by default, plus an optional bring-your-own key that lifts the limits.
 - [ ] **Google, Microsoft, Dropbox and LinkedIn accounts** (calendar two-way sync, Gmail/Outlook inbox sync, Drive/OneDrive/Dropbox backups, social login and Gmail/Outlook/LinkedIn sign-in through Keycloak, the profile import's **Connect with LinkedIn**): each needs an OAuth client registered under your accounts, Gmail's restricted scopes need Google's security assessment, and LinkedIn's Member Data Portability API is granted per app after LinkedIn reviews it. Which providers first, and will you register the clients (their ids and secrets go to Vault)?
   - Answer:
 - [ ] **Email open and reply tracking** (Communications): emails leave from the user's own mail client today, so tracking means sending through Indezy (Resend) with a tracking pixel and reply detection, which the CNIL treats as needing the recipient's consent. Build it with a per-email opt-in and a notice in the email, or drop it?
-  - Answer:
+  - Answer: (2026-11-20) Build it with a per-email opt-in: sent through Indezy (Resend) with a tracking pixel and reply detection only when the user ticks it, and a notice in the email.
 - [ ] **Malt connector and OpenClaw automation** (Job Board Integrations): Malt has no public API, and reading or posting through browser automation may break its terms and those of other sites. Do you have API or partnership access, or should both items be dropped?
-  - Answer:
+  - Answer: (2026-11-20) Drop both items (no API or partnership access).
 - [ ] **Publisher identity and legal texts** (Terms of Service, Privacy Policy, Contact and FAQ pages; the presentation page's legal notice and footer; the EU hosting statement, processor list and data processing agreement): the legal notice must name the publisher (company or person, address, registration number, publication director), the host and a contact address, and the texts need your approval or a lawyer's. Please provide these details; I can then draft the pages for review.
   - Answer:
 - [ ] **Plans, prices and payment provider** (Subscription/freemium, Plans and entitlements, the presentation page's pricing section): what goes in each plan, the prices, the trial length, and the payment provider (Stripe, Paddle, Lemon Squeezy?) whose account you would open.
-  - Answer:
+  - Answer: (2026-11-20) Later: the app stays free until plans are decided; no payment provider yet.
 - [ ] **Production sign-up** (presentation page call to action): the Keycloak realm has no self-registration and the OAuth2 Proxy admits only `platform-admins`. Open self-registration to the public at launch, keep invitations only, or run a waiting list?
-  - Answer:
+  - Answer: (2026-11-20) Open self-registration to the public at launch, on a Keycloak realm of Indezy's own (see **Keycloak login theme**), with Verify email and Forgot password on.
 - [ ] **Paid compliance providers** (Electronic signature, French B2B e-invoicing, Payment reconciliation): which qualified trust provider (Yousign, Docusign, Universign?), which approved e-invoicing platform (PDP), and which bank account information provider (Bridge, Powens?) to integrate, with accounts you open. Also: Factur-X invoices of a seller under the VAT franchise give its SIREN as its tax registration (BT-32, schemeID FC), which the EN 16931 rules require for exempt lines; ask the platform whether it expects another identifier there.
   - Answer:
 - [ ] **Mobile app technology** (Cross-platform mobile app, Push notifications): (a) the web app made installable (PWA) with web push, no store; (b) the Angular app wrapped with Capacitor and published in the stores, which needs Apple and Google developer accounts; (c) native apps. Web push also needs a VAPID key pair stored in Vault.
-  - Answer:
+  - Answer: (2026-11-20) (a) the installable web app (PWA) with web push, no store; a VAPID key pair goes to Vault.
 - [ ] **Community features rules** (Freelancer network, Co-optation tracking, Community TJM and client reviews, Feature request board): who counts as a peer (invitation, organization, everyone), what a shared opportunity reveals, and how reviews of clients and ESNs are moderated (defamation risk). Please set these rules, or drop the items.
-  - Answer:
+  - Answer: (2026-11-20) Reviews of clients and ESNs show their text, with a **Report** button on each; a pre-moderation system holds what looks like spam, slurs or doxxing (personal data) before it is shown. To break down into items: a spam/abuse filter on reviews (rules and a score, like the posts' spam score), a pre-moderation queue in the admin console with its notification to the administrators, reporting with its dashboard, and the author told when a review is held or removed. Peers: freelancers only, moderation by the administrators (and community moderators where it applies), as decided under **Member network audience**.
 - [ ] **Aggregated market data consent** (ADR — aggregated data, TJM benchmark by skill/seniority/region, ESN scorecard, quarterly market report): contributing a user's rates and processes needs their opt-in and a publication threshold. Confirm the rules in that ADR item (opt-in, minimum number of freelancers per figure, no client or contact identity) so the ADR can be written and the features built on it.
-  - Answer:
+  - Answer: (2026-11-20) Opt-in only; a figure is published once 5 or more freelancers back it; never a client's or contact's identity.
 - [ ] **Social contribution rates** (URSSAF/social contribution estimation per status, Declaration calendar, Expand reversion rate calculator customization): rates and ceilings change every January. Should Indezy keep an official table per year (whoever updates it each January), or ask each user for their own rates with the URSSAF simulator linked?
-  - Answer:
+  - Answer: (2026-11-20) An official table per year and per status, shipped in the code and updated each January; each user can override their own rate.
 - [ ] **Expense tracking** (Expense tracking): what should expenses change in the reversion calculator? In a micro-entreprise they are not deductible (flat allowance), in an EI au réel, EURL or SASU they lower the taxable profit, and in portage they are reimbursed as professional expenses. Options: (a) per status as just described; (b) only a record of expenses with monthly and yearly totals, without changing the net income.
-  - Answer:
+  - Answer: (2026-11-20) (a) per status: not deductible in a micro-entreprise (flat allowance), lowering the taxable profit in an EI au réel, EURL or SASU, reimbursed in portage; the net income follows.
 - [ ] **Dashboard period tagging** (Analytics & Reporting): job-hunting seasons already scope the dashboard to a named period. Should period tags (`YYYY-MM`) be something else (for instance monthly reports), or is this item covered by seasons and can be closed?
-  - Answer:
+  - Answer: (2026-11-20) Covered by seasons: close the item.
 - [ ] **Help center and status page** (Help And Support; Commercial and Enterprise Foundation): members write from the app, so the channel is the support requests; still needed are the support address shown to visitors without an account, the response targets per plan, and which status page (a platform service such as Uptime Kuma, or a hosted one)?
-  - Answer:
+  - Answer: (2026-11-20) No status page for now.
 - [ ] **Network access for new job boards** (More sites): this coding environment cannot reach the job boards' sites (its proxy refuses them), so the new readers cannot be written and checked here. Allow these hosts for the coding sessions, or check the sites from your machine?
-  - Answer:
+  - Answer: (2026-11-20) Allow the job boards' hosts for the coding sessions (exact hosts proposed for approval in the environment).
 - [ ] Create two pipeline schedules on `main` in GitLab (CI/CD → Schedules), which needs your GitLab access: a nightly one with `PLAYWRIGHT_SCHEDULE=true` (for instance `30 2 * * *`, Europe/Paris) for the E2E suite, and the weekly reader canary with `READER_CANARY=true` (`0 6 * * 1`) if it is not there yet (CI item, "scheduled e2e runs"; `docs/testing.md`).
   - Answer:
 - [ ] Create Indezy's Resend sending key and store it in Vault before the next release (Offer feed, "Saved search emails", answered: Resend). The emails are built and send nothing without a key; the release that brings them adds the `indezy-mail` ExternalSecret, which needs the field `RESEND_API_KEY` at Vault KV v2 path `secret/apps/indezy/mail` to exist, even empty, or Argo CD reports the app degraded and the deploy job fails. Steps (`docs/deployment.md#saved-search-email-credentials`): in Resend, create a sending access key restricted to `swirlit.dev` (already verified for the website's `noreply@swirlit.dev`), then write it to that path, or write an empty value to release first and add the key later (restart `indezy-server` after the ExternalSecret refreshes). Options: (a) you write the key; (b) the agent writes an empty field now with your approval, and you add the key later. *(task: Offer feed › Saved search emails; asked by: Coding Agent)*
   - Answer:
 - [ ] Should the nightly archiving of idle opportunities be on by default? It ships off: each account turns it on in Profile → Preferences, so nothing leaves anyone's board unannounced. Options: (a) keep it opt-in; (b) on for new accounts only; (c) on for every account, existing ones included, announced in the interface first. *(task: Pipeline & Kanban › Automatic archiving; asked by: Coding Agent)*
-  - Answer:
+  - Answer: (2026-11-20) (b) on for new accounts only; existing accounts keep their choice.
 - [ ] Should contacts be anonymized after a retention period by default? It ships off: each account picks a period (1, 2, 3 or 5 years without exchange) in Profile → Preferences, so no one's contacts are cleared unannounced. The CNIL advises 3 years after the last contact for prospects. Options: (a) keep it opt-in; (b) 3 years for new accounts only; (c) 3 years for every account, existing ones included, announced in the interface first. *(task: Compliance & Trust › GDPR for third-party data; asked by: Coding Agent)*
-  - Answer:
+  - Answer: (2026-11-20) (b) 3 years for new accounts only; existing accounts keep their choice.
 - [ ] **Publishing the browser extension** (Chrome extension to capture postings): it is built (`indezy-web/extension`) and can be loaded unpacked. Publishing it in the Chrome Web Store needs a developer account (a one-time fee, under whose name?), a privacy policy URL (see **Publisher identity and legal texts**) and the store listing's screenshots; Firefox would need its own add-on account. Publish it, and where?
   - Answer:
 - [ ] **Teams tier: organizations** (Teams Tier, all items): `docs/adr/0011-organizations-for-the-teams-tier.md` proposes the organization model and its data boundary (private by default; availability, skills and dispatched work shared on joining; anything else per item). Accept it as written or change it, and answer its three questions (the boundary, the first kind of organization, several organizations per consultant). The tier also waits on **Plans, prices and payment provider**.
-  - Answer:
+  - Answer: (2026-11-20) Accept ADR 0011 as written (the tier still waits on plans and payment).
 - [ ] **Search load target** (Search under load): `OfferSearchLoadTest` asks for a 95th percentile under 300 ms with 20 searches at a time over 40,000 open offers. Measured on 2026-10-27 (PostgreSQL 16, four cores): 2.9 s, down from 7.0 s, after the work listed in the item. Twenty searches on four cores leave each about 60 ms of processor time, while the simplest one (newest offers, no filter: the total, the page and the workspace's states) already takes about 190 ms alone, so the target needs a change of means, not more query tuning. Options: (a) a search engine beside PostgreSQL (OpenSearch or Meilisearch: a new service to run, fed by the collection); (b) more processors for the database and the server; (c) a target closer to the real use (how many searches at a time are expected at launch?), for instance 300 ms alone and 1 s at the 95th percentile with 20 at a time. Which one?
-  - Answer:
+  - Answer: (2026-11-20) (c) a target closer to real use: 300 ms for one search alone, 1 s at the 95th percentile with 20 at a time; revisit with real traffic.
 
 - [ ] **Accounting tool connectors** (Invoicing and Compliance, "Direct connectors"): the FEC export already feeds any French accounting tool by import. Pushing entries straight into a tool needs a partner or developer account with it (Pennylane's API, Tiime, Indy…). Which tools do your users rely on, and do you have, or want to apply for, API access to them?
   - Answer:
@@ -142,15 +142,15 @@ Parts of tasks that cannot advance without the owner's decision or information. 
   - Answer:
 
 - [ ] **Late-payment interest rate** (Payment reconciliation: "statutory late-payment interest and the fixed recovery indemnity computed on overdue invoices"): the €40 indemnity is fixed, but the statutory interest is the ECB's main refinancing rate in force on 1 January or 1 July, plus 10 points (art. L441-10), and it changes every six months. Indezy cannot read it from here (the ECB site is out of this environment's reach). Should the server (a) fetch it from the ECB data API twice a year (needs that host allowed in production), (b) read it from a setting you update each semester, or (c) let each freelancer type the rate their terms state?
-  - Answer:
+  - Answer: (2026-11-20) (c) each freelancer types the rate their terms state.
 
 - [ ] **Keycloak login theme** (Custom Keycloak login theme): Indezy signs in through the platform's `oauth2-proxy` client of the shared `swirl` realm and has no Keycloak client of its own, so a login theme set on the realm changes the sign-in page of every platform application. Should the theme be a Swirl one for the whole platform, or should Indezy get its own Keycloak client (and its own OAuth2 Proxy) so the theme applies to it alone? Either way the theme is installed on the platform's Keycloak, which this repository does not deploy.
-  - Answer:
+  - Answer: (2026-11-20) Create a separate Keycloak realm for Indezy and override the Swirl theme there with an Indezy one, with its logo.
 - [ ] **Exchange rates** (Multi-currency support): invoicing an international client in its currency needs, for each invoice, the euro amount at the issue date (the FEC export states euros, with the currency amount beside it) and euros for the dashboard's totals. Where should the rates come from: the ECB's daily reference rates fetched by the server (needs the ECB host allowed in production), or typed on each invoice? And which currencies (USD, GBP, CHF...)?
-  - Answer:
+  - Answer: (2026-11-20) Typed on each invoice (the rate or the euro amount at issue); USD, GBP and CHF first.
 
 - [ ] **Versioned migrations and backups** (Automated DB backups with point-in-time recovery; versioned migrations; connection pooling): (a) moving to Flyway means a baseline that matches the production schema exactly, then `ddl-auto: validate` everywhere and the startup fix-ups (`EnumCheckConstraints`, `ColumnLengths`, `OfferSearchIndex`, `ProjectStatusMigration`) turned into migrations. A baseline written from the entities could differ from what Hibernate's `update` built over time, and a mismatch stops the server at start. Can you provide `pg_dump --schema-only` of the production `indezy` database (no data), or confirm a copy can be restored to test the switch? (b) Point-in-time recovery belongs to the shared PostgreSQL of `swirl-cloud`: should it be set up there (WAL archiving to which object storage)? Connection pooling is already Spring Boot's HikariCP (10 connections per replica).
-  - Answer:
+  - Answer: (2026-11-20) Not now: keep Hibernate's `update`.
 
 - [ ] **Administrators**: who opens the admin console? Set their emails, comma-separated, as `INDEZY_ADMIN_EMAILS` in the `indezy-server-config` ConfigMap (`infra/k8s/server.yaml`, empty today so nobody is an administrator) and restart the server (see `docs/deployment.md#administrators`). The account must exist first.
 
@@ -510,7 +510,12 @@ Fills the profile from what the freelancer already wrote elsewhere instead of ty
 
 - [x] Freelancer network: share opportunities you decline with peers Done on 2026-11-15 with **Share to the network** on a declined opportunity (client removed), and on 2026-11-16 as opportunity cards in conversations (`docs/features.md#member-network`).
 - [x] Co-optation tracking (who referred whom, referral bonuses) Partly done on 2026-11-16: an opportunity added from a mission post or a shared card records who referred it as its source (`Indezy @handle`); referral bonuses remain. Done on 2026-11-20: a **Co-optation** card on each opportunity, who referred it or whom one referred, the bonus fixed, per day worked or a share, counted from the timesheets, promised, due or paid, and what is still to pay and to receive (`docs/features.md#co-optation`).
-- [ ] Community TJM and client reviews (anonymized)
+- [ ] Community TJM and client reviews (anonymized) Rules decided on 2026-11-20 (Needs Input, **Community features rules** and **Aggregated market data consent**): rates contributed on opt-in, a figure shown once 5 or more freelancers back it; reviews show their text, with a report button and pre-moderation. Broken down:
+  - [ ] Review of a client or an ESN by a member who worked with it: a few ratings (payment delay, process, honesty of the rate) and a text, never naming a contact.
+  - [ ] Spam and abuse filter on reviews: rules and a score (repeated text, links, slurs, personal data such as phone numbers, emails or names), holding a review for moderation instead of showing it.
+  - [ ] Pre-moderation queue in the admin console for the reviews held, with a notification to the administrators when one waits; publish, edit out or reject, the author told.
+  - [ ] **Report** on each review (reason as for posts), reaching the same queue, with a reports dashboard (by client, by reason, by age).
+  - [ ] Community TJM benchmark from the rates members opt in to share: by skill, seniority and region, shown once 5 or more freelancers back a figure.
 - [x] Public profile page (shareable mini-portfolio with availability status). Done on 2026-10-27: Profile → **Public profile** shows `/p/<address>` to anyone with the link (`docs/features.md#public-profile`).
 - [x] Feature request / community board with upvoting (already in roadmap - implement). Done on 2026-11-20 as **Ideas for Indezy** (`/network/ideas`) for the network's members, answered and merged by the administrators as decided under **Member network audience**; supporters are told when an idea moves on (`docs/features.md#member-network`). Publishing accepted support requests to it waits on the support requests below.
 
