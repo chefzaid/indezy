@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Reviews of clients and ESNs
+
+On a client's page, read what members who worked with it say of it, and review it yourself once you won a mission with it; reviews that name someone or accuse wait for the moderators. See [Clients, ESNs and contacts](/help/clients-contacts).
+
 ### Expenses
 
 **Expenses**, in the menu: record your business expenses and see what they cost you net under your status (micro-entreprise, EI, company or portage). See [Quotes and invoices](/help/invoices-quotes).

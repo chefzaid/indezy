@@ -24,7 +24,8 @@ export const NOTICE_ICONS: Record<NetworkNotificationType, string> = {
   WARNED: 'report', CONTENT_REMOVED: 'delete', SUSPENDED: 'timer_off', REPORT_ACTED: 'gavel', REPORT_DISMISSED: 'flag',
   COMMUNITY_POST: 'diversity_3', COMMUNITY_REQUEST: 'group_add', COMMUNITY_ACCEPTED: 'how_to_reg', COMMUNITY_MODERATOR: 'shield_person', MISSION_MATCH: 'work',
   IDEA_STATUS: 'lightbulb', MEETUP_REMINDER: 'event', MEETUP_CANCELLED: 'event_busy',
-  INVITE_JOINED: 'waving_hand'
+  INVITE_JOINED: 'waving_hand', REVIEW_HELD: 'hourglass_top', REVIEW_PUBLISHED: 'rate_review', REVIEW_REJECTED: 'delete',
+  REVIEW_PENDING: 'pending_actions'
 };
 
 /** The filters of the notifications, as on LinkedIn: all, the unread, and by what happened. */

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les avis sur les clients et les ESN
+
+Sur la page d'un client, lisez ce qu'en disent les membres qui y ont travaillé, et donnez votre avis une fois une mission gagnée avec lui ; les avis qui nomment quelqu'un ou accusent attendent les modérateurs. Voir [Clients, ESN et contacts](/help/clients-contacts).
+
 ### Les dépenses
 
 **Dépenses**, dans le menu : enregistrez vos frais professionnels et voyez ce qu'ils vous coûtent net selon votre statut (micro-entreprise, EI, société ou portage). Voir [Devis et factures](/help/invoices-quotes).

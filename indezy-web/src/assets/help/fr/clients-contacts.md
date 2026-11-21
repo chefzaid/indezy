@@ -28,6 +28,14 @@ La page l'indique alors avec la date de l'annonce. Seul le SIREN est envoyé. Un
 
 Dès qu'un client a des factures payées, sa page dit comment il paie vraiment, par exemple « Paie en 52 jours en moyenne, avec 12 jours de retard (4 facture(s) payée(s)) ». La même phrase apparaît sur les opportunités qu'il paie. Voir [Devis et factures](/help/invoices-quotes).
 
+## Les avis des membres
+
+Si vous êtes membre du réseau, la page d'un client affiche les **Avis des membres** : ce qu'en disent les freelances qui ont travaillé avec cette entreprise, sans leur nom, avec trois notes sur cinq (paiement, processus, honnêteté sur le tarif). Les membres qui ont la même entreprise comme client voient les mêmes avis, reconnus par son SIREN.
+
+- Une fois une mission gagnée avec le client, comme client final ou comme ESN, cliquez sur **Donner mon avis**, notez-le et écrivez quelques lignes. Vous pourrez modifier ou supprimer votre avis.
+- Ne nommez personne, et ne donnez ni numéro, ni e-mail, ni lien : un tel avis, comme un avis avec une insulte ou une accusation, attend les modérateurs avant d'être affiché. Vous êtes prévenu quand ils le publient ou le rejettent.
+- **Signaler** sous un avis l'envoie aux modérateurs.
+
 ## Ajouter et importer des contacts
 
 Un contact appartient à un client. Il a un nom, un e-mail, un téléphone, un poste, des notes et la base légale qui justifie de garder ses coordonnées.

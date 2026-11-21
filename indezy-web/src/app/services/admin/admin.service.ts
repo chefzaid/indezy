@@ -47,4 +47,9 @@ export class AdminService {
   release(id: number, publish: boolean): Observable<ModerationQueue> {
     return this.http.put<ModerationQueue>(`${this.API_URL}/network/held/${id}`, null, { params: new HttpParams().set('publish', publish) });
   }
+
+  /** Publishes a held review, with its text edited out when given, or rejects it. */
+  releaseReview(id: number, publish: boolean, text: string | null = null): Observable<ModerationQueue> {
+    return this.http.put<ModerationQueue>(`${this.API_URL}/network/held-reviews/${id}`, { publish, text });
+  }
 }

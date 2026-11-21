@@ -47,5 +47,13 @@ public enum NetworkNotificationType {
     /** An event the recipient goes to or is interested in was cancelled. */
     MEETUP_CANCELLED,
     /** A contact the recipient invited joined the network. */
-    INVITE_JOINED
+    INVITE_JOINED,
+    /** The filter held the recipient's review of a company for the moderators. */
+    REVIEW_HELD,
+    /** The moderators published the recipient's held review. */
+    REVIEW_PUBLISHED,
+    /** The moderators rejected the recipient's held review. */
+    REVIEW_REJECTED,
+    /** A review waits for the recipient, an administrator, to publish or reject it. */
+    REVIEW_PENDING
 }

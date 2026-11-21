@@ -28,6 +28,14 @@ The page then says so, with the announcement's date. Only the SIREN is sent. A c
 
 Once a client has paid invoices, its page says how it really pays, for example "Pays in 52 days on average, 12 days late (4 paid invoice(s))". The same line shows on the opportunities it pays for. See [Quotes and invoices](/help/invoices-quotes).
 
+## Reviews by members
+
+If you are a member of the network, a client's page shows **Reviews by members**: what freelancers who worked with this company say of it, without their names, with three ratings out of five (payment, process, honesty on the rate). Members who keep the same company as a client see the same reviews, matched by its SIREN.
+
+- Once you won a mission with the client, as final client or as ESN, click **Review this company**, rate it and write a few lines. You can change or delete your review later.
+- Name no one, and give no phone number, email or link: such a review, like one with an insult or an accusation, waits for the moderators before it is shown. You are told when they publish or reject it.
+- **Report** under a review sends it to the moderators.
+
 ## Add and import contacts
 
 A contact belongs to one client. It has a name, email, phone, position, notes and the legal basis for keeping their details.

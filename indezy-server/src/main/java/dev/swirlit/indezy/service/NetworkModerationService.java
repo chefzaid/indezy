@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.NetworkModerationDtos;
+import dev.swirlit.indezy.dto.NetworkReviewDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkComment;
@@ -9,6 +10,7 @@ import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkMessage;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkReport;
+import dev.swirlit.indezy.model.NetworkReview;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.AccountEventType;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
@@ -66,6 +68,7 @@ public class NetworkModerationService {
     private final AccountEventService events;
     private final Clock clock;
     private final NetworkFileService files;
+    private final NetworkReviewService reviewService;
 
     @Transactional
     public void reportPost(Long userId, Long postId, NetworkModerationDtos.NewReport request) {
@@ -93,6 +96,13 @@ public class NetworkModerationService {
             throw new InvalidStateException("A deleted message cannot be reported");
         }
         save(userId, NetworkReportTarget.MESSAGE, message.getId(), message.getSenderId(), message.getText(), request);
+    }
+
+    /** Reports a published review of a client or an ESN: its text goes to the moderators with the report. */
+    @Transactional
+    public void reportReview(Long userId, Long reviewId, NetworkModerationDtos.NewReport request) {
+        NetworkReview review = reviewService.readable(userId, reviewId);
+        save(userId, NetworkReportTarget.REVIEW, review.getId(), review.getAuthorId(), review.getText(), request);
     }
 
     @Transactional
@@ -137,7 +147,15 @@ public class NetworkModerationService {
             reports.countByOutcomeIsNull(),
             held.findAllByOrderByCreatedAtAscIdAsc(PageRequest.of(0, SHOWN)).stream().map(kept -> new NetworkModerationDtos.Held(kept.getId(),
                 parties.computeIfAbsent(kept.getAuthorId(), this::party), kept.getPostId(), kept.getText(),
-                List.of(kept.getReasons().split(",")), kept.getCreatedAt())).toList());
+                List.of(kept.getReasons().split(",")), kept.getCreatedAt())).toList(),
+            reviewService.held(author -> parties.computeIfAbsent(author, this::party)));
+    }
+
+    /** Publishes a held review, edited or not, or rejects it; it leaves the queue either way. */
+    @Transactional
+    public NetworkModerationDtos.Queue releaseReview(Long adminId, Long reviewId, NetworkReviewDtos.Release release) {
+        reviewService.release(adminId, reviewId, release);
+        return queue();
     }
 
     /**
@@ -206,6 +224,8 @@ public class NetworkModerationService {
             case REMOVED -> {
                 if (report.getTargetType() == NetworkReportTarget.POST) {
                     posts.findById(report.getTargetId()).ifPresent(postService::remove);
+                } else if (report.getTargetType() == NetworkReportTarget.REVIEW) {
+                    reviewService.remove(report.getTargetId());
                 } else if (report.getTargetType() == NetworkReportTarget.MESSAGE) {
                     // The removed message's card goes with its text.
                     messageService.removeByModerators(report.getTargetId());

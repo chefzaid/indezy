@@ -580,6 +580,24 @@ tab) with **Approve** and **Decline**, and **Requests sent** those they wait an 
 (`GET /api/network/follow-requests/sent`). Following goes one way, as on Instagram: there are no friends, and a follow
 counts once accepted (at once for a public card). A tile shows **Message** once either follows the other.
 
+### Client And ESN Reviews
+
+A client's page shows **Reviews by members** to the network's members (`GET /api/network/reviews/client/{clientId}`):
+the averages of three ratings out of five (payment, process, honesty on the rate) and the published reviews, without
+their authors, each with **Report** (`POST /api/network/reviews/{id}/report`, the reasons of posts). The reviews of
+members who each keep the company as their own client meet by its SIREN, else by its name folded (case, accents and
+punctuation aside). A member who won a mission with the client, as final client or as ESN, writes or rewrites their one
+review of it (`PUT`, 20 to 2,000 characters) or deletes it.
+
+A review is held for the administrators instead of shown when it looks like spam, an insult or personal data
+(`NetworkReviewFilter`): a link, an email address, a phone number, the name of one of the author's contacts at the
+company, an insult or slur, an accusation of an offence ("escroc", "arnaque", "scam": a fact for a court, a defamation
+risk for a review), the same text as another of the author's reviews, or mostly capitals. The author is told it waits
+(`REVIEW_HELD`), and so is each administrator (`REVIEW_PENDING`). **Admin → Moderation** lists the held reviews with
+their reasons: the administrator edits out what should not show and publishes, or rejects, the author told either way
+(`REVIEW_PUBLISHED`, `REVIEW_REJECTED`). A reported review is decided like a post; removed, it is no longer shown and
+cannot be written again for that company.
+
 ## Projects And Opportunities
 
 **Opportunities** (`/projects`) lists the workspace's opportunities and missions. Beyond the role, stage, description,

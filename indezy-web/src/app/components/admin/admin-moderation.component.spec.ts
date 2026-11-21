@@ -26,7 +26,7 @@ describe('AdminModerationComponent', () => {
       reasons: ['LINKS', 'NEW_MEMBER_LINK'], createdAt: '2026-11-14T12:00:00' }] };
 
   function create(read = of(queue)): ComponentFixture<AdminModerationComponent> {
-    admin = jasmine.createSpyObj('AdminService', ['reports', 'decide', 'release']);
+    admin = jasmine.createSpyObj('AdminService', ['reports', 'decide', 'release', 'releaseReview']);
     admin.reports.and.returnValue(read);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -116,6 +116,29 @@ describe('AdminModerationComponent', () => {
     component.release(queue.held[0], true);
     expect(notifications.error).toHaveBeenCalledWith('admin.saveError');
     expect(component.releasing).toBeNull();
+  });
+
+  it('publishes a held review edited out, or rejects it', () => {
+    const review = { id: 9, author: { accountId: 4, handle: 'bob', name: 'Bob Martin' }, companyName: 'Capgemini', kind: 'ESN' as const,
+      paymentRating: 2, processRating: 4, rateRating: 3, text: 'Call Jean Dupont at 06 12 34 56 78.', reasons: ['PHONE', 'CONTACT_NAME'],
+      createdAt: '2026-11-21T10:00:00' };
+    const fixture = create(of({ ...queue, heldReviews: [review] }));
+    const component = fixture.componentInstance;
+    const card: HTMLElement = fixture.nativeElement.querySelector('[data-held-review="9"]');
+    expect(card.textContent).toContain('Review of Capgemini');
+    expect(card.textContent).toContain('Phone number');
+    expect(component.reviewText(review)).toBe(review.text);
+    component.editReview(review, ' Slow to answer. ');
+    admin.releaseReview.and.returnValue(of({ ...queue, heldReviews: [] }));
+    (card.querySelector('[data-release-review="publish"]') as HTMLButtonElement).click();
+    expect(admin.releaseReview).toHaveBeenCalledWith(9, true, 'Slow to answer.');
+    expect(notifications.success).toHaveBeenCalledWith('admin.moderation.released');
+    component.releaseReview(review, false);
+    expect(admin.releaseReview).toHaveBeenCalledWith(9, false, null);
+    admin.releaseReview.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
+    component.releaseReview(review, true);
+    expect(notifications.error).toHaveBeenCalledWith('admin.moderation.stale');
+    expect(component.releasingReview).toBeNull();
   });
 
   it('names who is gone by their account, and says when the queue cannot be loaded', () => {

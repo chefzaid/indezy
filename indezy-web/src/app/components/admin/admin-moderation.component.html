@@ -69,6 +69,38 @@
         </mat-card>
       }
     }
+    @if (queue.heldReviews?.length) {
+      <h3>{{ 'admin.moderation.heldReviews' | translate: { count: queue.heldReviews!.length } }}</h3>
+      <p class="hint">{{ 'admin.moderation.heldReviewsHint' | translate }}</p>
+      @for (item of queue.heldReviews; track item.id) {
+        <mat-card class="report" [attr.data-held-review]="item.id">
+          <div class="head">
+            <span class="type">{{ 'admin.moderation.reviewOf' | translate: { company: item.companyName } }}</span>
+            <span class="target">{{ who(item.author) }}</span>
+            @for (reason of item.reasons; track reason) {
+              <span class="reason">{{ 'admin.moderation.reviewReasons.' + reason | translate }}</span>
+            }
+          </div>
+          <p class="meta">{{ 'admin.moderation.reviewRatings' | translate: { payment: item.paymentRating, process: item.processRating, rate: item.rateRating } }}</p>
+          <mat-form-field appearance="outline" class="note">
+            <mat-label>{{ 'admin.moderation.reviewText' | translate }}</mat-label>
+            <textarea matInput rows="4" maxlength="2000" [value]="reviewText(item)" (input)="editReview(item, $any($event.target).value)"
+              data-held-review-text></textarea>
+          </mat-form-field>
+          <p class="meta">{{ 'admin.moderation.heldBy' | translate: { who: who(item.author), date: (item.createdAt | date:'short') } }}</p>
+          <div class="actions">
+            <button mat-stroked-button type="button" [disabled]="releasingReview === item.id" (click)="releaseReview(item, true)"
+              data-release-review="publish">
+              {{ 'admin.moderation.publish' | translate }}
+            </button>
+            <button mat-stroked-button type="button" class="danger" [disabled]="releasingReview === item.id" (click)="releaseReview(item, false)"
+              data-release-review="reject">
+              {{ 'admin.moderation.reject' | translate }}
+            </button>
+          </div>
+        </mat-card>
+      }
+    }
     @if (queue.resolved.length) {
       <h3>{{ 'admin.moderation.resolved' | translate }}</h3>
       <ul class="resolved" data-moderation-resolved>

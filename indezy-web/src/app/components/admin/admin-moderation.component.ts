@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subject, of, switchMap, takeUntil } from 'rxjs';
 
-import { HeldItem, ModerationQueue, NetworkReport, ReportOutcome, ReportParty } from '../../models';
+import { HeldItem, HeldReview, ModerationQueue, NetworkReport, ReportOutcome, ReportParty } from '../../models';
 import { AdminService } from '../../services/admin/admin.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
@@ -125,6 +125,36 @@ export class AdminModerationComponent implements OnInit, OnDestroy {
       error: (error: HttpErrorResponse) => {
         this.releasing = null;
         this.notifications.error(error.status === 409 ? 'admin.moderation.stale' : 'admin.saveError');
+      }
+    });
+  }
+
+  /** The text a held review is published with: the one the moderator edited out, else its own. */
+  readonly reviewTexts: Record<number, string> = {};
+  releasingReview: number | null = null;
+
+  reviewText(item: HeldReview): string {
+    return this.reviewTexts[item.id] ?? item.text;
+  }
+
+  editReview(item: HeldReview, text: string): void {
+    this.reviewTexts[item.id] = text;
+  }
+
+  /** Publishes a held review, edited out or not, or rejects it, telling the author. */
+  releaseReview(item: HeldReview, publish: boolean): void {
+    this.releasingReview = item.id;
+    const edited = this.reviewTexts[item.id];
+    const text = publish && edited !== undefined && edited.trim() !== item.text ? edited.trim() : null;
+    this.admin.releaseReview(item.id, publish, text).pipe(takeUntil(this.destroy$)).subscribe({
+      next: queue => {
+        this.releasingReview = null;
+        this.queue = queue;
+        this.notifications.success(publish ? 'admin.moderation.released' : 'admin.moderation.rejected');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.releasingReview = null;
+        this.notifications.error(error.status === 404 ? 'admin.moderation.stale' : 'admin.saveError');
       }
     });
   }

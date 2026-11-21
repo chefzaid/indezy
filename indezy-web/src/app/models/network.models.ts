@@ -300,7 +300,8 @@ export interface MemberSuggestion {
 /** What a network notification tells. */
 export type NetworkNotificationType = 'FOLLOW' | 'FOLLOW_REQUEST' | 'FOLLOW_ACCEPTED' | 'LIKE' | 'COMMENT_LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
   'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED' | 'COMMUNITY_POST' | 'COMMUNITY_REQUEST' | 'COMMUNITY_ACCEPTED' | 'COMMUNITY_MODERATOR' | 'MISSION_MATCH' |
-  'IDEA_STATUS' | 'MEETUP_REMINDER' | 'MEETUP_CANCELLED' | 'INVITE_JOINED';
+  'IDEA_STATUS' | 'MEETUP_REMINDER' | 'MEETUP_CANCELLED' | 'INVITE_JOINED' |
+  'REVIEW_HELD' | 'REVIEW_PUBLISHED' | 'REVIEW_REJECTED' | 'REVIEW_PENDING';
 
 /** A community's activity: a post in it, a request to join, an answer, being named a moderator. */
 export const COMMUNITY_NOTICES: readonly NetworkNotificationType[] = ['COMMUNITY_POST', 'COMMUNITY_REQUEST', 'COMMUNITY_ACCEPTED',
@@ -314,10 +315,10 @@ export interface CommunityRef {
 
 /** The moderators' word: told whatever the settings, with no member as its author. */
 export const MODERATION_NOTICES: readonly NetworkNotificationType[] = ['WARNED', 'CONTENT_REMOVED', 'SUSPENDED', 'REPORT_ACTED',
-  'REPORT_DISMISSED'];
+  'REPORT_DISMISSED', 'REVIEW_HELD', 'REVIEW_PUBLISHED', 'REVIEW_REJECTED', 'REVIEW_PENDING'];
 
 /** What a member reports to the moderators. */
-export type ReportTarget = 'posts' | 'comments' | 'members' | 'messages';
+export type ReportTarget = 'posts' | 'comments' | 'members' | 'messages' | 'reviews';
 export type ReportReason = 'SPAM' | 'HARASSMENT' | 'HATE' | 'MISLEADING' | 'CONFIDENTIAL' | 'IMPERSONATION' | 'OTHER';
 export const REPORT_REASONS: readonly ReportReason[] = ['SPAM', 'HARASSMENT', 'HATE', 'MISLEADING', 'CONFIDENTIAL', 'IMPERSONATION',
   'OTHER'];
@@ -333,7 +334,7 @@ export interface ReportParty {
 /** A report in the moderation queue, open or decided. */
 export interface NetworkReport {
   id: number;
-  targetType: 'POST' | 'COMMENT' | 'MEMBER' | 'MESSAGE';
+  targetType: 'POST' | 'COMMENT' | 'MEMBER' | 'MESSAGE' | 'REVIEW';
   targetId: number;
   target: ReportParty;
   excerpt: string | null;
@@ -363,6 +364,69 @@ export interface ModerationQueue {
   resolved: NetworkReport[];
   openCount: number;
   held: HeldItem[];
+  /** Reviews of clients and ESNs the filter held. */
+  heldReviews?: HeldReview[];
+}
+
+/** A review of a client or an ESN the filter held, for an administrator. */
+export interface HeldReview {
+  id: number;
+  author: ReportParty;
+  companyName: string;
+  kind: ReviewKind;
+  paymentRating: number;
+  processRating: number;
+  rateRating: number;
+  text: string;
+  reasons: string[];
+  createdAt: string;
+}
+
+export type ReviewKind = 'CLIENT' | 'ESN';
+export type ReviewStatus = 'PUBLISHED' | 'HELD' | 'REJECTED' | 'REMOVED';
+
+/** A published review of a client or an ESN, without its author. */
+export interface CompanyReview {
+  id: number;
+  kind: ReviewKind;
+  paymentRating: number;
+  processRating: number;
+  rateRating: number;
+  text: string;
+  updatedAt: string;
+  mine: boolean;
+}
+
+/** The reader's own review, whatever its status. */
+export interface MyCompanyReview {
+  id: number;
+  status: ReviewStatus;
+  paymentRating: number;
+  processRating: number;
+  rateRating: number;
+  text: string;
+  heldReasons: string[];
+  updatedAt: string;
+}
+
+/** What the network's members say of one of the workspace's clients. */
+export interface CompanyReviews {
+  companyName: string;
+  kind: ReviewKind;
+  count: number;
+  paymentAverage: number | null;
+  processAverage: number | null;
+  rateAverage: number | null;
+  reviews: CompanyReview[];
+  mine: MyCompanyReview | null;
+  canReview: boolean;
+}
+
+export interface CompanyReviewDraft {
+  paymentRating: number;
+  processRating: number;
+  rateRating: number;
+  text: string;
 }
 
 /** The answer to a post or a comment the spam score held for review instead of publishing it. */

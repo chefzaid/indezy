@@ -27,10 +27,11 @@ const TABS = ['details', 'projects', 'contacts'] as const;
 
 import { PaymentDelayComponent } from '../../../shared/components/payment-delay/payment-delay.component';
 import { CompanyHealthComponent } from '../../../shared/components/company-health/company-health.component';
+import { ClientReviewsComponent } from '../client-reviews/client-reviews.component';
 
 @Component({
     selector: 'app-client-detail',
-    imports: [CompanyHealthComponent, PaymentDelayComponent,
+    imports: [ClientReviewsComponent, CompanyHealthComponent, PaymentDelayComponent,
     CommonModule,
     RouterModule,
     MatCardModule,

@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.admin.AdminService;
 import dev.swirlit.indezy.dto.NetworkModerationDtos;
+import dev.swirlit.indezy.dto.NetworkReviewDtos;
 import dev.swirlit.indezy.service.NetworkModerationService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -69,6 +70,21 @@ public class NetworkModerationController {
         Long adminId = SecurityUtils.getCurrentUserId();
         admin.requireAdmin(adminId);
         return moderation.decide(adminId, id, decision);
+    }
+
+    @Operation(summary = "Report a review", description = "A published review of a client or an ESN")
+    @PostMapping("/network/reviews/{id}/report")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reportReview(@PathVariable Long id, @Valid @RequestBody NetworkModerationDtos.NewReport request) {
+        moderation.reportReview(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "Publish, edited or not, or reject a review the filter held")
+    @PutMapping("/admin/network/held-reviews/{id}")
+    public NetworkModerationDtos.Queue releaseReview(@PathVariable Long id, @Valid @RequestBody NetworkReviewDtos.Release release) {
+        Long adminId = SecurityUtils.getCurrentUserId();
+        admin.requireAdmin(adminId);
+        return moderation.releaseReview(adminId, id, release);
     }
 
     @Operation(summary = "Publish or reject a post or a comment the spam score held")

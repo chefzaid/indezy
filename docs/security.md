@@ -226,6 +226,10 @@ The member network (`/api/network`) is on unless an administrator turns it off (
   comments or held texts of the last day, 1 for 5 mentions or more, 1 for 30 letters or more mostly in capitals; at 3
   points it is held (`202`, nothing published) until an administrator publishes it as its author's or rejects it, the
   author then told it was removed and the rejection recorded in their activity log;
+- a review of a client or an ESN is checked before it is shown (`NetworkReviewFilter`): a link, an email address, a
+  phone number, the name of one of the author's contacts at the company, an insult, an accusation of an offence, a
+  repeated text or shouting holds it until an administrator publishes it (edited or not) or rejects it; reviews are
+  shown without their author, to members only, and a removed one cannot be written again for the same company;
 - a member reports only what they can read (a post or a comment of a member blocking them, like an unknown one, is not
   found), never themselves, and once while the report is open; the report keeps the text as it read, so the audit
   trail survives the removal, and its details and the moderator's note leave the logs;

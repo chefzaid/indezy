@@ -128,6 +128,7 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkBookmark` | `network_bookmarks` | member and post (by id) | by hand, or with its post or either account |
 | `NetworkDraft` | `network_drafts` | member (by id) | by hand, once published (by hand or at its time), or with its account |
 | `NetworkHeld` | `network_held` | member (by id) | when an administrator publishes or rejects it, or with its account |
+| `NetworkReview` | `network_reviews` | member (by id), one per company (`company_key`: `siren:` and the SIREN, else `name:` and the name folded) | by its author, or with its account; a rejected or removed one stays, so it is not written again unseen |
 | `NetworkFile` | `network_files` | member (by id), and its post, message or held post | with what it is attached to; nightly, a day after upload if never attached; with its account, but those of messages sent |
 | `NetworkFileContent` | `network_file_contents` | file (by id), one each | with its file |
 | `NetworkFollow` | `network_follows` | two members (by id) | by hand (unfollow, remove a follower), on a block, or with either account |

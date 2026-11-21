@@ -1,0 +1,88 @@
+@if (enabled) {
+  <mat-card class="reviews" data-client-reviews>
+    <mat-card-content>
+      <h3 class="card-title"><mat-icon>rate_review</mat-icon>{{ 'clients.reviews.title' | translate }}</h3>
+      @if (notMember) {
+        <p class="hint" data-reviews-join>{{ 'clients.reviews.join' | translate }}</p>
+        <a mat-stroked-button routerLink="/network">{{ 'clients.reviews.joinAction' | translate }}</a>
+      } @else if (company; as company) {
+        @if (company.count > 0) {
+          <dl class="averages" data-reviews-averages>
+            <div><dt>{{ 'clients.reviews.ratings.paymentRating' | translate }}</dt><dd>{{ average('paymentAverage') | number:'1.1-1' }} / 5</dd></div>
+            <div><dt>{{ 'clients.reviews.ratings.processRating' | translate }}</dt><dd>{{ average('processAverage') | number:'1.1-1' }} / 5</dd></div>
+            <div><dt>{{ 'clients.reviews.ratings.rateRating' | translate }}</dt><dd>{{ average('rateAverage') | number:'1.1-1' }} / 5</dd></div>
+          </dl>
+          <p class="hint">{{ 'clients.reviews.count' | translate: { count: company.count } }}</p>
+          <ul class="list">
+            @for (review of company.reviews; track review.id) {
+              <li [attr.data-review]="review.id">
+                <p class="scores">
+                  @for (rating of ratings; track rating) {
+                    <span>{{ 'clients.reviews.ratings.' + rating | translate }} {{ review[rating] }}/5</span>
+                  }
+                </p>
+                <p class="text">{{ review.text }}</p>
+                <p class="meta">
+                  {{ (review.mine ? 'clients.reviews.yours' : 'clients.reviews.byMember') | translate }} · {{ review.updatedAt | date:'mediumDate' }}
+                  @if (!review.mine) {
+                    <button mat-button type="button" (click)="report(review)" data-report-review>
+                      <mat-icon>flag</mat-icon>{{ 'clients.reviews.report' | translate }}
+                    </button>
+                  }
+                </p>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="hint" data-reviews-none>{{ 'clients.reviews.none' | translate }}</p>
+        }
+
+        @if (company.mine; as mine) {
+          @if (mine.status !== 'PUBLISHED') {
+            <p class="status" [attr.data-my-review-status]="mine.status" role="status">
+              <mat-icon aria-hidden="true">{{ mine.status === 'HELD' ? 'hourglass_top' : 'block' }}</mat-icon>
+              {{ 'clients.reviews.status.' + mine.status | translate }}
+            </p>
+          }
+        }
+
+        @if (writing) {
+          <form [formGroup]="form" (ngSubmit)="save()" class="form" data-review-form>
+            @for (rating of ratings; track rating) {
+              <div class="rating" role="group" [attr.aria-label]="'clients.reviews.ratings.' + rating | translate">
+                <span class="label">{{ 'clients.reviews.ratings.' + rating | translate }}</span>
+                <mat-button-toggle-group [value]="form.controls[rating].value" (change)="setRating(rating, $event.value)"
+                  [attr.data-rating]="rating" [attr.aria-label]="'clients.reviews.ratings.' + rating | translate">
+                  @for (value of scale; track value) {
+                    <mat-button-toggle [value]="value">{{ value }}</mat-button-toggle>
+                  }
+                </mat-button-toggle-group>
+              </div>
+            }
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'clients.reviews.text' | translate }}</mat-label>
+              <textarea matInput formControlName="text" rows="4" maxlength="2000" data-review-text></textarea>
+              <mat-hint>{{ 'clients.reviews.textHint' | translate }}</mat-hint>
+              <mat-error>{{ 'clients.reviews.textError' | translate }}</mat-error>
+            </mat-form-field>
+            <div class="actions">
+              <button mat-button type="button" (click)="writing = false">{{ 'common.cancel' | translate }}</button>
+              <button mat-flat-button color="primary" type="submit" [disabled]="saving" data-save-review>{{ 'clients.reviews.send' | translate }}</button>
+            </div>
+          </form>
+        } @else if (company.canReview && company.mine?.status !== 'REMOVED') {
+          <div class="actions">
+            <button mat-stroked-button type="button" (click)="write()" data-write-review>
+              <mat-icon>edit</mat-icon>{{ (company.mine ? 'clients.reviews.edit' : 'clients.reviews.write') | translate }}
+            </button>
+            @if (company.mine) {
+              <button mat-button type="button" (click)="remove()" data-delete-review>{{ 'common.delete' | translate }}</button>
+            }
+          </div>
+        } @else if (!company.canReview) {
+          <p class="hint">{{ 'clients.reviews.cannotReview' | translate }}</p>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+}

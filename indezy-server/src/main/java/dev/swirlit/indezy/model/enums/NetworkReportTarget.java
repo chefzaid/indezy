@@ -5,5 +5,7 @@ public enum NetworkReportTarget {
     POST,
     COMMENT,
     MEMBER,
-    MESSAGE
+    MESSAGE,
+    /** A published review of a client or an ESN. */
+    REVIEW
 }

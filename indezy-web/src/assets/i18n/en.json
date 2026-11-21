@@ -787,6 +787,38 @@
         "LIQUIDATION": "liquidation",
         "OTHER": "collective proceedings"
       }
+    },
+    "reviews": {
+      "title": "Reviews by members",
+      "join": "Join the network to read what freelancers who worked with this company say of it, and to review it yourself.",
+      "joinAction": "Open the network",
+      "none": "No member has reviewed this company yet.",
+      "count": "{{count}} review(s) by members who worked with it, shown without their authors.",
+      "ratings": {
+        "paymentRating": "Payment",
+        "processRating": "Process",
+        "rateRating": "Honesty on the rate"
+      },
+      "yours": "Your review",
+      "byMember": "A member",
+      "report": "Report",
+      "write": "Review this company",
+      "edit": "Change my review",
+      "text": "Your review",
+      "textHint": "What it is like to work with it: payments, process, rates. Name no one: a review that gives a name, a phone number or an accusation waits for the moderators.",
+      "textError": "Between 20 and 2,000 characters",
+      "send": "Send",
+      "cannotReview": "You can review a company once you won a mission with it.",
+      "held": "Your review waits for the moderators before it is shown.",
+      "published": "Your review is published.",
+      "deleted": "Your review is deleted.",
+      "deleteConfirm": "Delete your review of this company?",
+      "saveError": "The review could not be saved",
+      "status": {
+        "HELD": "Your review waits for the moderators before it is shown.",
+        "REJECTED": "The moderators did not publish your review: change it to send it again.",
+        "REMOVED": "The moderators removed your review after a report."
+      }
     }
   },
   "contacts": {
@@ -2839,7 +2871,8 @@
         "POST": "Post",
         "COMMENT": "Comment",
         "MEMBER": "Member",
-        "MESSAGE": "Message"
+        "MESSAGE": "Message",
+        "REVIEW": "Review"
       },
       "outcomes": {
         "DISMISSED": "Dismiss",
@@ -2864,7 +2897,22 @@
       },
       "released": "Published",
       "rejected": "Rejected",
-      "stale": "It can no longer be published: reject it"
+      "stale": "It can no longer be published: reject it",
+      "heldReviews": "Reviews held ({{count}})",
+      "heldReviewsHint": "The filter held these reviews of clients and ESNs: edit out what should not be shown, then publish, or reject. The author is told.",
+      "reviewOf": "Review of {{company}}",
+      "reviewRatings": "Payment {{payment}}/5 · Process {{process}}/5 · Honesty on the rate {{rate}}/5",
+      "reviewText": "Text published",
+      "reviewReasons": {
+        "LINKS": "Link",
+        "EMAIL": "Email address",
+        "PHONE": "Phone number",
+        "CONTACT_NAME": "Names a contact",
+        "INSULT": "Insult",
+        "ACCUSATION": "Accusation",
+        "REPEATED": "Repeated text",
+        "SHOUTING": "Capitals"
+      }
     }
   },
   "invoices": {
@@ -3771,7 +3819,11 @@
         "CONTENT_REMOVED": "The moderators removed one of your posts or comments.",
         "SUSPENDED": "The moderators suspended you: for some days you cannot post, comment, repost, follow or report.",
         "REPORT_ACTED": "The moderators acted on a report you made. Thank you.",
-        "REPORT_DISMISSED": "The moderators found nothing against the rules in a report you made."
+        "REPORT_DISMISSED": "The moderators found nothing against the rules in a report you made.",
+        "REVIEW_HELD": "Your review of a company waits for the moderators before it is shown.",
+        "REVIEW_PUBLISHED": "The moderators published your review of a company.",
+        "REVIEW_REJECTED": "The moderators did not publish your review of a company.",
+        "REVIEW_PENDING": "A review of a company waits for you in the moderation queue."
       },
       "periods": {
         "today": "Today",
@@ -3830,7 +3882,8 @@
         "posts": "Report this post",
         "comments": "Report this comment",
         "members": "Report this member",
-        "messages": "Report this message"
+        "messages": "Report this message",
+        "reviews": "Report this review"
       },
       "reason": "Reason",
       "reasonRequired": "Choose a reason",

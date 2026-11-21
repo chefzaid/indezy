@@ -24,7 +24,7 @@ public class AccountPurge {
     static final List<String> PURGED = List.of(
         "network_post_tags", "network_post_versions", "network_post_impressions", "network_post_dismissals", "network_likes", "network_comment_likes",
         "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications", "network_comments",
-        "network_file_contents", "network_files", "network_held", "network_posts", "network_follows",
+        "network_file_contents", "network_files", "network_held", "network_reviews", "network_posts", "network_follows",
         "network_follow_requests", "network_restrictions", "network_tag_follows", "network_drafts", "network_reports",
         "network_message_reactions", "network_conversation_members", "network_page_views", "network_community_members", "network_idea_votes",
         "network_meetup_attendees", "network_meetups", "network_invitations", "network_members",
@@ -104,6 +104,7 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM network_file_contents WHERE file_id IN " + files, u, u, u);
         rows += jdbc.update("DELETE FROM network_files WHERE id IN " + files, u, u, u);
         rows += jdbc.update("DELETE FROM network_held WHERE author_id = ?", u);
+        rows += jdbc.update("DELETE FROM network_reviews WHERE author_id = ?", u);
         rows += jdbc.update("DELETE FROM network_posts WHERE author_id = ?", u);
         for (String table : List.of("network_likes", "network_comment_likes", "network_mission_takes",
             "network_poll_votes", "network_bookmarks", "network_tag_follows", "network_message_reactions",

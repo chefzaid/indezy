@@ -787,6 +787,38 @@
         "LIQUIDATION": "liquidation judiciaire",
         "OTHER": "procédure collective"
       }
+    },
+    "reviews": {
+      "title": "Avis des membres",
+      "join": "Rejoignez le réseau pour lire ce qu'en disent les freelances qui ont travaillé avec cette entreprise, et la noter vous-même.",
+      "joinAction": "Ouvrir le réseau",
+      "none": "Aucun membre n'a encore donné son avis sur cette entreprise.",
+      "count": "{{count}} avis de membres qui y ont travaillé, sans leurs auteurs.",
+      "ratings": {
+        "paymentRating": "Paiement",
+        "processRating": "Processus",
+        "rateRating": "Honnêteté sur le tarif"
+      },
+      "yours": "Votre avis",
+      "byMember": "Un membre",
+      "report": "Signaler",
+      "write": "Donner mon avis",
+      "edit": "Modifier mon avis",
+      "text": "Votre avis",
+      "textHint": "Comment c'est de travailler avec elle : paiements, processus, tarifs. Ne nommez personne : un avis qui donne un nom, un numéro ou une accusation attend les modérateurs.",
+      "textError": "Entre 20 et 2 000 caractères",
+      "send": "Envoyer",
+      "cannotReview": "Vous pourrez donner votre avis une fois une mission gagnée avec elle.",
+      "held": "Votre avis attend les modérateurs avant d'être affiché.",
+      "published": "Votre avis est publié.",
+      "deleted": "Votre avis est supprimé.",
+      "deleteConfirm": "Supprimer votre avis sur cette entreprise ?",
+      "saveError": "L'avis n'a pas pu être enregistré",
+      "status": {
+        "HELD": "Votre avis attend les modérateurs avant d'être affiché.",
+        "REJECTED": "Les modérateurs n'ont pas publié votre avis : modifiez-le pour l'envoyer à nouveau.",
+        "REMOVED": "Les modérateurs ont retiré votre avis après un signalement."
+      }
     }
   },
   "contacts": {
@@ -2839,7 +2871,8 @@
         "POST": "Publication",
         "COMMENT": "Commentaire",
         "MEMBER": "Membre",
-        "MESSAGE": "Message"
+        "MESSAGE": "Message",
+        "REVIEW": "Avis"
       },
       "outcomes": {
         "DISMISSED": "Classer",
@@ -2864,7 +2897,22 @@
       },
       "released": "Publié",
       "rejected": "Rejeté",
-      "stale": "Il ne peut plus être publié : rejetez-le"
+      "stale": "Il ne peut plus être publié : rejetez-le",
+      "heldReviews": "Avis retenus ({{count}})",
+      "heldReviewsHint": "Le filtre a retenu ces avis sur des clients et des ESN : retirez ce qui ne doit pas être affiché, puis publiez, ou rejetez. L'auteur est prévenu.",
+      "reviewOf": "Avis sur {{company}}",
+      "reviewRatings": "Paiement {{payment}}/5 · Processus {{process}}/5 · Honnêteté sur le tarif {{rate}}/5",
+      "reviewText": "Texte publié",
+      "reviewReasons": {
+        "LINKS": "Lien",
+        "EMAIL": "Adresse e-mail",
+        "PHONE": "Numéro de téléphone",
+        "CONTACT_NAME": "Nomme un contact",
+        "INSULT": "Insulte",
+        "ACCUSATION": "Accusation",
+        "REPEATED": "Texte répété",
+        "SHOUTING": "Majuscules"
+      }
     }
   },
   "invoices": {
@@ -3771,7 +3819,11 @@
         "CONTENT_REMOVED": "Les modérateurs ont retiré l’une de vos publications ou l’un de vos commentaires.",
         "SUSPENDED": "Les modérateurs vous ont suspendu : pendant quelques jours, vous ne pouvez ni publier, ni commenter, ni republier, ni suivre, ni signaler.",
         "REPORT_ACTED": "Les modérateurs ont donné suite à l’un de vos signalements. Merci.",
-        "REPORT_DISMISSED": "Les modérateurs n’ont rien relevé de contraire aux règles dans l’un de vos signalements."
+        "REPORT_DISMISSED": "Les modérateurs n’ont rien relevé de contraire aux règles dans l’un de vos signalements.",
+        "REVIEW_HELD": "Votre avis sur une entreprise attend les modérateurs avant d'être affiché.",
+        "REVIEW_PUBLISHED": "Les modérateurs ont publié votre avis sur une entreprise.",
+        "REVIEW_REJECTED": "Les modérateurs n'ont pas publié votre avis sur une entreprise.",
+        "REVIEW_PENDING": "Un avis sur une entreprise vous attend dans la file de modération."
       },
       "periods": {
         "today": "Aujourd’hui",
@@ -3830,7 +3882,8 @@
         "posts": "Signaler cette publication",
         "comments": "Signaler ce commentaire",
         "members": "Signaler ce membre",
-        "messages": "Signaler ce message"
+        "messages": "Signaler ce message",
+        "reviews": "Signaler cet avis"
       },
       "reason": "Motif",
       "reasonRequired": "Choisissez un motif",
