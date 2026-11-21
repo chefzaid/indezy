@@ -232,6 +232,9 @@ The member network (`/api/network`) is on unless an administrator turns it off (
   shown without their author, to members only, and a removed one cannot be written again for the same company;
 - the rate benchmark counts only the accounts that opted in (`users.share_rates`), each once per skill, and gives no
   figure fewer than five freelancers back, never naming a freelancer, a client or a contact (ADR 0014);
+- web push sends only to the push services of the major browsers (`fcm.googleapis.com`, `updates.push.services.mozilla.com`,
+  `*.push.apple.com`, `*.notify.windows.com`, https on the default port): a subscription cannot make the server call
+  another address; the payload is encrypted for the browser and carries no content beyond a generic line and a link;
 - a member reports only what they can read (a post or a comment of a member blocking them, like an unknown one, is not
   found), never themselves, and once while the report is open; the report keeps the text as it read, so the audit
   trail survives the removal, and its details and the moderator's note leave the logs;

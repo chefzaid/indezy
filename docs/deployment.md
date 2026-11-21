@@ -91,6 +91,51 @@ search dialog says emails are not set up.
 Resend accepting an email means accepted for delivery, not delivered; its logs show bounces. Each email carries an
 idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 hours sends it once.
 
+## Web push keys
+
+Web push (Profile → Notifications → **Notifications on this device**) signs each push with a VAPID key pair. Until the
+server has one, nothing is pushed and the switch says push is not available yet. The deployment reads the pair from the
+optional `indezy-push` secret (`INDEZY_PUSH_VAPID_PUBLIC_KEY`, `INDEZY_PUSH_VAPID_PRIVATE_KEY`, base64url: the public key
+as its 65-byte point, the private key as its 32-byte scalar). To set it up once:
+
+1. Generate a P-256 key pair and print both keys:
+
+   ```bash
+   openssl ecparam -name prime256v1 -genkey -noout -out vapid.pem
+   openssl ec -in vapid.pem -pubout -outform DER 2>/dev/null | tail -c 65 | base64 | tr '/+' '_-' | tr -d '=\n'; echo
+   openssl ec -in vapid.pem -outform DER 2>/dev/null | tail -c +8 | head -c 32 | base64 | tr '/+' '_-' | tr -d '=\n'; echo
+   shred -u vapid.pem
+   ```
+
+2. Store them in Vault (KV v2) at `secret/apps/indezy/push`, fields `vapid_public_key` and `vapid_private_key`.
+3. Add this ExternalSecret to `infra/k8s/external-secrets.yaml` and restart the server:
+
+   ```yaml
+   apiVersion: external-secrets.io/v1
+   kind: ExternalSecret
+   metadata:
+     name: indezy-push
+     annotations:
+       argocd.argoproj.io/sync-wave: "-2"
+   spec:
+     refreshInterval: 1h
+     secretStoreRef:
+       name: vault-backend
+       kind: ClusterSecretStore
+     target:
+       name: indezy-push
+       creationPolicy: Owner
+     data:
+       - secretKey: INDEZY_PUSH_VAPID_PUBLIC_KEY
+         remoteRef: { key: apps/indezy/push, property: vapid_public_key }
+       - secretKey: INDEZY_PUSH_VAPID_PRIVATE_KEY
+         remoteRef: { key: apps/indezy/push, property: vapid_private_key }
+   ```
+
+Changing the pair later unsubscribes every browser: each member turns push on again. The server reaches only the push
+services of Chrome (`fcm.googleapis.com`), Firefox (`updates.push.services.mozilla.com`), Safari (`*.push.apple.com`)
+and Edge (`*.notify.windows.com`), over the server's existing HTTPS egress.
+
 ## Delivery Pipeline
 
 `.gitlab-ci.yml` runs a branch pipeline, or a merge request pipeline when the branch has an open merge request. Jobs run on the platform's instance runner (tag `swirl-cloud`) as unprivileged Kubernetes pods.

@@ -1,0 +1,14 @@
+<div class="notification-item push" data-push>
+  <h3><mat-icon aria-hidden="true">notifications_active</mat-icon>{{ 'profile.push.title' | translate }}</h3>
+  <mat-slide-toggle [checked]="on" [disabled]="saving || (unavailable !== null && unavailable !== 'denied') || !publicKey"
+    (change)="toggle($event)" data-push-toggle>
+    {{ 'profile.push.label' | translate }}
+  </mat-slide-toggle>
+  <p class="notification-description">
+    @if (unavailable) {
+      <span [attr.data-push-unavailable]="unavailable">{{ 'profile.push.unavailable.' + unavailable | translate }}</span>
+    } @else {
+      {{ 'profile.push.hint' | translate }}
+    }
+  </p>
+</div>

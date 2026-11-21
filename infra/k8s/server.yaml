@@ -132,6 +132,19 @@ spec:
                   name: indezy-mail
                   key: RESEND_API_KEY
                   optional: true
+            # Web push: without the VAPID key pair nothing is pushed, and the app says so (docs/deployment.md#web-push-keys).
+            - name: INDEZY_PUSH_VAPID_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: indezy-push
+                  key: INDEZY_PUSH_VAPID_PUBLIC_KEY
+                  optional: true
+            - name: INDEZY_PUSH_VAPID_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: indezy-push
+                  key: INDEZY_PUSH_VAPID_PRIVATE_KEY
+                  optional: true
           # The server starts in about 20 s; probe every 5 s for up to the same
           # three minutes the fixed delays allowed, so it serves as soon as it is up.
           startupProbe:

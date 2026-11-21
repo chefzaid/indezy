@@ -116,6 +116,8 @@ public class NetworkMessageService {
         List<NetworkConversationMember> everyone = participants.findByConversationId(conversationId);
         everyone.forEach(participant -> participant.setArchived(null));
         events.message(everyone.stream().map(NetworkConversationMember::getUserId).toList(), conversationId);
+        events.messaged(everyone.stream().filter(participant -> !participant.getUserId().equals(userId) && !participant.isMuted())
+            .map(NetworkConversationMember::getUserId).toList(), conversationId);
         return views(List.of(message), userId).getFirst();
     }
 

@@ -68,6 +68,10 @@ indezy:
     resend-api-key: ${RESEND_API_KEY:}
     from: ${INDEZY_MAIL_FROM:Indezy <noreply@swirlit.dev>}
     public-url: ${INDEZY_PUBLIC_URL:https://indezy.swirlit.dev}
+  push:
+    # Web push signs with this VAPID key pair (see docs/deployment.md#web-push-keys); without it nothing is pushed.
+    vapid-public-key: ${INDEZY_PUSH_VAPID_PUBLIC_KEY:}
+    vapid-private-key: ${INDEZY_PUSH_VAPID_PRIVATE_KEY:}
 
 cors:
   allowed-origins: 

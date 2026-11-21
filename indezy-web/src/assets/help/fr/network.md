@@ -79,6 +79,8 @@ L'onglet **Notifications** dit qui vous suit, réagit, commente, vous mentionne 
 
 Dans **Profil → Réseau**, chaque type se règle sur **Désactivé**, **Dans l'appli** ou **E-mail aussi** (un seul e-mail regroupé, au plus toutes les trois heures). Les messages non lus depuis une heure se règlent dans **Profil → Notifications** (voir [Compte](/help/account)).
 
+Dans **Profil → Notifications**, **Notifications sur cet appareil** envoie vos notifications et nouveaux messages au navigateur où vous êtes, même Indezy fermé, une fois que le navigateur l'autorise. Activez-les dans chaque navigateur que vous utilisez ; une conversation masquée n'en envoie aucune.
+
 ## Les TJM du réseau
 
 À côté du fil, **Les TJM du réseau** donne le TJM médian d'une compétence, et la fourchette où se trouve la moitié des tarifs, pour une séniorité et une région ou pour toutes. Il vient des missions gagnées des membres qui partagent leurs tarifs, chaque freelance compté une fois par compétence, et un chiffre ne s'affiche que si cinq freelances ou plus le soutiennent.

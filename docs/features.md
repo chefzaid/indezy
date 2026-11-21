@@ -611,6 +611,17 @@ latest won mission naming it in the last two years); a figure shows only when fi
 the card says how many do. Seniority comes from the years the profile gives for the skill, the region from the mission
 (remote, Île-de-France or the other regions). See [ADR 0014](./adr/0014-aggregated-market-data.md).
 
+### Web Push
+
+**Profile → Notifications → Notifications on this device** turns on push in the browser it is in, once the browser
+allows notifications: the network's notifications ("You have a new notification on the network") and new messages of
+conversations not muted reach the device even with Indezy closed, in the account's language, a click opening the
+notifications or the conversation. Each browser keeps its own subscription (ten per account at most), sent to the
+server (`POST /api/push/subscriptions`, `/remove`) and dropped once its push service no longer knows it. Pushes are
+encrypted for the browser (RFC 8291) and signed with Indezy's VAPID key (RFC 8292); only the push services of the major
+browsers are accepted as endpoints. Without the server's VAPID keys ([Deployment](./deployment.md#web-push-keys)),
+the switch says push is not available yet.
+
 ## Projects And Opportunities
 
 **Opportunities** (`/projects`) lists the workspace's opportunities and missions. Beyond the role, stage, description,

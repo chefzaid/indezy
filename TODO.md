@@ -106,6 +106,7 @@ Parts of tasks that cannot advance without the owner's decision or information. 
   - Answer:
 - [ ] **Mobile app technology** (Cross-platform mobile app, Push notifications): (a) the web app made installable (PWA) with web push, no store; (b) the Angular app wrapped with Capacitor and published in the stores, which needs Apple and Google developer accounts; (c) native apps. Web push also needs a VAPID key pair stored in Vault.
   - Answer: (2026-11-20) (a) the installable web app (PWA) with web push, no store; a VAPID key pair goes to Vault.
+  - Waiting (2026-11-21): web push is built and off until the server has its VAPID key pair: generate it, store it at Vault `secret/apps/indezy/push` (`vapid_public_key`, `vapid_private_key`) and add the `indezy-push` ExternalSecret, as `docs/deployment.md#web-push-keys` gives (an ExternalSecret added before the Vault entry exists would leave Argo CD degraded, so it is not in the manifests yet).
 - [ ] **Social contribution rates** (URSSAF/social contribution estimation per status, Declaration calendar, Expand reversion rate calculator customization): rates and ceilings change every January. Should Indezy keep an official table per year (whoever updates it each January), or ask each user for their own rates with the URSSAF simulator linked?
   - Answer: (2026-11-20) An official table per year and per status, shipped in the code and updated each January; each user can override their own rate.
   - Waiting (2026-11-21): this environment cannot reach urssaf.fr, service-public.gouv.fr or economie.gouv.fr to read the 2026 figures, and secondary sources disagree on the micro-entreprise BNC rate under the SSI (25.6 % or 26.1 %; BIC services 21.2 % and CIPAV 23.2 % agree). Please confirm the 2026 rates per status (or allow one of those hosts) so the table can ship with checked figures.
@@ -487,7 +488,7 @@ Fills the profile from what the freelancer already wrote elsewhere instead of ty
 
 - [x] Responsive polish of all pages (Kanban usable on phone)
 - [ ] Cross-platform mobile app (already in roadmap - implement)
-- [ ] Push notifications (interview reminder, follow-up due, new matching posting)
+- [ ] Push notifications (interview reminder, follow-up due, new matching posting) Partly done on 2026-11-21: web push to the browsers that turn it on (Profile → Notifications), for the network's notifications and new messages (`docs/features.md#web-push`), off until the VAPID keys are in Vault (Needs Input); interview reminders, follow-ups due and new matching postings remain.
 
 ## Social & Community
 

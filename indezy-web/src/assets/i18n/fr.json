@@ -1689,6 +1689,19 @@
           "hint": "Toutes vos données en un fichier, ou la suppression du compte : dans l’onglet Compte."
         }
       }
+    },
+    "push": {
+      "title": "Notifications sur cet appareil",
+      "label": "Recevoir notifications et messages dans ce navigateur",
+      "hint": "Vos notifications du réseau et vos nouveaux messages s'affichent sur cet appareil, même Indezy fermé. Activez-les dans chaque navigateur que vous utilisez.",
+      "enabled": "Les notifications push sont activées dans ce navigateur",
+      "disabled": "Les notifications push sont désactivées dans ce navigateur",
+      "error": "Les notifications push n'ont pas pu être modifiées dans ce navigateur",
+      "unavailable": {
+        "browser": "Ce navigateur ne peut pas recevoir les notifications d'Indezy (ou l'application tourne sans son service worker).",
+        "server": "Les notifications push ne sont pas encore disponibles.",
+        "denied": "Ce navigateur bloque les notifications d'Indezy : autorisez-les dans les réglages du site, puis réessayez."
+      }
     }
   },
   "errors": {

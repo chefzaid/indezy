@@ -12,13 +12,14 @@ import { CapabilitiesService } from '../../../services/admin/capabilities.servic
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { OfferAlertsService } from '../../../services/offer/offer-alerts.service';
+import { PushToggleComponent } from '../push-toggle/push-toggle.component';
 
 type Switch = 'weeklyReports' | 'newOffersBadge' | 'bookingEmails' | 'messageEmails';
 
 /** Which notifications the account gets, each saved as soon as it is switched. */
 @Component({
   selector: 'app-profile-notifications',
-  imports: [RouterLink, MatCardModule, MatCheckboxModule, MatDividerModule, MatIconModule, MatSlideToggleModule, TranslateModule],
+  imports: [PushToggleComponent, RouterLink, MatCardModule, MatCheckboxModule, MatDividerModule, MatIconModule, MatSlideToggleModule, TranslateModule],
   templateUrl: './profile-notifications.component.html',
   styleUrls: ['./profile-notifications.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

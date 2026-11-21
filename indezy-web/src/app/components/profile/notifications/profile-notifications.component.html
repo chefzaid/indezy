@@ -64,5 +64,9 @@
         <p class="notification-description">{{ 'profile.notifications.remindersDesc' | translate }}</p>
       </div>
     }
+    @if (network) {
+      <mat-divider></mat-divider>
+      <app-push-toggle></app-push-toggle>
+    }
   </mat-card-content>
 </mat-card>

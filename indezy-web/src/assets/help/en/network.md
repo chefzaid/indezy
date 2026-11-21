@@ -79,6 +79,8 @@ The **Notifications** tab tells you who followed you, reacted, commented, mentio
 
 In **Profile → Network**, each kind is set to **Off**, **In the app** or **Email too** (one grouped email, at most every three hours). Emails for messages unread for an hour are set in **Profile → Notifications** (see [Account](/help/account)).
 
+In **Profile → Notifications**, **Notifications on this device** pushes your notifications and new messages to the browser you are in, even with Indezy closed, once the browser allows it. Turn it on in each browser you use; a muted conversation sends none.
+
 ## Daily rates in the network
 
 Beside the feed, **Daily rates in the network** gives the median daily rate of a skill, and the range where half the rates fall, for a seniority and a region or for all of them. It comes from the won missions of the members who share their rates, each freelancer counted once per skill, and a figure shows only when five freelancers or more back it.
