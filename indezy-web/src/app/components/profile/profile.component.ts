@@ -27,6 +27,7 @@ import { ProfileAccountDeletionComponent } from './account-deletion/profile-acco
 import { ProfileDataImportComponent } from './data-import/profile-data-import.component';
 import { ProfilePublicPageComponent } from './public-page/profile-public-page.component';
 import { ProfileNetworkComponent } from './network/profile-network.component';
+import { ProfilePrivacyComponent, ProfileTab } from './privacy/profile-privacy.component';
 import { CapabilitiesService } from '../../services/admin/capabilities.service';
 import { ProfileSessionsComponent } from './sessions/profile-sessions.component';
 import { ProfileApiTokensComponent } from './api-tokens/profile-api-tokens.component';
@@ -42,7 +43,7 @@ const PROFILE_TABS_BEFORE_NETWORK = 7;
 @Component({
     selector: 'app-profile',
     imports: [DossierButtonComponent, PageHeaderComponent, 
-    ProfileDataImportComponent, ProfilePublicPageComponent, ProfileNetworkComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
+    ProfileDataImportComponent, ProfilePublicPageComponent, ProfileNetworkComponent, ProfilePrivacyComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
     ProfileWebhooksComponent, ProfileAccountDeletionComponent,
     ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent,
     BlockedPublishersComponent, EmailTemplatesSettingsComponent, ReactiveFormsModule, FormsModule, TranslateModule,
@@ -95,9 +96,38 @@ export class ProfileComponent implements OnInit {
     } else if (tab === 'public' && features.PUBLIC_PROFILES) {
       // `?tab=public` opens the public page, where testimonials are asked, as a member's page links it.
       this.selectedTabIndex = PROFILE_TABS_BEFORE_NETWORK;
+    } else if (tab === 'privacy') {
+      this.selectedTabIndex = this.tabIndex('account') - 1;
     }
     this.loadUserProfile();
     this.loadSecuritySettings();
+  }
+
+  /** Opens another tab, from the privacy tab's links. */
+  openTab(tab: ProfileTab): void {
+    this.selectedTabIndex = this.tabIndex(tab);
+  }
+
+  /** Where a tab stands, the public page and the network's being there only while their features are on. */
+  private tabIndex(tab: ProfileTab): number {
+    const features = this.capabilities.snapshot().features;
+    const publicPage = features.PUBLIC_PROFILES ? 1 : 0;
+    const network = features.SOCIAL_NETWORK ? 1 : 0;
+    switch (tab) {
+      case 'preferences':
+        return 2;
+      case 'notifications':
+        return 3;
+      case 'offers':
+        return 4;
+      case 'publicPage':
+        return PROFILE_TABS_BEFORE_NETWORK;
+      case 'network':
+        return PROFILE_TABS_BEFORE_NETWORK + publicPage;
+      default:
+        // The account's tab comes last, after the privacy tab.
+        return PROFILE_TABS_BEFORE_NETWORK + publicPage + network + 1;
+    }
   }
 
   private loadSecuritySettings(): void {

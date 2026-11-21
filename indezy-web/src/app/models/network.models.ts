@@ -547,6 +547,8 @@ export interface NetworkMembership {
   privateCard: boolean;
   /** Members who went through the same ESNs are suggested, only between members who both allow it. */
   esnSuggestions: boolean;
+  /** Members found among one's workspace contacts are suggested, and one to them; on unless turned off. */
+  contactSuggestions?: boolean;
 }
 
 /** A name of the workspace found in a text about to go out, as written there. */

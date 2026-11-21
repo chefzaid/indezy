@@ -174,7 +174,8 @@ class NetworkDirectoryIntegrationTest extends TwoAccountsIntegrationTest {
         call(carol, HttpMethod.PUT, "/network/members/" + friendOfFriend + "/follow", null, Map.class);
         // A contact of Alice's workspace who is a member, matched on the email they sign in with.
         String frankEmail = "frank." + run + "@example.com";
-        String contact = join(registerAs(frankEmail), "Ailleurs", List.of("Autre"), ALL_SHOWN, Map.of("mode", "AUTO"));
+        Account frank = registerAs(frankEmail);
+        String contact = join(frank, "Ailleurs", List.of("Autre"), ALL_SHOWN, Map.of("mode", "AUTO"));
         call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Frank", "lastName", "Contact", "email", frankEmail.toUpperCase(),
             "clientId", aliceClientId), Map.class);
 
@@ -189,5 +190,16 @@ class NetworkDirectoryIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(suggested.indexOf(byHandle.get(friendOfFriend))).isLessThan(suggested.indexOf(byHandle.get(sameCity)));
         assertThat(suggested.getFirst()).containsEntry("reason", "CONTACT");
         assertThat((Map<String, Object>) suggested.getFirst().get("card")).containsEntry("handle", contact);
+        // Off on either side, no suggestion by contacts between the two.
+        java.util.function.Supplier<List<Object>> byContact = () -> ((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/network/suggestions",
+            null, List.class).getBody()).stream().filter(found -> "CONTACT".equals(found.get("reason")))
+            .map(found -> ((Map<String, Object>) found.get("card")).get("handle")).toList();
+        assertThat(call(frank, HttpMethod.PUT, "/network/membership/contact-suggestions?on=false", null, Map.class).getBody())
+            .containsEntry("contactSuggestions", false);
+        assertThat(byContact.get()).doesNotContain(contact);
+        call(frank, HttpMethod.PUT, "/network/membership/contact-suggestions?on=true", null, Map.class);
+        assertThat(byContact.get()).contains(contact);
+        call(alice, HttpMethod.PUT, "/network/membership/contact-suggestions?on=false", null, Map.class);
+        assertThat(byContact.get()).doesNotContain(contact);
     }
 }

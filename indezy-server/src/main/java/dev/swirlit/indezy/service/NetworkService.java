@@ -71,7 +71,8 @@ public class NetworkService {
                 .orElseGet(() -> suggestion(user)), members.findByUserId(userId).map(NetworkService::fields).orElse(ALL_SHOWN),
                 members.findByUserId(userId).map(NetworkService::availability).orElse(AUTO), null,
                 members.findByUserId(userId).map(NetworkMember::isPrivate).orElse(false),
-                members.findByUserId(userId).map(NetworkMember::isEsnSuggestions).orElse(false)));
+                members.findByUserId(userId).map(NetworkMember::isEsnSuggestions).orElse(false),
+                members.findByUserId(userId).map(NetworkMember::isContactSuggestions).orElse(true)));
     }
 
     /** Joins with the handle and the fields chosen, or changes them; a handle another member holds is refused. */
@@ -150,6 +151,14 @@ public class NetworkService {
         return membership(member, user(userId));
     }
 
+    /** Turns on or off the suggestions by workspace contacts (matched on the sign-in address), both ways. */
+    @Transactional
+    public NetworkDtos.Membership setContactSuggestions(Long userId, boolean on) {
+        NetworkMember member = requireMember(userId);
+        member.setContactSuggestions(on);
+        return membership(member, user(userId));
+    }
+
     /**
      * **Open to work** in one click: the card says available now (its badge shown wherever members show), or goes back to
      * the availability the won missions tell.
@@ -214,7 +223,7 @@ public class NetworkService {
 
     private NetworkDtos.Membership membership(NetworkMember member, User user) {
         return new NetworkDtos.Membership(true, member.getHandle(), fields(member), availability(member), card(member, user),
-            member.isPrivate(), member.isEsnSuggestions());
+            member.isPrivate(), member.isEsnSuggestions(), member.isContactSuggestions());
     }
 
     private static NetworkDtos.Availability availability(NetworkMember member) {

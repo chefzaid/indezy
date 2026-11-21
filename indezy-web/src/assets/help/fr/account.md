@@ -41,6 +41,15 @@ Un nouveau mot de passe déconnecte toutes vos autres sessions. Il n'existe pas 
 
 Les rappels d'entretiens, de relances et d'opportunités sans nouvelles s'affichent toujours sur le tableau de bord. Chaque recherche enregistrée règle ses propres e-mails (voir [Offres](/help/offers)). Les notifications du réseau se règlent type par type dans **Profil → Réseau** (voir [Réseau](/help/network)). Chaque e-mail contient un lien de désinscription en un clic.
 
+## Confidentialité : tous vos consentements
+
+**Profil → Confidentialité** rassemble en un seul endroit tout ce que vous acceptez ou refusez.
+
+- Les interrupteurs s'enregistrent aussitôt : sur le réseau, **Suggestions par mes contacts**, **Suggestions par les mêmes ESN**, **Carte privée**, **Consulter les pages en privé**, **Recevoir des demandes de message**, **Confirmations de lecture**, **Indicateur de saisie** et **Présence en ligne** ; pour les e-mails, **Résumé hebdomadaire**, **Messages non lus par e-mail** et **Appels réservés**.
+- Les réglages qui vivent dans un formulaire plus large (ce que montre votre carte, chaque notification du réseau, les sections du résumé, les e-mails des recherches enregistrées, l'archivage automatique, l'anonymisation des contacts, le profil public, l'export et la suppression du compte) ont chacun un bouton **Modifier** qui ouvre leur onglet.
+
+**Suggestions par mes contacts** est activé par défaut : vous êtes proposé aux membres qui ont votre adresse dans leurs contacts, et ceux de vos contacts vous sont proposés. Désactivé d'un côté ou de l'autre, aucune suggestion par contacts entre vous.
+
 ## Jetons d'API
 
 Un jeton permet à un script, un tableur ou un service d'automatisation de **lire** votre espace. Il ne modifie jamais rien et n'accède pas aux réglages de votre compte.

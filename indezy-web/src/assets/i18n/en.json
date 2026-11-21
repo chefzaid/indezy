@@ -1052,7 +1052,8 @@
       "emails": "Emails",
       "publicPage": "Public profile",
       "billing": "Billing",
-      "network": "Network"
+      "network": "Network",
+      "privacy": "Privacy"
     },
     "themes": {
       "light": "Light",
@@ -1559,6 +1560,96 @@
       "typeEmail": "Type {{email}} to confirm",
       "confirm": "Delete my account",
       "error": "The account could not be deleted."
+    },
+    "privacy": {
+      "intro": "Everything you agree to or refuse, in one place. Switches save at once; the other settings open in their tab.",
+      "network": "Member network",
+      "emails": "Emails",
+      "data": "Your data",
+      "notMember": "You have not joined the member network: none of its settings applies to you.",
+      "change": "Change",
+      "saved": "Setting saved.",
+      "saveError": "This setting could not be saved: try again.",
+      "switches": {
+        "contactSuggestions": {
+          "label": "Suggestions by my contacts",
+          "hint": "You are suggested to members who have your address in their contacts, and members among your contacts are suggested to you. Off on either side, no suggestion by contacts between you."
+        },
+        "esnSuggestions": {
+          "label": "Suggestions by the same ESNs",
+          "hint": "You are suggested to members who went through the same ESNs as you, if they turned it on too."
+        },
+        "privateCard": {
+          "label": "Private card",
+          "hint": "Only the followers you approve read your posts."
+        },
+        "privateViewing": {
+          "label": "Browse privately",
+          "hint": "Your name does not show to the members whose page you view; you no longer see who views yours either."
+        },
+        "requests": {
+          "label": "Receive message requests",
+          "hint": "Members you do not follow, and who do not follow you, can write you one message, which you accept or decline."
+        },
+        "readReceipts": {
+          "label": "Read receipts",
+          "hint": "The people you write to see when you read their messages, and you theirs."
+        },
+        "typing": {
+          "label": "Typing indicator",
+          "hint": "The people you write to see when you are typing, and you them."
+        },
+        "presence": {
+          "label": "Online presence",
+          "hint": "The people you write to see when you are online, and you them."
+        },
+        "weeklyReports": {
+          "label": "Weekly digest",
+          "hint": "An email on Mondays: your pipeline, follow-ups, the week’s offers and network."
+        },
+        "messageEmails": {
+          "label": "Unread messages by email",
+          "hint": "An email when network messages stay unread for an hour."
+        },
+        "bookingEmails": {
+          "label": "Booked calls",
+          "hint": "An email for each call booked through your booking page."
+        }
+      },
+      "elsewhere": {
+        "cardFields": {
+          "label": "What your card shows",
+          "hint": "Photo, headline, skills, city, availability, languages and past missions: in the Network tab."
+        },
+        "networkNotices": {
+          "label": "Network notifications",
+          "hint": "Each kind of notification, on screen and by email: in the Network tab."
+        },
+        "digestSections": {
+          "label": "Weekly digest sections",
+          "hint": "The parts of the digest you keep: in the Notifications tab."
+        },
+        "savedSearches": {
+          "label": "Saved search emails",
+          "hint": "How often each saved search emails you: in the Offer feed tab."
+        },
+        "autoArchive": {
+          "label": "Automatic archiving",
+          "hint": "Idle opportunities archived every night: in the Preferences tab."
+        },
+        "contactRetention": {
+          "label": "Contact anonymization",
+          "hint": "Contacts without exchange for the chosen time, anonymized: in the Preferences tab."
+        },
+        "publicProfile": {
+          "label": "Public profile",
+          "hint": "Your public page and what it shows: in the Public profile tab."
+        },
+        "exportDelete": {
+          "label": "Export or delete your data",
+          "hint": "All your data in one file, or deleting the account: in the Account tab."
+        }
+      }
     }
   },
   "errors": {
@@ -4428,6 +4519,10 @@
       "network": {
         "title": "The member network",
         "summary": "Post, pass on missions, talk, communities, events and ideas."
+      },
+      "whats-new": {
+        "title": "What’s new",
+        "summary": "What changed in Indezy, the most recent first."
       }
     }
   },

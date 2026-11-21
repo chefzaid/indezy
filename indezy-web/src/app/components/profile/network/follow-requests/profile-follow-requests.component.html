@@ -8,6 +8,11 @@
     {{ 'profile.network.esnLabel' | translate }}
   </mat-slide-toggle>
   <p class="empty">{{ 'profile.network.esnHint' | translate }}</p>
+  <mat-slide-toggle [checked]="membership.contactSuggestions !== false" [disabled]="saving" (change)="setContactSuggestions($event.checked)"
+    data-contact-suggestions-toggle>
+    {{ 'profile.privacy.switches.contactSuggestions.label' | translate }}
+  </mat-slide-toggle>
+  <p class="empty">{{ 'profile.privacy.switches.contactSuggestions.hint' | translate }}</p>
   @if (requests.length) {
     <h4>{{ 'profile.network.requestsTitle' | translate: { count: requests.length } }}</h4>
     <ul>

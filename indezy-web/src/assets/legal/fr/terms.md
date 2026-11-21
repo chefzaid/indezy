@@ -160,7 +160,7 @@ Cette licence :
 
 - vaut pour le monde entier, le Service étant accessible depuis tout pays, et pour la durée de présence des Contenus dans le Service ;
 - prend fin lorsque le Contenu est supprimé ou lorsque le compte est supprimé, sauf pour les messages envoyés à d'autres Membres, qui restent lisibles par leurs destinataires ;
-- n'autorise aucune autre utilisation, notamment publicitaire, commerciale ou de revente, ni l'entraînement de modèles d'intelligence artificielle.
+- n'autorise aucune autre utilisation, notamment publicitaire, commerciale ou de revente.
 
 ## 14. Données personnelles
 
@@ -197,11 +197,11 @@ Les Conditions s'appliquent pour une durée indéterminée, à compter de la cr�
 **Par l'Éditeur.** L'Éditeur peut suspendre ou désactiver un compte :
 
 - immédiatement, en cas de manquement grave aux présentes Conditions (atteinte à la sécurité du Service, contenu manifestement illicite, fraude, usurpation d'identité) ou sur injonction d'une autorité ;
-- dans les autres cas de manquement, après une mise en demeure restée sans effet pendant quinze jours.
+- dans les autres cas de manquement, après une mise en demeure restée sans effet.
 
 L'Utilisateur est informé de la décision et de son motif. Un compte désactivé est conservé ; l'Utilisateur peut demander l'export de ses données.
 
-L'Éditeur peut également mettre fin au Service, en tout ou en partie, moyennant un préavis d'au moins trente jours, pendant lequel l'Utilisateur peut exporter ses données. Ce préavis peut être réduit si la poursuite du Service devient impossible pour une cause indépendante de la volonté de l'Éditeur.
+L'Éditeur peut également mettre fin au Service, en tout ou en partie ; il en informe les Utilisateurs, qui peuvent exporter leurs données.
 
 [à compléter : suppression éventuelle des comptes inactifs et durée d'inactivité retenue]
 
@@ -226,8 +226,6 @@ L'Éditeur n'est pas responsable :
 - des décisions prises par l'Utilisateur sur la foi des informations indicatives du Service ;
 - des dommages indirects, tels que la perte de chiffre d'affaires, de clientèle, d'opportunité ou de données que l'Utilisateur aurait pu sauvegarder.
 
-Compte tenu de la gratuité du Service, et dans la mesure permise par la loi, la responsabilité totale de l'Éditeur au titre du Service est limitée à cent (100) euros.
-
 Ces limitations ne s'appliquent pas en cas de faute lourde ou dolosive de l'Éditeur, de dommage corporel, ni dans les cas où la loi interdit de limiter ou d'exclure la responsabilité. Elles ne privent pas de sa substance l'obligation essentielle de l'Éditeur.
 
 ## 18. Propriété intellectuelle de l'Éditeur
@@ -238,7 +236,7 @@ Le code source de l'application est diffusé sous licence MIT ; pour ce code, le
 
 ## 19. Modification des Conditions
 
-L'Éditeur peut modifier les présentes Conditions. Les modifications substantielles sont portées à la connaissance des Utilisateurs, par e-mail ou dans le Service, au moins quinze jours avant leur entrée en vigueur. Les modifications imposées par la loi ou purement rédactionnelles peuvent s'appliquer immédiatement.
+L'Éditeur peut modifier les présentes Conditions. Les modifications substantielles sont portées à la connaissance des Utilisateurs, par e-mail ou dans le Service.
 
 L'Utilisateur qui refuse les nouvelles Conditions peut supprimer son compte avant leur entrée en vigueur. À défaut, la poursuite de l'utilisation du Service vaut acceptation.
 

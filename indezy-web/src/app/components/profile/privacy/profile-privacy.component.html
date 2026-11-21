@@ -1,0 +1,75 @@
+<div class="privacy" data-privacy>
+  <p class="intro">{{ 'profile.privacy.intro' | translate }}</p>
+
+  @if (networkOn) {
+    <section class="group" aria-labelledby="privacy-network">
+      <h3 id="privacy-network"><mat-icon aria-hidden="true">diversity_3</mat-icon>{{ 'profile.privacy.network' | translate }}</h3>
+      @if (membership && !membership.joined) {
+        <p class="note" data-privacy-not-member>{{ 'profile.privacy.notMember' | translate }}</p>
+      } @else if (membership) {
+        <ng-container *ngTemplateOutlet="row; context: { key: 'contactSuggestions' }"></ng-container>
+        <ng-container *ngTemplateOutlet="row; context: { key: 'esnSuggestions' }"></ng-container>
+        <ng-container *ngTemplateOutlet="row; context: { key: 'privateCard' }"></ng-container>
+        @if (privateViewing !== null) {
+          <ng-container *ngTemplateOutlet="row; context: { key: 'privateViewing' }"></ng-container>
+        }
+        @if (messaging) {
+          <ng-container *ngTemplateOutlet="row; context: { key: 'requests' }"></ng-container>
+          <ng-container *ngTemplateOutlet="row; context: { key: 'readReceipts' }"></ng-container>
+          <ng-container *ngTemplateOutlet="row; context: { key: 'typing' }"></ng-container>
+          <ng-container *ngTemplateOutlet="row; context: { key: 'presence' }"></ng-container>
+        }
+        <ng-container *ngTemplateOutlet="elsewhere; context: { key: 'cardFields', tab: 'network' }"></ng-container>
+        <ng-container *ngTemplateOutlet="elsewhere; context: { key: 'networkNotices', tab: 'network' }"></ng-container>
+      }
+    </section>
+  }
+
+  <section class="group" aria-labelledby="privacy-emails">
+    <h3 id="privacy-emails"><mat-icon aria-hidden="true">mail</mat-icon>{{ 'profile.privacy.emails' | translate }}</h3>
+    @if (emails) {
+      <ng-container *ngTemplateOutlet="row; context: { key: 'weeklyReports' }"></ng-container>
+      @if (networkOn) {
+        <ng-container *ngTemplateOutlet="row; context: { key: 'messageEmails' }"></ng-container>
+      }
+      <ng-container *ngTemplateOutlet="row; context: { key: 'bookingEmails' }"></ng-container>
+    }
+    <ng-container *ngTemplateOutlet="elsewhere; context: { key: 'digestSections', tab: 'notifications' }"></ng-container>
+    @if (offerFeed) {
+      <ng-container *ngTemplateOutlet="elsewhere; context: { key: 'savedSearches', tab: 'offers' }"></ng-container>
+    }
+  </section>
+
+  <section class="group" aria-labelledby="privacy-data">
+    <h3 id="privacy-data"><mat-icon aria-hidden="true">folder_managed</mat-icon>{{ 'profile.privacy.data' | translate }}</h3>
+    <ng-container *ngTemplateOutlet="elsewhere; context: { key: 'autoArchive', tab: 'preferences' }"></ng-container>
+    <ng-container *ngTemplateOutlet="elsewhere; context: { key: 'contactRetention', tab: 'preferences' }"></ng-container>
+    @if (publicProfiles) {
+      <ng-container *ngTemplateOutlet="elsewhere; context: { key: 'publicProfile', tab: 'publicPage' }"></ng-container>
+    }
+    <ng-container *ngTemplateOutlet="elsewhere; context: { key: 'exportDelete', tab: 'account' }"></ng-container>
+  </section>
+</div>
+
+<ng-template #row let-key="key">
+  <div class="row" [attr.data-privacy-switch]="key">
+    <span class="text">
+      <strong>{{ 'profile.privacy.switches.' + key + '.label' | translate }}</strong>
+      <span class="hint">{{ 'profile.privacy.switches.' + key + '.hint' | translate }}</span>
+    </span>
+    <mat-slide-toggle [checked]="on(key)" [disabled]="saving.has(key)" (change)="set(key, $event)"
+      [attr.aria-label]="'profile.privacy.switches.' + key + '.label' | translate"></mat-slide-toggle>
+  </div>
+</ng-template>
+
+<ng-template #elsewhere let-key="key" let-tab="tab">
+  <div class="row" [attr.data-privacy-elsewhere]="key">
+    <span class="text">
+      <strong>{{ 'profile.privacy.elsewhere.' + key + '.label' | translate }}</strong>
+      <span class="hint">{{ 'profile.privacy.elsewhere.' + key + '.hint' | translate }}</span>
+    </span>
+    <button mat-stroked-button type="button" (click)="open.emit(tab)" [attr.data-privacy-open]="tab">
+      {{ 'profile.privacy.change' | translate }}<mat-icon iconPositionEnd aria-hidden="true">chevron_right</mat-icon>
+    </button>
+  </div>
+</ng-template>

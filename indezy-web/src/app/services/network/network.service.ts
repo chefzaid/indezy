@@ -457,6 +457,11 @@ export class NetworkService {
     return this.http.put<NetworkMembership>(`${this.API_URL}/membership/esn-suggestions`, null, { params: new HttpParams().set('on', on) });
   }
 
+  /** Suggestions by workspace contacts (matched on the sign-in address), both ways. */
+  setContactSuggestions(on: boolean): Observable<NetworkMembership> {
+    return this.http.put<NetworkMembership>(`${this.API_URL}/membership/contact-suggestions`, null, { params: new HttpParams().set('on', on) });
+  }
+
   setPrivate(privateCard: boolean): Observable<NetworkMembership> {
     return this.http.put<NetworkMembership>(`${this.API_URL}/membership/private`, null, { params: new HttpParams().set('private', privateCard) });
   }

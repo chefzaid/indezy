@@ -284,6 +284,15 @@
           </div>
         </mat-tab>
         }
+        <mat-tab [label]="'profile.tabs.privacy' | translate">
+          <div class="tab-content">
+            <mat-card class="form-section">
+              <mat-card-content>
+                <app-profile-privacy (open)="openTab($event)"></app-profile-privacy>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
         <mat-tab [label]="'profile.tabs.account' | translate">
           <div class="tab-content">
             <mat-card class="form-section">

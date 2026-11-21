@@ -74,12 +74,14 @@ public class NetworkSuggestionService {
                 friendCard.ifPresent(card -> namedBy.putIfAbsent(next.getUserId(), card.firstName()));
             }
         }
-        Set<Long> contacts = contactMembers(viewerId);
+        // Suggestions by contacts only between members who both leave them on.
+        Set<Long> contacts = viewer.isContactSuggestions() ? contactMembers(viewerId) : Set.of();
         Set<String> skills = own.stack().stream().map(NetworkSuggestionService::plain).collect(Collectors.toSet());
         String city = plain(own.city());
         Map<String, String> ownEsns = viewer.isEsnSuggestions() ? esns(viewerId) : Map.of();
         return members.findByActiveTrue().stream().filter(member -> !excluded.contains(member.getUserId()))
-            .map(member -> network.liveCard(member).map(card -> new Candidate(card, contacts.contains(member.getUserId()),
+            .map(member -> network.liveCard(member).map(card -> new Candidate(card,
+                member.isContactSuggestions() && contacts.contains(member.getUserId()),
                 followedBy.getOrDefault(member.getUserId(), 0),
                 namedBy.get(member.getUserId()), card.stack().stream().filter(skill -> skills.contains(plain(skill))).toList(),
                 !city.isEmpty() && city.equals(plain(card.city())), sharedEsn(ownEsns, member))))

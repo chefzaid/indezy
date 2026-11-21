@@ -285,6 +285,13 @@ public class NetworkController {
         return network.setOpenToWork(SecurityUtils.getCurrentUserId(), on);
     }
 
+    @Operation(summary = "Suggest members by workspace contacts, or no longer",
+        description = "On by default; off, the member is neither suggested to those who have their address in their contacts nor suggested theirs")
+    @PutMapping("/membership/contact-suggestions")
+    public NetworkDtos.Membership setContactSuggestions(@RequestParam boolean on) {
+        return network.setContactSuggestions(SecurityUtils.getCurrentUserId(), on);
+    }
+
     @Operation(summary = "Suggest members who went through the same ESNs, or no longer", description = "Only between members who both turn it on")
     @PutMapping("/membership/esn-suggestions")
     public NetworkDtos.Membership setEsnSuggestions(@RequestParam boolean on) {

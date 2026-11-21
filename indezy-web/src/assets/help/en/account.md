@@ -41,6 +41,15 @@ Each time you sign in, your app gives you the code asked for. Recovery codes do 
 
 Reminders of interviews, follow-ups and opportunities gone quiet always show on the dashboard. Each saved search sets its own emails (see [Offers](/help/offers)). Network notifications are set kind by kind in **Profile → Network** (see [Network](/help/network)). Every email has a one-click unsubscribe link.
 
+## Privacy: all your consents
+
+**Profile → Privacy** gathers in one place everything you agree to or refuse.
+
+- The switches save at once: on the network, **Suggestions by my contacts**, **Suggestions by the same ESNs**, **Private card**, **Browse privately**, **Receive message requests**, **Read receipts**, **Typing indicator** and **Online presence**; for emails, **Weekly digest**, **Unread messages by email** and **Booked calls**.
+- The settings that live in a larger form (what your card shows, each network notification, the digest's sections, saved search emails, automatic archiving, contact anonymization, the public profile, exporting and deleting the account) each have a **Change** button that opens their tab.
+
+**Suggestions by my contacts** is on by default: you are suggested to members who have your address in their contacts, and members among your contacts are suggested to you. Off on either side, no suggestion by contacts between you.
+
 ## API tokens
 
 A token lets a script, a spreadsheet or an automation service **read** your workspace. It never changes anything and cannot reach your account settings.

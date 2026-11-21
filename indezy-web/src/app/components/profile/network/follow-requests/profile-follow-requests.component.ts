@@ -37,6 +37,22 @@ export class ProfileFollowRequestsComponent implements OnInit {
     });
   }
 
+  /** Suggests members found among the workspace's contacts (and one to them), or no longer. */
+  setContactSuggestions(on: boolean): void {
+    this.saving = true;
+    this.network.setContactSuggestions(on).subscribe({
+      next: membership => {
+        this.saving = false;
+        this.changed.emit(membership);
+        this.notifications.success('profile.privacy.saved');
+      },
+      error: () => {
+        this.saving = false;
+        this.notifications.error('profile.network.saveError');
+      }
+    });
+  }
+
   /** Suggests members who went through the same ESNs, or no longer. */
   setEsnSuggestions(on: boolean): void {
     this.saving = true;

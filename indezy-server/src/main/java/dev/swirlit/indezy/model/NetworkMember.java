@@ -108,6 +108,13 @@ public class NetworkMember extends BaseEntity {
     @Column(name = "esn_suggestions")
     private Boolean esnSuggestions;
 
+    /**
+     * Whether the member is suggested to members whose workspace contacts hold their sign-in address, and is suggested the
+     * members among their own contacts; none reads as on. Off either way, no suggestion by contacts between the two.
+     */
+    @Column(name = "contact_suggestions")
+    private Boolean contactSuggestions;
+
     /** Whether the members the member writes to see when they read a message, and the member when they did; none reads as on. */
     @Column(name = "read_receipts")
     private Boolean readReceipts;
@@ -165,6 +172,10 @@ public class NetworkMember extends BaseEntity {
 
     public boolean showsTyping() {
         return !Boolean.FALSE.equals(typingShown);
+    }
+
+    public boolean isContactSuggestions() {
+        return !Boolean.FALSE.equals(contactSuggestions);
     }
 
     public boolean isEsnSuggestions() {

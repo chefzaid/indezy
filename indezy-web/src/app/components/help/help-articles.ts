@@ -24,7 +24,8 @@ export const HELP_ARTICLES: readonly HelpArticle[] = [
   { slug: 'invoices-quotes', icon: 'receipt_long', section: 'money' },
   { slug: 'documents', icon: 'folder_shared', section: 'money' },
   { slug: 'dashboard', icon: 'insights', section: 'money' },
-  { slug: 'network', icon: 'diversity_3', section: 'network' }
+  { slug: 'network', icon: 'diversity_3', section: 'network' },
+  { slug: 'whats-new', icon: 'new_releases', section: 'start' }
 ];
 
 export function helpArticle(slug: string | null): HelpArticle | undefined {

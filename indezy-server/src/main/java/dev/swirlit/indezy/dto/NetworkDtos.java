@@ -33,10 +33,10 @@ public final class NetworkDtos {
 
     /**
      * The account's membership: whether it joined, its handle (a suggested one before joining), the card's fields shown,
-     * and the card as members see it (null before joining).
+     * the card as members see it (null before joining), and its suggestion settings.
      */
     public record Membership(boolean joined, String handle, Fields fields, Availability availability, MemberCard card,
-                             boolean privateCard, boolean esnSuggestions) {
+                             boolean privateCard, boolean esnSuggestions, boolean contactSuggestions) {
     }
 
     /** How the card tells the availability: from the won missions, or set by hand with the day it names, if any. */

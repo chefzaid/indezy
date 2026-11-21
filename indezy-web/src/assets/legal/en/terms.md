@@ -162,7 +162,7 @@ This licence:
 
 - applies worldwide, as the Service can be accessed from any country, and for as long as the Content is in the Service;
 - ends when the Content is deleted or the account is deleted, except for messages sent to other Members, which remain readable by their recipients;
-- authorises no other use, in particular for advertising, commercial use or resale, nor the training of artificial intelligence models.
+- authorises no other use, in particular for advertising, commercial use or resale.
 
 ## 14. Personal data
 
@@ -199,11 +199,11 @@ The Terms apply for an indefinite period, from the creation of the account.
 **By the Publisher.** The Publisher may suspend or disable an account:
 
 - immediately, in the event of a serious breach of these Terms (attack on the security of the Service, manifestly illegal content, fraud, impersonation) or on the order of an authority;
-- in other cases of breach, after a formal notice that has remained without effect for fifteen days.
+- in other cases of breach, after a formal notice that has remained without effect.
 
 The User is told of the decision and its reason. A disabled account is kept; the User may ask for an export of their data.
 
-The Publisher may also end the Service, in whole or in part, with at least thirty days' notice, during which the User may export their data. That notice may be shortened if continuing the Service becomes impossible for reasons beyond the Publisher's control.
+The Publisher may also end the Service, in whole or in part; it informs Users, who may export their data.
 
 [to be completed: possible deletion of inactive accounts and the inactivity period chosen]
 
@@ -228,8 +228,6 @@ The Publisher is not liable for:
 - decisions the User makes on the strength of the Service's indicative information;
 - indirect damage, such as loss of revenue, customers, opportunity, or data the User could have backed up.
 
-Given that the Service is free, and to the extent permitted by law, the Publisher's total liability in respect of the Service is limited to one hundred (100) euros.
-
 These limitations do not apply in the event of gross negligence or wilful misconduct by the Publisher, personal injury, or where the law forbids limiting or excluding liability. They do not deprive the Publisher's essential obligation of its substance.
 
 ## 18. Publisher's intellectual property
@@ -240,7 +238,7 @@ The application's source code is distributed under the MIT licence; for that cod
 
 ## 19. Changes to the Terms
 
-The Publisher may change these Terms. Material changes are brought to Users' attention, by email or in the Service, at least fifteen days before they take effect. Changes required by law or purely editorial changes may apply immediately.
+The Publisher may change these Terms. Material changes are brought to Users' attention, by email or in the Service.
 
 A User who refuses the new Terms may delete their account before they take effect. Otherwise, continued use of the Service amounts to acceptance.
 

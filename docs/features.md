@@ -51,6 +51,18 @@ Markdown files too (`src/assets/legal/<fr|en>/`), the French version prevailing,
 the presentation page's footer and the help center. What the publisher still has to give (legal form, address,
 registration) is marked **[à compléter]** in them.
 
+## Privacy Settings
+
+Profile → **Privacy** (`/profile?tab=privacy`) gathers every opt-in and opt-out in one place. Its switches save at once:
+on the member network, the suggestions by contacts (on by default: a member is suggested to the members whose workspace
+contacts hold their sign-in address, and is suggested theirs; off on either side, no suggestion by contacts between the
+two, `PUT /api/network/membership/contact-suggestions?on=`), the suggestions by the same ESNs, the private card,
+browsing privately, message requests, read receipts, the typing indicator and online presence; the weekly digest, the
+emails of unread messages and of booked calls. The settings set inside a larger form (what the card shows, each network
+notification's channel, the digest's sections, saved search emails, automatic archiving, contact anonymization, the
+public profile, the data export and the account's deletion) each have a **Change** button opening their tab. Outside the
+network, its settings say they do not apply; while the network is off, they are left out.
+
 ## Authentication And Account Access
 
 Local accounts register and sign in with an email and a password of 8 characters to 72 bytes (an accented letter counts
