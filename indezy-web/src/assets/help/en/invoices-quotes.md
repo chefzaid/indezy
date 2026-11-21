@@ -95,3 +95,11 @@ For an accepted quote:
 - **Invoice the balance** drafts, once the deposit invoice is issued, the final invoice with the quote's lines, less the deposits already invoiced.
 
 The page totals the sent quotes awaiting an answer and the share of answered quotes accepted.
+
+## Expenses
+
+**Expenses**, in the menu, records your business expenses: the date, what for, a category, the amount VAT included and the VAT it includes, optionally a mission. The page totals the year by month and by category, and says what your expenses change under your status, set in **Profile → Billing**:
+
+- in a **micro-entreprise**, nothing: the flat allowance on your turnover already counts them, so they cost their full amount;
+- in an **EI au réel** or a **company** (EURL, SASU, SARL, SAS), they lower your taxable profit (less the VAT you recover if you charge VAT), so they cost you only the share you would have kept, at your reversion rate;
+- in **portage**, the portage company reimburses them out of your turnover before charges, which costs you the same share.

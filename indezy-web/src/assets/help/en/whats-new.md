@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Expenses
+
+**Expenses**, in the menu: record your business expenses and see what they cost you net under your status (micro-entreprise, EI, company or portage). See [Quotes and invoices](/help/invoices-quotes).
+
 ### Invoices in dollars, pounds and Swiss francs
 
 Invoice an international client in its currency, at the rate to the euro you type for the issue date: the PDF, Factur-X and the accounting export state the euros too. See [Quotes and invoices](/help/invoices-quotes).

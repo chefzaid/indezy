@@ -98,6 +98,9 @@ export class ProfileComponent implements OnInit {
       this.selectedTabIndex = PROFILE_TABS_BEFORE_NETWORK;
     } else if (tab === 'privacy') {
       this.selectedTabIndex = this.tabIndex('account') - 1;
+    } else if (tab === 'billing') {
+      // `?tab=billing` opens the billing identity, the last tab before the public page, as the expenses page links it.
+      this.selectedTabIndex = PROFILE_TABS_BEFORE_NETWORK - 1;
     }
     this.loadUserProfile();
     this.loadSecuritySettings();

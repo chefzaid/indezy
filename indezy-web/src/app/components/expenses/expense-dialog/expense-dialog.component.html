@@ -1,0 +1,59 @@
+<h2 mat-dialog-title>{{ (data.expense ? 'expenses.editTitle' : 'expenses.newTitle') | translate }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" id="expense-form" (ngSubmit)="save()">
+    <div class="row">
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'expenses.spentOn' | translate }}</mat-label>
+        <input matInput type="date" formControlName="spentOn" required>
+        <mat-error>{{ 'errors.fieldRequired' | translate }}</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'expenses.category' | translate }}</mat-label>
+        <mat-select formControlName="category">
+          @for (category of categories; track category) {
+            <mat-option [value]="category">{{ 'expenses.categories.' + category | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>{{ 'expenses.label' | translate }}</mat-label>
+      <input matInput formControlName="label" maxlength="200" required data-expense-label>
+      <mat-error>{{ 'errors.fieldRequired' | translate }}</mat-error>
+    </mat-form-field>
+    <div class="row">
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'expenses.amount' | translate }}</mat-label>
+        <input matInput type="number" formControlName="amount" min="0.01" step="0.01" required data-expense-amount>
+        <span matTextSuffix>€</span>
+        <mat-error>{{ 'expenses.amountError' | translate }}</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'expenses.vat' | translate }}</mat-label>
+        <input matInput type="number" formControlName="vat" min="0" step="0.01" data-expense-vat>
+        <span matTextSuffix>€</span>
+        <mat-hint>{{ 'expenses.vatHint' | translate }}</mat-hint>
+      </mat-form-field>
+    </div>
+    @if (vatTooHigh) {
+      <p class="error" role="alert" data-vat-too-high>{{ 'expenses.vatTooHigh' | translate }}</p>
+    }
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>{{ 'expenses.mission' | translate }}</mat-label>
+      <mat-select formControlName="projectId">
+        <mat-option [value]="null">{{ 'invoices.noMission' | translate }}</mat-option>
+        @for (project of data.projects; track project.id) {
+          <mat-option [value]="project.id">{{ project.role }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>{{ 'expenses.notes' | translate }}</mat-label>
+      <textarea matInput formControlName="notes" rows="2" maxlength="500"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-flat-button color="primary" type="submit" form="expense-form" data-save-expense>{{ 'common.save' | translate }}</button>
+</mat-dialog-actions>

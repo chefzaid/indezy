@@ -132,6 +132,9 @@ class UserDataExportServiceTest {
     private QuoteService quoteService;
 
     @Mock
+    private ExpenseService expenseService;
+
+    @Mock
     private NetworkService networkService;
 
     @Mock

@@ -87,7 +87,8 @@
     "activityReports": "CRA",
     "quotes": "Devis",
     "network": "Réseau",
-    "help": "Aide"
+    "help": "Aide",
+    "expenses": "Dépenses"
   },
   "archive": {
     "title": "Archives",
@@ -4547,5 +4548,57 @@
     "notice": "Mentions légales",
     "terms": "Conditions d’utilisation",
     "privacy": "Politique de confidentialité"
+  },
+  "expenses": {
+    "title": "Dépenses",
+    "subtitle": "Vos frais professionnels, et ce qu'ils changent à votre revenu net selon votre statut",
+    "new": "Ajouter une dépense",
+    "newTitle": "Nouvelle dépense",
+    "editTitle": "Modifier la dépense",
+    "spentOn": "Date",
+    "category": "Catégorie",
+    "label": "Objet",
+    "amount": "Montant TTC",
+    "amountError": "Un montant supérieur à zéro",
+    "vat": "Dont TVA",
+    "vatHint": "Indiquée sur le justificatif ; vide sans TVA",
+    "vatTooHigh": "La TVA fait partie du montant : elle ne peut pas le dépasser.",
+    "mission": "Mission",
+    "notes": "Notes",
+    "previousYear": "Année précédente",
+    "nextYear": "Année suivante",
+    "total": "Dépensé cette année, TTC",
+    "vatTotal": "Dont TVA",
+    "netCost": "Ce qu'elles vous coûtent, net",
+    "noStatus": "Aucun statut juridique indiqué",
+    "setStatus": "L'indiquer dans Profil → Facturation",
+    "treatments": {
+      "FLAT_ALLOWANCE": "En micro-entreprise, les frais ne sont pas déductibles : l'abattement forfaitaire sur votre chiffre d'affaires les compte déjà. Ils vous coûtent leur montant entier, {{netCost}} €.",
+      "DEDUCTIBLE": "Vos frais réduisent votre bénéfice imposable de {{deductible}} €. Comme vous gardez {{rate}} % de ce que vous gagnez, ils vous coûtent {{netCost}} € net.",
+      "REIMBURSED": "En portage, la société de portage vous rembourse {{deductible}} € de frais sur votre chiffre d'affaires, avant charges. Comme vous gardez {{rate}} % du chiffre d'affaires, ils vous coûtent {{netCost}} € net.",
+      "RECORDED": "Indiquez votre statut juridique pour voir ce que vos frais changent : rien en micro-entreprise, un bénéfice imposable plus bas en EI ou en société, un remboursement en portage."
+    },
+    "byMonth": "Par mois",
+    "byCategory": "Par catégorie",
+    "none": "Aucune dépense en {{year}}.",
+    "includingVat": "dont TVA {{vat}} €",
+    "actions": "Actions pour {{name}}",
+    "created": "Dépense ajoutée",
+    "saved": "Dépense enregistrée",
+    "deleted": "Dépense supprimée",
+    "deleteConfirm": "Supprimer cette dépense ?",
+    "loadError": "Les dépenses n'ont pas pu être chargées",
+    "saveError": "La dépense n'a pas pu être enregistrée",
+    "categories": {
+      "TRAVEL": "Déplacements",
+      "MEALS": "Repas",
+      "EQUIPMENT": "Matériel",
+      "SOFTWARE": "Logiciels et abonnements",
+      "TRAINING": "Formation et livres",
+      "OFFICE": "Bureau et coworking",
+      "INSURANCE": "Assurances",
+      "FEES": "Honoraires (comptable, banque)",
+      "OTHER": "Autre"
+    }
   }
 }

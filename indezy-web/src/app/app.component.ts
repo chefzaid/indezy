@@ -112,6 +112,7 @@ export class AppComponent implements OnInit {
     { labelKey: 'nav.activityReports', route: '/activity-reports', icon: 'edit_calendar' },
     { labelKey: 'nav.invoices', route: '/invoices', icon: 'receipt_long' },
     { labelKey: 'nav.quotes', route: '/quotes', icon: 'request_quote' },
+    { labelKey: 'nav.expenses', route: '/expenses', icon: 'payments' },
     { labelKey: 'nav.documents', route: '/documents', icon: 'folder_shared' },
     { labelKey: 'nav.archive', route: '/archive', icon: 'inventory_2' },
     { labelKey: 'nav.help', route: '/help', icon: 'help' },

@@ -156,6 +156,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'expenses',
+    loadComponent: () => import('./components/expenses/expenses.component').then(m => m.ExpensesComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'network',
     pathMatch: 'full',
     loadComponent: () => import('./components/network/feed/network-feed.component').then(m => m.NetworkFeedComponent),

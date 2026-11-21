@@ -95,3 +95,11 @@ Pour un devis accepté :
 - **Facturer le solde** prépare, une fois l'acompte émis, la facture finale avec les lignes du devis, moins les acomptes déjà facturés.
 
 La page totalise les devis envoyés en attente de réponse et la part des devis acceptés.
+
+## Les dépenses
+
+**Dépenses**, dans le menu, enregistre vos frais professionnels : la date, l'objet, une catégorie, le montant TTC et la TVA qu'il comprend, éventuellement une mission. La page totalise l'année par mois et par catégorie, et dit ce que vos frais changent selon votre statut, indiqué dans **Profil → Facturation** :
+
+- en **micro-entreprise**, rien : l'abattement forfaitaire sur votre chiffre d'affaires les compte déjà, ils vous coûtent donc leur montant entier ;
+- en **EI au réel** ou en **société** (EURL, SASU, SARL, SAS), ils réduisent votre bénéfice imposable (hors la TVA récupérée si vous facturez la TVA) : ils ne vous coûtent que la part que vous auriez gardée, à votre taux de réversion ;
+- en **portage**, la société de portage vous les rembourse sur votre chiffre d'affaires avant charges, ce qui vous coûte la même part.

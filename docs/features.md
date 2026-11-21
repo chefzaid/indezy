@@ -1060,6 +1060,24 @@ for line ("Acompte facturé N° … du …", quantity −1); it waits until the 
 not taken off, and deleting the draft lets the quote be invoiced again. The page totals the sent quotes awaiting an answer and
 the share of answered quotes accepted. Quotes are part of the data export.
 
+### Expenses
+
+**Expenses** (`/expenses`, in the menu after **Quotes**) records the business expenses of a year: the date, what for,
+a category (travel, meals, equipment, software, training, office, insurance, fees, other), the amount VAT included, the
+VAT it includes (never more than the amount), optionally a won mission and notes. The page totals the year, its VAT and
+what the expenses cost net, by month and by category, and says what they change under the legal status of
+**Profile → Billing** (`GET /api/expenses/summary/{year}`):
+
+- **Micro-entreprise**: not deductible, the flat allowance on the turnover already counts them; they cost their full amount.
+- **EI au réel, EURL, SASU, SARL, SAS**: they lower the taxable profit by their amount, less the VAT recovered when the
+  seller charges VAT; they cost that much times the profile's reversion rate (55 % when none is set), the rest being
+  charges and tax not paid.
+- **Portage**: the portage company reimburses them as professional expenses out of the turnover, before charges; they
+  cost that much times the reversion rate.
+- **No status**: only recorded, with a link to set it.
+
+Expenses are part of the data export and go with the account.
+
 ### Billing Identity
 
 **Profile → Billing** holds the seller's legal name and form, SIRET, VAT number and rate (20 % by default) or VAT

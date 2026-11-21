@@ -1,0 +1,19 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  .grow {
+    flex: 1 1 200px;
+  }
+}
+
+.full {
+  width: 100%;
+}
+
+.error {
+  margin: 0 0 12px;
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}

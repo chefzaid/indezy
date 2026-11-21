@@ -17,6 +17,7 @@ erDiagram
     FREELANCE ||--o{ SEASON : plans
     FREELANCE ||--o{ PIPELINE_TEMPLATE : keeps
     FREELANCE ||..o{ INVOICE : issues
+    FREELANCE ||..o{ EXPENSE : spends
     CLIENT ||--o{ CONTACT : employs
     CLIENT ||--o{ PROJECT : final_client
     CLIENT |o--o{ PROJECT : middleman
@@ -85,6 +86,7 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `PipelineTemplate` | `pipeline_templates`, `pipeline_template_steps` | freelance, optionally a client | by hand |
 | `Invoice` | `invoices`, `invoice_lines` | freelance (by id) | drafts by hand; issued invoices and credit notes never |
 | `InvoiceCounter` | `invoice_counters` | freelance (by id), one per year | never |
+| `Expense` | `expenses` | freelance (by id), optionally a mission (by id, its role copied) | by hand |
 | `ComplianceDocument` | `compliance_documents` | freelance (by id) | by hand |
 | `CompliancePack` | `compliance_packs`, `compliance_pack_documents` | freelance (by id) | never: revoked or expired links stay listed |
 | `BookingPage` | `booking_pages`, `booking_windows` | freelance (by id), one each | never |

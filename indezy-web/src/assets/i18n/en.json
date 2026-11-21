@@ -87,7 +87,8 @@
     "activityReports": "Timesheets",
     "quotes": "Quotes",
     "network": "Network",
-    "help": "Help"
+    "help": "Help",
+    "expenses": "Expenses"
   },
   "archive": {
     "title": "Archive",
@@ -4547,5 +4548,57 @@
     "notice": "Legal notice",
     "terms": "Terms of use",
     "privacy": "Privacy policy"
+  },
+  "expenses": {
+    "title": "Expenses",
+    "subtitle": "Your business expenses, and what they change in your net income under your status",
+    "new": "Add an expense",
+    "newTitle": "New expense",
+    "editTitle": "Change the expense",
+    "spentOn": "Date",
+    "category": "Category",
+    "label": "What for",
+    "amount": "Amount incl. VAT",
+    "amountError": "An amount above zero",
+    "vat": "Of which VAT",
+    "vatHint": "Shown on the receipt; leave empty without VAT",
+    "vatTooHigh": "The VAT is part of the amount: it cannot be more.",
+    "mission": "Mission",
+    "notes": "Notes",
+    "previousYear": "Previous year",
+    "nextYear": "Next year",
+    "total": "Spent this year, incl. VAT",
+    "vatTotal": "Of which VAT",
+    "netCost": "What they cost you, net",
+    "noStatus": "No legal status set",
+    "setStatus": "Set it in Profile → Billing",
+    "treatments": {
+      "FLAT_ALLOWANCE": "In a micro-entreprise, expenses are not deductible: the flat allowance on your turnover already counts them. They cost you their full amount, {{netCost}} €.",
+      "DEDUCTIBLE": "Your expenses lower your taxable profit by {{deductible}} €. Since you keep {{rate}} % of what you earn, they cost you {{netCost}} € net.",
+      "REIMBURSED": "In portage, the portage company reimburses {{deductible}} € of expenses out of your turnover, before charges. Since you keep {{rate}} % of the turnover, they cost you {{netCost}} € net.",
+      "RECORDED": "Set your legal status to see what your expenses change: nothing in a micro-entreprise, a lower taxable profit in an EI or a company, a reimbursement in portage."
+    },
+    "byMonth": "By month",
+    "byCategory": "By category",
+    "none": "No expense in {{year}}.",
+    "includingVat": "of which VAT {{vat}} €",
+    "actions": "Actions for {{name}}",
+    "created": "Expense added",
+    "saved": "Expense saved",
+    "deleted": "Expense deleted",
+    "deleteConfirm": "Delete this expense?",
+    "loadError": "The expenses could not be loaded",
+    "saveError": "The expense could not be saved",
+    "categories": {
+      "TRAVEL": "Travel",
+      "MEALS": "Meals",
+      "EQUIPMENT": "Equipment",
+      "SOFTWARE": "Software and subscriptions",
+      "TRAINING": "Training and books",
+      "OFFICE": "Office and coworking",
+      "INSURANCE": "Insurance",
+      "FEES": "Fees (accountant, bank)",
+      "OTHER": "Other"
+    }
   }
 }

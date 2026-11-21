@@ -1,0 +1,120 @@
+<div class="expenses-page">
+  <app-page-header icon="payments" [title]="'expenses.title' | translate" [subtitle]="'expenses.subtitle' | translate">
+    <button mat-flat-button color="primary" type="button" (click)="write()" data-new-expense>
+      <mat-icon>add</mat-icon>
+      {{ 'expenses.new' | translate }}
+    </button>
+  </app-page-header>
+
+  <div class="year" data-expense-year>
+    <button mat-icon-button type="button" (click)="changeYear(-1)" [attr.aria-label]="'expenses.previousYear' | translate">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <span class="value">{{ year }}</span>
+    <button mat-icon-button type="button" (click)="changeYear(1)" [disabled]="year >= thisYear" [attr.aria-label]="'expenses.nextYear' | translate">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+  } @else {
+    @if (summary; as summary) {
+      <div class="figures" data-expense-figures>
+        <mat-card class="figure">
+          <span class="label">{{ 'expenses.total' | translate }}</span>
+          <span class="value" data-expense-total>{{ summary.total | number:'1.2-2' }} €</span>
+        </mat-card>
+        <mat-card class="figure">
+          <span class="label">{{ 'expenses.vatTotal' | translate }}</span>
+          <span class="value">{{ summary.vat | number:'1.2-2' }} €</span>
+        </mat-card>
+        <mat-card class="figure">
+          <span class="label">{{ 'expenses.netCost' | translate }}</span>
+          <span class="value" data-expense-net-cost>{{ summary.netCost | number:'1.2-2' }} €</span>
+        </mat-card>
+      </div>
+
+      <mat-card class="effect" [attr.data-expense-treatment]="summary.treatment">
+        <mat-card-content>
+          <mat-icon aria-hidden="true">{{ summary.treatment === 'FLAT_ALLOWANCE' || summary.treatment === 'RECORDED' ? 'info' : 'savings' }}</mat-icon>
+          <div>
+            <p class="status">
+              @if (summary.legalForm) {
+                {{ 'profile.billing.legalForms.' + summary.legalForm | translate }}
+              } @else {
+                {{ 'expenses.noStatus' | translate }}
+              }
+            </p>
+            <p>{{ 'expenses.treatments.' + summary.treatment | translate: {
+              deductible: (summary.deductible | number:'1.2-2'), netCost: (summary.netCost | number:'1.2-2'), rate: summary.reversionRate } }}</p>
+            @if (summary.treatment === 'RECORDED') {
+              <a mat-button routerLink="/profile" [queryParams]="{ tab: 'billing' }">{{ 'expenses.setStatus' | translate }}</a>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      @if (summary.total > 0) {
+        <div class="breakdown">
+          <mat-card>
+            <mat-card-header><mat-card-title>{{ 'expenses.byMonth' | translate }}</mat-card-title></mat-card-header>
+            <mat-card-content>
+              <ul class="months" data-expense-months>
+                @for (amount of summary.months; track $index) {
+                  <li>
+                    <span class="month">{{ monthDate($index) | date:'MMM' }}</span>
+                    <span class="bar" aria-hidden="true"><span [style.width.%]="barWidth(amount)"></span></span>
+                    <span class="amount">{{ amount | number:'1.0-0' }} €</span>
+                  </li>
+                }
+              </ul>
+            </mat-card-content>
+          </mat-card>
+          <mat-card>
+            <mat-card-header><mat-card-title>{{ 'expenses.byCategory' | translate }}</mat-card-title></mat-card-header>
+            <mat-card-content>
+              <ul class="categories" data-expense-categories>
+                @for (entry of categories; track entry.category) {
+                  <li>
+                    <span>{{ 'expenses.categories.' + entry.category | translate }}</span>
+                    <span class="amount">{{ entry.amount | number:'1.2-2' }} €</span>
+                  </li>
+                }
+              </ul>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      }
+    }
+
+    @if (expenses.length === 0) {
+      <p class="empty">{{ 'expenses.none' | translate: { year: year } }}</p>
+    } @else {
+      <ul class="list">
+        @for (expense of expenses; track expense.id) {
+          <li class="expense" [attr.data-expense]="expense.id">
+            <div class="main">
+              <span class="number">{{ expense.label }}</span>
+              <span class="client">{{ 'expenses.categories.' + expense.category | translate }}@if (expense.projectRole) { · {{ expense.projectRole }} }</span>
+              <span class="meta">
+                {{ expense.spentOn | date:'mediumDate' }}
+                @if (expense.vat > 0) {
+                  · {{ 'expenses.includingVat' | translate: { vat: (expense.vat | number:'1.2-2') } }}
+                }
+              </span>
+            </div>
+            <span class="amount">{{ expense.amount | number:'1.2-2' }} €</span>
+            <button mat-icon-button type="button" [matMenuTriggerFor]="actions" [attr.aria-label]="'expenses.actions' | translate: { name: expense.label }">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #actions="matMenu">
+              <button mat-menu-item type="button" (click)="write(expense)"><mat-icon>edit</mat-icon>{{ 'common.edit' | translate }}</button>
+              <button mat-menu-item type="button" (click)="remove(expense)"><mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}</button>
+            </mat-menu>
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

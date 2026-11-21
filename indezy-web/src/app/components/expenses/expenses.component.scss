@@ -1,0 +1,100 @@
+@use '../invoices/billing-list' as list;
+
+@include list.billing-list('.expense');
+
+.expenses-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.year {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  .value {
+    min-width: 48px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-align: center;
+  }
+}
+
+.effect {
+  margin-bottom: 16px;
+
+  mat-card-content {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+
+    mat-icon {
+      flex: none;
+      color: var(--app-chip-indigo-text);
+    }
+
+    p {
+      margin: 0 0 4px;
+    }
+
+    .status {
+      font-weight: 600;
+    }
+  }
+}
+
+.breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.months li {
+  display: grid;
+  grid-template-columns: 48px 1fr 72px;
+  gap: 8px;
+  align-items: center;
+  padding: 2px 0;
+  font-size: 0.8125rem;
+
+  .bar {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--app-chip-neutral-bg);
+    overflow: hidden;
+
+    span {
+      display: block;
+      height: 100%;
+      background: var(--app-chip-indigo-text);
+    }
+  }
+
+  .amount {
+    text-align: right;
+  }
+}
+
+.categories li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--app-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .amount {
+    font-weight: 600;
+  }
+}

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les dépenses
+
+**Dépenses**, dans le menu : enregistrez vos frais professionnels et voyez ce qu'ils vous coûtent net selon votre statut (micro-entreprise, EI, société ou portage). Voir [Devis et factures](/help/invoices-quotes).
+
 ### Factures en dollars, livres et francs suisses
 
 Facturez un client étranger dans sa devise, au taux en euros que vous indiquez pour la date d'émission : le PDF, Factur-X et l'export comptable indiquent aussi les euros. Voir [Devis et factures](/help/invoices-quotes).

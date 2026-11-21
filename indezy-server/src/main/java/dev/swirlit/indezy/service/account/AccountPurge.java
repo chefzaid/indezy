@@ -31,7 +31,7 @@ public class AccountPurge {
         "webhook_events", "webhook_deliveries", "webhooks", "activity_report_days", "interview_step_checklist",
         "interview_steps", "contact_interactions", "contact_relations", "project_attachments", "project_notes",
         "purchase_orders", "project_referrals", "project_contract_checks", "project_documents", "job_offer_states", "invoice_lines", "invoices",
-        "invoice_counters", "activity_reports", "quote_lines", "quotes", "quote_counters", "testimonials", "projects",
+        "invoice_counters", "activity_reports", "quote_lines", "quotes", "quote_counters", "expenses", "testimonials", "projects",
         "pipeline_template_steps", "pipeline_templates", "contacts", "clients", "sources", "seasons", "email_templates",
         "offer_board_visits", "offer_publisher_blocks", "offer_site_exclusions", "offer_suggestion_dismissals",
         "saved_offer_searches", "trainings", "booking_windows", "bookings", "booking_pages", "compliance_pack_documents",
@@ -156,6 +156,7 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM quote_lines WHERE quote_id IN (SELECT id FROM quotes WHERE freelance_id = ?)", f);
         rows += jdbc.update("DELETE FROM quotes WHERE freelance_id = ?", f);
         rows += jdbc.update("DELETE FROM quote_counters WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM expenses WHERE freelance_id = ?", f);
         rows += jdbc.update("DELETE FROM testimonials WHERE freelance_id = ?", f);
         rows += jdbc.update("DELETE FROM projects WHERE freelance_id = ?", f);
         rows += jdbc.update("DELETE FROM pipeline_template_steps WHERE template_id IN (SELECT id FROM pipeline_templates WHERE freelance_id = ?)", f);
