@@ -49,6 +49,15 @@ A line with a negative quantity takes an amount off (a discount, a deposit alrea
 
 To cancel all or part of an issued invoice, click **Create a credit note**: Indezy drafts one with the same lines, to reduce for a partial credit, then to issue. Fully credited, the invoice reads **Credited**.
 
+## Invoicing in another currency
+
+For an international client, choose **Currency** in the draft: euro, US dollar, pound sterling or Swiss franc. In another currency than the euro, type **Value of 1 USD in euros** (or GBP, CHF) at the issue date, as your bank or the ECB gives it: the invoice cannot be issued without it.
+
+- The lines and totals are in that currency, with the total in euros below.
+- The PDF states the rate and the amounts in euros, VAT included, as French law asks.
+- The totals awaiting payment, overdue and by client are counted in euros, and so is the accounting export, with each amount in the currency beside it.
+- A credit note keeps its invoice's currency and rate.
+
 ## Late payments
 
 - An issued invoice becomes **Overdue** after its due date. It shows under **Overdue invoices** on the [dashboard](/help/dashboard) and in the weekly digest.

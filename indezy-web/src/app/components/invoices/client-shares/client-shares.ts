@@ -28,7 +28,8 @@ export function clientShares(invoices: Invoice[], today: Date = new Date()): Cli
     }
     const sign = invoice.kind === 'CREDIT_NOTE' ? -1 : 1;
     const entry = byClient.get(invoice.clientId) ?? { name: invoice.clientName ?? '', revenue: 0 };
-    entry.revenue += sign * invoice.totalExcludingVat;
+    // In euros: an invoice in another currency at its rate.
+    entry.revenue += sign * (invoice.totalExcludingVatInEuros ?? invoice.totalExcludingVat);
     byClient.set(invoice.clientId, entry);
   }
   const total = [...byClient.values()].reduce((sum, entry) => sum + Math.max(entry.revenue, 0), 0);

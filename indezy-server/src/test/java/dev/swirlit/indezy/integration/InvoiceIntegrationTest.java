@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -247,6 +248,52 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(pdf(alice, invoice)).contains("Facture");
         assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/invoices/by-freelance/" + alice.freelanceId(), null, List.class)
             .getBody()).extracting(item -> item.get("kind")).containsExactlyInAnyOrder("INVOICE", "CREDIT_NOTE", "CREDIT_NOTE");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void invoicesAnInternationalClientInItsCurrencyAtTheRateTyped() throws IOException {
+        call(alice, HttpMethod.PUT, "/users/billing", Map.of("legalName", "Alice Martin", "legalForm", "EI", "siret", "55210055400012",
+            "vatExempt", false, "vatNumber", "FR40552100554", "vatRate", 20, "address", "Paris", "iban", "FR7630006000011234567890189"),
+            Map.class);
+        Map<String, Object> client = call(alice, HttpMethod.GET, "/clients/" + aliceClientId, null, Map.class).getBody();
+        client.put("address", "350 Fifth Avenue, New York");
+        call(alice, HttpMethod.PUT, "/clients/" + aliceClientId, client, Map.class);
+        Map<String, Object> draft = new HashMap<>(Map.of("clientId", aliceClientId, "language", "EN", "currency", "USD",
+            "lines", List.of(Map.of("description", "Architecture review", "quantity", 1, "unitPrice", 1000, "vatRate", 20))));
+
+        // Without a rate to the euro: written, but not issued, and no euro totals yet.
+        Map<String, Object> written = call(alice, HttpMethod.POST, "/invoices", draft, Map.class).getBody();
+        long id = ((Number) written.get("id")).longValue();
+        assertThat(written).containsEntry("currency", "USD").containsEntry("exchangeRate", null).containsEntry("total", 1200.0)
+            .containsEntry("totalInEuros", null);
+        assertThat(call(alice, HttpMethod.POST, "/invoices/" + id + "/issue", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        draft.put("exchangeRate", 0);
+        assertThat(call(alice, HttpMethod.PUT, "/invoices/" + id, draft, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        // With the rate of the issue date: the euro totals to the cent, the VAT what the total leaves.
+        draft.put("exchangeRate", 0.923456);
+        call(alice, HttpMethod.PUT, "/invoices/" + id, draft, Map.class);
+        Map<String, Object> issued = call(alice, HttpMethod.POST, "/invoices/" + id + "/issue", null, Map.class).getBody();
+        assertThat(issued).containsEntry("status", "ISSUED").containsEntry("currency", "USD").containsEntry("exchangeRate", 0.923456)
+            .containsEntry("totalExcludingVatInEuros", 923.46).containsEntry("totalInEuros", 1108.15);
+        assertThat(pdf(alice, id)).contains("1,000.00", "1,200.00", "Exchange rate at the issue date: 1 USD = €0.923456.",
+            "Equivalent in euros: €923.46 excluding VAT, VAT €184.69, €1,108.15 including VAT.").doesNotContain("€1,000.00");
+
+        // The accounting entries are in euros, each with its amount in dollars.
+        int year = LocalDate.now(ZoneId.of("Europe/Paris")).getYear();
+        String fec = new String(call(alice, HttpMethod.GET, "/invoices/export/" + year, null, byte[].class).getBody(), StandardCharsets.UTF_8);
+        assertThat(fec.lines().filter(line -> line.contains(issued.get("number") + "\t")).toList()).hasSize(3)
+            .anySatisfy(line -> assertThat(line).startsWith("VE\t").contains("\t411000\t").contains("\t1108,15\t0,00\t").endsWith("\t1200,00\tUSD"))
+            .anySatisfy(line -> assertThat(line).contains("\t706000\t").contains("\t0,00\t923,46\t").endsWith("\t1000,00\tUSD"))
+            .anySatisfy(line -> assertThat(line).contains("\t445710\t").contains("\t0,00\t184,69\t").endsWith("\t200,00\tUSD"));
+        String register = new String(call(alice, HttpMethod.GET, "/invoices/export/" + year + "?format=REGISTER&language=EN", null,
+            byte[].class).getBody(), StandardCharsets.UTF_8);
+        assertThat(register).contains(",923.46,184.69,1108.15,").contains(",USD,1200.00");
+
+        // Its credit note is in dollars at the same rate.
+        Map<String, Object> note = call(alice, HttpMethod.POST, "/invoices/" + id + "/credit-note", null, Map.class).getBody();
+        assertThat(note).containsEntry("currency", "USD").containsEntry("exchangeRate", 0.923456).containsEntry("totalInEuros", 1108.15);
     }
 
     private String pdf(Account account, long invoice) throws IOException {

@@ -2,6 +2,7 @@ package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.InvoiceCurrency;
 import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import jakarta.validation.Valid;
@@ -41,7 +42,8 @@ public final class InvoiceDtos {
         Long quoteId, String quoteNumber, Long clientId, String clientName, Long projectId,
         String projectRole, Long activityReportId, LocalDate issueDate, LocalDate dueDate, LocalDate periodStart, LocalDate periodEnd,
         DocumentLanguage language, String notes, List<Line> lines, BigDecimal totalExcludingVat, BigDecimal vat, BigDecimal total,
-        LocalDate paidOn, LocalDateTime createdAt, LateFees lateFees) {
+        LocalDate paidOn, LocalDateTime createdAt, LateFees lateFees, InvoiceCurrency currency, BigDecimal exchangeRate,
+        BigDecimal totalExcludingVatInEuros, BigDecimal totalInEuros) {
 
         public Invoice {
             lines = List.copyOf(lines);
@@ -56,7 +58,10 @@ public final class InvoiceDtos {
     public record LateFees(long daysLate, BigDecimal amountDue, Double rate, BigDecimal interest, BigDecimal indemnity) {
     }
 
-    /** A draft written by hand: the client, optionally its mission, the period, the language, notes and lines. */
+    /**
+     * A draft written by hand: the client, optionally its mission, the period, the language, notes and lines; its
+     * currency (the euro when absent) and, in another currency, the euros one unit is worth at the issue date.
+     */
     public record Draft(
         @NotNull Long clientId,
         Long projectId,
@@ -64,7 +69,9 @@ public final class InvoiceDtos {
         LocalDate periodEnd,
         DocumentLanguage language,
         @Size(max = 1000) String notes,
-        @NotEmpty @Size(max = 50) List<@Valid Line> lines) {
+        @NotEmpty @Size(max = 50) List<@Valid Line> lines,
+        InvoiceCurrency currency,
+        @DecimalMin(value = "0", inclusive = false) @Digits(integer = 8, fraction = 6) BigDecimal exchangeRate) {
 
         public Draft {
             lines = lines == null ? null : List.copyOf(lines);

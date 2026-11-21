@@ -3,11 +3,14 @@ package dev.swirlit.indezy.pdf;
 import dev.swirlit.indezy.model.Invoice;
 import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceSeller;
+import dev.swirlit.indezy.model.enums.InvoiceCurrency;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import dev.swirlit.indezy.service.InvoiceTotals;
 import dev.swirlit.indezy.util.BillingText;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +41,15 @@ final class InvoicePage extends BillingPage {
     @Override
     boolean negative() {
         return invoice.isCreditNote();
+    }
+
+    @Override
+    String currencyCode() {
+        return invoice.getCurrency().name();
+    }
+
+    private String signedEuros(BigDecimal amount) {
+        return euros(negative() ? amount.negate() : amount);
     }
 
     void write() throws IOException {
@@ -77,6 +89,15 @@ final class InvoicePage extends BillingPage {
         List<String> mentions = new ArrayList<>();
         if (vatExempt()) {
             mentions.add(InvoiceLabel.VAT_EXEMPT.in(language));
+        }
+        InvoiceTotals euros = invoice.getCurrency() == InvoiceCurrency.EUR ? null : InvoiceTotals.inEuros(invoice);
+        if (euros != null) {
+            // In another currency, the rate and the amounts in euros, the VAT's above all (art. 242 nonies A, annexe II du CGI).
+            NumberFormat rate = NumberFormat.getNumberInstance(language.locale());
+            rate.setMaximumFractionDigits(6);
+            mentions.add(InvoiceLabel.EXCHANGE_RATE.format(language, invoice.getCurrency().name(), rate.format(invoice.getExchangeRate())));
+            mentions.add(vatExempt() ? InvoiceLabel.IN_EUROS_EXEMPT.format(language, signedEuros(euros.total())) :
+                InvoiceLabel.IN_EUROS.format(language, signedEuros(euros.excludingVat()), signedEuros(euros.vat()), signedEuros(euros.total())));
         }
         if (!invoice.isCreditNote() && invoice.getIssueDate() != null && invoice.getDueDate() != null) {
             mentions.add(InvoiceLabel.PAYMENT.format(language, ChronoUnit.DAYS.between(invoice.getIssueDate(), invoice.getDueDate()),

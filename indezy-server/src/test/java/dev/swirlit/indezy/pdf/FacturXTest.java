@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.InvoiceCurrency;
 import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import org.apache.pdfbox.Loader;
@@ -142,6 +143,25 @@ class FacturXTest {
             assertThat(value(xpath, xml, "count(//ram:BuyerTradeParty/ram:SpecifiedLegalOrganization)")).isEqualTo("0");
             assertThat(value(xpath, xml, "//ram:BuyerTradeParty/ram:PostalTradeAddress/ram:CountryID")).isEqualTo("FR");
             assertThat(value(xpath, xml, "//ram:SpecifiedTradeSettlementHeaderMonetarySummation/ram:GrandTotalAmount")).isEqualTo("100.00");
+        }
+    }
+
+    @Test
+    void statesAnInvoiceInPoundsWithItsVatInEuros() throws Exception {
+        Invoice invoice = invoice();
+        invoice.setCurrency(InvoiceCurrency.GBP);
+        invoice.setExchangeRate(new BigDecimal("1.15"));
+
+        try (PDDocument document = Loader.loadPDF(renderer.render(invoice, seller(false), buyer()))) {
+            XPath xpath = xpath();
+            Document xml = parse(embedded(document).getEmbeddedFile().toByteArray());
+            assertThat(value(xpath, xml, "//ram:ApplicableHeaderTradeSettlement/ram:InvoiceCurrencyCode")).isEqualTo("GBP");
+            assertThat(value(xpath, xml, "//ram:ApplicableHeaderTradeSettlement/ram:TaxCurrencyCode")).isEqualTo("EUR");
+            // The VAT in pounds, then in euros: 2,405.00 GBP is 16,732.96 € in all less 13,967.21 € before VAT.
+            assertThat(value(xpath, xml, "//ram:SpecifiedTradeSettlementHeaderMonetarySummation/ram:TaxTotalAmount[@currencyID='GBP']"))
+                .isEqualTo("2405.00");
+            assertThat(value(xpath, xml, "//ram:SpecifiedTradeSettlementHeaderMonetarySummation/ram:TaxTotalAmount[@currencyID='EUR']"))
+                .isEqualTo("2765.75");
         }
     }
 

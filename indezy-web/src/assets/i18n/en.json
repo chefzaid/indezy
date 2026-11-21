@@ -2947,7 +2947,8 @@
       "notInvoiceable": "Only a month with days worked, and not rejected, can be invoiced.",
       "noDailyRate": "Add the mission's daily rate before invoicing it.",
       "noClient": "Add the mission's client before invoicing it.",
-      "negative": "An invoice cannot total less than zero: issue a credit note instead."
+      "negative": "An invoice cannot total less than zero: issue a credit note instead.",
+      "exchangeRate": "Type the rate to the euro at the issue date in the invoice before issuing it."
     },
     "creditNote": "Credit note",
     "credits": "for {{number}}",
@@ -2978,8 +2979,19 @@
     },
     "depositInvoice": "Deposit invoice",
     "forQuote": "quote {{number}}",
-    "lateFees": "{{days}} day(s) late: interest {{interest}} € and recovery indemnity {{indemnity}} €",
-    "lateFeesNoRate": "{{days}} day(s) late: recovery indemnity {{indemnity}} €, interest at the statutory rate"
+    "lateFees": "{{days}} day(s) late: interest {{interest}} and recovery indemnity {{indemnity}} €",
+    "lateFeesNoRate": "{{days}} day(s) late: recovery indemnity {{indemnity}} €, interest at the statutory rate",
+    "currency": "Currency",
+    "currencies": {
+      "EUR": "Euro (€)",
+      "USD": "US dollar ($)",
+      "GBP": "Pound sterling (£)",
+      "CHF": "Swiss franc (CHF)"
+    },
+    "exchangeRate": "Value of 1 {{currency}} in euros",
+    "exchangeRateHint": "The rate at the issue date, as your bank or the ECB gives it; needed to issue.",
+    "exchangeRateError": "A rate above zero",
+    "inEuros": "In euros"
   },
   "purchaseOrders": {
     "title": "Purchase orders",

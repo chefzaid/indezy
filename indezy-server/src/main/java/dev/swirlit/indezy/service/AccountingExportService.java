@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.Invoice;
 import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.InvoiceCurrency;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InvoiceRepository;
@@ -55,9 +56,9 @@ public class AccountingExportService {
         "CompAuxNum", "CompAuxLib", "PieceRef", "PieceDate", "EcritureLib", "Debit", "Credit", "EcritureLet", "DateLet", "ValidDate",
         "Montantdevise", "Idevise"};
     private static final String[] REGISTER_FR = {"Numéro", "Type", "Date", "Client", "SIREN", "N° TVA", "Mission", "Total HT", "TVA",
-        "Total TTC", "Échéance", "Payée le", "Statut", "Facture créditée"};
+        "Total TTC", "Échéance", "Payée le", "Statut", "Facture créditée", "Devise", "Total TTC en devise"};
     private static final String[] REGISTER_EN = {"Number", "Type", "Date", "Client", "SIREN", "VAT number", "Mission", "Excluding VAT",
-        "VAT", "Total", "Due date", "Paid on", "Status", "Credited invoice"};
+        "VAT", "Total", "Due date", "Paid on", "Status", "Credited invoice", "Currency", "Total in currency"};
 
     private static final String CLIENTS = "411000";
     private static final String SERVICES = "706000";
@@ -89,14 +90,17 @@ public class AccountingExportService {
         List<Entry> entries = new ArrayList<>();
         for (Invoice invoice : issued) {
             InvoiceTotals totals = InvoiceTotals.of(invoice.getLines());
+            // The entries are in euros; an invoice in another currency also gives each line's amount in it.
+            InvoiceTotals euros = Objects.requireNonNullElse(InvoiceTotals.inEuros(invoice), totals);
+            String currency = invoice.getCurrency() == InvoiceCurrency.EUR ? null : invoice.getCurrency().name();
             String client = name(invoice.getBuyer());
             if (invoice.getIssueDate().getYear() == year) {
                 boolean note = invoice.isCreditNote();
                 List<Posting> postings = new ArrayList<>();
-                postings.add(Posting.of(CLIENTS, "Clients", invoice, totals.total(), note));
-                postings.add(Posting.of(SERVICES, "Prestations de services", null, totals.excludingVat(), !note));
-                if (totals.vat().signum() != 0) {
-                    postings.add(Posting.of(VAT_COLLECTED, "TVA collectée", null, totals.vat(), !note));
+                postings.add(Posting.of(CLIENTS, "Clients", invoice, euros.total(), note).in(currency, totals.total()));
+                postings.add(Posting.of(SERVICES, "Prestations de services", null, euros.excludingVat(), !note).in(currency, totals.excludingVat()));
+                if (euros.vat().signum() != 0) {
+                    postings.add(Posting.of(VAT_COLLECTED, "TVA collectée", null, euros.vat(), !note).in(currency, totals.vat()));
                 }
                 entries.add(new Entry(invoice.getIssueDate(), "VE", invoice.getNumber(), invoice.getIssueDate(),
                     (note ? "Avoir " : "Facture ") + invoice.getNumber() + " " + client, postings));
@@ -108,8 +112,12 @@ public class AccountingExportService {
                     .filter(note -> !note.getIssueDate().isAfter(paidOn))
                     .map(note -> InvoiceTotals.of(note.getLines()).total()).reduce(totals.total(), BigDecimal::subtract);
                 if (paid.signum() > 0) {
+                    // At the invoice's rate: an exchange gain or loss on the day it is paid is the accountant's to record.
+                    BigDecimal paidEuros = currency == null || invoice.getExchangeRate() == null ? paid :
+                        InvoiceTotals.euros(paid, invoice.getExchangeRate());
                     entries.add(new Entry(paidOn, "BQ", invoice.getNumber(), paidOn, "Règlement " + invoice.getNumber() + " " + client,
-                        List.of(Posting.of(BANK, "Banque", null, paid, false), Posting.of(CLIENTS, "Clients", invoice, paid, true))));
+                        List.of(Posting.of(BANK, "Banque", null, paidEuros, false).in(currency, paid),
+                            Posting.of(CLIENTS, "Clients", invoice, paidEuros, true).in(currency, paid))));
                 }
             }
         }
@@ -124,7 +132,8 @@ public class AccountingExportService {
                 text.append(String.join("\t", entry.journal(), "VE".equals(entry.journal()) ? "Ventes" : "Banque", String.valueOf(number),
                     date, posting.account(), posting.label(), posting.auxiliary(), fecText(posting.auxiliaryLabel()), entry.piece(),
                     entry.pieceDate().format(FEC_DATE), fecText(entry.label()), fecAmount(posting.debit()), fecAmount(posting.credit()),
-                    "", "", date, "", "")).append(CRLF);
+                    "", "", date, posting.currency() == null ? "" : fecAmount(posting.currencyAmount()),
+                    Objects.requireNonNullElse(posting.currency(), ""))).append(CRLF);
             }
         }
         return text.toString();
@@ -138,7 +147,9 @@ public class AccountingExportService {
         List<Invoice> rows = issued.stream().filter(invoice -> invoice.getIssueDate().getYear() == year)
             .sorted(Comparator.comparing(Invoice::getIssueDate).thenComparing(Invoice::getNumber)).toList();
         for (Invoice invoice : rows) {
-            InvoiceTotals totals = InvoiceTotals.of(invoice.getLines());
+            InvoiceTotals original = InvoiceTotals.of(invoice.getLines());
+            InvoiceTotals totals = Objects.requireNonNullElse(InvoiceTotals.inEuros(invoice), original);
+            boolean foreign = invoice.getCurrency() != InvoiceCurrency.EUR;
             BigDecimal sign = invoice.isCreditNote() ? BigDecimal.ONE.negate() : BigDecimal.ONE;
             BigDecimal[] amounts = {totals.excludingVat().multiply(sign), totals.vat().multiply(sign), totals.total().multiply(sign)};
             for (int i = 0; i < sums.length; i++) {
@@ -149,10 +160,11 @@ public class AccountingExportService {
                 CsvText.text(buyer.getName()), CsvText.text(buyer.getSiren()), CsvText.text(buyer.getVatNumber()),
                 CsvText.text(invoice.getProjectRole()), amount(amounts[0], english), amount(amounts[1], english), amount(amounts[2], english),
                 date(invoice.getDueDate(), english), date(invoice.getPaidOn(), english), status(invoice, english),
-                Objects.requireNonNullElse(invoice.getCreditedNumber(), ""))).append(CRLF);
+                Objects.requireNonNullElse(invoice.getCreditedNumber(), ""), foreign ? invoice.getCurrency().name() : "",
+                foreign ? amount(original.total().multiply(sign), english) : "")).append(CRLF);
         }
         csv.append(CsvText.row(separator, "Total", "", "", "", "", "", "", amount(sums[0], english), amount(sums[1], english),
-            amount(sums[2], english), "", "", "", "")).append(CRLF);
+            amount(sums[2], english), "", "", "", "", "", "")).append(CRLF);
         return csv.toString();
     }
 
@@ -215,12 +227,18 @@ public class AccountingExportService {
     }
 
     /** One line of an entry: an account debited or credited, with the client's own account for the client lines. */
-    private record Posting(String account, String label, String auxiliary, String auxiliaryLabel, BigDecimal debit, BigDecimal credit) {
+    private record Posting(String account, String label, String auxiliary, String auxiliaryLabel, BigDecimal debit, BigDecimal credit,
+                           String currency, BigDecimal currencyAmount) {
 
         static Posting of(String account, String label, Invoice client, BigDecimal amount, boolean credit) {
             String auxiliary = client == null ? "" : String.format("C%06d", client.getClientId());
             String auxiliaryLabel = client == null ? "" : name(client.getBuyer());
-            return new Posting(account, label, auxiliary, auxiliaryLabel, credit ? null : amount, credit ? amount : null);
+            return new Posting(account, label, auxiliary, auxiliaryLabel, credit ? null : amount, credit ? amount : null, null, null);
+        }
+
+        /** The same line with its amount in the invoice's currency, unless that is the euro (a null currency). */
+        Posting in(String code, BigDecimal amount) {
+            return code == null ? this : new Posting(account, label, auxiliary, auxiliaryLabel, debit, credit, code, amount);
         }
     }
 }

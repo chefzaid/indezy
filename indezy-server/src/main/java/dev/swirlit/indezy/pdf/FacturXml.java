@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.InvoiceCurrency;
 import dev.swirlit.indezy.service.InvoiceTotals;
 
 import java.math.BigDecimal;
@@ -76,7 +77,13 @@ final class FacturXml {
         close("ram:ApplicableHeaderTradeAgreement");
         xml.append("<ram:ApplicableHeaderTradeDelivery/>\n");
 
-        open("ram:ApplicableHeaderTradeSettlement").text("ram:InvoiceCurrencyCode", "EUR");
+        // In another currency, the VAT is also accounted in euros (BT-6, BT-111, rule BR-53).
+        InvoiceTotals euros = invoice.getCurrency() == InvoiceCurrency.EUR ? null : InvoiceTotals.inEuros(invoice);
+        open("ram:ApplicableHeaderTradeSettlement");
+        if (euros != null) {
+            text("ram:TaxCurrencyCode", "EUR");
+        }
+        text("ram:InvoiceCurrencyCode", invoice.getCurrency().name());
         if (seller.getIban() != null && !invoice.isCreditNote()) {
             // 58: SEPA credit transfer.
             open("ram:SpecifiedTradeSettlementPaymentMeans").text("ram:TypeCode", "58")
@@ -104,7 +111,11 @@ final class FacturXml {
         open("ram:SpecifiedTradeSettlementHeaderMonetarySummation")
             .text("ram:LineTotalAmount", amount(totals.excludingVat()))
             .text("ram:TaxBasisTotalAmount", amount(totals.excludingVat()));
-        xml.append("<ram:TaxTotalAmount currencyID=\"EUR\">").append(amount(totals.vat())).append("</ram:TaxTotalAmount>\n");
+        xml.append("<ram:TaxTotalAmount currencyID=\"").append(invoice.getCurrency().name()).append("\">").append(amount(totals.vat()))
+            .append("</ram:TaxTotalAmount>\n");
+        if (euros != null) {
+            xml.append("<ram:TaxTotalAmount currencyID=\"EUR\">").append(amount(euros.vat())).append("</ram:TaxTotalAmount>\n");
+        }
         text("ram:GrandTotalAmount", amount(totals.total())).text("ram:DuePayableAmount", amount(totals.total()))
             .close("ram:SpecifiedTradeSettlementHeaderMonetarySummation");
         if (invoice.isCreditNote() && invoice.getCreditedNumber() != null) {

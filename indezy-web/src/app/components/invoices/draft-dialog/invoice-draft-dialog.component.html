@@ -54,6 +54,27 @@
         </mat-select>
       </mat-form-field>
     </div>
+    @if (!data.forQuote) {
+      <div class="row">
+        <mat-form-field appearance="outline" class="grow" data-invoice-currency>
+          <mat-label>{{ 'invoices.currency' | translate }}</mat-label>
+          <mat-select formControlName="currency">
+            @for (currency of currencies; track currency) {
+              <mat-option [value]="currency">{{ 'invoices.currencies.' + currency | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        @if (foreign) {
+          <mat-form-field appearance="outline" class="grow" data-exchange-rate>
+            <mat-label>{{ 'invoices.exchangeRate' | translate: { currency: form.controls.currency.value } }}</mat-label>
+            <input matInput type="number" formControlName="exchangeRate" min="0" step="0.0001">
+            <span matTextSuffix>€</span>
+            <mat-hint>{{ 'invoices.exchangeRateHint' | translate }}</mat-hint>
+            <mat-error>{{ 'invoices.exchangeRateError' | translate }}</mat-error>
+          </mat-form-field>
+        }
+      </div>
+    }
 
     <h3 class="lines-title">{{ 'invoices.lines' | translate }}</h3>
     <div formArrayName="lines">
@@ -70,7 +91,7 @@
           <mat-form-field appearance="outline" class="number">
             <mat-label>{{ 'invoices.unitPrice' | translate }}</mat-label>
             <input matInput type="number" formControlName="unitPrice" min="0" required>
-            <span matTextSuffix>€</span>
+            <span matTextSuffix>{{ symbol }}</span>
           </mat-form-field>
           <mat-form-field appearance="outline" class="number small">
             <mat-label>{{ 'invoices.vatRate' | translate }}</mat-label>
@@ -90,9 +111,12 @@
     </button>
 
     <dl class="totals" data-draft-totals>
-      <div><dt>{{ 'invoices.totalExcludingVat' | translate }}</dt><dd>{{ totals.excludingVat | number:'1.2-2' }} €</dd></div>
-      <div><dt>{{ 'invoices.vat' | translate }}</dt><dd>{{ totals.vat | number:'1.2-2' }} €</dd></div>
-      <div class="total"><dt>{{ 'invoices.total' | translate }}</dt><dd>{{ totals.total | number:'1.2-2' }} €</dd></div>
+      <div><dt>{{ 'invoices.totalExcludingVat' | translate }}</dt><dd>{{ totals.excludingVat | number:'1.2-2' }} {{ symbol }}</dd></div>
+      <div><dt>{{ 'invoices.vat' | translate }}</dt><dd>{{ totals.vat | number:'1.2-2' }} {{ symbol }}</dd></div>
+      <div class="total"><dt>{{ 'invoices.total' | translate }}</dt><dd>{{ totals.total | number:'1.2-2' }} {{ symbol }}</dd></div>
+      @if (totalInEuros !== null) {
+        <div data-draft-euros><dt>{{ 'invoices.inEuros' | translate }}</dt><dd>{{ totalInEuros | number:'1.2-2' }} €</dd></div>
+      }
     </dl>
 
     <mat-form-field appearance="outline" class="full">

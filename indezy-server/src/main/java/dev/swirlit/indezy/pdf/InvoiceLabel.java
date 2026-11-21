@@ -45,6 +45,9 @@ enum InvoiceLabel {
         "forfaitaire pour frais de recouvrement de 40 € (art. L441-10 du Code de commerce).",
         "Late payment incurs penalties at an annual rate of %s%% and a fixed recovery fee of €40 " +
             "(art. L441-10 of the French Commercial Code)."),
+    EXCHANGE_RATE("Taux de change à la date d'émission : 1 %s = %s €.", "Exchange rate at the issue date: 1 %s = €%s."),
+    IN_EUROS("Contre-valeur en euros : %s HT, TVA %s, %s TTC.", "Equivalent in euros: %s excluding VAT, VAT %s, %s including VAT."),
+    IN_EUROS_EXEMPT("Contre-valeur en euros : %s.", "Equivalent in euros: %s."),
     NOTES("Notes", "Notes"),
     INDIVIDUAL(" EI", " EI");
 

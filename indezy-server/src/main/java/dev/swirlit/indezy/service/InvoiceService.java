@@ -16,6 +16,7 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Quote;
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.InvoiceCurrency;
 import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import dev.swirlit.indezy.model.enums.WebhookEvent;
@@ -104,7 +105,8 @@ public class InvoiceService {
         return invoices.findByFreelanceIdAndStatusAndDueDateBeforeOrderByDueDateAsc(freelanceId, InvoiceStatus.ISSUED, today).stream()
             .filter(invoice -> !invoice.isCreditNote())
             .map(invoice -> new DashboardStatsDto.OverdueInvoice(invoice.getId(), invoice.getNumber(), invoice.getBuyer().getName(),
-                InvoiceTotals.of(invoice.getLines()).total().subtract(creditedTotal(invoice)), invoice.getDueDate(), ChronoUnit.DAYS.between(invoice.getDueDate(), today)))
+                inEuros(invoice, InvoiceTotals.of(invoice.getLines()).total().subtract(creditedTotal(invoice))), invoice.getDueDate(),
+                ChronoUnit.DAYS.between(invoice.getDueDate(), today)))
             .toList();
     }
 
@@ -272,6 +274,9 @@ public class InvoiceService {
         note.setPeriodStart(original.getPeriodStart());
         note.setPeriodEnd(original.getPeriodEnd());
         note.setLanguage(original.getLanguage());
+        // In the currency and at the rate of its invoice.
+        note.setCurrency(original.getCurrency());
+        note.setExchangeRate(original.getExchangeRate());
         note.setLines(original.getLines());
         return toDto(invoices.save(note));
     }
@@ -316,6 +321,9 @@ public class InvoiceService {
         });
         if (!invoice.isCreditNote() && InvoiceTotals.of(invoice.getLines()).total().signum() < 0) {
             throw new InvalidStateException("An invoice cannot total less than zero: issue a credit note instead");
+        }
+        if (invoice.getCurrency() != InvoiceCurrency.EUR && invoice.getExchangeRate() == null) {
+            throw new InvalidStateException("An invoice in " + invoice.getCurrency() + " needs its rate to the euro at the issue date");
         }
         Invoice credited = invoice.isCreditNote() ? creditable(freelanceId, invoice) : null;
         invoice.setNumber(nextNumber(freelanceId, issued.getYear(), seller.invoicePrefix()));
@@ -424,6 +432,11 @@ public class InvoiceService {
         invoice.setLanguage(Objects.requireNonNullElse(draft.language(), DocumentLanguage.FR));
         invoice.setNotes(draft.notes() == null || draft.notes().isBlank() ? null : draft.notes().strip());
         invoice.setLines(lines(draft.lines()));
+        if (!invoice.isCreditNote()) {
+            InvoiceCurrency currency = Objects.requireNonNullElse(draft.currency(), InvoiceCurrency.EUR);
+            invoice.setCurrency(currency);
+            invoice.setExchangeRate(currency == InvoiceCurrency.EUR ? null : draft.exchangeRate());
+        }
     }
 
     /** The lines as written, trimmed and to the cent; a quantity of zero bills nothing and is refused. */
@@ -475,6 +488,7 @@ public class InvoiceService {
 
     private InvoiceDtos.Invoice toDto(Invoice invoice) {
         InvoiceTotals totals = InvoiceTotals.of(invoice.getLines());
+        InvoiceTotals euros = InvoiceTotals.inEuros(invoice);
         String clientName = invoice.getBuyer() != null && invoice.getBuyer().getName() != null ? invoice.getBuyer().getName() :
             clients.findById(invoice.getClientId()).map(Client::getCompanyName).orElse(null);
         LocalDate today = LocalDate.now(clock.withZone(PARIS));
@@ -487,7 +501,14 @@ public class InvoiceService {
             invoice.getPeriodStart(), invoice.getPeriodEnd(), invoice.getLanguage(), invoice.getNotes(), invoice.getLines().stream()
             .map(line -> new InvoiceDtos.Line(line.getDescription(), line.getQuantity(), line.getUnitPrice(), line.getVatRate())).toList(),
             totals.excludingVat(), totals.vat(), totals.total(), invoice.getPaidOn(), invoice.getCreatedAt(),
-            overdue ? lateFees(invoice, totals.total().subtract(creditedTotal(invoice)), today) : null);
+            overdue ? lateFees(invoice, totals.total().subtract(creditedTotal(invoice)), today) : null, invoice.getCurrency(),
+            invoice.getExchangeRate(), euros == null ? null : euros.excludingVat(), euros == null ? null : euros.total());
+    }
+
+    /** An amount of the invoice's currency in euros, at its rate. */
+    private static BigDecimal inEuros(Invoice invoice, BigDecimal amount) {
+        return invoice.getCurrency() == InvoiceCurrency.EUR || invoice.getExchangeRate() == null ? amount :
+            InvoiceTotals.euros(amount, invoice.getExchangeRate());
     }
 
     /** The interest and indemnity an overdue invoice is owed today, on what is left to pay of it. */

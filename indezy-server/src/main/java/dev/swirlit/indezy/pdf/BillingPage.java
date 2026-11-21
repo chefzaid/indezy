@@ -118,8 +118,8 @@ abstract class BillingPage {
             List<String> description = writer.wrap(line.getDescription(), false, BODY, writer.width() * (columns[1] - 0.02f));
             writer.ensureSpace(ROW + LINE * (description.size() - 1));
             writer.moveDown(ROW);
-            row(columns, new String[] {description.getFirst(), number(line.getQuantity()), euros(line.getUnitPrice()),
-                number(line.getVatRate()) + " %", euros(InvoiceTotals.lineAmount(line))}, false);
+            row(columns, new String[] {description.getFirst(), number(line.getQuantity()), money(line.getUnitPrice()),
+                number(line.getVatRate()) + " %", money(InvoiceTotals.lineAmount(line))}, false);
             for (String more : description.subList(1, description.size())) {
                 writer.moveDown(LINE);
                 writer.text(writer.left(), writer.cursor(), more, false, BODY);
@@ -200,13 +200,27 @@ abstract class BillingPage {
     }
 
     String euros(BigDecimal amount) {
+        return amount(amount, "EUR");
+    }
+
+    /** The currency of the lines and totals: the euro, unless the document is written in another. */
+    String currencyCode() {
+        return "EUR";
+    }
+
+    /** An amount of the document's currency. */
+    String money(BigDecimal amount) {
+        return amount(amount, currencyCode());
+    }
+
+    private String amount(BigDecimal amount, String currency) {
         NumberFormat format = NumberFormat.getCurrencyInstance(locale);
-        format.setCurrency(Currency.getInstance("EUR"));
+        format.setCurrency(Currency.getInstance(currency));
         return plainSpaces(format.format(amount));
     }
 
-    private String signed(BigDecimal amount) {
-        return euros(negative() ? amount.negate() : amount);
+    String signed(BigDecimal amount) {
+        return money(negative() ? amount.negate() : amount);
     }
 
     private String number(BigDecimal value) {

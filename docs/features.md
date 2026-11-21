@@ -1029,6 +1029,16 @@ set, frozen with the seller). While overdue, an invoice states what it is owed o
 pay, the days late, the interest at its rate (amount × rate × days late / 365, none without a rate) and the €40 recovery
 indemnity (art. L441-10 and D441-5 du Code de commerce).
 
+**Currency**: an invoice is in euros, or in US dollars, pounds sterling or Swiss francs for an international client.
+In another currency its draft takes the value of one unit in euros at the issue date, typed by the freelancer (the
+bank's or the ECB's rate), without which it cannot be issued. The lines and totals are in that currency; the list
+shows the euros beside, and the totals awaiting payment, overdue and by client are in euros. The PDF states the rate
+and the amounts in euros, the VAT's included (art. 242 nonies A, annexe II du CGI); the Factur-X XML gives the
+currency and the VAT in euros as well (BT-6, BT-111). The FEC entries are in euros with each line's amount in the
+currency (`Montantdevise`, `Idevise`), a payment at the invoice's rate (an exchange gain or loss is the accountant's
+to record), and the register gives the currency and the total in it. A credit note keeps its invoice's currency and
+rate. Quotes stay in euros.
+
 **Create a credit note** on an issued invoice drafts one with the same lines, to reduce for a partial credit; it is
 issued in the same numbering and cannot credit more than what is left. Fully credited, the invoice reads **Credited**.
 

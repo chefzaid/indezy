@@ -75,6 +75,20 @@ describe('InvoicesComponent', () => {
     reports = [];
   });
 
+  it('writes an invoice in another currency with its symbol, its euros beside, and counts it in euros', () => {
+    const dollars = invoice(7, { number: 'F2026-0007', status: 'ISSUED', overdue: true, total: 1000, currency: 'USD', exchangeRate: 0.92,
+      totalInEuros: 920, lateFees: { daysLate: 3, amountDue: 1000, rate: 10, interest: 0.82, indemnity: 40 } });
+    const fixture = create(of([dollars, issued]));
+    const row: HTMLElement = fixture.nativeElement.querySelector('[data-invoice="7"]');
+    expect(row.querySelector('.amount')?.textContent?.replace(/\s+/g, ' ')).toContain('1,000.00 $');
+    expect(row.querySelector('[data-in-euros]')?.textContent?.trim()).toBe('≈ 920.00 €');
+    expect(row.querySelector('[data-late-fees]')?.textContent?.replace(/\s+/g, ' ').trim())
+      .toBe('3 day(s) late: interest 0.82 $ and recovery indemnity 40.00 €');
+    expect(fixture.nativeElement.querySelector('[data-invoice="2"] [data-in-euros]')).toBeNull();
+    expect(fixture.componentInstance.outstanding).toBe(2920);
+    expect(fixture.componentInstance.overdue).toBe(920);
+  });
+
   it('marks a quote\'s deposit invoice and names the quote an invoice bills', () => {
     const fixture = create(of([invoice(6, { kind: 'DEPOSIT', quoteNumber: 'D2026-0001', number: 'F2026-0006', status: 'ISSUED' })]));
     const row: HTMLElement = fixture.nativeElement.querySelector('[data-invoice="6"]');

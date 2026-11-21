@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Invoices in dollars, pounds and Swiss francs
+
+Invoice an international client in its currency, at the rate to the euro you type for the issue date: the PDF, Factur-X and the accounting export state the euros too. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Late-payment interest
 
 In **Profile → Billing**, type the late-payment rate your terms state: your invoices and quotes state it, and an overdue invoice shows the interest it is owed per day late and the €40 recovery indemnity. See [Quotes and invoices](/help/invoices-quotes).

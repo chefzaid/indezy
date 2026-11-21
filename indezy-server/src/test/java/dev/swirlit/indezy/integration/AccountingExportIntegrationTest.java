@@ -77,16 +77,16 @@ class AccountingExportIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(french.getHeaders().getContentDisposition().getFilename()).isEqualTo("factures-" + year + ".csv");
         String frenchDate = today.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         assertThat(new String(french.getBody(), StandardCharsets.UTF_8).lines().toList()).containsExactly(
-            "﻿Numéro;Type;Date;Client;SIREN;N° TVA;Mission;Total HT;TVA;Total TTC;Échéance;Payée le;Statut;Facture créditée",
+            "﻿Numéro;Type;Date;Client;SIREN;N° TVA;Mission;Total HT;TVA;Total TTC;Échéance;Payée le;Statut;Facture créditée;Devise;Total TTC en devise",
             number + ";Facture;" + frenchDate + ";\"'=HYPERLINK(\"\"https://evil.example\"\")\";;;;1200,00;240,00;1440,00;" +
-                today.plusDays(30).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ";" + frenchDate + ";Payée;",
-            noteNumber + ";Avoir;" + frenchDate + ";\"'=HYPERLINK(\"\"https://evil.example\"\")\";;;;-100,00;-20,00;-120,00;;;;" + number,
-            "Total;;;;;;;1100,00;220,00;1320,00;;;;");
+                today.plusDays(30).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ";" + frenchDate + ";Payée;;;",
+            noteNumber + ";Avoir;" + frenchDate + ";\"'=HYPERLINK(\"\"https://evil.example\"\")\";;;;-100,00;-20,00;-120,00;;;;" + number + ";;",
+            "Total;;;;;;;1100,00;220,00;1320,00;;;;;;");
         ResponseEntity<byte[]> english = call(alice, HttpMethod.GET, "/invoices/export/" + year + "?format=REGISTER&language=EN", null,
             byte[].class);
         assertThat(english.getHeaders().getContentDisposition().getFilename()).isEqualTo("invoices-" + year + ".csv");
         assertThat(new String(english.getBody(), StandardCharsets.UTF_8)).contains("Number,Type,Date,Client,SIREN,VAT number",
-            ",Invoice," + today + ",", ",-100.00,-20.00,-120.00,", "Total,,,,,,,1100.00,220.00,1320.00,,,,");
+            ",Invoice," + today + ",", ",-100.00,-20.00,-120.00,", "Total,,,,,,,1100.00,220.00,1320.00,,,,,,");
 
         // The projects summary keeps the client's name as text too, and is not cached either.
         call(alice, HttpMethod.POST, "/projects", Map.of("role", "Audit", "dailyRate", 600, "status", "WON", "clientId", aliceClientId,

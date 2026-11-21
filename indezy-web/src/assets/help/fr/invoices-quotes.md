@@ -49,6 +49,15 @@ Une ligne à quantité négative retranche un montant (une remise, un acompte d�
 
 Pour annuler tout ou partie d'une facture émise, cliquez sur **Créer un avoir** : Indezy prépare un avoir avec les mêmes lignes, à réduire pour un avoir partiel, puis à émettre. Entièrement créditée, la facture passe **Annulée par avoir**.
 
+## Facturer dans une autre devise
+
+Pour un client à l'étranger, choisissez la **Devise** dans le brouillon : euro, dollar américain, livre sterling ou franc suisse. Dans une autre devise que l'euro, indiquez la **Valeur de 1 USD en euros** (ou GBP, CHF) à la date d'émission, celle de votre banque ou de la BCE : la facture ne peut pas être émise sans elle.
+
+- Les lignes et les totaux sont dans cette devise, avec le total en euros dessous.
+- Le PDF indique le taux et les montants en euros, TVA comprise, comme le demande la loi.
+- Les totaux en attente, en retard et par client sont comptés en euros, comme l'export comptable, avec chaque montant dans la devise à côté.
+- Un avoir garde la devise et le taux de sa facture.
+
 ## Les retards de paiement
 
 - Une facture émise passe **En retard** après son échéance. Elle apparaît dans **Factures en retard de paiement** du [tableau de bord](/help/dashboard) et dans le résumé hebdomadaire.

@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 const REFUSALS: [RegExp, string][] = [
   [/^Complete the billing identity/, 'invoices.errors.billing'],
   [/^The client needs an address/, 'invoices.errors.clientAddress'],
+  [/^An invoice in [A-Z]{3} needs its rate to the euro/, 'invoices.errors.exchangeRate'],
   [/^An invoice cannot be dated before the last one issued/, 'invoices.errors.dateBeforeLast'],
   [/^This activity report is already invoiced/, 'invoices.errors.alreadyInvoiced'],
   [/^Only an activity report with days worked/, 'invoices.errors.notInvoiceable'],

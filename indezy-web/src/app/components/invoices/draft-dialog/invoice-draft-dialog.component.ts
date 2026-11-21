@@ -9,7 +9,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ClientDto, DocumentLanguage, Invoice, InvoiceDraft, InvoiceLine, ProjectDto, Quote, QuoteDraft } from '../../../models';
+import {
+  CURRENCY_SYMBOLS, ClientDto, DocumentLanguage, INVOICE_CURRENCIES, Invoice, InvoiceCurrency, InvoiceDraft, InvoiceLine, ProjectDto, Quote,
+  QuoteDraft
+} from '../../../models';
 
 export interface InvoiceDraftDialogData {
   clients: ClientDto[];
@@ -48,6 +51,7 @@ export class InvoiceDraftDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<InvoiceDraftDialogComponent, InvoiceDraft | QuoteDraft>);
   private readonly fb = inject(FormBuilder);
   readonly languages: DocumentLanguage[] = ['FR', 'EN'];
+  readonly currencies = INVOICE_CURRENCIES;
 
   readonly form = this.fb.group({
     clientId: [null as number | null, Validators.required],
@@ -55,6 +59,8 @@ export class InvoiceDraftDialogComponent implements OnInit {
     periodStart: [''],
     periodEnd: [''],
     language: ['FR' as DocumentLanguage],
+    currency: ['EUR' as InvoiceCurrency],
+    exchangeRate: [null as number | null, [Validators.min(0.000001), Validators.max(99999999)]],
     validityDays: [30, [Validators.required, Validators.min(1), Validators.max(365)]],
     depositPercent: [null as number | null, [Validators.min(1), Validators.max(100)]],
     notes: ['', Validators.maxLength(1000)],
@@ -73,6 +79,21 @@ export class InvoiceDraftDialogComponent implements OnInit {
   get projects(): ProjectDto[] {
     const clientId = this.form.controls.clientId.value;
     return this.data.projects.filter(project => project.clientId === clientId || project.middlemanId === clientId);
+  }
+
+  /** The symbol amounts are written with: the invoice's currency, the euro for a quote. */
+  get symbol(): string {
+    return CURRENCY_SYMBOLS[this.form.controls.currency.value ?? 'EUR'];
+  }
+
+  get foreign(): boolean {
+    return !this.data.forQuote && (this.form.controls.currency.value ?? 'EUR') !== 'EUR';
+  }
+
+  /** The total in euros at the rate typed, once there is one. */
+  get totalInEuros(): number | null {
+    const rate = Number(this.form.controls.exchangeRate.value);
+    return this.foreign && rate > 0 ? Math.round(this.totals.total * rate * 100) / 100 : null;
   }
 
   get titleKey(): string {
@@ -94,12 +115,15 @@ export class InvoiceDraftDialogComponent implements OnInit {
     } else if (invoice) {
       this.form.patchValue({
         clientId: invoice.clientId, projectId: invoice.projectId, periodStart: invoice.periodStart ?? '',
-        periodEnd: invoice.periodEnd ?? '', language: invoice.language, notes: invoice.notes ?? ''
+        periodEnd: invoice.periodEnd ?? '', language: invoice.language, notes: invoice.notes ?? '',
+        currency: invoice.currency ?? 'EUR', exchangeRate: invoice.exchangeRate ?? null
       });
       invoice.lines.forEach(line => this.addLine(line));
       if (invoice.kind === 'CREDIT_NOTE') {
-        // A credit note goes to the client of its invoice.
+        // A credit note goes to the client of its invoice, in its currency and at its rate.
         this.form.controls.clientId.disable();
+        this.form.controls.currency.disable();
+        this.form.controls.exchangeRate.disable();
       }
     } else {
       this.addLine();
@@ -160,7 +184,9 @@ export class InvoiceDraftDialogComponent implements OnInit {
       periodEnd: value.periodEnd || null,
       language: value.language ?? 'FR',
       notes: value.notes?.trim() || null,
-      lines
+      lines,
+      currency: value.currency ?? 'EUR',
+      exchangeRate: value.currency && value.currency !== 'EUR' && value.exchangeRate ? Number(value.exchangeRate) : null
     });
   }
 }

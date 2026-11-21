@@ -229,6 +229,8 @@ Deletion rules:
 - The billing identity is embedded in `freelances` (`billing_*` columns, all nullable): an invoice copies it when
   issued, so later changes touch no issued invoice. `billing_late_payment_rate` (percent a year) is copied as
   `seller_late_payment_rate` on invoices and quotes; null states the statutory rate without a figure.
+- `invoices.currency` (`EUR`, `USD`, `GBP`, `CHF`; null reads as `EUR`) and `invoices.exchange_rate` (euros for one
+  unit, `numeric(14,6)`, null in euros) state an invoice's currency; amounts in euros are computed from them, never stored.
 
 ### Project
 

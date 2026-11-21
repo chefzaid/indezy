@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Factures en dollars, livres et francs suisses
+
+Facturez un client étranger dans sa devise, au taux en euros que vous indiquez pour la date d'émission : le PDF, Factur-X et l'export comptable indiquent aussi les euros. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Les pénalités de retard
 
 Dans **Profil → Facturation**, indiquez le taux de pénalités de vos conditions : vos factures et devis l'indiquent, et une facture en retard montre les pénalités dues par jour de retard et l'indemnité de recouvrement de 40 €. Voir [Devis et factures](/help/invoices-quotes).

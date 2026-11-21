@@ -106,7 +106,7 @@
             @if (invoice.lateFees; as fees) {
               <span class="late" data-late-fees>
                 @if (fees.interest !== null) {
-                  {{ 'invoices.lateFees' | translate: { days: fees.daysLate, interest: (fees.interest | number:'1.2-2'),
+                  {{ 'invoices.lateFees' | translate: { days: fees.daysLate, interest: (fees.interest | number:'1.2-2') + ' ' + symbol(invoice),
                     indemnity: (fees.indemnity | number:'1.2-2') } }}
                 } @else {
                   {{ 'invoices.lateFeesNoRate' | translate: { days: fees.daysLate, indemnity: (fees.indemnity | number:'1.2-2') } }}
@@ -117,7 +117,12 @@
           <span class="badge" [class]="invoice.overdue ? 'OVERDUE' : invoice.status">
             {{ 'invoices.statuses.' + (invoice.overdue ? 'OVERDUE' : invoice.status) | translate }}
           </span>
-          <span class="amount">{{ (invoice.kind === 'CREDIT_NOTE' ? -invoice.total : invoice.total) | number:'1.2-2' }} €</span>
+          <span class="amount">
+            {{ (invoice.kind === 'CREDIT_NOTE' ? -invoice.total : invoice.total) | number:'1.2-2' }} {{ symbol(invoice) }}
+            @if (foreign(invoice) && invoice.totalInEuros !== null && invoice.totalInEuros !== undefined) {
+              <span class="in-euros" data-in-euros>≈ {{ (invoice.kind === 'CREDIT_NOTE' ? -invoice.totalInEuros : invoice.totalInEuros) | number:'1.2-2' }} €</span>
+            }
+          </span>
           <button mat-icon-button type="button" [matMenuTriggerFor]="actions"
             [attr.aria-label]="'invoices.actions' | translate: { name: invoice.number ?? ('invoices.draft' | translate) }">
             <mat-icon>more_vert</mat-icon>

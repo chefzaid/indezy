@@ -12,7 +12,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 
-import { BillingIdentity, ClientDto, Invoice, InvoiceDraft, InvoiceableReport, ProjectDto } from '../../models';
+import { BillingIdentity, CURRENCY_SYMBOLS, ClientDto, Invoice, InvoiceDraft, InvoiceableReport, ProjectDto } from '../../models';
 import { AuthService } from '../../services/auth/auth.service';
 import { BillingService } from '../../services/billing/billing.service';
 import { ClientService } from '../../services/client/client.service';
@@ -245,7 +245,21 @@ export class InvoicesComponent implements OnInit {
   private due(owed: Invoice[]): number {
     const owedIds = new Set(owed.map(invoice => invoice.id));
     const credited = this.invoices.filter(note => note.kind === 'CREDIT_NOTE' && note.status === 'ISSUED' &&
-      owedIds.has(note.creditedInvoiceId!)).reduce((sum, note) => sum + note.total, 0);
-    return owed.reduce((sum, invoice) => sum + invoice.total, 0) - credited;
+      owedIds.has(note.creditedInvoiceId!)).reduce((sum, note) => sum + euros(note), 0);
+    return owed.reduce((sum, invoice) => sum + euros(invoice), 0) - credited;
   }
+
+  /** The symbol of the invoice's currency. */
+  symbol(invoice: Invoice): string {
+    return CURRENCY_SYMBOLS[invoice.currency ?? 'EUR'];
+  }
+
+  foreign(invoice: Invoice): boolean {
+    return (invoice.currency ?? 'EUR') !== 'EUR';
+  }
+}
+
+/** An invoice's total in euros: its own in euros, or at its rate (the total itself while it has none). */
+function euros(invoice: Invoice): number {
+  return invoice.totalInEuros ?? invoice.total;
 }

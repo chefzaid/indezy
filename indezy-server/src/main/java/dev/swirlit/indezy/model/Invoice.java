@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.InvoiceCurrency;
 import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import jakarta.persistence.CollectionTable;
@@ -19,6 +20,7 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,6 +106,15 @@ public class Invoice extends BaseEntity {
     @Column(name = "paid_on")
     private LocalDate paidOn;
 
+    /** The currency of the lines and totals; a null column, as on invoices older than the field, reads as the euro. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "currency", length = 3)
+    private InvoiceCurrency currency;
+
+    /** Euros for one unit of {@link #currency}, as typed for the issue date; null in euros. */
+    @Column(name = "exchange_rate", precision = 14, scale = 6)
+    private BigDecimal exchangeRate;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "invoice_lines", joinColumns = @JoinColumn(name = "invoice_id"))
     @OrderColumn(name = "position")
@@ -121,6 +132,10 @@ public class Invoice extends BaseEntity {
 
     public void setLines(final List<InvoiceLine> lines) {
         this.lines = lines != null ? new ArrayList<>(lines) : new ArrayList<>();
+    }
+
+    public InvoiceCurrency getCurrency() {
+        return currency == null ? InvoiceCurrency.EUR : currency;
     }
 
     public boolean isCreditNote() {

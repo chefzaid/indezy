@@ -13,6 +13,13 @@ export interface InvoiceLine {
   vatRate: number;
 }
 
+/** The currencies an invoice can be written in; another than the euro needs its rate at the issue date. */
+export type InvoiceCurrency = 'EUR' | 'USD' | 'GBP' | 'CHF';
+
+export const INVOICE_CURRENCIES: InvoiceCurrency[] = ['EUR', 'USD', 'GBP', 'CHF'];
+
+export const CURRENCY_SYMBOLS: Record<InvoiceCurrency, string> = { EUR: '€', USD: '$', GBP: '£', CHF: 'CHF' };
+
 /** What an overdue invoice is owed on top of its amount: interest at the rate it stated (null without a figure) and €40. */
 export interface LateFees {
   daysLate: number;
@@ -54,6 +61,13 @@ export interface Invoice {
   paidOn: string | null;
   /** Set while the invoice is overdue. */
   lateFees?: LateFees | null;
+  /** The currency of the lines and totals: the euro when absent. */
+  currency?: InvoiceCurrency;
+  /** Euros for one unit of the currency, at the issue date; null in euros. */
+  exchangeRate?: number | null;
+  /** The totals in euros: null while an invoice in another currency has no rate. */
+  totalExcludingVatInEuros?: number | null;
+  totalInEuros?: number | null;
   createdAt: string;
 }
 
@@ -66,6 +80,8 @@ export interface InvoiceDraft {
   language: DocumentLanguage;
   notes?: string | null;
   lines: InvoiceLine[];
+  currency?: InvoiceCurrency;
+  exchangeRate?: number | null;
 }
 
 /** A month's activity report that can be invoiced: days worked, not rejected, not invoiced yet. */

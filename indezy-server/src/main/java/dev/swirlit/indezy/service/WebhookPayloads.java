@@ -59,6 +59,7 @@ final class WebhookPayloads {
         data.put("issueDate", invoice.getIssueDate() == null ? null : invoice.getIssueDate().toString());
         data.put("dueDate", invoice.getDueDate() == null ? null : invoice.getDueDate().toString());
         data.put("total", InvoiceTotals.of(invoice.getLines()).total());
+        data.put("currency", invoice.getCurrency().name());
         data.put("paidOn", invoice.getPaidOn() == null ? null : invoice.getPaidOn().toString());
         data.put("creditedNumber", invoice.getCreditedNumber());
         return data;

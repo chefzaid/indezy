@@ -2947,7 +2947,8 @@
       "notInvoiceable": "Seul un mois avec des jours travaillés, et non refusé, peut être facturé.",
       "noDailyRate": "Ajoutez le TJM de la mission avant de la facturer.",
       "noClient": "Ajoutez le client de la mission avant de la facturer.",
-      "negative": "Une facture ne peut pas totaliser moins de zéro : émettez plutôt un avoir."
+      "negative": "Une facture ne peut pas totaliser moins de zéro : émettez plutôt un avoir.",
+      "exchangeRate": "Indiquez dans la facture le taux en euros à la date d'émission avant de l'émettre."
     },
     "creditNote": "Avoir",
     "credits": "sur {{number}}",
@@ -2978,8 +2979,19 @@
     },
     "depositInvoice": "Facture d'acompte",
     "forQuote": "devis {{number}}",
-    "lateFees": "{{days}} jour(s) de retard : pénalités {{interest}} € et indemnité de recouvrement {{indemnity}} €",
-    "lateFeesNoRate": "{{days}} jour(s) de retard : indemnité de recouvrement {{indemnity}} €, pénalités au taux légal"
+    "lateFees": "{{days}} jour(s) de retard : pénalités {{interest}} et indemnité de recouvrement {{indemnity}} €",
+    "lateFeesNoRate": "{{days}} jour(s) de retard : indemnité de recouvrement {{indemnity}} €, pénalités au taux légal",
+    "currency": "Devise",
+    "currencies": {
+      "EUR": "Euro (€)",
+      "USD": "Dollar américain ($)",
+      "GBP": "Livre sterling (£)",
+      "CHF": "Franc suisse (CHF)"
+    },
+    "exchangeRate": "Valeur de 1 {{currency}} en euros",
+    "exchangeRateHint": "Le taux à la date d'émission, celui de votre banque ou de la BCE ; nécessaire pour émettre.",
+    "exchangeRateError": "Un taux supérieur à zéro",
+    "inEuros": "En euros"
   },
   "purchaseOrders": {
     "title": "Bons de commande",

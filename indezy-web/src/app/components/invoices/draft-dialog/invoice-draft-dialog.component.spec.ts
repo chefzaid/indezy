@@ -62,14 +62,42 @@ describe('InvoiceDraftDialogComponent', () => {
     component.save();
 
     expect(close).toHaveBeenCalledWith({ clientId: 3, projectId: 9, periodStart: '2026-10-01', periodEnd: '2026-10-31', language: 'EN',
-      notes: null, lines: [{ description: 'Audit SI', quantity: 2, unitPrice: 700, vatRate: 0 }] });
+      notes: null, lines: [{ description: 'Audit SI', quantity: 2, unitPrice: 700, vatRate: 0 }], currency: 'EUR', exchangeRate: null });
+  });
+
+  it('writes an invoice in another currency with its rate to the euro, and shows its total in euros', () => {
+    const component = create({ vatRate: 0 });
+    expect(component.foreign).toBeFalse();
+    expect(component.symbol).toBe('€');
+    component.form.patchValue({ clientId: 3, currency: 'USD', exchangeRate: 0.92 });
+    component.lines.at(0).patchValue({ description: 'Review', unitPrice: 1000 });
+
+    expect(component.foreign).toBeTrue();
+    expect(component.symbol).toBe('$');
+    expect(component.totalInEuros).toBe(920);
+    component.form.patchValue({ exchangeRate: -1 });
+    component.save();
+    expect(close).not.toHaveBeenCalled();
+    component.form.patchValue({ exchangeRate: 0.92 });
+    component.save();
+    expect(close).toHaveBeenCalledWith(jasmine.objectContaining({ currency: 'USD', exchangeRate: 0.92 }));
+
+    // Back to the euro, the rate is dropped.
+    close.calls.reset();
+    component.form.patchValue({ currency: 'EUR' });
+    expect(component.totalInEuros).toBeNull();
+    component.save();
+    expect(close).toHaveBeenCalledWith(jasmine.objectContaining({ currency: 'EUR', exchangeRate: null }));
   });
 
   it('keeps a credit note\'s client', () => {
-    const note = { id: 6, kind: 'CREDIT_NOTE', clientId: 3, projectId: null, language: 'FR',
+    const note = { id: 6, kind: 'CREDIT_NOTE', clientId: 3, projectId: null, language: 'FR', currency: 'GBP', exchangeRate: 1.15,
       lines: [{ description: 'Audit', quantity: 1, unitPrice: 700, vatRate: 0 }] } as unknown as Invoice;
     const component = create({ invoice: note });
     expect(component.form.controls.clientId.disabled).toBeTrue();
+    // In the currency and at the rate of its invoice.
+    expect(component.form.controls.currency.disabled).toBeTrue();
+    expect(component.symbol).toBe('£');
     expect(component.titleKey).toBe('invoices.editCreditNote');
     component.save();
     expect(close).toHaveBeenCalledWith(jasmine.objectContaining({ clientId: 3 }));
