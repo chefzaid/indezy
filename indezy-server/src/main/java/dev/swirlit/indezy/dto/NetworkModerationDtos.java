@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /** Reports made by members, and the moderation queue of the admin console. */
 public final class NetworkModerationDtos {
@@ -80,6 +81,24 @@ public final class NetworkModerationDtos {
         @Override
         public String toString() {
             return "Decision[outcome=" + outcome + ", days=" + days + "]";
+        }
+    }
+
+    /** A company whose reviews were reported: its name, the reports still open and all of them. */
+    public record ReportedCompany(String companyName, long open, long total) {
+    }
+
+    /**
+     * The reports of the last {@code days} days at a glance: by reason and by what they target, the open ones by age
+     * (under a day, under a week, older), and the companies whose reviews were reported most.
+     */
+    public record Dashboard(int days, long total, long open, Map<NetworkReportReason, Long> byReason, Map<NetworkReportTarget, Long> byTarget,
+                            long openUnderADay, long openUnderAWeek, long openOlder, List<ReportedCompany> companies) {
+
+        public Dashboard {
+            byReason = Map.copyOf(byReason);
+            byTarget = Map.copyOf(byTarget);
+            companies = List.copyOf(companies);
         }
     }
 }

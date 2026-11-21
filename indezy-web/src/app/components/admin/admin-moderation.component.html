@@ -1,5 +1,47 @@
 <div class="moderation">
   <p class="hint">{{ 'admin.moderation.hint' | translate }}</p>
+  @if (dashboard; as dashboard) {
+    <mat-card class="dashboard" data-reports-dashboard>
+      <h3>{{ 'admin.moderation.dashboard.title' | translate: { days: dashboard.days } }}</h3>
+      <dl class="figures">
+        <div><dt>{{ 'admin.moderation.dashboard.total' | translate }}</dt><dd>{{ dashboard.total }}</dd></div>
+        <div><dt>{{ 'admin.moderation.dashboard.open' | translate }}</dt><dd data-dashboard-open>{{ dashboard.open }}</dd></div>
+        <div><dt>{{ 'admin.moderation.dashboard.underADay' | translate }}</dt><dd>{{ dashboard.openUnderADay }}</dd></div>
+        <div><dt>{{ 'admin.moderation.dashboard.underAWeek' | translate }}</dt><dd>{{ dashboard.openUnderAWeek }}</dd></div>
+        <div><dt>{{ 'admin.moderation.dashboard.older' | translate }}</dt><dd>{{ dashboard.openOlder }}</dd></div>
+      </dl>
+      @if (dashboard.total > 0) {
+        <div class="breakdown">
+          <div>
+            <h4>{{ 'admin.moderation.dashboard.byReason' | translate }}</h4>
+            <ul data-dashboard-reasons>
+              @for (entry of counts(dashboard.byReason); track entry.key) {
+                <li><span>{{ 'network.report.reasons.' + entry.key | translate }}</span><span>{{ entry.count }}</span></li>
+              }
+            </ul>
+          </div>
+          <div>
+            <h4>{{ 'admin.moderation.dashboard.byTarget' | translate }}</h4>
+            <ul>
+              @for (entry of counts(dashboard.byTarget); track entry.key) {
+                <li><span>{{ 'admin.moderation.targets.' + entry.key | translate }}</span><span>{{ entry.count }}</span></li>
+              }
+            </ul>
+          </div>
+          @if (dashboard.companies.length) {
+            <div>
+              <h4>{{ 'admin.moderation.dashboard.companies' | translate }}</h4>
+              <ul data-dashboard-companies>
+                @for (company of dashboard.companies; track company.companyName) {
+                  <li><span>{{ company.companyName }}</span><span>{{ 'admin.moderation.dashboard.companyCounts' | translate: { open: company.open, total: company.total } }}</span></li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+    </mat-card>
+  }
   @if (queue) {
     <h3>{{ 'admin.moderation.open' | translate: { count: queue.openCount } }}</h3>
     @for (report of queue.open; track report.id) {

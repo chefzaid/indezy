@@ -8,6 +8,8 @@ import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,6 +64,13 @@ public class NetworkModerationController {
     public NetworkModerationDtos.Queue queue() {
         admin.requireAdmin(SecurityUtils.getCurrentUserId());
         return moderation.queue();
+    }
+
+    @Operation(summary = "The reports at a glance", description = "By reason, by target, the open ones by age, the companies whose reviews were reported")
+    @GetMapping("/admin/network/reports/dashboard")
+    public NetworkModerationDtos.Dashboard dashboard(@RequestParam(defaultValue = "90") @Min(1) @Max(365) int days) {
+        admin.requireAdmin(SecurityUtils.getCurrentUserId());
+        return moderation.dashboard(days);
     }
 
     @Operation(summary = "Decide a report", description = "The decision falls on every open report of the same target")

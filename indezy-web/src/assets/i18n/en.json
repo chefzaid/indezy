@@ -2912,6 +2912,18 @@
         "ACCUSATION": "Accusation",
         "REPEATED": "Repeated text",
         "SHOUTING": "Capitals"
+      },
+      "dashboard": {
+        "title": "Reports of the last {{days}} days",
+        "total": "Reports",
+        "open": "Still open",
+        "underADay": "Open under a day",
+        "underAWeek": "Open under a week",
+        "older": "Open longer",
+        "byReason": "By reason",
+        "byTarget": "By target",
+        "companies": "Companies whose reviews were reported",
+        "companyCounts": "{{open}} open of {{total}}"
       }
     }
   },

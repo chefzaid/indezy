@@ -22,5 +22,8 @@ public interface NetworkReportRepository extends JpaRepository<NetworkReport, Lo
 
     long countByOutcomeIsNull();
 
+    /** The reports made since a day, for the dashboard. */
+    List<NetworkReport> findByCreatedAtAfter(LocalDateTime since);
+
     long countByReporterIdAndCreatedAtAfter(Long reporterId, LocalDateTime since);
 }

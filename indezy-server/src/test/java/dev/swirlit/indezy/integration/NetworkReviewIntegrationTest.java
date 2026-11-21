@@ -109,6 +109,17 @@ class NetworkReviewIntegrationTest extends TwoAccountsIntegrationTest {
             .getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(call(alice, HttpMethod.POST, "/network/reviews/" + reviewId + "/report", Map.of("reason", "SPAM"), String.class)
             .getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        // The dashboard counts it by reason and target, open since less than a day, under its company.
+        Map<String, Object> dashboard = call(chief, HttpMethod.GET, "/admin/network/reports/dashboard?days=30", null, Map.class).getBody();
+        assertThat(dashboard).containsEntry("days", 30);
+        assertThat((Map<String, Object>) dashboard.get("byTarget")).containsKey("REVIEW");
+        assertThat((Map<String, Object>) dashboard.get("byReason")).containsKey("MISLEADING");
+        assertThat(((Number) dashboard.get("openUnderADay")).intValue()).isPositive();
+        assertThat((List<Map<String, Object>>) dashboard.get("companies")).anySatisfy(company -> assertThat(company)
+            .containsEntry("companyName", "Capgemini").containsEntry("open", 1).containsEntry("total", 1));
+        assertThat(call(bob, HttpMethod.GET, "/admin/network/reports/dashboard", null, String.class).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(chief, HttpMethod.GET, "/admin/network/reports/dashboard?days=0", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
         Map<String, Object> report = ((List<Map<String, Object>>) call(chief, HttpMethod.GET, "/admin/network/reports", null, Map.class).getBody()
             .get("open")).stream().filter(open -> "REVIEW".equals(open.get("targetType"))).findFirst().orElseThrow();
         call(chief, HttpMethod.PUT, "/admin/network/reports/" + report.get("id"), Map.of("outcome", "REMOVED"), Map.class);

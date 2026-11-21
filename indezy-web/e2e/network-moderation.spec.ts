@@ -69,6 +69,9 @@ for (const width of [1280, 390]) {
     let queue: Record<string, unknown> = { open: [open], resolved: [], openCount: 1, held: [held] };
     const decisions: unknown[] = [];
     await page.route('**/api/admin/network/reports', route => route.fulfill({ json: queue }));
+    await page.route(/\/api\/admin\/network\/reports\/dashboard/, route => route.fulfill({ json: { days: 90, total: 3, open: 1,
+      byReason: { SPAM: 2, MISLEADING: 1 }, byTarget: { POST: 2, REVIEW: 1 }, openUnderADay: 1, openUnderAWeek: 0, openOlder: 0,
+      companies: [{ companyName: 'Capgemini', open: 0, total: 1 }] } }));
     await page.route('**/api/admin/network/reports/7', route => {
       decisions.push(route.request().postDataJSON());
       queue = { open: [], resolved: [{ ...open, outcome: 'REMOVED', resolvedBy: { accountId: 9, handle: null, name: 'Chief Admin' },
@@ -87,6 +90,7 @@ for (const width of [1280, 390]) {
     await expect(report).toContainText('Achetez mes formations');
     await expect(report.locator('[data-report-count]')).toContainText('2 reports');
     await report.locator('[data-report-note]').fill('Spam commercial');
+    await expect(page.locator('[data-dashboard-companies]')).toContainText('Capgemini');
     const audit = await new AxeBuilder({ page }).include('app-admin-moderation').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);

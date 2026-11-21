@@ -167,6 +167,12 @@ public class NetworkReviewService {
             review.getAuthorId());
     }
 
+    /** The name of the company a review is about, for the reports dashboard. */
+    @Transactional(readOnly = true)
+    public Optional<String> companyName(Long reviewId) {
+        return reviews.findById(reviewId).map(NetworkReview::getCompanyName);
+    }
+
     /** Removes a published review after a report. */
     @Transactional
     public void remove(Long reviewId) {

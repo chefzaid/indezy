@@ -2912,6 +2912,18 @@
         "ACCUSATION": "Accusation",
         "REPEATED": "Texte répété",
         "SHOUTING": "Majuscules"
+      },
+      "dashboard": {
+        "title": "Signalements des {{days}} derniers jours",
+        "total": "Signalements",
+        "open": "Encore ouverts",
+        "underADay": "Ouverts depuis moins d'un jour",
+        "underAWeek": "Ouverts depuis moins d'une semaine",
+        "older": "Ouverts depuis plus longtemps",
+        "byReason": "Par motif",
+        "byTarget": "Par cible",
+        "companies": "Entreprises dont des avis ont été signalés",
+        "companyCounts": "{{open}} ouverts sur {{total}}"
       }
     }
   },

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AdminAccount, AdminAccountPage, AdminOverview, FeatureFlag, FeatureState, ModerationQueue, ReportOutcome } from '../../models';
+import { AdminAccount, AdminAccountPage, AdminOverview, FeatureFlag, FeatureState, ModerationQueue, ReportOutcome, ReportsDashboard } from '../../models';
 
 /** The admin console's calls, answered only to the administrators the deployment names. */
 @Injectable({
@@ -34,6 +34,11 @@ export class AdminService {
   }
 
   /** The open reports of the member network, the oldest first, and the latest decisions. */
+  /** The reports of the last days at a glance. */
+  reportsDashboard(days = 90): Observable<ReportsDashboard> {
+    return this.http.get<ReportsDashboard>(`${this.API_URL}/network/reports/dashboard`, { params: new HttpParams().set('days', days) });
+  }
+
   reports(): Observable<ModerationQueue> {
     return this.http.get<ModerationQueue>(`${this.API_URL}/network/reports`);
   }

@@ -368,6 +368,19 @@ export interface ModerationQueue {
   heldReviews?: HeldReview[];
 }
 
+/** The reports of the last days at a glance, for an administrator. */
+export interface ReportsDashboard {
+  days: number;
+  total: number;
+  open: number;
+  byReason: Partial<Record<ReportReason, number>>;
+  byTarget: Partial<Record<NetworkReport['targetType'], number>>;
+  openUnderADay: number;
+  openUnderAWeek: number;
+  openOlder: number;
+  companies: { companyName: string; open: number; total: number }[];
+}
+
 /** A review of a client or an ESN the filter held, for an administrator. */
 export interface HeldReview {
   id: number;

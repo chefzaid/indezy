@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subject, of, switchMap, takeUntil } from 'rxjs';
 
-import { HeldItem, HeldReview, ModerationQueue, NetworkReport, ReportOutcome, ReportParty } from '../../models';
+import { HeldItem, HeldReview, ModerationQueue, NetworkReport, ReportOutcome, ReportParty, ReportsDashboard } from '../../models';
 import { AdminService } from '../../services/admin/admin.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
@@ -42,11 +42,20 @@ export class AdminModerationComponent implements OnInit, OnDestroy {
   deciding: number | null = null;
   releasing: number | null = null;
 
+  dashboard: ReportsDashboard | null = null;
+
   ngOnInit(): void {
     this.admin.reports().pipe(takeUntil(this.destroy$)).subscribe({
       next: queue => this.queue = queue,
       error: () => this.notifications.error('admin.loadError')
     });
+    // The dashboard is a glance: the queue works without it.
+    this.admin.reportsDashboard().pipe(takeUntil(this.destroy$)).subscribe({ next: dashboard => this.dashboard = dashboard, error: () => undefined });
+  }
+
+  /** The entries of a count map, the largest first. */
+  counts(map: Partial<Record<string, number>>): { key: string; count: number }[] {
+    return Object.entries(map).map(([key, count]) => ({ key, count: count ?? 0 })).sort((a, b) => b.count - a.count);
   }
 
   ngOnDestroy(): void {

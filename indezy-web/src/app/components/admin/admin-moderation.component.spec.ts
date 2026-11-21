@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
-import { ModerationQueue, NetworkReport } from '../../models';
+import { ModerationQueue, NetworkReport, ReportsDashboard } from '../../models';
 import { AdminService } from '../../services/admin/admin.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
@@ -25,9 +25,13 @@ describe('AdminModerationComponent', () => {
     held: [{ id: 5, author: { accountId: 3, handle: 'leo_m', name: 'Léo' }, postId: 40, text: '<i>Voir</i> https://a.example',
       reasons: ['LINKS', 'NEW_MEMBER_LINK'], createdAt: '2026-11-14T12:00:00' }] };
 
+  let dashboard: Observable<ReportsDashboard> = of({ days: 90, total: 0, open: 0, byReason: {}, byTarget: {}, openUnderADay: 0,
+    openUnderAWeek: 0, openOlder: 0, companies: [] });
+
   function create(read = of(queue)): ComponentFixture<AdminModerationComponent> {
-    admin = jasmine.createSpyObj('AdminService', ['reports', 'decide', 'release', 'releaseReview']);
+    admin = jasmine.createSpyObj('AdminService', ['reports', 'decide', 'release', 'releaseReview', 'reportsDashboard']);
     admin.reports.and.returnValue(read);
+    admin.reportsDashboard.and.returnValue(dashboard);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     TestBed.configureTestingModule({
@@ -139,6 +143,22 @@ describe('AdminModerationComponent', () => {
     component.releaseReview(review, true);
     expect(notifications.error).toHaveBeenCalledWith('admin.moderation.stale');
     expect(component.releasingReview).toBeNull();
+  });
+
+  it('shows the reports at a glance, by reason, target, age and company, and goes on without it', () => {
+    dashboard = of({ days: 90, total: 3, open: 2, byReason: { SPAM: 1, MISLEADING: 2 }, byTarget: { REVIEW: 2, POST: 1 }, openUnderADay: 1,
+      openUnderAWeek: 1, openOlder: 0, companies: [{ companyName: 'Capgemini', open: 1, total: 2 }] });
+    const fixture = create();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-dashboard-open]')?.textContent?.trim()).toBe('2');
+    expect(fixture.componentInstance.counts({ SPAM: 1, MISLEADING: 2 }).map(entry => entry.key)).toEqual(['MISLEADING', 'SPAM']);
+    expect(element.querySelector('[data-dashboard-companies]')?.textContent).toContain('Capgemini');
+    TestBed.resetTestingModule();
+    dashboard = throwError(() => new Error('down'));
+    const without = create();
+    expect(without.componentInstance.dashboard).toBeNull();
+    expect(without.nativeElement.querySelector('[data-reports-dashboard]')).toBeNull();
+    dashboard = of({ days: 90, total: 0, open: 0, byReason: {}, byTarget: {}, openUnderADay: 0, openUnderAWeek: 0, openOlder: 0, companies: [] });
   });
 
   it('names who is gone by their account, and says when the queue cannot be loaded', () => {

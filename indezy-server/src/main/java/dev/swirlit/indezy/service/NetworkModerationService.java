@@ -15,6 +15,7 @@ import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.AccountEventType;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkReportOutcome;
+import dev.swirlit.indezy.model.enums.NetworkReportReason;
 import dev.swirlit.indezy.model.enums.NetworkReportTarget;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
 import dev.swirlit.indezy.repository.NetworkHeldRepository;
@@ -31,6 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +54,7 @@ public class NetworkModerationService {
 
     static final int SHOWN = 100;
     static final int DEFAULT_SUSPENSION_DAYS = 7;
+    static final int DASHBOARD_COMPANIES = 10;
 
     private final NetworkService network;
     private final NetworkFollowService follows;
@@ -149,6 +154,43 @@ public class NetworkModerationService {
                 parties.computeIfAbsent(kept.getAuthorId(), this::party), kept.getPostId(), kept.getText(),
                 List.of(kept.getReasons().split(",")), kept.getCreatedAt())).toList(),
             reviewService.held(author -> parties.computeIfAbsent(author, this::party)));
+    }
+
+    /** The reports of the last {@code days} days at a glance, for an administrator. */
+    @Transactional(readOnly = true)
+    public NetworkModerationDtos.Dashboard dashboard(int days) {
+        LocalDateTime now = LocalDateTime.now(clock);
+        List<NetworkReport> recent = reports.findByCreatedAtAfter(now.minusDays(days));
+        Map<NetworkReportReason, Long> byReason = new EnumMap<>(NetworkReportReason.class);
+        Map<NetworkReportTarget, Long> byTarget = new EnumMap<>(NetworkReportTarget.class);
+        long[] ages = new long[3];
+        Map<Long, long[]> byReview = new HashMap<>();
+        for (NetworkReport report : recent) {
+            byReason.merge(report.getReason(), 1L, Long::sum);
+            byTarget.merge(report.getTargetType(), 1L, Long::sum);
+            boolean open = report.getOutcome() == null;
+            if (open) {
+                LocalDateTime made = report.getCreatedAt();
+                ages[made.isAfter(now.minusDays(1)) ? 0 : made.isAfter(now.minusWeeks(1)) ? 1 : 2]++;
+            }
+            if (report.getTargetType() == NetworkReportTarget.REVIEW) {
+                long[] counts = byReview.computeIfAbsent(report.getTargetId(), id -> new long[2]);
+                counts[0] += open ? 1 : 0;
+                counts[1]++;
+            }
+        }
+        Map<String, long[]> byCompany = new HashMap<>();
+        byReview.forEach((reviewId, counts) -> reviewService.companyName(reviewId).ifPresent(name -> {
+            long[] sum = byCompany.computeIfAbsent(name, key -> new long[2]);
+            sum[0] += counts[0];
+            sum[1] += counts[1];
+        }));
+        List<NetworkModerationDtos.ReportedCompany> companies = byCompany.entrySet().stream()
+            .map(entry -> new NetworkModerationDtos.ReportedCompany(entry.getKey(), entry.getValue()[0], entry.getValue()[1]))
+            .sorted(Comparator.comparingLong(NetworkModerationDtos.ReportedCompany::total).reversed()
+                .thenComparing(NetworkModerationDtos.ReportedCompany::companyName)).limit(DASHBOARD_COMPANIES).toList();
+        return new NetworkModerationDtos.Dashboard(days, recent.size(), ages[0] + ages[1] + ages[2], byReason, byTarget, ages[0], ages[1],
+            ages[2], companies);
     }
 
     /** Publishes a held review, edited or not, or rejects it; it leaves the queue either way. */

@@ -598,6 +598,10 @@ their reasons: the administrator edits out what should not show and publishes, o
 (`REVIEW_PUBLISHED`, `REVIEW_REJECTED`). A reported review is decided like a post; removed, it is no longer shown and
 cannot be written again for that company.
 
+**Admin → Moderation** opens on the reports of the last 90 days at a glance (`GET /api/admin/network/reports/dashboard`,
+`days` from 1 to 365): how many, how many still open and since when (under a day, under a week, longer), by reason,
+by what they target, and the ten companies whose reviews were reported most, with their open and total reports.
+
 ## Projects And Opportunities
 
 **Opportunities** (`/projects`) lists the workspace's opportunities and missions. Beyond the role, stage, description,
