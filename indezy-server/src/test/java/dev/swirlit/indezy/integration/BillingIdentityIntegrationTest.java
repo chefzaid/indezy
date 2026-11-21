@@ -17,19 +17,21 @@ class BillingIdentityIntegrationTest extends TwoAccountsIntegrationTest {
     void keepsEachWorkspacesIdentityAndChecksIt() {
         Map<String, Object> defaults = call(alice, HttpMethod.GET, "/users/billing", null, Map.class).getBody();
         assertThat(defaults).containsEntry("legalName", "alice Test").containsEntry("vatExempt", true).containsEntry("vatRate", 20.0)
-            .containsEntry("paymentTermDays", 30).containsEntry("invoicePrefix", "F").containsEntry("complete", false);
+            .containsEntry("paymentTermDays", 30).containsEntry("invoicePrefix", "F").containsEntry("latePaymentRate", null)
+            .containsEntry("complete", false);
 
         Map<String, Object> identity = new HashMap<>(Map.of("legalName", "Alice Martin", "legalForm", "MICRO_ENTREPRISE",
             "siret", "123 456 789 00012", "vatExempt", true, "address", "18 rue du Sentier\n75002 Paris",
-            "iban", "fr76 3000 6000 0112 3456 7890 189", "bic", "bnpafrpp", "paymentTermDays", 45));
+            "iban", "fr76 3000 6000 0112 3456 7890 189", "bic", "bnpafrpp", "paymentTermDays", 45, "latePaymentRate", 12.15));
         Map<String, Object> saved = call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody();
         assertThat(saved).containsEntry("siret", "12345678900012").containsEntry("iban", "FR7630006000011234567890189")
-            .containsEntry("bic", "BNPAFRPP").containsEntry("paymentTermDays", 45).containsEntry("complete", true);
+            .containsEntry("bic", "BNPAFRPP").containsEntry("paymentTermDays", 45).containsEntry("latePaymentRate", 12.15)
+            .containsEntry("complete", true);
         assertThat(call(bob, HttpMethod.GET, "/users/billing", null, Map.class).getBody()).containsEntry("siret", null);
 
         // A wrong IBAN, SIRET or payment term is refused, and the saved identity kept.
         for (Map.Entry<String, Object> wrong : Map.<String, Object>of("iban", "FR7630006000011234567890188", "siret", "1234",
-            "paymentTermDays", 90).entrySet()) {
+            "paymentTermDays", 90, "latePaymentRate", 101).entrySet()) {
             Map<String, Object> request = new HashMap<>(identity);
             request.put(wrong.getKey(), wrong.getValue());
             assertThat(call(alice, HttpMethod.PUT, "/users/billing", request, String.class).getStatusCode()).as(wrong.getKey())

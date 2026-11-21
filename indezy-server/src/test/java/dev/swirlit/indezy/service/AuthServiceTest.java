@@ -271,7 +271,8 @@ class AuthServiceTest {
         // A first sign-in through Keycloak is welcomed like a registration.
         assertThat(response.getUser().isOnboardingPending()).isTrue();
         verify(userRepository).save(argThat(user ->
-                "unusable-random-hash".equals(user.getPasswordHash())));
+                "unusable-random-hash".equals(user.getPasswordHash()) && user.getAutoArchive() &&
+                    Integer.valueOf(3).equals(user.getContactRetentionYears())));
         verify(freelanceRepository).save(argThat(freelance ->
                 freelance.getStatus() == EmploymentStatus.FREELANCE &&
                         "zaid@swirlit.dev".equals(freelance.getEmail())));

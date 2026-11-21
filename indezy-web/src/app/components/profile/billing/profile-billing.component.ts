@@ -45,7 +45,8 @@ export class ProfileBillingComponent implements OnInit {
     iban: ['', [billingId('iban')]],
     bic: ['', [billingId('bic')]],
     paymentTermDays: [30 as number | null, [Validators.min(0), Validators.max(60)]],
-    invoicePrefix: ['F', [Validators.pattern(/^[A-Za-z0-9-]{0,10}$/)]]
+    invoicePrefix: ['F', [Validators.pattern(/^[A-Za-z0-9-]{0,10}$/)]],
+    latePaymentRate: [null as number | null, [Validators.min(0), Validators.max(100)]]
   });
   complete = false;
   saving = false;
@@ -88,7 +89,8 @@ export class ProfileBillingComponent implements OnInit {
       iban: compactId(value.iban, true) || null,
       bic: compactId(value.bic, true) || null,
       paymentTermDays: value.paymentTermDays,
-      invoicePrefix: value.invoicePrefix?.trim() || null
+      invoicePrefix: value.invoicePrefix?.trim() || null,
+      latePaymentRate: value.latePaymentRate ?? null
     };
     this.saving = true;
     this.billing.saveIdentity(identity).subscribe({
@@ -110,7 +112,8 @@ export class ProfileBillingComponent implements OnInit {
       legalName: identity.legalName ?? '', legalForm: identity.legalForm, siret: identity.siret ?? '', vatExempt: identity.vatExempt,
       vatNumber: identity.vatNumber ?? '', vatRate: identity.vatRate, shareCapital: identity.shareCapital,
       registration: identity.registration ?? '', address: identity.address ?? '', iban: identity.iban ?? '', bic: identity.bic ?? '',
-      paymentTermDays: identity.paymentTermDays, invoicePrefix: identity.invoicePrefix ?? ''
+      paymentTermDays: identity.paymentTermDays, invoicePrefix: identity.invoicePrefix ?? '',
+      latePaymentRate: identity.latePaymentRate ?? null
     });
   }
 }

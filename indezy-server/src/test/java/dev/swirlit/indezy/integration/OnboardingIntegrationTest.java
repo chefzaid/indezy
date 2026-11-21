@@ -52,6 +52,9 @@ class OnboardingIntegrationTest {
         String token = (String) registered.getBody().get("token");
         long freelanceId = ((Number) user.get("id")).longValue();
         assertThat(login(email).get("onboardingPending")).isEqualTo(true);
+        // New accounts archive idle opportunities and anonymize contacts after three years of silence.
+        assertThat(call(token, HttpMethod.GET, "/users/preferences", null, Map.class).getBody())
+            .containsEntry("autoArchive", true).containsEntry("contactRetentionYears", 3);
 
         Map<String, Object> starter = Map.of("name", "Through an ESN", "steps",
             List.of(Map.of("title", "Call with the ESN", "checklist", List.of("Rate asked")), Map.of("title", "Client interview")));
@@ -78,9 +81,17 @@ class OnboardingIntegrationTest {
         String email = "old." + UUID.randomUUID() + "@example.com";
         restTemplate.postForEntity(url("/auth/register"), register(email), Map.class);
         // As Hibernate leaves the column of the accounts it adds it to.
-        jdbc.update("update users set onboarding_pending = null where email = ?", email);
+        jdbc.update("update users set onboarding_pending = null, auto_archive = null, contact_retention_years = null where email = ?", email);
 
-        assertThat(login(email).get("onboardingPending")).isEqualTo(false);
+        Map<String, Object> user = login(email);
+        assertThat(user.get("onboardingPending")).isEqualTo(false);
+        // Nor do they get the new accounts' archiving and retention: both stay off.
+        LoginRequest request = new LoginRequest();
+        request.setEmail(email);
+        request.setPassword(PASSWORD);
+        String token = (String) restTemplate.postForEntity(url("/auth/login"), request, Map.class).getBody().get("token");
+        assertThat(call(token, HttpMethod.GET, "/users/preferences", null, Map.class).getBody())
+            .containsEntry("autoArchive", false).containsEntry("contactRetentionYears", 0);
     }
 
     private static RegisterRequest register(String email) {

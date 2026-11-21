@@ -45,7 +45,7 @@ Chaque opportunité est à l'une de ces six étapes, une colonne chacune :
 2. Elle quitte le tableau et les rappels, mais garde son étape pour les statistiques.
 3. Retrouvez-la dans **Archives**, puis cliquez sur **Restaurer** pour la remettre dans sa colonne.
 
-Dans **Profil → Préférences**, **Archiver chaque nuit les opportunités inactives** archive chaque nuit celles que le tableau met en évidence. Ce réglage est désactivé par défaut.
+Dans **Profil → Préférences**, **Archiver chaque nuit les opportunités inactives** archive chaque nuit celles que le tableau met en évidence. Il est activé pour les nouveaux comptes ; désactivez-le si vous préférez archiver vous-même.
 
 ## Les saisons de recherche
 

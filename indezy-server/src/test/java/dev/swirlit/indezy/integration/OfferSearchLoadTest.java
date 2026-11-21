@@ -58,7 +58,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * The offer feed under load (see docs/testing.md#search-load-test): 50,000 offers collected into PostgreSQL through
  * the real normalizer and store, a workspace with a profile and offers it saved, hid, read and noted, then the feed's
- * common searches twenty at a time, over HTTP. Fails when the slowest twentieth of the searches takes 300 ms or more,
+ * common searches alone, then twenty at a time, over HTTP. Fails when a search alone takes 300 ms or more (its median),
+ * or when the slowest twentieth of the searches under load takes a second or more (the target set on 2026-11-20),
  * and writes its timings to {@code target/load-test/report.md}. Only run on request against a disposable database:
  * Maven leaves the {@code load} tag out otherwise, and the offers are kept for the next run.
  */
@@ -91,7 +92,9 @@ class OfferSearchLoadTest {
     static final int CONCURRENCY = 20;
     /** Rounds of {@value #CONCURRENCY} requests; {@code -Dindezy.load.rounds} measures a slow build in fewer. */
     static final int ROUNDS = Integer.getInteger("indezy.load.rounds", 20);
-    static final long TARGET_P95_MS = 300;
+    static final long TARGET_P95_MS = 1_000;
+    /** Each search's median sent alone: what one freelancer waits for when nobody else searches. */
+    static final long TARGET_ALONE_MS = 300;
     /** Times each request is sent alone, one after the other, before the load: what it costs without waiting. */
     private static final int ALONE = 3;
     private static final int STORE_BATCH = 100;
@@ -176,6 +179,9 @@ class OfferSearchLoadTest {
         Files.writeString(REPORT, report);
         LOG.info("Search load test\n{}", report);
         assertThat(failed(searches) + failed(panels)).as("requests not answered").isZero();
+        Map<String, List<Sample>> byScenario = alone.stream().collect(Collectors.groupingBy(Sample::scenario));
+        SEARCHES.forEach(scenario -> assertThat(percentile(byScenario.get(scenario.name()), 50))
+            .as("median of '%s' alone, in ms", scenario.name()).isLessThan(TARGET_ALONE_MS));
         assertThat(percentile(searches, 95)).as("95th percentile of the searches, in ms").isLessThan(TARGET_P95_MS);
     }
 

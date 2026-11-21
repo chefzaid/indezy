@@ -88,7 +88,7 @@ final class InvoicePage extends BillingPage {
         }
         if (!invoice.isCreditNote()) {
             mentions.add(InvoiceLabel.DISCOUNT.in(language));
-            mentions.add(InvoiceLabel.PENALTIES.in(language));
+            mentions.add(InvoiceLabel.penalties(language, seller.getLatePaymentRate()));
         }
         return mentions;
     }

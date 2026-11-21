@@ -65,7 +65,7 @@ Vous êtes responsable des données de vos contacts ; Indezy les garde pour vous
 - **Télécharger ses données** : un fichier JSON de ce que votre espace garde sur lui ;
 - **Effacer à sa demande** : le contact disparaît avec ses échanges et ses liens.
 
-Dans **Profil → Préférences**, **Anonymiser les contacts sans échange depuis** fixe une durée de conservation : **Jamais** (par défaut), 1, 2, 3 ou 5 ans. Chaque nuit, un contact resté sans échange ni modification aussi longtemps perd son nom, son e-mail, son téléphone et ses notes ; les dates et canaux des échanges restent, pour garder vos statistiques.
+Dans **Profil → Préférences**, **Anonymiser les contacts sans échange depuis** fixe une durée de conservation : **Jamais**, 1, 2, 3 ou 5 ans (3 ans pour les nouveaux comptes, comme le conseille la CNIL pour les prospects). Chaque nuit, un contact resté sans échange ni modification aussi longtemps perd son nom, son e-mail, son téléphone et ses notes ; les dates et canaux des échanges restent, pour garder vos statistiques.
 
 > **Astuce :** la variable `{{privacyNotice}}` des [modèles d'e-mails](/help/pipeline) explique au destinataire qui garde ses coordonnées et comment les consulter, corriger ou effacer.
 

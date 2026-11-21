@@ -44,4 +44,8 @@ public class InvoiceSeller {
 
     @Column(name = "seller_bic", length = 11)
     private String bic;
+
+    /** The late-payment interest rate stated, in percent a year; null for the statutory rate without a figure. */
+    @Column(name = "seller_late_payment_rate")
+    private Double latePaymentRate;
 }

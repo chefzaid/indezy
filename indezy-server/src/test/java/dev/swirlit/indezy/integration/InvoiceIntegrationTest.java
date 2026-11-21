@@ -12,7 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +76,8 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.POST, "/invoices/" + first + "/issue", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         Map<String, Object> billing = new HashMap<>(Map.of("legalName", "Alice Martin", "legalForm", "MICRO_ENTREPRISE",
             "siret", "55210055400012", "vatExempt", true, "address", "18 rue du Sentier\n75002 Paris", "iban", "FR7630006000011234567890189"));
+        // The late-payment rate Alice's terms state.
+        billing.put("latePaymentRate", 12.15);
         call(alice, HttpMethod.PUT, "/users/billing", billing, Map.class);
         assertThat(call(alice, HttpMethod.POST, "/invoices/" + first + "/issue", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         Map<String, Object> client = call(alice, HttpMethod.GET, "/clients/" + esn, null, Map.class).getBody();
@@ -84,6 +90,12 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
             Map.class).getBody();
         assertThat(issued).containsEntry("status", "ISSUED").containsEntry("number", "F2026-0001").containsEntry("issueDate", "2026-09-01")
             .containsEntry("dueDate", "2026-10-01").containsEntry("overdue", true);
+        // Overdue: owed interest at the rate it states, per day late, and the €40 indemnity.
+        long daysLate = ChronoUnit.DAYS.between(LocalDate.of(2026, 10, 1), LocalDate.now(ZoneId.of("Europe/Paris")));
+        assertThat((Map<String, Object>) issued.get("lateFees")).containsEntry("daysLate", (int) daysLate).containsEntry("amountDue", 1500.0)
+            .containsEntry("rate", 12.15).containsEntry("indemnity", 40.0)
+            .containsEntry("interest", new BigDecimal("1500").multiply(new BigDecimal("12.15")).multiply(BigDecimal.valueOf(daysLate))
+                .divide(BigDecimal.valueOf(36_500), 2, RoundingMode.HALF_UP).doubleValue());
         List<Map<String, Object>> alerts = (List<Map<String, Object>>) call(alice, HttpMethod.GET, "/projects/stats/dashboard/" +
             alice.freelanceId(), null, Map.class).getBody().get("overdueInvoices");
         assertThat(alerts).singleElement().satisfies(alert -> assertThat(alert).containsEntry("number", "F2026-0001")
@@ -92,13 +104,15 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
         // Frozen: no change, no deletion, and later identity changes leave its PDF as it was.
         assertThat(call(alice, HttpMethod.DELETE, "/invoices/" + first, null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         billing.put("legalName", "Alice Martin Conseil");
+        billing.put("latePaymentRate", null);
         call(alice, HttpMethod.PUT, "/users/billing", billing, Map.class);
         String text = pdf(alice, first);
         assertThat(text).contains("Invoice", "No. F2026-0001", "Alice Martin EI", "SIRET: 55210055400012", "Capgemini",
             "145 quai du Président Roosevelt", "SIREN: 330703844", "Services: Développeur Java — November 2026", "€1,500.00",
             "Amount due", "VAT not applicable, art. 293 B", "Payment within 30 days, by 1 October 2026",
-            "IBAN: FR76 3000 6000 0112 3456 7890 189", "No discount for early payment", "fixed recovery fee of", "€40 (art. L441-10")
-            .doesNotContain("Alice Martin Conseil", "DRAFT");
+            "IBAN: FR76 3000 6000 0112 3456 7890 189", "No discount for early payment", "at an annual rate of 12.15%",
+            "fixed recovery fee of", "€40 (art. L441-10")
+            .doesNotContain("Alice Martin Conseil", "DRAFT", "European Central Bank");
 
         // A draft by hand in French, numbered next, without a gap.
         Map<String, Object> written = call(alice, HttpMethod.POST, "/invoices", Map.of("clientId", aliceClientId, "language", "FR",
@@ -116,11 +130,14 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
         int year = LocalDate.now().getYear();
         assertThat(call(alice, HttpMethod.POST, "/invoices/" + second + "/issue", null, Map.class).getBody())
             .containsEntry("number", year == 2026 ? "F2026-0002" : "F" + year + "-0001");
-        assertThat(pdf(alice, second)).contains("Facture", "Net à payer", "1 600,50 €", "TVA non applicable, art. 293 B du CGI");
+        // Issued once the rate was taken off: the statutory rate, without a figure.
+        assertThat(pdf(alice, second)).contains("Facture", "Net à payer", "1 600,50 €", "TVA non applicable, art. 293 B du CGI",
+            "Banque centrale européenne").doesNotContain("taux annuel");
 
         // Paid, then not after all.
         assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first + "/payment", Map.of("paidOn", "2027-01-05"), Map.class).getBody())
-            .containsEntry("status", "PAID").containsEntry("paidOn", "2027-01-05").containsEntry("overdue", false);
+            .containsEntry("status", "PAID").containsEntry("paidOn", "2027-01-05").containsEntry("overdue", false)
+            .containsEntry("lateFees", null);
         assertThat((List<?>) call(alice, HttpMethod.GET, "/projects/stats/dashboard/" + alice.freelanceId(), null, Map.class).getBody()
             .get("overdueInvoices")).isEmpty();
         // How the client pays: one paid invoice; Bob sees nothing of it.

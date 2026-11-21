@@ -41,11 +41,19 @@ public final class InvoiceDtos {
         Long quoteId, String quoteNumber, Long clientId, String clientName, Long projectId,
         String projectRole, Long activityReportId, LocalDate issueDate, LocalDate dueDate, LocalDate periodStart, LocalDate periodEnd,
         DocumentLanguage language, String notes, List<Line> lines, BigDecimal totalExcludingVat, BigDecimal vat, BigDecimal total,
-        LocalDate paidOn, LocalDateTime createdAt) {
+        LocalDate paidOn, LocalDateTime createdAt, LateFees lateFees) {
 
         public Invoice {
             lines = List.copyOf(lines);
         }
+    }
+
+    /**
+     * What an overdue invoice is owed on top of its amount (art. L441-10 du Code de commerce): the interest at the rate
+     * the invoice stated, from the day after its due date to today ({@code interest} null when it stated no figure), and
+     * the fixed €40 recovery indemnity.
+     */
+    public record LateFees(long daysLate, BigDecimal amountDue, Double rate, BigDecimal interest, BigDecimal indemnity) {
     }
 
     /** A draft written by hand: the client, optionally its mission, the period, the language, notes and lines. */

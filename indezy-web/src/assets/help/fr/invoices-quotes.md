@@ -9,6 +9,7 @@ Une facture française doit porter des mentions précises. Renseignez-les une fo
 3. Le **Numéro de TVA** et le **Taux de TVA** (20 % par défaut), ou **Exonéré de TVA (franchise en base, art. 293 B du CGI)**, coché par défaut.
 4. L'**Adresse de facturation**, l'**IBAN** et le **BIC**.
 5. Le **Délai de paiement (jours)** (30 par défaut, 60 au plus) et le **Préfixe des numéros de facture** (`F` par défaut, soit F2026-0001).
+6. Le **Taux des pénalités de retard (par an)** de vos conditions, par exemple 12,15 %. La loi demande au moins trois fois le taux d'intérêt légal ; vide, les factures indiquent le taux de la BCE majoré de 10 points, sans chiffre.
 
 Vous pouvez écrire des brouillons à tout moment, mais émettre une facture demande un SIRET, une adresse, un IBAN et, si la TVA s'applique, un numéro de TVA. Un IBAN, un SIRET, un numéro de TVA ou un BIC mal formé est refusé.
 
@@ -51,7 +52,8 @@ Pour annuler tout ou partie d'une facture émise, cliquez sur **Créer un avoir*
 ## Les retards de paiement
 
 - Une facture émise passe **En retard** après son échéance. Elle apparaît dans **Factures en retard de paiement** du [tableau de bord](/help/dashboard) et dans le résumé hebdomadaire.
-- Le PDF porte les pénalités de retard prévues par la loi.
+- Le PDF porte les pénalités de retard prévues par la loi, à votre taux si vous en indiquez un.
+- Dans la liste, une facture en retard dit ce qui lui est dû en plus de son montant : les pénalités au taux qu'elle indique, par jour de retard, et l'indemnité de recouvrement de 40 €, par exemple « 12 jour(s) de retard : pénalités 2,00 € et indemnité de recouvrement 40,00 € ».
 - La page de chaque client, et celle de ses opportunités, dit comment il paie d'après ses factures payées, par exemple « Paie en 52 jours en moyenne, avec 12 jours de retard ».
 - **Chiffre d'affaires par client, 12 derniers mois** répartit votre chiffre d'affaires et vous avertit quand un client en représente la moitié ou plus, un risque de requalification en salariat.
 

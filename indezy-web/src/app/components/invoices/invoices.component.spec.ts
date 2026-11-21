@@ -31,7 +31,8 @@ describe('InvoicesComponent', () => {
   });
   const draft = invoice(1);
   const issued = invoice(2, { number: 'F2026-0001', status: 'ISSUED', dueDate: '2026-11-30', total: 2000 });
-  const late = invoice(3, { number: 'F2026-0002', status: 'ISSUED', overdue: true, total: 500 });
+  const late = invoice(3, { number: 'F2026-0002', status: 'ISSUED', overdue: true, total: 500,
+    lateFees: { daysLate: 12, amountDue: 500, rate: 12.15, interest: 2, indemnity: 40 } });
   const paid = invoice(4, { number: 'F2026-0003', status: 'PAID', paidOn: '2026-10-20', language: 'EN' });
   const billing = { complete: false, vatExempt: false, vatRate: 20 } as BillingIdentity;
   const november: InvoiceableReport = { reportId: 31, projectId: 8, projectRole: 'Java lead', clientName: 'Acme', year: 2026, month: 11,
@@ -92,6 +93,10 @@ describe('InvoicesComponent', () => {
     expect(element.querySelector('[data-billing-incomplete]')).not.toBeNull();
     expect(element.querySelector('[data-invoice="1"]')?.textContent).toContain('Draft');
     expect(element.querySelector('[data-invoice="3"]')?.textContent).toContain('Overdue');
+    // What the overdue invoice is owed on top: the interest at its rate and the indemnity.
+    expect(element.querySelector('[data-invoice="3"] [data-late-fees]')?.textContent?.replace(/\s+/g, ' ').trim())
+      .toBe('12 day(s) late: interest 2.00 € and recovery indemnity 40.00 €');
+    expect(element.querySelector('[data-invoice="1"] [data-late-fees]')).toBeNull();
     const shown = (filter: string) => {
       component.filter = filter as never;
       return component.shown.map(item => item.id);

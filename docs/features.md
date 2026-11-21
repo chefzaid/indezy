@@ -657,7 +657,7 @@ Désisté).
   another (case aside) are flagged as possible duplicates.
 
 **Archive** on an opportunity's page takes it off the board and the reminders but keeps its stage for the statistics.
-**Archive idle opportunities every night** (Preferences, off by default) archives at 03:30 Paris time every opportunity
+**Archive idle opportunities every night** (Preferences; on for accounts created since 2026-11-21, off for older ones) archives at 03:30 Paris time every opportunity
 the board highlights. The **Archive** page lists and searches them with the accepted, abandoned and withdrawn ones; **Restore** puts one
 back in its column and restarts its inactivity period.
 
@@ -778,8 +778,8 @@ contact goes with their exchanges and links). Both requests are recorded in the 
 number only. The `{{privacyNotice}}` email variable tells a recipient who keeps their details, why, and how to see,
 correct or erase them.
 
-**Profile → Preferences → Anonymize contacts without exchange for** sets a retention period: never (the default), 1, 2,
-3 or 5 years. Every night at 03:45 Paris time, a contact with no exchange, change or related opportunity change for that
+**Profile → Preferences → Anonymize contacts without exchange for** sets a retention period: never, 1, 2,
+3 or 5 years (3 years for accounts created since 2026-11-21, never for older ones, as the CNIL advises for prospects). Every night at 03:45 Paris time, a contact with no exchange, change or related opportunity change for that
 long loses their name, email, phone, notes, exchange summaries and link notes; the contact and its exchanges' dates and
 channels stay, so counts and org charts keep their shape.
 
@@ -1024,7 +1024,10 @@ A draft changes freely and its PDF says it is not an invoice. **Issuing** needs 
 last invoice), gives the year's next number with no gap (`<prefix><year>-0001`), sets the due date and freezes the
 seller and buyer. An issued invoice can only be marked paid or unpaid, survives its mission or report (French law keeps
 invoices ten years), and reads as overdue past its due date on the dashboard and in the digest. The PDF carries the
-mentions French law asks, the VAT or its exemption, and the late payment penalties.
+mentions French law asks, the VAT or its exemption, and the late payment penalties (at the billing identity's rate when
+set, frozen with the seller). While overdue, an invoice states what it is owed on top (`lateFees`): its amount left to
+pay, the days late, the interest at its rate (amount × rate × days late / 365, none without a rate) and the €40 recovery
+indemnity (art. L441-10 and D441-5 du Code de commerce).
 
 **Create a credit note** on an issued invoice drafts one with the same lines, to reduce for a partial credit; it is
 issued in the same numbering and cannot credit more than what is left. Fully credited, the invoice reads **Credited**.
@@ -1051,7 +1054,8 @@ the share of answered quotes accepted. Quotes are part of the data export.
 
 **Profile → Billing** holds the seller's legal name and form, SIRET, VAT number and rate (20 % by default) or VAT
 exemption (franchise en base, the default), a company's capital and registration, the billing address, IBAN and BIC,
-the payment term (30 days by default, 60 at most) and the invoice prefix (`F` by default). An IBAN with wrong check
+the payment term (30 days by default, 60 at most), the invoice prefix (`F` by default) and the late-payment interest rate
+the freelancer's terms state (0 to 100 % a year; left empty, the PDFs state the ECB rate plus 10 points without a figure). An IBAN with wrong check
 digits, a SIRET without 14 digits or a malformed VAT number or BIC is refused. Invoices can be issued once a SIRET, an
 address, an IBAN and, when VAT applies, a VAT number are set. Under portage the portage company invoices, so Indezy
 does not.

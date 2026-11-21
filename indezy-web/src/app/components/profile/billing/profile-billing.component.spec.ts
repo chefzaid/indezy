@@ -62,12 +62,12 @@ describe('ProfileBillingComponent', () => {
     const component = fixture.componentInstance;
     billing.saveIdentity.and.returnValue(of({ ...defaults, siret: '55210055400012', complete: true }));
     component.form.patchValue({ legalForm: 'MICRO_ENTREPRISE', siret: '552 100 554 00012', iban: 'fr76 3000 6000 0112 3456 7890 189',
-      bic: 'bnpafrpp', shareCapital: 1000, registration: 'RCS Paris' });
+      bic: 'bnpafrpp', shareCapital: 1000, registration: 'RCS Paris', latePaymentRate: 12.15 });
 
     component.save();
 
     expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ siret: '55210055400012', iban: 'FR7630006000011234567890189',
-      bic: 'BNPAFRPP', shareCapital: null, registration: null, vatExempt: true }));
+      bic: 'BNPAFRPP', shareCapital: null, registration: null, vatExempt: true, latePaymentRate: 12.15 }));
     expect(component.complete).toBeTrue();
     expect(notifications.success).toHaveBeenCalledWith('profile.billing.saved');
 
@@ -76,6 +76,9 @@ describe('ProfileBillingComponent', () => {
     component.save();
     expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ shareCapital: 1000, registration: 'RCS Paris 552 100 554',
       vatNumber: null, bic: null, legalName: null, address: null, invoicePrefix: null }));
+    // A rate beyond 100 % is refused before it is sent.
+    component.form.patchValue({ latePaymentRate: 150 });
+    expect(component.form.controls.latePaymentRate.invalid).toBeTrue();
   });
 
   it('refuses a malformed IBAN, and says when it cannot save or read', () => {

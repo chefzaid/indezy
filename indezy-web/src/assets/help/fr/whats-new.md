@@ -2,6 +2,14 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les pénalités de retard
+
+Dans **Profil → Facturation**, indiquez le taux de pénalités de vos conditions : vos factures et devis l'indiquent, et une facture en retard montre les pénalités dues par jour de retard et l'indemnité de recouvrement de 40 €. Voir [Devis et factures](/help/invoices-quotes).
+
+### Plus ordonné par défaut
+
+Les nouveaux comptes archivent chaque nuit leurs opportunités inactives et anonymisent les contacts après trois ans sans échange, comme le conseille la CNIL. Les deux se changent dans **Profil → Préférences** ; les comptes existants gardent leur choix.
+
 ### Votre confidentialité en un seul endroit
 
 **Profil → Confidentialité** rassemble tous vos consentements, avec un nouveau réglage : **Suggestions par mes contacts**, pour ne plus être proposé aux membres qui ont votre adresse dans leurs contacts. Voir [Compte, sécurité et données](/help/account).

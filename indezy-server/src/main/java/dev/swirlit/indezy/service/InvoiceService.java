@@ -62,6 +62,11 @@ import java.util.stream.Stream;
 public class InvoiceService {
 
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+    /** The year the statutory interest counts in (art. L441-10: an annual rate, applied per day late). */
+    private static final int DAYS_PER_YEAR = 365;
+    private static final int PERCENT = 100;
+    /** The fixed recovery indemnity owed by a professional buyer for each invoice paid late (art. D441-5). */
+    static final BigDecimal RECOVERY_INDEMNITY = new BigDecimal("40.00");
 
     private final InvoiceRepository invoices;
     private final InvoiceCounterRepository counters;
@@ -454,6 +459,7 @@ public class InvoiceService {
         seller.setAddress(identity.address());
         seller.setIban(identity.iban());
         seller.setBic(identity.bic());
+        seller.setLatePaymentRate(identity.latePaymentRate());
         return seller;
     }
 
@@ -471,14 +477,25 @@ public class InvoiceService {
         InvoiceTotals totals = InvoiceTotals.of(invoice.getLines());
         String clientName = invoice.getBuyer() != null && invoice.getBuyer().getName() != null ? invoice.getBuyer().getName() :
             clients.findById(invoice.getClientId()).map(Client::getCompanyName).orElse(null);
+        LocalDate today = LocalDate.now(clock.withZone(PARIS));
         boolean overdue = !invoice.isCreditNote() && invoice.getStatus() == InvoiceStatus.ISSUED && invoice.getDueDate() != null &&
-            invoice.getDueDate().isBefore(LocalDate.now(clock.withZone(PARIS)));
+            invoice.getDueDate().isBefore(today);
         return new InvoiceDtos.Invoice(invoice.getId(), Objects.requireNonNullElse(invoice.getKind(), InvoiceKind.INVOICE),
             invoice.getNumber(), invoice.getStatus(), overdue, invoice.getCreditedInvoiceId(), invoice.getCreditedNumber(), invoice.getQuoteId(),
             invoice.getQuoteNumber(), invoice.getClientId(), clientName,
             invoice.getProjectId(), invoice.getProjectRole(), invoice.getActivityReportId(), invoice.getIssueDate(), invoice.getDueDate(),
             invoice.getPeriodStart(), invoice.getPeriodEnd(), invoice.getLanguage(), invoice.getNotes(), invoice.getLines().stream()
             .map(line -> new InvoiceDtos.Line(line.getDescription(), line.getQuantity(), line.getUnitPrice(), line.getVatRate())).toList(),
-            totals.excludingVat(), totals.vat(), totals.total(), invoice.getPaidOn(), invoice.getCreatedAt());
+            totals.excludingVat(), totals.vat(), totals.total(), invoice.getPaidOn(), invoice.getCreatedAt(),
+            overdue ? lateFees(invoice, totals.total().subtract(creditedTotal(invoice)), today) : null);
+    }
+
+    /** The interest and indemnity an overdue invoice is owed today, on what is left to pay of it. */
+    static InvoiceDtos.LateFees lateFees(Invoice invoice, BigDecimal amountDue, LocalDate today) {
+        long daysLate = ChronoUnit.DAYS.between(invoice.getDueDate(), today);
+        Double rate = invoice.getSeller() == null ? null : invoice.getSeller().getLatePaymentRate();
+        BigDecimal interest = rate == null ? null : amountDue.multiply(BigDecimal.valueOf(rate)).multiply(BigDecimal.valueOf(daysLate))
+            .divide(BigDecimal.valueOf(DAYS_PER_YEAR * PERCENT), 2, RoundingMode.HALF_UP);
+        return new InvoiceDtos.LateFees(daysLate, amountDue, rate, interest, RECOVERY_INDEMNITY);
     }
 }

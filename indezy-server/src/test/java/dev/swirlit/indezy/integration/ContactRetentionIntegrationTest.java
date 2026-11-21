@@ -36,7 +36,10 @@ class ContactRetentionIntegrationTest extends TwoAccountsIntegrationTest {
     @Test
     @SuppressWarnings("unchecked")
     void anonymizesTheContactsDormantBeyondTheRetentionPeriod() {
-        assertThat(call(alice, HttpMethod.GET, "/users/preferences", null, Map.class).getBody()).containsEntry("contactRetentionYears", 0);
+        // A new account anonymizes after three years; Bob turned it off.
+        assertThat(call(alice, HttpMethod.GET, "/users/preferences", null, Map.class).getBody()).containsEntry("contactRetentionYears", 3);
+        assertThat(call(bob, HttpMethod.PUT, "/users/preferences", Map.of("contactRetentionYears", 0), Map.class).getBody())
+            .containsEntry("contactRetentionYears", 0);
         assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("contactRetentionYears", 11), String.class).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("contactRetentionYears", 3), Map.class).getBody())

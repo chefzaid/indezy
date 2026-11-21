@@ -194,6 +194,16 @@ public class User extends BaseEntity {
     @Column(name = "contact_retention_years")
     private Integer contactRetentionYears;
 
+    /**
+     * Settings an account gets when it is created: the welcome steps, the nightly archiving and the contacts'
+     * retention on. Accounts created before keep their own choices.
+     */
+    public void applyNewAccountDefaults() {
+        onboardingPending = true;
+        autoArchive = true;
+        contactRetentionYears = UserPreferenceDefaults.NEW_ACCOUNT_CONTACT_RETENTION_YEARS;
+    }
+
     // Notification Settings
     @Column(name = "weekly_reports")
     private Boolean weeklyReports = false;

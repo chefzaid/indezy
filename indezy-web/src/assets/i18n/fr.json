@@ -1325,6 +1325,8 @@
       "paymentTermHint": "60 jours au plus selon la loi",
       "invoicePrefix": "Préfixe des numéros de facture",
       "invoicePrefixHint": "Les numéros se lisent F2026-0001, F2026-0002…",
+      "latePaymentRate": "Taux des pénalités de retard (par an)",
+      "latePaymentRateHint": "Le taux de vos conditions, au moins trois fois le taux d'intérêt légal. Vide, les factures indiquent le taux de la BCE majoré de 10 points.",
       "saved": "Identité de facturation enregistrée",
       "saveError": "L'identité de facturation n'a pas pu être enregistrée",
       "loadError": "L'identité de facturation n'a pas pu être chargée"
@@ -2975,7 +2977,9 @@
       "late": "Paie en {{averageDays}} jours en moyenne, avec {{averageDaysLate}} jours de retard ({{paidInvoices}} facture(s) payée(s))"
     },
     "depositInvoice": "Facture d'acompte",
-    "forQuote": "devis {{number}}"
+    "forQuote": "devis {{number}}",
+    "lateFees": "{{days}} jour(s) de retard : pénalités {{interest}} € et indemnité de recouvrement {{indemnity}} €",
+    "lateFeesNoRate": "{{days}} jour(s) de retard : indemnité de recouvrement {{indemnity}} €, pénalités au taux légal"
   },
   "purchaseOrders": {
     "title": "Bons de commande",

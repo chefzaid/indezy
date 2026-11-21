@@ -91,6 +91,15 @@
           <mat-hint>{{ 'profile.billing.invoicePrefixHint' | translate }}</mat-hint>
         </mat-form-field>
       </div>
+      <div class="row">
+        <mat-form-field appearance="outline" class="grow">
+          <mat-label>{{ 'profile.billing.latePaymentRate' | translate }}</mat-label>
+          <input matInput type="number" min="0" max="100" step="0.01" formControlName="latePaymentRate" data-billing-late-rate>
+          <span matTextSuffix>%</span>
+          <mat-hint>{{ 'profile.billing.latePaymentRateHint' | translate }}</mat-hint>
+          <mat-error>{{ error('latePaymentRate') }}</mat-error>
+        </mat-form-field>
+      </div>
       <div class="actions">
         <button mat-flat-button color="primary" type="submit" [disabled]="saving" data-billing-save>{{ 'common.save' | translate }}</button>
       </div>

@@ -56,4 +56,11 @@ public class BillingIdentity {
 
     @Column(name = "billing_invoice_prefix", length = 10)
     private String invoicePrefix;
+
+    /**
+     * The late-payment interest rate the freelancer's terms state, in percent a year; null states the statutory rate
+     * (the ECB's refinancing rate plus 10 points) without a figure.
+     */
+    @Column(name = "billing_late_payment_rate")
+    private Double latePaymentRate;
 }

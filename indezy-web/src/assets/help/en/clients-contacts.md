@@ -65,7 +65,7 @@ You are responsible for your contacts' data; Indezy keeps it on your behalf. A c
 - **Download their data**: a JSON file of what your workspace holds about them;
 - **Erase on their request**: the contact goes, with their exchanges and links.
 
-In **Profile → Preferences**, **Anonymize contacts without exchange for** sets a retention period: **Never** (the default), 1, 2, 3 or 5 years. Every night, a contact with no exchange or change for that long loses their name, email, phone and notes; the dates and channels of their exchanges stay, so your statistics keep their shape.
+In **Profile → Preferences**, **Anonymize contacts without exchange for** sets a retention period: **Never**, 1, 2, 3 or 5 years (3 years for new accounts, as the CNIL advises for prospects). Every night, a contact with no exchange or change for that long loses their name, email, phone and notes; the dates and channels of their exchanges stay, so your statistics keep their shape.
 
 > **Tip:** the `{{privacyNotice}}` variable of [email templates](/help/pipeline) tells the recipient who keeps their details and how to see, correct or erase them.
 

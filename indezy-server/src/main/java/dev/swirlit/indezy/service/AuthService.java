@@ -96,7 +96,7 @@ public class AuthService {
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setOnboardingPending(true);
+        user.applyNewAccountDefaults();
 
         user = userRepository.save(user);
 
@@ -145,7 +145,7 @@ public class AuthService {
             created.setLastName(valueOrFallback(familyName, "User"));
             created.setEmail(normalizedEmail);
             created.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString()));
-            created.setOnboardingPending(true);
+            created.applyNewAccountDefaults();
             return userRepository.save(created);
         });
         if (!user.isActive() && !deletion.restorable(user)) {

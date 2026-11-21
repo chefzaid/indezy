@@ -28,6 +28,7 @@ public record BillingIdentityDto(
     @Pattern(regexp = "[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?", message = "A BIC has 8 or 11 letters and digits") String bic,
     @Min(0) @Max(60) Integer paymentTermDays,
     @Pattern(regexp = "[A-Za-z0-9-]{0,10}", message = "Letters, digits and dashes, 10 at most") String invoicePrefix,
+    @DecimalMin("0") @DecimalMax("100") Double latePaymentRate,
     Boolean complete) {
 
     public BillingIdentityDto {

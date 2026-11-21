@@ -21,6 +21,8 @@ export interface BillingIdentity {
   bic: string | null;
   paymentTermDays: number | null;
   invoicePrefix: string | null;
+  /** The late-payment interest rate the terms state, in percent a year; null for the statutory rate without a figure. */
+  latePaymentRate?: number | null;
   /** Read-only: whether invoices can be issued. */
   complete?: boolean;
 }

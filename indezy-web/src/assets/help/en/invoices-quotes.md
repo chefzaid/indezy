@@ -9,6 +9,7 @@ A French invoice must carry specific mentions. Fill them in once in **Profile �
 3. The **VAT number** and **VAT rate** (20 % by default), or **Exempt from VAT (franchise en base, art. 293 B du CGI)**, ticked by default.
 4. The **Billing address**, **IBAN** and **BIC**.
 5. The **Payment term (days)** (30 by default, 60 at most) and the **Invoice number prefix** (`F` by default, giving F2026-0001).
+6. The **Late-payment interest rate (per year)** your terms state, for instance 12.15 %. French law asks at least three times the legal interest rate; left empty, invoices state the ECB rate plus 10 points, without a figure.
 
 You can write drafts at any time, but issuing an invoice needs a SIRET, an address, an IBAN and, when VAT applies, a VAT number. A malformed IBAN, SIRET, VAT number or BIC is refused.
 
@@ -51,7 +52,8 @@ To cancel all or part of an issued invoice, click **Create a credit note**: Inde
 ## Late payments
 
 - An issued invoice becomes **Overdue** after its due date. It shows under **Overdue invoices** on the [dashboard](/help/dashboard) and in the weekly digest.
-- The PDF carries the late payment penalties French law asks for.
+- The PDF carries the late payment penalties French law asks for, at your rate when you set one.
+- In the list, an overdue invoice says what it is owed on top of its amount: the interest at the rate it states, per day late, and the €40 recovery indemnity, for instance "12 day(s) late: interest 2.00 € and recovery indemnity 40.00 €".
 - Each client's page, and its opportunities' pages, says how it pays from its paid invoices, for example "Pays in 52 days on average, 12 days late".
 - **Revenue by client, last 12 months** splits your revenue and warns when one client makes up half of it or more, a risk of your contract being reclassified as employment.
 

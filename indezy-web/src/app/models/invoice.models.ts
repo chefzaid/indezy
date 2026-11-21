@@ -13,6 +13,15 @@ export interface InvoiceLine {
   vatRate: number;
 }
 
+/** What an overdue invoice is owed on top of its amount: interest at the rate it stated (null without a figure) and €40. */
+export interface LateFees {
+  daysLate: number;
+  amountDue: number;
+  rate: number | null;
+  interest: number | null;
+  indemnity: number;
+}
+
 export interface Invoice {
   id: number;
   kind: InvoiceKind;
@@ -43,6 +52,8 @@ export interface Invoice {
   vat: number;
   total: number;
   paidOn: string | null;
+  /** Set while the invoice is overdue. */
+  lateFees?: LateFees | null;
   createdAt: string;
 }
 

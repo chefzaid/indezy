@@ -71,7 +71,7 @@ final class QuotePage extends BillingPage {
         if (paymentTermDays != null) {
             mentions.add(QuoteLabel.PAYMENT.format(language, paymentTermDays));
         }
-        mentions.add(InvoiceLabel.PENALTIES.in(language));
+        mentions.add(InvoiceLabel.penalties(language, seller.getLatePaymentRate()));
         mentions.add(QuoteLabel.FREE.in(language));
         return mentions;
     }

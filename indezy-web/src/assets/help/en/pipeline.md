@@ -45,7 +45,7 @@ Each opportunity sits at one of these six stages, one column each:
 2. It leaves the board and the reminders, but keeps its stage for the statistics.
 3. Find it again in **Archive**, then click **Restore** to put it back in its column.
 
-In **Profile → Preferences**, **Archive idle opportunities every night** archives every night those the board highlights. This setting is off by default.
+In **Profile → Preferences**, **Archive idle opportunities every night** archives every night those the board highlights. It is on for new accounts; turn it off there if you prefer to archive by hand.
 
 ## Job-hunting seasons
 

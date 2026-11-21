@@ -103,6 +103,16 @@
                 · {{ 'invoices.paidOnDate' | translate: { date: (invoice.paidOn | date:'mediumDate') } }}
               }
             </span>
+            @if (invoice.lateFees; as fees) {
+              <span class="late" data-late-fees>
+                @if (fees.interest !== null) {
+                  {{ 'invoices.lateFees' | translate: { days: fees.daysLate, interest: (fees.interest | number:'1.2-2'),
+                    indemnity: (fees.indemnity | number:'1.2-2') } }}
+                } @else {
+                  {{ 'invoices.lateFeesNoRate' | translate: { days: fees.daysLate, indemnity: (fees.indemnity | number:'1.2-2') } }}
+                }
+              </span>
+            }
           </div>
           <span class="badge" [class]="invoice.overdue ? 'OVERDUE' : invoice.status">
             {{ 'invoices.statuses.' + (invoice.overdue ? 'OVERDUE' : invoice.status) | translate }}

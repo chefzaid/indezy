@@ -1325,6 +1325,8 @@
       "paymentTermHint": "60 days at most by law",
       "invoicePrefix": "Invoice number prefix",
       "invoicePrefixHint": "Numbers read F2026-0001, F2026-0002…",
+      "latePaymentRate": "Late-payment interest rate (per year)",
+      "latePaymentRateHint": "The rate your terms state, at least three times the legal interest rate. Left empty, invoices state the ECB rate plus 10 points.",
       "saved": "Billing identity saved",
       "saveError": "The billing identity could not be saved",
       "loadError": "The billing identity could not be loaded"
@@ -2975,7 +2977,9 @@
       "late": "Pays in {{averageDays}} days on average, {{averageDaysLate}} days late ({{paidInvoices}} paid invoice(s))"
     },
     "depositInvoice": "Deposit invoice",
-    "forQuote": "quote {{number}}"
+    "forQuote": "quote {{number}}",
+    "lateFees": "{{days}} day(s) late: interest {{interest}} € and recovery indemnity {{indemnity}} €",
+    "lateFeesNoRate": "{{days}} day(s) late: recovery indemnity {{indemnity}} €, interest at the statutory rate"
   },
   "purchaseOrders": {
     "title": "Purchase orders",

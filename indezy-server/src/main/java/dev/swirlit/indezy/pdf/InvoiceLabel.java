@@ -2,6 +2,8 @@ package dev.swirlit.indezy.pdf;
 
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 
+import java.text.NumberFormat;
+
 /** French and English text of the invoice PDF, mandatory mentions included. */
 enum InvoiceLabel {
     TITLE("Facture", "Invoice"),
@@ -39,6 +41,10 @@ enum InvoiceLabel {
         "de recouvrement de 40 € (art. L441-10 du Code de commerce).",
         "Late payment incurs penalties at the European Central Bank's most recent refinancing rate plus 10 percentage points, " +
             "and a fixed recovery fee of €40 (art. L441-10 of the French Commercial Code)."),
+    PENALTIES_RATE("En cas de retard de paiement, des pénalités sont dues au taux annuel de %s %%, ainsi qu'une indemnité " +
+        "forfaitaire pour frais de recouvrement de 40 € (art. L441-10 du Code de commerce).",
+        "Late payment incurs penalties at an annual rate of %s%% and a fixed recovery fee of €40 " +
+            "(art. L441-10 of the French Commercial Code)."),
     NOTES("Notes", "Notes"),
     INDIVIDUAL(" EI", " EI");
 
@@ -56,5 +62,15 @@ enum InvoiceLabel {
 
     String format(DocumentLanguage language, Object... values) {
         return String.format(language.locale(), in(language), values);
+    }
+
+    /** The late-payment mention: the rate the seller's terms state, or the statutory rate without a figure. */
+    static String penalties(DocumentLanguage language, Double rate) {
+        if (rate == null) {
+            return PENALTIES.in(language);
+        }
+        NumberFormat percent = NumberFormat.getNumberInstance(language.locale());
+        percent.setMaximumFractionDigits(2);
+        return PENALTIES_RATE.format(language, percent.format(rate));
     }
 }

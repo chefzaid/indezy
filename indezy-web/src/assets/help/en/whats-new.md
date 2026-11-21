@@ -2,6 +2,14 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Late-payment interest
+
+In **Profile → Billing**, type the late-payment rate your terms state: your invoices and quotes state it, and an overdue invoice shows the interest it is owed per day late and the €40 recovery indemnity. See [Quotes and invoices](/help/invoices-quotes).
+
+### Tidier by default
+
+New accounts archive their idle opportunities every night and anonymize contacts after three years without exchange, as the CNIL advises. Both can be changed in **Profile → Preferences**; existing accounts keep their choice.
+
 ### Your privacy in one place
 
 **Profile → Privacy** gathers all your consents, with a new setting: **Suggestions by my contacts**, to no longer be suggested to members who have your address in their contacts. See [Account, security and data](/help/account).
