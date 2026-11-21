@@ -79,6 +79,12 @@ The **Notifications** tab tells you who followed you, reacted, commented, mentio
 
 In **Profile → Network**, each kind is set to **Off**, **In the app** or **Email too** (one grouped email, at most every three hours). Emails for messages unread for an hour are set in **Profile → Notifications** (see [Account](/help/account)).
 
+## Daily rates in the network
+
+Beside the feed, **Daily rates in the network** gives the median daily rate of a skill, and the range where half the rates fall, for a seniority and a region or for all of them. It comes from the won missions of the members who share their rates, each freelancer counted once per skill, and a figure shows only when five freelancers or more back it.
+
+To share yours, turn on **Share my rates with the benchmark** in **Profile → Privacy**. Your name, your clients and your contacts are never shown, and turning it off takes your rates out at once.
+
 ## Ideas for Indezy
 
 ![The ideas board with the Suggest an idea button and ideas sorted by support](/assets/help/screens/ideas-en.jpg)

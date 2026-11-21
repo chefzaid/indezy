@@ -20,6 +20,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     Optional<User> findByEmail(String email);
 
+    /** The accounts that share their rates with the network's benchmark. */
+    List<User> findByShareRatesTrue();
+
     /** The accounts holding one of these emails, compared lower-case. */
     @Query("select u from User u where lower(u.email) in :emails")
     List<User> findByEmailsIgnoringCase(@Param("emails") Collection<String> emails);

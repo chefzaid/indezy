@@ -229,6 +229,8 @@ Deletion rules:
   years.
 - A soft-deleted or disabled account can neither sign in nor use a token issued before.
 - `freelances.reversion_share` is the share of the gross daily rate the freelancer keeps, in percent.
+- `users.share_rates` (null reads as off) is the account's opt-in to the rate benchmark; figures are computed on request
+  from the won missions of the accounts that opted in, never stored ([ADR 0014](./adr/0014-aggregated-market-data.md)).
 - The billing identity is embedded in `freelances` (`billing_*` columns, all nullable): an invoice copies it when
   issued, so later changes touch no issued invoice. `billing_late_payment_rate` (percent a year) is copied as
   `seller_late_payment_rate` on invoices and quotes; null states the statutory rate without a figure.

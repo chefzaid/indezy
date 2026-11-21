@@ -82,6 +82,8 @@ export interface UserPreferences {
   autoArchive?: boolean;
   /** Years without exchange after which contacts are anonymized every night; 0 for never. */
   contactRetentionYears?: number;
+  /** Let the won missions' rates count, anonymized, in the network's rate benchmark. */
+  shareRates?: boolean;
   /** The dashboard's blocks in the account's order, shown or hidden. */
   dashboardWidgets?: DashboardWidget[];
 }

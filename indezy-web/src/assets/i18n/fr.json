@@ -1649,6 +1649,10 @@
         "bookingEmails": {
           "label": "Appels réservés",
           "hint": "Un e-mail pour chaque appel réservé par votre page de prise de rendez-vous."
+        },
+        "shareRates": {
+          "label": "Partager mes tarifs avec le baromètre",
+          "hint": "Les TJM de vos missions gagnées comptent, anonymisés, dans le baromètre des tarifs du réseau, affichés seulement dans des chiffres que cinq freelances ou plus soutiennent ; jamais votre nom, vos clients ni vos contacts."
         }
       },
       "elsewhere": {
@@ -4477,6 +4481,29 @@
       "sent": "Invitation envoyée à {{name}}.",
       "tooMany": "Vous avez invité 20 contacts aujourd’hui : revenez demain.",
       "error": "L’invitation n’a pas pu partir : réessayez."
+    },
+    "benchmark": {
+      "title": "Les TJM du réseau",
+      "empty": "Pas encore assez de tarifs partagés : un chiffre s'affiche dès que {{threshold}} freelances le soutiennent.",
+      "skill": "Compétence",
+      "seniority": "Séniorité",
+      "region": "Région",
+      "all": "Toutes",
+      "seniorities": {
+        "JUNIOR": "Junior (moins de 3 ans)",
+        "CONFIRMED": "Confirmé (3 à 7)",
+        "SENIOR": "Senior (8 à 14)",
+        "EXPERT": "Expert (15 et plus)"
+      },
+      "regions": {
+        "ILE_DE_FRANCE": "Île-de-France",
+        "REGIONS": "Autres régions",
+        "REMOTE": "Télétravail"
+      },
+      "median": "{{rate}} € par jour, médiane",
+      "range": "La moitié entre {{low}} € et {{high}} €, sur {{count}} freelances.",
+      "tooFew": "{{count}} freelance(s) pour ces choix : un chiffre s'affiche dès {{threshold}}.",
+      "share": "Partagez aussi vos tarifs (Profil → Confidentialité)"
     }
   },
   "networkInvitation": {

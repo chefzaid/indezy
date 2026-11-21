@@ -1649,6 +1649,10 @@
         "bookingEmails": {
           "label": "Booked calls",
           "hint": "An email for each call booked through your booking page."
+        },
+        "shareRates": {
+          "label": "Share my rates with the benchmark",
+          "hint": "The daily rates of your won missions count, anonymized, in the network's rate benchmark, shown only in figures five freelancers or more back; never your name, your clients or your contacts."
         }
       },
       "elsewhere": {
@@ -4477,6 +4481,29 @@
       "sent": "Invitation sent to {{name}}.",
       "tooMany": "You invited 20 contacts today: come back tomorrow.",
       "error": "The invitation could not go: try again."
+    },
+    "benchmark": {
+      "title": "Daily rates in the network",
+      "empty": "Not enough shared rates yet: a figure shows once {{threshold}} freelancers back it.",
+      "skill": "Skill",
+      "seniority": "Seniority",
+      "region": "Region",
+      "all": "All",
+      "seniorities": {
+        "JUNIOR": "Junior (under 3 years)",
+        "CONFIRMED": "Confirmed (3 to 7)",
+        "SENIOR": "Senior (8 to 14)",
+        "EXPERT": "Expert (15+)"
+      },
+      "regions": {
+        "ILE_DE_FRANCE": "Île-de-France",
+        "REGIONS": "Other regions",
+        "REMOTE": "Remote"
+      },
+      "median": "{{rate}} € a day, median",
+      "range": "Half between {{low}} € and {{high}} €, from {{count}} freelancers.",
+      "tooFew": "{{count}} freelancer(s) for these choices: a figure shows from {{threshold}}.",
+      "share": "Share your rates too (Profile → Privacy)"
     }
   },
   "networkInvitation": {

@@ -31,8 +31,10 @@ describe('ProfilePrivacyComponent', () => {
     network.pageViews.and.returnValue(of({ privateViewing: false } as PageViews));
     messages = jasmine.createSpyObj('NetworkMessagesService', ['messaging', 'saveMessaging']);
     messages.messaging.and.returnValue(of(messaging));
-    users = jasmine.createSpyObj('UserManagementService', ['getNotificationSettings', 'updateNotificationSettings']);
+    users = jasmine.createSpyObj('UserManagementService', ['getNotificationSettings', 'updateNotificationSettings', 'getUserPreferences',
+      'updateUserPreferences']);
     users.getNotificationSettings.and.returnValue(of(emails));
+    users.getUserPreferences.and.returnValue(of({ theme: 'auto', language: 'en', inactivityDays: 14, shareRates: false }));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({ imports: [ProfilePrivacyComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: NetworkService, useValue: network },
@@ -51,8 +53,8 @@ describe('ProfilePrivacyComponent', () => {
 
   it('gathers every switch, as each is saved, contact suggestions on by default', () => {
     const element: HTMLElement = create().nativeElement;
-    for (const key of ['contactSuggestions', 'esnSuggestions', 'privateCard', 'privateViewing', 'requests', 'readReceipts', 'typing', 'presence',
-      'weeklyReports', 'messageEmails', 'bookingEmails']) {
+    for (const key of ['contactSuggestions', 'esnSuggestions', 'privateCard', 'shareRates', 'privateViewing', 'requests', 'readReceipts', 'typing',
+      'presence', 'weeklyReports', 'messageEmails', 'bookingEmails']) {
       expect(element.querySelector(`[data-privacy-switch="${key}"]`)).withContext(key).not.toBeNull();
     }
     expect(toggle(element, 'contactSuggestions').getAttribute('aria-checked')).toBe('true');
@@ -74,6 +76,11 @@ describe('ProfilePrivacyComponent', () => {
     messages.saveMessaging.and.returnValue(of({ ...messaging, presence: true }));
     toggle(element, 'presence').click();
     expect(messages.saveMessaging).toHaveBeenCalledWith({ presence: true });
+    users.updateUserPreferences.and.returnValue(of({ theme: 'auto', language: 'en', inactivityDays: 14, shareRates: true }));
+    toggle(element, 'shareRates').click();
+    fixture.detectChanges();
+    expect(users.updateUserPreferences).toHaveBeenCalledWith({ shareRates: true });
+    expect(toggle(element, 'shareRates').getAttribute('aria-checked')).toBe('true');
     network.setPrivateViewing.and.returnValue(of({ privateViewing: true } as PageViews));
     toggle(element, 'privateViewing').click();
     expect(network.setPrivateViewing).toHaveBeenCalledWith(true);

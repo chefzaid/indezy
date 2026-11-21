@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les TJM du réseau
+
+À côté du fil, voyez le TJM médian d'une compétence par séniorité et région, venant des membres qui partagent leurs tarifs (**Profil → Confidentialité**), affiché dès que cinq freelances soutiennent un chiffre. Voir [Le réseau des membres](/help/network).
+
 ### Les avis sur les clients et les ESN
 
 Sur la page d'un client, lisez ce qu'en disent les membres qui y ont travaillé, et donnez votre avis une fois une mission gagnée avec lui ; les avis qui nomment quelqu'un ou accusent attendent les modérateurs. Voir [Clients, ESN et contacts](/help/clients-contacts).

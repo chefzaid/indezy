@@ -32,6 +32,7 @@ import { PostCardComponent } from '../post-card/post-card.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { NetworkNavComponent } from '../nav/network-nav.component';
 import { suggestionReason } from '../side/suggestion-reason';
+import { RateBenchmarkCardComponent } from '../rate-benchmark/rate-benchmark-card.component';
 import { NetworkMeCardComponent } from '../me-card/network-me-card.component';
 
 export const POST_MAX = 3000;
@@ -48,7 +49,7 @@ const BOARD_OFFERS = 5;
 
 @Component({
   selector: 'app-network-feed',
-  imports: [NetworkNavComponent, NetworkMeCardComponent, PageHeaderComponent, A11yModule, MentionsDirective, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [NetworkNavComponent, NetworkMeCardComponent, RateBenchmarkCardComponent, PageHeaderComponent, A11yModule, MentionsDirective, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PostCardComponent, FilePickerComponent],
   templateUrl: './network-feed.component.html',
   styleUrls: ['./network-feed.component.scss', './network-feed-side.scss'],

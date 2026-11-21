@@ -45,7 +45,7 @@ Reminders of interviews, follow-ups and opportunities gone quiet always show on 
 
 **Profile → Privacy** gathers in one place everything you agree to or refuse.
 
-- The switches save at once: on the network, **Suggestions by my contacts**, **Suggestions by the same ESNs**, **Private card**, **Browse privately**, **Receive message requests**, **Read receipts**, **Typing indicator** and **Online presence**; for emails, **Weekly digest**, **Unread messages by email** and **Booked calls**.
+- The switches save at once: on the network, **Suggestions by my contacts**, **Suggestions by the same ESNs**, **Private card**, **Share my rates with the benchmark** (off by default), **Browse privately**, **Receive message requests**, **Read receipts**, **Typing indicator** and **Online presence**; for emails, **Weekly digest**, **Unread messages by email** and **Booked calls**.
 - The settings that live in a larger form (what your card shows, each network notification, the digest's sections, saved search emails, automatic archiving, contact anonymization, the public profile, exporting and deleting the account) each have a **Change** button that opens their tab.
 
 **Suggestions by my contacts** is on by default: you are suggested to members who have your address in their contacts, and members among your contacts are suggested to you. Off on either side, no suggestion by contacts between you.

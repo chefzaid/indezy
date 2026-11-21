@@ -241,8 +241,18 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
 
     await page.route('**/api/network/suggestions', route => route.fulfill({ json: [{ card: author('ines_b', 'Inès'), reason: 'SAME_STACK',
       followedBy: 0, followedByName: null, sharedSkills: ['Kafka'] }] }));
+    await page.route('**/api/network/benchmark/skills', route => route.fulfill({ json: { skills: [{ skill: 'Java', freelancers: 7 }],
+      threshold: 5, sharing: false } }));
+    await page.route(/\/api\/network\/benchmark\?/, route => route.fulfill({ json: { skill: 'Java', seniority: null, region: null,
+      freelancers: 7, threshold: 5, median: 650, low: 600, high: 720, sharing: false } }));
     await page.goto('/network');
     await expect(page.locator('[data-suggestion="ines_b"]')).toContainText(en ? 'Also on Kafka' : 'Aussi sur Kafka');
+    await expect(page.locator('[data-benchmark-median]')).toContainText(en ? '650 € a day' : '650 € par jour');
+    if (await page.locator('[data-rate-benchmark]').isVisible()) {
+      const benchmarkAudit = await new AxeBuilder({ page }).include('[data-rate-benchmark]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze();
+      expect(benchmarkAudit.violations.map(violation => violation.id)).toEqual([]);
+    }
     await expect(page.locator('[data-post="1"]')).toContainText('Bonjour à tous');
     await page.route('**/api/network/posts/1/like**', route => route.fulfill({ json: { id: 1, text: 'Bonjour à tous', tags: [],
       createdAt: '2026-11-13T09:00:00', own: false, likes: 2, liked: true, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, author: author('leo_m', 'Léo'),

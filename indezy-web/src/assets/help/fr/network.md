@@ -79,6 +79,12 @@ L'onglet **Notifications** dit qui vous suit, réagit, commente, vous mentionne 
 
 Dans **Profil → Réseau**, chaque type se règle sur **Désactivé**, **Dans l'appli** ou **E-mail aussi** (un seul e-mail regroupé, au plus toutes les trois heures). Les messages non lus depuis une heure se règlent dans **Profil → Notifications** (voir [Compte](/help/account)).
 
+## Les TJM du réseau
+
+À côté du fil, **Les TJM du réseau** donne le TJM médian d'une compétence, et la fourchette où se trouve la moitié des tarifs, pour une séniorité et une région ou pour toutes. Il vient des missions gagnées des membres qui partagent leurs tarifs, chaque freelance compté une fois par compétence, et un chiffre ne s'affiche que si cinq freelances ou plus le soutiennent.
+
+Pour partager les vôtres, activez **Partager mes tarifs avec le baromètre** dans **Profil → Confidentialité**. Votre nom, vos clients et vos contacts ne sont jamais montrés, et le désactiver retire aussitôt vos tarifs.
+
 ## Idées pour Indezy
 
 ![Le tableau des idées avec le bouton Proposer une idée et les idées triées par soutien](/assets/help/screens/ideas-fr.jpg)

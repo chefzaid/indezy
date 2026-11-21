@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Daily rates in the network
+
+Beside the feed, see the median daily rate of a skill by seniority and region, from the members who share their rates (**Profile → Privacy**), shown once five freelancers back a figure. See [The member network](/help/network).
+
 ### Reviews of clients and ESNs
 
 On a client's page, read what members who worked with it say of it, and review it yourself once you won a mission with it; reviews that name someone or accuse wait for the moderators. See [Clients, ESNs and contacts](/help/clients-contacts).

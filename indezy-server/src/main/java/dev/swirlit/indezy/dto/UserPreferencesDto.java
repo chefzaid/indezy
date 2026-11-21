@@ -30,6 +30,8 @@ public class UserPreferencesDto {
     private Integer contactRetentionYears;
     /** Archive opportunities idle for {@code inactivityDays}, every night. */
     private Boolean autoArchive;
+    /** Let the won missions' rates count, anonymized, in the network's rate benchmark. */
+    private Boolean shareRates;
     /** The dashboard's blocks in the account's order, shown or hidden; left as they are when absent. */
     @Size(max = 20)
     private List<@Valid DashboardWidgetDto> dashboardWidgets;

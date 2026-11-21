@@ -10,6 +10,9 @@
         <ng-container *ngTemplateOutlet="row; context: { key: 'contactSuggestions' }"></ng-container>
         <ng-container *ngTemplateOutlet="row; context: { key: 'esnSuggestions' }"></ng-container>
         <ng-container *ngTemplateOutlet="row; context: { key: 'privateCard' }"></ng-container>
+        @if (preferences) {
+          <ng-container *ngTemplateOutlet="row; context: { key: 'shareRates' }"></ng-container>
+        }
         @if (privateViewing !== null) {
           <ng-container *ngTemplateOutlet="row; context: { key: 'privateViewing' }"></ng-container>
         }

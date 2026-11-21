@@ -602,6 +602,15 @@ cannot be written again for that company.
 `days` from 1 to 365): how many, how many still open and since when (under a day, under a week, longer), by reason,
 by what they target, and the ten companies whose reviews were reported most, with their open and total reports.
 
+### Rate Benchmark
+
+Beside the feed, **Daily rates in the network** gives the median daily rate of a skill and the middle half (25th to 75th
+percentile), for a seniority and a region or all of them, from the won missions of the members who share their rates
+(**Profile → Privacy → Share my rates with the benchmark**, off by default). Each freelancer counts once per skill (their
+latest won mission naming it in the last two years); a figure shows only when five freelancers or more back it, otherwise
+the card says how many do. Seniority comes from the years the profile gives for the skill, the region from the mission
+(remote, Île-de-France or the other regions). See [ADR 0014](./adr/0014-aggregated-market-data.md).
+
 ## Projects And Opportunities
 
 **Opportunities** (`/projects`) lists the workspace's opportunities and missions. Beyond the role, stage, description,

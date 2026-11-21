@@ -1,0 +1,49 @@
+@if (skills; as skills) {
+  <section class="side-card rate-benchmark" data-rate-benchmark>
+    <h2>{{ 'network.benchmark.title' | translate }}</h2>
+    @if (skills.skills.length === 0) {
+      <p data-benchmark-empty>{{ 'network.benchmark.empty' | translate: { threshold: skills.threshold } }}</p>
+    } @else {
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'network.benchmark.skill' | translate }}</mat-label>
+        <mat-select [value]="skill" (selectionChange)="choose({ skill: $event.value })" data-benchmark-skill>
+          @for (entry of skills.skills; track entry.skill) {
+            <mat-option [value]="entry.skill">{{ entry.skill }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <div class="filters">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'network.benchmark.seniority' | translate }}</mat-label>
+          <mat-select [value]="seniority" (selectionChange)="choose({ seniority: $event.value })" data-benchmark-seniority>
+            <mat-option [value]="null">{{ 'network.benchmark.all' | translate }}</mat-option>
+            @for (level of seniorities; track level) {
+              <mat-option [value]="level">{{ 'network.benchmark.seniorities.' + level | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'network.benchmark.region' | translate }}</mat-label>
+          <mat-select [value]="region" (selectionChange)="choose({ region: $event.value })" data-benchmark-region>
+            <mat-option [value]="null">{{ 'network.benchmark.all' | translate }}</mat-option>
+            @for (place of regions; track place) {
+              <mat-option [value]="place">{{ 'network.benchmark.regions.' + place | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      @if (figure; as figure) {
+        @if (figure.median !== null) {
+          <p class="median" data-benchmark-median>{{ 'network.benchmark.median' | translate: { rate: (figure.median | number:'1.0-0') } }}</p>
+          <p data-benchmark-range>{{ 'network.benchmark.range' | translate: { low: (figure.low | number:'1.0-0'), high: (figure.high | number:'1.0-0'),
+            count: figure.freelancers } }}</p>
+        } @else {
+          <p data-benchmark-too-few>{{ 'network.benchmark.tooFew' | translate: { count: figure.freelancers, threshold: figure.threshold } }}</p>
+        }
+      }
+    }
+    @if (!skills.sharing) {
+      <a class="share" routerLink="/profile" [queryParams]="{ tab: 'privacy' }" data-benchmark-share>{{ 'network.benchmark.share' | translate }}</a>
+    }
+  </section>
+}

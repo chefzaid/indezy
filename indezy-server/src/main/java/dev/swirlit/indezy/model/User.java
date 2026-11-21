@@ -190,6 +190,17 @@ public class User extends BaseEntity {
         return Boolean.TRUE.equals(autoArchive);
     }
 
+    /**
+     * Whether the account lets its won missions' daily rates count in the network's rate benchmark, anonymized and only
+     * in figures five freelancers or more back (docs/adr/0014-aggregated-market-data.md); off until turned on.
+     */
+    @Column(name = "share_rates")
+    private Boolean shareRates;
+
+    public Boolean getShareRates() {
+        return Boolean.TRUE.equals(shareRates);
+    }
+
     /** Years without exchange after which a contact is anonymized every night; null or 0 for never. */
     @Column(name = "contact_retention_years")
     private Integer contactRetentionYears;

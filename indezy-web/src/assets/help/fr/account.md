@@ -45,7 +45,7 @@ Les rappels d'entretiens, de relances et d'opportunités sans nouvelles s'affich
 
 **Profil → Confidentialité** rassemble en un seul endroit tout ce que vous acceptez ou refusez.
 
-- Les interrupteurs s'enregistrent aussitôt : sur le réseau, **Suggestions par mes contacts**, **Suggestions par les mêmes ESN**, **Carte privée**, **Consulter les pages en privé**, **Recevoir des demandes de message**, **Confirmations de lecture**, **Indicateur de saisie** et **Présence en ligne** ; pour les e-mails, **Résumé hebdomadaire**, **Messages non lus par e-mail** et **Appels réservés**.
+- Les interrupteurs s'enregistrent aussitôt : sur le réseau, **Suggestions par mes contacts**, **Suggestions par les mêmes ESN**, **Carte privée**, **Partager mes tarifs avec le baromètre** (désactivé par défaut), **Consulter les pages en privé**, **Recevoir des demandes de message**, **Confirmations de lecture**, **Indicateur de saisie** et **Présence en ligne** ; pour les e-mails, **Résumé hebdomadaire**, **Messages non lus par e-mail** et **Appels réservés**.
 - Les réglages qui vivent dans un formulaire plus large (ce que montre votre carte, chaque notification du réseau, les sections du résumé, les e-mails des recherches enregistrées, l'archivage automatique, l'anonymisation des contacts, le profil public, l'export et la suppression du compte) ont chacun un bouton **Modifier** qui ouvre leur onglet.
 
 **Suggestions par mes contacts** est activé par défaut : vous êtes proposé aux membres qui ont votre adresse dans leurs contacts, et ceux de vos contacts vous sont proposés. Désactivé d'un côté ou de l'autre, aucune suggestion par contacts entre vous.

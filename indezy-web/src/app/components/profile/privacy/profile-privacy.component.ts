@@ -7,7 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Observable, tap } from 'rxjs';
 
 import { MessagingSettings, NetworkMembership } from '../../../models';
-import { UserNotificationSettings } from '../../../models/user-management.models';
+import { UserNotificationSettings, UserPreferences } from '../../../models/user-management.models';
 import { CapabilitiesService } from '../../../services/admin/capabilities.service';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NetworkService } from '../../../services/network/network.service';
@@ -19,7 +19,7 @@ export type ProfileTab = 'preferences' | 'notifications' | 'offers' | 'publicPag
 
 /** A switch of the privacy tab: which setting, and how it is saved. */
 type Switch = 'contactSuggestions' | 'esnSuggestions' | 'privateCard' | 'privateViewing' | 'requests' | 'readReceipts' | 'typing' | 'presence' |
-  'weeklyReports' | 'messageEmails' | 'bookingEmails';
+  'weeklyReports' | 'messageEmails' | 'bookingEmails' | 'shareRates';
 
 /**
  * Profile → **Privacy**: every opt-in and opt-out in one place. The plain switches change here (the network's suggestions,
@@ -50,6 +50,7 @@ export class ProfilePrivacyComponent implements OnInit {
   messaging: MessagingSettings | null = null;
   privateViewing: boolean | null = null;
   emails: UserNotificationSettings | null = null;
+  preferences: UserPreferences | null = null;
   readonly saving = new Set<Switch>();
 
   ngOnInit(): void {
@@ -57,6 +58,7 @@ export class ProfilePrivacyComponent implements OnInit {
     if (!this.networkOn) {
       return;
     }
+    this.users.getUserPreferences().subscribe({ next: preferences => this.show(() => this.preferences = preferences), error: () => undefined });
     this.network.membership(true).subscribe({
       next: membership => {
         this.show(() => this.membership = membership);
@@ -85,6 +87,8 @@ export class ProfilePrivacyComponent implements OnInit {
       case 'typing':
       case 'presence':
         return this.messaging?.[key] === true;
+      case 'shareRates':
+        return this.preferences?.shareRates === true;
       default:
         return this.emails?.[key] === true;
     }
@@ -124,6 +128,8 @@ export class ProfilePrivacyComponent implements OnInit {
       case 'typing':
       case 'presence':
         return this.messages.saveMessaging({ [key]: on }).pipe(tap(settings => this.messaging = settings));
+      case 'shareRates':
+        return this.users.updateUserPreferences({ shareRates: on }).pipe(tap(preferences => this.preferences = preferences));
       default:
         return this.users.updateNotificationSettings({ [key]: on }).pipe(tap(settings => this.emails = settings));
     }
