@@ -2,6 +2,7 @@ Indezy rassemble votre recherche de mission et sa gestion : offres, pipeline, cl
 
 
 Sur chaque page, le bouton **?** de la barre du haut ouvre l'aide de cette page à côté d'elle.
+
 ## Votre compte
 
 1. Sur la page d'accueil, cliquez sur **Se connecter**.

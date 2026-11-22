@@ -2,6 +2,7 @@ Indezy brings your mission search and the missions themselves into one place: of
 
 
 On any page, the **?** button in the top bar opens the help of that page beside it.
+
 ## Your account
 
 1. On the home page, click **Sign in**.
