@@ -1276,7 +1276,10 @@ next quote number, apart from the invoices' (`D<year>-0001`), sets the day it ho
 buyer and the payment term. The PDF states the VAT or its exemption, how long the offer holds, the deposit and its
 amount, the payment term, the late payment penalties, that the quote is free, and a box for the client's signature
 preceded by "Bon pour accord". The **Terms and conditions of sale** written in Profile → Billing (20,000 characters at
-most, `quoteTerms`) follow on their own pages, the quote saying they apply; a sent quote keeps those it was sent with. A sent quote is then **Accepted by the client** or **Refused by the client**, and reads
+most, `quoteTerms`) follow on their own pages, the quote saying they apply; a sent quote keeps those it was sent with.
+They can also be a PDF (`POST`/`DELETE /api/users/billing/quote-terms-file`, 5 MB and 20 pages at most, checked by the
+platform's ClamAV, refused with a password), whose pages are appended after the quote; each upload is a new file
+(`GET /api/users/billing/quote-terms-files/{id}`), so a sent quote keeps appending the one it was sent with. A sent quote is then **Accepted by the client** or **Refused by the client**, and reads
 **Expired** past its validity until then. An accepted quote that asks a deposit gets **Invoice the deposit**: a draft
 **deposit invoice** (facture d'acompte, Factur-X type 386) of that share of the amount before VAT, one line per VAT rate
 of the quote, numbered with the other invoices once issued. **Invoice the balance** then drafts, once, the final invoice

@@ -106,5 +106,21 @@ class QuoteTermsPdfTest {
             assertThat(new PDFTextStripper().getText(document)).doesNotContain("1/1");
         }
     }
+
+    @Test
+    void appendsTheTermsAndConditionsPdfAfterTheQuote() throws IOException {
+        java.io.ByteArrayOutputStream terms = new java.io.ByteArrayOutputStream();
+        try (PDDocument cgv = new PDDocument()) {
+            cgv.addPage(new org.apache.pdfbox.pdmodel.PDPage());
+            cgv.addPage(new org.apache.pdfbox.pdmodel.PDPage());
+            cgv.save(terms);
+        }
+        try (PDDocument document = Loader.loadPDF(renderer.render(quote(), seller(), new InvoiceBuyer(), 30, null, terms.toByteArray()))) {
+            assertThat(document.getNumberOfPages()).isEqualTo(3);
+            PDFTextStripper first = new PDFTextStripper();
+            first.setEndPage(1);
+            assertThat(first.getText(document)).contains("Les conditions générales de vente jointes s'appliquent.");
+        }
+    }
 }
 

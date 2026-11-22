@@ -88,7 +88,7 @@ L'export reprend les factures et avoirs émis de l'année.
 3. Cliquez sur **Envoyer** et choisissez la **Date du devis**. Le devis reçoit son propre numéro (D2026-0001) et se fige. Envoyez ensuite son PDF au client : Indezy ne l'envoie pas lui-même.
 4. Selon la réponse, cliquez sur **Accepté par le client** ou **Refusé par le client**. Sans réponse, il passe **Expiré** à la fin de sa validité.
 
-Le PDF porte la TVA ou son exonération, la validité, l'acompte, le délai de paiement, les pénalités de retard et une case « Bon pour accord » pour la signature du client. Vos **Conditions générales de vente**, écrites dans **Profil → Facturation**, suivent sur leurs propres pages ; un devis envoyé garde celles avec lesquelles il est parti.
+Le PDF porte la TVA ou son exonération, la validité, l'acompte, le délai de paiement, les pénalités de retard et une case « Bon pour accord » pour la signature du client. Vos **Conditions générales de vente**, écrites dans **Profil → Facturation** ou ajoutées là en PDF, suivent sur leurs propres pages ; un devis envoyé garde celles avec lesquelles il est parti.
 
 Pour un devis accepté :
 

@@ -1412,7 +1412,13 @@
       "footer": "Footer",
       "footerHint": "A line at the foot of each page of your invoices and quotes, such as your website and phone; pages are numbered once there are several.",
       "invoiceNotes": "Notes a new invoice starts with",
-      "quoteNotes": "Notes a new quote starts with"
+      "quoteNotes": "Notes a new quote starts with",
+      "termsFileUpload": "Or add them as a PDF",
+      "termsFileReplace": "Replace the PDF",
+      "termsFileOpen": "Open the PDF",
+      "termsFileHint": "A PDF of 5 MB and 20 pages at most, appended after each quote; a sent quote keeps the one it was sent with.",
+      "termsFileSaved": "Terms and conditions PDF saved.",
+      "termsFileRefused": "This file cannot be used: send a PDF of 5 MB and 20 pages at most, without a password."
     },
     "webhooks": {
       "title": "Webhooks",

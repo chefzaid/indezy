@@ -147,6 +147,18 @@
         <textarea matInput formControlName="quoteTerms" rows="6" maxlength="20000" data-billing-quote-terms></textarea>
         <mat-hint>{{ 'profile.billing.quoteTermsHint' | translate }}</mat-hint>
       </mat-form-field>
+      <div class="terms-file" data-billing-terms-file>
+        <input #termsInput type="file" hidden accept="application/pdf" (change)="uploadTermsFile($event)" data-billing-terms-file-input
+          [attr.aria-label]="'profile.billing.termsFileUpload' | translate">
+        <button mat-stroked-button type="button" (click)="termsInput.click()" data-billing-terms-file-upload>
+          <mat-icon>picture_as_pdf</mat-icon>{{ (termsFileId ? 'profile.billing.termsFileReplace' : 'profile.billing.termsFileUpload') | translate }}
+        </button>
+        @if (termsFileId) {
+          <button mat-button type="button" (click)="openTermsFile()" data-billing-terms-file-open>{{ 'profile.billing.termsFileOpen' | translate }}</button>
+          <button mat-button type="button" (click)="removeTermsFile()" data-billing-terms-file-remove>{{ 'profile.billing.logoRemove' | translate }}</button>
+        }
+        <span class="hint">{{ 'profile.billing.termsFileHint' | translate }}</span>
+      </div>
       <div class="actions">
         <button mat-flat-button color="primary" type="submit" [disabled]="saving" data-billing-save>{{ 'common.save' | translate }}</button>
       </div>

@@ -36,7 +36,7 @@ describe('ProfileBillingComponent', () => {
   }
 
   beforeEach(() => {
-    billing = jasmine.createSpyObj('BillingService', ['identity', 'saveIdentity', 'uploadLogo', 'removeLogo', 'logo']);
+    billing = jasmine.createSpyObj('BillingService', ['identity', 'saveIdentity', 'uploadLogo', 'removeLogo', 'logo', 'uploadTermsFile', 'removeTermsFile', 'termsFile']);
     billing.logo.and.returnValue(of(new Blob(['png'], { type: 'image/png' })));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
   });
@@ -144,6 +144,32 @@ describe('ProfileBillingComponent', () => {
     expect(component.logoId).toBeNull();
     expect(component.logoUrl).toBeNull();
     fixture.destroy();
+  });
+
+  it('appends a terms and conditions PDF to the quotes, opens and removes it', () => {
+    const component = create().componentInstance;
+    billing.uploadTermsFile.and.returnValue(of({ ...defaults, quoteTermsFileId: 7 }));
+    const input = document.createElement('input');
+    input.type = 'file';
+    const files = new DataTransfer();
+    files.items.add(new File(['%PDF'], 'cgv.pdf', { type: 'application/pdf' }));
+    input.files = files.files;
+    component.uploadTermsFile({ target: input } as unknown as Event);
+    expect(component.termsFileId).toBe(7);
+    expect(notifications.success).toHaveBeenCalledWith('profile.billing.termsFileSaved');
+    const click = spyOn(HTMLAnchorElement.prototype, 'click');
+    billing.termsFile.and.returnValue(of(new Blob(['%PDF'])));
+    component.openTermsFile();
+    expect(billing.termsFile).toHaveBeenCalledWith(7);
+    expect(click).toHaveBeenCalled();
+    const png = new DataTransfer();
+    png.items.add(new File(['png'], 'cgv.png', { type: 'image/png' }));
+    input.files = png.files;
+    component.uploadTermsFile({ target: input } as unknown as Event);
+    expect(notifications.error).toHaveBeenCalledWith('profile.billing.termsFileRefused');
+    billing.removeTermsFile.and.returnValue(of({ ...defaults, quoteTermsFileId: null }));
+    component.removeTermsFile();
+    expect(component.termsFileId).toBeNull();
   });
 });
 

@@ -26,12 +26,16 @@ final class QuotePage extends BillingPage {
     private final Integer paymentTermDays;
     /** The seller's terms and conditions, printed on pages after the quote; null for none. */
     private final String terms;
+    /** Whether a terms and conditions PDF follows the quote. */
+    private final boolean termsFileAttached;
 
-    QuotePage(PdfPageWriter writer, Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays, String terms) {
+    QuotePage(PdfPageWriter writer, Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays, String terms,
+              boolean termsFileAttached) {
         super(writer, seller, buyer, quote.getLanguage());
         this.quote = quote;
         this.paymentTermDays = paymentTermDays;
         this.terms = terms == null || terms.isBlank() ? null : terms.strip();
+        this.termsFileAttached = termsFileAttached;
     }
 
     String title() {
@@ -83,7 +87,7 @@ final class QuotePage extends BillingPage {
         }
         mentions.add(InvoiceLabel.penalties(language, seller.getLatePaymentRate()));
         mentions.add(QuoteLabel.FREE.in(language));
-        if (terms != null) {
+        if (terms != null || termsFileAttached) {
             mentions.add(QuoteLabel.TERMS_ATTACHED.in(language));
         }
         return mentions;

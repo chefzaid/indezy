@@ -15,6 +15,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { billingId, compactId } from '../../../shared/utils/billing-validators';
 import { fieldError } from '../../../shared/utils/form-errors';
 import { HelpLinkComponent } from '../../help/help-link.component';
+import { saveBlob } from '../../../shared/utils/download-file';
 
 const COMPANIES: LegalForm[] = ['EURL', 'SASU', 'SARL', 'SAS'];
 
@@ -69,6 +70,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   logoUrl: string | null = null;
   logoId: number | null = null;
   uploadingLogo = false;
+  termsFileId: number | null = null;
 
   ngOnDestroy(): void {
     this.revokeLogo();
@@ -90,12 +92,50 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       next: identity => {
         this.uploadingLogo = false;
         this.showLogo(identity.logoId ?? null);
+    this.termsFileId = identity.quoteTermsFileId ?? null;
         this.notifications.success('profile.billing.logoSaved');
       },
       error: () => {
         this.uploadingLogo = false;
         this.notifications.error('profile.billing.logoRefused');
       }
+    });
+  }
+
+  uploadTermsFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024 || file.type !== 'application/pdf') {
+      this.notifications.error('profile.billing.termsFileRefused');
+      return;
+    }
+    this.billing.uploadTermsFile(file).subscribe({
+      next: identity => {
+        this.termsFileId = identity.quoteTermsFileId ?? null;
+        this.notifications.success('profile.billing.termsFileSaved');
+      },
+      error: () => this.notifications.error('profile.billing.termsFileRefused')
+    });
+  }
+
+  removeTermsFile(): void {
+    this.billing.removeTermsFile().subscribe({
+      next: () => this.termsFileId = null,
+      error: () => this.notifications.error('profile.billing.saveError')
+    });
+  }
+
+  openTermsFile(): void {
+    if (this.termsFileId === null) {
+      return;
+    }
+    this.billing.termsFile(this.termsFileId).subscribe({
+      next: blob => saveBlob(blob, 'cgv.pdf'),
+      error: () => this.notifications.error('profile.billing.loadError')
     });
   }
 

@@ -28,6 +28,8 @@ export interface BillingIdentity {
   quoteNotes?: string | null;
   /** The free text at the foot of each page of the documents (website, phone); null for none. */
   footer?: string | null;
+  /** Read-only: the terms and conditions PDF appended after each quote; null for none. Set with its own upload. */
+  quoteTermsFileId?: number | null;
   /** Read-only: the logo printed on the documents; null for none. Set with its own upload. */
   logoId?: number | null;
   /** The accent colour of the documents' title, table header and rules, as #RRGGBB; null for black. */

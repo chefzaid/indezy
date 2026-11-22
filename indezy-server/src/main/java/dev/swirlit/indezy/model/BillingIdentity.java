@@ -81,6 +81,10 @@ public class BillingIdentity {
     @Column(name = "billing_logo_id")
     private Long logoId;
 
+    /** The terms and conditions of sale as a PDF appended after each quote ({@link DocumentTermsFile}); null for none. */
+    @Column(name = "billing_quote_terms_file_id")
+    private Long quoteTermsFileId;
+
     /** The terms and conditions of sale printed after each quote; null for none. */
     @Column(name = "billing_quote_terms", columnDefinition = "TEXT")
     private String quoteTerms;

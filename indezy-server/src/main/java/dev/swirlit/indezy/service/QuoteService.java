@@ -6,6 +6,7 @@ import dev.swirlit.indezy.dto.QuoteDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.Client;
+import dev.swirlit.indezy.model.DocumentTermsFile;
 import dev.swirlit.indezy.model.Invoice;
 import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceSeller;
@@ -18,6 +19,7 @@ import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import dev.swirlit.indezy.model.enums.QuoteStatus;
 import dev.swirlit.indezy.pdf.QuotePdfRenderer;
 import dev.swirlit.indezy.repository.ClientRepository;
+import dev.swirlit.indezy.repository.DocumentTermsFileRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InvoiceRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
@@ -25,6 +27,7 @@ import dev.swirlit.indezy.repository.QuoteCounterRepository;
 import dev.swirlit.indezy.repository.QuoteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +63,13 @@ public class QuoteService {
     private final InvoiceRepository invoiceRepository;
     private final QuotePdfRenderer pdf;
     private final Clock clock;
+    private DocumentTermsFileRepository termsFiles;
+
+    /** Where the terms and conditions PDFs are read; without it, as in tests, quotes append none. */
+    @Autowired(required = false)
+    public void setTermsFiles(DocumentTermsFileRepository termsFiles) {
+        this.termsFiles = termsFiles;
+    }
 
     @Transactional(readOnly = true)
     public List<QuoteDtos.Quote> list(Long freelanceId) {
@@ -123,6 +133,7 @@ public class QuoteService {
         quote.setSeller(InvoiceService.seller(seller));
         quote.setBuyer(InvoiceService.buyer(client));
         quote.setTerms(seller.quoteTerms());
+        quote.setTermsFileId(seller.quoteTermsFileId());
         quote.setStatus(QuoteStatus.SENT);
         log.info("Workspace {} sent quote {}", freelanceId, quote.getId());
         return toDto(quote);
@@ -189,8 +200,10 @@ public class QuoteService {
         boolean english = quote.getLanguage() == DocumentLanguage.EN;
         String fileName = (english ? "quote-" : "devis-") + (draft ? (english ? "draft-" : "brouillon-") + quote.getId() : quote.getNumber()) +
             ".pdf";
+        Long termsFile = draft ? identity.quoteTermsFileId() : quote.getTermsFileId();
+        byte[] termsPdf = termsFile == null || termsFiles == null ? null : termsFiles.findById(termsFile).map(DocumentTermsFile::getContent).orElse(null);
         return new ActivityReportService.PdfFile(fileName, pdf.render(quote, seller, buyer, paymentTermDays,
-            draft ? identity.quoteTerms() : quote.getTerms()));
+            draft ? identity.quoteTerms() : quote.getTerms(), termsPdf));
     }
 
     private String nextNumber(Long freelanceId, int year) {

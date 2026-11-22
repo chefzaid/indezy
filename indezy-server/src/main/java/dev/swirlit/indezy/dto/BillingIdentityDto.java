@@ -35,6 +35,7 @@ public record BillingIdentityDto(
     @Size(max = 200) String footer,
     @Size(max = 2000) String invoiceNotes,
     @Size(max = 2000) String quoteNotes,
+    Long quoteTermsFileId,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;

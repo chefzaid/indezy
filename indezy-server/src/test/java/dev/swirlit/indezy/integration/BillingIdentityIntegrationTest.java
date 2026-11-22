@@ -14,7 +14,7 @@ class BillingIdentityIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void keepsEachWorkspacesIdentityAndChecksIt() {
+    void keepsEachWorkspacesIdentityAndChecksIt() throws java.io.IOException {
         Map<String, Object> defaults = call(alice, HttpMethod.GET, "/users/billing", null, Map.class).getBody();
         assertThat(defaults).containsEntry("legalName", "alice Test").containsEntry("vatExempt", true).containsEntry("vatRate", 20.0)
             .containsEntry("paymentTermDays", 30).containsEntry("invoicePrefix", "F").containsEntry("latePaymentRate", null)
@@ -75,6 +75,34 @@ class BillingIdentityIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("logoId", (int) logo);
         assertThat(call(alice, HttpMethod.DELETE, "/users/billing/logo", null, Map.class).getBody()).containsEntry("logoId", null);
         assertThat(call(alice, HttpMethod.GET, "/users/billing/logos/" + logo, null, byte[].class).getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        // Terms and conditions as a PDF, appended after the quotes; anything else refused.
+        org.springframework.util.LinkedMultiValueMap<String, Object> cgv = new org.springframework.util.LinkedMultiValueMap<>();
+        cgv.add("file", new org.springframework.core.io.ByteArrayResource(dev.swirlit.indezy.ai.PostingPdfTextTest.pdf(false, "Article 1")) {
+            @Override
+            public String getFilename() {
+                return "cgv.pdf";
+            }
+        });
+        Map<String, Object> withTerms = exchange("/users/billing/quote-terms-file", HttpMethod.POST,
+            new org.springframework.http.HttpEntity<>(cgv, headers), Map.class).getBody();
+        long termsFile = ((Number) withTerms.get("quoteTermsFileId")).longValue();
+        assertThat(call(alice, HttpMethod.GET, "/users/billing/quote-terms-files/" + termsFile, null, byte[].class).getHeaders().getContentType())
+            .hasToString("application/pdf");
+        assertThat(call(bob, HttpMethod.GET, "/users/billing/quote-terms-files/" + termsFile, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("quoteTermsFileId", (int) termsFile);
+        org.springframework.util.LinkedMultiValueMap<String, Object> notPdf = new org.springframework.util.LinkedMultiValueMap<>();
+        notPdf.add("file", new org.springframework.core.io.ByteArrayResource(png.toByteArray()) {
+            @Override
+            public String getFilename() {
+                return "cgv.png";
+            }
+        });
+        assertThat(exchange("/users/billing/quote-terms-file", HttpMethod.POST, new org.springframework.http.HttpEntity<>(notPdf, headers),
+            String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(alice, HttpMethod.DELETE, "/users/billing/quote-terms-file", null, Map.class).getBody())
+            .containsEntry("quoteTermsFileId", null);
 
         // A wrong IBAN, SIRET or payment term is refused, and the saved identity kept.
         for (Map.Entry<String, Object> wrong : Map.<String, Object>of("iban", "FR7630006000011234567890188", "siret", "1234",

@@ -96,3 +96,17 @@
     font-size: .8125rem;
   }
 }
+
+.terms-file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 0 0 16px;
+
+  .hint {
+    flex-basis: 100%;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: .8125rem;
+  }
+}

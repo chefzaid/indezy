@@ -2,9 +2,11 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.BillingIdentityDto;
 import dev.swirlit.indezy.model.DocumentLogo;
+import dev.swirlit.indezy.model.DocumentTermsFile;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.BillingIdentityService;
 import dev.swirlit.indezy.service.DocumentLogoService;
+import dev.swirlit.indezy.service.DocumentTermsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -34,6 +36,7 @@ public class BillingController {
 
     private final BillingIdentityService billing;
     private final DocumentLogoService logos;
+    private final DocumentTermsService termsFiles;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "The seller's identity, its defaults drawn from the profile")
@@ -69,6 +72,28 @@ public class BillingController {
         DocumentLogo logo = logos.get(workspace(), id);
         return DocumentResponses.of("logo." + (logo.getContentType().endsWith("png") ? "png" : "jpg"), logo.getContentType(), logo.getContent(),
             true);
+    }
+
+    @Operation(summary = "Set the terms and conditions PDF appended to the quotes to come", description = "5 MB and 20 pages at most")
+    @PostMapping(value = "/quote-terms-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BillingIdentityDto uploadTermsFile(@RequestParam("file") MultipartFile file) throws IOException {
+        if (file.getSize() > DocumentTermsFile.MAX_BYTES) {
+            throw new IllegalArgumentException("Terms and conditions hold 5 MB at most");
+        }
+        return termsFiles.upload(workspace(), file.getOriginalFilename(), file.getBytes());
+    }
+
+    @Operation(summary = "Stop appending the terms and conditions PDF to the quotes to come")
+    @DeleteMapping("/quote-terms-file")
+    public BillingIdentityDto removeTermsFile() {
+        return termsFiles.remove(workspace());
+    }
+
+    @Operation(summary = "One of the workspace's terms and conditions PDFs")
+    @GetMapping("/quote-terms-files/{id}")
+    public ResponseEntity<byte[]> termsFile(@PathVariable Long id) {
+        DocumentTermsFile file = termsFiles.get(workspace(), id);
+        return DocumentResponses.of(file.getFileName(), "application/pdf", file.getContent(), true);
     }
 
     private Long workspace() {

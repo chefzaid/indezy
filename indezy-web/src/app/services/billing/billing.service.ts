@@ -28,6 +28,21 @@ export class BillingService {
     return this.http.post<BillingIdentity>(`${this.API_URL}/logo`, form);
   }
 
+  /** Sets the terms and conditions PDF appended to the quotes to come (5 MB and 20 pages at most). */
+  uploadTermsFile(file: File): Observable<BillingIdentity> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<BillingIdentity>(`${this.API_URL}/quote-terms-file`, form);
+  }
+
+  removeTermsFile(): Observable<BillingIdentity> {
+    return this.http.delete<BillingIdentity>(`${this.API_URL}/quote-terms-file`);
+  }
+
+  termsFile(id: number): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/quote-terms-files/${id}`, { responseType: 'blob' });
+  }
+
   removeLogo(): Observable<BillingIdentity> {
     return this.http.delete<BillingIdentity>(`${this.API_URL}/logo`);
   }

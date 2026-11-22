@@ -69,6 +69,10 @@ public class Quote extends BaseEntity {
     @Column(name = "deposit_percent")
     private Integer depositPercent;
 
+    /** The seller's terms and conditions PDF when sent ({@link DocumentTermsFile}), appended after the quote; null for none. */
+    @Column(name = "terms_file_id")
+    private Long termsFileId;
+
     /** The seller's terms and conditions when sent, printed after the quote; null for none. */
     @Column(name = "terms", columnDefinition = "TEXT")
     private String terms;
