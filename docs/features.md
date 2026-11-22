@@ -766,11 +766,27 @@ the client or its ESN. Deleting the opportunity keeps its exchanges, tied to non
 ## Emails From Templates
 
 **Write an email** on an opportunity picks a template and a recipient among the ESN's and the client's contacts, then
-fills a subject and message to edit; **Open in my mail app** opens a `mailto:` link, **Copy** copies them. Indezy sends
-nothing itself. A follow-up, a rate proposal, an availability announcement and a rate review at renewal are always
+fills a subject and message to edit; **Open in my mail app** opens a `mailto:` link, **Copy** copies them, and **Send
+from Indezy** sends it (see [Emails Sent From Indezy](#emails-sent-from-indezy)). A follow-up, a rate proposal, an availability announcement and a rate review at renewal are always
 offered (an opportunity opened with `?email=rateReview` starts on the last); **Profile → Emails**
 manages the workspace's own (up to 50). Variables are written `{{name}}`: `firstName`, `lastName`, `company`, `role`,
 `rate`, `availability`, `myName`, `myPhone` and `privacyNotice`; one without a value stays as written and is pointed out.
+
+### Emails Sent From Indezy
+
+**Send from Indezy** in **Write an email**, offered once Resend is set up (`GET /api/contacts/emails/status`), sends the
+message to the chosen contact through Resend (`POST /api/contacts/{contactId}/emails`): from "the freelancer's name via
+Indezy" at Indezy's sender address, answers going to the workspace's own address, the message as typed with a line under
+it saying who sent it through Indezy. It is recorded as an exchange by email from the freelancer, waiting for an answer,
+its subject as the summary and about the opportunity, so it counts in the follow-ups due; nothing is recorded when
+Resend refuses it. **Send me a copy** (on by default) sends the freelancer the same message without tracking.
+
+**Tell me when it is opened**, off by default and asked email by email (the owner's choice), adds a one-pixel image whose
+address holds a 256-bit random token (`GET /api/public/emails/{token}.gif`, the same image whatever the token) and says
+at the email's foot that the sender is told when it is opened. The exchange then shows **Opened N×, first on…** or **Not
+opened yet**. Fetches within 30 seconds of sending (mailbox scanners) and after 30 days count nothing; mail apps that
+fetch images on delivery or never make it a hint. Up to 50 emails a workspace go in 24 hours. Answers are not detected
+yet: they reach the freelancer's mailbox, and **Answered** is set by hand (see TODO.md's **Needs Input**).
 
 ## Calendar
 

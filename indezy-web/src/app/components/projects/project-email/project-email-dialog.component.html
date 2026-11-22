@@ -29,6 +29,13 @@
     @if (missing) {
       <p class="missing" role="status">{{ 'emails.missing' | translate }}</p>
     }
+    @if (sending?.available) {
+      <div class="send-options">
+        <mat-checkbox formControlName="track" data-email-track>{{ 'emails.send.track' | translate }}</mat-checkbox>
+        <p class="send-hint">{{ 'emails.send.trackHint' | translate }}</p>
+        <mat-checkbox formControlName="copy" data-email-copy>{{ 'emails.send.copy' | translate }}</mat-checkbox>
+      </div>
+    }
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
@@ -36,8 +43,19 @@
     <mat-icon>content_copy</mat-icon>
     {{ 'emails.copy' | translate }}
   </button>
-  <a mat-flat-button color="primary" [href]="mailto">
-    <mat-icon>send</mat-icon>
-    {{ 'emails.open' | translate }}
-  </a>
+  @if (sending?.available) {
+    <a mat-stroked-button [href]="mailto">
+      <mat-icon>open_in_new</mat-icon>
+      {{ 'emails.open' | translate }}
+    </a>
+    <button mat-flat-button color="primary" type="button" (click)="send()" [disabled]="!canSend" data-email-send>
+      <mat-icon>send</mat-icon>
+      {{ 'emails.send.button' | translate }}
+    </button>
+  } @else {
+    <a mat-flat-button color="primary" [href]="mailto">
+      <mat-icon>send</mat-icon>
+      {{ 'emails.open' | translate }}
+    </a>
+  }
 </mat-dialog-actions>

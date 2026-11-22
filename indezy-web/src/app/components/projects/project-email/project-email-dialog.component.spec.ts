@@ -2,8 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { ContactDto, ProjectDto } from '../../../models';
 import { ContactService } from '../../../services/contact/contact.service';
@@ -24,10 +25,12 @@ describe('ProjectEmailDialogComponent', () => {
   const paul = { id: 12, firstName: 'Paul', lastName: 'Durand', email: 'paul@airbus.fr', clientName: 'Airbus' } as ContactDto;
   const silent = { id: 13, firstName: 'Sans', lastName: 'Email', clientName: 'Airbus' } as ContactDto;
   let contactsWithBasis = false;
+  let dialogRef: jasmine.SpyObj<MatDialogRef<ProjectEmailDialogComponent>>;
 
   function create(setup: () => void = () => undefined, data: object = project): ComponentFixture<ProjectEmailDialogComponent> {
     registerLocaleData(localeFr);
-    contacts = jasmine.createSpyObj('ContactService', ['getByClientId']);
+    contacts = jasmine.createSpyObj('ContactService', ['getByClientId', 'emailStatus', 'sendEmail']);
+    contacts.emailStatus.and.returnValue(of({ available: false, sentToday: 0, dailyMax: 50 }));
     contacts.getByClientId.and.callFake(id => of(id === 5 ? [contactsWithBasis ? { ...lea, legalBasis: 'CONSENT' } as ContactDto : lea] :
       [paul, silent]));
     templates = jasmine.createSpyObj('EmailTemplateService', ['list']);
@@ -36,6 +39,7 @@ describe('ProjectEmailDialogComponent', () => {
     users = jasmine.createSpyObj('UserManagementService', ['getUserProfile']);
     users.getUserProfile.and.returnValue(of({ firstName: 'Ada', lastName: 'Lovelace', phone: '0600000000', availabilityDate: '2026-12-01' } as UserProfile));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
+    dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     setup();
     TestBed.configureTestingModule({
       imports: [ProjectEmailDialogComponent, TranslateModule.forRoot()],
@@ -45,7 +49,8 @@ describe('ProjectEmailDialogComponent', () => {
         { provide: ContactService, useValue: contacts },
         { provide: EmailTemplateService, useValue: templates },
         { provide: UserManagementService, useValue: users },
-        { provide: NotificationService, useValue: notifications }
+        { provide: NotificationService, useValue: notifications },
+        { provide: MatDialogRef, useValue: dialogRef }
       ]
     });
     const translate = TestBed.inject(TranslateService);
@@ -145,5 +150,55 @@ describe('ProjectEmailDialogComponent', () => {
 
     expect(contacts.getByClientId).not.toHaveBeenCalled();
     expect(component.contacts).toEqual([]);
+  });
+
+  it('offers to send from Indezy only once email is set up', () => {
+    const fixture = create();
+    expect(fixture.nativeElement.querySelector('[data-email-send]')).toBeNull();
+    expect(fixture.componentInstance.canSend).toBeFalse();
+
+    TestBed.resetTestingModule();
+    const ready = create(() => contacts.emailStatus.and.returnValue(of({ available: true, sentToday: 3, dailyMax: 50 })));
+    expect(ready.nativeElement.querySelector('[data-email-send]')).not.toBeNull();
+    expect(ready.nativeElement.querySelector('[data-email-track]')).not.toBeNull();
+  });
+
+  it('sends the email from Indezy, tracked when asked, and closes', () => {
+    const component = create(() => contacts.emailStatus.and.returnValue(of({ available: true, sentToday: 0, dailyMax: 50 }))).componentInstance;
+    contacts.sendEmail.and.returnValue(of({ id: 1, occurredOn: '2026-11-22', channel: 'EMAIL', direction: 'OUTGOING' }));
+    component.form.patchValue({ template: 'own-5', track: true });
+    component.fill();
+    expect(component.canSend).toBeTrue();
+    component.send();
+
+    expect(contacts.sendEmail).toHaveBeenCalledOnceWith(11, jasmine.objectContaining({ projectId: 8, subject: 'Bonjour', track: true,
+      copy: true, language: 'FR' }));
+    expect(notifications.success).toHaveBeenCalledWith('emails.send.sent', undefined, { name: 'Léa Martin' });
+    expect(dialogRef.close).toHaveBeenCalledWith(true);
+  });
+
+  it('sends nothing with a variable left, and says why a send failed', () => {
+    const component = create(() => contacts.emailStatus.and.returnValue(of({ available: true, sentToday: 50, dailyMax: 50 }))).componentInstance;
+    component.form.patchValue({ subject: 'Point', body: 'Salut {{firstName}}' });
+    expect(component.missing).toBeTrue();
+    expect(component.canSend).toBeFalse();
+    component.send();
+    expect(contacts.sendEmail).not.toHaveBeenCalled();
+
+    component.form.patchValue({ subject: 'Point', body: 'Salut' });
+    contacts.sendEmail.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'Up to 50 emails a day go' } })));
+    component.send();
+    expect(notifications.error).toHaveBeenCalledWith('emails.send.dailyLimit');
+    contacts.sendEmail.and.returnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+    component.send();
+    expect(notifications.error).toHaveBeenCalledWith('emails.send.error');
+    expect(component.sendingNow).toBeFalse();
+    expect(dialogRef.close).not.toHaveBeenCalled();
+  });
+
+  it('still opens the mail app when the email status cannot be read', () => {
+    const fixture = create(() => contacts.emailStatus.and.returnValue(throwError(() => new Error('down'))));
+    expect(fixture.componentInstance.sending).toBeNull();
+    expect(fixture.nativeElement.querySelector('a[href^="mailto:"]')).not.toBeNull();
   });
 });

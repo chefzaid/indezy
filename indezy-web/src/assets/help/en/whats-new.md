@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Emails sent from Indezy
+
+Send an email to a contact from **Write an email**, in your name with answers to you, recorded in their exchanges, and know when it is opened if you ask. See [Clients, ESNs and contacts](/help/clients-contacts).
+
 ### AI help
 
 Fill a new opportunity in from a pasted posting, and weigh an opportunity against your profile, ask the AI about it, ask whether a feed offer is worth applying to, download your dossier de compétences tailored to it, and draft an application, a follow-up, a thank-you or a decline from its page. A monthly allowance comes with each account, or use your own Anthropic key in **Profile → Preferences → AI**. See [Pipeline and opportunities](/help/pipeline).

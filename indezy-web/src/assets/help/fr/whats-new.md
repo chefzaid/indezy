@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les e-mails envoyés depuis Indezy
+
+Envoyez un e-mail à un contact depuis **Écrire un e-mail**, en votre nom avec les réponses chez vous, noté dans ses échanges, et sachez quand il est ouvert si vous le demandez. Voir [Clients, ESN et contacts](/help/clients-contacts).
+
 ### L'aide de l'IA
 
 Remplissez une nouvelle opportunité depuis une annonce collée, et évaluez une opportunité face à votre profil, interrogez l'IA à son sujet, demandez si une offre du fil vaut une candidature, téléchargez votre dossier de compétences adapté à elle, et rédigez une candidature, une relance, un remerciement ou un refus depuis sa page. Un forfait mensuel accompagne chaque compte, ou utilisez votre propre clé Anthropic dans **Profil → Préférences → IA**. Voir [Pipeline et opportunités](/help/pipeline).

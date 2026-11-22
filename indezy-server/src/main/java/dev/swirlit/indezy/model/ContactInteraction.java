@@ -16,6 +16,7 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 /**
@@ -58,4 +59,20 @@ public class ContactInteraction extends BaseEntity {
     @JoinColumn(name = "project_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Project project;
+
+    /** When Indezy sent this exchange's email for the freelancer; null for one they recorded themselves. */
+    @Column(name = "email_sent_at")
+    private Instant emailSentAt;
+
+    /** The secret in the tracking image's address of an email sent with open tracking, unique; null without tracking. */
+    @Column(name = "email_token", length = 43, unique = true)
+    private String emailToken;
+
+    /** When the tracked email was first seen opened. */
+    @Column(name = "email_opened_at")
+    private Instant emailOpenedAt;
+
+    /** How many times the tracked email was seen opened. */
+    @Column(name = "email_opens")
+    private Integer emailOpens;
 }

@@ -90,7 +90,7 @@ Le menu **Modèles** propose **Enregistrer ces étapes comme modèle** pour une 
 
 - **Journal** liste vos notes et vos échanges, du plus récent au plus ancien. Écrivez une **Nouvelle note** en Markdown, au besoin à partir de **Insérer un modèle** (compte-rendu d'appel, d'entretien, résumé de négociation).
 - **Noter un échange** enregistre un échange avec un contact du client ou de son ESN.
-- **Écrire un e-mail** choisit un **Modèle** (relance, proposition de TJM, annonce de disponibilité, révision du TJM au renouvellement) et un destinataire, puis prépare l'objet et le message. **Ouvrir dans ma messagerie** ou **Copier** : Indezy n'envoie rien lui-même. Vos propres modèles se gèrent dans **Profil → E-mails**.
+- **Écrire un e-mail** choisit un **Modèle** (relance, proposition de TJM, annonce de disponibilité, révision du TJM au renouvellement) et un destinataire, puis prépare l'objet et le message. **Ouvrir dans ma messagerie**, **Copier**, ou **Envoyer depuis Indezy** pour l'envoyer en votre nom et savoir quand il est ouvert si vous le demandez. Vos propres modèles se gèrent dans **Profil → E-mails**.
 
 ## Une fois la mission acceptée
 

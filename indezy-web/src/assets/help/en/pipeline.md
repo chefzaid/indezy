@@ -90,7 +90,7 @@ The **Templates** menu offers **Save these steps as a template** for an ESN, a c
 
 - **Journal** lists your notes and exchanges, newest first. Write a **New note** in Markdown, optionally from **Insert a template** (call debrief, interview debrief, negotiation summary).
 - **Record an exchange** logs an exchange with a contact of the client or its ESN.
-- **Write an email** picks a **Template** (follow-up, rate proposal, availability announcement, rate review at renewal) and a recipient, then prepares the subject and message. Use **Open in my mail app** or **Copy**: Indezy sends nothing itself. Manage your own templates in **Profile → Emails**.
+- **Write an email** picks a **Template** (follow-up, rate proposal, availability announcement, rate review at renewal) and a recipient, then prepares the subject and message. Use **Open in my mail app** or **Copy**, or **Send from Indezy** to send it in your name and see when it is opened if you ask. Manage your own templates in **Profile → Emails**.
 
 ## Once the mission is accepted
 

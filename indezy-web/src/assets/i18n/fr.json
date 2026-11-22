@@ -898,6 +898,11 @@
         "WAITING": "En attente de réponse",
         "ANSWERED": "A répondu",
         "UNANSWERED": "Sans réponse"
+      },
+      "sentEmail": {
+        "sent": "Envoyé depuis Indezy",
+        "opened": "Ouvert {{count}} fois, la première le {{date}}",
+        "notOpened": "Pas encore ouvert"
       }
     },
     "confirmBulkDelete": "Supprimer ces {{count}} contacts et leurs échanges ?",
@@ -2632,7 +2637,16 @@
       "loadError": "Les modèles n'ont pas pu être chargés",
       "insertVariable": "Insérer {{variable}} dans le message"
     },
-    "privacyNotice": "Vos coordonnées professionnelles sont conservées par {{name}} pour le suivi de nos échanges ({{basis}}). Vous pouvez à tout moment demander à les consulter, les rectifier ou les effacer en répondant à cet e-mail."
+    "privacyNotice": "Vos coordonnées professionnelles sont conservées par {{name}} pour le suivi de nos échanges ({{basis}}). Vous pouvez à tout moment demander à les consulter, les rectifier ou les effacer en répondant à cet e-mail.",
+    "send": {
+      "button": "Envoyer depuis Indezy",
+      "track": "Me prévenir à son ouverture",
+      "trackHint": "L'e-mail l'indique à son destinataire, et les ouvertures sont comptées pendant 30 jours.",
+      "copy": "M'envoyer une copie",
+      "sent": "E-mail envoyé à {{name}}.",
+      "dailyLimit": "Jusqu'à 50 e-mails par jour partent d'Indezy : envoyez celui-ci depuis votre messagerie.",
+      "error": "L'e-mail n'a pas pu partir : réessayez dans un instant, ou ouvrez-le dans votre messagerie."
+    }
   },
   "calendar": {
     "title": "Calendrier",

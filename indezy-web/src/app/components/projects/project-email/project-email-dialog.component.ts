@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { formatDate, formatNumber } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +13,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, forkJoin, map, Observable, of, OperatorFunction } from 'rxjs';
 
 import { ContactDto, EmailTemplate, ProjectDto } from '../../../models';
+import { ContactEmailStatus } from '../../../models/contact.models';
 import { UserProfile } from '../../../models/user-management.models';
 import { ContactService } from '../../../services/contact/contact.service';
 import { EmailTemplateService } from '../../../services/email-template/email-template.service';
@@ -35,12 +38,14 @@ interface TemplateChoice {
  */
 @Component({
   selector: 'app-project-email-dialog',
-  imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule,
-    TranslateModule],
+  imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule,
+    MatSelectModule, TranslateModule],
   templateUrl: './project-email-dialog.component.html',
   styles: [`
     .email-form { display: flex; flex-direction: column; min-width: min(560px, 85vw); padding-top: 4px; }
     .missing { margin: 0 0 8px; color: var(--app-warning, #b26a00); font-size: .875rem; }
+    .send-options { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
+    .send-hint { margin: 0 0 0 40px; color: var(--mat-sys-on-surface-variant); font-size: .8125rem; }
   `],
   changeDetection: ChangeDetectionStrategy.Eager
 })
@@ -48,7 +53,11 @@ export class ProjectEmailDialogComponent implements OnInit {
   readonly form: FormGroup;
   templates: TemplateChoice[] = [];
   contacts: ContactDto[] = [];
+  /** Whether the email can go from Indezy; null until known or when it cannot be read. */
+  sending: ContactEmailStatus | null = null;
+  sendingNow = false;
   private profile: UserProfile | null = null;
+  private readonly dialogRef = inject<MatDialogRef<ProjectEmailDialogComponent>>(MatDialogRef, { optional: true });
 
   constructor(
     fb: FormBuilder,
@@ -62,10 +71,14 @@ export class ProjectEmailDialogComponent implements OnInit {
     private readonly changes: ChangeDetectorRef
   ) {
     this.form = fb.group({ template: [BUILT_IN_EMAILS.includes(project.emailTemplate ?? '') ? project.emailTemplate : BUILT_IN_EMAILS[0]],
-      recipient: [null], subject: [''], body: [''] });
+      recipient: [null], subject: [''], body: [''], track: [false], copy: [true] });
   }
 
   ngOnInit(): void {
+    this.contactService.emailStatus().pipe(catchError(() => of(null))).subscribe(status => {
+      this.sending = status;
+      this.changes.markForCheck();
+    });
     let failed = false;
     const recover = <T>(fallback: T): OperatorFunction<T, T> => catchError(() => {
       failed = true;
@@ -118,6 +131,36 @@ export class ProjectEmailDialogComponent implements OnInit {
 
   get mailto(): string {
     return mailtoLink(this.recipient()?.email, this.form.value.subject, this.form.value.body);
+  }
+
+  /** Whether the email can go from Indezy now: email is set up, a recipient is chosen and nothing is left to fill. */
+  get canSend(): boolean {
+    return !!this.sending?.available && !!this.recipient() && !this.missing && !this.sendingNow &&
+      !!this.form.value.subject?.trim() && !!this.form.value.body?.trim();
+  }
+
+  /** Sends the email through Indezy, recorded as an exchange with the recipient. */
+  send(): void {
+    const recipient = this.recipient();
+    if (!recipient?.id || !this.canSend) {
+      return;
+    }
+    this.sendingNow = true;
+    const value = this.form.value;
+    this.contactService.sendEmail(recipient.id, { projectId: this.project.id ?? null, subject: value.subject, body: value.body,
+      track: !!value.track, copy: !!value.copy, language: this.translate.currentLang === 'en' ? 'EN' : 'FR' }).subscribe({
+      next: () => {
+        this.sendingNow = false;
+        this.notificationService.success('emails.send.sent', undefined, { name: `${recipient.firstName ?? ''} ${recipient.lastName ?? ''}`.trim() });
+        this.dialogRef?.close(true);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.sendingNow = false;
+        const message: string = error.error?.message ?? '';
+        this.notificationService.error(message.startsWith('Up to') ? 'emails.send.dailyLimit' : 'emails.send.error');
+        this.changes.markForCheck();
+      }
+    });
   }
 
   copy(): void {

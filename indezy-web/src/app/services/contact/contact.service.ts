@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ContactDto, ContactInteraction, ContactInteractions, ContactRelation } from '../../models/contact.models';
+import { ContactDto, ContactEmailRequest, ContactEmailStatus, ContactInteraction, ContactInteractions, ContactRelation } from '../../models/contact.models';
 import { AuthService } from '../auth/auth.service';
 import { BulkDeleteResult } from '../../models/bulk.models';
 
@@ -74,6 +74,16 @@ export class ContactService {
   }
 
   /** The contact's exchanges, newest first, with its last contact, response rate and preferred channel. */
+  /** Whether email can go from Indezy, and how many went in the last 24 hours. */
+  emailStatus(): Observable<ContactEmailStatus> {
+    return this.http.get<ContactEmailStatus>(`${this.API_URL}/emails/status`);
+  }
+
+  /** Emails a contact through Indezy; the exchange it is recorded as. */
+  sendEmail(contactId: number, email: ContactEmailRequest): Observable<ContactInteraction> {
+    return this.http.post<ContactInteraction>(`${this.API_URL}/${contactId}/emails`, email);
+  }
+
   getInteractions(contactId: number): Observable<ContactInteractions> {
     return this.http.get<ContactInteractions>(`${this.API_URL}/${contactId}/interactions`);
   }

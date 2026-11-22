@@ -65,6 +65,25 @@ class ResendMailerTest {
     }
 
     @Test
+    void sendsAMembersEmailInTheirNameWithAnswersToThem() throws Exception {
+        mailer("re_secret").send(new Email("lea@acme.example", "Mission Java", "<p>Bonjour</p>", "Bonjour", Map.of(), "contact-email-1",
+            "Alice Martin", "alice@example.com"));
+        JsonNode body = JsonMapper.builder().build().readTree(received.get("body"));
+        assertThat(body.path("from").asString()).isEqualTo("\"Alice Martin via Indezy\" <noreply@swirlit.dev>");
+        assertThat(body.path("reply_to").get(0).asString()).isEqualTo("alice@example.com");
+        assertThat(received.get("body")).doesNotContain("\"reply_to\":null");
+    }
+
+    @Test
+    void keepsTheSendersNameFromBreakingTheAddress() {
+        assertThat(ResendMailer.from("Indezy <noreply@swirlit.dev>", "Eve \"<evil@x>\"\r\nBcc: a@b")).isEqualTo(
+            "\"Eve evil@x Bcc: a@b via Indezy\" <noreply@swirlit.dev>");
+        assertThat(ResendMailer.from("noreply@swirlit.dev", "Alice")).isEqualTo("\"Alice via Indezy\" <noreply@swirlit.dev>");
+        assertThat(ResendMailer.from("Indezy <noreply@swirlit.dev>", " ")).isEqualTo("Indezy <noreply@swirlit.dev>");
+        assertThat(ResendMailer.from("Indezy <noreply@swirlit.dev>", null)).isEqualTo("Indezy <noreply@swirlit.dev>");
+    }
+
+    @Test
     void reportsARefusalByItsNameOnly() {
         status = 422;
         answer = "{\"statusCode\":422,\"name\":\"validation_error\",\"message\":\"Invalid `to` field: alice@example.com\"}";

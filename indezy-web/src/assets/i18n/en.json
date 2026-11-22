@@ -898,6 +898,11 @@
         "WAITING": "Waiting for an answer",
         "ANSWERED": "Answered",
         "UNANSWERED": "No answer"
+      },
+      "sentEmail": {
+        "sent": "Sent from Indezy",
+        "opened": "Opened {{count}}×, first on {{date}}",
+        "notOpened": "Not opened yet"
       }
     },
     "confirmBulkDelete": "Delete these {{count}} contacts and their exchanges?",
@@ -2632,7 +2637,16 @@
       "loadError": "The templates could not be loaded",
       "insertVariable": "Insert {{variable}} in the body"
     },
-    "privacyNotice": "Your professional details are kept by {{name}} to follow up our exchanges ({{basis}}). You can ask to see, correct or erase them at any time by replying to this email."
+    "privacyNotice": "Your professional details are kept by {{name}} to follow up our exchanges ({{basis}}). You can ask to see, correct or erase them at any time by replying to this email.",
+    "send": {
+      "button": "Send from Indezy",
+      "track": "Tell me when it is opened",
+      "trackHint": "The email says so to its recipient, and opens are counted for 30 days.",
+      "copy": "Send me a copy",
+      "sent": "Email sent to {{name}}.",
+      "dailyLimit": "Up to 50 emails a day go from Indezy: send this one from your mail app.",
+      "error": "The email could not be sent: try again in a moment, or open it in your mail app."
+    }
   },
   "calendar": {
     "title": "Calendar",

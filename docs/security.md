@@ -495,6 +495,20 @@ The backend reads public job boards for the offer feed ([ADR 0009](./adr/0009-co
   64 characters are refused before any lookup.
 - Sending stops by itself after 60 days of emails without an offer opened from them, and says so.
 
+## Emails Sent For Members
+
+- An email to a contact goes only on the member's press of **Send from Indezy**, to a contact of their own workspace
+  (`requireContact`), at most 50 a workspace in 24 hours, so an account cannot be used to send in bulk.
+- It leaves from Indezy's verified sender address with the member's name before "via Indezy", the name stripped of
+  quotes, angle brackets, commas, semicolons and control characters so it cannot add a header or an address; answers go
+  to the workspace's own address through `reply_to`.
+- The subject and message are neither stored nor logged: the exchange keeps the subject as its summary, as one typed by
+  hand would; request bodies and emails log through `toString` without them.
+- Open tracking is off unless asked on that email, and the email then says so. The CNIL asks for the recipient's consent
+  to tracking pixels in emails; the owner chose this opt-in per email with a notice in it (TODO.md, Communications). The image's address holds a 256-bit random token, unique; `/api/public/emails/{token}.gif`
+  answers the same image whatever the token, with `no-store`, so it tells nothing about which tokens exist, and counts
+  only between 30 seconds and 30 days after sending. The plain-text part has no image, and the sender's copy has none.
+
 ## File Uploads And Attachments
 
 Backend multipart limits are:

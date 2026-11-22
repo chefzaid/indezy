@@ -76,6 +76,21 @@ describe('ContactInteractionsComponent', () => {
     expect(items[0].querySelector('.answer-pill')).toBeNull();
   });
 
+  it('tells whether an email sent from Indezy was opened', () => {
+    const tracked: ContactInteraction = { id: 9, occurredOn: '2026-11-20', channel: 'EMAIL', direction: 'OUTGOING', replied: null,
+      summary: 'Relance', email: { sentAt: '2026-11-20T09:00:00Z', tracked: true, openedAt: '2026-11-20T10:00:00Z', opens: 2 } };
+    const waiting: ContactInteraction = { ...tracked, id: 10, email: { sentAt: '2026-11-21T09:00:00Z', tracked: true, opens: 0 } };
+    const untracked: ContactInteraction = { ...tracked, id: 11, email: { sentAt: '2026-11-21T09:00:00Z', tracked: false, opens: 0 } };
+    create(of({ ...history, interactions: [tracked, waiting, untracked, sent] }));
+
+    const lines = Array.from(element().querySelectorAll('[data-sent-email]')).map(line => line.textContent ?? '');
+    expect(lines.length).toBe(3);
+    expect(lines[0]).toContain('contacts.interactions.sentEmail.opened');
+    expect(lines[1]).toContain('contacts.interactions.sentEmail.notOpened');
+    expect(lines[2]).toContain('contacts.interactions.sentEmail.sent');
+    expect(lines[2]).not.toContain('notOpened');
+  });
+
   it('says when nothing is known yet', () => {
     create(of({ interactions: [], asked: 0, answered: 0 }));
 

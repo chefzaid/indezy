@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +37,11 @@ public interface ContactInteractionRepository extends JpaRepository<ContactInter
     int clearProject(@Param("projectId") Long projectId);
 
     long countByContactId(Long contactId);
+
+    /** The emails Indezy sent for workspace {@code freelanceId} since {@code since}. */
+    long countByContactFreelanceIdAndEmailSentAtAfter(Long freelanceId, Instant since);
+
+    Optional<ContactInteraction> findByEmailToken(String emailToken);
 
     long countByContactFreelanceIdAndOccurredOnBetween(Long freelanceId, LocalDate from, LocalDate to);
 

@@ -51,6 +51,33 @@ export interface ContactInteraction {
   direction: InteractionDirection;
   replied?: boolean | null;
   summary?: string | null;
+  /** Read-only: set when Indezy sent the exchange as an email. */
+  email?: SentEmail | null;
+}
+
+/** An exchange Indezy sent as an email: when, whether it tracks opening, and when and how often it was seen opened. */
+export interface SentEmail {
+  sentAt: string;
+  tracked: boolean;
+  openedAt?: string | null;
+  opens: number;
+}
+
+/** Whether email can go from Indezy, and how many went for the workspace in the last 24 hours. */
+export interface ContactEmailStatus {
+  available: boolean;
+  sentToday: number;
+  dailyMax: number;
+}
+
+/** An email to a contact sent through Indezy. */
+export interface ContactEmailRequest {
+  projectId?: number | null;
+  subject: string;
+  body: string;
+  track: boolean;
+  copy: boolean;
+  language: 'FR' | 'EN';
 }
 
 /** A contact's exchanges, newest first, and what they say about the relationship. */

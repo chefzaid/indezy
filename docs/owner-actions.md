@@ -101,5 +101,8 @@ Each waits on a word from you in TODO.md's **Needs Input**:
   accounts you open.
 - **Keycloak:** the sender address for the realm's emails (Verify email, Forgot password), for Indezy's own realm with
   its logo, as decided.
+- **Reply detection for emails sent from Indezy:** whether to route answers through a `replies.swirlit.dev` subdomain
+  (its MX record to Resend's inbound service, the inbound webhook's signing secret in Vault) so Indezy marks an email
+  answered and forwards the answer, or keep answers going straight to the member, marked by hand.
 - **Browser extension:** whether to publish it in the Chrome Web Store (a one-time developer fee, under your name or
   company).

@@ -57,6 +57,12 @@ To add several at once, open the client's page, click **Import contacts**, paste
 
 The page works out the **Last contact**, the **Response rate** and the **Preferred channel**. A message from you still unanswered after **Follow up after (days)** (5 by default, in **Profile → Preferences**) shows under **Follow-ups due** on the [dashboard](/help/dashboard).
 
+## Email a contact from Indezy
+
+In **Write an email** on an opportunity, **Send from Indezy** sends the message to the contact chosen, in your name ("Your name via Indezy"): their answer comes straight to your own address, and the email is recorded in the contact's **Exchanges** as an email from you waiting for an answer, so it shows in the follow-ups due. **Send me a copy** sends you the same message.
+
+Tick **Tell me when it is opened** to know when they read it: the email says so at its foot, and the exchange shows **Opened 2×, first on…** or **Not opened yet**. Some mail apps load images on their own and others never, so take it as a hint. Opens are counted for 30 days. Up to 50 emails a day go from Indezy; beyond, use your mail app.
+
 ## A contact's network and the org chart
 
 1. In a contact's form, pick their manager under **Reports to**, at the same company or another.

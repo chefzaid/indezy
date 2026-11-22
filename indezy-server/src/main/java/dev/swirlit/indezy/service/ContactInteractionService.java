@@ -186,10 +186,13 @@ public class ContactInteractionService {
             ContactInteractionRepository.LastInteraction::getContactId, ContactInteractionRepository.LastInteraction::getLastOn));
     }
 
-    private static ContactInteractionDto toDto(ContactInteraction interaction) {
+    static ContactInteractionDto toDto(ContactInteraction interaction) {
         Project project = interaction.getProject();
         return new ContactInteractionDto(interaction.getId(), interaction.getContact().getId(), interaction.getContact().getFullName(),
             interaction.getOccurredOn(), interaction.getChannel(), interaction.getDirection(), interaction.getReplied(),
-            interaction.getSummary(), project == null ? null : project.getId(), project == null ? null : project.getRole());
+            interaction.getSummary(), project == null ? null : project.getId(), project == null ? null : project.getRole(),
+            interaction.getEmailSentAt() == null ? null : new ContactInteractionDto.SentEmail(interaction.getEmailSentAt(),
+                interaction.getEmailToken() != null, interaction.getEmailOpenedAt(),
+                interaction.getEmailOpens() == null ? 0 : interaction.getEmailOpens()));
     }
 }

@@ -40,7 +40,7 @@ Ouvrez **Profil → Compte**, cliquez sur **Supprimer mon compte** et saisissez 
 
 ## Indezy écrit-il à mes clients ou à mes recruteurs à ma place ?
 
-Non. **Écrire un e-mail** sur une opportunité prépare le message, que vous ouvrez dans votre messagerie ou copiez : Indezy ne l'envoie pas. De même, annuler un appel réservé ne prévient pas le recruteur. Indezy envoie toutefois quelques e-mails que vous déclenchez vous-même : les invitations au réseau, les demandes de recommandation, et les e-mails qui vous sont destinés (résumé hebdomadaire, appels réservés, messages du réseau).
+Seulement si vous le demandez. **Écrire un e-mail** sur une opportunité prépare le message, que vous ouvrez dans votre messagerie, copiez, ou envoyez avec **Envoyer depuis Indezy** : il part alors en votre nom, les réponses arrivent à votre adresse, et il le dit en pied de message. De même, annuler un appel réservé ne prévient pas le recruteur. Indezy envoie toutefois quelques e-mails que vous déclenchez vous-même : les invitations au réseau, les demandes de recommandation, et les e-mails qui vous sont destinés (résumé hebdomadaire, appels réservés, messages du réseau).
 
 ## Indezy se synchronise-t-il avec mon agenda ou ma messagerie ?
 

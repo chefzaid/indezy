@@ -129,6 +129,19 @@
               @if (interaction.summary) {
                 <p class="interaction-summary-text">{{ interaction.summary }}</p>
               }
+              @if (interaction.email; as email) {
+                <p class="sent-email" data-sent-email>
+                  <mat-icon aria-hidden="true">{{ email.opens ? 'mark_email_read' : 'outgoing_mail' }}</mat-icon>
+                  {{ 'contacts.interactions.sentEmail.sent' | translate }}
+                  @if (email.tracked) {
+                    · @if (email.opens && email.openedAt) {
+                      {{ 'contacts.interactions.sentEmail.opened' | translate:{ count: email.opens, date: (email.openedAt | date:'medium') } }}
+                    } @else {
+                      {{ 'contacts.interactions.sentEmail.notOpened' | translate }}
+                    }
+                  }
+                </p>
+              }
             </div>
             <button mat-icon-button type="button" (click)="startEdit(interaction)"
               [attr.aria-label]="'contacts.interactions.editOne' | translate:{ date: (interaction.occurredOn | date:'mediumDate') }">

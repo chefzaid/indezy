@@ -49,7 +49,10 @@ public class ResendMailer {
             throw new MailException("No Resend key is set");
         }
         ObjectNode body = JSON.createObjectNode();
-        body.put("from", properties.from());
+        body.put("from", from(properties.from(), email.senderName()));
+        if (email.replyTo() != null) {
+            body.putArray("reply_to").add(email.replyTo());
+        }
         body.putArray("to").add(email.to());
         body.put("subject", email.subject());
         body.put("html", email.html());
@@ -78,6 +81,17 @@ public class ResendMailer {
             throw new MailException("Resend answered without an email id");
         }
         return id;
+    }
+
+    /** "Alice Martin via Indezy <noreply@...>" from "Indezy <noreply@...>" for an email sent for a member. */
+    static String from(String sender, String memberName) {
+        String name = memberName == null ? "" : memberName.replaceAll("[\\p{Cntrl}\"<>\\\\,;]", " ").replaceAll("\\s+", " ").strip();
+        if (name.isEmpty()) {
+            return sender;
+        }
+        int open = sender.indexOf('<');
+        String address = open < 0 ? sender.strip() : sender.substring(open + 1, sender.indexOf('>', open)).strip();
+        return "\"" + name + " via Indezy\" <" + address + ">";
     }
 
     private static String errorName(String body) {

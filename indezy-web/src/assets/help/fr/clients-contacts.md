@@ -57,6 +57,12 @@ Pour en ajouter plusieurs d'un coup, ouvrez la page du client, cliquez sur **Imp
 
 La page en déduit le **Dernier contact**, le **Taux de réponse** et le **Canal préféré**. Un message de votre part resté sans réponse au-delà du délai **Relancer après (jours)** (5 par défaut, dans **Profil → Préférences**) apparaît dans les **Relances à faire** du [tableau de bord](/help/dashboard).
 
+## Écrire à un contact depuis Indezy
+
+Dans **Écrire un e-mail** sur une opportunité, **Envoyer depuis Indezy** envoie le message au contact choisi, en votre nom (« Votre nom via Indezy ») : sa réponse arrive directement à votre adresse, et l'e-mail est noté dans les **Échanges** du contact comme un e-mail de votre part en attente de réponse, il apparaît donc dans les relances à faire. **M'envoyer une copie** vous envoie le même message.
+
+Cochez **Me prévenir à son ouverture** pour savoir quand il le lit : l'e-mail l'indique en pied de message, et l'échange affiche **Ouvert 2 fois, la première le…** ou **Pas encore ouvert**. Certaines messageries chargent les images d'elles-mêmes et d'autres jamais : prenez-le comme une indication. Les ouvertures sont comptées pendant 30 jours. Jusqu'à 50 e-mails par jour partent d'Indezy ; au-delà, utilisez votre messagerie.
+
 ## Le réseau d'un contact et l'organigramme
 
 1. Dans le formulaire d'un contact, choisissez son manager dans **Rattaché à**, dans la même société ou une autre.

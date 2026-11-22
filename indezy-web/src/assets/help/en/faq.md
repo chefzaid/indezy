@@ -40,7 +40,7 @@ Open **Profile → Account**, click **Delete my account** and type your email to
 
 ## Does Indezy write to my clients or recruiters for me?
 
-No. **Write an email** on an opportunity prepares the message, which you open in your mail app or copy: Indezy does not send it. Likewise, cancelling a booked call does not tell the recruiter. Indezy does send a few emails you trigger yourself: network invitations, recommendation requests, and the emails meant for you (weekly digest, booked calls, network messages).
+Only when you ask. **Write an email** on an opportunity prepares the message, which you open in your mail app, copy, or send with **Send from Indezy**: it then goes in your name, answers come to your own address, and it says so at its foot. Likewise, cancelling a booked call does not tell the recruiter. Indezy does send a few emails you trigger yourself: network invitations, recommendation requests, and the emails meant for you (weekly digest, booked calls, network messages).
 
 ## Does Indezy sync with my calendar or mailbox?
 

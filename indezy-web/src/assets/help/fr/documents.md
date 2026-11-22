@@ -67,7 +67,7 @@ Les messages que vous envoyez souvent (relance, proposition de TJM…) se rédig
 | `{{myName}}`, `{{myPhone}}` | votre nom et votre téléphone |
 | `{{privacyNotice}}` | une mention sur la conservation des coordonnées du contact |
 
-Sur une opportunité, **Écrire un e-mail** choisit un modèle et un destinataire, puis remplit l'objet et le message. **Ouvrir dans ma messagerie** ou **Copier** : Indezy n'envoie rien lui-même. Une variable sans valeur reste telle quelle et vous est signalée. La relance, la proposition de TJM, l'annonce de disponibilité et la révision du TJM au renouvellement sont toujours proposées. Un espace garde 50 modèles au plus.
+Sur une opportunité, **Écrire un e-mail** choisit un modèle et un destinataire, puis remplit l'objet et le message. **Ouvrir dans ma messagerie**, **Copier**, ou **Envoyer depuis Indezy** (voir [Clients, ESN et contacts](/help/clients-contacts)). Une variable sans valeur reste telle quelle et vous est signalée. La relance, la proposition de TJM, l'annonce de disponibilité et la révision du TJM au renouvellement sont toujours proposées. Un espace garde 50 modèles au plus.
 
 Le modèle de vos CRA se règle, lui, sur la fiche du client ou de l'ESN (voir [CRA](/help/activity-reports)).
 

@@ -67,7 +67,7 @@ Messages you send again and again (a follow-up, a rate proposal…) are written 
 | `{{myName}}`, `{{myPhone}}` | your name and phone number |
 | `{{privacyNotice}}` | a short notice on how the contact's details are kept |
 
-On an opportunity, **Write an email** picks a template and a recipient, then fills in the subject and message. Use **Open in my mail app** or **Copy**: Indezy sends nothing itself. A variable without a value stays as written and is pointed out to you. The follow-up, rate proposal, availability announcement and rate review at renewal are always offered. A workspace keeps 50 templates at most.
+On an opportunity, **Write an email** picks a template and a recipient, then fills in the subject and message. Use **Open in my mail app** or **Copy**, or **Send from Indezy** (see [Clients, ESNs and contacts](/help/clients-contacts)). A variable without a value stays as written and is pointed out to you. The follow-up, rate proposal, availability announcement and rate review at renewal are always offered. A workspace keeps 50 templates at most.
 
 Your activity report layout is set on the client's or ESN's record instead (see [Activity reports](/help/activity-reports)).
 

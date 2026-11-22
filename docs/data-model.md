@@ -78,7 +78,7 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `PurchaseOrder` | `purchase_orders` | project | by hand (an order with its amendments), or with its project |
 | `Client` | `clients` | freelance | by hand, only while no project uses it |
 | `Contact` | `contacts` | freelance and client | by hand, or with its client |
-| `ContactInteraction` | `contact_interactions` | contact | by hand, or with its contact (`ON DELETE CASCADE`) |
+| `ContactInteraction` | `contact_interactions` | contact; an email Indezy sent keeps when (`email_sent_at`) and, tracked, its image token (`email_token`, unique) with its first open and open count | by hand, or with its contact (`ON DELETE CASCADE`) |
 | `ContactRelation` | `contact_relations` | two contacts | by hand, or with either contact (`ON DELETE CASCADE`) |
 | `Source` | `sources` | freelance | by hand |
 | `Season` | `seasons` | freelance | by hand |
