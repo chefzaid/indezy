@@ -67,7 +67,9 @@ public record OfferDto(
     /** What changed on the offer and how often its mission came back; absent without either. */
     OfferHistoryDto history,
     /** The estimated trip from the profile's city; absent without both places or for a fully remote mission. */
-    OfferCommuteDto commute) {
+    OfferCommuteDto commute,
+    /** The workspace's relation to the publisher: worked with, or covered by a non-solicitation clause; absent otherwise. */
+    OfferRelationDto relation) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);

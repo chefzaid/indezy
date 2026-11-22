@@ -428,4 +428,19 @@ describe('OfferCardComponent', () => {
     expect((element(fixture, '.details-button') as HTMLButtonElement).disabled).toBeTrue();
     expect((element(fixture, '.import-button') as HTMLButtonElement).disabled).toBeTrue();
   });
+
+  it('marks a publisher worked with, and one a non-solicitation clause rules out, with until when', () => {
+    const worked = create({ ...offer(), relation: { workedWith: true } });
+    expect(element(worked, '[data-offer-worked-with]')).not.toBeNull();
+    expect(element(worked, '[data-offer-clause]')).toBeNull();
+
+    TestBed.resetTestingModule();
+    const clause = create({ ...offer(), relation: { workedWith: true, clauseEsn: 'Conseil X', clauseUntil: '2027-08-31' } });
+    const badge = element(clause, '[data-offer-clause]');
+    expect(badge).not.toBeNull();
+    expect(element(clause, '[data-offer-worked-with]')).toBeNull();
+    expect(badge.getAttribute('aria-label')).toContain('Conseil X');
+    expect(badge.getAttribute('aria-label')).toContain('2027');
+    expect(clause.componentInstance.clauseDetails({ clauseEsn: 'Conseil X' })).toContain('Conseil X');
+  });
 });

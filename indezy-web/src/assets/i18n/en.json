@@ -2181,7 +2181,11 @@
       "spread": "{{count}} intermediaries",
       "spreadRates": "{{count}} intermediaries, {{rates}}",
       "commute": "{{car}} by car · {{transit}} by transit",
-      "commuteHint": "Estimated from your city: off-peak, then at rush hour (a weekday at 8:30)"
+      "commuteHint": "Estimated from your city: off-peak, then at rush hour (a weekday at 8:30)",
+      "workedWith": "Worked with",
+      "clause": "Non-solicitation",
+      "clauseUntil": "You worked for this client through {{esn}}: taking a mission with it without {{esn}} breaches its non-solicitation clause until {{date}}.",
+      "clauseOpen": "You work for this client through {{esn}}: taking a mission with it without {{esn}} breaches its non-solicitation clause until months after that mission ends."
     },
     "match": {
       "score": "{{score}}%",

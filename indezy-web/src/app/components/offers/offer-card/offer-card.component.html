@@ -18,6 +18,17 @@
         <mat-icon aria-hidden="true">report</mat-icon>{{ 'offers.card.suspicious' | translate }}
       </span>
     }
+    @if (offer.relation; as relation) {
+      @if (relation.clauseEsn) {
+        <span class="badge clause-badge" data-offer-clause tabindex="0" [matTooltip]="clauseDetails(relation)" [attr.aria-label]="clauseDetails(relation)">
+          <mat-icon aria-hidden="true">gavel</mat-icon>{{ 'offers.card.clause' | translate }}
+        </span>
+      } @else if (relation.workedWith) {
+        <span class="badge worked-badge" data-offer-worked-with>
+          <mat-icon aria-hidden="true">handshake</mat-icon>{{ 'offers.card.workedWith' | translate }}
+        </span>
+      }
+    }
     @if (offer.application; as application) {
       <span class="badge applied-badge" data-applied tabindex="0" [matTooltip]="appliedDetails" [attr.aria-label]="appliedDetails">
         <mat-icon aria-hidden="true">send</mat-icon>{{ 'offers.card.applied' | translate: { when: appliedAgo } }}

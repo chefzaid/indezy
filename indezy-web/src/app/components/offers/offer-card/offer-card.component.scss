@@ -367,3 +367,27 @@
     flex-basis: 100%;
   }
 }
+
+.clause-badge,
+.worked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+
+  mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+}
+
+.clause-badge {
+  background: var(--app-chip-warning-bg);
+  color: var(--app-chip-warning-text);
+  cursor: help;
+}
+
+.worked-badge {
+  background: var(--app-chip-positive-bg);
+  color: var(--app-chip-positive-text);
+}

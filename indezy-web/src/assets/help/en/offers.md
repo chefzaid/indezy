@@ -77,6 +77,10 @@ The panel opens by itself while you have no saved search, and names the profile 
 
 The publisher's name on a card opens what that publisher puts in the feed: its open missions, their median rate and age, how much it republishes, its sites, and whether it is among your clients. **Hide its offers** blocks it.
 
+## Publishers you know
+
+**Worked with** marks an offer from a company you won a mission with, as the client or the ESN. **Non-solicitation** marks one from the end client of a mission you did through an ESN whose non-solicitation clause still runs: hover it to see the ESN and until when taking a mission there without it breaches the clause.
+
 ## Suspicious offers
 
 The **Looks suspicious** badge flags, with the reason, an offer with no publisher and no description, a rate far from its skill's market, the same text posted by four publishers or more, a publisher known for fake listings, or a mission reposted again and again without ever changing (six times or more in 60 days), often kept up to gather profiles. Tick **Hide suspicious offers** to stop seeing them.

@@ -16,6 +16,7 @@ import dev.swirlit.indezy.dto.OfferMarketDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
 import dev.swirlit.indezy.dto.OfferPublisherDto;
 import dev.swirlit.indezy.dto.OfferPublisherSpreadDto;
+import dev.swirlit.indezy.dto.OfferRelationDto;
 import dev.swirlit.indezy.dto.OfferRateMarketDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
@@ -453,6 +454,6 @@ class OfferControllerTest {
             new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL), new OfferRateMarketDto(9, 550, 34, "Java", "Île-de-France"),
             List.of(OfferSuspicion.SAME_TEXT_MANY_PUBLISHERS), new OfferPublisherSpreadDto(3, 520, 600),
             new OfferHistoryDto(3, List.of(new OfferHistoryDto.Change(OfferChangeField.RATE, "|500", "|550", Instant.parse("2026-10-20T08:00:00Z")))),
-            new OfferCommuteDto(18, 26, 42, 48));
+            new OfferCommuteDto(18, 26, 42, 48), new OfferRelationDto(true, null, null));
     }
 }

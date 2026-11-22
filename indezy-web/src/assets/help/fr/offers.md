@@ -77,6 +77,10 @@ Le panneau s'ouvre de lui-même tant que vous n'avez aucune recherche enregistr�
 
 Le nom de l'éditeur sur une carte ouvre ce qu'il publie dans le fil : ses missions ouvertes, leur TJM médian et leur âge, la part qu'il republie, ses sites, et s'il figure dans vos clients. **Masquer ses offres** le bloque.
 
+## Les éditeurs que vous connaissez
+
+**Déjà travaillé avec** signale une offre d'une entreprise avec qui vous avez remporté une mission, comme client ou comme ESN. **Non-sollicitation** signale celle du client final d'une mission réalisée via une ESN dont la clause de non-sollicitation court encore : survolez-la pour voir l'ESN et jusqu'à quand y prendre une mission sans elle enfreint la clause.
+
 ## Les offres douteuses
 
 Le badge **Douteuse** signale, avec la raison, une offre sans éditeur ni description, au TJM très éloigné du marché de sa compétence, au texte publié par quatre éditeurs ou plus, venant d'un éditeur connu pour ses fausses annonces, ou une mission republiée encore et encore sans jamais changer (six fois ou plus en 60 jours), souvent gardée en ligne pour collecter des profils. Cochez **Masquer les offres douteuses** pour ne plus les voir.

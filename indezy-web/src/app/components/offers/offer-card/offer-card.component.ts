@@ -194,6 +194,13 @@ export class OfferCardComponent {
   }
 
   /** Why the offer looks like a fake or spam listing, one reason after the other. */
+  /** Why taking this offer may breach a non-solicitation clause, and until when. */
+  clauseDetails(relation: { clauseEsn?: string; clauseUntil?: string }): string {
+    return relation.clauseUntil ?
+      this.translate.instant('offers.card.clauseUntil', { esn: relation.clauseEsn, date: formatDate(relation.clauseUntil, 'mediumDate', this.locale) }) :
+      this.translate.instant('offers.card.clauseOpen', { esn: relation.clauseEsn });
+  }
+
   get suspicionDetails(): string {
     return (this.offer.suspicion ?? []).map(reason => this.translate.instant(`offers.suspicion.${reason}`)).join(' · ');
   }

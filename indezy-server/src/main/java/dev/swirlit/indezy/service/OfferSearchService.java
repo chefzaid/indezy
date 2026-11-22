@@ -8,6 +8,7 @@ import dev.swirlit.indezy.dto.OfferHistoryDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
 import dev.swirlit.indezy.dto.OfferPublisherSpreadDto;
+import dev.swirlit.indezy.dto.OfferRelationDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferSiteDto;
@@ -88,6 +89,7 @@ public class OfferSearchService {
     private final Clock clock;
     /** Records the profile's terms in the offers; none until Spring sets it (unit tests build the service by hand). */
     private OfferMentionIndexer mentions;
+    private OfferRelationService relations;
     private final ExpiringValue<Map<OfferSite, Long>> openBySite = new ExpiringValue<>(FACETS_KEEP_FOR, this::countOpenBySite);
     private final ExpiringValue<List<SkillCount>> openSkills = new ExpiringValue<>(FACETS_KEEP_FOR, this::countOpenSkills);
 
@@ -123,10 +125,11 @@ public class OfferSearchService {
         Map<Long, OfferStateDto> stateByOffer = statesOf(freelanceId, page.getContent(), copies);
         Set<OfferSite> excluded = excludedSites(freelanceId);
         Map<Long, OfferHistoryDto> histories = history.of(page.getContent(), now);
+        Map<String, OfferRelationDto> publishers = relationsOf(freelanceId);
         List<OfferDto> content = page.getContent().stream()
             .map(offer -> toDto(offer, skills.get(offer.getId()), stateByOffer.get(offer.getId()),
-                alsoOn(offer, copies.getOrDefault(offer.getId(), List.of()), excluded, now).with(histories.get(offer.getId())), profile, now,
-                false))
+                alsoOn(offer, copies.getOrDefault(offer.getId(), List.of()), excluded, now).with(histories.get(offer.getId()))
+                    .relating(relation(publishers, offer)), profile, now, false))
             .toList();
         return new OfferPageDto(content, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
             profile.origin() != null, profile.canMatch());
@@ -140,8 +143,8 @@ public class OfferSearchService {
         Map<Long, List<JobOffer>> copies = copiesOf(List.of(offer));
         Instant now = clock.instant();
         return toDto(offer, skillsOf(List.of(id)).get(id), statesOf(freelanceId, List.of(offer), copies).get(id),
-            alsoOn(offer, copies.getOrDefault(id, List.of()), excludedSites(freelanceId), now).with(history.of(List.of(offer), now).get(id)),
-            profile, now, true);
+            alsoOn(offer, copies.getOrDefault(id, List.of()), excludedSites(freelanceId), now).with(history.of(List.of(offer), now).get(id))
+                .relating(relation(relationsOf(freelanceId), offer)), profile, now, true);
     }
 
     /** Every job board of the feed, with its open offers, collection health and whether the workspace (if any) keeps it. */
@@ -239,6 +242,11 @@ public class OfferSearchService {
         this.mentions = mentions;
     }
 
+    @Autowired
+    void setRelations(OfferRelationService relations) {
+        this.relations = relations;
+    }
+
     /** Where distances are measured from: the profile's city, or the workspace's. */
     Optional<Origin> origin(Long freelanceId) {
         return home(freelanceId).map(OfferSearchService::origin);
@@ -270,6 +278,16 @@ public class OfferSearchService {
         return skills;
     }
 
+    /** The workspace's relations to the feed's publishers; none without a workspace. */
+    private Map<String, OfferRelationDto> relationsOf(Long freelanceId) {
+        return freelanceId == null || relations == null ? Map.of() : relations.of(freelanceId, LocalDate.now(clock.withZone(PARIS)));
+    }
+
+    private static OfferRelationDto relation(Map<String, OfferRelationDto> publishers, JobOffer offer) {
+        String key = offer.getCompanyKey() != null ? offer.getCompanyKey() : JobOffer.companyKeyOf(offer.getCompany());
+        return key == null ? null : publishers.get(key);
+    }
+
     /** The other offers of each offer's copy group, keyed by the offer. */
     private Map<Long, List<JobOffer>> copiesOf(List<JobOffer> found) {
         Set<Long> groups = found.stream().map(JobOffer::getCopyGroup).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -293,10 +311,14 @@ public class OfferSearchService {
      * What an offer shows beside itself: the open copies of its mission on other sites (one per site), how its
      * intermediaries' rates spread, and its history.
      */
-    record Related(List<OfferCopyDto> alsoOn, OfferPublisherSpreadDto spread, OfferHistoryDto history) {
+    record Related(List<OfferCopyDto> alsoOn, OfferPublisherSpreadDto spread, OfferHistoryDto history, OfferRelationDto relation) {
 
         Related with(OfferHistoryDto offerHistory) {
-            return new Related(alsoOn, spread, offerHistory);
+            return new Related(alsoOn, spread, offerHistory, relation);
+        }
+
+        Related relating(OfferRelationDto publisherRelation) {
+            return new Related(alsoOn, spread, history, publisherRelation);
         }
     }
 
@@ -311,7 +333,7 @@ public class OfferSearchService {
             .sorted(Comparator.comparing(copy -> copy.getSite().getDisplayName()))
             .map(copy -> new OfferCopyDto(copy.getId(), copy.getSite(), copy.getSite().getDisplayName(), copy.getUrl()))
             .toList();
-        return new Related(alsoOn, spread(offer, open), null);
+        return new Related(alsoOn, spread(offer, open), null, null);
     }
 
     /** The intermediaries publishing the offer's mission (it and its open copies), when more than one does. */
@@ -375,7 +397,7 @@ public class OfferSearchService {
             state != null && state.saved(), state != null && state.hidden(), state != null && state.seen(),
             state == null ? null : state.importedProjectId(), related.alsoOn(), OfferMatch.score(offer, skills, profile),
             state == null ? null : state.note(), state == null ? null : state.application(), benchmarks.compare(offer, skills),
-            OfferSuspicion.of(offer.getSuspicion()), related.spread(), related.history(), commute);
+            OfferSuspicion.of(offer.getSuspicion()), related.spread(), related.history(), commute, related.relation());
     }
 
     /** The description's beginning on one line, cut at a word and ended with an ellipsis. */
