@@ -22,12 +22,16 @@ final class QuotePage extends BillingPage {
     private static final float SIGNATURE_BOX = 70;
 
     private final Quote quote;
+    private static final float TERMS_TITLE_SIZE = 12f;
     private final Integer paymentTermDays;
+    /** The seller's terms and conditions, printed on pages after the quote; null for none. */
+    private final String terms;
 
-    QuotePage(PdfPageWriter writer, Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays) {
+    QuotePage(PdfPageWriter writer, Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays, String terms) {
         super(writer, seller, buyer, quote.getLanguage());
         this.quote = quote;
         this.paymentTermDays = paymentTermDays;
+        this.terms = terms == null || terms.isBlank() ? null : terms.strip();
     }
 
     String title() {
@@ -41,6 +45,12 @@ final class QuotePage extends BillingPage {
         totals(totals, (vatExempt() ? InvoiceLabel.TOTAL_EXEMPT : InvoiceLabel.TOTAL).in(language));
         mentions(mentions(totals.total()), quote.getNotes());
         acceptance();
+        if (terms != null) {
+            writer.startPage();
+            writer.paragraph(QuoteLabel.TERMS_TITLE.in(language), true, TERMS_TITLE_SIZE, writer.width());
+            writer.moveDown(LINE);
+            writer.paragraph(terms, false, SMALL, writer.width());
+        }
     }
 
     private void quoteBlock() throws IOException {
@@ -73,6 +83,9 @@ final class QuotePage extends BillingPage {
         }
         mentions.add(InvoiceLabel.penalties(language, seller.getLatePaymentRate()));
         mentions.add(QuoteLabel.FREE.in(language));
+        if (terms != null) {
+            mentions.add(QuoteLabel.TERMS_ATTACHED.in(language));
+        }
         return mentions;
     }
 

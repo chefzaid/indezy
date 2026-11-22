@@ -29,7 +29,10 @@ public record BillingIdentityDto(
     @Min(0) @Max(60) Integer paymentTermDays,
     @Pattern(regexp = "[A-Za-z0-9-]{0,10}", message = "Letters, digits and dashes, 10 at most") String invoicePrefix,
     @DecimalMin("0") @DecimalMax("100") Double latePaymentRate,
+    @Size(max = BillingIdentityDto.QUOTE_TERMS_MAX) String quoteTerms,
     Boolean complete) {
+
+    public static final int QUOTE_TERMS_MAX = 20_000;
 
     public BillingIdentityDto {
         siret = BillingText.compact(siret, false);
@@ -40,6 +43,7 @@ public record BillingIdentityDto(
         registration = blankToNull(registration);
         address = blankToNull(address);
         invoicePrefix = blankToNull(invoicePrefix);
+        quoteTerms = blankToNull(quoteTerms);
     }
 
     private static String blankToNull(String value) {

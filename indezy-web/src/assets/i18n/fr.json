@@ -1393,7 +1393,9 @@
       "latePaymentRateHint": "Le taux de vos conditions, au moins trois fois le taux d'intérêt légal. Vide, les factures indiquent le taux de la BCE majoré de 10 points.",
       "saved": "Identité de facturation enregistrée",
       "saveError": "L'identité de facturation n'a pas pu être enregistrée",
-      "loadError": "L'identité de facturation n'a pas pu être chargée"
+      "loadError": "L'identité de facturation n'a pas pu être chargée",
+      "quoteTerms": "Conditions générales de vente",
+      "quoteTermsHint": "Imprimées sur des pages après chaque devis, qui indique qu'elles s'appliquent ; un devis envoyé garde celles qu'il avait. 20 000 caractères au plus."
     },
     "webhooks": {
       "title": "Webhooks",

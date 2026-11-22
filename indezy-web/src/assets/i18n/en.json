@@ -1393,7 +1393,9 @@
       "latePaymentRateHint": "The rate your terms state, at least three times the legal interest rate. Left empty, invoices state the ECB rate plus 10 points.",
       "saved": "Billing identity saved",
       "saveError": "The billing identity could not be saved",
-      "loadError": "The billing identity could not be loaded"
+      "loadError": "The billing identity could not be loaded",
+      "quoteTerms": "Terms and conditions of sale",
+      "quoteTermsHint": "Printed on pages after each quote, which says they apply; a sent quote keeps those it had. 20,000 characters at most."
     },
     "webhooks": {
       "title": "Webhooks",

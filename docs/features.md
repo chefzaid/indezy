@@ -1275,7 +1275,8 @@ order (1 to 100 %), notes and up to 50 lines. Its PDF says it has not been sent.
 next quote number, apart from the invoices' (`D<year>-0001`), sets the day it holds until and freezes the seller, the
 buyer and the payment term. The PDF states the VAT or its exemption, how long the offer holds, the deposit and its
 amount, the payment term, the late payment penalties, that the quote is free, and a box for the client's signature
-preceded by "Bon pour accord". A sent quote is then **Accepted by the client** or **Refused by the client**, and reads
+preceded by "Bon pour accord". The **Terms and conditions of sale** written in Profile → Billing (20,000 characters at
+most, `quoteTerms`) follow on their own pages, the quote saying they apply; a sent quote keeps those it was sent with. A sent quote is then **Accepted by the client** or **Refused by the client**, and reads
 **Expired** past its validity until then. An accepted quote that asks a deposit gets **Invoice the deposit**: a draft
 **deposit invoice** (facture d'acompte, Factur-X type 386) of that share of the amount before VAT, one line per VAT rate
 of the quote, numbered with the other invoices once issued. **Invoice the balance** then drafts, once, the final invoice

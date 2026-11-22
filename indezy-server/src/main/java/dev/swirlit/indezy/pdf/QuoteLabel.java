@@ -15,6 +15,8 @@ enum QuoteLabel {
         "A %d%% deposit on order, that is %s, invoiced on acceptance; the balance on delivery."),
     PAYMENT("Paiement à %d jours à réception de la facture, par virement.", "Payment within %d days of the invoice, by bank transfer."),
     FREE("Devis gratuit.", "This quote is free of charge."),
+    TERMS_ATTACHED("Les conditions générales de vente jointes s'appliquent.", "The terms and conditions attached apply."),
+    TERMS_TITLE("Conditions générales de vente", "Terms and conditions"),
     ACCEPTANCE("Bon pour accord — date, signature et cachet du client, précédés de la mention « Bon pour accord » :",
         "Accepted — date, signature and stamp of the client, preceded by the words \"Accepted\":");
 

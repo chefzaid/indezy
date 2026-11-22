@@ -22,14 +22,17 @@ public final class QuotePdfRenderer {
     private final byte[] regularFont = PdfFonts.read(PdfFonts.REGULAR);
     private final byte[] boldFont = PdfFonts.read(PdfFonts.BOLD);
 
-    /** The quote as it states the seller, the buyer and the payment term: frozen once sent, the live ones for a draft. */
-    public byte[] render(Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays) {
+    /**
+     * The quote as it states the seller, the buyer, the payment term and the terms and conditions printed after it:
+     * frozen once sent, the live ones for a draft.
+     */
+    public byte[] render(Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays, String terms) {
         try (PDDocument document = new PDDocument()) {
             PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(regularFont));
             PDFont bold = PDType0Font.load(document, new ByteArrayInputStream(boldFont));
             QuotePage page;
             try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold)) {
-                page = new QuotePage(writer, quote, seller, buyer, paymentTermDays);
+                page = new QuotePage(writer, quote, seller, buyer, paymentTermDays, terms);
                 page.write();
             }
             PDDocumentInformation information = document.getDocumentInformation();

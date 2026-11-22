@@ -47,7 +47,8 @@ export class ProfileBillingComponent implements OnInit {
     bic: ['', [billingId('bic')]],
     paymentTermDays: [30 as number | null, [Validators.min(0), Validators.max(60)]],
     invoicePrefix: ['F', [Validators.pattern(/^[A-Za-z0-9-]{0,10}$/)]],
-    latePaymentRate: [null as number | null, [Validators.min(0), Validators.max(100)]]
+    latePaymentRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
+    quoteTerms: ['', Validators.maxLength(20000)]
   });
   complete = false;
   saving = false;
@@ -91,7 +92,8 @@ export class ProfileBillingComponent implements OnInit {
       bic: compactId(value.bic, true) || null,
       paymentTermDays: value.paymentTermDays,
       invoicePrefix: value.invoicePrefix?.trim() || null,
-      latePaymentRate: value.latePaymentRate ?? null
+      latePaymentRate: value.latePaymentRate ?? null,
+      quoteTerms: value.quoteTerms?.trim() || null
     };
     this.saving = true;
     this.billing.saveIdentity(identity).subscribe({
@@ -114,7 +116,8 @@ export class ProfileBillingComponent implements OnInit {
       vatNumber: identity.vatNumber ?? '', vatRate: identity.vatRate, shareCapital: identity.shareCapital,
       registration: identity.registration ?? '', address: identity.address ?? '', iban: identity.iban ?? '', bic: identity.bic ?? '',
       paymentTermDays: identity.paymentTermDays, invoicePrefix: identity.invoicePrefix ?? '',
-      latePaymentRate: identity.latePaymentRate ?? null
+      latePaymentRate: identity.latePaymentRate ?? null,
+      quoteTerms: identity.quoteTerms ?? ''
     });
   }
 }

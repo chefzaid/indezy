@@ -87,7 +87,7 @@ The export holds the year's issued invoices and credit notes.
 3. Click **Send** and pick the **Quote date**. The quote gets its own number (D2026-0001) and is frozen. Then send its PDF to the client: Indezy does not send it itself.
 4. Depending on the answer, click **Accepted by the client** or **Refused by the client**. Without an answer, it reads **Expired** once its validity ends.
 
-The PDF states the VAT or its exemption, the validity, the deposit, the payment term, the late payment penalties and a "Bon pour accord" box for the client's signature.
+The PDF states the VAT or its exemption, the validity, the deposit, the payment term, the late payment penalties and a "Bon pour accord" box for the client's signature. Your **Terms and conditions of sale**, written in **Profile → Billing**, follow on their own pages; a sent quote keeps those it was sent with.
 
 For an accepted quote:
 

@@ -166,6 +166,11 @@ final class PdfPageWriter implements Closeable {
         content.close();
     }
 
+    /** Goes on to a new page, whatever room is left. */
+    void startPage() throws IOException {
+        newPage();
+    }
+
     private void newPage() throws IOException {
         if (content != null) {
             content.close();

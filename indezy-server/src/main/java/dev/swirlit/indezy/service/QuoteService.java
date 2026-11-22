@@ -119,6 +119,7 @@ public class QuoteService {
         quote.setPaymentTermDays(seller.paymentTermDays());
         quote.setSeller(InvoiceService.seller(seller));
         quote.setBuyer(InvoiceService.buyer(client));
+        quote.setTerms(seller.quoteTerms());
         quote.setStatus(QuoteStatus.SENT);
         log.info("Workspace {} sent quote {}", freelanceId, quote.getId());
         return toDto(quote);
@@ -185,7 +186,8 @@ public class QuoteService {
         boolean english = quote.getLanguage() == DocumentLanguage.EN;
         String fileName = (english ? "quote-" : "devis-") + (draft ? (english ? "draft-" : "brouillon-") + quote.getId() : quote.getNumber()) +
             ".pdf";
-        return new ActivityReportService.PdfFile(fileName, pdf.render(quote, seller, buyer, paymentTermDays));
+        return new ActivityReportService.PdfFile(fileName, pdf.render(quote, seller, buyer, paymentTermDays,
+            draft ? identity.quoteTerms() : quote.getTerms()));
     }
 
     private String nextNumber(Long freelanceId, int year) {

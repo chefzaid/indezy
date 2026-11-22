@@ -61,6 +61,10 @@ public class BillingIdentity {
      * The late-payment interest rate the freelancer's terms state, in percent a year; null states the statutory rate
      * (the ECB's refinancing rate plus 10 points) without a figure.
      */
+    /** The terms and conditions of sale printed after each quote; null for none. */
+    @Column(name = "billing_quote_terms", columnDefinition = "TEXT")
+    private String quoteTerms;
+
     @Column(name = "billing_late_payment_rate")
     private Double latePaymentRate;
 }

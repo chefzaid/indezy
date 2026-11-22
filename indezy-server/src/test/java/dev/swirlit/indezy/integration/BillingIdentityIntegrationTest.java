@@ -28,6 +28,14 @@ class BillingIdentityIntegrationTest extends TwoAccountsIntegrationTest {
             .containsEntry("bic", "BNPAFRPP").containsEntry("paymentTermDays", 45).containsEntry("latePaymentRate", 12.15)
             .containsEntry("complete", true);
         assertThat(call(bob, HttpMethod.GET, "/users/billing", null, Map.class).getBody()).containsEntry("siret", null);
+        // The terms and conditions printed after each quote, kept as written; too long ones refused.
+        identity.put("quoteTerms", "  Article 1 — Objet\nToute prestation.  ");
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody())
+            .containsEntry("quoteTerms", "Article 1 — Objet\nToute prestation.");
+        Map<String, Object> tooLong = new HashMap<>(identity);
+        tooLong.put("quoteTerms", "x".repeat(20_001));
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", tooLong, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        identity.remove("quoteTerms");
 
         // A wrong IBAN, SIRET or payment term is refused, and the saved identity kept.
         for (Map.Entry<String, Object> wrong : Map.<String, Object>of("iban", "FR7630006000011234567890188", "siret", "1234",
