@@ -67,7 +67,7 @@ On the **Timesheets** page, **Professional kilometres** downloads this year's or
 
 ## The weekly digest
 
-Every Monday morning, Indezy can email you: your pipeline by stage, overdue invoices, interviews of the next 7 days, follow-ups, opportunities gone quiet, missions ending, the week's best offers and, if you are a member, the network's activity. It is off by default.
+Every Monday morning, Indezy can email you: your pipeline by stage, overdue invoices, interviews of the next 7 days, follow-ups, opportunities gone quiet, this week's goal and the missions ending, the week's best offers and, if you are a member, the network's activity. It is off by default.
 
 1. Open **Profile → Notifications**.
 2. Turn on **Email me a weekly digest**.

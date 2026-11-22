@@ -103,4 +103,21 @@ class WeeklyDigestComposerTest {
             List.of(), new NetworkDtos.NetworkWeek("zaid", List.of(), List.of(), 0, List.of(), 3)).isEmpty()).isFalse();
         assertThat(WeeklyDigestComposer.Week.of(DashboardStatsDto.builder().build()).open()).isZero();
     }
+
+    @Test
+    void tellsThisWeeksGoalAgainstTheBench() {
+        DashboardStatsDto stats = quiet();
+        stats.setBenchPlan(DashboardStatsDto.BenchPlan.builder().projectId(4L).weeksLeft(7).weeklyGoal(3).activeOpportunities(2).build());
+        WeeklyDigestComposer.Digest digest = new WeeklyDigestComposer.Digest(7L, "Zaid", "z@example.com", DocumentLanguage.EN, "tok", WEEK,
+            WeeklyDigestComposer.Week.of(stats), List.of(), 0, List.of(), null);
+        assertThat(digest.isEmpty()).isFalse();
+        assertThat(composer.compose(digest).text()).contains("This week's goal",
+            "Your mission ends in 7 weeks: add 3 opportunities this week (2 under way).", "https://indezy.example/dashboard");
+
+        stats.setBenchPlan(DashboardStatsDto.BenchPlan.builder().weeklyGoal(8).build());
+        assertThat(composer.compose(new WeeklyDigestComposer.Digest(7L, "Zaid", "z@example.com", DocumentLanguage.FR, "tok", WEEK,
+            WeeklyDigestComposer.Week.of(stats), List.of(), 0, List.of(), null)).text())
+            .contains("Entre deux missions : ajoutez 8 opportunités cette semaine (0 en cours).");
+        assertThat(WeeklyDigestComposer.Week.of(stats).only(java.util.Set.of()).bench()).isNull();
+    }
 }

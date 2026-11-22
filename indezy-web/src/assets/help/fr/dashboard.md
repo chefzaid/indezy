@@ -67,7 +67,7 @@ Sur la page **CRA**, **Kilomètres professionnels** télécharge en CSV les kilo
 
 ## Le résumé hebdomadaire
 
-Chaque lundi matin, Indezy peut vous envoyer un e-mail : votre pipeline par étape, les factures en retard, les entretiens des 7 jours à venir, les relances, les opportunités sans nouvelles, les missions qui se terminent, les meilleures offres de la semaine et, si vous êtes membre, l'activité du réseau. Il est désactivé par défaut.
+Chaque lundi matin, Indezy peut vous envoyer un e-mail : votre pipeline par étape, les factures en retard, les entretiens des 7 jours à venir, les relances, les opportunités sans nouvelles, l'objectif de la semaine et les missions qui se terminent, les meilleures offres de la semaine et, si vous êtes membre, l'activité du réseau. Il est désactivé par défaut.
 
 1. Ouvrez **Profil → Notifications**.
 2. Activez **M'envoyer un résumé chaque semaine**.

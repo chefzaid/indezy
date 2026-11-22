@@ -41,10 +41,20 @@ public class WeeklyDigestComposer {
         this.properties = properties;
     }
 
+    /** This week's goal against the bench, copied out of the dashboard's: none while the bench is far. */
+    public record Bench(boolean betweenMissions, long weeksLeft, long weeklyGoal, long activeOpportunities) {
+
+        static Bench of(DashboardStatsDto.BenchPlan plan) {
+            return plan == null ? null : new Bench(plan.getProjectId() == null, plan.getWeeksLeft(), plan.getWeeklyGoal(),
+                plan.getActiveOpportunities());
+        }
+    }
+
     /** What the dashboard says of the week, copied out of it. */
     public record Week(Map<String, Long> projectsByStatus, List<DashboardStatsDto.UpcomingInterview> interviews,
                        List<DashboardStatsDto.FollowUpDue> followUps, List<DashboardStatsDto.StaleOpportunity> stale,
-                       List<DashboardStatsDto.MissionEndingSoon> ending, List<DashboardStatsDto.OverdueInvoice> overdueInvoices) {
+                       List<DashboardStatsDto.MissionEndingSoon> ending, List<DashboardStatsDto.OverdueInvoice> overdueInvoices,
+                       Bench bench) {
 
         public Week {
             projectsByStatus = Map.copyOf(projectsByStatus);
@@ -58,7 +68,7 @@ public class WeeklyDigestComposer {
         public static Week of(DashboardStatsDto stats) {
             return new Week(stats.getProjectsByStatus() == null ? Map.of() : stats.getProjectsByStatus(), orNone(stats.getUpcomingInterviews()),
                 orNone(stats.getFollowUpsDue()), orNone(stats.getStaleOpportunities()), orNone(stats.getMissionsEndingSoon()),
-                orNone(stats.getOverdueInvoices()));
+                orNone(stats.getOverdueInvoices()), Bench.of(stats.getBenchPlan()));
         }
 
         /** This week with only the sections kept; the offers are chosen apart, as they are searched for. */
@@ -68,7 +78,8 @@ public class WeeklyDigestComposer {
                 kept.contains(DigestSection.FOLLOW_UPS) ? followUps : List.of(),
                 kept.contains(DigestSection.QUIET_OPPORTUNITIES) ? stale : List.of(),
                 kept.contains(DigestSection.MISSIONS_ENDING) ? ending : List.of(),
-                kept.contains(DigestSection.OVERDUE_INVOICES) ? overdueInvoices : List.of());
+                kept.contains(DigestSection.OVERDUE_INVOICES) ? overdueInvoices : List.of(),
+                kept.contains(DigestSection.MISSIONS_ENDING) ? bench : null);
         }
 
         /** Opportunities in the pipeline: first contact, interviewing or with an offer. */
@@ -96,6 +107,7 @@ public class WeeklyDigestComposer {
         /** Whether it has anything to say: a digest of an empty week is not sent. */
         public boolean isEmpty() {
             return stats.interviews().isEmpty() && stats.followUps().isEmpty() && stats.stale().isEmpty() && stats.ending().isEmpty() &&
+                stats.bench() == null &&
                 stats.overdueInvoices().isEmpty() && offersFound == 0 && stats.open() == 0 && networkPosts.isEmpty() &&
                 network.isEmpty();
         }
@@ -135,6 +147,13 @@ public class WeeklyDigestComposer {
         section(html, text, WeeklyDigestLabel.STALE.in(language), stats.stale().stream().limit(ITEMS)
             .map(stale -> WeeklyDigestLabel.STALE_LINE.format(language, who(stale.getRole(), stale.getClientName()),
                 stale.getDaysSinceActivity())).toList(), item -> null);
+        Bench bench = stats.bench();
+        if (bench != null) {
+            String goal = bench.betweenMissions() ?
+                WeeklyDigestLabel.BENCH_BETWEEN.format(language, bench.weeklyGoal(), bench.activeOpportunities()) :
+                WeeklyDigestLabel.BENCH_ENDS.format(language, bench.weeksLeft(), bench.weeklyGoal(), bench.activeOpportunities());
+            section(html, text, WeeklyDigestLabel.BENCH.in(language), List.of(goal), line -> properties.appUrl() + "/dashboard");
+        }
         section(html, text, WeeklyDigestLabel.ENDING.in(language), stats.ending().stream().limit(ITEMS)
             .map(ending -> WeeklyDigestLabel.ENDING_LINE.format(language, who(ending.getRole(), ending.getClientName()),
                 ending.getEndDate().format(day))).toList(), item -> null);

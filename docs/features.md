@@ -129,7 +129,8 @@ the server cannot send email.
 ### Weekly Digest
 
 Every Monday from 8:00 Paris time, in the interface language: open opportunities by stage, then up to five overdue
-invoices, interviews of the next 7 days, follow-ups due, quiet opportunities and missions ending, the five offers
+invoices, interviews of the next 7 days, follow-ups due, quiet opportunities, the week's goal against the bench (with
+the missions ending, as on the [dashboard](#dashboard-and-analytics)) and the missions ending, the five offers
 of the week matching the profile best and, while the member network is on, the week's most liked post of each tag the
 member follows (up to five, by other members neither blocking the other, linking to the tag's page), then the network's
 week: the posts of the members followed that drew the most reactions (up to five, each linking to its post), the
