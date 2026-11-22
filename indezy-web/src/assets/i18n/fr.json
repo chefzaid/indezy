@@ -2567,6 +2567,15 @@
       "title": "Historique",
       "on": "{{change}}, le {{date}}",
       "hint": "Les modifications faites par son site depuis qu'Indezy a lu l'offre, de la plus récente à la plus ancienne."
+    },
+    "skillsGap": {
+      "title": "Compétences demandées qui vous manquent",
+      "intro": "Parmi les {{count}} offres ouvertes qui correspondent à vos compétences, celles qui demandent aussi :",
+      "share": "{{percent}} % · {{offers}} offres",
+      "training": "Prévoir une formation",
+      "noSkills": "Ajoutez vos compétences à votre profil pour voir celles que les offres demandent et qui vous manquent.",
+      "profile": "Compléter mon profil",
+      "none": "Les {{count}} offres ouvertes qui correspondent à vos compétences ne demandent rien qui vous manque assez souvent pour l'afficher."
     }
   },
   "emailsUnsubscribe": {

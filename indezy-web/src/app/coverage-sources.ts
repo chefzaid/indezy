@@ -136,6 +136,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/offers/offer-selection-bar/offer-selection-bar.component',
   'components/offers/offer-sites-to-visit/offer-sites-to-visit.component',
   'components/offers/offer-sites/offer-sites.component',
+  'components/offers/offer-skills-gap/offer-skills-gap.component',
   'components/offers/offer-verdict/offer-verdict.component',
   'components/offers/save-search-dialog/save-search-dialog.component',
   'components/offers/saved-search-emails-dialog/saved-search-emails-dialog.component',

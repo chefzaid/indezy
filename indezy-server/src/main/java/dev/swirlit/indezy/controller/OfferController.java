@@ -29,6 +29,7 @@ import dev.swirlit.indezy.service.OfferPublisherInsightService;
 import dev.swirlit.indezy.service.OfferSearchService;
 import dev.swirlit.indezy.service.OfferStateService;
 import dev.swirlit.indezy.service.OfferTrendService;
+import dev.swirlit.indezy.service.SkillsGapService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -70,6 +71,7 @@ public class OfferController {
     private final OfferBulkService bulkService;
     private final OfferLinkService linkService;
     private final OfferTrendService trendService;
+    private final SkillsGapService skillsGapService;
     private final OfferPublisherInsightService publisherService;
     private final OfferMarketService marketService;
     private final AccessGuard accessGuard;
@@ -95,6 +97,13 @@ public class OfferController {
                                       @RequestParam(required = false) @Size(max = 3) String region,
                                       @RequestParam(required = false) Long freelanceId) {
         return trendService.trends(accessGuard.requireWorkspace(freelanceId), skill, region);
+    }
+
+    @Operation(summary = "The skills the open offers matching the profile ask for that it lacks, the most asked first",
+        description = "Empty below 10 matching offers")
+    @GetMapping("/skills-gap")
+    public SkillsGapService.SkillsGap skillsGap(@RequestParam(required = false) Long freelanceId) {
+        return skillsGapService.gap(accessGuard.requireWorkspace(freelanceId));
     }
 
     @Operation(summary = "What a publisher puts in the feed: its open missions, rates, republications, sites and offers",

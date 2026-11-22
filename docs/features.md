@@ -1023,6 +1023,14 @@ mission): in the offer's region with ten offers or more, else in France, else no
 night and their change over 30 days, 90 days and a year, in the one region the feed is narrowed to or in France. The
 nightly medians are kept 400 days.
 
+### Skills Gap
+
+**Skills in demand you lack**, under the trends (`GET /api/offers/skills-gap`), compares the profile with the open
+offers naming at least one of its skills: the share of those offers naming each skill the profile lacks, spellings and
+aliases of one skill counted once ("Kubernetes 33 % · 14 offers"), shown from 10 matching offers for skills in at least
+10 % of them and 3 offers, the six most asked first, with **Plan a training** to the Documents page's trainings. The
+open offers' skills are read again at most every 10 minutes.
+
 ### Mission History
 
 When a site republishes an offer with other details, Indezy records the change (rate, start, description). The card

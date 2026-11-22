@@ -11,6 +11,7 @@ import { Subject, catchError, of, switchMap, tap } from 'rxjs';
 import { OfferFacet, OfferMarket, OfferQuery } from '../../../models/offer.models';
 import { OfferService } from '../../../services/offer/offer.service';
 import { OfferBarChartComponent } from '../offer-bar-chart/offer-bar-chart.component';
+import { OfferSkillsGapComponent } from '../offer-skills-gap/offer-skills-gap.component';
 import { OfferMarketTrendsComponent } from '../offer-market-trends/offer-market-trends.component';
 
 type RemotePart = 'remote' | 'hybrid' | 'onsite' | 'unstated';
@@ -41,7 +42,7 @@ function absent(value: number | null | undefined): value is null | undefined {
 @Component({
   selector: 'app-offer-market',
   imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, RouterLink, TranslateModule, OfferBarChartComponent,
-    OfferMarketTrendsComponent],
+    OfferMarketTrendsComponent, OfferSkillsGapComponent],
   templateUrl: './offer-market.component.html',
   styleUrls: ['./offer-market.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

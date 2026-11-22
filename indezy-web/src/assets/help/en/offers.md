@@ -29,7 +29,7 @@ Once your profile names skills, every offer gets a score out of 100: skills (60 
 
 A card that states a rate compares it with the median rate of the open offers naming the same first skill, in its region or else in France (for example "+12% vs. Java in Île-de-France"). Medians are worked out every night.
 
-The **Market** button opens a **Market snapshot** of what your filters find: offer count, **Median daily rate**, **Middle half of the rates**, the share paying your target rate, remote work, **Most named skills**, **Most active intermediaries** and publications over the last 30 days. It ends with the **Trends** of one of your skills over 30 days, 90 days and a year.
+The **Market** button opens a **Market snapshot** of what your filters find: offer count, **Median daily rate**, **Middle half of the rates**, the share paying your target rate, remote work, **Most named skills**, **Most active intermediaries** and publications over the last 30 days. It ends with the **Trends** of one of your skills over 30 days, 90 days and a year. Then **Skills in demand you lack**: among the open offers naming one of your skills, the share also asking for a skill your profile does not list, with **Plan a training**.
 
 ## Act on an offer
 

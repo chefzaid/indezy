@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les compétences demandées qui vous manquent
+
+Le panneau **Marché** des offres montre désormais les compétences que demandent les offres correspondant aux vôtres et qui manquent à votre profil, par part de ces offres. Voir [Le flux d'offres](/help/offers).
+
 ### Les e-mails envoyés depuis Indezy
 
 Envoyez un e-mail à un contact depuis **Écrire un e-mail**, en votre nom avec les réponses chez vous, noté dans ses échanges, et sachez quand il est ouvert si vous le demandez. Voir [Clients, ESN et contacts](/help/clients-contacts).

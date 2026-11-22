@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Skills in demand you lack
+
+The **Market** panel of the offers now shows the skills the offers matching yours ask for that your profile lacks, by share of those offers. See [Job offers](/help/offers).
+
 ### Emails sent from Indezy
 
 Send an email to a contact from **Write an email**, in your name with answers to you, recorded in their exchanges, and know when it is opened if you ask. See [Clients, ESNs and contacts](/help/clients-contacts).

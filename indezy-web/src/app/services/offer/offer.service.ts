@@ -24,6 +24,7 @@ import {
   OfferSiteInfo,
   OfferState,
   OfferStateUpdate,
+  OfferSkillsGap,
   OfferTrend,
   PublicSavedSearchEmails,
   SavedOfferSearch,
@@ -201,6 +202,11 @@ export class OfferService {
   }
 
   /** How a skill's market moved (the profile's first skill without one, all of France without a region). Errors are the caller's to tell. */
+  /** The skills the open offers matching the profile ask for that it lacks, the most asked first. */
+  skillsGap(): Observable<OfferSkillsGap> {
+    return this.http.get<OfferSkillsGap>(`${this.API_URL}/skills-gap`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
   marketTrends(skill?: string, region?: string): Observable<OfferTrend> {
     let params = new HttpParams();
     if (skill) {

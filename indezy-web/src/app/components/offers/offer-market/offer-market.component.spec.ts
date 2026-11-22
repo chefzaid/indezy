@@ -29,9 +29,10 @@ describe('OfferMarketComponent', () => {
 
   function create(query: OfferQuery = defaultOfferQuery(), result: Observable<OfferMarket> = of(market())): ComponentFixture<OfferMarketComponent> {
     registerLocaleData(localeFr);
-    service = jasmine.createSpyObj('OfferService', ['market', 'marketTrends']);
+    service = jasmine.createSpyObj('OfferService', ['market', 'marketTrends', 'skillsGap']);
     service.market.and.returnValue(result);
     service.marketTrends.and.returnValue(of({ skills: [] }));
+    service.skillsGap.and.returnValue(of({ matchingOffers: 0, gaps: [] }));
     TestBed.configureTestingModule({
       imports: [OfferMarketComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: LOCALE_ID, useValue: 'fr-FR' }, { provide: OfferService, useValue: service }]

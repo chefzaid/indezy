@@ -452,6 +452,12 @@ export interface OfferTrendNight {
 }
 
 /** How a skill's market moved (see docs/features.md#market-trends). */
+/** The skills the open offers matching the profile ask for that it lacks: none below 10 matching offers. */
+export interface OfferSkillsGap {
+  matchingOffers: number;
+  gaps: { skill: string; offers: number; percent: number }[];
+}
+
 export interface OfferTrend {
   /** The profile's skills, to choose from. */
   skills: string[];

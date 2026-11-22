@@ -2567,6 +2567,15 @@
       "title": "History",
       "on": "{{change}}, {{date}}",
       "hint": "Changes its site made since Indezy first read the offer, the latest first."
+    },
+    "skillsGap": {
+      "title": "Skills in demand you lack",
+      "intro": "Among the {{count}} open offers matching your skills, those also asking for:",
+      "share": "{{percent}} % · {{offers}} offers",
+      "training": "Plan a training",
+      "noSkills": "Add your skills to your profile to see which ones the offers ask for that you lack.",
+      "profile": "Complete my profile",
+      "none": "The {{count}} open offers matching your skills ask for nothing you lack often enough to show."
     }
   },
   "emailsUnsubscribe": {

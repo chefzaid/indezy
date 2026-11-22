@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { emptyDashboardStats } from './helpers/workspace';
 import { copy, isSearch, mockFeed, settle } from './helpers/offer-feed';
@@ -35,6 +36,11 @@ test('browses, filters, saves, hides and imports freelance offers (en)', async (
   const trends = snapshot.locator('[data-market-trends] tbody tr');
   await expect(trends.first()).toHaveText(/Median daily rate\s*€630\s*\+5%\s*0%\s*—/);
   await expect(trends.last()).toHaveText(/Open offers\s*120\s*−25%\s*\+12%\s*—/);
+  const gap = snapshot.locator('[data-skills-gap]');
+  await expect(gap).toContainText('Among the 42 open offers matching your skills');
+  await expect(gap.locator('[data-skills-gap-item]').first()).toContainText(/Kubernetes\s*33 % · 14 offers/);
+  const gapAudit = await new AxeBuilder({ page }).include('[data-skills-gap]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(gapAudit.violations.map(violation => violation.id)).toEqual([]);
   const skillSearch = page.waitForRequest(request => isSearch(request) && request.url().includes('skills=Kafka'));
   await snapshot.getByRole('button', { name: 'Filter on Kafka (5 offers)' }).click();
   await skillSearch;

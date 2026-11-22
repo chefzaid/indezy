@@ -40,6 +40,10 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
         "case when o.description is null then true else false end from JobOffer o where o.expiresAt is null or o.expiresAt > :now")
     List<Object[]> findSuspicionInputs(@Param("now") Instant now);
 
+    /** Every skill of each open offer, as written. */
+    @Query("select o.id, s from JobOffer o join o.skills s where o.expiresAt is null or o.expiresAt > :now")
+    List<Object[]> findOpenSkills(@Param("now") Instant now);
+
     /** The skill each open offer names first. */
     @Query("select o.id, s from JobOffer o join o.skills s where index(s) = 0 and (o.expiresAt is null or o.expiresAt > :now)")
     List<Object[]> findMainSkills(@Param("now") Instant now);

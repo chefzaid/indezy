@@ -38,8 +38,9 @@ describe('OfferFeedComponent', () => {
                   before: () => void = () => undefined): ComponentFixture<OfferFeedComponent> {
     registerLocaleData(localeFr);
     service = jasmine.createSpyObj('OfferService', ['search', 'get', 'updateState', 'importOffer', 'sites', 'regions', 'skills',
-      'savedSearches', 'alerts', 'market', 'blockPublisher', 'apply', 'withdrawApplication', 'searchSuggestions', 'marketTrends']);
+      'savedSearches', 'alerts', 'market', 'blockPublisher', 'apply', 'withdrawApplication', 'searchSuggestions', 'marketTrends', 'skillsGap']);
     service.marketTrends.and.returnValue(of({ skills: [] }));
+    service.skillsGap.and.returnValue(of({ matchingOffers: 0, gaps: [] }));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     service.search.and.returnValue(of(result));
     service.searchSuggestions.and.returnValue(of({ suggestions: [], missing: [] }));
