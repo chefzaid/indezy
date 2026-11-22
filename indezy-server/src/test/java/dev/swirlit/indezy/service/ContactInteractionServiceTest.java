@@ -105,6 +105,9 @@ class ContactInteractionServiceTest {
     void listsTheContactsWhoseLatestMessageWaitsPastTheFollowUpPeriod() {
         ContactInteractionRepository repository = mock(ContactInteractionRepository.class);
         ContactInteraction waiting = interaction(1, EMAIL, OUTGOING, null);
+        dev.swirlit.indezy.model.Project about = new dev.swirlit.indezy.model.Project();
+        about.setId(42L);
+        waiting.setProject(about);
         ContactInteraction older = interaction(-10, PHONE, OUTGOING, null);
         older.setContact(contact(2L, "Bob"));
         ContactInteraction answeredLater = interaction(3, EMAIL, INCOMING, null);
@@ -124,6 +127,9 @@ class ContactInteractionServiceTest {
             .containsExactly(tuple("Bob", 22L), tuple("Alice", 11L));
         assertThat(due.get(1).getChannel()).isEqualTo(EMAIL);
         assertThat(due.get(1).getSentOn()).isEqualTo(LocalDate.of(2026, 9, 1));
+        // The follow-up is drafted from the opportunity the message was about.
+        assertThat(due.get(1).getProjectId()).isEqualTo(42L);
+        assertThat(due.get(0).getProjectId()).isNull();
     }
 
     @Test

@@ -232,7 +232,8 @@
       "expiresInDays": "expire dans {{days}} jours",
       "expiredDaysAgo": "expiré depuis {{days}} jours",
       "trainingFundingDue": "Prises en charge de formation à demander",
-      "usualAnswer": "répond en général en {{days}} jours"
+      "usualAnswer": "répond en général en {{days}} jours",
+      "draftFollowUp": "Rédiger une relance à {{name}} (IA)"
     },
     "estimatedRevenueHint": "Valeur de vos missions acceptées sur toute leur durée : TJM × jours travaillés (218 par an quand la mission n'en indique pas), jusqu'à sa fin ou au jour où elle a été terminée.",
     "forecastRevenueHint": "Ce que vos missions acceptées rapporteront encore, d'aujourd'hui à leur fin : toute leur valeur avant qu'elles commencent, rien une fois finies.",

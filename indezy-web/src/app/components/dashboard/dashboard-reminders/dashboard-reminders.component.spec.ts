@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardRemindersComponent } from './dashboard-reminders.component';
 import { DashboardStatsDto, OnThisDayItem } from '../../../models';
+import { AiMessageDialogComponent } from '../../../shared/components/ai-message-dialog/ai-message-dialog.component';
 
 describe('DashboardRemindersComponent', () => {
   let fixture: ComponentFixture<DashboardRemindersComponent>;
@@ -260,4 +261,16 @@ describe('DashboardRemindersComponent', () => {
     expect(usual.length).toBe(1);
     expect(usual[0].textContent).toContain('dashboard.charts.usualAnswer');
   });
+
+  it('drafts the follow-up of a message about an opportunity', () => {
+    const element = render({ followUpsDue: [{ contactId: 6, name: 'Paul', channel: 'EMAIL', sentOn: '2026-09-28', daysWaiting: 5, projectId: 42 },
+      { contactId: 7, name: 'Zoé', channel: 'EMAIL', sentOn: '2026-09-20', daysWaiting: 9 }] });
+    const open = spyOn(TestBed.inject(MatDialog), 'open');
+    expect(element.querySelectorAll('[data-follow-up-draft]').length).toBe(1);
+    element.querySelector<HTMLButtonElement>('[data-follow-up-draft="6"]')!.click();
+    expect(open).toHaveBeenCalledWith(AiMessageDialogComponent, jasmine.objectContaining({ data: { projectId: 42, kind: 'FOLLOW_UP' } }));
+    component.draftFollowUp({ contactId: 7, name: 'Zoé', channel: 'EMAIL', sentOn: '2026-09-20', daysWaiting: 9 });
+    expect(open).toHaveBeenCalledTimes(1);
+  });
 });
+

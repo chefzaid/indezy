@@ -23,13 +23,17 @@ for (const language of ['en', 'fr']) {
     await page.route('**/api/projects/by-freelance/1', route => route.fulfill({ json: [] }));
     await page.route('**/api/projects/stats/dashboard/1*', route => route.fulfill({ json: { ...emptyDashboardStats,
       followUpsDue: [{ contactId: 7, name: 'Hélène Durand', clientName: 'Société Générale', channel: 'EMAIL', sentOn: '2026-10-15',
-        daysWaiting: 11 }] } }));
+        daysWaiting: 11, projectId: 42 }] } }));
 
     await page.goto('/dashboard');
     const card = page.locator('.reminder-card.accent-purple');
     await expect(card).toContainText(en ? 'Follow-ups due' : 'Relances à faire');
     await expect(card).toContainText(en ? 'Email sent 11 days ago, no answer' : 'E-mail envoyé il y a 11 jours, sans réponse');
     await expect(card.getByRole('link', { name: /Hélène Durand/ })).toHaveAttribute('href', '/contacts/7');
+    // The follow-up is drafted from the opportunity the message was about.
+    await card.locator('[data-follow-up-draft="7"]').click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.getByRole('dialog').getByRole('button', { name: en ? 'Close' : 'Fermer' }).first().click();
 
     await page.goto('/profile');
     await page.getByRole('tab', { name: en ? 'Preferences' : 'Préférences' }).click();

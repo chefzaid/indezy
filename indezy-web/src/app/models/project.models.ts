@@ -341,6 +341,8 @@ export interface FollowUpDue {
   daysWaiting: number;
   /** How many days the contact's company usually takes to answer; absent until two answers are recorded. */
   usualAnswerDays?: number | null;
+  /** The opportunity the waiting message was about, to draft the follow-up from. */
+  projectId?: number | null;
 }
 
 export interface DormantContact {

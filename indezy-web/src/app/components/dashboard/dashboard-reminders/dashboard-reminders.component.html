@@ -220,6 +220,7 @@
           <span class="count">{{ getFollowUpsDue().length }}</span>
         </h3>
         @for (due of visible(getFollowUpsDue(), 'followUps'); track due.contactId) {
+          <div class="reminder-item">
           <a class="reminder-row" [routerLink]="['/contacts', due.contactId]">
             <span class="primary">{{ due.name }}</span>
             <span class="secondary">{{ due.clientName }}</span>
@@ -230,6 +231,14 @@
               }
             </span>
           </a>
+          @if (due.projectId) {
+            <button mat-icon-button type="button" class="draft-button" (click)="draftFollowUp(due)" [attr.data-follow-up-draft]="due.contactId"
+              [attr.aria-label]="'dashboard.charts.draftFollowUp' | translate:{ name: due.name }"
+              [matTooltip]="'dashboard.charts.draftFollowUp' | translate:{ name: due.name }">
+              <mat-icon>auto_awesome</mat-icon>
+            </button>
+          }
+          </div>
         }
         @if (getFollowUpsDue().length > collapsedSize) {
           <button type="button" class="toggle-btn" (click)="toggle('followUps')">

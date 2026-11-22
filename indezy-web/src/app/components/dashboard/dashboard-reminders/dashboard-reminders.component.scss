@@ -66,6 +66,21 @@
   }
 }
 
+.reminder-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .reminder-row {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .draft-button {
+    flex: none;
+  }
+}
+
 .reminder-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

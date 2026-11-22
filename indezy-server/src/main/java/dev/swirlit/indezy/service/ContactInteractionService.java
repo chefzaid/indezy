@@ -114,6 +114,7 @@ public class ContactInteractionService {
                 .sentOn(interaction.getOccurredOn())
                 .daysWaiting(ChronoUnit.DAYS.between(interaction.getOccurredOn(), today))
                 .usualAnswerDays(interaction.getContact().getClient() == null ? null : usual.get(interaction.getContact().getClient().getId()))
+                .projectId(interaction.getProject() == null ? null : interaction.getProject().getId())
                 .build())
             // Timed from the company's usual answer time when known: two days' grace after it, else the workspace's delay.
             .filter(due -> due.getDaysWaiting() >= (due.getUsualAnswerDays() == null ? followUpDays : due.getUsualAnswerDays() + ANSWER_GRACE_DAYS))

@@ -960,6 +960,8 @@ unanswered message from the freelancer appears in **Follow-ups due** after the f
 60 in Preferences), until an answer or a newer exchange is recorded. Once its company (client or ESN) answered twice, the
 row says how long it usually takes ("usually answers in 3 days": the median days from a message sent to one of its
 contacts to that contact's next exchange), and the follow-up is due two days after that instead of after the delay.
+When the message was about an opportunity, the row's **Draft a follow-up (AI)** opens [Draft a message (AI)](#ai-features)
+on it, set to a follow-up (`projectId` on each follow-up due).
 
 ### Contact Network And Org Charts
 
