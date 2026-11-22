@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,18 +18,33 @@ import java.util.Map;
 
 /**
  * The publishers of the feed the workspace has to do with (see docs/features.md#freelance-offer-feed), by their folded name: the
- * companies of the missions it won, as client or ESN, and the end clients a running non-solicitation clause covers.
+ * companies of the missions it won, as client or ESN, the end clients a running non-solicitation clause covers, and the
+ * companies whose contacts never answered it.
  */
 @Service
 @RequiredArgsConstructor
 public class OfferRelationService {
 
     private final ProjectRepository projects;
+    private final ContactInteractionRepository interactions;
 
     /** The relations of workspace {@code freelanceId}'s publishers on {@code today}, by {@link JobOffer#companyKeyOf} name. */
     @Transactional(readOnly = true)
     public Map<String, OfferRelationDto> of(Long freelanceId, LocalDate today) {
-        return of(projects.findByFreelanceId(freelanceId), today);
+        Map<String, OfferRelationDto> relations = of(projects.findByFreelanceId(freelanceId), today);
+        withUnanswered(relations, ContactInteractionService.unansweredCompanies(
+            interactions.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(freelanceId)));
+        return relations;
+    }
+
+    /** Marks the publishers whose contacts never answered, beside what else relates them to the workspace. */
+    static void withUnanswered(Map<String, OfferRelationDto> relations, Map<String, Integer> unanswered) {
+        unanswered.forEach((name, count) -> {
+            String key = JobOffer.companyKeyOf(name);
+            if (key != null) {
+                relations.merge(key, new OfferRelationDto(false, null, null, count), (known, silent) -> known.unanswered(count));
+            }
+        });
     }
 
     static Map<String, OfferRelationDto> of(List<Project> all, LocalDate today) {

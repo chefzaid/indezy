@@ -56,4 +56,12 @@ class OfferRelationServiceTest {
             mission(ProjectStatus.WON, company("Airbus"), company("Conseil Y"), 6, LocalDate.of(2026, 10, 1), null)), TODAY);
         assertThat(relations.get("airbus")).isEqualTo(new OfferRelationDto(true, "Conseil Y", null));
     }
+
+    @Test
+    void marksThePublishersThatNeverAnswered() {
+        Map<String, OfferRelationDto> relations = new java.util.HashMap<>(Map.of("conseil x", new OfferRelationDto(true, null, null)));
+        OfferRelationService.withUnanswered(relations, Map.of("Conseil X", 4, "Conseil Muet", 3));
+        assertThat(relations.get("conseil x")).isEqualTo(new OfferRelationDto(true, null, null, 4));
+        assertThat(relations.get("conseil muet")).isEqualTo(new OfferRelationDto(false, null, null, 3));
+    }
 }

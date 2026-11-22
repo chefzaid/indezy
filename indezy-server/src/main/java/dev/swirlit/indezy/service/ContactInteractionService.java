@@ -7,6 +7,7 @@ import dev.swirlit.indezy.dto.ContactInteractionsDto;
 import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.ContactInteraction;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.InteractionChannel;
@@ -118,6 +119,38 @@ public class ContactInteractionService {
             .filter(due -> due.getDaysWaiting() >= (due.getUsualAnswerDays() == null ? followUpDays : due.getUsualAnswerDays() + ANSWER_GRACE_DAYS))
             .sorted(Comparator.comparingLong(DashboardStatsDto.FollowUpDue::getDaysWaiting).reversed())
             .toList();
+    }
+
+    /** A company that never answered is flagged once this many messages to its contacts went unanswered. */
+    public static final int UNANSWERED_MIN = 3;
+
+    /**
+     * The companies whose contacts never answered the freelancer, by company name: those sent at least
+     * {@value #UNANSWERED_MIN} messages, with none answered nor any exchange started by their side; the messages' count.
+     */
+    public static Map<String, Integer> unansweredCompanies(List<ContactInteraction> all) {
+        Map<Long, int[]> byCompany = new HashMap<>();
+        Map<Long, String> names = new HashMap<>();
+        for (ContactInteraction interaction : all) {
+            Client company = interaction.getContact() == null ? null : interaction.getContact().getClient();
+            if (company == null || company.getId() == null || company.getCompanyName() == null) {
+                continue;
+            }
+            names.put(company.getId(), company.getCompanyName());
+            int[] counts = byCompany.computeIfAbsent(company.getId(), id -> new int[2]);
+            if (interaction.getDirection() == InteractionDirection.INCOMING || Boolean.TRUE.equals(interaction.getReplied())) {
+                counts[1]++;
+            } else {
+                counts[0]++;
+            }
+        }
+        Map<String, Integer> silent = new HashMap<>();
+        byCompany.forEach((id, counts) -> {
+            if (counts[1] == 0 && counts[0] >= UNANSWERED_MIN) {
+                silent.merge(names.get(id), counts[0], Integer::sum);
+            }
+        });
+        return silent;
     }
 
     /** A company's answers need this many to say how long it usually takes. */

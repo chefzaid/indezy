@@ -161,6 +161,32 @@ class ContactInteractionServiceTest {
         assertThat(ContactInteractionService.usualAnswerDays(leas.subList(4, 6))).isEmpty();
     }
 
+    @Test
+    void flagsTheCompaniesThatNeverAnswered() {
+        Client silent = new Client();
+        silent.setId(60L);
+        silent.setCompanyName("Conseil Muet");
+        Client talking = new Client();
+        talking.setId(61L);
+        talking.setCompanyName("Conseil Bavard");
+        Contact max = contact(8L, "Max");
+        max.setClient(silent);
+        Contact ana = contact(9L, "Ana");
+        ana.setClient(talking);
+        List<ContactInteraction> all = new java.util.ArrayList<>();
+        for (int day = 1; day <= 3; day++) {
+            ContactInteraction toMax = interaction(day, EMAIL, OUTGOING, null);
+            toMax.setContact(max);
+            all.add(toMax);
+            ContactInteraction toAna = interaction(day, EMAIL, OUTGOING, day == 2 ? true : null);
+            toAna.setContact(ana);
+            all.add(toAna);
+        }
+        assertThat(ContactInteractionService.unansweredCompanies(all)).containsExactly(java.util.Map.entry("Conseil Muet", 3));
+        // Two messages are not enough to say.
+        assertThat(ContactInteractionService.unansweredCompanies(all.subList(0, 4))).isEmpty();
+    }
+
     private static Contact contact(Long id, String firstName) {
         Contact contact = new Contact();
         contact.setId(id);

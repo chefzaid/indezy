@@ -85,7 +85,7 @@ On an offer's page, **Prepare my application (AI)** writes the message for an ES
 
 ## Publishers you know
 
-**Worked with** marks an offer from a company you won a mission with, as the client or the ESN. **Non-solicitation** marks one from the end client of a mission you did through an ESN whose non-solicitation clause still runs: hover it to see the ESN and until when taking a mission there without it breaches the clause.
+**Worked with** marks an offer from a company you won a mission with, as the client or the ESN. **Non-solicitation** marks one from the end client of a mission you did through an ESN whose non-solicitation clause still runs: hover it to see the ESN and until when taking a mission there without it breaches the clause. **Never answers you** marks an offer from a company whose contacts never answered the three messages or more you recorded sending them.
 
 ## Suspicious offers
 

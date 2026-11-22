@@ -2205,7 +2205,9 @@
       "workedWith": "Worked with",
       "clause": "Non-solicitation",
       "clauseUntil": "You worked for this client through {{esn}}: taking a mission with it without {{esn}} breaches its non-solicitation clause until {{date}}.",
-      "clauseOpen": "You work for this client through {{esn}}: taking a mission with it without {{esn}} breaches its non-solicitation clause until months after that mission ends."
+      "clauseOpen": "You work for this client through {{esn}}: taking a mission with it without {{esn}} breaches its non-solicitation clause until months after that mission ends.",
+      "unanswered": "Never answers you",
+      "unansweredDetails": "Its contacts never answered your {{count}} messages: weigh it before spending time on an application."
     },
     "match": {
       "score": "{{score}}%",

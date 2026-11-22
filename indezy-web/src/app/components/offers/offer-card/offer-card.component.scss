@@ -369,7 +369,8 @@
 }
 
 .clause-badge,
-.worked-badge {
+.worked-badge,
+.silent-badge {
   display: inline-flex;
   align-items: center;
   gap: 2px;
@@ -382,6 +383,12 @@
 }
 
 .clause-badge {
+  background: var(--app-chip-warning-bg);
+  color: var(--app-chip-warning-text);
+  cursor: help;
+}
+
+.silent-badge {
   background: var(--app-chip-warning-bg);
   color: var(--app-chip-warning-text);
   cursor: help;

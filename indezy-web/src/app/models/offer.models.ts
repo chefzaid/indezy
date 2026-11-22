@@ -131,7 +131,8 @@ export interface Offer {
   /** What its site changed on it and how often the mission came back; absent without either. */
   history?: OfferHistory;
   /** The workspace's relation to the publisher: worked with, or covered by a non-solicitation clause. */
-  relation?: { workedWith: boolean; clauseEsn?: string; clauseUntil?: string } | null;
+  /** What the workspace has to do with the publisher; {@code unanswered}: messages its contacts never answered, when they answered none. */
+  relation?: { workedWith: boolean; clauseEsn?: string; clauseUntil?: string; unanswered?: number } | null;
 }
 
 /** What changed on an offer: rates as "min|max" (either side empty), starts as an ISO day or "ASAP", descriptions without values. */

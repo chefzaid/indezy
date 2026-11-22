@@ -28,6 +28,13 @@
           <mat-icon aria-hidden="true">handshake</mat-icon>{{ 'offers.card.workedWith' | translate }}
         </span>
       }
+      @if (relation.unanswered) {
+        <span class="badge silent-badge" data-offer-unanswered tabindex="0"
+          [matTooltip]="'offers.card.unansweredDetails' | translate:{ count: relation.unanswered }"
+          [attr.aria-label]="'offers.card.unansweredDetails' | translate:{ count: relation.unanswered }">
+          <mat-icon aria-hidden="true">voice_over_off</mat-icon>{{ 'offers.card.unanswered' | translate }}
+        </span>
+      }
     }
     @if (offer.application; as application) {
       <span class="badge applied-badge" data-applied tabindex="0" [matTooltip]="appliedDetails" [attr.aria-label]="appliedDetails">

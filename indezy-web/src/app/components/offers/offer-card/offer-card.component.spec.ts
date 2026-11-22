@@ -443,4 +443,12 @@ describe('OfferCardComponent', () => {
     expect(badge.getAttribute('aria-label')).toContain('2027');
     expect(clause.componentInstance.clauseDetails({ clauseEsn: 'Conseil X' })).toContain('Conseil X');
   });
+
+  it('marks a publisher whose contacts never answered, with how many messages', () => {
+    const silent = create({ ...offer(), relation: { workedWith: false, unanswered: 4 } });
+    const badge = element(silent, '[data-offer-unanswered]');
+    expect(badge).not.toBeNull();
+    expect(badge.getAttribute('aria-label')).toContain('4 messages');
+    expect(element(silent, '[data-offer-worked-with]')).toBeNull();
+  });
 });

@@ -85,7 +85,7 @@ Sur la page d'une offre, **Préparer ma candidature (IA)** rédige le message po
 
 ## Les éditeurs que vous connaissez
 
-**Déjà travaillé avec** signale une offre d'une entreprise avec qui vous avez remporté une mission, comme client ou comme ESN. **Non-sollicitation** signale celle du client final d'une mission réalisée via une ESN dont la clause de non-sollicitation court encore : survolez-la pour voir l'ESN et jusqu'à quand y prendre une mission sans elle enfreint la clause.
+**Déjà travaillé avec** signale une offre d'une entreprise avec qui vous avez remporté une mission, comme client ou comme ESN. **Non-sollicitation** signale celle du client final d'une mission réalisée via une ESN dont la clause de non-sollicitation court encore : survolez-la pour voir l'ESN et jusqu'à quand y prendre une mission sans elle enfreint la clause. **Ne vous répond jamais** signale l'offre d'une entreprise dont les contacts n'ont jamais répondu aux trois messages ou plus que vous avez notés leur avoir envoyés.
 
 ## Les offres douteuses
 

@@ -2205,7 +2205,9 @@
       "workedWith": "Déjà travaillé avec",
       "clause": "Non-sollicitation",
       "clauseUntil": "Vous avez travaillé pour ce client via {{esn}} : prendre une mission avec lui sans {{esn}} enfreint sa clause de non-sollicitation jusqu'au {{date}}.",
-      "clauseOpen": "Vous travaillez pour ce client via {{esn}} : prendre une mission avec lui sans {{esn}} enfreint sa clause de non-sollicitation jusqu'à plusieurs mois après la fin de cette mission."
+      "clauseOpen": "Vous travaillez pour ce client via {{esn}} : prendre une mission avec lui sans {{esn}} enfreint sa clause de non-sollicitation jusqu'à plusieurs mois après la fin de cette mission.",
+      "unanswered": "Ne vous répond jamais",
+      "unansweredDetails": "Ses contacts n'ont jamais répondu à vos {{count}} messages : pesez-le avant de passer du temps sur une candidature."
     },
     "match": {
       "score": "{{score}} %",

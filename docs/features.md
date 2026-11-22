@@ -1049,8 +1049,9 @@ with the distance.
   **Also on** links; acting on one copy acts on the mission.
 - **Worked with** marks an offer whose publisher (its name folded, whatever the spelling) is the client or the ESN of a
   mission the workspace won; **Non-solicitation** marks one from the end client of a mission signed through an ESN whose
-  [clause](#non-solicitation-clauses) still runs, its tooltip naming the ESN and the clause's last day (`relation` on
-  each offer).
+  [clause](#non-solicitation-clauses) still runs, its tooltip naming the ESN and the clause's last day; **Never answers
+  you** marks one whose publisher's contacts were sent three messages or more in their [exchanges](#contact-interaction-history)
+  and never answered any, nor started one, its tooltip giving how many (`relation` on each offer, `unanswered`).
 - **Hide every offer from …**, or a name typed in **Profile → Offer feed**, blocks a publisher whatever its spelling, up
   to 200 per workspace.
 - **Market** opens a snapshot of what the filters find: offer count, median and middle half of the rates, share

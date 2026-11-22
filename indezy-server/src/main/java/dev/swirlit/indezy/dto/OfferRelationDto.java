@@ -7,8 +7,19 @@ import java.time.LocalDate;
 /**
  * What the workspace has to do with an offer's publisher (see docs/features.md#freelance-offer-feed): a mission won with it, as
  * the client or the ESN, and, when it is the end client of a mission signed through an ESN whose non-solicitation clause
- * still runs, that ESN and the clause's last day ({@code clauseUntil} absent while that mission runs open-ended).
+ * still runs, that ESN and the clause's last day ({@code clauseUntil} absent while that mission runs open-ended); and
+ * {@code unanswered}, the messages its contacts were sent and never answered, when they never answered any (at least
+ * {@value dev.swirlit.indezy.service.ContactInteractionService#UNANSWERED_MIN}).
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record OfferRelationDto(boolean workedWith, String clauseEsn, LocalDate clauseUntil) {
+public record OfferRelationDto(boolean workedWith, String clauseEsn, LocalDate clauseUntil, Integer unanswered) {
+
+    public OfferRelationDto(boolean workedWith, String clauseEsn, LocalDate clauseUntil) {
+        this(workedWith, clauseEsn, clauseUntil, null);
+    }
+
+    /** The same relation, with the company's unanswered messages. */
+    public OfferRelationDto unanswered(Integer count) {
+        return new OfferRelationDto(workedWith, clauseEsn, clauseUntil, count);
+    }
 }
