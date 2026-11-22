@@ -13,5 +13,7 @@ public enum AiFeature {
     /** A feed offer's verdict and deal-breakers. */
     TRIAGE,
     /** The dossier de compétences tailored to an opportunity. */
-    DOSSIER
+    DOSSIER,
+    /** A daily rate suggested for an opportunity being written. */
+    RATE
 }

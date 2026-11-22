@@ -31,6 +31,7 @@ import { fieldError } from '../../../shared/utils/form-errors';
 import { OfferLinkFieldComponent } from './offer-link-field/offer-link-field.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AiRateSuggestionComponent } from './ai-rate-suggestion/ai-rate-suggestion.component';
 import { AiPostingDialogComponent, AiPostingResult } from './ai-posting-dialog/ai-posting-dialog.component';
 
 /** The value of a client or source the offer names and the workspace does not have yet: created when the form is saved. */
@@ -38,7 +39,7 @@ export const NEW_RECORD = -1;
 
 @Component({
     selector: 'app-project-form',
-    imports: [PageHeaderComponent, 
+    imports: [AiRateSuggestionComponent, PageHeaderComponent, 
     RouterModule,
     ReactiveFormsModule,
     MatCardModule,
@@ -353,6 +354,12 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       sourceId: project.sourceId ?? NEW_RECORD
     });
     this.projectForm.markAsDirty();
+  }
+
+  /** Puts the rate the AI suggested in the daily rate field. */
+  useSuggestedRate(rate: number): void {
+    this.projectForm.patchValue({ dailyRate: rate });
+    this.projectForm.controls['dailyRate'].markAsDirty();
   }
 
   /** Opens the AI reader of a pasted job posting, then fills the form in with what it read. */

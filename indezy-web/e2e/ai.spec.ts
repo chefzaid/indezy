@@ -42,6 +42,22 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(page.locator('[data-from-offer]')).toBeVisible();
     expect(asked[0]).toEqual({ text: 'Mission Java Senior chez Conseil X, 650 €/j, Courbevoie, 2 jours de télétravail' });
 
+    // A rate suggested from what the form now says, and put in the daily rate field.
+    await page.route('**/api/ai/rate', route => {
+      asked.push(route.request().postDataJSON());
+      return route.fulfill({ json: { rate: 700, low: 650, high: 750, reasons: [en ? 'Senior Java is in demand.' : 'Le Java senior est demandé.'],
+        marketMedian: 640 } });
+    });
+    const rate = page.locator('[data-ai-rate]');
+    await rate.locator('[data-ai-rate-ask]').click();
+    await expect(rate.locator('[data-ai-rate-suggestion]')).toContainText(en ? 'Senior Java is in demand.' : 'Le Java senior est demandé.');
+    const rateAudit = await new AxeBuilder({ page }).include('[data-ai-rate]').withTags(WCAG).analyze();
+    expect(rateAudit.violations.map(violation => violation.id)).toEqual([]);
+    await rate.locator('[data-ai-rate-use]').click();
+    await expect(page.locator('input[formControlName="dailyRate"]')).toHaveValue('700');
+    expect(asked[1]).toEqual(expect.objectContaining({ role: 'Développeur Java Senior', techStack: 'Java, Kafka', workMode: 'HYBRID' }));
+    asked.splice(1, 1);
+
     await page.goto('/projects/42');
     await page.locator('[data-ai-message]').click();
     const drafting = page.getByRole('dialog');

@@ -1,4 +1,5 @@
 import { WorkMode } from './project.models';
+import { DocumentLanguage } from './activity-report.models';
 
 /** Whether AI can be used, through whose key, and this month's allowance in US dollars. */
 export interface AiStatus {
@@ -18,10 +19,31 @@ export type AiModel = 'claude-opus-5-5' | 'claude-sonnet-5-5' | 'claude-haiku-5-
 
 export const AI_MODELS: AiModel[] = ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'];
 
-/** What an AI request is for, each on its own model unless one is chosen. */
-export type AiTask = 'POSTING' | 'MESSAGE' | 'FIT' | 'CHAT' | 'TRIAGE' | 'DOSSIER';
+/** A daily rate suggested for an opportunity being written, with its range, why, and the market median (0 without one). */
+export interface AiRateSuggestion {
+  rate: number;
+  low: number;
+  high: number;
+  reasons: string[];
+  marketMedian: number;
+}
 
-export const AI_TASKS: AiTask[] = ['POSTING', 'TRIAGE', 'MESSAGE', 'DOSSIER', 'FIT', 'CHAT'];
+/** What the form says of an opportunity, to suggest a rate for. */
+export interface AiRateRequest {
+  role: string | null;
+  techStack: string | null;
+  workMode: WorkMode | null;
+  remoteDaysPerMonth: number | null;
+  place: string | null;
+  durationInMonths: number | null;
+  description: string | null;
+  language: DocumentLanguage;
+}
+
+/** What an AI request is for, each on its own model unless one is chosen. */
+export type AiTask = 'POSTING' | 'MESSAGE' | 'FIT' | 'CHAT' | 'TRIAGE' | 'DOSSIER' | 'RATE';
+
+export const AI_TASKS: AiTask[] = ['POSTING', 'TRIAGE', 'MESSAGE', 'DOSSIER', 'RATE', 'FIT', 'CHAT'];
 
 /** A job posting read into an opportunity's fields: null where it says nothing. */
 export interface AiPosting {

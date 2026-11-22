@@ -181,6 +181,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/projects/project-email/project-email-button.component',
   'components/projects/project-email/project-email-dialog.component',
   'components/projects/project-form/ai-posting-dialog/ai-posting-dialog.component',
+  'components/projects/project-form/ai-rate-suggestion/ai-rate-suggestion.component',
   'components/projects/project-form/offer-link-field/offer-link-field.component',
   'components/projects/project-form/project-form.component',
   'components/projects/project-journal/project-journal.component',

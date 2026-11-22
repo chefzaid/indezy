@@ -64,6 +64,8 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = "{\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}}";
             } else if (body.contains("PLEASE-REFUSE")) {
                 answer = message("", "refusal");
+            } else if (body.contains("You suggest the daily rate")) {
+                answer = message("{\"rate\":700,\"low\":650,\"high\":600,\"reasons\":[\"Kafka est rare\",\" \"]}", "end_turn");
             } else if (body.contains("You tailor")) {
                 answer = message("{\"summary\":\"Développeur Java tourné vers les flux de paie.\",\"skills\":[\"Cobol\"]," +
                     "\"missions\":[{\"number\":1,\"description\":\"Migration de la paie vers Kafka, au cœur des flux.\"},{\"number\":9,\"description\":\"Inventée\"}]}",
@@ -249,6 +251,15 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(BODIES.getLast()).doesNotContain(aliceEmail, "Alice Corp");
         assertThat(call(bob, HttpMethod.POST, "/ai/dossier/" + project, null, String.class).getStatusCode())
             .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
+
+        // A rate suggested for an opportunity being written, its range kept around the rate.
+        Map<String, Object> rate = call(alice, HttpMethod.POST, "/ai/rate", Map.of("role", "Lead Kafka", "techStack", "Kafka, Java",
+            "workMode", "REMOTE", "durationInMonths", 6, "language", "FR"), Map.class).getBody();
+        assertThat(rate).containsEntry("rate", 700).containsEntry("low", 650).containsEntry("high", 700).containsEntry("marketMedian", 0);
+        assertThat((List<String>) rate.get("reasons")).containsExactly("Kafka est rare");
+        assertThat(BODIES.getLast()).contains("Lead Kafka", "Kafka, Java", "REMOTE", "6 months");
+        assertThat(call(alice, HttpMethod.POST, "/ai/rate", Map.of("role", "x".repeat(301)), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
 
         // A refusal, and a key Anthropic refuses, are told as such.
         assertThat(call(alice, HttpMethod.POST, "/ai/posting", Map.of("text", "PLEASE-REFUSE"), Map.class).getBody())

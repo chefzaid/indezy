@@ -4796,7 +4796,8 @@
         "MESSAGE": "Rédaction d'un message",
         "DOSSIER": "Dossier adapté",
         "FIT": "Évaluation d'une opportunité",
-        "CHAT": "Conversation sur une opportunité"
+        "CHAT": "Conversation sur une opportunité",
+        "RATE": "Suggestion d'un TJM"
       }
     },
     "fit": {
@@ -4841,6 +4842,13 @@
     "dossier": {
       "open": "Dossier adapté (IA)",
       "busy": "L'IA adapte le dossier"
+    },
+    "rate": {
+      "ask": "Suggérer un TJM (IA)",
+      "busy": "L'IA évalue le TJM",
+      "figure": "Demandez {{rate}} € par jour (accepté de {{low}} à {{high}} €)",
+      "market": "Médiane du marché pour sa compétence principale : {{median}} €",
+      "use": "Utiliser {{rate}} €"
     }
   }
 }

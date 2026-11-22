@@ -632,6 +632,11 @@ never saved or sent on its own:
   role, the company (an ESN's end client when it names one), the rate, the stack, the place, the work mode and remote
   days, the start date and the duration, nothing it does not state; the posting becomes the description, the client and
   a **Job posting** source are created on saving when the workspace has none of that name.
+- **Suggest a rate (AI)** under the daily rate of the opportunity form (`POST /api/ai/rate`): the daily rate to ask, the
+  range a client would accept and up to three reasons, from what the form says (role, stack, work mode and remote days,
+  place, duration, description), the profile's skills and years, target rate and town, and the feed's median for the main
+  skill, shown beside it; **Use** puts the rate in the field. The rate is kept between 100 and 3,000 euros, its range
+  around it.
 - **Draft a message (AI)** on an opportunity (`POST /api/ai/message`): an application, a follow-up, a thank-you after an
   interview or a decline, in French or English, from the role, the company, the stack, the stage, the description and a
   few words on what to say; the subject and the message are editable and copied in one click.
@@ -660,7 +665,7 @@ never saved or sent on its own:
   month's allowance on Indezy's key (10 US dollars a month on the free tier, all accounts together within 100), or the member's own Anthropic key, stored encrypted, with
   Opus, Sonnet or Haiku 5.5 for every task or **Automatic**, which no limit applies to. Automatic, as on Indezy's key,
   puts each task on the cheapest model that does it well: Haiku 5.5 reads postings and triages offers, Sonnet 5.5 writes
-  messages and tailors dossiers, Opus 5.5 weighs opportunities and holds conversations; the card lists them. An allowance used up, Indezy's monthly cap reached, a refusal or a
+  messages, tailors dossiers and suggests rates, Opus 5.5 weighs opportunities and holds conversations; the card lists them. An allowance used up, Indezy's monthly cap reached, a refusal or a
   key Anthropic refuses are each said as such.
 
 ## Projects And Opportunities

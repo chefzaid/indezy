@@ -62,6 +62,7 @@ class AiServiceTest {
         assertThat(byTask.model(AiFeature.TRIAGE)).isEqualTo("claude-haiku-5-5");
         assertThat(byTask.model(AiFeature.MESSAGE)).isEqualTo("claude-sonnet-5-5");
         assertThat(byTask.model(AiFeature.DOSSIER)).isEqualTo("claude-sonnet-5-5");
+        assertThat(byTask.model(AiFeature.RATE)).isEqualTo("claude-sonnet-5-5");
         assertThat(byTask.model(AiFeature.FIT)).isEqualTo("claude-opus-5-5");
         assertThat(byTask.model(AiFeature.CHAT)).isEqualTo("claude-opus-5-5");
         assertThat(AiProperties.BY_TASK).containsOnlyKeys(AiFeature.values());

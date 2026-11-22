@@ -4796,7 +4796,8 @@
         "MESSAGE": "Drafting a message",
         "DOSSIER": "Tailored dossier",
         "FIT": "Weighing an opportunity",
-        "CHAT": "Conversation about an opportunity"
+        "CHAT": "Conversation about an opportunity",
+        "RATE": "Suggesting a rate"
       }
     },
     "fit": {
@@ -4841,6 +4842,13 @@
     "dossier": {
       "open": "Tailored dossier (AI)",
       "busy": "The AI is tailoring the dossier"
+    },
+    "rate": {
+      "ask": "Suggest a rate (AI)",
+      "busy": "The AI is weighing the rate",
+      "figure": "Ask {{rate}} € a day (accepted from {{low}} to {{high}} €)",
+      "market": "Market median for its main skill: {{median}} €",
+      "use": "Use {{rate}} €"
     }
   }
 }

@@ -3,6 +3,7 @@ package dev.swirlit.indezy.ai;
 import dev.swirlit.indezy.controller.PdfResponses;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.DossierLayout;
+import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +42,7 @@ public class AiController {
     private final ChatAiService chats;
     private final OfferTriageAiService triage;
     private final DossierAiService dossiers;
+    private final RateAiService rates;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -151,6 +153,27 @@ public class AiController {
         accessGuard.requireProject(projectId);
         Long freelanceId = accessGuard.requireWorkspace(null);
         return PdfResponses.attachment(dossiers.pdf(SecurityUtils.getCurrentUserId(), freelanceId, projectId, layout, language));
+    }
+
+    /** An opportunity being written, to suggest a rate for. */
+    public record RateRequest(@Size(max = 300) String role, @Size(max = 1_000) String techStack, WorkMode workMode, Integer remoteDaysPerMonth,
+                              @Size(max = 300) String place, Integer durationInMonths, @Size(max = RateAiService.TEXT_MAX) String description,
+                              DocumentLanguage language) {
+
+        // Spring MVC logs bodies through toString at DEBUG: never the description.
+        @Override
+        public String toString() {
+            return "RateRequest[workMode=" + workMode + "]";
+        }
+    }
+
+    @Operation(summary = "Suggest the daily rate to ask for an opportunity being written, from the profile and the market")
+    @PostMapping("/rate")
+    public RateAiService.Suggestion rate(@Valid @RequestBody RateRequest request) {
+        accessGuard.requireWorkspace(null);
+        return rates.suggest(SecurityUtils.getCurrentUserId(), new RateAiService.Mission(request.role(), request.techStack(), request.workMode(),
+            request.remoteDaysPerMonth(), request.place(), request.durationInMonths(), request.description()),
+            request.language() == null ? DocumentLanguage.FR : request.language());
     }
 
     @Operation(summary = "The AI verdict kept on a feed offer for the workspace", description = "204 when none was asked yet")

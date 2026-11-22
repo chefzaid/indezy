@@ -13,7 +13,7 @@ spending cap by default, plus an optional bring-your-own key that lifts the limi
 ## Decision
 
 - Claude through the official Java SDK (`com.anthropic:anthropic-java`), each task on the cheapest model that does it
-  well (2026-11-22): Haiku 5.5 to read postings and triage offers, Sonnet 5.5 to write messages and tailor dossiers, Opus
+  well (2026-11-22): Haiku 5.5 to read postings and triage offers, Sonnet 5.5 to write messages, tailor dossiers and suggest rates, Opus
   5.5 to weigh opportunities and hold conversations; `INDEZY_AI_MODEL` puts them all on one model, `indezy.ai.models`
   changes one task's, and a member's own key runs every task on its own model unless they choose one. Each feature asking for a structured answer (a JSON schema from a Java record) at the lowest effort
   that serves it, with the server-side refusal fallback on (`fallbacks: "default"`).

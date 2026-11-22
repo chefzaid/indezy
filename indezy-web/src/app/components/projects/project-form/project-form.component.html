@@ -166,6 +166,7 @@
                   <mat-error>{{ getFieldError('clientDailyRate') }}</mat-error>
                 </mat-form-field>
               </div>
+              <app-ai-rate-suggestion [form]="projectForm" (use)="useSuggestedRate($event)"></app-ai-rate-suggestion>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.askedDailyRate' | translate }}</mat-label>
