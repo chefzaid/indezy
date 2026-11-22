@@ -79,6 +79,7 @@
             <button mat-stroked-button type="button" (click)="draftMessage()" data-ai-message>
               <mat-icon>auto_awesome</mat-icon>{{ 'ai.message.open' | translate }}
             </button>
+            <app-dossier-button [projectId]="project.id!"></app-dossier-button>
           </div>
         </mat-card-content>
         <mat-card-actions>

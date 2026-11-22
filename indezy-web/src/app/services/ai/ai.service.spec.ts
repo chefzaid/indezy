@@ -3,7 +3,7 @@ import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { environment } from '../../../environments/environment';
-import { AiService, aiErrorKey } from './ai.service';
+import { AiService, aiBlobErrorKey, aiErrorKey } from './ai.service';
 
 describe('AiService', () => {
   it('reads the status, sets and removes the own key, reads a posting and drafts a message', () => {
@@ -36,6 +36,11 @@ describe('AiService', () => {
     expect(http.expectOne(`${url}/offers/9/verdict?language=FR`).request.method).toBe('POST');
     service.draftMessage(4, 'FOLLOW_UP', 'FR', null).subscribe();
     expect(http.expectOne(`${url}/message`).request.body).toEqual({ projectId: 4, kind: 'FOLLOW_UP', language: 'FR', notes: null });
+    service.tailoredDossier(4, 'ANONYMOUS', 'EN').subscribe(pdf => expect(pdf.size).toBe(4));
+    const dossier = http.expectOne(`${url}/dossier/4?layout=ANONYMOUS&language=EN`);
+    expect(dossier.request.method).toBe('POST');
+    expect(dossier.request.responseType).toBe('blob');
+    dossier.flush(new Blob(['%PDF']));
     http.verify();
   });
 
@@ -48,5 +53,15 @@ describe('AiService', () => {
     expect(aiErrorKey(failed('The AI key was refused: check it'))).toBe('ai.errors.keyRefused');
     expect(aiErrorKey(failed('The AI answer was cut short: shorten the text'))).toBe('ai.errors.tooLong');
     expect(aiErrorKey(failed())).toBe('ai.errors.failed');
+  });
+
+  it('tells why a file request failed from the message in its blob body', async () => {
+    const blob = (text: string) => new HttpErrorResponse({ status: 409, error: new Blob([text], { type: 'application/json' }) });
+    expect(await aiBlobErrorKey(blob('{"message":"Your AI allowance for this month is used up"}'))).toBe('ai.errors.accountLimit');
+    expect(await aiBlobErrorKey(blob('not json'))).toBe('ai.errors.failed');
+    expect(await aiBlobErrorKey(new HttpErrorResponse({ status: 409, error: { message: 'The AI declined this request' } })))
+      .toBe('ai.errors.declined');
+    expect(await aiBlobErrorKey(new Error('down'))).toBe('ai.errors.failed');
+    expect(await aiBlobErrorKey(null)).toBe('ai.errors.failed');
   });
 });

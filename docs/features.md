@@ -194,7 +194,8 @@ anonymized: the name and title, the city and (named only) the email, phone, Link
 summary; the skills with their level and years; the languages; the training record's valid certifications; then the
 won missions, the latest first, with their period ("depuis mars 2026" while one runs), their client (in the anonymized
 dossier "Client communiqué sur demande", and initials instead of the name), the description cut at 600 characters and
-the tech stack. Nothing in it is written by AI (`GET /api/users/dossier?layout=NAMED|ANONYMOUS&language=FR|EN`).
+the tech stack. Nothing in it is written by AI (`GET /api/users/dossier?layout=NAMED|ANONYMOUS&language=FR|EN`); the
+**Tailored dossier (AI)** on an opportunity's page is the AI version (see [AI Features](#ai-features)).
 
 ### Public Profile
 
@@ -644,6 +645,12 @@ never saved or sent on its own:
   description, notes, steps and latest journal entries are its context, the last 20 turns go back with each question
   (2,000 characters at most), and the history stays with the opportunity, cleared on request, deleted with it and part of
   the data export.
+- **Tailored dossier (AI)** on an opportunity's page (`POST /api/ai/dossier/{projectId}?layout=NAMED|ANONYMOUS&language=FR|EN`):
+  the [dossier de compétences](#dossier-de-competences) as a PDF with its summary rewritten for the opportunity, the
+  skills it asks for first and the descriptions of the 15 latest missions bringing out what matters for it, in the
+  dossier's language. The AI only rewords: a skill it names that the profile lacks is dropped, a mission without a
+  description gets none, the summary is cut at 900 characters, and the name, contact details and clients are never sent
+  to it. Nothing is kept.
 - **Should I apply? (AI)** on a feed offer's page (`GET`/`POST /api/ai/offers/{offerId}/verdict`): one line on whether
   the offer is worth applying to for the profile (skills, target rate, town) and its deal-breakers (on site every day, a
   rate under the target, a permanent job posted as freelance, portage required, a start date passed, required skills the

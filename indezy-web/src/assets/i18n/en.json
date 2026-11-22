@@ -4812,6 +4812,10 @@
       "again": "Ask again",
       "hint": "The AI weighs this offer against your profile: one line on whether it is worth applying, and its deal-breakers.",
       "dealBreakers": "Deal-breakers"
+    },
+    "dossier": {
+      "open": "Tailored dossier (AI)",
+      "busy": "The AI is tailoring the dossier"
     }
   }
 }

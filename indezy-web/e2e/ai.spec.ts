@@ -66,6 +66,18 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.keyboard.press('Escape');
     await expect(weighing).toHaveCount(0);
 
+    let tailoredUrl = '';
+    await page.route(/\/api\/ai\/dossier\/42/, route => {
+      tailoredUrl = route.request().url();
+      return route.fulfill({ body: '%PDF-1.7', contentType: 'application/pdf' });
+    });
+    await page.locator('[data-dossier="tailored"]').click();
+    const download = page.waitForEvent('download');
+    await page.locator('[data-dossier-choice="ANONYMOUS-EN"]').click();
+    expect((await download).suggestedFilename()).toBe('skills-profile-anonymous-tailored.pdf');
+    expect(tailoredUrl).toContain('/api/ai/dossier/42?layout=ANONYMOUS&language=EN');
+    await expect(page.locator('[data-dossier="tailored"]')).toBeEnabled();
+
     const turns = [{ id: 1, fromMember: true, text: en ? 'How should I negotiate the rate for this mission?' : 'Comment négocier le TJM de cette mission ?',
       createdAt: '2026-11-22T10:00:00' }, { id: 2, fromMember: false, text: en ? 'Anchor at 720 €.' : 'Ancrez à 720 €.', createdAt: '2026-11-22T10:00:05' }];
     await page.route('**/api/ai/chat/42', route => route.fulfill({ json: route.request().method() === 'POST' ? turns : [] }));

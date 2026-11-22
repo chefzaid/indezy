@@ -4,7 +4,7 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ### L'aide de l'IA
 
-Remplissez une nouvelle opportunité depuis une annonce collée, et évaluez une opportunité face à votre profil, interrogez l'IA à son sujet, demandez si une offre du fil vaut une candidature, et rédigez une candidature, une relance, un remerciement ou un refus depuis sa page. Un forfait mensuel accompagne chaque compte, ou utilisez votre propre clé Anthropic dans **Profil → Préférences → IA**. Voir [Pipeline et opportunités](/help/pipeline).
+Remplissez une nouvelle opportunité depuis une annonce collée, et évaluez une opportunité face à votre profil, interrogez l'IA à son sujet, demandez si une offre du fil vaut une candidature, téléchargez votre dossier de compétences adapté à elle, et rédigez une candidature, une relance, un remerciement ou un refus depuis sa page. Un forfait mensuel accompagne chaque compte, ou utilisez votre propre clé Anthropic dans **Profil → Préférences → IA**. Voir [Pipeline et opportunités](/help/pipeline).
 
 ### Les TJM du réseau
 

@@ -26,7 +26,8 @@ import java.util.stream.Stream;
 
 /**
  * The dossier de compétences (see docs/features.md#dossier-de-competences): the profile, the valid certifications and
- * the won missions as a PDF, named or anonymized, in French or English. Nothing is written by AI.
+ * the won missions as a PDF, named or anonymized, in French or English. Nothing is written by AI here: see
+ * {@link dev.swirlit.indezy.ai.DossierAiService} for a dossier tailored to an opportunity.
  */
 @Service
 @RequiredArgsConstructor
@@ -67,7 +68,11 @@ public class DossierService {
 
     @Transactional(readOnly = true)
     public ActivityReportService.PdfFile pdf(Long userId, Long freelanceId, DossierLayout layout, DocumentLanguage language) {
-        DossierDto dossier = dossier(userId, freelanceId, layout);
+        return render(dossier(userId, freelanceId, layout), language);
+    }
+
+    /** A dossier as a PDF named after its author, e.g. one tailored to an opportunity. */
+    public ActivityReportService.PdfFile render(DossierDto dossier, DocumentLanguage language) {
         byte[] content = renderer.render(dossier, language, LocalDate.now(clock.withZone(PARIS)));
         String prefix = language == DocumentLanguage.EN ? "skills-profile" : "dossier-competences";
         return new ActivityReportService.PdfFile(prefix + "-" + fileWord(dossier.name()) + ".pdf", content);
@@ -91,7 +96,7 @@ public class DossierService {
     }
 
     /** The description on one paragraph per line break, cut at a word with an ellipsis past {@value #DESCRIPTION_LENGTH}. */
-    static String excerpt(String description) {
+    public static String excerpt(String description) {
         String text = blankToNull(description);
         if (text == null || text.length() <= DESCRIPTION_LENGTH) {
             return text;

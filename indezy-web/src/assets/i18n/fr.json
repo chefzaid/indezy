@@ -4812,6 +4812,10 @@
       "again": "Demander à nouveau",
       "hint": "L'IA évalue cette offre face à votre profil : une ligne pour dire si elle vaut une candidature, et ses points bloquants.",
       "dealBreakers": "Points bloquants"
+    },
+    "dossier": {
+      "open": "Dossier adapté (IA)",
+      "busy": "L'IA adapte le dossier"
     }
   }
 }

@@ -53,6 +53,11 @@ export class AiService {
     return this.http.post<AiOfferVerdict>(`${this.API_URL}/offers/${offerId}/verdict`, null, { params: { language } });
   }
 
+  /** The dossier de compétences tailored to an opportunity, as a PDF. */
+  tailoredDossier(projectId: number, layout: 'NAMED' | 'ANONYMOUS', language: DocumentLanguage): Observable<Blob> {
+    return this.http.post(`${this.API_URL}/dossier/${projectId}`, null, { params: { layout, language }, responseType: 'blob' });
+  }
+
   draftMessage(projectId: number, kind: AiMessageKind, language: DocumentLanguage, notes: string | null): Observable<AiMessageDraft> {
     return this.http.post<AiMessageDraft>(`${this.API_URL}/message`, { projectId, kind, language, notes });
   }
@@ -60,7 +65,23 @@ export class AiService {
 
 /** The translation key telling why an AI request failed, from the server's message. */
 export function aiErrorKey(error: HttpErrorResponse): string {
-  const message: string = error.error?.message ?? '';
+  return aiMessageKey(error.error?.message ?? '');
+}
+
+/** As {@link aiErrorKey} for a request answered with a file, whose error body comes as a blob. */
+export async function aiBlobErrorKey(error: unknown): Promise<string> {
+  const body = (error as HttpErrorResponse | null)?.error;
+  if (!(body instanceof Blob)) {
+    return aiMessageKey((body as { message?: string } | null)?.message ?? '');
+  }
+  try {
+    return aiMessageKey((JSON.parse(await body.text()) as { message?: string }).message ?? '');
+  } catch {
+    return aiMessageKey('');
+  }
+}
+
+function aiMessageKey(message: string): string {
   if (message.startsWith('AI is not available')) {
     return 'ai.errors.unavailable';
   }

@@ -7,11 +7,15 @@ import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.JobOfferRepository;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -60,6 +64,10 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = "{\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}}";
             } else if (body.contains("PLEASE-REFUSE")) {
                 answer = message("", "refusal");
+            } else if (body.contains("You tailor")) {
+                answer = message("{\"summary\":\"Développeur Java tourné vers les flux de paie.\",\"skills\":[\"Cobol\"]," +
+                    "\"missions\":[{\"number\":1,\"description\":\"Migration de la paie vers Kafka, au cœur des flux.\"},{\"number\":9,\"description\":\"Inventée\"}]}",
+                    "end_turn");
             } else if (body.contains("You triage")) {
                 answer = message("{\"goodFit\":false,\"verdict\":\"Sur site tous les jours.\",\"dealBreakers\":[\"5 jours sur site\",\"\",\"TJM sous l'objectif\"]}",
                     "end_turn");
@@ -134,9 +142,15 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         ANTHROPIC.stop(0);
     }
 
+    private static String text(byte[] pdf) throws IOException {
+        try (PDDocument document = Loader.loadPDF(pdf)) {
+            return new PDFTextStripper().getText(document);
+        }
+    }
+
     @Test
     @SuppressWarnings("unchecked")
-    void readsPostingsAndDraftsMessagesWithinTheAllowanceOrWithTheMembersKey() {
+    void readsPostingsAndDraftsMessagesWithinTheAllowanceOrWithTheMembersKey() throws IOException {
         assertThat(call(alice, HttpMethod.GET, "/ai/status", null, Map.class).getBody()).containsEntry("available", true)
             .containsEntry("ownKey", false).containsEntry("model", "claude-opus-5-5").containsEntry("limitUsd", 0.015);
 
@@ -217,6 +231,20 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         offers.deleteById(offerId);
         triageService.dropOrphans();
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM offer_ai_verdicts WHERE offer_id = ?", Integer.class, offerId)).isZero();
+
+        // The dossier tailored to the opportunity: its wording changed, nothing added, no name, contact or client sent to the AI.
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "WON", "clientId", aliceClientId,
+            "startDate", "2025-03-01", "techStack", "Java, Kafka", "description", "Paie migrée vers Kafka."), Map.class);
+        ResponseEntity<byte[]> tailored = call(alice, HttpMethod.POST, "/ai/dossier/" + project + "?layout=ANONYMOUS&language=FR", null, byte[].class);
+        assertThat(tailored.getHeaders().getContentType().toString()).isEqualTo("application/pdf");
+        assertThat(text(tailored.getBody())).contains("Développeur Java tourné vers les flux de paie.", "Migration de la paie vers Kafka")
+            .doesNotContain("Inventée", "Cobol", "Paie migrée", aliceEmail);
+        assertThat(BODIES.getLast()).contains("You tailor", "Lead Java", "Paie migrée vers Kafka.", "Java Senior")
+            .doesNotContain(aliceEmail, "Alice Corp");
+        call(alice, HttpMethod.POST, "/ai/dossier/" + project + "?layout=NAMED", null, byte[].class);
+        assertThat(BODIES.getLast()).doesNotContain(aliceEmail, "Alice Corp");
+        assertThat(call(bob, HttpMethod.POST, "/ai/dossier/" + project, null, String.class).getStatusCode())
+            .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
 
         // A refusal, and a key Anthropic refuses, are told as such.
         assertThat(call(alice, HttpMethod.POST, "/ai/posting", Map.of("text", "PLEASE-REFUSE"), Map.class).getBody())

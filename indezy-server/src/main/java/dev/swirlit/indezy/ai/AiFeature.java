@@ -11,5 +11,7 @@ public enum AiFeature {
     /** A conversation about an opportunity. */
     CHAT,
     /** A feed offer's verdict and deal-breakers. */
-    TRIAGE
+    TRIAGE,
+    /** The dossier de compétences tailored to an opportunity. */
+    DOSSIER
 }

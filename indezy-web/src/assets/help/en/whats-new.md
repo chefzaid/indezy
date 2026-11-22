@@ -4,7 +4,7 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ### AI help
 
-Fill a new opportunity in from a pasted posting, and weigh an opportunity against your profile, ask the AI about it, ask whether a feed offer is worth applying to, and draft an application, a follow-up, a thank-you or a decline from its page. A monthly allowance comes with each account, or use your own Anthropic key in **Profile → Preferences → AI**. See [Pipeline and opportunities](/help/pipeline).
+Fill a new opportunity in from a pasted posting, and weigh an opportunity against your profile, ask the AI about it, ask whether a feed offer is worth applying to, download your dossier de compétences tailored to it, and draft an application, a follow-up, a thank-you or a decline from its page. A monthly allowance comes with each account, or use your own Anthropic key in **Profile → Preferences → AI**. See [Pipeline and opportunities](/help/pipeline).
 
 ### Daily rates in the network
 

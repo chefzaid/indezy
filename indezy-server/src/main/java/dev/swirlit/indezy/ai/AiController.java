@@ -1,6 +1,8 @@
 package dev.swirlit.indezy.ai;
 
+import dev.swirlit.indezy.controller.PdfResponses;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DossierLayout;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +40,7 @@ public class AiController {
     private final FitAiService fits;
     private final ChatAiService chats;
     private final OfferTriageAiService triage;
+    private final DossierAiService dossiers;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -138,6 +141,16 @@ public class AiController {
     public void clearChat(@PathVariable Long projectId) {
         accessGuard.requireProject(projectId);
         chats.clear(projectId);
+    }
+
+    @Operation(summary = "The dossier de compétences tailored to an opportunity, as a PDF",
+        description = "Its summary, skill order and mission descriptions reworded for the opportunity; named or anonymized, in French or English")
+    @PostMapping("/dossier/{projectId}")
+    public ResponseEntity<byte[]> dossier(@PathVariable Long projectId, @RequestParam(defaultValue = "NAMED") DossierLayout layout,
+                                          @RequestParam(defaultValue = "FR") DocumentLanguage language) {
+        accessGuard.requireProject(projectId);
+        Long freelanceId = accessGuard.requireWorkspace(null);
+        return PdfResponses.attachment(dossiers.pdf(SecurityUtils.getCurrentUserId(), freelanceId, projectId, layout, language));
     }
 
     @Operation(summary = "The AI verdict kept on a feed offer for the workspace", description = "204 when none was asked yet")
