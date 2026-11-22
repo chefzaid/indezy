@@ -18,6 +18,10 @@ public interface OfferChangeRepository extends JpaRepository<OfferChange, Long> 
     List<OfferChange> findByOfferIds(@Param("offerIds") Collection<Long> offerIds);
 
     @Modifying
+    /** The offers with a recorded change. */
+    @Query("select distinct c.offer.id from OfferChange c")
+    List<Long> findChangedOfferIds();
+
     @Query("delete from OfferChange c where c.offer.id in :offerIds")
     int deleteByOfferIdIn(@Param("offerIds") Collection<Long> offerIds);
 }

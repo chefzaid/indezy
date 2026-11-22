@@ -79,7 +79,7 @@ Le nom de l'éditeur sur une carte ouvre ce qu'il publie dans le fil : ses missi
 
 ## Les offres douteuses
 
-Le badge **Douteuse** signale, avec la raison, une offre sans éditeur ni description, au TJM très éloigné du marché de sa compétence, au texte publié par quatre éditeurs ou plus, ou venant d'un éditeur connu pour ses fausses annonces. Cochez **Masquer les offres douteuses** pour ne plus les voir.
+Le badge **Douteuse** signale, avec la raison, une offre sans éditeur ni description, au TJM très éloigné du marché de sa compétence, au texte publié par quatre éditeurs ou plus, venant d'un éditeur connu pour ses fausses annonces, ou une mission republiée encore et encore sans jamais changer (six fois ou plus en 60 jours), souvent gardée en ligne pour collecter des profils. Cochez **Masquer les offres douteuses** pour ne plus les voir.
 
 ## Depuis le lien d'une offre
 

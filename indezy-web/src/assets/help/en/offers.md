@@ -79,7 +79,7 @@ The publisher's name on a card opens what that publisher puts in the feed: its o
 
 ## Suspicious offers
 
-The **Looks suspicious** badge flags, with the reason, an offer with no publisher and no description, a rate far from its skill's market, the same text posted by four publishers or more, or a publisher known for fake listings. Tick **Hide suspicious offers** to stop seeing them.
+The **Looks suspicious** badge flags, with the reason, an offer with no publisher and no description, a rate far from its skill's market, the same text posted by four publishers or more, a publisher known for fake listings, or a mission reposted again and again without ever changing (six times or more in 60 days), often kept up to gather profiles. Tick **Hide suspicious offers** to stop seeing them.
 
 ## From an offer link
 

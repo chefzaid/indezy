@@ -35,7 +35,7 @@ export type OfferSort = 'NEWEST' | 'RATE' | 'DISTANCE' | 'MATCH';
 export type OfferRateFit = 'MEETS' | 'CLOSE' | 'BELOW' | 'UNKNOWN';
 export type OfferPlaceFit = 'REMOTE' | 'NEAR' | 'REACHABLE' | 'MOSTLY_REMOTE' | 'FAR' | 'UNKNOWN';
 /** Why an offer looks like a fake or spam listing (see docs/features.md#suspicious-offers). */
-export type OfferSuspicion = 'NO_PUBLISHER_NO_DESCRIPTION' | 'RATE_OUTSIDE_MARKET' | 'SAME_TEXT_MANY_PUBLISHERS' | 'KNOWN_FAKE_PUBLISHER';
+export type OfferSuspicion = 'NO_PUBLISHER_NO_DESCRIPTION' | 'RATE_OUTSIDE_MARKET' | 'SAME_TEXT_MANY_PUBLISHERS' | 'KNOWN_FAKE_PUBLISHER' | 'REPOSTED_UNCHANGED';
 /** When the mission starts against when the freelance is available: once available, up to two weeks before, earlier. */
 export type OfferAvailabilityFit = 'READY' | 'SOON' | 'TOO_EARLY' | 'UNKNOWN';
 

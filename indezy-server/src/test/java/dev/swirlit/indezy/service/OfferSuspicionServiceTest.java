@@ -1,8 +1,11 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.OfferRateMarketDto;
+import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.OfferSuspicion;
 import dev.swirlit.indezy.repository.JobOfferRepository;
+import dev.swirlit.indezy.repository.OfferAppearanceRepository;
+import dev.swirlit.indezy.repository.OfferChangeRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -31,7 +34,10 @@ class OfferSuspicionServiceTest {
 
     private final JobOfferRepository offers = mock(JobOfferRepository.class);
     private final OfferRateBenchmarkService benchmarks = mock(OfferRateBenchmarkService.class);
-    private final OfferSuspicionService service = new OfferSuspicionService(offers, benchmarks, Clock.fixed(NOW, ZoneOffset.UTC));
+    private final OfferAppearanceRepository appearances = mock(OfferAppearanceRepository.class);
+    private final OfferChangeRepository offerChanges = mock(OfferChangeRepository.class);
+    private final OfferSuspicionService service = new OfferSuspicionService(offers, benchmarks, appearances, offerChanges,
+        Clock.fixed(NOW, ZoneOffset.UTC));
 
     @Test
     @SuppressWarnings("unchecked")
@@ -117,6 +123,21 @@ class OfferSuspicionServiceTest {
     }
 
     /** An offer as {@code findSuspicionInputs} reads it: id, publisher, opening, rates, region, stored reasons, no description. */
+    @Test
+    void flagsAMissionRepostedOftenWithoutAChange() {
+        when(offers.findSuspicionInputs(NOW)).thenReturn(List.of(row(1L, "acme", null, null, null, null, null, false),
+            row(2L, "acme", null, null, null, null, null, false), row(3L, "globex", null, null, null, null, null, false)));
+        when(appearances.findRepostedSince(NOW.minus(OfferSuspicionService.REPOSTED_WITHIN), OfferSuspicionService.REPOSTED_TIMES))
+            .thenReturn(List.<Object[]>of(new Object[] {OfferSite.FREE_WORK, "acme-lead-java"}));
+        when(offers.findOpenPublisherKeys(NOW)).thenReturn(List.of(new Object[] {1L, OfferSite.FREE_WORK, "acme-lead-java"},
+            new Object[] {2L, OfferSite.FREE_WORK, "acme-lead-java"}, new Object[] {3L, OfferSite.COLLECTIVE, "acme-lead-java"}));
+        // Offer 2's rate changed once: a mission that moves is not a harvesting listing.
+        when(offerChanges.findChangedOfferIds()).thenReturn(List.of(2L));
+
+        assertThat(service.refresh()).isEqualTo(1);
+        verify(offers).setSuspicion(OfferSuspicion.REPOSTED_UNCHANGED.bit(), List.of(1L));
+    }
+
     private static Object[] row(Object... columns) {
         return columns;
     }

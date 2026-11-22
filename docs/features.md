@@ -1054,6 +1054,7 @@ many of its last 90 days' missions it republished, its sites, its newest offers,
 | Rate far from the market | states a rate below 40 % or above 250 % of its first skill's median |
 | Same text, many publishers | shares its title and opening text with four publishers or more |
 | Known for fake listings | comes from Digistrat, Propulse IT or Omicrone |
+| Reposted, never changed | its mission was published under six references or more in 60 days, none of its details ever changed: a listing kept up to gather profiles |
 
 The rules are applied to the open offers every hour.
 

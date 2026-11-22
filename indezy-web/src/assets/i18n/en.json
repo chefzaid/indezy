@@ -2525,7 +2525,8 @@
       "NO_PUBLISHER_NO_DESCRIPTION": "No publisher and no description",
       "RATE_OUTSIDE_MARKET": "A daily rate far from the market for its skill",
       "SAME_TEXT_MANY_PUBLISHERS": "The same text posted by four publishers or more",
-      "KNOWN_FAKE_PUBLISHER": "A publisher known for fake listings"
+      "KNOWN_FAKE_PUBLISHER": "A publisher known for fake listings",
+      "REPOSTED_UNCHANGED": "Reposted again and again, never changed"
     },
     "trends": {
       "title": "Trends",

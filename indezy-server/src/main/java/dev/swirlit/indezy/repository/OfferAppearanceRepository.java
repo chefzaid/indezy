@@ -20,6 +20,11 @@ public interface OfferAppearanceRepository extends JpaRepository<OfferAppearance
         "group by a.site, a.publisherKey")
     List<Object[]> countSince(@Param("keys") Collection<String> keys, @Param("since") Instant since);
 
+    /** The missions (site and publisher key) published under {@code min} references or more since {@code since}. */
+    @Query("select a.site, a.publisherKey from OfferAppearance a where a.publisherKey is not null and a.firstSeenAt > :since " +
+        "group by a.site, a.publisherKey having count(a) >= :min")
+    List<Object[]> findRepostedSince(@Param("since") Instant since, @Param("min") long min);
+
     /** Which of these references of a site are already kept. */
     @Query("select a.externalId from OfferAppearance a where a.site = :site and a.externalId in :externalIds")
     List<String> findKnownIds(@Param("site") OfferSite site, @Param("externalIds") Collection<String> externalIds);

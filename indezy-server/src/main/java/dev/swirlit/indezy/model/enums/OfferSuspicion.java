@@ -16,7 +16,9 @@ public enum OfferSuspicion {
     /** Its opening text is posted by four publishers or more. */
     SAME_TEXT_MANY_PUBLISHERS,
     /** Its publisher is known for fake listings. */
-    KNOWN_FAKE_PUBLISHER;
+    KNOWN_FAKE_PUBLISHER,
+    /** Its mission was published under six references or more in 60 days without a change: a listing kept up to gather profiles. */
+    REPOSTED_UNCHANGED;
 
     public int bit() {
         return 1 << ordinal();

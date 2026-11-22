@@ -2525,7 +2525,8 @@
       "NO_PUBLISHER_NO_DESCRIPTION": "Ni éditeur ni description",
       "RATE_OUTSIDE_MARKET": "Un TJM très éloigné du marché de sa compétence",
       "SAME_TEXT_MANY_PUBLISHERS": "Le même texte publié par quatre éditeurs ou plus",
-      "KNOWN_FAKE_PUBLISHER": "Un éditeur connu pour ses fausses annonces"
+      "KNOWN_FAKE_PUBLISHER": "Un éditeur connu pour ses fausses annonces",
+      "REPOSTED_UNCHANGED": "Republiée encore et encore, jamais modifiée"
     },
     "trends": {
       "title": "Tendances",
