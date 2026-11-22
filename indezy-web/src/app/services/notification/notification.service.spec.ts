@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
+import { Router, provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { NotificationService } from './notification.service';
@@ -12,7 +13,7 @@ describe('NotificationService', () => {
   beforeEach(() => {
     snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
     snackBar.open.and.returnValue({ onAction: () => action.asObservable() } as MatSnackBarRef<TextOnlySnackBar>);
-    TestBed.configureTestingModule({ imports: [TranslateModule.forRoot()], providers: [{ provide: MatSnackBar, useValue: snackBar }] });
+    TestBed.configureTestingModule({ imports: [TranslateModule.forRoot()], providers: [provideRouter([]), { provide: MatSnackBar, useValue: snackBar }] });
     TestBed.inject(TranslateService).setTranslation('en', { saved: 'Saved {{count}}', undo: 'Undo', close: 'Close', common: { close: 'Close' } });
     TestBed.inject(TranslateService).use('en');
     service = TestBed.inject(NotificationService);
@@ -25,7 +26,8 @@ describe('NotificationService', () => {
     service.errorText('Server text');
 
     expect(snackBar.open.calls.argsFor(0)).toEqual(['Saved 2', 'Close', { duration: 4000, panelClass: ['success-snackbar'] }]);
-    expect(snackBar.open.calls.argsFor(1)[2]).toEqual({ duration: 3000, panelClass: ['error-snackbar'] });
+    // An error stays longer, offering Report.
+    expect(snackBar.open.calls.argsFor(1)[2]).toEqual({ duration: 6000, panelClass: ['error-snackbar'] });
     expect(snackBar.open.calls.argsFor(2)[2]).toEqual({ duration: 3000, panelClass: ['info-snackbar'] });
     expect(snackBar.open.calls.argsFor(3)[0]).toBe('Server text');
   });
@@ -37,5 +39,13 @@ describe('NotificationService', () => {
     expect(snackBar.open).toHaveBeenCalledWith('Saved 3', 'Undo', { duration: 8000, panelClass: ['success-snackbar'] });
     action.next();
     expect(chosen).toBe(1);
+  });
+
+  it('opens a request to support about an error on Report', () => {
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    service.errorText('Server text');
+    expect(snackBar.open.calls.mostRecent().args[1]).toBe('support.report');
+    action.next();
+    expect(navigate).toHaveBeenCalledWith(['/support'], { queryParams: jasmine.objectContaining({ kind: 'PROBLEM', error: 'Server text' }) });
   });
 });

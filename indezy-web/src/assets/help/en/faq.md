@@ -72,4 +72,4 @@ Yes, to read from it. An API token lets a script, a spreadsheet or an automation
 
 ## How do I contact support?
 
-Click **?** in the top bar, then **Contact support**, or open **Support**. Choose what it is about, write a subject and a description, and keep **Send the technical context** ticked so we see the page and your browser. The answer shows in **My requests** and you are told by email.
+Click **?** in the top bar, then **Contact support**, or open **Support**. Choose what it is about, write a subject and a description, and keep **Send the technical context** ticked so we see the page and your browser. The answer shows in **My requests** and you are told by email. When an error shows, **Report** on it opens a request with that error already noted.

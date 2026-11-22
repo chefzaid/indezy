@@ -48,7 +48,9 @@ page it came from, the browser, the screen size, the language and the error show
 **My requests** lists them, the newest first, with their status and answer (`GET /api/support/requests`). **Admin →
 Support** lists every request, open ones first, with its author's address, and answers it, closing it or not
 (`GET`/`PUT /api/admin/support/requests`); the member is emailed that an answer waits in the app, the answer itself not
-in the email. Requests go with their account and are part of the data export.
+in the email. Requests go with their account and are part of the data export. An error message in the app offers
+**Report** (and stays 6 seconds), which opens Support on a problem with that error and the page it came from; pages
+open without an account keep **Close**.
 
 **Help** in the left menu (`/help`, open with or without an account) explains how Indezy works, area by area, for
 freelancers rather than developers: getting started, the account and its data, keyboard shortcuts, the FAQ, the offer

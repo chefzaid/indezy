@@ -5025,6 +5025,7 @@
       "OPEN": "Open",
       "ANSWERED": "Answered",
       "CLOSED": "Closed"
-    }
+    },
+    "report": "Report"
   }
 }
