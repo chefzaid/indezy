@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Des captures pour le support
+
+Ajoutez jusqu'à trois captures ou un PDF à une demande au support. Voir [Questions fréquentes](/help/faq).
+
 ### Chercher dans l'aide depuis toute page
 
 Le panneau d'aide (**?** en haut) cherche maintenant dans toute l'aide, et propose **Signaler un problème**, **Proposer une fonctionnalité** et **Mes demandes**. Voir [Prise en main](/help/getting-started).

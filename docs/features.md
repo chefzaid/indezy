@@ -49,6 +49,11 @@ feed's filters; a unit test checks that each points at a heading both languages'
 (`POST /api/support/requests`): a problem, a feature request, a question or the account and billing, a subject (150
 characters) and a description (5,000), and the technical context shown before sending and sent unless unticked (the
 page it came from, the app's version, the browser, the screen size, the language and the error shown if any). Ten go a day at most.
+Up to three screenshots or PDFs of 5 MB go with it (`POST /api/support/requests/{id}/attachments`, within an hour of
+sending, the request still open): images drawn anew as the network's are (an opaque screenshot becomes a JPEG, what else
+it carried dropped), PDFs checked by the platform's ClamAV, anything else refused; its author and the administrators
+download them (`GET /api/support/requests/{id}/attachments/{attachmentId}`, served sandboxed and not cached), and they go
+with the request.
 **My requests** lists them, the newest first, with their status and answer (`GET /api/support/requests`). **Admin →
 Support** lists every request, open ones first, with its author's address, and answers it, closing it or not
 (`GET`/`PUT /api/admin/support/requests`); the member is emailed that an answer waits in the app, the answer itself not

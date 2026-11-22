@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /** The support requests' messages (see docs/features.md#support-requests). */
 public final class SupportDtos {
@@ -28,12 +29,20 @@ public final class SupportDtos {
 
     /** A request as its author sees it, with the answer once given. */
     public record Request(Long id, SupportRequest.Kind kind, String subject, String description, String context, SupportRequest.Status status,
-                          String answer, LocalDateTime createdAt, Instant answeredAt) {
+                          String answer, LocalDateTime createdAt, Instant answeredAt, List<Attachment> attachments) {
+
+        public Request {
+            attachments = attachments == null ? List.of() : List.copyOf(attachments);
+        }
 
         @Override
         public String toString() {
             return "Request[id=" + id + "]";
         }
+    }
+
+    /** A screenshot or a PDF added to a request, without its content. */
+    public record Attachment(Long id, Long requestId, String fileName, String contentType, long sizeBytes) {
     }
 
     /** A request as the administrators see it: its author's address, to write to them otherwise. */

@@ -3,16 +3,18 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
-import { ReceivedSupportRequest } from '../../models';
+import { ReceivedSupportRequest, SupportAttachment } from '../../models';
 import { NotificationService } from '../../services/notification/notification.service';
 import { SupportService } from '../../services/support/support.service';
+import { saveBlob } from '../../shared/utils/download-file';
 
 /** **Admin → Support**: the members' requests, open ones first, each answered (and closed) from here, which emails the member. */
 @Component({
   selector: 'app-admin-support',
-  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, TranslateModule],
+  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslateModule],
   template: `
     @for (entry of requests; track entry.request.id) {
       <article class="request" [attr.data-admin-support]="entry.request.id">
@@ -24,6 +26,15 @@ import { SupportService } from '../../services/support/support.service';
         <p class="text">{{ entry.request.description }}</p>
         @if (entry.request.context) {
           <pre class="context">{{ entry.request.context }}</pre>
+        }
+        @if (entry.request.attachments.length) {
+          <div class="files">
+            @for (attachment of entry.request.attachments; track attachment.id) {
+              <button mat-stroked-button type="button" (click)="download(attachment)" [attr.data-admin-support-file]="attachment.fileName">
+                <mat-icon>{{ attachment.contentType === 'application/pdf' ? 'picture_as_pdf' : 'image' }}</mat-icon>{{ attachment.fileName }}
+              </button>
+            }
+          </div>
         }
         @if (entry.request.answer) {
           <p class="answer">{{ entry.request.answer }}</p>
@@ -56,6 +67,7 @@ import { SupportService } from '../../services/support/support.service';
     .answer { padding-left: 12px; border-left: 3px solid var(--mat-sys-primary); }
     .context { padding: 8px; background: var(--mat-sys-surface-container); font-size: .75rem; white-space: pre-wrap; overflow-wrap: anywhere; }
     .full { width: 100%; }
+    .files { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
     .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
     .empty { color: var(--mat-sys-on-surface-variant); }
   `],
@@ -76,6 +88,13 @@ export class AdminSupportComponent implements OnInit {
         this.changes.markForCheck();
       },
       error: () => this.notifications.error('admin.support.loadError')
+    });
+  }
+
+  download(attachment: SupportAttachment): void {
+    this.support.file(attachment).subscribe({
+      next: blob => saveBlob(blob, attachment.fileName),
+      error: () => this.notifications.error('support.downloadError')
     });
   }
 

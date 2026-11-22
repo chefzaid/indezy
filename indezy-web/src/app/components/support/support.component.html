@@ -21,6 +21,25 @@
           <textarea matInput formControlName="description" rows="6" maxlength="5000" data-support-description></textarea>
           <mat-error>{{ 'support.required' | translate }}</mat-error>
         </mat-form-field>
+        <div class="files">
+          <input #filesInput type="file" hidden multiple accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+            (change)="choose($event)" data-support-files [attr.aria-label]="'support.addFiles' | translate">
+          <button mat-stroked-button type="button" (click)="filesInput.click()" [disabled]="files.length >= 3" data-support-add-files>
+            <mat-icon>attach_file</mat-icon>{{ 'support.addFiles' | translate }}
+          </button>
+          <span class="hint">{{ 'support.filesHint' | translate }}</span>
+          <ul class="chosen">
+            @for (file of files; track file) {
+              <li [attr.data-support-file]="file.name">
+                <mat-icon aria-hidden="true">{{ file.type === 'application/pdf' ? 'picture_as_pdf' : 'image' }}</mat-icon>
+                <span>{{ file.name }}</span>
+                <button mat-icon-button type="button" (click)="remove(file)" [attr.aria-label]="'support.removeFile' | translate:{ name: file.name }">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
         <mat-checkbox formControlName="sendContext" data-support-context-toggle>{{ 'support.sendContext' | translate }}</mat-checkbox>
         @if (form.controls.sendContext.value) {
           <pre class="context" data-support-context>{{ context }}</pre>
@@ -44,6 +63,15 @@
         </div>
         <p class="meta">{{ 'support.kinds.' + request.kind | translate }} · {{ request.createdAt | date:'medium' }}</p>
         <p class="description">{{ request.description }}</p>
+        @if (request.attachments.length) {
+          <div class="attachments">
+            @for (attachment of request.attachments; track attachment.id) {
+              <button mat-stroked-button type="button" (click)="download(attachment)" [attr.data-support-attachment]="attachment.fileName">
+                <mat-icon>{{ attachment.contentType === 'application/pdf' ? 'picture_as_pdf' : 'image' }}</mat-icon>{{ attachment.fileName }}
+              </button>
+            }
+          </div>
+        }
         @if (request.answer) {
           <div class="answer" data-support-answer>
             <p class="meta">{{ 'support.answered' | translate:{ date: (request.answeredAt | date:'medium') } }}</p>

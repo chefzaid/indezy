@@ -72,4 +72,4 @@ Oui, en lecture. Un jeton d'API permet à un script, un tableur ou un service d'
 
 ## Comment contacter le support ?
 
-Cliquez sur **?** dans la barre du haut, puis **Contacter le support**, ou ouvrez **Support**. Choisissez le sujet, écrivez un objet et une description, et laissez **Envoyer le contexte technique** coché pour que nous voyions la page et votre navigateur. La réponse s'affiche dans **Mes demandes** et vous êtes prévenu par e-mail. Quand une erreur s'affiche, **Signaler** ouvre une demande où cette erreur est déjà notée.
+Cliquez sur **?** dans la barre du haut, puis **Signaler un problème** ou **Proposer une fonctionnalité**, ou ouvrez **Support**. Choisissez le sujet, écrivez un objet et une description, ajoutez jusqu'à trois captures ou un PDF (5 Mo chacun) s'ils aident, et laissez **Envoyer le contexte technique** coché pour que nous voyions la page et votre navigateur. La réponse s'affiche dans **Mes demandes** et vous êtes prévenu par e-mail. Quand une erreur s'affiche, **Signaler** ouvre une demande où cette erreur est déjà notée.

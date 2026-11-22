@@ -8,10 +8,12 @@ import { AdminSupportComponent } from './admin-support.component';
 
 describe('AdminSupportComponent', () => {
   const open = { request: { id: 3, kind: 'PROBLEM' as const, subject: 'PDF empty', description: 'Blank.', context: 'Page: /invoices',
-    status: 'OPEN' as const, answer: null, createdAt: '2026-11-22T10:00:00', answeredAt: null }, userId: 7, email: 'alice@example.com' };
+    status: 'OPEN' as const, answer: null, createdAt: '2026-11-22T10:00:00', answeredAt: null,
+    attachments: [{ id: 9, requestId: 3, fileName: 'capture.jpg', contentType: 'image/jpeg', sizeBytes: 1200 }] }, userId: 7,
+    email: 'alice@example.com' };
 
   function create(loaded = of([open])) {
-    const support = jasmine.createSpyObj('SupportService', ['received', 'answer']);
+    const support = jasmine.createSpyObj('SupportService', ['received', 'answer', 'file']);
     support.received.and.returnValue(loaded);
     const notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
@@ -45,5 +47,17 @@ describe('AdminSupportComponent', () => {
     fixture.componentInstance.drafts[3] = 'x';
     fixture.componentInstance.answer(open, false);
     expect(notifications.error).toHaveBeenCalledWith('admin.support.answerError');
+  });
+
+  it('downloads a request\'s file, saying when it cannot', () => {
+    const { fixture, support, notifications } = create();
+    const click = spyOn(HTMLAnchorElement.prototype, 'click');
+    support.file.and.returnValue(of(new Blob(['x'])));
+    fixture.nativeElement.querySelector('[data-admin-support-file="capture.jpg"]').click();
+    expect(support.file).toHaveBeenCalledWith(open.request.attachments[0]);
+    expect(click).toHaveBeenCalled();
+    support.file.and.returnValue(throwError(() => new Error('gone')));
+    fixture.componentInstance.download(open.request.attachments[0]);
+    expect(notifications.error).toHaveBeenCalledWith('support.downloadError');
   });
 });

@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Screenshots for support
+
+Add up to three screenshots or a PDF to a request to support. See [Frequently asked questions](/help/faq).
+
 ### Search the help from any page
 
 The help panel (**?** at the top) now searches all the help, and offers **Report a problem**, **Suggest a feature** and **My requests**. See [Getting started](/help/getting-started).

@@ -19,6 +19,10 @@ describe('SupportService', () => {
     const answer = http.expectOne(`${environment.apiUrl}/admin/support/requests/3`);
     expect(answer.request.method).toBe('PUT');
     expect(answer.request.body).toEqual({ answer: 'Fixed.', close: true });
+    service.attach(3, new File(['png'], 'a.png')).subscribe();
+    expect(http.expectOne(`${environment.apiUrl}/support/requests/3/attachments`).request.body instanceof FormData).toBeTrue();
+    service.file({ id: 9, requestId: 3, fileName: 'a.jpg', contentType: 'image/jpeg', sizeBytes: 1 }).subscribe();
+    expect(http.expectOne(`${environment.apiUrl}/support/requests/3/attachments/9`).request.responseType).toBe('blob');
     http.verify();
   });
 });

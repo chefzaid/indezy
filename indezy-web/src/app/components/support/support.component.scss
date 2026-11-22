@@ -76,3 +76,43 @@ form {
 .empty {
   color: var(--mat-sys-on-surface-variant);
 }
+
+.files {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin-bottom: 8px;
+
+  .hint {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: .8125rem;
+  }
+
+  .chosen {
+    flex-basis: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+.attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  button {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

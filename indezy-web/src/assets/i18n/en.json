@@ -5051,6 +5051,13 @@
       "ANSWERED": "Answered",
       "CLOSED": "Closed"
     },
-    "report": "Report"
+    "report": "Report",
+    "addFiles": "Add screenshots or a PDF",
+    "filesHint": "Up to 3 files of 5 MB: PNG, JPEG or PDF.",
+    "removeFile": "Remove {{name}}",
+    "fileError": "{{name}} could not be added: the request was sent without it.",
+    "filesMax": "Up to {{max}} files go with a request.",
+    "fileRefused": "{{name}} is left out: send a PNG, a JPEG or a PDF of 5 MB at most.",
+    "downloadError": "The file could not be downloaded."
   }
 }

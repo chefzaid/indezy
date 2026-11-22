@@ -5051,6 +5051,13 @@
       "ANSWERED": "Répondue",
       "CLOSED": "Fermée"
     },
-    "report": "Signaler"
+    "report": "Signaler",
+    "addFiles": "Ajouter des captures ou un PDF",
+    "filesHint": "Jusqu'à 3 fichiers de 5 Mo : PNG, JPEG ou PDF.",
+    "removeFile": "Retirer {{name}}",
+    "fileError": "{{name}} n'a pas pu être ajouté : la demande est partie sans lui.",
+    "filesMax": "Jusqu'à {{max}} fichiers accompagnent une demande.",
+    "fileRefused": "{{name}} est laissé de côté : envoyez un PNG, un JPEG ou un PDF de 5 Mo au plus.",
+    "downloadError": "Le fichier n'a pas pu être téléchargé."
   }
 }
