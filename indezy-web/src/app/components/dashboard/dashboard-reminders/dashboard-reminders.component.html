@@ -212,6 +212,37 @@
         }
       </section>
     }
+    @if (getStatusSuggestions().length > 0) {
+      <section class="reminder-card accent-blue" data-status-suggestions>
+        <h3 class="reminder-title">
+          <mat-icon>published_with_changes</mat-icon>
+          {{ 'dashboard.suggestions.title' | translate }}
+          <span class="count">{{ getStatusSuggestions().length }}</span>
+        </h3>
+        @for (suggestion of visible(getStatusSuggestions(), 'suggestions'); track suggestion.interactionId) {
+          <div class="suggestion" [attr.data-status-suggestion]="suggestion.projectId">
+            <a class="reminder-row" [routerLink]="['/projects', suggestion.projectId]">
+              <span class="primary">{{ suggestion.role }}</span>
+              <span class="secondary">{{ suggestion.clientName }} · « {{ suggestion.excerpt }} »</span>
+              <span class="meta">{{ suggestion.occurredOn | date:'d MMM' }}</span>
+            </a>
+            <div class="suggestion-actions">
+              <button mat-stroked-button type="button" (click)="applySuggestion(suggestion)" data-status-suggestion-apply>
+                {{ 'dashboard.suggestions.move' | translate:{ status: ('projects.statuses.' + suggestion.suggested | translate) } }}
+              </button>
+              <button mat-button type="button" (click)="dismissSuggestion(suggestion)" data-status-suggestion-dismiss>
+                {{ 'dashboard.suggestions.dismiss' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+        @if (getStatusSuggestions().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('suggestions')">
+            {{ isExpanded('suggestions') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getStatusSuggestions().length }) }}
+          </button>
+        }
+      </section>
+    }
     @if (getFollowUpsDue().length > 0) {
       <section class="reminder-card accent-purple">
         <h3 class="reminder-title">

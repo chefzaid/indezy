@@ -207,6 +207,8 @@ export interface DashboardStatsDto {
   dormantContacts: DormantContact[];
   /** Contacts whose latest exchange is a message sent and unanswered for the follow-up period, longest waiting first. */
   followUpsDue?: FollowUpDue[];
+  /** Stages to update, read from what contacts recently said about open opportunities. */
+  statusSuggestions?: StatusSuggestion[];
   /** Issued invoices past their due date, the oldest due first. */
   overdueInvoices?: OverdueInvoice[];
   /** The last 90 days against the 90 before: opportunities, interviews, missions won and their daily rate. */
@@ -330,6 +332,18 @@ export interface OverdueInvoice {
   total: number;
   dueDate: string;
   daysLate: number;
+}
+
+/** A stage to update, from an exchange in which a contact turned an opportunity down or asked for an interview. */
+export interface StatusSuggestion {
+  projectId: number;
+  interactionId: number;
+  role: string | null;
+  clientName?: string | null;
+  status: ProjectStatus;
+  suggested: ProjectStatus;
+  excerpt: string;
+  occurredOn: string;
 }
 
 export interface FollowUpDue {

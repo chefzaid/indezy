@@ -23,7 +23,14 @@ for (const language of ['en', 'fr']) {
     await page.route('**/api/projects/by-freelance/1', route => route.fulfill({ json: [] }));
     await page.route('**/api/projects/stats/dashboard/1*', route => route.fulfill({ json: { ...emptyDashboardStats,
       followUpsDue: [{ contactId: 7, name: 'Hélène Durand', clientName: 'Société Générale', channel: 'EMAIL', sentOn: '2026-10-15',
-        daysWaiting: 11, projectId: 42 }] } }));
+        daysWaiting: 11, projectId: 42 }],
+      statusSuggestions: [{ projectId: 42, interactionId: 90, role: 'Lead Java', clientName: 'Société Générale', status: 'INTERVIEW',
+        suggested: 'LOST', excerpt: en ? 'Not selected this time' : 'Profil non retenu', occurredOn: '2026-11-20' }] } }));
+    const moved: string[] = [];
+    await page.route('**/api/projects/42/status**', route => {
+      moved.push(new URL(route.request().url()).searchParams.get('status') ?? '');
+      return route.fulfill({ json: { id: 42, status: 'LOST' } });
+    });
 
     await page.goto('/dashboard');
     const card = page.locator('.reminder-card.accent-purple');
@@ -34,6 +41,13 @@ for (const language of ['en', 'fr']) {
     await card.locator('[data-follow-up-draft="7"]').click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.getByRole('dialog').getByRole('button', { name: en ? 'Close' : 'Fermer' }).first().click();
+
+    // A refusal read in an exchange suggests moving the opportunity to Abandoned.
+    const suggestion = page.locator('[data-status-suggestion="42"]');
+    await expect(suggestion).toContainText(en ? 'Not selected this time' : 'Profil non retenu');
+    await suggestion.locator('[data-status-suggestion-apply]').click();
+    await expect.poll(() => moved).toEqual(['LOST']);
+    await expect(suggestion).toHaveCount(0);
 
     await page.goto('/profile');
     await page.getByRole('tab', { name: en ? 'Preferences' : 'Préférences' }).click();

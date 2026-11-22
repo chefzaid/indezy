@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.enums.InteractionChannel;
+import dev.swirlit.indezy.model.enums.ProjectStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -52,6 +53,9 @@ public class DashboardStatsDto {
     private List<DormantContact> dormantContacts;
     /** Contacts whose latest exchange is a message sent and unanswered for the follow-up period, longest waiting first. */
     private List<FollowUpDue> followUpsDue;
+    /** Stages to update, read from what contacts recently said about open opportunities. */
+    @Builder.Default
+    private List<StatusSuggestion> statusSuggestions = new ArrayList<>();
     /** Issued invoices past their due date, the oldest due first. */
     private List<OverdueInvoice> overdueInvoices;
     /** The last 90 days against the 90 before: opportunities, interviews, missions won and their daily rate. */
@@ -279,6 +283,22 @@ public class DashboardStatsDto {
         /** Days left before the ceiling, negative once over it; empty when it cannot be told in days. */
         private BigDecimal daysLeft;
         private boolean exceeded;
+    }
+
+    /** A stage to update, from an exchange in which a contact turned an opportunity down or asked for an interview. */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class StatusSuggestion {
+        private Long projectId;
+        private Long interactionId;
+        private String role;
+        private String clientName;
+        private ProjectStatus status;
+        private ProjectStatus suggested;
+        private String excerpt;
+        private LocalDate occurredOn;
     }
 
     @Data

@@ -8,11 +8,25 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
+import { ProjectService } from '../../../services/project/project.service';
+import { NotificationService } from '../../../services/notification/notification.service';
 import {
   DashboardStatsDto, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact, FollowUpDue, OverdueInvoice,
-  PurchaseOrderAlert, ExpiringDocument, TrainingFundingDue,
+  PurchaseOrderAlert, ExpiringDocument, TrainingFundingDue, StatusSuggestion,
   UpcomingInterview
 } from '../../../models';
+
+/** The status suggestions dismissed on this device, by exchange id. */
+const DISMISSED_KEY = 'indezy.dashboard.dismissedStatusSuggestions';
+
+function readDismissed(): number[] {
+  try {
+    const stored = JSON.parse(localStorage.getItem(DISMISSED_KEY) ?? '[]');
+    return Array.isArray(stored) ? stored.filter((id): id is number => typeof id === 'number') : [];
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Renders the dashboard's time-based reminder lists (interviews of the week, missions ending, renewals, "on this day",
@@ -33,6 +47,10 @@ export class DashboardRemindersComponent {
   readonly collapsedSize = DashboardRemindersComponent.COLLAPSED_SIZE;
   private readonly expanded = new Set<string>();
   private readonly dialog = inject(MatDialog);
+  private readonly projects = inject(ProjectService);
+  private readonly notifications = inject(NotificationService);
+  /** The suggestions applied or dismissed, by exchange: dismissed ones are remembered on this device. */
+  private readonly handled = new Set<number>(readDismissed());
 
   /** Opens the AI drafter of the availability announcement. */
   announce(): void {
@@ -68,7 +86,7 @@ export class DashboardRemindersComponent {
   hasReminders(): boolean {
     return !!this.stats?.benchPlan || this.getUpcomingInterviews().length + this.getMissionsEndingSoon().length + this.getUpcomingRenewals().length +
       this.getOnThisDay().length + this.getDormantContacts().length + this.getStaleOpportunities().length +
-      this.getFollowUpsDue().length + this.getOverdueInvoices().length + this.getPurchaseOrderAlerts().length +
+      this.getFollowUpsDue().length + this.getStatusSuggestions().length + this.getOverdueInvoices().length + this.getPurchaseOrderAlerts().length +
       this.getExpiringDocuments().length + this.getTrainingFundingDue().length > 0;
   }
 
@@ -95,6 +113,31 @@ export class DashboardRemindersComponent {
 
   getFollowUpsDue(): FollowUpDue[] {
     return this.stats?.followUpsDue ?? [];
+  }
+
+  getStatusSuggestions(): StatusSuggestion[] {
+    return (this.stats?.statusSuggestions ?? []).filter(suggestion => !this.handled.has(suggestion.interactionId));
+  }
+
+  /** Moves the opportunity to the stage its contact's words suggest. */
+  applySuggestion(suggestion: StatusSuggestion): void {
+    this.projects.updateStatus(suggestion.projectId, suggestion.suggested).subscribe({
+      next: () => {
+        this.handled.add(suggestion.interactionId);
+        this.notifications.success('dashboard.suggestions.applied');
+      },
+      error: () => this.notifications.error('dashboard.suggestions.error')
+    });
+  }
+
+  /** Leaves the opportunity as it is; the suggestion is not shown again on this device. */
+  dismissSuggestion(suggestion: StatusSuggestion): void {
+    this.handled.add(suggestion.interactionId);
+    try {
+      localStorage.setItem(DISMISSED_KEY, JSON.stringify([...readDismissed(), suggestion.interactionId].slice(-200)));
+    } catch {
+      // Storage refused: the suggestion may show again.
+    }
   }
 
   getOverdueInvoices(): OverdueInvoice[] {

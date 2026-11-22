@@ -333,6 +333,13 @@
       "offers": "Find offers",
       "add": "Add an opportunity",
       "announce": "Announce my availability (AI)"
+    },
+    "suggestions": {
+      "title": "Stages to update",
+      "move": "Move to {{status}}",
+      "dismiss": "Leave it",
+      "applied": "Stage updated.",
+      "error": "The stage could not be changed: try again."
     }
   },
   "projects": {

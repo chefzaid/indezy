@@ -122,6 +122,12 @@ public class ContactInteractionService {
             .toList();
     }
 
+    /** Stages to update on the workspace's open opportunities, from what their contacts recently said. */
+    @Transactional(readOnly = true)
+    public List<DashboardStatsDto.StatusSuggestion> statusSuggestions(Long freelanceId, LocalDate today) {
+        return StatusSuggestions.build(interactions.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(freelanceId), today);
+    }
+
     /** A company that never answered is flagged once this many messages to its contacts went unanswered. */
     public static final int UNANSWERED_MIN = 3;
 

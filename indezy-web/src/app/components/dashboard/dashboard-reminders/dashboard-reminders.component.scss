@@ -182,3 +182,16 @@
     gap: 12px;
   }
 }
+
+.suggestion {
+  .secondary {
+    white-space: normal;
+  }
+
+  .suggestion-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    padding: 0 8px 8px;
+  }
+}

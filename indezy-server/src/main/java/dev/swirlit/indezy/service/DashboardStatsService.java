@@ -170,6 +170,7 @@ public class DashboardStatsService {
                 contactInteractionService.lastContactedInWorkspace(freelanceId), LocalDateTime.now(ZoneId.systemDefault())))
             .upcomingInterviews(DashboardReminders.buildUpcomingInterviews(upcomingSteps, now))
             .followUpsDue(contactInteractionService.followUpsDue(freelanceId, followUpDays, today))
+            .statusSuggestions(contactInteractionService.statusSuggestions(freelanceId, today))
             .overdueInvoices(invoiceService.overdue(freelanceId))
             .purchaseOrderAlerts(purchaseOrderService.alerts(freelanceId))
             .expiringDocuments(complianceDocumentService.expiring(freelanceId))

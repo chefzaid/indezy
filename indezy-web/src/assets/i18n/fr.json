@@ -333,6 +333,13 @@
       "offers": "Trouver des offres",
       "add": "Ajouter une opportunité",
       "announce": "Annoncer ma disponibilité (IA)"
+    },
+    "suggestions": {
+      "title": "Étapes à mettre à jour",
+      "move": "Passer en {{status}}",
+      "dismiss": "Laisser",
+      "applied": "Étape mise à jour.",
+      "error": "L'étape n'a pas pu être changée : réessayez."
     }
   },
   "projects": {

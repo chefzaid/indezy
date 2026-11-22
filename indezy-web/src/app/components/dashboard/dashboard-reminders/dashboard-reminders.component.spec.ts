@@ -4,8 +4,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardRemindersComponent } from './dashboard-reminders.component';
-import { DashboardStatsDto, OnThisDayItem } from '../../../models';
 import { AiMessageDialogComponent } from '../../../shared/components/ai-message-dialog/ai-message-dialog.component';
+import { of, throwError } from 'rxjs';
+import { DashboardStatsDto, OnThisDayItem, ProjectDto, ProjectStatus } from '../../../models';
+import { ProjectService } from '../../../services/project/project.service';
+import { NotificationService } from '../../../services/notification/notification.service';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('DashboardRemindersComponent', () => {
   let fixture: ComponentFixture<DashboardRemindersComponent>;
@@ -13,7 +17,8 @@ describe('DashboardRemindersComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardRemindersComponent, RouterModule.forRoot([]), TranslateModule.forRoot()]
+      imports: [DashboardRemindersComponent, RouterModule.forRoot([]), TranslateModule.forRoot()],
+      providers: [provideHttpClient()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardRemindersComponent);
@@ -271,6 +276,36 @@ describe('DashboardRemindersComponent', () => {
     expect(open).toHaveBeenCalledWith(AiMessageDialogComponent, jasmine.objectContaining({ data: { projectId: 42, kind: 'FOLLOW_UP' } }));
     component.draftFollowUp({ contactId: 7, name: 'Zoé', channel: 'EMAIL', sentOn: '2026-09-20', daysWaiting: 9 });
     expect(open).toHaveBeenCalledTimes(1);
+  });
+
+  it('suggests the stage an exchange calls for, moving the opportunity or leaving it for good on this device', () => {
+    localStorage.removeItem('indezy.dashboard.dismissedStatusSuggestions');
+    const projects = TestBed.inject(ProjectService);
+    const update = spyOn(projects, 'updateStatus').and.returnValue(of({} as ProjectDto));
+    const notifications = TestBed.inject(NotificationService);
+    spyOn(notifications, 'success');
+    const element = render({ statusSuggestions: [
+      { projectId: 4, interactionId: 40, role: 'Lead Java', clientName: 'Conseil', status: ProjectStatus.INTERVIEW, suggested: ProjectStatus.LOST, excerpt: 'Non retenu',
+        occurredOn: '2026-11-20' },
+      { projectId: 5, interactionId: 50, role: 'Dev', status: ProjectStatus.CONTACT, suggested: ProjectStatus.INTERVIEW, excerpt: 'Un entretien ?', occurredOn: '2026-11-21' }] });
+    expect(element.querySelectorAll('[data-status-suggestion]').length).toBe(2);
+    element.querySelector<HTMLButtonElement>('[data-status-suggestion="4"] [data-status-suggestion-apply]')!.click();
+    expect(update).toHaveBeenCalledWith(4, ProjectStatus.LOST);
+    expect(notifications.success).toHaveBeenCalledWith('dashboard.suggestions.applied');
+    component.dismissSuggestion(component.getStatusSuggestions()[0]);
+    expect(component.getStatusSuggestions()).toEqual([]);
+    expect(JSON.parse(localStorage.getItem('indezy.dashboard.dismissedStatusSuggestions')!)).toEqual([50]);
+    localStorage.removeItem('indezy.dashboard.dismissedStatusSuggestions');
+  });
+
+  it('says when the stage could not be changed', () => {
+    render({ statusSuggestions: [{ projectId: 4, interactionId: 41, role: 'Lead', status: ProjectStatus.CONTACT, suggested: ProjectStatus.INTERVIEW, excerpt: 'x',
+      occurredOn: '2026-11-20' }] });
+    spyOn(TestBed.inject(ProjectService), 'updateStatus').and.returnValue(throwError(() => new Error('down')));
+    const error = spyOn(TestBed.inject(NotificationService), 'error');
+    component.applySuggestion(component.getStatusSuggestions()[0]);
+    expect(error).toHaveBeenCalledWith('dashboard.suggestions.error');
+    expect(component.getStatusSuggestions().length).toBe(1);
   });
 });
 

@@ -1358,6 +1358,12 @@ mode. **Customize** shows, hides and orders its six blocks, saved with the accou
   renew, contacts without activity for six months, and "on this day" anniversaries. Each renewal also shows the current
   daily rate and the market median of the mission's first skill in the offer feed, with **Ask for the new rate**, which
   opens the opportunity's email on the built-in **Rate review at renewal** template.
+- **Stages to update**: an exchange from a contact, recorded on an open opportunity in the last 21 days and not before
+  the opportunity last changed, whose words turn it down ("non retenu", "pas donner suite", "poste pourvu", "not
+  selected", "unfortunately"...) suggests **Move to Abandoned**, and one asking for an interview ("entretien", "visio",
+  "disponibilités", "interview"...) while it is at first contact suggests **Move to Interview**; one per opportunity,
+  from its latest such exchange, with the words quoted. **Leave it** hides it on that device (`statusSuggestions` in the
+  dashboard's stats, words only, no AI).
 - **This week's goal** (the bench planner), first among the reminders while the running mission ending soonest ends
   within 12 weeks, or between missions: when it ends, how many opportunities to add this week (8 within 4 weeks or
   between missions, 5 within 8, 3 beyond, two fewer for each at the interview or offer stage, at least 1), those added
