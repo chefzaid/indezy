@@ -133,5 +133,15 @@ class QuoteTermsPdfTest {
             assertThat(first.getText(document)).contains("Les conditions générales de vente jointes s'appliquent.");
         }
     }
+
+    @Test
+    void writesTheHeaderLineUnderTheSellersName() throws IOException {
+        InvoiceSeller seller = seller();
+        seller.setHeader("Architecte Java · alice.dev");
+        try (PDDocument document = Loader.loadPDF(renderer.render(quote(), seller, new InvoiceBuyer(), 30, null))) {
+            String text = new PDFTextStripper().getText(document);
+            assertThat(text.indexOf("Architecte Java · alice.dev")).isGreaterThan(text.indexOf("Alice Martin"));
+        }
+    }
 }
 

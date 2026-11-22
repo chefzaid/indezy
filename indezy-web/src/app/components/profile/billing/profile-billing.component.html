@@ -146,6 +146,11 @@
         }
       </div>
       <mat-form-field appearance="outline" class="full">
+        <mat-label>{{ 'profile.billing.header' | translate }}</mat-label>
+        <input matInput formControlName="header" maxlength="150" data-billing-header>
+        <mat-hint>{{ 'profile.billing.headerHint' | translate }}</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full">
         <mat-label>{{ 'profile.billing.footer' | translate }}</mat-label>
         <input matInput formControlName="footer" maxlength="200" data-billing-footer>
         <mat-hint>{{ 'profile.billing.footerHint' | translate }}</mat-hint>

@@ -26,6 +26,8 @@ export interface BillingIdentity {
   /** The notes a new invoice and a new quote start with; null for none. */
   invoiceNotes?: string | null;
   quoteNotes?: string | null;
+  /** A line under the seller's name on the documents (a tagline, contact details); null for none. */
+  header?: string | null;
   /** The free text at the foot of each page of the documents (website, phone); null for none. */
   footer?: string | null;
   /** Read-only: the terms and conditions PDF appended after each quote; null for none. Set with its own upload. */

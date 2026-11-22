@@ -1320,7 +1320,8 @@ frozen at issue, so an issued document keeps the colour it had. A **Logo** (`POS
 PNG or JPEG of 2 MB at most, drawn anew at most 600 pixels on its longest side) is printed on the left above the seller,
 or centred or on the right above both the seller and the title (`logoPlacement`), small, medium or large (`logoSize`:
 110 by 38, 160 by 56 or 220 by 80 points at most), both frozen at issue; each upload is a new logo (`GET /api/users/billing/logos/{id}`), so issued documents, which keep the id
-they were issued with, still print theirs. Logos go with the workspace. A **Footer** (`footer`, 200 characters, such
+they were issued with, still print theirs. Logos go with the workspace. A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
+printed under the seller's name, frozen at issue too. A **Footer** (`footer`, 200 characters, such
 as the website and phone) is written small at the foot of every page, also frozen at issue; every document of several
 pages (invoices, quotes, activity reports, dossiers) numbers them "1/2" at the bottom right. The **Notes a new invoice
 starts with** and **Notes a new quote starts with** (`invoiceNotes`, `quoteNotes`, 2,000 characters) fill the notes of

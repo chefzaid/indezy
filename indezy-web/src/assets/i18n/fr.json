@@ -1430,7 +1430,9 @@
         "SMALL": "Petit",
         "MEDIUM": "Moyen",
         "LARGE": "Grand"
-      }
+      },
+      "header": "Ligne sous votre nom",
+      "headerHint": "Une accroche ou des coordonnées imprimées sous votre nom sur les factures et devis."
     },
     "webhooks": {
       "title": "Webhooks",

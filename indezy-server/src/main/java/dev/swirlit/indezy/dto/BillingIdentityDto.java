@@ -40,6 +40,7 @@ public record BillingIdentityDto(
     Long quoteTermsFileId,
     LogoPlacement logoPlacement,
     LogoSize logoSize,
+    @Size(max = 150) String header,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;
@@ -55,6 +56,7 @@ public record BillingIdentityDto(
         invoicePrefix = blankToNull(invoicePrefix);
         quoteTerms = blankToNull(quoteTerms);
         footer = blankToNull(footer);
+        header = header == null || header.isBlank() ? null : header.strip().replaceAll("\\s+", " ");
         invoiceNotes = blankToNull(invoiceNotes);
         quoteNotes = blankToNull(quoteNotes);
         accentColor = accentColor == null || accentColor.isBlank() ? null : accentColor.strip().toUpperCase(java.util.Locale.ROOT);

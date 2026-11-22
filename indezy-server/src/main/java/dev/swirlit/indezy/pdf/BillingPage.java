@@ -60,7 +60,11 @@ abstract class BillingPage {
     void sellerBlock() throws IOException {
         String name = seller.getName() + (seller.getLegalForm() != null && seller.getLegalForm().isIndividual() ?
             InvoiceLabel.INDIVIDUAL.in(language) : "");
-        List<String> lines = new ArrayList<>(splitLines(seller.getAddress()));
+        List<String> lines = new ArrayList<>();
+        if (seller.getHeader() != null && !seller.getHeader().isBlank()) {
+            lines.add(seller.getHeader().strip());
+        }
+        lines.addAll(splitLines(seller.getAddress()));
         if (seller.getLegalForm() != null && seller.getLegalForm().isCompany()) {
             lines.add(seller.getShareCapital() == null ? seller.getLegalForm().name() :
                 InvoiceLabel.CAPITAL.format(language, seller.getLegalForm().name(), euros(BigDecimal.valueOf(seller.getShareCapital()))));

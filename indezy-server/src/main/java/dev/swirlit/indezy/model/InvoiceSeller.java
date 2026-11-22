@@ -51,6 +51,10 @@ public class InvoiceSeller {
     @Column(name = "seller_late_payment_rate")
     private Double latePaymentRate;
 
+    /** A line under the seller's name (a tagline, contact details), kept at issue; null for none. */
+    @Column(name = "seller_header", length = 150)
+    private String header;
+
     /** The free text at the foot of each page, kept at issue; null for none. */
     @Column(name = "seller_footer", length = 200)
     private String footer;

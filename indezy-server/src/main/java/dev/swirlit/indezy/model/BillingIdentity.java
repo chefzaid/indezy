@@ -75,6 +75,10 @@ public class BillingIdentity {
     @Column(name = "billing_quote_notes", length = 2000)
     private String quoteNotes;
 
+    /** A line under the seller's name on the documents (a tagline, contact details); null for none. */
+    @Column(name = "billing_header", length = 150)
+    private String header;
+
     /** The free text at the foot of each page of the documents (website, phone); null for none. */
     @Column(name = "billing_footer", length = 200)
     private String footer;

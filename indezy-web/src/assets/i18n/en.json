@@ -1430,7 +1430,9 @@
         "SMALL": "Small",
         "MEDIUM": "Medium",
         "LARGE": "Large"
-      }
+      },
+      "header": "Line under your name",
+      "headerHint": "A tagline or contact details printed under your name on invoices and quotes."
     },
     "webhooks": {
       "title": "Webhooks",

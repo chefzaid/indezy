@@ -64,6 +64,7 @@ public class BillingIdentityService {
         billing.setInvoiceNotes(request.invoiceNotes());
         billing.setLogoPlacement(request.logoPlacement());
         billing.setLogoSize(request.logoSize());
+        billing.setHeader(request.header());
         billing.setQuoteNotes(request.quoteNotes());
         freelance.setBilling(billing);
         return toDto(freelance);
@@ -85,7 +86,7 @@ public class BillingIdentityService {
             Objects.requireNonNullElse(billing.getInvoicePrefix(), DEFAULT_PREFIX), billing.getLatePaymentRate(), billing.getQuoteTerms(), billing.getAccentColor(),
             billing.getLogoId(), billing.getFooter(), billing.getInvoiceNotes(), billing.getQuoteNotes(),
             billing.getQuoteTermsFileId(), Objects.requireNonNullElse(billing.getLogoPlacement(), LogoPlacement.LEFT),
-            Objects.requireNonNullElse(billing.getLogoSize(), LogoSize.MEDIUM), complete);
+            Objects.requireNonNullElse(billing.getLogoSize(), LogoSize.MEDIUM), billing.getHeader(), complete);
     }
 
     private Freelance freelance(Long freelanceId) {
