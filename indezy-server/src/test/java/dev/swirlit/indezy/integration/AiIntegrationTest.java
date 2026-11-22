@@ -13,8 +13,11 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -251,6 +254,31 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(BODIES.getLast()).doesNotContain(aliceEmail, "Alice Corp");
         assertThat(call(bob, HttpMethod.POST, "/ai/dossier/" + project, null, String.class).getStatusCode())
             .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
+
+        // A posting saved as a PDF gives its text to check, without AI; anything else is refused.
+        org.springframework.util.LinkedMultiValueMap<String, Object> form = new org.springframework.util.LinkedMultiValueMap<>();
+        form.add("file", new org.springframework.core.io.ByteArrayResource(dev.swirlit.indezy.ai.PostingPdfTextTest.pdf(false, "Mission Kafka")) {
+            @Override
+            public String getFilename() {
+                return "annonce.pdf";
+            }
+        });
+        int before = BODIES.size();
+        HttpHeaders multipart = new HttpHeaders();
+        multipart.setBearerAuth(alice.token());
+        multipart.setContentType(MediaType.MULTIPART_FORM_DATA);
+        assertThat(exchange("/ai/posting/pdf", HttpMethod.POST, new HttpEntity<>(form, multipart), Map.class).getBody())
+            .containsEntry("text", "Mission Kafka").containsEntry("cut", false);
+        assertThat(BODIES).hasSize(before);
+        org.springframework.util.LinkedMultiValueMap<String, Object> notPdf = new org.springframework.util.LinkedMultiValueMap<>();
+        notPdf.add("file", new org.springframework.core.io.ByteArrayResource("hello".getBytes(StandardCharsets.UTF_8)) {
+            @Override
+            public String getFilename() {
+                return "annonce.pdf";
+            }
+        });
+        assertThat(exchange("/ai/posting/pdf", HttpMethod.POST, new HttpEntity<>(notPdf, multipart), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
 
         // A rate suggested for an opportunity being written, its range kept around the rate.
         Map<String, Object> rate = call(alice, HttpMethod.POST, "/ai/rate", Map.of("role", "Lead Kafka", "techStack", "Kafka, Java",

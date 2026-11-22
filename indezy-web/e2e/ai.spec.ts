@@ -31,6 +31,11 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.goto('/projects/new');
     await page.locator('[data-ai-posting]').click();
     const dialog = page.getByRole('dialog');
+    await page.route('**/api/ai/posting/pdf', route => route.fulfill({ json: { text: 'Mission Kafka depuis un PDF', cut: true } }));
+    await dialog.locator('[data-ai-posting-pdf-input]').setInputFiles({ name: 'annonce.pdf', mimeType: 'application/pdf',
+      buffer: Buffer.from('%PDF-1.7') });
+    await expect(dialog.locator('[data-ai-posting-text]')).toHaveValue('Mission Kafka depuis un PDF');
+    await expect(dialog.locator('.cut')).toBeVisible();
     await dialog.locator('[data-ai-posting-text]').fill('Mission Java Senior chez Conseil X, 650 €/j, Courbevoie, 2 jours de télétravail');
     await settleDialog(page);
     const postingAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();

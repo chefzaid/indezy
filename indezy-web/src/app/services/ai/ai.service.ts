@@ -24,6 +24,13 @@ export class AiService {
     return this.http.delete<AiStatus>(`${this.API_URL}/key`);
   }
 
+  /** The text of a posting saved as a PDF, read on the server without AI, to check before reading it. */
+  postingPdfText(file: File): Observable<{ text: string; cut: boolean }> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<{ text: string; cut: boolean }>(`${this.API_URL}/posting/pdf`, form);
+  }
+
   readPosting(text: string): Observable<AiPosting> {
     return this.http.post<AiPosting>(`${this.API_URL}/posting`, { text });
   }

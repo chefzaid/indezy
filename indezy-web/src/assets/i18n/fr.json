@@ -4746,7 +4746,13 @@
       "reading": "Lecture…",
       "unknownCompany": "Entreprise à nommer",
       "site": "une annonce lue par l'IA",
-      "sourceName": "Annonce"
+      "sourceName": "Annonce",
+      "pdf": "Depuis un PDF",
+      "pdfCut": "Le PDF était long : sa première partie est gardée.",
+      "pdfTooLarge": "Choisissez un PDF de 5 Mo au plus.",
+      "pdfProtected": "Ce PDF est protégé : enregistrez-le sans mot de passe.",
+      "pdfNoText": "Ce PDF n'a pas de texte à lire : c'est peut-être une page scannée. Collez plutôt le texte.",
+      "pdfUnreadable": "Ce fichier n'a pas pu être lu comme un PDF."
     },
     "message": {
       "open": "Rédiger un message (IA)",

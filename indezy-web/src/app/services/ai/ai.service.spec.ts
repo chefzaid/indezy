@@ -36,6 +36,13 @@ describe('AiService', () => {
     expect(http.expectOne(`${url}/offers/9/verdict?language=FR`).request.method).toBe('POST');
     service.draftMessage(4, 'FOLLOW_UP', 'FR', null).subscribe();
     expect(http.expectOne(`${url}/message`).request.body).toEqual({ projectId: 4, kind: 'FOLLOW_UP', language: 'FR', notes: null });
+    service.postingPdfText(new File(['%PDF'], 'a.pdf')).subscribe();
+    const pdf = http.expectOne(`${url}/posting/pdf`);
+    expect(pdf.request.body instanceof FormData).toBeTrue();
+    pdf.flush({ text: 'x', cut: false });
+    service.suggestRate({ role: 'Lead', techStack: null, workMode: null, remoteDaysPerMonth: null, place: null, durationInMonths: null,
+      description: null, language: 'FR' }).subscribe();
+    expect(http.expectOne(`${url}/rate`).request.body.role).toBe('Lead');
     service.tailoredDossier(4, 'ANONYMOUS', 'EN').subscribe(pdf => expect(pdf.size).toBe(4));
     const dossier = http.expectOne(`${url}/dossier/4?layout=ANONYMOUS&language=EN`);
     expect(dossier.request.method).toBe('POST');

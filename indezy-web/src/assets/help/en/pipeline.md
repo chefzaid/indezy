@@ -69,7 +69,7 @@ An opportunity's page holds everything about it. **Change pipeline stage** moves
 
 ## AI help
 
-- On a new opportunity, **Fill in from a pasted posting (AI)** reads a posting you paste (an email, a job board page, a LinkedIn message) and fills in the role, the company, the rate, the stack, the place, remote days, the start date and the duration. Check them, then save: the client is created if you do not have it yet.
+- On a new opportunity, **Fill in from a pasted posting (AI)** reads a posting you paste (an email, a job board page, a LinkedIn message) and fills in the role, the company, the rate, the stack, the place, remote days, the start date and the duration. Check them, then save: the client is created if you do not have it yet. **From a PDF** puts the text of a posting saved as a PDF in the box first, for you to check.
 - On the opportunity form, **Suggest a rate (AI)** under the daily rate gives the rate to ask, the range a client would accept and why, from what the form says, your skills and target rate, and the market's median for the main skill. **Use** puts it in the field.
 - On an opportunity's page, **Weigh this opportunity (AI)** gives a fit score, what fits and what may not, what to check about the team and the management, the questions to ask in the interview, and what to think of the rate against your target and the market, with a rate to ask. Say what matters to you for a sharper answer.
 - On an opportunity's page, **Ask the AI about this opportunity** opens a conversation to prepare an interview, the negotiation or what to learn once it ended. The AI knows the opportunity, its notes, steps and journal, and the conversation stays with the opportunity until you clear it.

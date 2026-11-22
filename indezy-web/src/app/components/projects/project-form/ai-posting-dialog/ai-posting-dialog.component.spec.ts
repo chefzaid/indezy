@@ -15,7 +15,7 @@ describe('AiPostingDialogComponent', () => {
   const posting = { role: 'Java lead', techStack: ['Java'] } as AiPosting;
 
   function create(): AiPostingDialogComponent {
-    ai = jasmine.createSpyObj('AiService', ['readPosting']);
+    ai = jasmine.createSpyObj('AiService', ['readPosting', 'postingPdfText']);
     close = jasmine.createSpy('close');
     TestBed.configureTestingModule({
       imports: [AiPostingDialogComponent, TranslateModule.forRoot()],
@@ -46,5 +46,46 @@ describe('AiPostingDialogComponent', () => {
     expect(component.errorKey).toBe('ai.errors.unavailable');
     expect(component.reading).toBeFalse();
     expect(close).not.toHaveBeenCalled();
+  });
+
+  function choose(component: AiPostingDialogComponent, file: File | null): void {
+    const input = document.createElement('input');
+    input.type = 'file';
+    if (file) {
+      const files = new DataTransfer();
+      files.items.add(file);
+      input.files = files.files;
+    }
+    component.fromPdf({ target: input } as unknown as Event);
+  }
+
+  it('puts the text of a PDF in the box to check before reading it', () => {
+    const component = create();
+    ai.postingPdfText.and.returnValue(of({ text: 'Mission Kafka', cut: true }));
+    choose(component, new File(['%PDF'], 'annonce.pdf', { type: 'application/pdf' }));
+    expect(ai.postingPdfText).toHaveBeenCalledTimes(1);
+    expect(component.text.value).toBe('Mission Kafka');
+    expect(component.pdfCut).toBeTrue();
+    expect(ai.readPosting).not.toHaveBeenCalled();
+    choose(component, null);
+    expect(ai.postingPdfText).toHaveBeenCalledTimes(1);
+  });
+
+  it('says why a PDF could not be read', () => {
+    const component = create();
+    choose(component, new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'big.pdf'));
+    expect(component.errorKey).toBe('ai.posting.pdfTooLarge');
+    expect(ai.postingPdfText).not.toHaveBeenCalled();
+    const refused = (file: string) => throwError(() => new HttpErrorResponse({ status: 400, error: { validationErrors: { file } } }));
+    ai.postingPdfText.and.returnValue(refused('This PDF is protected: save it without a password'));
+    choose(component, new File(['%PDF'], 'a.pdf'));
+    expect(component.errorKey).toBe('ai.posting.pdfProtected');
+    ai.postingPdfText.and.returnValue(refused('This PDF has no text to read: it may be a scanned page'));
+    choose(component, new File(['%PDF'], 'a.pdf'));
+    expect(component.errorKey).toBe('ai.posting.pdfNoText');
+    ai.postingPdfText.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    choose(component, new File(['%PDF'], 'a.pdf'));
+    expect(component.errorKey).toBe('ai.posting.pdfUnreadable');
+    expect(component.loadingPdf).toBeFalse();
   });
 });

@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +26,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
@@ -105,6 +108,13 @@ public class AiController {
     public PostingAiService.Posting posting(@Valid @RequestBody PostingRequest request) {
         accessGuard.requireWorkspace(null);
         return postings.read(SecurityUtils.getCurrentUserId(), request.text());
+    }
+
+    @Operation(summary = "The text of a job posting saved as a PDF, to check before reading it", description = "No AI: 5 MB and 10 pages at most")
+    @PostMapping(value = "/posting/pdf", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public PostingAiService.PdfText postingPdf(@RequestParam("file") MultipartFile file) throws IOException {
+        accessGuard.requireWorkspace(null);
+        return PostingAiService.pdfText(file.getBytes());
     }
 
     @Operation(summary = "Weigh an opportunity against the profile: fit, pros and cons, soft criteria, questions, rate")

@@ -4746,7 +4746,13 @@
       "reading": "Reading…",
       "unknownCompany": "Company to name",
       "site": "a posting read by AI",
-      "sourceName": "Job posting"
+      "sourceName": "Job posting",
+      "pdf": "From a PDF",
+      "pdfCut": "The PDF was long: its first part is kept.",
+      "pdfTooLarge": "Choose a PDF of 5 MB at most.",
+      "pdfProtected": "This PDF is protected: save it without a password.",
+      "pdfNoText": "This PDF has no text to read: it may be a scanned page. Paste the text instead.",
+      "pdfUnreadable": "This file could not be read as a PDF."
     },
     "message": {
       "open": "Draft a message (AI)",

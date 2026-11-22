@@ -631,7 +631,10 @@ never saved or sent on its own:
 - **Fill in from a pasted posting (AI)** on a new opportunity (`POST /api/ai/posting`, 20,000 characters at most): the
   role, the company (an ESN's end client when it names one), the rate, the stack, the place, the work mode and remote
   days, the start date and the duration, nothing it does not state; the posting becomes the description, the client and
-  a **Job posting** source are created on saving when the workspace has none of that name.
+  a **Job posting** source are created on saving when the workspace has none of that name. **From a PDF** puts the text
+  of a posting saved as a PDF in the box to check first (`POST /api/ai/posting/pdf`, no AI: 5 MB and the first 10 pages
+  at most, lines kept, cut at 20,000 characters and said so); a protected PDF, a scanned one without text or another
+  file is refused, saying which.
 - **Suggest a rate (AI)** under the daily rate of the opportunity form (`POST /api/ai/rate`): the daily rate to ask, the
   range a client would accept and up to three reasons, from what the form says (role, stack, work mode and remote days,
   place, duration, description), the profile's skills and years, target rate and town, and the feed's median for the main
