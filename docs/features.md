@@ -618,7 +618,10 @@ the card says how many do. Seniority comes from the years the profile gives for 
 **Profile → Notifications → Notifications on this device** turns on push in the browser it is in, once the browser
 allows notifications: the network's notifications ("You have a new notification on the network") and new messages of
 conversations not muted reach the device even with Indezy closed, in the account's language, a click opening the
-notifications or the conversation. Each browser keeps its own subscription (ten per account at most), sent to the
+notifications or the conversation. So do an interview planned within the hour ("Interview at 14:00", its step, role and
+client, opening the opportunity; Paris time, checked every 5 minutes) and, on weekday mornings at 9:07, the follow-ups
+due ("3 contacts wait for your follow-up", opening the dashboard); each is claimed in the database first
+(`interview_steps.reminder_pushed_at`, `users.follow_ups_pushed_on`), so several replicas push it once. Each browser keeps its own subscription (ten per account at most), sent to the
 server (`POST /api/push/subscriptions`, `/remove`) and dropped once its push service no longer knows it. Pushes are
 encrypted for the browser (RFC 8291) and signed with Indezy's VAPID key (RFC 8292); only the push services of the major
 browsers are accepted as endpoints. Without the server's VAPID keys ([Deployment](./deployment.md#web-push-keys)),

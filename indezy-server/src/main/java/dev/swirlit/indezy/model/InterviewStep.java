@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,4 +53,8 @@ public class InterviewStep extends BaseEntity {
     public boolean isFailed() {
         return StepStatus.FAILED.equals(status);
     }
+
+    /** When the browsers were told it starts within the hour; null until then. */
+    @Column(name = "reminder_pushed_at")
+    private Instant reminderPushedAt;
 }

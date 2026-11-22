@@ -146,6 +146,10 @@ public class User extends BaseEntity {
     @Column(name = "follow_up_days")
     private Integer followUpDays = UserPreferenceDefaults.FOLLOW_UP_DAYS;
 
+    /** The day the browsers were last told of the follow-ups due; null before the first time. */
+    @Column(name = "follow_ups_pushed_on")
+    private LocalDate followUpsPushedOn;
+
     /** Existing accounts can have a null column after Hibernate adds this preference. */
     public Integer getFollowUpDays() {
         return followUpDays != null ? followUpDays : UserPreferenceDefaults.FOLLOW_UP_DAYS;

@@ -4,6 +4,7 @@ import dev.swirlit.indezy.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -14,6 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    /** Claims today's follow-ups push for an account, for one replica only: 1 when this one claimed it. */
+    @Modifying
+    @Query("update User u set u.followUpsPushedOn = :today where u.id = :id and (u.followUpsPushedOn is null or u.followUpsPushedOn < :today)")
+    int claimFollowUpsPush(@Param("id") Long id, @Param("today") LocalDate today);
 
     /**
      * Find user by email address

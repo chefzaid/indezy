@@ -59,6 +59,11 @@ public class PushService {
     private final MailProperties mail;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(TIMEOUT).build();
 
+    /** Whether browsers can be told: the VAPID keys are set. */
+    public boolean available() {
+        return properties.configured();
+    }
+
     public PushDtos.Key key() {
         return new PushDtos.Key(properties.configured() ? properties.vapidPublicKey() : null);
     }
