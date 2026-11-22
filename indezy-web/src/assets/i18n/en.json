@@ -365,7 +365,12 @@
           "label": "Negotiation summary",
           "body": "Negotiation summary\n\nDate: \nAsked rate: \nOffered rate: \nAgreed terms: \nOpen points:\n- \nNext steps:\n- "
         }
-      }
+      },
+      "dictate": "Dictate",
+      "stopDictation": "Stop dictating",
+      "listening": "Listening…",
+      "dictationDenied": "The browser refused the microphone: allow it for Indezy to dictate.",
+      "dictationFailed": "The dictation stopped: try again, or type the note."
     },
     "loading": "Loading projects...",
     "noProjects": "No projects found",

@@ -334,6 +334,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/locale/app-locale',
   'shared/services/confirm-dialog.service',
   'shared/services/connectivity.service',
+  'shared/services/dictation.service',
   'shared/services/markdown.service',
   'shared/shortcuts/keyboard-shortcuts.service',
   'shared/shortcuts/shortcut-help.component',

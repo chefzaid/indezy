@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -20,6 +20,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { ProjectService } from '../../../services/project/project.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MarkdownService } from '../../../shared/services/markdown.service';
+import { DictationService } from '../../../shared/services/dictation.service';
 import { CHANNEL_ICONS, SUMMARY_MAX } from '../../contacts/contact-interactions/contact-interactions.component';
 import { toIsoDate } from '../../../shared/locale/app-locale';
 import { NOTE_TEMPLATES } from '../project-detail/note-templates';
@@ -40,7 +41,7 @@ export type JournalEntry = { kind: 'note'; at: string; note: ProjectNote } | { k
   styleUrls: ['./project-journal.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
-export class ProjectJournalComponent implements OnChanges {
+export class ProjectJournalComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) project!: ProjectDto;
 
   private readonly projectService = inject(ProjectService);
@@ -70,6 +71,11 @@ export class ProjectJournalComponent implements OnChanges {
   /** The contacts of the client and its ESN, whom an exchange about the opportunity is with. */
   contacts: ContactDto[] = [];
   newNoteContent = '';
+  /** What the dictation is still hearing, shown under the note until it is final. */
+  hearing = '';
+  private readonly dictation = inject(DictationService);
+  private readonly changes = inject(ChangeDetectorRef);
+  readonly canDictate = this.dictation.supported();
   isSavingNote = false;
   selectedNoteTemplate = '';
   recording = false;
@@ -100,6 +106,43 @@ export class ProjectJournalComponent implements OnChanges {
     const body = this.translate.instant(`projects.notes.templates.${templateId}.body`) as string;
     this.newNoteContent = this.newNoteContent.trim() ? `${this.newNoteContent.trimEnd()}\n\n${body}` : body;
     this.selectedNoteTemplate = '';
+  }
+
+  ngOnDestroy(): void {
+    this.dictation.stop();
+  }
+
+  get dictating(): boolean {
+    return this.dictation.listening();
+  }
+
+  /** Starts or stops dictating into the note, in the interface language; the words heard are added to it. */
+  toggleDictation(): void {
+    if (this.dictation.listening()) {
+      this.dictation.stop();
+      return;
+    }
+    this.dictation.start(this.translate.currentLang, {
+      final: text => {
+        if (text) {
+          this.newNoteContent = this.newNoteContent.trim() ? `${this.newNoteContent.trimEnd()} ${text}` : text;
+          this.changes.markForCheck();
+        }
+      },
+      interim: text => {
+        this.hearing = text;
+        this.changes.markForCheck();
+      },
+      ended: error => {
+        this.hearing = '';
+        this.changes.markForCheck();
+        if (error === 'not-allowed' || error === 'service-not-allowed') {
+          this.notificationService.error('projects.notes.dictationDenied');
+        } else if (error && error !== 'no-speech' && error !== 'aborted') {
+          this.notificationService.error('projects.notes.dictationFailed');
+        }
+      }
+    });
   }
 
   addNote(): void {

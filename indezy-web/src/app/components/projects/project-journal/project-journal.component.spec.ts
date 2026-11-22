@@ -9,6 +9,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { ProjectService } from '../../../services/project/project.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { toIsoDate } from '../../../shared/locale/app-locale';
+import { DictationHandlers, DictationService } from '../../../shared/services/dictation.service';
 import { ProjectJournalComponent } from './project-journal.component';
 
 describe('ProjectJournalComponent', () => {
@@ -28,6 +29,8 @@ describe('ProjectJournalComponent', () => {
   let contacts: jasmine.SpyObj<ContactService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirmDialog: jasmine.SpyObj<ConfirmDialogService>;
+  let dictation: jasmine.SpyObj<DictationService>;
+  let handlers: DictationHandlers | null;
 
   function create(project: ProjectDto = mission, before: () => void = () => undefined,
                   exchanges: Observable<ContactInteraction[]> = of([call])): void {
@@ -39,6 +42,20 @@ describe('ProjectJournalComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['error']);
     confirmDialog = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     confirmDialog.confirm.and.returnValue(of(true));
+    handlers = null;
+    let listening = false;
+    dictation = jasmine.createSpyObj('DictationService', ['supported', 'listening', 'start', 'stop']);
+    dictation.supported.and.returnValue(true);
+    dictation.listening.and.callFake(() => listening);
+    dictation.start.and.callFake((_language: string, given: DictationHandlers) => {
+      handlers = given;
+      listening = true;
+      return true;
+    });
+    dictation.stop.and.callFake(() => {
+      listening = false;
+      handlers?.ended(null);
+    });
     before();
     TestBed.configureTestingModule({
       imports: [ProjectJournalComponent, TranslateModule.forRoot()],
@@ -47,7 +64,8 @@ describe('ProjectJournalComponent', () => {
         { provide: ProjectService, useValue: projectService },
         { provide: ContactService, useValue: contacts },
         { provide: NotificationService, useValue: notifications },
-        { provide: ConfirmDialogService, useValue: confirmDialog }
+        { provide: ConfirmDialogService, useValue: confirmDialog },
+        { provide: DictationService, useValue: dictation }
       ]
     });
     fixture = TestBed.createComponent(ProjectJournalComponent);
@@ -197,5 +215,34 @@ describe('ProjectJournalComponent', () => {
 
     expect(contacts.getByClientId).not.toHaveBeenCalled();
     expect(element().textContent).toContain('projects.journal.noContacts');
+  });
+
+  it('dictates into the note, after what is typed, and says when the microphone is refused', () => {
+    create();
+    component.newNoteContent = 'Appel avec Léa.';
+    (element().querySelector('[data-dictate]') as HTMLButtonElement).click();
+    expect(dictation.start).toHaveBeenCalledTimes(1);
+    handlers!.interim('elle rappelle');
+    expect(element().querySelector('[data-dictation-status]')?.textContent).toContain('elle rappelle');
+    handlers!.final('Elle rappelle lundi.');
+    expect(component.newNoteContent).toBe('Appel avec Léa. Elle rappelle lundi.');
+    component.toggleDictation();
+    expect(dictation.stop).toHaveBeenCalled();
+    expect(component.hearing).toBe('');
+    expect(element().querySelector('[data-dictation-status]')).toBeNull();
+
+    component.toggleDictation();
+    handlers!.ended('not-allowed');
+    expect(notifications.error).toHaveBeenCalledWith('projects.notes.dictationDenied');
+    handlers!.ended('network');
+    expect(notifications.error).toHaveBeenCalledWith('projects.notes.dictationFailed');
+    handlers!.ended('no-speech');
+    expect(notifications.error).toHaveBeenCalledTimes(2);
+    fixture.destroy();
+  });
+
+  it('offers no dictation where the browser has none', () => {
+    create(mission, () => dictation.supported.and.returnValue(false));
+    expect(element().querySelector('[data-dictate]')).toBeNull();
   });
 });

@@ -365,7 +365,12 @@
           "label": "Résumé de négociation",
           "body": "Résumé de négociation\n\nDate : \nTJM demandé : \nTJM proposé : \nConditions convenues : \nPoints ouverts :\n- \nProchaines étapes :\n- "
         }
-      }
+      },
+      "dictate": "Dicter",
+      "stopDictation": "Arrêter la dictée",
+      "listening": "À l’écoute…",
+      "dictationDenied": "Le navigateur a refusé le micro : autorisez-le pour Indezy afin de dicter.",
+      "dictationFailed": "La dictée s'est arrêtée : réessayez, ou tapez la note."
     },
     "loading": "Chargement des missions...",
     "noProjects": "Aucune mission trouvée",

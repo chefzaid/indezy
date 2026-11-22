@@ -785,6 +785,11 @@ An opportunity's **Journal** lists, newest first, its Markdown notes (with a pre
 as a call debrief) and the exchanges with contacts recorded about it. **Record an exchange** adds one with a contact of
 the client or its ESN. Deleting the opportunity keeps its exchanges, tied to none.
 
+**Dictate**, beside the note, turns speech into the note's text in the interface language, after what is typed, with
+the words still being heard shown under it, until **Stop dictating**: a voice memo after a call. It uses the browser's
+own speech recognition, so nothing is recorded or sent to Indezy (Chrome and Edge send the audio to their maker's speech
+service; the button is not shown where the browser has none, as in Firefox).
+
 ## Emails From Templates
 
 **Write an email** on an opportunity picks a template and a recipient among the ESN's and the client's contacts, then
