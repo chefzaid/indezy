@@ -67,6 +67,13 @@ An opportunity's page holds everything about it. **Change pipeline stage** moves
 - **Documents and links** keeps up to 20 files (job description, contract, test brief) of 50 MB each: click **Attach a file**.
 - **Copy project link** copies an address that opens for your account only.
 
+## AI help
+
+- On a new opportunity, **Fill in from a pasted posting (AI)** reads a posting you paste (an email, a job board page, a LinkedIn message) and fills in the role, the company, the rate, the stack, the place, remote days, the start date and the duration. Check them, then save: the client is created if you do not have it yet.
+- On an opportunity's page, **Draft a message (AI)** writes an application, a follow-up, a thank-you after an interview or a polite decline, in French or English, from the opportunity and a few words on what to say. Change it as you like, then **Copy** it into your email.
+
+Each account has a monthly AI allowance; **Profile → Preferences → AI** shows it, and takes your own Anthropic key to go beyond it. The AI only sees what you typed and the opportunity concerned.
+
 ## Recruitment steps
 
 1. Under **Recruitment steps**, click **Add a step**.

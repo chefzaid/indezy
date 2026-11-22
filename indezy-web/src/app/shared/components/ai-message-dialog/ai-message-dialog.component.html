@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>{{ 'ai.message.title' | translate }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="ask" (ngSubmit)="write()">
+    <div class="row">
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'ai.message.kind' | translate }}</mat-label>
+        <mat-select formControlName="kind" data-ai-message-kind>
+          @for (kind of kinds; track kind) {
+            <mat-option [value]="kind">{{ 'ai.message.kinds.' + kind | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'ai.message.language' | translate }}</mat-label>
+        <mat-select formControlName="language">
+          <mat-option value="FR">{{ 'clients.form.activityReport.languages.FR' | translate }}</mat-option>
+          <mat-option value="EN">{{ 'clients.form.activityReport.languages.EN' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>{{ 'ai.message.notes' | translate }}</mat-label>
+      <textarea matInput formControlName="notes" rows="2" maxlength="1000" data-ai-message-notes></textarea>
+      <mat-hint>{{ 'ai.message.notesHint' | translate }}</mat-hint>
+    </mat-form-field>
+  </form>
+  @if (errorKey) {
+    <p class="error" role="alert" data-ai-error>{{ errorKey | translate }}</p>
+  }
+  @if (drafted) {
+    <form [formGroup]="draft" class="draft" data-ai-message-draft>
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>{{ 'ai.message.subject' | translate }}</mat-label>
+        <input matInput formControlName="subject" data-ai-message-subject>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>{{ 'ai.message.body' | translate }}</mat-label>
+        <textarea matInput formControlName="body" rows="10" data-ai-message-body></textarea>
+      </mat-form-field>
+    </form>
+  }
+  <p class="disclaimer">{{ 'ai.disclaimer' | translate }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>{{ 'common.close' | translate }}</button>
+  @if (drafted) {
+    <button mat-stroked-button type="button" (click)="copy()" data-ai-message-copy><mat-icon>content_copy</mat-icon>{{ 'ai.message.copy' | translate }}</button>
+  }
+  <button mat-flat-button color="primary" type="button" (click)="write()" [disabled]="writing" data-ai-message-write>
+    @if (writing) {
+      <mat-spinner diameter="18" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+    }
+    {{ (drafted ? 'ai.message.again' : 'ai.message.write') | translate }}
+  </button>
+</mat-dialog-actions>

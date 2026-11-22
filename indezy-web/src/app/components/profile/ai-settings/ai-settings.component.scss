@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  margin-top: 16px;
+}
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.state {
+  margin: 0 0 12px;
+}
+
+.hint {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.allowance {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+
+  .bar {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--app-chip-neutral-bg);
+    overflow: hidden;
+
+    span {
+      display: block;
+      height: 100%;
+      background: var(--app-chip-indigo-text);
+    }
+  }
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  .grow {
+    flex: 1 1 220px;
+  }
+}

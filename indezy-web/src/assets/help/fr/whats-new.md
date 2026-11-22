@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### L'aide de l'IA
+
+Remplissez une nouvelle opportunité depuis une annonce collée, et rédigez une candidature, une relance, un remerciement ou un refus depuis la page d'une opportunité. Un forfait mensuel accompagne chaque compte, ou utilisez votre propre clé Anthropic dans **Profil → Préférences → IA**. Voir [Pipeline et opportunités](/help/pipeline).
+
 ### Les TJM du réseau
 
 À côté du fil, voyez le TJM médian d'une compétence par séniorité et région, venant des membres qui partagent leurs tarifs (**Profil → Confidentialité**), affiché dès que cinq freelances soutiennent un chiffre. Voir [Le réseau des membres](/help/network).

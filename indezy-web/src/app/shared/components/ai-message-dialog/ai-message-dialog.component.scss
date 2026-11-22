@@ -1,0 +1,35 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  .grow {
+    flex: 1 1 200px;
+  }
+}
+
+.full {
+  width: 100%;
+}
+
+.draft {
+  margin-top: 12px;
+}
+
+.error {
+  margin: 8px 0;
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}
+
+.disclaimer {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}

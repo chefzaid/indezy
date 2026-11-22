@@ -38,3 +38,4 @@ export * from './webhook.models';
 export * from './booking.models';
 export * from './network-communities.models';
 export * from './expense.models';
+export * from './ai.models';

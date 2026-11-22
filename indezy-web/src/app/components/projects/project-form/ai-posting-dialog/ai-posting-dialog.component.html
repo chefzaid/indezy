@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>{{ 'ai.posting.title' | translate }}</h2>
+<mat-dialog-content>
+  <p class="hint">{{ 'ai.posting.hint' | translate }}</p>
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>{{ 'ai.posting.text' | translate }}</mat-label>
+    <textarea matInput [formControl]="text" rows="12" [attr.maxlength]="max" data-ai-posting-text></textarea>
+    <mat-error>{{ 'ai.posting.textError' | translate }}</mat-error>
+  </mat-form-field>
+  @if (errorKey) {
+    <p class="error" role="alert" data-ai-error>{{ errorKey | translate }}</p>
+  }
+  <p class="disclaimer">{{ 'ai.disclaimer' | translate }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-flat-button color="primary" type="button" (click)="read()" [disabled]="reading" data-ai-posting-read>
+    @if (reading) {
+      <mat-spinner diameter="18" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+    }
+    {{ (reading ? 'ai.posting.reading' : 'ai.posting.read') | translate }}
+  </button>
+</mat-dialog-actions>

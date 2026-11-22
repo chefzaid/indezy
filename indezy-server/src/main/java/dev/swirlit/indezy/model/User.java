@@ -201,6 +201,14 @@ public class User extends BaseEntity {
         return Boolean.TRUE.equals(shareRates);
     }
 
+    /** The member's own Anthropic key, encrypted (AiKeyCipher); null to use Indezy's within its limits. */
+    @Column(name = "ai_api_key", length = 600)
+    private String aiApiKey;
+
+    /** The model the member's own key uses; null for Indezy's choice. */
+    @Column(name = "ai_model", length = 40)
+    private String aiModel;
+
     /** Years without exchange after which a contact is anonymized every night; null or 0 for never. */
     @Column(name = "contact_retention_years")
     private Integer contactRetentionYears;

@@ -12,6 +12,9 @@
 
       @if (!isLoading && !isEditMode) {
         <app-offer-link-field [autofocus]="startFromLink" [initialLink]="initialLink" (found)="fillFromOffer($event)"></app-offer-link-field>
+        <button mat-stroked-button type="button" class="ai-posting" (click)="readPosting()" data-ai-posting>
+          <mat-icon>auto_awesome</mat-icon>{{ 'ai.posting.open' | translate }}
+        </button>
       }
       @if (offerLink; as link) {
         <div class="from-offer" data-from-offer>

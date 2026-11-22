@@ -27,6 +27,7 @@ import {
   PROJECT_STATUS_ICONS,
   ProjectDto,
   ProjectStatus,
+  AiMessageKind,
   isRefusedStatus,
   Refusal,
   STEP_STATUS_COLORS,
@@ -62,6 +63,7 @@ import { ProjectCommuteComponent } from './project-commute/project-commute.compo
 import { ContractChecklistComponent } from './contract-checklist/contract-checklist.component';
 import { NonSolicitationNoticeComponent } from './non-solicitation-notice/non-solicitation-notice.component';
 import { CompanyHealthComponent } from '../../../shared/components/company-health/company-health.component';
+import { AiMessageDialogComponent, AiMessageDialogData } from '../../../shared/components/ai-message-dialog/ai-message-dialog.component';
 
 @Component({
     selector: 'app-project-detail',
@@ -173,6 +175,18 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             error: () => this.notificationService.error('projects.skills.renameError')
           });
       });
+  }
+
+  /** Opens the AI drafter of a message about this opportunity, the kind chosen from its stage. */
+  draftMessage(): void {
+    const project = this.project;
+    if (!project?.id) {
+      return;
+    }
+    const kind: AiMessageKind = project.status === ProjectStatus.CONTACT ? 'APPLICATION' :
+      isRefusedStatus(project.status) ? 'DECLINE' : 'FOLLOW_UP';
+    const data: AiMessageDialogData = { projectId: project.id, kind };
+    this.dialog.open(AiMessageDialogComponent, { data, width: '720px', maxWidth: '96vw', autoFocus: false });
   }
 
   ngOnInit(): void {

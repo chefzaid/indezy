@@ -622,6 +622,23 @@ encrypted for the browser (RFC 8291) and signed with Indezy's VAPID key (RFC 829
 browsers are accepted as endpoints. Without the server's VAPID keys ([Deployment](./deployment.md#web-push-keys)),
 the switch says push is not available yet.
 
+### AI Features
+
+Claude helps where typing is slow ([ADR 0015](./adr/0015-ai-provider.md)); what it writes is shown to check and change,
+never saved or sent on its own:
+
+- **Fill in from a pasted posting (AI)** on a new opportunity (`POST /api/ai/posting`, 20,000 characters at most): the
+  role, the company (an ESN's end client when it names one), the rate, the stack, the place, the work mode and remote
+  days, the start date and the duration, nothing it does not state; the posting becomes the description, the client and
+  a **Job posting** source are created on saving when the workspace has none of that name.
+- **Draft a message (AI)** on an opportunity (`POST /api/ai/message`): an application, a follow-up, a thank-you after an
+  interview or a decline, in French or English, from the role, the company, the stack, the stage, the description and a
+  few words on what to say; the subject and the message are editable and copied in one click.
+- **Profile → Preferences → AI** (`GET /api/ai/status`, `PUT`/`DELETE /api/ai/key`): whether AI can be used and this
+  month's allowance on Indezy's key (2 US dollars by default), or the member's own Anthropic key, stored encrypted, with
+  Opus, Sonnet or Haiku 5.5, which no limit applies to. An allowance used up, Indezy's monthly cap reached, a refusal or a
+  key Anthropic refuses are each said as such.
+
 ## Projects And Opportunities
 
 **Opportunities** (`/projects`) lists the workspace's opportunities and missions. Beyond the role, stage, description,

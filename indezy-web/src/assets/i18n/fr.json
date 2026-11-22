@@ -4705,5 +4705,74 @@
       "FEES": "Honoraires (comptable, banque)",
       "OTHER": "Autre"
     }
+  },
+  "ai": {
+    "disclaimer": "Rédigé par l'IA à partir de ce que vous avez saisi et de l'opportunité : relisez-le avant de l'utiliser.",
+    "models": {
+      "claude-opus-5-5": "Claude Opus 5.5 (le plus capable)",
+      "claude-sonnet-5-5": "Claude Sonnet 5.5 (équilibré)",
+      "claude-haiku-5-5": "Claude Haiku 5.5 (le plus rapide et économique)"
+    },
+    "errors": {
+      "unavailable": "L'IA n'est pas encore disponible : ajoutez votre propre clé Anthropic dans Profil → Préférences.",
+      "accountLimit": "Votre forfait IA du mois est épuisé : ajoutez votre propre clé Anthropic dans Profil → Préférences pour continuer.",
+      "monthlyLimit": "Le forfait IA d'Indezy du mois est épuisé : ajoutez votre propre clé Anthropic dans Profil → Préférences pour continuer.",
+      "declined": "L'IA a refusé cette demande.",
+      "keyRefused": "Anthropic a refusé votre clé : vérifiez-la dans Profil → Préférences.",
+      "tooLong": "La réponse a été coupée : raccourcissez le texte.",
+      "failed": "L'IA ne peut pas répondre pour l'instant : réessayez dans un moment."
+    },
+    "posting": {
+      "open": "Remplir depuis une annonce collée (IA)",
+      "title": "Remplir depuis une annonce",
+      "hint": "Collez l'annonce telle que vous l'avez reçue (e-mail, job board, LinkedIn) : le poste, le TJM, la stack, le lieu, les dates et la durée remplissent le formulaire. Rien n'est enregistré avant que vous enregistriez l'opportunité.",
+      "text": "L'annonce",
+      "textError": "Collez une annonce de 20 000 caractères au plus",
+      "read": "Lire l'annonce",
+      "reading": "Lecture…",
+      "unknownCompany": "Entreprise à nommer",
+      "site": "une annonce lue par l'IA",
+      "sourceName": "Annonce"
+    },
+    "message": {
+      "open": "Rédiger un message (IA)",
+      "title": "Rédiger un message",
+      "kind": "Message",
+      "language": "Langue",
+      "notes": "Ce que vous voulez dire (facultatif)",
+      "notesHint": "Par exemple : disponible à partir du 4 janvier, TJM négociable",
+      "kinds": {
+        "APPLICATION": "Candidature",
+        "FOLLOW_UP": "Relance",
+        "THANK_YOU": "Remerciement après un entretien",
+        "DECLINE": "Refus"
+      },
+      "subject": "Objet",
+      "body": "Message",
+      "write": "Rédiger",
+      "again": "Rédiger à nouveau",
+      "copy": "Copier",
+      "copied": "Message copié"
+    },
+    "settings": {
+      "title": "IA",
+      "indezyKey": "Les fonctions d'IA utilisent le forfait d'Indezy.",
+      "ownKey": "Les fonctions d'IA utilisent votre propre clé Anthropic, avec {{model}}, sans les limites d'Indezy.",
+      "reasons": {
+        "NO_KEY": "L'IA n'est pas encore disponible sur ce serveur : ajoutez votre propre clé Anthropic pour l'utiliser.",
+        "ACCOUNT_LIMIT": "Votre forfait du mois est épuisé : ajoutez votre propre clé Anthropic pour continuer.",
+        "MONTHLY_LIMIT": "Le forfait d'Indezy du mois est épuisé : ajoutez votre propre clé Anthropic pour continuer."
+      },
+      "allowance": "Ce mois-ci : {{spent}} $ sur {{limit}} $",
+      "allowanceLabel": "Forfait IA du mois utilisé",
+      "ownKeyHint": "Avec votre propre clé de console.anthropic.com, les demandes d'IA sont facturées sur votre compte Anthropic et n'ont pas de limite ici. La clé est enregistrée chiffrée.",
+      "apiKey": "Clé API Anthropic",
+      "model": "Modèle",
+      "saveKey": "Utiliser ma clé",
+      "removeKey": "Retirer ma clé et utiliser le forfait d'Indezy",
+      "keySaved": "Votre clé est enregistrée",
+      "keyRemoved": "Votre clé est retirée",
+      "keyInvalid": "Une clé Anthropic commence par sk-ant-"
+    }
   }
 }

@@ -72,6 +72,11 @@
             <app-company-health [clientId]="project.middlemanId" [name]="project.middlemanName ?? ''"></app-company-health>
           }
           <app-non-solicitation-notice [projectId]="project.id!" [freelanceId]="project.freelanceId!"></app-non-solicitation-notice>
+          <div class="ai-actions">
+            <button mat-stroked-button type="button" (click)="draftMessage()" data-ai-message>
+              <mat-icon>auto_awesome</mat-icon>{{ 'ai.message.open' | translate }}
+            </button>
+          </div>
         </mat-card-content>
         <mat-card-actions>
           <app-project-link [projectId]="project.id!"></app-project-link>

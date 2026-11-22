@@ -91,6 +91,40 @@ search dialog says emails are not set up.
 Resend accepting an email means accepted for delivery, not delivered; its logs show bounces. Each email carries an
 idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 hours sends it once.
 
+## AI key
+
+The AI features ([ADR 0015](./adr/0015-ai-provider.md)) use Indezy's Anthropic key from the optional `indezy-ai`
+secret (`INDEZY_AI_ANTHROPIC_API_KEY`). Without it they say AI is not available, and members can still set their own key.
+Limits are set in the `indezy-server-config` ConfigMap or the deployment's environment: `INDEZY_AI_ACCOUNT_MONTHLY_CAP_USD`
+(2 by default, per account and month), `INDEZY_AI_MONTHLY_CAP_USD` (100 by default, all accounts) and `INDEZY_AI_MODEL`
+(`claude-opus-5-5` by default). To set it up once:
+
+1. In the Anthropic Console, create an API key for Indezy (a workspace of its own lets you set a spend limit there too).
+2. Store it in Vault (KV v2) at `secret/apps/indezy/ai`, field `anthropic_api_key`.
+3. Add this ExternalSecret to `infra/k8s/external-secrets.yaml` and restart the server:
+
+   ```yaml
+   apiVersion: external-secrets.io/v1
+   kind: ExternalSecret
+   metadata:
+     name: indezy-ai
+     annotations:
+       argocd.argoproj.io/sync-wave: "-2"
+   spec:
+     refreshInterval: 1h
+     secretStoreRef:
+       name: vault-backend
+       kind: ClusterSecretStore
+     target:
+       name: indezy-ai
+       creationPolicy: Owner
+     data:
+       - secretKey: INDEZY_AI_ANTHROPIC_API_KEY
+         remoteRef: { key: apps/indezy/ai, property: anthropic_api_key }
+   ```
+
+The server reaches `api.anthropic.com` over its existing HTTPS egress.
+
 ## Web push keys
 
 Web push (Profile → Notifications → **Notifications on this device**) signs each push with a VAPID key pair. Until the

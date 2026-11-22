@@ -1,0 +1,48 @@
+@if (status; as status) {
+  <mat-card class="form-section ai-settings" data-ai-settings>
+    <mat-card-header>
+      <mat-card-title><mat-icon aria-hidden="true">auto_awesome</mat-icon>{{ 'ai.settings.title' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="state" [attr.data-ai-state]="status.available ? 'available' : status.reason">
+        @if (status.ownKey) {
+          {{ 'ai.settings.ownKey' | translate: { model: ('ai.models.' + status.model | translate) } }}
+        } @else if (status.available) {
+          {{ 'ai.settings.indezyKey' | translate }}
+        } @else {
+          {{ 'ai.settings.reasons.' + status.reason | translate }}
+        }
+      </p>
+      @if (!status.ownKey && status.reason !== 'NO_KEY') {
+        <div class="allowance" data-ai-allowance>
+          <span>{{ 'ai.settings.allowance' | translate: { spent: (status.spentUsd | number:'1.2-2'), limit: (status.limitUsd | number:'1.2-2') } }}</span>
+          <span class="bar" role="progressbar" [attr.aria-valuenow]="used" aria-valuemin="0" aria-valuemax="100"
+            [attr.aria-label]="'ai.settings.allowanceLabel' | translate"><span [style.width.%]="used"></span></span>
+        </div>
+      }
+      @if (status.ownKey) {
+        <button mat-stroked-button type="button" (click)="removeKey()" [disabled]="saving" data-ai-remove-key>{{ 'ai.settings.removeKey' | translate }}</button>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="saveKey()" class="key" data-ai-key-form>
+          <p class="hint">{{ 'ai.settings.ownKeyHint' | translate }}</p>
+          <div class="row">
+            <mat-form-field appearance="outline" class="grow">
+              <mat-label>{{ 'ai.settings.apiKey' | translate }}</mat-label>
+              <input matInput type="password" formControlName="apiKey" autocomplete="off" data-ai-key>
+              <mat-error>{{ 'ai.settings.keyInvalid' | translate }}</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="grow">
+              <mat-label>{{ 'ai.settings.model' | translate }}</mat-label>
+              <mat-select formControlName="model">
+                @for (model of models; track model) {
+                  <mat-option [value]="model">{{ 'ai.models.' + model | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <button mat-flat-button color="primary" type="submit" [disabled]="saving" data-ai-save-key>{{ 'ai.settings.saveKey' | translate }}</button>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+}

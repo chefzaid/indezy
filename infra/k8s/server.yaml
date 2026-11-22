@@ -132,6 +132,14 @@ spec:
                   name: indezy-mail
                   key: RESEND_API_KEY
                   optional: true
+            # AI features: without Indezy's Anthropic key they say AI is not available, but members can bring their own
+            # (docs/deployment.md#ai-key).
+            - name: INDEZY_AI_ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: indezy-ai
+                  key: INDEZY_AI_ANTHROPIC_API_KEY
+                  optional: true
             # Web push: without the VAPID key pair nothing is pushed, and the app says so (docs/deployment.md#web-push-keys).
             - name: INDEZY_PUSH_VAPID_PUBLIC_KEY
               valueFrom:

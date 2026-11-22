@@ -4,7 +4,8 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import { TranslateModule } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
-import { ClientDto, Offer, OfferLink, ProjectDto, ProjectStatus } from '../../../models';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { AiPosting, ClientDto, Offer, OfferLink, ProjectDto, ProjectStatus } from '../../../models';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ClientService } from '../../../services/client/client.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -197,6 +198,28 @@ describe('ProjectFormComponent', () => {
       // A link that gave nothing to fill in leaves the form as it is.
       fixture.componentInstance.fillFromOffer({ status: 'GONE', siteName: 'acme-careers.fr' });
       expect(fixture.componentInstance.offerLink).toBe(posting);
+    });
+
+    it('fills the form in from a posting read by AI, the end client as client when an ESN posts it', () => {
+      const fixture = create();
+      fixture.detectChanges();
+      const dialog = TestBed.inject(MatDialog);
+      const posting = { role: 'Développeur Java Senior', company: 'Conseil X', companyIsIntermediary: true, endClient: 'Banque Y',
+        dailyRate: 650, techStack: ['Java', 'Kafka'], place: '92400 Courbevoie', workMode: 'HYBRID', remoteDaysPerMonth: 8,
+        startDate: '2027-01-04', durationInMonths: null, summary: null } as AiPosting;
+      spyOn(dialog, 'open').and.returnValue({ afterClosed: () => of({ posting, text: 'Mission Java Senior...' }) } as MatDialogRef<unknown>);
+      fixture.componentInstance.readPosting();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.newClientName).toBe('Banque Y');
+      expect(fixture.componentInstance.offerLink?.status).toBe('POSTING');
+      expect(fixture.componentInstance.projectForm.value).toEqual(jasmine.objectContaining({ role: 'Développeur Java Senior', dailyRate: 650,
+        techStack: 'Java, Kafka', workMode: 'HYBRID', remoteDaysPerMonth: 8, workAddress: '92400 Courbevoie',
+        description: 'Mission Java Senior...', durationInMonths: '' }));
+      offers.importPosting.and.returnValue(of({ id: 45 } as ProjectDto));
+      fixture.componentInstance.onSubmit();
+      expect(offers.importPosting.calls.mostRecent().args[0]).toEqual(jasmine.objectContaining({ clientName: 'Banque Y',
+        sourceName: 'ai.posting.sourceName' }));
     });
 
     it('keeps what was filled in as an opportunity of its own once unlinked', () => {

@@ -90,6 +90,7 @@ Parts of tasks that cannot advance without the owner's decision or information. 
 
 - [ ] **AI provider and costs** (AI & Automation: message polish, job description parsing, suggested rate, job fit, recommendations, CV adaptation, follow-up messages, project chat, semantic search, CV generator, status suggestions, local LLM; the profile import's CV reading; and the voice memo transcription). Options: (a) bring-your-own key only, each user pays their provider (which providers first: Anthropic, OpenAI, Mistral?); (b) an Indezy key in Vault with per-plan limits and a monthly spending cap; (c) a model run on the cluster (Ollama, whisper.cpp), which needs CPU/GPU budget. Bring-your-own-key support itself can be built once the providers are chosen.
   - Answer: (2026-11-20) (b) and (a) both: an Indezy key in Vault (Anthropic first) with per-plan limits and a monthly spending cap by default, plus an optional bring-your-own key that lifts the limits.
+  - Waiting (2026-11-22): the AI features are built on that answer (ADR 0015) and say AI is not available until Indezy's key is in Vault: create an Anthropic API key, store it at `secret/apps/indezy/ai` (`anthropic_api_key`) and add the `indezy-ai` ExternalSecret as `docs/deployment.md#ai-key` gives. Members can already use their own key. Confirm the default allowance too: 2 US dollars per account and month, 100 for all accounts, the same for everyone until plans exist.
 - [ ] **Google, Microsoft, Dropbox and LinkedIn accounts** (calendar two-way sync, Gmail/Outlook inbox sync, Drive/OneDrive/Dropbox backups, social login and Gmail/Outlook/LinkedIn sign-in through Keycloak, the profile import's **Connect with LinkedIn**): each needs an OAuth client registered under your accounts, Gmail's restricted scopes need Google's security assessment, and LinkedIn's Member Data Portability API is granted per app after LinkedIn reviews it. Which providers first, and will you register the clients (their ids and secrets go to Vault)?
   - Answer:
 - [ ] **Email open and reply tracking** (Communications): emails leave from the user's own mail client today, so tracking means sending through Indezy (Resend) with a tracking pixel and reply detection, which the CNIL treats as needing the recipient's consent. Build it with a per-email opt-in and a notice in the email, or drop it?
@@ -388,18 +389,18 @@ Increments, implemented in order:
 
 ## AI & Automation
 
-- [ ] AI parsing of job descriptions (PDF/URL/email -> structured project: rate, stack, location, duration, suggested skill tags)
+- [ ] AI parsing of job descriptions (PDF/URL/email -> structured project: rate, stack, location, duration, suggested skill tags) Partly done on 2026-11-22: **Fill in from a pasted posting (AI)** on a new opportunity reads pasted text (an email or a page copied) into its fields (`docs/features.md#ai-features`); PDFs and links remain.
 - [ ] AI-suggested daily rate based on stack, seniority and market data
 - [ ] AI job-fit analysis: which job is more adapted to your profile, pros vs cons per opportunity, including soft criteria in decision making (management style, team spirit, ...)
 - [ ] Project recommendation engine combining peer-shared opportunities, skill match, market data, and soft criteria
 - [ ] Auto-adapt CV to postulate for each job with adapted tech stack and experiences
-- [ ] AI-generated personalized follow-up and application messages
+- [x] AI-generated personalized follow-up and application messages. Done on 2026-11-22: **Draft a message (AI)** on an opportunity, an application, follow-up, thank-you or decline, editable and copied (`docs/features.md#ai-features`).
 - [ ] AI chat scoped to a project: the opportunity (description, notes, history) becomes the conversation context — interview prep, negotiation angles, post-mortem; history stored per project
 - [ ] Semantic search across past opportunities and notes (by meaning, not just keywords)
 - [ ] CV/Dossier de compétences generator tailored to a specific opportunity
 - [ ] Automated status update suggestions from email content and user behavior (e.g. detect rejection, interview invite, or likely stale opportunity)
 - [x] Weekly digest: pipeline summary, actions due, market trends. Done on 2026-10-27: every Monday from 8:00 Paris time, an email in the account's language with the pipeline by stage, the next 7 days' interviews, follow-ups due, opportunities gone quiet, missions ending and the week's new offers matching the profile (nothing sent for an empty week), turned on in Profile → Notifications, sent once across replicas, with a one-click unsubscribe; it waits on the Resend key like the saved search emails.
-- [ ] Bring-your-own API key support with per-user preferred model; different models per task type to optimize token cost
+- [ ] Bring-your-own API key support with per-user preferred model; different models per task type to optimize token cost Partly done on 2026-11-22: a member's own Anthropic key with Opus, Sonnet or Haiku 5.5 in Profile → Preferences → AI, without Indezy's limits (ADR 0015); a model per task type remains.
 - [ ] Local LLM feature for more privacy
 
 ### Job Search And Application Autopilot (added 2026-11-17)

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -30,6 +30,8 @@ import { blankToNull } from '../../../shared/utils/form-payload';
 import { fieldError } from '../../../shared/utils/form-errors';
 import { OfferLinkFieldComponent } from './offer-link-field/offer-link-field.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { MatDialog } from '@angular/material/dialog';
+import { AiPostingDialogComponent, AiPostingResult } from './ai-posting-dialog/ai-posting-dialog.component';
 
 /** The value of a client or source the offer names and the workspace does not have yet: created when the form is saved. */
 export const NEW_RECORD = -1;
@@ -101,6 +103,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   ];
 
   private readonly destroy$ = new Subject<void>();
+  private readonly dialog = inject(MatDialog);
 
   constructor(
     private readonly fb: FormBuilder,
@@ -350,6 +353,32 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       sourceId: project.sourceId ?? NEW_RECORD
     });
     this.projectForm.markAsDirty();
+  }
+
+  /** Opens the AI reader of a pasted job posting, then fills the form in with what it read. */
+  readPosting(): void {
+    this.dialog.open(AiPostingDialogComponent, { width: '720px', maxWidth: '96vw', autoFocus: 'textarea' }).afterClosed()
+      .pipe(takeUntil(this.destroy$)).subscribe((result?: AiPostingResult) => {
+        if (result) {
+          this.fillFromPosting(result);
+        }
+      });
+  }
+
+  /**
+   * A posting read by AI fills the form in as a posting of another site does: the client named after the end client
+   * when an ESN posts it and names one, else the company posting it, created on saving when the workspace has none.
+   */
+  private fillFromPosting({ posting, text }: AiPostingResult): void {
+    const clientName = (posting.companyIsIntermediary ? posting.endClient : null) ?? posting.company ?? posting.endClient ??
+      this.translate.instant('ai.posting.unknownCompany');
+    const project = {
+      role: posting.role ?? '', description: text, techStack: posting.techStack.join(', '), dailyRate: posting.dailyRate ?? undefined,
+      workMode: posting.workMode ?? undefined, remoteDaysPerMonth: posting.remoteDaysPerMonth ?? undefined,
+      workAddress: posting.place ?? undefined, startDate: posting.startDate ?? undefined, durationInMonths: posting.durationInMonths ?? undefined
+    } as ProjectDto;
+    this.fillFromOffer({ status: 'POSTING', siteName: this.translate.instant('ai.posting.site'),
+      draft: { project, clientName, sourceName: this.translate.instant('ai.posting.sourceName') } });
   }
 
   /** Keeps what the offer filled in, as a new opportunity of its own. */

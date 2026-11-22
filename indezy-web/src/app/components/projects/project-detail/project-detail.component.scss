@@ -390,3 +390,10 @@
     background: color-mix(in srgb, var(--status-color, #43a047) 60%, white);
   }
 }
+
+.ai-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}

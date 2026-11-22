@@ -34,6 +34,7 @@ import { ProfileApiTokensComponent } from './api-tokens/profile-api-tokens.compo
 import { ProfileWebhooksComponent } from './webhooks/profile-webhooks.component';
 import { ProfileNotificationsComponent } from './notifications/profile-notifications.component';
 import { ProfileBillingComponent } from './billing/profile-billing.component';
+import { AiSettingsComponent } from './ai-settings/ai-settings.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { DossierButtonComponent } from './dossier-button/dossier-button.component';
 
@@ -42,7 +43,7 @@ const PROFILE_TABS_BEFORE_NETWORK = 7;
 
 @Component({
     selector: 'app-profile',
-    imports: [DossierButtonComponent, PageHeaderComponent, 
+    imports: [AiSettingsComponent, DossierButtonComponent, PageHeaderComponent, 
     ProfileDataImportComponent, ProfilePublicPageComponent, ProfileNetworkComponent, ProfilePrivacyComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
     ProfileWebhooksComponent, ProfileAccountDeletionComponent,
     ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent,

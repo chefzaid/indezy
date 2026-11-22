@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### AI help
+
+Fill a new opportunity in from a pasted posting, and draft an application, a follow-up, a thank-you or a decline from an opportunity's page. A monthly allowance comes with each account, or use your own Anthropic key in **Profile → Preferences → AI**. See [Pipeline and opportunities](/help/pipeline).
+
 ### Daily rates in the network
 
 Beside the feed, see the median daily rate of a skill by seniority and region, from the members who share their rates (**Profile → Privacy**), shown once five freelancers back a figure. See [The member network](/help/network).

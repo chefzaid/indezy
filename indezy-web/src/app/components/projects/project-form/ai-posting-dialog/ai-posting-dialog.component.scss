@@ -1,0 +1,27 @@
+.full {
+  width: 100%;
+}
+
+.hint,
+.disclaimer {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.disclaimer {
+  margin-top: 8px;
+  font-size: 0.8125rem;
+}
+
+.error {
+  margin: 0 0 8px;
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}
+
+mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}

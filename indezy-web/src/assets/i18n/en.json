@@ -4705,5 +4705,74 @@
       "FEES": "Fees (accountant, bank)",
       "OTHER": "Other"
     }
+  },
+  "ai": {
+    "disclaimer": "Written by AI from what you typed and the opportunity: check it before using it.",
+    "models": {
+      "claude-opus-5-5": "Claude Opus 5.5 (most capable)",
+      "claude-sonnet-5-5": "Claude Sonnet 5.5 (balanced)",
+      "claude-haiku-5-5": "Claude Haiku 5.5 (fastest, cheapest)"
+    },
+    "errors": {
+      "unavailable": "AI is not available yet: add your own Anthropic key in Profile → Preferences.",
+      "accountLimit": "Your AI allowance for this month is used up: add your own Anthropic key in Profile → Preferences to go on.",
+      "monthlyLimit": "Indezy's AI allowance for this month is used up: add your own Anthropic key in Profile → Preferences to go on.",
+      "declined": "The AI declined this request.",
+      "keyRefused": "Anthropic refused your key: check it in Profile → Preferences.",
+      "tooLong": "The answer was cut short: shorten the text.",
+      "failed": "The AI could not answer for now: try again in a moment."
+    },
+    "posting": {
+      "open": "Fill in from a pasted posting (AI)",
+      "title": "Fill in from a job posting",
+      "hint": "Paste the posting as you received it (email, job board, LinkedIn): the role, rate, stack, place, dates and duration fill the form in. Nothing is saved until you save the opportunity.",
+      "text": "The posting",
+      "textError": "Paste a posting of 20,000 characters at most",
+      "read": "Read the posting",
+      "reading": "Reading…",
+      "unknownCompany": "Company to name",
+      "site": "a posting read by AI",
+      "sourceName": "Job posting"
+    },
+    "message": {
+      "open": "Draft a message (AI)",
+      "title": "Draft a message",
+      "kind": "Message",
+      "language": "Language",
+      "notes": "What to say (optional)",
+      "notesHint": "For instance: available from 4 January, rate negotiable",
+      "kinds": {
+        "APPLICATION": "Application",
+        "FOLLOW_UP": "Follow-up",
+        "THANK_YOU": "Thank-you after an interview",
+        "DECLINE": "Decline"
+      },
+      "subject": "Subject",
+      "body": "Message",
+      "write": "Write",
+      "again": "Write again",
+      "copy": "Copy",
+      "copied": "Message copied"
+    },
+    "settings": {
+      "title": "AI",
+      "indezyKey": "AI features use Indezy's allowance.",
+      "ownKey": "AI features use your own Anthropic key, with {{model}}, without Indezy's limits.",
+      "reasons": {
+        "NO_KEY": "AI is not available on this server yet: add your own Anthropic key to use it.",
+        "ACCOUNT_LIMIT": "Your allowance for this month is used up: add your own Anthropic key to go on.",
+        "MONTHLY_LIMIT": "Indezy's allowance for this month is used up: add your own Anthropic key to go on."
+      },
+      "allowance": "This month: ${{spent}} of ${{limit}}",
+      "allowanceLabel": "This month's AI allowance used",
+      "ownKeyHint": "With your own key from console.anthropic.com, AI requests are billed to your Anthropic account and have no limit here. The key is stored encrypted.",
+      "apiKey": "Anthropic API key",
+      "model": "Model",
+      "saveKey": "Use my key",
+      "removeKey": "Remove my key and use Indezy's allowance",
+      "keySaved": "Your key is saved",
+      "keyRemoved": "Your key is removed",
+      "keyInvalid": "An Anthropic key starts with sk-ant-"
+    }
   }
 }

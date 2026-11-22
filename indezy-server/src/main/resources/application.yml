@@ -68,6 +68,13 @@ indezy:
     resend-api-key: ${RESEND_API_KEY:}
     from: ${INDEZY_MAIL_FROM:Indezy <noreply@swirlit.dev>}
     public-url: ${INDEZY_PUBLIC_URL:https://indezy.swirlit.dev}
+  ai:
+    # The AI features use Indezy's Anthropic key from Vault (docs/deployment.md#ai-key); without it they say AI is not
+    # available, unless the member sets their own key. Limits in US dollars a month: one account, and all of them.
+    api-key: ${INDEZY_AI_ANTHROPIC_API_KEY:}
+    model: ${INDEZY_AI_MODEL:claude-opus-5-5}
+    account-monthly-cap-usd: ${INDEZY_AI_ACCOUNT_MONTHLY_CAP_USD:2.0}
+    monthly-cap-usd: ${INDEZY_AI_MONTHLY_CAP_USD:100.0}
   push:
     # Web push signs with this VAPID key pair (see docs/deployment.md#web-push-keys); without it nothing is pushed.
     vapid-public-key: ${INDEZY_PUSH_VAPID_PUBLIC_KEY:}

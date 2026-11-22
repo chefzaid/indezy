@@ -128,6 +128,7 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkBookmark` | `network_bookmarks` | member and post (by id) | by hand, or with its post or either account |
 | `NetworkDraft` | `network_drafts` | member (by id) | by hand, once published (by hand or at its time), or with its account |
 | `NetworkHeld` | `network_held` | member (by id) | when an administrator publishes or rejects it, or with its account |
+| `AiUsage` | `ai_usage` | account (by id), one per month, feature and key | with the account |
 | `PushSubscription` | `push_subscriptions` | account (by id), one per browser (`endpoint` unique) | when the browser turns push off, its push service forgets it, or with the account |
 | `NetworkReview` | `network_reviews` | member (by id), one per company (`company_key`: `siren:` and the SIREN, else `name:` and the name folded) | by its author, or with its account; a rejected or removed one stays, so it is not written again unseen |
 | `NetworkFile` | `network_files` | member (by id), and its post, message or held post | with what it is attached to; nightly, a day after upload if never attached; with its account, but those of messages sent |
@@ -230,6 +231,8 @@ Deletion rules:
   years.
 - A soft-deleted or disabled account can neither sign in nor use a token issued before.
 - `freelances.reversion_share` is the share of the gross daily rate the freelancer keeps, in percent.
+- `users.ai_api_key` holds a member's own Anthropic key, encrypted, and `users.ai_model` its model; both null to use
+  Indezy's key within its allowance ([ADR 0015](./adr/0015-ai-provider.md)).
 - `users.share_rates` (null reads as off) is the account's opt-in to the rate benchmark; figures are computed on request
   from the won missions of the accounts that opted in, never stored ([ADR 0014](./adr/0014-aggregated-market-data.md)).
 - The billing identity is embedded in `freelances` (`billing_*` columns, all nullable): an invoice copies it when

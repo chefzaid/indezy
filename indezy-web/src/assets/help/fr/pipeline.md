@@ -67,6 +67,13 @@ La page d'une opportunité réunit tout ce qui la concerne. **Changer l'étape d
 - **Documents et liens** garde jusqu'à 20 fichiers (fiche de poste, contrat, test), de 50 Mo chacun : cliquez sur **Joindre un fichier**.
 - **Copier le lien du projet** copie une adresse qui ne s'ouvre que pour votre compte.
 
+## L'aide de l'IA
+
+- Sur une nouvelle opportunité, **Remplir depuis une annonce collée (IA)** lit une annonce que vous collez (un e-mail, une page de job board, un message LinkedIn) et remplit le poste, l'entreprise, le TJM, la stack, le lieu, les jours de télétravail, la date de début et la durée. Vérifiez-les, puis enregistrez : le client est créé si vous ne l'avez pas encore.
+- Sur la page d'une opportunité, **Rédiger un message (IA)** écrit une candidature, une relance, un remerciement après un entretien ou un refus poli, en français ou en anglais, à partir de l'opportunité et de quelques mots sur ce que vous voulez dire. Modifiez-le à votre guise, puis **Copiez**-le dans votre e-mail.
+
+Chaque compte a un forfait IA mensuel ; **Profil → Préférences → IA** l'affiche, et accepte votre propre clé Anthropic pour aller au-delà. L'IA ne voit que ce que vous avez saisi et l'opportunité concernée.
+
 ## Les étapes de recrutement
 
 1. Dans **Étapes de recrutement**, cliquez sur **Ajouter une étape**.
