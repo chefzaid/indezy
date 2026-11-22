@@ -4739,6 +4739,12 @@
       "problem": "Report a problem",
       "feature": "Suggest a feature",
       "requests": "My requests"
+    },
+    "link": {
+      "billingIdentity": "Help: what invoices must state",
+      "facturX": "Help: Factur-X invoices",
+      "emailTemplates": "Help: templates and their variables",
+      "offerFilters": "Help: filtering and sorting the feed"
     }
   },
   "legal": {

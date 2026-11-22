@@ -39,7 +39,9 @@ address (the opportunities, Kanban and timeline: the pipeline; invoices, quotes 
 profile: the account; any other page: getting started), with a search over all the help (as the help center's, its
 results opening in the panel), **Open the full article**, **All the help**, **Report a problem** and **Suggest a feature**
 (the support form with that kind and the page it came from) and **My requests**. The panel loads on first use, out of
-the first page's download.
+the first page's download. A small **?** beside the settings that need explaining opens it at the section that explains
+them: the billing identity and Factur-X (Profile → Billing), the email templates and their variables, and the offer
+feed's filters; a unit test checks that each points at a heading both languages' article has.
 
 ### Support Requests
 

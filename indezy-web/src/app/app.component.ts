@@ -5,7 +5,6 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
 import { NavigationEnd, Router, RouterOutlet, RouterModule } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,6 +24,7 @@ import { OfferAlertsService } from './services/offer/offer-alerts.service';
 import { NetworkNoticesService } from './services/network/network-notices.service';
 import { CapabilitiesService } from './services/admin/capabilities.service';
 import { FeatureFlag } from './models';
+import { HelpPanelService } from './components/help/help-panel.service';
 import { MessengerDockComponent } from './components/network/messenger-dock/messenger-dock.component';
 
 interface MenuItem {
@@ -87,7 +87,7 @@ export class AppComponent implements OnInit {
   @ViewChild('sidenav') sidenav?: MatSidenav;
   readonly connectivity = inject(ConnectivityService);
   private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
+  private readonly helpPanel = inject(HelpPanelService);
   /** The presentation page shows without the app's menu, signed in or not. */
   readonly onHomePage = toSignal(this.router.events.pipe(
     filter(event => event instanceof NavigationEnd),
@@ -234,10 +234,7 @@ export class AppComponent implements OnInit {
 
   /** Opens the help of the page in use in a panel at the side, loaded on first use to keep it out of the first page. */
   openHelp(): void {
-    void import('./components/help/help-panel.component').then(({ HelpPanelComponent, helpArticleFor }) =>
-      this.dialog.open(HelpPanelComponent, { data: helpArticleFor(globalThis.location?.pathname ?? this.router.url),
-        position: { right: '0', top: '0' }, height: '100vh', width: '480px', maxWidth: '100vw', panelClass: 'help-panel-dialog',
-        autoFocus: 'dialog' }));
+    void this.helpPanel.openForPage(globalThis.location?.pathname ?? this.router.url);
   }
 
   /** Toolbar shortcut: flips between light and dark and saves it as the account preference. */

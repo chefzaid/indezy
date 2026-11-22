@@ -14,13 +14,14 @@ import { BillingService } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { billingId, compactId } from '../../../shared/utils/billing-validators';
 import { fieldError } from '../../../shared/utils/form-errors';
+import { HelpLinkComponent } from '../../help/help-link.component';
 
 const COMPANIES: LegalForm[] = ['EURL', 'SASU', 'SARL', 'SAS'];
 
 /** The seller's identity on the workspace's invoices: legal name and form, SIRET, VAT, address and bank details. */
 @Component({
   selector: 'app-profile-billing',
-  imports: [ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule,
+  imports: [HelpLinkComponent, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule,
     MatSlideToggleModule, TranslateModule],
   templateUrl: './profile-billing.component.html',
   styleUrls: ['./profile-billing.component.scss'],

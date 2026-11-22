@@ -12,11 +12,12 @@ import { EmailTemplateService } from '../../../services/email-template/email-tem
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { EMAIL_VARIABLES } from '../../../shared/utils/email-template';
+import { HelpLinkComponent } from '../../help/help-link.component';
 
 /** Profile → Emails: the workspace's own email templates, written with variables, added, changed and deleted. */
 @Component({
   selector: 'app-email-templates-settings',
-  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslateModule],
+  imports: [HelpLinkComponent, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslateModule],
   templateUrl: './email-templates-settings.component.html',
   styleUrls: ['./email-templates-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

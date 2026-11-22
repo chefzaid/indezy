@@ -29,4 +29,16 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(page).toHaveURL(/\/help\/invoices-quotes$/);
     await expect(panel).toHaveCount(0);
   });
+
+  test(`opens the help of a setting at its section (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await mockWorkspaceData(page, language);
+
+    await page.goto('/offers');
+    await page.locator('[data-help-link="offerFilters"]').click();
+    const panel = page.getByRole('dialog');
+    await expect(panel.locator(en ? '#filter-and-sort' : '#filtrer-et-trier')).toBeInViewport();
+  });
 }

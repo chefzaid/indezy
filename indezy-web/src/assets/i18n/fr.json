@@ -4739,6 +4739,12 @@
       "problem": "Signaler un problème",
       "feature": "Proposer une fonctionnalité",
       "requests": "Mes demandes"
+    },
+    "link": {
+      "billingIdentity": "Aide : ce que doivent indiquer les factures",
+      "facturX": "Aide : les factures Factur-X",
+      "emailTemplates": "Aide : les modèles et leurs variables",
+      "offerFilters": "Aide : filtrer et trier le fil"
     }
   },
   "legal": {

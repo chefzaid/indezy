@@ -58,6 +58,7 @@
         <span class="filter-count">{{ activeFilters }}</span>
       }
     </button>
+    <app-help-link topic="offerFilters" />
   </div>
 
   <app-offer-saved-searches class="saved-searches-bar" [query]="query" (searchOpened)="openSavedSearch($event)" />

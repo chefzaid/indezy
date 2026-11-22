@@ -29,7 +29,7 @@ describe('HelpPanelComponent', () => {
       imports: [HelpPanelComponent, TranslateModule.forRoot()],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
         { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
-        { provide: MAT_DIALOG_DATA, useValue: helpArticleFor('/offers') }, { provide: MatDialogRef, useValue: { close } }]
+        { provide: MAT_DIALOG_DATA, useValue: { slug: helpArticleFor('/offers').slug } }, { provide: MatDialogRef, useValue: { close } }]
     });
     const fixture = TestBed.createComponent(HelpPanelComponent);
     fixture.detectChanges();
@@ -47,7 +47,7 @@ describe('HelpPanelComponent', () => {
       imports: [HelpPanelComponent, TranslateModule.forRoot()],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
         { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: HelpSearchService, useValue: { search } },
-        { provide: MAT_DIALOG_DATA, useValue: helpArticleFor('/offers') }, { provide: MatDialogRef, useValue: { close: () => undefined } }]
+        { provide: MAT_DIALOG_DATA, useValue: { slug: helpArticleFor('/offers').slug } }, { provide: MatDialogRef, useValue: { close: () => undefined } }]
     });
     const fixture = TestBed.createComponent(HelpPanelComponent);
     const panel = fixture.componentInstance;
@@ -78,4 +78,26 @@ describe('HelpPanelComponent', () => {
     expect(element.querySelector('[data-help-panel-no-hit]')).not.toBeNull();
     TestBed.inject(HttpTestingController).match(() => true);
   }));
+
+  it('scrolls to the section it was opened on, once', async () => {
+    TestBed.configureTestingModule({
+      imports: [HelpPanelComponent, TranslateModule.forRoot()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
+        { provide: MAT_DIALOG_DATA, useValue: { slug: 'offers', section: { en: 'filter-and-sort', fr: 'filtrer-et-trier' } } },
+        { provide: MatDialogRef, useValue: { close: () => undefined } }]
+    });
+    const fixture = TestBed.createComponent(HelpPanelComponent);
+    fixture.detectChanges();
+    const scroll = spyOn(Element.prototype, 'scrollIntoView');
+    TestBed.inject(HttpTestingController).expectOne(request => request.url.endsWith('/fr/offers.md'))
+      .flush('Intro\n\n## Lire le fil\n\nTexte\n\n## Filtrer et trier\n\nTexte');
+    fixture.detectChanges();
+    await new Promise(resolve => setTimeout(resolve));
+    expect(scroll).toHaveBeenCalledTimes(1);
+    expect((scroll.calls.mostRecent().object as Element).id).toBe('filtrer-et-trier');
+    fixture.componentInstance.reveal();
+    await new Promise(resolve => setTimeout(resolve));
+    expect(scroll).toHaveBeenCalledTimes(1);
+  });
 });

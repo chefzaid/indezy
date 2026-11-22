@@ -1,9 +1,9 @@
 <mat-card class="form-section" data-billing>
   <mat-card-header>
-    <mat-card-title>{{ 'profile.billing.title' | translate }}</mat-card-title>
+    <mat-card-title>{{ 'profile.billing.title' | translate }} <app-help-link topic="billingIdentity" /></mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <p class="hint">{{ 'profile.billing.hint' | translate }}</p>
+    <p class="hint">{{ 'profile.billing.hint' | translate }} <app-help-link topic="facturX" /></p>
     <p class="status" [class.complete]="complete" role="status" data-billing-status>
       <mat-icon aria-hidden="true">{{ complete ? 'check_circle' : 'info' }}</mat-icon>
       {{ (complete ? 'profile.billing.complete' : 'profile.billing.incomplete') | translate }}

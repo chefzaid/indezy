@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -7,11 +7,12 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
-import { MarkdownViewComponent } from '../../shared/components/markdown/markdown-view.component';
+import { MarkdownViewComponent, articleLanguage } from '../../shared/components/markdown/markdown-view.component';
 import { HELP_ARTICLES, HelpArticle } from './help-articles';
 import { HelpHit, HelpSearchService } from './help-search.service';
+import type { HelpPanelData } from './help-panel.service';
 
 /** The help article of each page of the app, by the first segments of its address; the getting started one elsewhere. */
 const ARTICLE_BY_PATH: readonly [RegExp, string][] = [
@@ -70,7 +71,7 @@ export function helpArticleFor(url: string): HelpArticle {
           }
         </ul>
       } @else {
-        <app-markdown-view folder="help" [name]="article.slug"></app-markdown-view>
+        <app-markdown-view folder="help" [name]="article.slug" (headings)="reveal()"></app-markdown-view>
       }
     </mat-dialog-content>
     <mat-dialog-actions class="actions">
@@ -105,8 +106,11 @@ export function helpArticleFor(url: string): HelpArticle {
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class HelpPanelComponent implements OnInit {
-  /** The article shown: the page's at first, then one found by the search. */
-  article = inject<HelpArticle>(MAT_DIALOG_DATA);
+  private readonly data = inject<HelpPanelData>(MAT_DIALOG_DATA);
+  /** The article shown: the one opened on at first, then one found by the search. */
+  article: HelpArticle = HELP_ARTICLES.find(article => article.slug === this.data.slug) ?? HELP_ARTICLES[0];
+  /** The section to scroll to once the first article shows, none after. */
+  private section = this.data.section;
   /** The page the help was opened from, sent with a request to support. */
   readonly page = globalThis.location?.pathname ?? '';
   readonly query = new FormControl('', { nonNullable: true });
@@ -116,6 +120,8 @@ export class HelpPanelComponent implements OnInit {
   private readonly searcher = inject(HelpSearchService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly translate = inject(TranslateService);
 
   ngOnInit(): void {
     this.query.valueChanges.pipe(debounceTime(200), map(typed => typed.trim()), distinctUntilChanged(),
@@ -126,9 +132,19 @@ export class HelpPanelComponent implements OnInit {
       });
   }
 
+  /** Once the article shows, scrolls to the section it was opened on, in the reading language. */
+  reveal(): void {
+    const id = this.section?.[articleLanguage(this.translate)];
+    this.section = undefined;
+    if (id) {
+      setTimeout(() => this.host.nativeElement.querySelector(`[data-help-panel] [id="${id}"]`)?.scrollIntoView({ block: 'start' }));
+    }
+  }
+
   /** Opens a found article in the panel, the search cleared. */
   show(article: HelpArticle): void {
     this.article = article;
+    this.section = undefined;
     this.query.setValue('');
     this.hits = null;
     this.changes.markForCheck();
