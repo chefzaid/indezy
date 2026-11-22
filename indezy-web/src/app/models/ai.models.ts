@@ -58,15 +58,23 @@ export interface AiNegotiation {
   marketMedian: number;
 }
 
+/** The next interview prepared: likely questions with hints, a two-minute pitch, and questions to ask. */
+export interface AiInterview {
+  technical: { question: string; hint: string }[];
+  behavioural: { question: string; hint: string }[];
+  pitch: string;
+  toAsk: string[];
+}
+
 /** How to polish a message: spelling and grammar only, more formal, warmer, or shorter. */
 export type AiPolishTone = 'KEEP' | 'FORMAL' | 'FRIENDLY' | 'SHORTER';
 
 export const AI_POLISH_TONES: AiPolishTone[] = ['KEEP', 'FORMAL', 'FRIENDLY', 'SHORTER'];
 
 /** What an AI request is for, each on its own model unless one is chosen. */
-export type AiTask = 'POSTING' | 'MESSAGE' | 'FIT' | 'CHAT' | 'TRIAGE' | 'DOSSIER' | 'RATE' | 'NEGOTIATION';
+export type AiTask = 'POSTING' | 'MESSAGE' | 'FIT' | 'CHAT' | 'TRIAGE' | 'DOSSIER' | 'RATE' | 'NEGOTIATION' | 'INTERVIEW';
 
-export const AI_TASKS: AiTask[] = ['POSTING', 'TRIAGE', 'MESSAGE', 'DOSSIER', 'RATE', 'FIT', 'NEGOTIATION', 'CHAT'];
+export const AI_TASKS: AiTask[] = ['POSTING', 'TRIAGE', 'MESSAGE', 'DOSSIER', 'RATE', 'FIT', 'NEGOTIATION', 'INTERVIEW', 'CHAT'];
 
 /** A job posting read into an opportunity's fields: null where it says nothing. */
 export interface AiPosting {

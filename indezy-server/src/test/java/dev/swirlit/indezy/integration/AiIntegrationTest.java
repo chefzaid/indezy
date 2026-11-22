@@ -67,6 +67,10 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = "{\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}}";
             } else if (body.contains("PLEASE-REFUSE")) {
                 answer = message("", "refusal");
+            } else if (body.contains("You coach")) {
+                answer = message("{\"technical\":[{\"question\":\"Kafka exactly-once ?\",\"hint\":\"Idempotence.\"},{\"question\":\" \",\"hint\":\"x\"}]," +
+                    "\"behavioural\":[{\"question\":\"Un conflit ?\",\"hint\":null}],\"pitch\":\" Bonjour, je suis Alice. \",\"toAsk\":[\"Taille de l'équipe ?\",\"\"]}",
+                    "end_turn");
             } else if (body.contains("You prepare a French freelance")) {
                 answer = message("{\"counterOffer\":680,\"walkAway\":720,\"strategy\":\"Ancrer haut.\",\"arguments\":[\"Kafka rare\",\"\"]}",
                     "end_turn");
@@ -322,6 +326,16 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(BODIES.getLast()).contains("Rate offered: 600 EUR", "Rate the client pays the ESN: 750 EUR", "20 % of the client rate");
         assertThat(call(bob, HttpMethod.POST, "/ai/negotiation/" + negotiated, null, String.class).getStatusCode())
             .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
+
+        // The next interview prepared from the opportunity, its steps and the profile; blank points dropped.
+        Map<String, Object> interview = call(alice, HttpMethod.POST, "/ai/interview/" + negotiated + "?language=FR", null, Map.class).getBody();
+        assertThat((List<Map<String, Object>>) interview.get("technical")).extracting(question -> question.get("question"))
+            .containsExactly("Kafka exactly-once ?");
+        assertThat((List<Map<String, Object>>) interview.get("behavioural")).first().asInstanceOf(
+            org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("hint", "");
+        assertThat(interview).containsEntry("pitch", "Bonjour, je suis Alice.");
+        assertThat((List<String>) interview.get("toAsk")).containsExactly("Taille de l'équipe ?");
+        assertThat(BODIES.getLast()).contains("You coach", "Lead Kafka", "<steps>");
 
         // The availability announced from the day after the running mission ends.
         call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "WON", "clientId", aliceClientId,

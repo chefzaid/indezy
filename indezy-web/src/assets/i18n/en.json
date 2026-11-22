@@ -4848,7 +4848,8 @@
         "FIT": "Weighing an opportunity",
         "CHAT": "Conversation about an opportunity",
         "RATE": "Suggesting a rate",
-        "NEGOTIATION": "Preparing a negotiation"
+        "NEGOTIATION": "Preparing a negotiation",
+        "INTERVIEW": "Preparing an interview"
       }
     },
     "fit": {
@@ -4926,6 +4927,21 @@
       "market": "Market median",
       "arguments": "Arguments for the call",
       "again": "Prepare again"
+    },
+    "interview": {
+      "open": "Prepare the interview (AI)",
+      "title": "Interview preparation",
+      "busy": "The AI is preparing the interview",
+      "technical": "Technical questions likely asked",
+      "behavioural": "Behavioural questions likely asked",
+      "pitch": "Two-minute pitch",
+      "copyPitch": "Copy the pitch",
+      "copied": "Copied",
+      "toAsk": "Questions to ask",
+      "again": "Prepare again",
+      "keep": "Keep as a note",
+      "kept": "Kept in the journal",
+      "keepError": "The note could not be kept."
     }
   }
 }

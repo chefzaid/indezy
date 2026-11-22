@@ -48,6 +48,7 @@ public class AiController {
     private final RateAiService rates;
     private final AvailabilityAiService availability;
     private final NegotiationAiService negotiations;
+    private final InterviewAiService interviews;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -132,6 +133,13 @@ public class AiController {
     public NegotiationAiService.Preparation negotiation(@PathVariable Long projectId, @RequestParam(required = false) DocumentLanguage language) {
         accessGuard.requireProject(projectId);
         return negotiations.prepare(SecurityUtils.getCurrentUserId(), projectId, language == null ? DocumentLanguage.FR : language);
+    }
+
+    @Operation(summary = "Prepare the next interview of an opportunity: likely questions with hints, a two-minute pitch, questions to ask")
+    @PostMapping("/interview/{projectId}")
+    public InterviewAiService.Preparation interview(@PathVariable Long projectId, @RequestParam(required = false) DocumentLanguage language) {
+        accessGuard.requireProject(projectId);
+        return interviews.prepare(SecurityUtils.getCurrentUserId(), projectId, language == null ? DocumentLanguage.FR : language);
     }
 
     @Operation(summary = "Draft a message about an opportunity: an application, a follow-up, a thank-you or a decline")

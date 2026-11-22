@@ -4848,7 +4848,8 @@
         "FIT": "Évaluation d'une opportunité",
         "CHAT": "Conversation sur une opportunité",
         "RATE": "Suggestion d'un TJM",
-        "NEGOTIATION": "Préparation d'une négociation"
+        "NEGOTIATION": "Préparation d'une négociation",
+        "INTERVIEW": "Préparation d'un entretien"
       }
     },
     "fit": {
@@ -4926,6 +4927,21 @@
       "market": "Médiane du marché",
       "arguments": "Arguments pour l'échange",
       "again": "Préparer à nouveau"
+    },
+    "interview": {
+      "open": "Préparer l'entretien (IA)",
+      "title": "Préparation de l'entretien",
+      "busy": "L'IA prépare l'entretien",
+      "technical": "Questions techniques probables",
+      "behavioural": "Questions comportementales probables",
+      "pitch": "Pitch de deux minutes",
+      "copyPitch": "Copier le pitch",
+      "copied": "Copié",
+      "toAsk": "Questions à poser",
+      "again": "Préparer à nouveau",
+      "keep": "Garder en note",
+      "kept": "Gardé dans le journal",
+      "keepError": "La note n'a pas pu être gardée."
     }
   }
 }

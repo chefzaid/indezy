@@ -65,6 +65,7 @@ import { NonSolicitationNoticeComponent } from './non-solicitation-notice/non-so
 import { CompanyHealthComponent } from '../../../shared/components/company-health/company-health.component';
 import { AiMessageDialogComponent, AiMessageDialogData } from '../../../shared/components/ai-message-dialog/ai-message-dialog.component';
 import { AiFitDialogComponent, AiFitDialogData } from '../../../shared/components/ai-fit-dialog/ai-fit-dialog.component';
+import { AiInterviewDialogComponent, AiInterviewDialogData } from '../../../shared/components/ai-interview-dialog/ai-interview-dialog.component';
 import { AiNegotiationDialogComponent, AiNegotiationDialogData } from '../../../shared/components/ai-negotiation-dialog/ai-negotiation-dialog.component';
 import { DossierButtonComponent } from '../../profile/dossier-button/dossier-button.component';
 import { AiChatComponent } from './ai-chat/ai-chat.component';
@@ -186,6 +187,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     if (this.project?.id) {
       const data: AiFitDialogData = { projectId: this.project.id };
       this.dialog.open(AiFitDialogComponent, { data, width: '720px', maxWidth: '96vw', autoFocus: false });
+    }
+  }
+
+  /** Opens the AI preparation of this opportunity's next interview. */
+  prepareInterview(): void {
+    if (this.project?.id) {
+      const data: AiInterviewDialogData = { projectId: this.project.id };
+      this.dialog.open(AiInterviewDialogComponent, { data, width: '720px', maxWidth: '96vw', autoFocus: false });
     }
   }
 

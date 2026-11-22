@@ -644,6 +644,11 @@ never saved or sent on its own:
   place, duration, description), the profile's skills and years, target rate and town, and the feed's median for the main
   skill, shown beside it; **Use** puts the rate in the field. The rate is kept between 100 and 3,000 euros, its range
   around it.
+- **Prepare the interview (AI)** on an opportunity (`POST /api/ai/interview/{projectId}`): up to six technical and six
+  behavioural questions it will likely ask, each with a hint drawn from the profile, a two-minute pitch for this mission
+  to copy, and up to six questions to ask, from the opportunity, its steps so far (with their notes) and the profile;
+  **Keep as a note** puts it in the journal as Markdown. A mock interview is a conversation in **Ask the AI about this
+  opportunity**.
 - **Prepare the negotiation (AI)** on an opportunity (`POST /api/ai/negotiation/{projectId}`): a counter-offer, the rate
   below which to walk away (never above the counter-offer), a strategy and up to five arguments for the call, from the
   rates offered, asked and paid by the client, the profile's target and the feed's median for the main skill; the
@@ -679,8 +684,8 @@ never saved or sent on its own:
   month's allowance on Indezy's key (10 US dollars a month on the free tier, all accounts together within 100), or the member's own Anthropic key, stored encrypted, with
   Opus, Sonnet or Haiku 5.5 for every task or **Automatic**, which no limit applies to. Automatic, as on Indezy's key,
   puts each task on the cheapest model that does it well: Haiku 5.5 reads postings and triages offers, Sonnet 5.5 writes
-  messages, tailors dossiers and suggests rates, Opus 5.5 weighs opportunities, holds conversations and prepares negotiations; the card lists
-  them. An allowance used up, Indezy's monthly cap reached, a refusal or a
+  messages, tailors dossiers and suggests rates, Opus 5.5 weighs opportunities, holds conversations and prepares negotiations and
+  interviews; the card lists them. An allowance used up, Indezy's monthly cap reached, a refusal or a
   key Anthropic refuses are each said as such.
 
 ## Projects And Opportunities

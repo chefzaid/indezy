@@ -101,6 +101,27 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     expect(tailoredUrl).toContain('/api/ai/dossier/42?layout=ANONYMOUS&language=EN');
     await expect(page.locator('[data-dossier="tailored"]')).toBeEnabled();
 
+    const notes: unknown[] = [];
+    await page.route(/\/api\/ai\/interview\/42/, route => route.fulfill({ json: { technical: [{ question: en ? 'Kafka exactly-once?' : 'Kafka exactly-once ?',
+      hint: en ? 'Idempotence.' : 'Idempotence.' }], behavioural: [], pitch: en ? 'Hello, I am Camille.' : 'Bonjour, je suis Camille.', toAsk: [] } }));
+    await page.route(/\/api\/projects\/42\/notes$/, route => {
+      if (route.request().method() === 'POST') {
+        notes.push(route.request().postDataJSON());
+        return route.fulfill({ status: 201, json: { id: 77, projectId: 42, content: 'x', createdAt: '2026-11-22T10:00:00' } });
+      }
+      return route.fulfill({ json: [] });
+    });
+    await page.locator('[data-ai-interview-open]').click();
+    const coaching = page.getByRole('dialog');
+    await expect(coaching.locator('[data-ai-interview-pitch]')).toContainText(en ? 'Hello, I am Camille.' : 'Bonjour, je suis Camille.');
+    await settleDialog(page);
+    const interviewAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
+    expect(interviewAudit.violations.map(violation => violation.id)).toEqual([]);
+    await coaching.locator('[data-ai-interview-note]').click();
+    await expect.poll(() => notes.length).toBe(1);
+    await page.keyboard.press('Escape');
+    await expect(coaching).toHaveCount(0);
+
     await page.route(/\/api\/ai\/negotiation\/42/, route => route.fulfill({ json: { counterOffer: 680, walkAway: 620,
       strategy: en ? 'Anchor high.' : 'Ancrez haut.', arguments: [en ? 'Kafka is rare.' : 'Kafka est rare.'], marginEuros: 150, marginPercent: 20,
       marketMedian: 640 } }));

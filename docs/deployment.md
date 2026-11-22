@@ -100,8 +100,8 @@ secret (`INDEZY_AI_ANTHROPIC_API_KEY`). Without it they say AI is not available,
 Limits are set in the `indezy-server-config` ConfigMap or the deployment's environment: `INDEZY_AI_ACCOUNT_MONTHLY_CAP_USD`
 (10 by default, per account and month: the free tier) and `INDEZY_AI_MONTHLY_CAP_USD` (100 by default, all accounts). Each
 task has its model: Haiku 5.5 reads postings and triages offers, Sonnet 5.5 writes messages, tailors dossiers and suggests rates, Opus 5.5
-weighs opportunities, holds conversations and prepares negotiations; `INDEZY_AI_MODEL` puts every task on one model, and `INDEZY_AI_MODELS_<TASK>`
-(`POSTING`, `TRIAGE`, `MESSAGE`, `DOSSIER`, `RATE`, `FIT`, `CHAT`, `NEGOTIATION`) changes one task's. To set it up once:
+weighs opportunities, holds conversations and prepares negotiations and interviews; `INDEZY_AI_MODEL` puts every task on one model, and `INDEZY_AI_MODELS_<TASK>`
+(`POSTING`, `TRIAGE`, `MESSAGE`, `DOSSIER`, `RATE`, `FIT`, `CHAT`, `NEGOTIATION`, `INTERVIEW`) changes one task's. To set it up once:
 
 1. In the Anthropic Console, create an API key for Indezy (a workspace of its own lets you set a spend limit there too).
 2. Store it in Vault (KV v2) at `secret/apps/indezy/ai`, field `anthropic_api_key`.

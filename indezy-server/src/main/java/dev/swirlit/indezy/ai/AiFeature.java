@@ -17,5 +17,7 @@ public enum AiFeature {
     /** A daily rate suggested for an opportunity being written. */
     RATE,
     /** A rate negotiation prepared for an opportunity. */
-    NEGOTIATION
+    NEGOTIATION,
+    /** An interview prepared for an opportunity. */
+    INTERVIEW
 }

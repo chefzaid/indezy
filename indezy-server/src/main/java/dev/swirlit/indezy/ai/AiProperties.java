@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * <p>Each task has its model ({@link #BY_TASK}): Haiku reads postings and triages offers, Sonnet writes messages,
  * tailors dossiers and suggests rates, Opus weighs opportunities, holds conversations and
- * prepares negotiations. {@code models} changes one task's, {@code model}
+ * prepares negotiations and interviews. {@code models} changes one task's, {@code model}
  * puts every task without one in {@code models} on a single model.
  */
 @ConfigurationProperties(prefix = "indezy.ai")
@@ -34,7 +34,7 @@ public record AiProperties(
     /** The model each task uses unless configured otherwise: the cheapest that does it well. */
     public static final Map<AiFeature, String> BY_TASK = Map.of(AiFeature.POSTING, HAIKU, AiFeature.TRIAGE, HAIKU,
         AiFeature.MESSAGE, SONNET, AiFeature.DOSSIER, SONNET, AiFeature.RATE, SONNET, AiFeature.FIT, OPUS, AiFeature.CHAT, OPUS,
-        AiFeature.NEGOTIATION, OPUS);
+        AiFeature.NEGOTIATION, OPUS, AiFeature.INTERVIEW, OPUS);
 
     @ConstructorBinding
     public AiProperties {
