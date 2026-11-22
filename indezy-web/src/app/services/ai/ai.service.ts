@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiChatTurn, AiFit, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
+import { AiAvailability, AiChatTurn, AiFit, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -58,6 +58,11 @@ export class AiService {
 
   triageOffer(offerId: number, language: DocumentLanguage): Observable<AiOfferVerdict> {
     return this.http.post<AiOfferVerdict>(`${this.API_URL}/offers/${offerId}/verdict`, null, { params: { language } });
+  }
+
+  /** The announcement of the next availability, drafted: nothing is posted. */
+  availability(language: DocumentLanguage): Observable<AiAvailability> {
+    return this.http.post<AiAvailability>(`${this.API_URL}/availability`, null, { params: { language } });
   }
 
   /** The message polished in the tone asked, its {{variables}} kept. */

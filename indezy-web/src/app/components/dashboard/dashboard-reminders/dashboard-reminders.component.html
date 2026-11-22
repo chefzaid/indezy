@@ -135,6 +135,7 @@
         <div class="bench-actions">
           <a class="toggle-btn" routerLink="/offers" data-bench-offers>{{ 'dashboard.bench.offers' | translate }}</a>
           <a class="toggle-btn" routerLink="/projects/new">{{ 'dashboard.bench.add' | translate }}</a>
+          <button type="button" class="toggle-btn" (click)="announce()" data-bench-announce>{{ 'dashboard.bench.announce' | translate }}</button>
         </div>
       </section>
     }

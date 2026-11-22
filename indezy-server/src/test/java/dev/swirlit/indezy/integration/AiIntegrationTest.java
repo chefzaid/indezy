@@ -67,6 +67,8 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = "{\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}}";
             } else if (body.contains("PLEASE-REFUSE")) {
                 answer = message("", "refusal");
+            } else if (body.contains("You write the posts")) {
+                answer = message("{\"linkedin\":\"Disponible bientôt pour une mission Java.\",\"network\":\" Dispo en janvier. \"}", "end_turn");
             } else if (body.contains("You polish")) {
                 answer = message("{\"subject\":\"Point sur la mission\",\"body\":\"Bonjour {{firstName}},\\n\\nOù en est-on ?\"}", "end_turn");
             } else if (body.contains("You suggest the daily rate")) {
@@ -306,6 +308,14 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.POST, "/ai/polish", Map.of("body", "bonjour {{firstName}}, {{myName}}"), Map.class).getBody())
             .containsEntry("message", "The AI changed the message's variables: polish it again or edit it by hand");
         assertThat(call(alice, HttpMethod.POST, "/ai/polish", Map.of("body", " "), String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        // The availability announced from the day after the running mission ends.
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "WON", "clientId", aliceClientId,
+            "startDate", java.time.LocalDate.now().minusMonths(1).toString(), "durationInMonths", 3), Map.class);
+        Map<String, Object> announcement = call(alice, HttpMethod.POST, "/ai/availability?language=FR", null, Map.class).getBody();
+        assertThat(announcement).containsEntry("linkedin", "Disponible bientôt pour une mission Java.").containsEntry("network", "Dispo en janvier.")
+            .containsEntry("availableFrom", java.time.LocalDate.now().minusMonths(1).plusMonths(3).toString());
+        assertThat(BODIES.getLast()).contains("You write the posts", "Available from: ");
 
         // A rate suggested for an opportunity being written, its range kept around the rate.
         Map<String, Object> rate = call(alice, HttpMethod.POST, "/ai/rate", Map.of("role", "Lead Kafka", "techStack", "Kafka, Java",

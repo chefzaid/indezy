@@ -1,4 +1,6 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { AiAvailabilityDialogComponent } from '../../../shared/components/ai-availability-dialog/ai-availability-dialog.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,6 +29,12 @@ export class DashboardRemindersComponent {
   static readonly COLLAPSED_SIZE = 5;
   readonly collapsedSize = DashboardRemindersComponent.COLLAPSED_SIZE;
   private readonly expanded = new Set<string>();
+  private readonly dialog = inject(MatDialog);
+
+  /** Opens the AI drafter of the availability announcement. */
+  announce(): void {
+    this.dialog.open(AiAvailabilityDialogComponent, { width: '720px', maxWidth: '96vw', autoFocus: false });
+  }
 
   /** The rows of a reminder list to render, capped unless the list was expanded. */
   visible<T>(list: T[], key: string): T[] {

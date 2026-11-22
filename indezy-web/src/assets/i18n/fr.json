@@ -329,7 +329,8 @@
       "pipeline": "{{active}} en cours, {{advanced}} au stade de l'entretien ou de l'offre.",
       "quiet": "Rien ajouté depuis {{days}} jours.",
       "offers": "Trouver des offres",
-      "add": "Ajouter une opportunité"
+      "add": "Ajouter une opportunité",
+      "announce": "Annoncer ma disponibilité (IA)"
     }
   },
   "projects": {
@@ -4888,6 +4889,21 @@
       "figure": "Demandez {{rate}} € par jour (accepté de {{low}} à {{high}} €)",
       "market": "Médiane du marché pour sa compétence principale : {{median}} €",
       "use": "Utiliser {{rate}} €"
+    },
+    "availability": {
+      "title": "Annoncer ma disponibilité",
+      "hint": "L'IA rédige un post LinkedIn et un post pour le réseau à partir de votre profil et du lendemain de la fin de votre mission. Rien n'est publié : copiez-les, ou gardez celui du réseau en brouillon.",
+      "language": "Langue",
+      "write": "Les rédiger",
+      "again": "Rédiger à nouveau",
+      "from": "Disponible à partir du {{date}}",
+      "linkedin": "Post LinkedIn",
+      "network": "Post pour le réseau",
+      "copy": "Copier",
+      "copied": "Copié",
+      "draft": "Garder en brouillon du réseau",
+      "drafted": "Gardé dans vos brouillons du réseau",
+      "draftError": "Le brouillon n'a pas pu être gardé : rejoignez d'abord le réseau, ou copiez le texte."
     }
   }
 }

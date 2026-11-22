@@ -46,6 +46,7 @@ public class AiController {
     private final OfferTriageAiService triage;
     private final DossierAiService dossiers;
     private final RateAiService rates;
+    private final AvailabilityAiService availability;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -203,6 +204,13 @@ public class AiController {
         return rates.suggest(SecurityUtils.getCurrentUserId(), new RateAiService.Mission(request.role(), request.techStack(), request.workMode(),
             request.remoteDaysPerMonth(), request.place(), request.durationInMonths(), request.description()),
             request.language() == null ? DocumentLanguage.FR : request.language());
+    }
+
+    @Operation(summary = "Draft the announcement of the next availability: a LinkedIn post and a network post, nothing posted")
+    @PostMapping("/availability")
+    public AvailabilityAiService.Announcement availability(@RequestParam(required = false) DocumentLanguage language) {
+        return availability.draft(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null),
+            language == null ? DocumentLanguage.FR : language);
     }
 
     @Operation(summary = "The AI verdict kept on a feed offer for the workspace", description = "204 when none was asked yet")

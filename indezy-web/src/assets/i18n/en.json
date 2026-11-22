@@ -329,7 +329,8 @@
       "pipeline": "{{active}} under way, {{advanced}} at the interview or offer stage.",
       "quiet": "Nothing added for {{days}} days.",
       "offers": "Find offers",
-      "add": "Add an opportunity"
+      "add": "Add an opportunity",
+      "announce": "Announce my availability (AI)"
     }
   },
   "projects": {
@@ -4888,6 +4889,21 @@
       "figure": "Ask {{rate}} € a day (accepted from {{low}} to {{high}} €)",
       "market": "Market median for its main skill: {{median}} €",
       "use": "Use {{rate}} €"
+    },
+    "availability": {
+      "title": "Announce my availability",
+      "hint": "The AI drafts a LinkedIn post and a post for the network from your profile and the day after your mission ends. Nothing is posted: copy them, or keep the network one as a draft.",
+      "language": "Language",
+      "write": "Write them",
+      "again": "Write again",
+      "from": "Available from {{date}}",
+      "linkedin": "LinkedIn post",
+      "network": "Network post",
+      "copy": "Copy",
+      "copied": "Copied",
+      "draft": "Keep as a network draft",
+      "drafted": "Kept in your network drafts",
+      "draftError": "The draft could not be kept: join the network first, or copy the text."
     }
   }
 }

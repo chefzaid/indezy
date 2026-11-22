@@ -1261,7 +1261,10 @@ mode. **Customize** shows, hides and orders its six blocks, saved with the accou
   within 12 weeks, or between missions: when it ends, how many opportunities to add this week (8 within 4 weeks or
   between missions, 5 within 8, 3 beyond, two fewer for each at the interview or offer stage, at least 1), those added
   since Monday against it, the opportunities under way, and how long nothing was added once it is a week or more; with
-  **Find offers** and **Add an opportunity**. A running open-ended mission shows none.
+  **Find offers**, **Add an opportunity** and **Announce my availability (AI)** (`POST /api/ai/availability`): a
+  LinkedIn post and a shorter network post from the profile and the day after the mission ends (else the profile's
+  availability date), editable, to copy, the network one kept as a network draft on request; nothing is posted. A
+  running open-ended mission shows none.
 - **New offers**: the five unseen offers matching the profile best (the five newest without skills).
 - **Analytics**: [trends](#trends), outcomes and refusal reasons, source ROI, conversion funnels (overall and by source,
   client type and ESN), asked against obtained rates by year, bench time with its cost, time to signature per client or

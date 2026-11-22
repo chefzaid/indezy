@@ -1,3 +1,5 @@
+import { MatDialog } from '@angular/material/dialog';
+import { AiAvailabilityDialogComponent } from '../../../shared/components/ai-availability-dialog/ai-availability-dialog.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -241,6 +243,9 @@ describe('DashboardRemindersComponent', () => {
     expect(card.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('33');
     expect(component.benchProgress({ addedThisWeek: 5, weeklyGoal: 3 })).toBe(100);
     expect(component.benchProgress({ addedThisWeek: 0, weeklyGoal: 0 })).toBe(100);
+    const open = spyOn(TestBed.inject(MatDialog), 'open');
+    (card.querySelector('[data-bench-announce]') as HTMLButtonElement).click();
+    expect(open).toHaveBeenCalledWith(AiAvailabilityDialogComponent, jasmine.objectContaining({ autoFocus: false }));
 
     const between = render({ benchPlan: { projectId: null, role: null, endDate: null, weeksLeft: 0, activeOpportunities: 0,
       advancedOpportunities: 0, addedThisWeek: 0, daysSinceLastAdded: 2, weeklyGoal: 8 } });

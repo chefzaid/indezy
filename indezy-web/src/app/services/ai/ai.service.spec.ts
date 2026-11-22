@@ -43,6 +43,8 @@ describe('AiService', () => {
     service.suggestRate({ role: 'Lead', techStack: null, workMode: null, remoteDaysPerMonth: null, place: null, durationInMonths: null,
       description: null, language: 'FR' }).subscribe();
     expect(http.expectOne(`${url}/rate`).request.body.role).toBe('Lead');
+    service.availability('EN').subscribe();
+    expect(http.expectOne(`${url}/availability?language=EN`).request.method).toBe('POST');
     service.polish('point', 'bonjour', 'FORMAL').subscribe();
     expect(http.expectOne(`${url}/polish`).request.body).toEqual({ subject: 'point', body: 'bonjour', tone: 'FORMAL' });
     service.tailoredDossier(4, 'ANONYMOUS', 'EN').subscribe(pdf => expect(pdf.size).toBe(4));

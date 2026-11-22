@@ -40,6 +40,13 @@ export interface AiRateRequest {
   language: DocumentLanguage;
 }
 
+/** The announcement of the next availability: a LinkedIn post, a network post, and the day they announce. */
+export interface AiAvailability {
+  linkedin: string;
+  network: string;
+  availableFrom: string;
+}
+
 /** How to polish a message: spelling and grammar only, more formal, warmer, or shorter. */
 export type AiPolishTone = 'KEEP' | 'FORMAL' | 'FRIENDLY' | 'SHORTER';
 
