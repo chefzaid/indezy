@@ -82,13 +82,16 @@ export interface ContactEmailRequest {
   dossier?: boolean;
 }
 
-/** A contact of an ESN the workspace worked with, who has an address. */
+/** A contact of an ESN the workspace worked with or heard from, who has an address; those who answered most first. */
 export interface AvailabilityRecipient {
   id: number;
   firstName: string | null;
   name: string;
   company: string;
   email: string;
+  /** How many times they answered or wrote. */
+  answers: number;
+  lastContactedOn: string | null;
 }
 
 /** A contact's exchanges, newest first, and what they say about the relationship. */

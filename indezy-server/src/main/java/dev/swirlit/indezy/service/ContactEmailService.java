@@ -34,8 +34,10 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -90,9 +92,15 @@ public class ContactEmailService {
         }
     }
 
-    /** A contact of an ESN the workspace worked with, who can be emailed. */
-    public record Recipient(Long id, String firstName, String name, String company, String email) {
+    /**
+     * A contact of an ESN the workspace worked with or heard from, who can be emailed: how many times they answered or
+     * wrote, and when they were last in touch.
+     */
+    public record Recipient(Long id, String firstName, String name, String company, String email, int answers, LocalDate lastContactedOn) {
     }
+
+    /** Whoever was in touch more recently than this is left out of an announcement, to not write again so soon. */
+    static final int RECENT_DAYS = 42;
 
     /** Whether email can go from Indezy, and how many went for the workspace in the last 24 hours. */
     public record Status(boolean available, long sentToday, int dailyMax) {
@@ -105,20 +113,39 @@ public class ContactEmailService {
     }
 
     /**
-     * The contacts with an address at the ESNs the workspace had an opportunity with (as the ESN or the client), not
-     * blacklisted, by company then name: whom to tell of an availability.
+     * Whom to tell of an availability: the contacts with an address at the ESNs the workspace had an opportunity with
+     * (as the ESN or the client) or whose contacts answered it before, not blacklisted, leaving out anyone in touch in
+     * the last {@value #RECENT_DAYS} days; those who answered most first, then by company and name.
      */
     @Transactional(readOnly = true)
     public List<Recipient> availabilityRecipients(Long freelanceId) {
         Set<Long> workedWith = new HashSet<>();
         projects.findByFreelanceId(freelanceId).forEach(project -> Stream.of(project.getClient(), project.getMiddleman())
             .filter(Objects::nonNull).forEach(company -> workedWith.add(company.getId())));
+        Map<Long, int[]> answers = new HashMap<>();
+        Map<Long, LocalDate> lastInTouch = new HashMap<>();
+        Set<Long> answeringCompanies = new HashSet<>();
+        for (ContactInteraction interaction : interactions.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(freelanceId)) {
+            Contact contact = interaction.getContact();
+            lastInTouch.merge(contact.getId(), interaction.getOccurredOn(), (one, other) -> one.isAfter(other) ? one : other);
+            if (interaction.getDirection() == InteractionDirection.INCOMING || Boolean.TRUE.equals(interaction.getReplied())) {
+                answers.computeIfAbsent(contact.getId(), id -> new int[1])[0]++;
+                if (contact.getClient() != null) {
+                    answeringCompanies.add(contact.getClient().getId());
+                }
+            }
+        }
+        LocalDate recent = LocalDate.now(clock.withZone(PARIS)).minusDays(RECENT_DAYS);
         return contacts.findByFreelanceId(freelanceId).stream()
             .filter(contact -> contact.getEmail() != null && !contact.getEmail().isBlank() && contact.getAnonymizedAt() == null)
-            .filter(contact -> contact.getClient() != null && workedWith.contains(contact.getClient().getId()) &&
+            .filter(contact -> contact.getClient() != null && (workedWith.contains(contact.getClient().getId()) ||
+                answeringCompanies.contains(contact.getClient().getId())) &&
                 !Boolean.TRUE.equals(contact.getClient().getIsFinal()) && !Boolean.TRUE.equals(contact.getClient().getIsBlacklisted()))
-            .map(contact -> new Recipient(contact.getId(), contact.getFirstName(), contact.getFullName(), contact.getClient().getCompanyName(), contact.getEmail().strip()))
-            .sorted(Comparator.comparing(Recipient::company, String.CASE_INSENSITIVE_ORDER).thenComparing(Recipient::name, String.CASE_INSENSITIVE_ORDER))
+            .filter(contact -> lastInTouch.get(contact.getId()) == null || lastInTouch.get(contact.getId()).isBefore(recent))
+            .map(contact -> new Recipient(contact.getId(), contact.getFirstName(), contact.getFullName(), contact.getClient().getCompanyName(),
+                contact.getEmail().strip(), answers.getOrDefault(contact.getId(), new int[1])[0], lastInTouch.get(contact.getId())))
+            .sorted(Comparator.comparingInt(Recipient::answers).reversed().thenComparing(Recipient::company, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Recipient::name, String.CASE_INSENSITIVE_ORDER))
             .toList();
     }
 

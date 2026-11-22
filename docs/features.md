@@ -875,10 +875,11 @@ Resend refuses it. **Send me a copy** (on by default) sends the freelancer the s
 `dossier: true` the [dossier de compétences](#dossier-de-competences) (named, in the email's language) goes attached.
 
 **Email my ESN contacts**, in **Announce my availability (AI)** on the week's goal, lists the contacts with an address at
-the ESNs the workspace had an opportunity with, as the ESN or the client (`GET /api/contacts/emails/availability-recipients`,
-end clients and blacklisted companies left out, by company then name), none ticked at first. The subject and message
-are written from the availability date and the network post when the section opens, `{{firstName}}` replaced by each
-contact's; **Send to N contacts** sends one email each, one after the other, with the dossier attached unless unticked,
+the ESNs the workspace had an opportunity with, as the ESN or the client, or whose contacts answered it before
+(`GET /api/contacts/emails/availability-recipients`, end clients and blacklisted companies left out, and anyone in touch
+in the last six weeks), those who answered or wrote most first with how many times, then by company and name, none
+ticked at first. The subject and message are written from the availability date and the network post when the section
+opens, `{{firstName}}` and `{{company}}` replaced by each contact's; **Send to N contacts** sends one email each, one after the other, with the dossier attached unless unticked,
 each recorded in the contact's exchanges and counted in the 50 a day; those that could not go are named and stay ticked.
 
 **Tell me when it is opened**, off by default and asked email by email (the owner's choice), adds a one-pixel image whose

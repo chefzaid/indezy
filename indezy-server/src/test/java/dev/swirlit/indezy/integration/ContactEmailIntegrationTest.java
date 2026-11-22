@@ -149,10 +149,21 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
             "clientId", endClient), Map.class);
         call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Marc", "lastName", "Autre", "email", "marc@autre.example",
             "clientId", unknown), Map.class);
+        // An ESN never worked with whose contact answered before counts, all its contacts; one written to last week is left out for now.
+        long ines = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Inès", "lastName", "Répond", "email", "ines@autre.example",
+            "clientId", unknown), Map.class));
+        call(alice, HttpMethod.POST, "/contacts/" + ines + "/interactions", Map.of("occurredOn", java.time.LocalDate.now().minusDays(60).toString(),
+            "channel", "EMAIL", "direction", "INCOMING", "summary", "Bonjour"), Map.class);
+        long recent = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Rémi", "lastName", "Récent", "email",
+            "remi@conseil.example", "clientId", esn), Map.class));
+        call(alice, HttpMethod.POST, "/contacts/" + recent + "/interactions", Map.of("occurredOn", java.time.LocalDate.now().minusDays(7).toString(),
+            "channel", "EMAIL", "direction", "OUTGOING", "summary", "Point"), Map.class);
 
         List<Map<String, Object>> recipients = call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody();
         assertThat(recipients).extracting(recipient -> recipient.get("name") + " <" + recipient.get("email") + "> " + recipient.get("company"))
-            .containsExactly("Léa Martin <lea@conseil.example> Conseil Exemple");
+            .containsExactly("Inès Répond <ines@autre.example> Autre ESN", "Marc Autre <marc@autre.example> Autre ESN",
+                "Léa Martin <lea@conseil.example> Conseil Exemple");
+        assertThat(recipients.getFirst()).containsEntry("answers", 1);
         assertThat(call(bob, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody()).isEmpty();
 
         when(mailer.configured()).thenReturn(true);

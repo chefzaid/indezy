@@ -13,9 +13,9 @@ import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 
 /**
- * Tells the ESN contacts worked with of an availability (see docs/features.md#emails-sent-from-indezy): the contacts of
- * the ESNs the workspace had an opportunity with, none ticked at first; one email each from Indezy, `{{firstName}}`
- * replaced by theirs, with the dossier de compétences attached unless unticked, each recorded in their exchanges.
+ * Tells the ESN contacts of an availability (see docs/features.md#emails-sent-from-indezy): the contacts of the ESNs the
+ * workspace had an opportunity with or heard from, not those in touch in the last six weeks, those who answered most
+ * first and none ticked at first; one email each from Indezy, `{{firstName}}` and `{{company}}` replaced by theirs, with the dossier de compétences attached unless unticked, each recorded in their exchanges.
  */
 @Component({
   selector: 'app-availability-emails',
@@ -34,7 +34,11 @@ import { NotificationService } from '../../../services/notification/notification
           @for (recipient of recipients; track recipient.id) {
             <li>
               <mat-checkbox [checked]="chosen.has(recipient.id)" (change)="toggle(recipient.id)" [attr.data-availability-recipient]="recipient.id">
-                {{ recipient.name }} <span class="company">· {{ recipient.company }}</span>
+                {{ recipient.name }} <span class="company">· {{ recipient.company }}
+                  @if (recipient.answers) {
+                    · {{ 'availabilityEmails.answers' | translate:{ count: recipient.answers } }}
+                  }
+                </span>
               </mat-checkbox>
             </li>
           }
@@ -138,7 +142,8 @@ export class AvailabilityEmailsComponent implements OnInit {
     this.sending = true;
     from(recipients).pipe(
       concatMap(recipient => this.contacts.sendEmail(recipient.id, {
-        subject: this.subject.trim(), body: this.body.replaceAll('{{firstName}}', recipient.firstName?.trim() || recipient.name),
+        subject: this.subject.trim().replaceAll('{{company}}', recipient.company),
+        body: this.body.replaceAll('{{firstName}}', recipient.firstName?.trim() || recipient.name).replaceAll('{{company}}', recipient.company),
         track: false, copy: false, language: this.language, dossier: this.dossier
       }).pipe(map(() => ({ recipient, sent: true })), catchError(() => of({ recipient, sent: false })))),
       toArray()

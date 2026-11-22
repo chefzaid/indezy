@@ -8,8 +8,10 @@ import { NotificationService } from '../../../services/notification/notification
 import { AvailabilityEmailsComponent } from './availability-emails.component';
 
 describe('AvailabilityEmailsComponent', () => {
-  const lea: AvailabilityRecipient = { id: 1, firstName: 'Léa', name: 'Léa Martin', company: 'Conseil', email: 'lea@conseil.example' };
-  const marc: AvailabilityRecipient = { id: 2, firstName: null, name: 'Marc Durand', company: 'Autre', email: 'marc@autre.example' };
+  const lea: AvailabilityRecipient = { id: 1, firstName: 'Léa', name: 'Léa Martin', company: 'Conseil', email: 'lea@conseil.example', answers: 3,
+    lastContactedOn: '2026-08-01' };
+  const marc: AvailabilityRecipient = { id: 2, firstName: null, name: 'Marc Durand', company: 'Autre', email: 'marc@autre.example', answers: 0,
+    lastContactedOn: null };
 
   function create(recipients = of([lea, marc])) {
     const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail']);
@@ -36,9 +38,12 @@ describe('AvailabilityEmailsComponent', () => {
     expect(component.body).toContain('Bonjour {{firstName}},\n\nDispo en février pour du Java.');
     expect(component.body).toContain('availabilityEmails.attached');
     // Opened again, what was written stays.
-    component.body = 'Mon texte {{firstName}}';
+    component.body = 'Mon texte {{firstName}} chez {{company}}';
     component.opened({ target: details } as unknown as Event);
-    expect(component.body).toBe('Mon texte {{firstName}}');
+    expect(component.body).toBe('Mon texte {{firstName}} chez {{company}}');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-availability-recipient="1"]')!.textContent)
+      .toContain('availabilityEmails.answers');
 
     component.send();
     expect(contacts.sendEmail).not.toHaveBeenCalled();
@@ -47,8 +52,8 @@ describe('AvailabilityEmailsComponent', () => {
     contacts.sendEmail.and.callFake((id: number) => id === 2 ? throwError(() => new Error('down')) : of({} as ContactInteraction));
     component.send();
     expect(contacts.sendEmail.calls.allArgs()).toEqual([
-      [1, { subject: 'Disponible à partir du 1 février 2027', body: 'Mon texte Léa', track: false, copy: false, language: 'FR', dossier: true }],
-      [2, jasmine.objectContaining({ body: 'Mon texte Marc Durand' })]]);
+      [1, { subject: 'Disponible à partir du 1 février 2027', body: 'Mon texte Léa chez Conseil', track: false, copy: false, language: 'FR', dossier: true }],
+      [2, jasmine.objectContaining({ body: 'Mon texte Marc Durand chez Autre' })]]);
     expect(notifications.success).toHaveBeenCalledWith('availabilityEmails.sent', 4000, { count: 1 });
     expect(notifications.error).toHaveBeenCalledWith('availabilityEmails.failed', 8000, { names: 'Marc Durand' });
     expect([...component.chosen]).toEqual([2]);
