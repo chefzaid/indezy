@@ -14,6 +14,10 @@
         [attr.aria-label]="'globalSearch.open' | translate" [matTooltip]="'globalSearch.open' | translate">
         <mat-icon>search</mat-icon>
       </button>
+      <button mat-icon-button (click)="openHelp()" class="help-button" data-help-open
+        [attr.aria-label]="'help.panel.open' | translate" [matTooltip]="'help.panel.open' | translate">
+        <mat-icon>help_outline</mat-icon>
+      </button>
       <button mat-icon-button (click)="toggleTheme()" class="theme-button"
         [attr.aria-label]="(themeService.isDark() ? 'theme.useLight' : 'theme.useDark') | translate"
         [matTooltip]="(themeService.isDark() ? 'theme.useLight' : 'theme.useDark') | translate">

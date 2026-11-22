@@ -5,6 +5,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
 import { NavigationEnd, Router, RouterOutlet, RouterModule } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,6 +26,7 @@ import { NetworkNoticesService } from './services/network/network-notices.servic
 import { CapabilitiesService } from './services/admin/capabilities.service';
 import { FeatureFlag } from './models';
 import { MessengerDockComponent } from './components/network/messenger-dock/messenger-dock.component';
+import { HelpPanelComponent, helpArticleFor } from './components/help/help-panel.component';
 
 interface MenuItem {
   labelKey: string;
@@ -86,6 +88,7 @@ export class AppComponent implements OnInit {
   @ViewChild('sidenav') sidenav?: MatSidenav;
   readonly connectivity = inject(ConnectivityService);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
   /** The presentation page shows without the app's menu, signed in or not. */
   readonly onHomePage = toSignal(this.router.events.pipe(
     filter(event => event instanceof NavigationEnd),
@@ -231,6 +234,12 @@ export class AppComponent implements OnInit {
   }
 
   /** Toolbar shortcut: flips between light and dark and saves it as the account preference. */
+  /** Opens the help of the page in use in a panel at the side. */
+  openHelp(): void {
+    this.dialog.open(HelpPanelComponent, { data: helpArticleFor(globalThis.location?.pathname ?? this.router.url), position: { right: '0', top: '0' }, height: '100vh',
+      width: '480px', maxWidth: '100vw', panelClass: 'help-panel-dialog', autoFocus: 'dialog' });
+  }
+
   toggleTheme(): void {
     const next = this.themeService.isDark() ? 'light' : 'dark';
     this.themeService.apply(next);

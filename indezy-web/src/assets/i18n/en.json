@@ -4705,6 +4705,11 @@
         "title": "What’s new",
         "summary": "What changed in Indezy, the most recent first."
       }
+    },
+    "panel": {
+      "open": "Help on this page",
+      "full": "Open the full article",
+      "all": "All the help"
     }
   },
   "legal": {

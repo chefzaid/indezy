@@ -455,3 +455,8 @@ html.dark-theme .status-dot {
   background: #22a55a;
   box-shadow: 0 0 0 2px var(--app-surface);
 }
+
+/* The help panel opens at the side, the full height of the window. */
+.help-panel-dialog .mat-mdc-dialog-surface {
+  border-radius: 0;
+}

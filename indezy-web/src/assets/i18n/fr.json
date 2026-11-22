@@ -4705,6 +4705,11 @@
         "title": "Nouveautés",
         "summary": "Ce qui a changé dans Indezy, les nouveautés les plus récentes d’abord."
       }
+    },
+    "panel": {
+      "open": "Aide sur cette page",
+      "full": "Ouvrir l'article complet",
+      "all": "Toute l'aide"
     }
   },
   "legal": {

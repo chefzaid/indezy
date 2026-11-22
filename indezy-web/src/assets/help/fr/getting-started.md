@@ -1,5 +1,7 @@
 Indezy rassemble votre recherche de mission et sa gestion : offres, pipeline, clients, CRA et factures. Ce guide vous aide à créer votre espace et à remplir le profil sur lequel tout le reste s'appuie.
 
+
+Sur chaque page, le bouton **?** de la barre du haut ouvre l'aide de cette page à côté d'elle.
 ## Votre compte
 
 1. Sur la page d'accueil, cliquez sur **Se connecter**.

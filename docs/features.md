@@ -34,6 +34,10 @@ instead of keeping them a year as it does the build's hashed scripts, styles and
 
 ## Help Center And Legal Pages
 
+The **?** button in the top bar opens the help of the page in use in a panel at the side, its article chosen from the
+address (the opportunities, Kanban and timeline: the pipeline; invoices, quotes and expenses: quotes and invoices; the
+profile: the account; any other page: getting started), with **Open the full article** and **All the help**.
+
 **Help** in the left menu (`/help`, open with or without an account) explains how Indezy works, area by area, for
 freelancers rather than developers: getting started, the account and its data, keyboard shortcuts, the FAQ, the offer
 feed, the pipeline and opportunities, clients and contacts, the calendar, timesheets and purchase orders, quotes and
