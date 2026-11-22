@@ -67,6 +67,22 @@ export interface AiInterview {
 }
 
 /** What the freelancer looks for, read into the feed's filters; null for what was not said. */
+/** A CV read into the profile's fields; what it does not say is null. */
+export interface AiProfileImport {
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+  city: string | null;
+  position: string | null;
+  company: string | null;
+  bio: string | null;
+  website: string | null;
+  linkedin: string | null;
+  github: string | null;
+  languages: string[];
+  skills: { name: string; years: number }[];
+}
+
 export interface AiOfferBrief {
   skills: string[];
   rateMin: number | null;

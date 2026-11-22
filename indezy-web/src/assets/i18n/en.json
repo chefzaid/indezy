@@ -1725,6 +1725,21 @@
         "server": "Push notifications are not available yet.",
         "denied": "This browser blocks notifications from Indezy: allow them in its site settings, then try again."
       }
+    },
+    "cvImport": {
+      "open": "Import from my CV (AI)",
+      "title": "Fill in my profile from my CV",
+      "hint": "Choose your CV as a PDF, Word or OpenDocument file. AI reads it into your profile's fields; the file is not kept. You review what to take before anything changes, and nothing is saved until you save your profile.",
+      "pick": "Choose my CV",
+      "reading": "Reading your CV…",
+      "review": "Tick what to take from your CV. Fields your profile leaves empty are ticked.",
+      "current": "Now: {{value}}",
+      "skills": "{{count}} skills to add:",
+      "languages": "Languages to add:",
+      "nothing": "Your CV says nothing your profile does not already hold.",
+      "apply": "Fill in the form",
+      "filled": "Filled in from your CV: review it, then save your profile.",
+      "unreadable": "This file could not be read as a CV: use a PDF, Word or OpenDocument file with its text."
     }
   },
   "errors": {

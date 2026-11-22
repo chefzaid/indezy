@@ -693,6 +693,13 @@ never saved or sent on its own:
   dossier's language. The AI only rewords: a skill it names that the profile lacks is dropped, a mission without a
   description gets none, the summary is cut at 900 characters, and the name, contact details and clients are never sent
   to it. Nothing is kept.
+- **Import from my CV (AI)** on the profile's personal information (`POST /api/ai/profile-import`, a PDF, Word `.docx` or
+  OpenDocument `.odt` of 10 MB at most, its first 20,000 characters read): the name, phone, city, current position and
+  company, presentation, links, languages and skills with their years, nothing it does not state. A review shows each
+  field found beside the profile's value, ticked when the profile's field is empty and unticked when it differs, the
+  skills the profile lacks (case aside, up to the 50-skill limit) and the languages it offers; **Fill in the form** puts
+  only what is ticked in the form, adding skills and languages and never removing any, and nothing is saved until the
+  profile is. The file is neither kept nor scanned, being only read; a scan without text or another format is refused.
 - **Describe my search (AI)** above the offer feed (`POST /api/ai/offer-brief`, 2,000 characters at most): what the
   freelancer looks for in their own words set as the feed's filters (skills, minimum rate, remote days, work modes,
   regions by name, latest start, minimum duration, keywords, and what to avoid as words to leave out), every other filter

@@ -71,6 +71,11 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = message("{\"subject\":\"Candidature Lead Kotlin\",\"message\":\"" + "Bonjour ".repeat(60) + "\"," +
                     "\"screening\":[{\"question\":\"Disponibilité\",\"answer\":\"Dès janvier.\"},{\"question\":\" \",\"answer\":\"x\"}]," +
                     "\"rate\":620,\"rateReasons\":[\"Kotlin rare\",\" \"]}", "end_turn");
+            } else if (body.contains("CV into their profile")) {
+                answer = message("{\"firstName\":\"Alice\",\"lastName\":\" Martin \",\"phone\":\"\",\"city\":\"Lyon\",\"position\":\"Lead Java\"," +
+                    "\"company\":null,\"bio\":\"Dix ans de Java.\",\"website\":null,\"linkedin\":null,\"github\":null," +
+                    "\"languages\":[\"Anglais\",\" \"],\"skills\":[{\"name\":\"Java\",\"years\":10},{\"name\":\"java\",\"years\":3}," +
+                    "{\"name\":\"Kafka\",\"years\":99}]}", "end_turn");
             } else if (body.contains("You turn what a French freelance")) {
                 answer = message("{\"skills\":[\"Java\",\" Kafka \",\"Java\"],\"rateMin\":650,\"minRemoteDays\":2,\"workModes\":[\"HYBRID\"]," +
                     "\"regions\":[\"Île-de-France\",\"Atlantide\"],\"startBefore\":\"2027-03-01\",\"durationMin\":0,\"keywords\":\"\"," +
@@ -366,6 +371,24 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(announcement).containsEntry("linkedin", "Disponible bientôt pour une mission Java.").containsEntry("network", "Dispo en janvier.")
             .containsEntry("availableFrom", java.time.LocalDate.now().minusMonths(1).plusMonths(3).toString());
         assertThat(BODIES.getLast()).contains("You write the posts", "Available from: ");
+
+        // A CV read into the profile's fields, nothing kept; a file that is not a CV is refused.
+        org.springframework.util.LinkedMultiValueMap<String, Object> cv = new org.springframework.util.LinkedMultiValueMap<>();
+        cv.add("file", new org.springframework.core.io.ByteArrayResource(dev.swirlit.indezy.ai.PostingPdfTextTest.pdf(false, "Alice Martin",
+            "Lead Java, 10 ans")) {
+            @Override
+            public String getFilename() {
+                return "cv.pdf";
+            }
+        });
+        Map<String, Object> read = exchange("/ai/profile-import", HttpMethod.POST, new HttpEntity<>(cv, multipart), Map.class).getBody();
+        assertThat(read).containsEntry("firstName", "Alice").containsEntry("lastName", "Martin").containsEntry("phone", null)
+            .containsEntry("position", "Lead Java").containsEntry("languages", List.of("Anglais"));
+        assertThat((List<Map<String, Object>>) read.get("skills")).extracting(skill -> skill.get("name") + ":" + skill.get("years"))
+            .containsExactly("Java:10", "Kafka:50");
+        assertThat(BODIES.getLast()).contains("<cv>", "Lead Java, 10 ans");
+        assertThat(exchange("/ai/profile-import", HttpMethod.POST, new HttpEntity<>(notPdf, multipart), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
 
         // What Alice looks for, read into the feed's filters: the regions by their code, what was not said left out.
         Map<String, Object> brief = call(alice, HttpMethod.POST, "/ai/offer-brief", Map.of("text", "Java Kafka, 650 € minimum, 2 jours de télétravail, " +

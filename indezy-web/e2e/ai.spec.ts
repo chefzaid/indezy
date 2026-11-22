@@ -184,6 +184,48 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     expect(packAudit.violations.map(violation => violation.id)).toEqual([]);
   });
 
+  test(`fills the profile in from a CV once reviewed (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await mockWorkspaceData(page, language);
+    await page.route('**/api/ai/profile-import', route => route.fulfill({ json: { firstName: 'Camille', lastName: 'Test', phone: null,
+      city: 'Lyon', position: 'Lead Java', company: null, bio: null, website: null, linkedin: null, github: null,
+      languages: ['Anglais'], skills: [{ name: 'java', years: 9 }, { name: 'Kafka', years: 4 }] } }));
+    const saved: Record<string, unknown>[] = [];
+    await page.route(/\/api\/users\/profile$/, route => {
+      if (route.request().method() !== 'PUT') {
+        return route.fallback();
+      }
+      saved.push(route.request().postDataJSON());
+      return route.fulfill({ json: { id: 1, email: 'workspace@example.test', ...route.request().postDataJSON() } });
+    });
+    await page.goto('/profile');
+    await page.locator('[data-cv-import]').click();
+    const dialog = page.getByRole('dialog');
+    await dialog.locator('[data-cv-import-file]').setInputFiles({ name: 'cv.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4') });
+    // The first name differs from the profile's, so it is offered unticked; the empty city and position are ticked.
+    await expect(dialog.locator('[data-cv-import-row="firstName"] input')).not.toBeChecked();
+    await expect(dialog.locator('[data-cv-import-row="city"] input')).toBeChecked();
+    await expect(dialog).toContainText(en ? 'Now: Workspace' : 'Actuellement : Workspace');
+    await expect(dialog.locator('[data-cv-import-skills]')).toContainText('Kafka');
+    await expect(dialog.locator('[data-cv-import-skills]')).not.toContainText('java');
+    await expect(dialog.locator('[data-cv-import-row="lastName"]')).toHaveCount(0);
+    await settleDialog(page);
+    const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    await dialog.locator('[data-cv-import-row="position"] input').uncheck();
+    await dialog.locator('[data-cv-import-apply]').click();
+    await expect(dialog).toBeHidden();
+    // Nothing is saved until the member saves the profile.
+    expect(saved).toEqual([]);
+    await page.locator('app-profile-personal-info button[type="submit"]').click();
+    await expect.poll(() => saved.length).toBe(1);
+    expect(saved[0]).toEqual(expect.objectContaining({ firstName: 'Workspace', city: 'Lyon', skills: ['Java', 'Kafka'],
+      skillDetails: { Kafka: { years: 4 } }, languages: ['Anglais'] }));
+    expect(saved[0]['position']).not.toBe('Lead Java');
+  });
+
   test(`shows the AI allowance and takes the member's own key (${language}, ${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);

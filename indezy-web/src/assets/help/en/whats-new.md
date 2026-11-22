@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Your profile from your CV
+
+Fill in your profile from your CV with AI: you tick what to take, and nothing is saved until you save your profile. See [Account, security and data](/help/account).
+
 ### This week's goal
 
 When your mission ends within 12 weeks, the dashboard sets how many opportunities to add this week and shows your progress. See [The dashboard](/help/dashboard).

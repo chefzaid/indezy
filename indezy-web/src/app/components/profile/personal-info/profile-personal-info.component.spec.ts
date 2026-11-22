@@ -6,6 +6,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { UserProfile } from '../../../models/user-management.models';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { NotificationService } from '../../../services/notification/notification.service';
 import { ProfilePersonalInfoComponent } from './profile-personal-info.component';
 
 describe('ProfilePersonalInfoComponent', () => {
@@ -146,6 +148,25 @@ describe('ProfilePersonalInfoComponent', () => {
     submitButton().click();
 
     expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it('fills the form from a CV once reviewed, leaving the saving to the member', () => {
+    create({}, { skills: ['Java'] });
+    const info = spyOn(TestBed.inject(NotificationService), 'info');
+    const open = spyOn(TestBed.inject(MatDialog), 'open').and.returnValues(
+      { afterClosed: () => of({ city: 'Lyon', skills: ['Java', 'Kafka'] }) } as MatDialogRef<unknown>,
+      { afterClosed: () => of(undefined) } as MatDialogRef<unknown>);
+    element().querySelector<HTMLButtonElement>('[data-cv-import]')!.click();
+
+    expect(open.calls.mostRecent().args[1]!.data).toEqual(jasmine.objectContaining({
+      current: jasmine.objectContaining({ firstName: 'Ada', skills: ['Java'] }), languages: component.availableLanguages }));
+    expect(form.value.city).toBe('Lyon');
+    expect(form.value.skills).toEqual(['Java', 'Kafka']);
+    expect(form.dirty).toBeTrue();
+    expect(info).toHaveBeenCalledWith('profile.cvImport.filled');
+    // Cancelled: nothing changes.
+    component.importCv();
+    expect(info).toHaveBeenCalledTimes(1);
   });
 
   it('forwards the selected avatar file', () => {

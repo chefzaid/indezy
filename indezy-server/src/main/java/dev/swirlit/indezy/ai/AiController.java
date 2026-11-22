@@ -51,6 +51,7 @@ public class AiController {
     private final InterviewAiService interviews;
     private final ApplicationPackAiService packs;
     private final OfferBriefAiService briefs;
+    private final ProfileImportAiService profileImports;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -130,6 +131,13 @@ public class AiController {
     public PostingAiService.Posting posting(@Valid @RequestBody PostingRequest request) {
         accessGuard.requireWorkspace(null);
         return postings.read(SecurityUtils.getCurrentUserId(), request.text());
+    }
+
+    @Operation(summary = "Read a CV (PDF or docx) into the profile's fields, to pick from; nothing is kept")
+    @PostMapping(value = "/profile-import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ProfileImportAiService.Reading profileImport(@RequestParam("file") MultipartFile file) throws IOException {
+        accessGuard.requireWorkspace(null);
+        return profileImports.read(SecurityUtils.getCurrentUserId(), file.getOriginalFilename(), file.getBytes());
     }
 
     @Operation(summary = "The text of a job posting saved as a PDF, to check before reading it", description = "No AI: 5 MB and 10 pages at most")

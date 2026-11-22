@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Votre profil depuis votre CV
+
+Remplissez votre profil depuis votre CV avec l'IA : vous cochez ce que vous reprenez, et rien n'est enregistré avant que vous enregistriez votre profil. Voir [Compte, sécurité et données](/help/account).
+
 ### L'objectif de la semaine
 
 Quand votre mission se termine dans les 12 semaines, le tableau de bord fixe combien d'opportunités ajouter cette semaine et montre où vous en êtes. Voir [Le tableau de bord](/help/dashboard).

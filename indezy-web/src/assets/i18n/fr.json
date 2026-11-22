@@ -1725,6 +1725,21 @@
         "server": "Les notifications push ne sont pas encore disponibles.",
         "denied": "Ce navigateur bloque les notifications d'Indezy : autorisez-les dans les réglages du site, puis réessayez."
       }
+    },
+    "cvImport": {
+      "open": "Importer depuis mon CV (IA)",
+      "title": "Remplir mon profil depuis mon CV",
+      "hint": "Choisissez votre CV en PDF, Word ou OpenDocument. L'IA le lit dans les champs de votre profil ; le fichier n'est pas conservé. Vous choisissez ce que vous reprenez avant tout changement, et rien n'est enregistré tant que vous n'enregistrez pas votre profil.",
+      "pick": "Choisir mon CV",
+      "reading": "Lecture de votre CV…",
+      "review": "Cochez ce que vous reprenez de votre CV. Les champs vides de votre profil sont cochés.",
+      "current": "Actuellement : {{value}}",
+      "skills": "{{count}} compétences à ajouter :",
+      "languages": "Langues à ajouter :",
+      "nothing": "Votre CV ne dit rien que votre profil ne contienne déjà.",
+      "apply": "Remplir le formulaire",
+      "filled": "Rempli depuis votre CV : vérifiez, puis enregistrez votre profil.",
+      "unreadable": "Ce fichier n'a pas pu être lu comme un CV : utilisez un PDF, un Word ou un OpenDocument avec son texte."
     }
   },
   "errors": {

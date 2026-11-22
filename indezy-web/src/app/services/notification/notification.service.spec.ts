@@ -8,9 +8,11 @@ import { NotificationService } from './notification.service';
 describe('NotificationService', () => {
   let snackBar: jasmine.SpyObj<MatSnackBar>;
   let service: NotificationService;
-  const action = new Subject<void>();
+  let action: Subject<void>;
 
   beforeEach(() => {
+    // A subject per test: a toast left from an earlier one must not act on this one's injector.
+    action = new Subject<void>();
     snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
     snackBar.open.and.returnValue({ onAction: () => action.asObservable() } as MatSnackBarRef<TextOnlySnackBar>);
     TestBed.configureTestingModule({ imports: [TranslateModule.forRoot()], providers: [provideRouter([]), { provide: MatSnackBar, useValue: snackBar }] });

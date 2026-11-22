@@ -71,6 +71,16 @@ Un webhook prévient vos outils (Zapier, Make, n8n, un script) des événements 
 
 **Envoyer un test** vérifie la réception ; **Derniers envois** montre les 20 derniers. Un envoi refusé est réessayé plusieurs fois ; après 20 échecs d'affilée, le webhook se désactive jusqu'à ce que vous cliquiez sur **Activer**. Un espace a 5 webhooks au plus.
 
+## Remplir votre profil depuis votre CV
+
+**Profil → Informations personnelles → Importer depuis mon CV (IA)** lit votre CV (PDF, Word ou OpenDocument, 10 Mo au plus) dans les champs de votre profil : nom, téléphone, ville, poste, société, présentation, liens, langues et compétences avec leurs années. Le fichier n'est pas conservé.
+
+1. Cliquez sur **Choisir mon CV**.
+2. Cochez ce que vous reprenez : chaque champ trouvé montre ce que contient votre profil ; les champs vides sont cochés. Les compétences et langues absentes de votre profil sont ajoutées, aucune retirée, jusqu'à 50 compétences.
+3. Cliquez sur **Remplir le formulaire**, vérifiez, puis **Sauvegarder** : rien n'est enregistré avant.
+
+Un CV scanné sans texte ne peut pas être lu. L'IA utilise votre quota mensuel, ou votre propre clé.
+
 ## Exporter et importer vos données
 
 - **Profil → Compte → Exporter mes données** télécharge toutes vos données au format JSON.

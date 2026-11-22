@@ -151,6 +151,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/profile/api-tokens/profile-api-tokens.component',
   'components/profile/billing/profile-billing.component',
   'components/profile/blocked-publishers/blocked-publishers.component',
+  'components/profile/cv-import/profile-cv-import-dialog.component',
   'components/profile/data-import/profile-data-import.component',
   'components/profile/dossier-button/dossier-button.component',
   'components/profile/email-templates-settings/email-templates-settings.component',

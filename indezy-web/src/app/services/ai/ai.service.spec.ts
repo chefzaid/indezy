@@ -40,6 +40,10 @@ describe('AiService', () => {
     const pdf = http.expectOne(`${url}/posting/pdf`);
     expect(pdf.request.body instanceof FormData).toBeTrue();
     pdf.flush({ text: 'x', cut: false });
+    service.profileImport(new File(['%PDF'], 'cv.pdf')).subscribe();
+    const cv = http.expectOne(`${url}/profile-import`);
+    expect(cv.request.body instanceof FormData).toBeTrue();
+    cv.flush({ languages: [], skills: [] });
     service.suggestRate({ role: 'Lead', techStack: null, workMode: null, remoteDaysPerMonth: null, place: null, durationInMonths: null,
       description: null, language: 'FR' }).subscribe();
     expect(http.expectOne(`${url}/rate`).request.body.role).toBe('Lead');

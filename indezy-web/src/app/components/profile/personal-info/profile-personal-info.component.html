@@ -27,6 +27,9 @@
         <div class="avatar-info">
           <h3>{{ userProfile.firstName }} {{ userProfile.lastName }}</h3>
           <p>{{ userProfile.position || 'Freelance' }}</p>
+          <button mat-stroked-button type="button" (click)="importCv()" data-cv-import>
+            <mat-icon>auto_awesome</mat-icon>{{ 'profile.cvImport.open' | translate }}
+          </button>
         </div>
       </div>
     </mat-card>

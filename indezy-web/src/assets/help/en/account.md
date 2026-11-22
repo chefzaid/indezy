@@ -71,6 +71,16 @@ A webhook tells your tools (Zapier, Make, n8n, a script) about your workspace's 
 
 **Send a test** checks it arrives; **Latest deliveries** shows the last 20. A delivery that fails is tried again several times; after 20 failures in a row the webhook turns off until you click **Turn on**. A workspace has 5 webhooks at most.
 
+## Fill in your profile from your CV
+
+**Profile → Personal information → Import from my CV (AI)** reads your CV (PDF, Word or OpenDocument, 10 MB at most) into your profile's fields: name, phone, city, position, company, presentation, links, languages and skills with their years. The file is not kept.
+
+1. Click **Choose my CV**.
+2. Tick what to take: each field found shows what your profile holds now; the empty ones are ticked. Skills and languages your profile lacks are added, none removed, up to 50 skills.
+3. Click **Fill in the form**, check it, then **Save**: nothing is saved before.
+
+A scanned CV without text cannot be read. The AI uses your monthly allowance, or your own key.
+
 ## Export and import your data
 
 - **Profile → Account → Export my data** downloads all your data as JSON.

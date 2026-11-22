@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -13,6 +14,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { UserProfile } from '../../../models/user-management.models';
 import { ProfileSkillsEditorComponent } from '../skills-editor/profile-skills-editor.component';
+import { CvImportData, ProfileCvImportDialogComponent } from '../cv-import/profile-cv-import-dialog.component';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 /**
  * "Personal information" tab of the profile page: avatar, basic/professional
@@ -48,6 +51,21 @@ export class ProfilePersonalInfoComponent {
   @Output() avatarUpload = new EventEmitter<Event>();
 
   readonly defaultAvatar = 'assets/images/default-avatar.svg';
+  private readonly dialog = inject(MatDialog);
+  private readonly notifications = inject(NotificationService);
+
+  /** Fills the form from a CV read with AI, once what to take is reviewed; saving stays the member's. */
+  importCv(): void {
+    const data: CvImportData = { current: this.form.getRawValue(), languages: this.availableLanguages };
+    this.dialog.open(ProfileCvImportDialogComponent, { data, width: '640px', maxWidth: '96vw', autoFocus: false }).afterClosed()
+      .subscribe(patch => {
+        if (patch && Object.keys(patch).length) {
+          this.form.patchValue(patch);
+          this.form.markAsDirty();
+          this.notifications.info('profile.cvImport.filled');
+        }
+      });
+  }
 
   /** Falls back to the default avatar when the stored image cannot be loaded. */
   onAvatarError(event: Event): void {
