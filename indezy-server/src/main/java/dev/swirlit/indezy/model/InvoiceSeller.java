@@ -1,6 +1,8 @@
 package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.LegalForm;
+import dev.swirlit.indezy.model.enums.LogoPlacement;
+import dev.swirlit.indezy.model.enums.LogoSize;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -52,6 +54,15 @@ public class InvoiceSeller {
     /** The free text at the foot of each page, kept at issue; null for none. */
     @Column(name = "seller_footer", length = 200)
     private String footer;
+
+    /** Where the logo sits and how large, kept at issue; null for left and medium. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seller_logo_placement", length = 10)
+    private LogoPlacement logoPlacement;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seller_logo_size", length = 10)
+    private LogoSize logoSize;
 
     /** The logo the document prints ({@link DocumentLogo}), kept at issue; null for none. */
     @Column(name = "seller_logo_id")

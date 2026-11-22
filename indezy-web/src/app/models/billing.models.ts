@@ -30,6 +30,9 @@ export interface BillingIdentity {
   footer?: string | null;
   /** Read-only: the terms and conditions PDF appended after each quote; null for none. Set with its own upload. */
   quoteTermsFileId?: number | null;
+  /** Where the logo sits at the top of the documents, and how large. */
+  logoPlacement?: 'LEFT' | 'CENTER' | 'RIGHT';
+  logoSize?: 'SMALL' | 'MEDIUM' | 'LARGE';
   /** Read-only: the logo printed on the documents; null for none. Set with its own upload. */
   logoId?: number | null;
   /** The accent colour of the documents' title, table header and rules, as #RRGGBB; null for black. */

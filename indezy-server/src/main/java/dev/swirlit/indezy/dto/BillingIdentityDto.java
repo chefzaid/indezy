@@ -1,6 +1,8 @@
 package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.enums.LegalForm;
+import dev.swirlit.indezy.model.enums.LogoPlacement;
+import dev.swirlit.indezy.model.enums.LogoSize;
 import dev.swirlit.indezy.util.BillingText;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -36,6 +38,8 @@ public record BillingIdentityDto(
     @Size(max = 2000) String invoiceNotes,
     @Size(max = 2000) String quoteNotes,
     Long quoteTermsFileId,
+    LogoPlacement logoPlacement,
+    LogoSize logoSize,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;

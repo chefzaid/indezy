@@ -79,6 +79,17 @@ class QuoteTermsPdfTest {
         try (PDDocument document = Loader.loadPDF(withLogos.render(quote(), seller, new InvoiceBuyer(), 30, null))) {
             assertThat(document.getPage(0).getResources().getXObjectNames()).hasSize(1);
         }
+        // Centred and large, the logo still prints, once.
+        seller.setLogoPlacement(dev.swirlit.indezy.model.enums.LogoPlacement.CENTER);
+        seller.setLogoSize(dev.swirlit.indezy.model.enums.LogoSize.LARGE);
+        try (PDDocument document = Loader.loadPDF(withLogos.render(quote(), seller, new InvoiceBuyer(), 30, null))) {
+            assertThat(document.getPage(0).getResources().getXObjectNames()).hasSize(1);
+            assertThat(new PDFTextStripper().getText(document)).contains("Alice Martin", "Devis");
+        }
+        seller.setLogoPlacement(dev.swirlit.indezy.model.enums.LogoPlacement.RIGHT);
+        try (PDDocument document = Loader.loadPDF(withLogos.render(quote(), seller, new InvoiceBuyer(), 30, null))) {
+            assertThat(document.getPage(0).getResources().getXObjectNames()).hasSize(1);
+        }
         // Without one, or with one gone, nothing is drawn.
         seller.setLogoId(6L);
         org.mockito.Mockito.when(logos.findById(6L)).thenReturn(java.util.Optional.empty());

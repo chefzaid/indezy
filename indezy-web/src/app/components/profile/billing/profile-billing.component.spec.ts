@@ -68,7 +68,7 @@ describe('ProfileBillingComponent', () => {
     component.save();
 
     expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ siret: '55210055400012', iban: 'FR7630006000011234567890189',
-      bic: 'BNPAFRPP', shareCapital: null, registration: null, vatExempt: true, latePaymentRate: 12.15, quoteTerms: 'Article 1', footer: 'alice.dev', quoteNotes: 'Sur devis.', invoiceNotes: null }));
+      bic: 'BNPAFRPP', shareCapital: null, registration: null, vatExempt: true, latePaymentRate: 12.15, quoteTerms: 'Article 1', footer: 'alice.dev', quoteNotes: 'Sur devis.', invoiceNotes: null, logoPlacement: 'LEFT', logoSize: 'MEDIUM' }));
     expect(component.complete).toBeTrue();
     expect(notifications.success).toHaveBeenCalledWith('profile.billing.saved');
 

@@ -1,6 +1,8 @@
 package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.LegalForm;
+import dev.swirlit.indezy.model.enums.LogoPlacement;
+import dev.swirlit.indezy.model.enums.LogoSize;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -76,6 +78,14 @@ public class BillingIdentity {
     /** The free text at the foot of each page of the documents (website, phone); null for none. */
     @Column(name = "billing_footer", length = 200)
     private String footer;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "billing_logo_placement", length = 10)
+    private LogoPlacement logoPlacement;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "billing_logo_size", length = 10)
+    private LogoSize logoSize;
 
     /** The logo printed on the documents ({@link DocumentLogo}); null for none. */
     @Column(name = "billing_logo_id")

@@ -479,6 +479,8 @@ public class InvoiceService {
         seller.setLatePaymentRate(identity.latePaymentRate());
         seller.setAccentColor(identity.accentColor());
         seller.setLogoId(identity.logoId());
+        seller.setLogoPlacement(identity.logoPlacement());
+        seller.setLogoSize(identity.logoSize());
         seller.setFooter(identity.footer());
         return seller;
     }

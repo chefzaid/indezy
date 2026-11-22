@@ -72,6 +72,12 @@ final class PdfPageWriter implements Closeable {
         return false;
     }
 
+    /** The width an image takes once fitted into the box, kept in proportion. */
+    float imageWidth(byte[] bytes, float maxWidth, float maxHeight) throws IOException {
+        PDImageXObject image = PDImageXObject.createFromByteArray(document, bytes, "logo");
+        return image.getWidth() * Math.min(1f, Math.min(maxWidth / image.getWidth(), maxHeight / image.getHeight()));
+    }
+
     /**
      * Draws an image with its top left corner at the point, scaled down to fit the box and kept in proportion; the
      * height it took.

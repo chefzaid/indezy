@@ -52,6 +52,8 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     quoteTerms: ['', Validators.maxLength(20000)],
     accentColor: [''],
     footer: ['', Validators.maxLength(200)],
+    logoPlacement: ['LEFT' as 'LEFT' | 'CENTER' | 'RIGHT'],
+    logoSize: ['MEDIUM' as 'SMALL' | 'MEDIUM' | 'LARGE'],
     invoiceNotes: ['', Validators.maxLength(2000)],
     quoteNotes: ['', Validators.maxLength(2000)]
   });
@@ -218,6 +220,8 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       quoteTerms: value.quoteTerms?.trim() || null,
       accentColor: value.accentColor || null,
       footer: value.footer?.trim() || null,
+      logoPlacement: value.logoPlacement ?? 'LEFT',
+      logoSize: value.logoSize ?? 'MEDIUM',
       invoiceNotes: value.invoiceNotes?.trim() || null,
       quoteNotes: value.quoteNotes?.trim() || null
     };
@@ -247,6 +251,8 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       quoteTerms: identity.quoteTerms ?? '',
       accentColor: identity.accentColor ?? '',
       footer: identity.footer ?? '',
+      logoPlacement: identity.logoPlacement ?? 'LEFT',
+      logoSize: identity.logoSize ?? 'MEDIUM',
       invoiceNotes: identity.invoiceNotes ?? '',
       quoteNotes: identity.quoteNotes ?? ''
     });

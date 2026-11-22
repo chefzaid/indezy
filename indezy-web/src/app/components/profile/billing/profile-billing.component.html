@@ -114,6 +114,24 @@
           <button mat-button type="button" (click)="removeLogo()" data-billing-logo-remove>{{ 'profile.billing.logoRemove' | translate }}</button>
         }
         <span class="hint">{{ 'profile.billing.logoHint' | translate }}</span>
+        @if (logoId) {
+          <mat-form-field appearance="outline" class="logo-option">
+            <mat-label>{{ 'profile.billing.logoPlacement' | translate }}</mat-label>
+            <mat-select formControlName="logoPlacement" data-billing-logo-placement>
+              @for (placement of ['LEFT', 'CENTER', 'RIGHT']; track placement) {
+                <mat-option [value]="placement">{{ 'profile.billing.logoPlacements.' + placement | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="logo-option">
+            <mat-label>{{ 'profile.billing.logoSize' | translate }}</mat-label>
+            <mat-select formControlName="logoSize" data-billing-logo-size>
+              @for (size of ['SMALL', 'MEDIUM', 'LARGE']; track size) {
+                <mat-option [value]="size">{{ 'profile.billing.logoSizes.' + size | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
       </div>
       <div class="accent" data-billing-accent-row>
         <label for="billing-accent">{{ 'profile.billing.accentColor' | translate }}</label>

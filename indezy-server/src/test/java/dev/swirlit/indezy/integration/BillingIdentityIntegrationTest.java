@@ -43,6 +43,12 @@ class BillingIdentityIntegrationTest extends TwoAccountsIntegrationTest {
         Map<String, Object> pale = new HashMap<>(identity);
         pale.put("accentColor", "#FFEE88");
         assertThat(call(alice, HttpMethod.PUT, "/users/billing", pale, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(alice, HttpMethod.GET, "/users/billing", null, Map.class).getBody()).containsEntry("logoPlacement", "LEFT")
+            .containsEntry("logoSize", "MEDIUM");
+        identity.put("logoPlacement", "RIGHT");
+        identity.put("logoSize", "SMALL");
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("logoPlacement", "RIGHT")
+            .containsEntry("logoSize", "SMALL");
         identity.put("footer", "  alice.dev  ");
         assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("footer", "alice.dev");
         identity.remove("footer");

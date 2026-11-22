@@ -4,6 +4,8 @@ import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.LogoPlacement;
+import dev.swirlit.indezy.model.enums.LogoSize;
 import dev.swirlit.indezy.service.InvoiceTotals;
 
 import java.io.IOException;
@@ -28,8 +30,6 @@ abstract class BillingPage {
     static final float SMALL = 8;
     static final float LINE = 13;
     static final float ROW = 16;
-    static final float LOGO_WIDTH = 160;
-    static final float LOGO_HEIGHT = 56;
 
     final PdfPageWriter writer;
     final InvoiceSeller seller;
@@ -110,7 +110,19 @@ abstract class BillingPage {
     void header(HeadingWriter heading, String buyerLabel) throws IOException {
         float top = writer.cursor();
         if (logo != null) {
-            writer.moveDown(writer.image(logo, writer.left(), top, LOGO_WIDTH, LOGO_HEIGHT) + LINE);
+            LogoSize size = seller.getLogoSize() == null ? LogoSize.MEDIUM : seller.getLogoSize();
+            LogoPlacement placement = seller.getLogoPlacement() == null ? LogoPlacement.LEFT : seller.getLogoPlacement();
+            float x = switch (placement) {
+                case LEFT -> writer.left();
+                case CENTER -> writer.left() + (writer.width() - writer.imageWidth(logo, size.width(), size.height())) / 2;
+                case RIGHT -> writer.right() - writer.imageWidth(logo, size.width(), size.height());
+            };
+            float height = writer.image(logo, x, top, size.width(), size.height()) + LINE;
+            writer.moveDown(height);
+            if (placement != LogoPlacement.LEFT) {
+                // Centred or on the right, the logo sits above both the seller and the title.
+                top -= height;
+            }
         }
         sellerBlock();
         float afterSeller = writer.cursor();

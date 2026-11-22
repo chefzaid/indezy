@@ -1418,7 +1418,19 @@
       "termsFileOpen": "Ouvrir le PDF",
       "termsFileHint": "Un PDF de 5 Mo et 20 pages au plus, ajouté après chaque devis ; un devis envoyé garde celui avec lequel il est parti.",
       "termsFileSaved": "PDF des conditions générales enregistré.",
-      "termsFileRefused": "Ce fichier ne peut pas être utilisé : envoyez un PDF de 5 Mo et 20 pages au plus, sans mot de passe."
+      "termsFileRefused": "Ce fichier ne peut pas être utilisé : envoyez un PDF de 5 Mo et 20 pages au plus, sans mot de passe.",
+      "logoPlacement": "Position du logo",
+      "logoSize": "Taille du logo",
+      "logoPlacements": {
+        "LEFT": "À gauche",
+        "CENTER": "Centré",
+        "RIGHT": "À droite"
+      },
+      "logoSizes": {
+        "SMALL": "Petit",
+        "MEDIUM": "Moyen",
+        "LARGE": "Grand"
+      }
     },
     "webhooks": {
       "title": "Webhooks",
