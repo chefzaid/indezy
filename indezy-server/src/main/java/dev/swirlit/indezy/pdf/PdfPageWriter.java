@@ -5,6 +5,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -67,6 +68,19 @@ final class PdfPageWriter implements Closeable {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Draws an image with its top left corner at the point, scaled down to fit the box and kept in proportion; the
+     * height it took.
+     */
+    float image(byte[] bytes, float x, float top, float maxWidth, float maxHeight) throws IOException {
+        PDImageXObject image = PDImageXObject.createFromByteArray(document, bytes, "logo");
+        float scale = Math.min(1f, Math.min(maxWidth / image.getWidth(), maxHeight / image.getHeight()));
+        float width = image.getWidth() * scale;
+        float height = image.getHeight() * scale;
+        content.drawImage(image, x, top - height, width, height);
+        return height;
     }
 
     /** Draws what follows (text and rules) in the #RRGGBB colour, or black when null. */

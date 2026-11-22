@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -27,7 +27,7 @@ const COMPANIES: LegalForm[] = ['EURL', 'SASU', 'SARL', 'SAS'];
   styleUrls: ['./profile-billing.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
-export class ProfileBillingComponent implements OnInit {
+export class ProfileBillingComponent implements OnInit, OnDestroy {
   private readonly billing = inject(BillingService);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
@@ -60,6 +60,68 @@ export class ProfileBillingComponent implements OnInit {
 
   get portage(): boolean {
     return this.form.controls.legalForm.value === 'PORTAGE';
+  }
+
+  /** The logo shown, as an object URL; null for none. */
+  logoUrl: string | null = null;
+  logoId: number | null = null;
+  uploadingLogo = false;
+
+  ngOnDestroy(): void {
+    this.revokeLogo();
+  }
+
+  uploadLogo(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024 || !/^image\/(png|jpeg)$/.test(file.type)) {
+      this.notifications.error('profile.billing.logoRefused');
+      return;
+    }
+    this.uploadingLogo = true;
+    this.billing.uploadLogo(file).subscribe({
+      next: identity => {
+        this.uploadingLogo = false;
+        this.showLogo(identity.logoId ?? null);
+        this.notifications.success('profile.billing.logoSaved');
+      },
+      error: () => {
+        this.uploadingLogo = false;
+        this.notifications.error('profile.billing.logoRefused');
+      }
+    });
+  }
+
+  removeLogo(): void {
+    this.billing.removeLogo().subscribe({
+      next: () => this.showLogo(null),
+      error: () => this.notifications.error('profile.billing.saveError')
+    });
+  }
+
+  private showLogo(id: number | null): void {
+    if (id === this.logoId) {
+      return;
+    }
+    this.logoId = id;
+    this.revokeLogo();
+    if (id !== null) {
+      this.billing.logo(id).subscribe({
+        next: blob => this.logoUrl = URL.createObjectURL(blob),
+        error: () => undefined
+      });
+    }
+  }
+
+  private revokeLogo(): void {
+    if (this.logoUrl) {
+      URL.revokeObjectURL(this.logoUrl);
+      this.logoUrl = null;
+    }
   }
 
   ngOnInit(): void {
@@ -129,6 +191,7 @@ export class ProfileBillingComponent implements OnInit {
 
   private show(identity: BillingIdentity): void {
     this.complete = !!identity.complete;
+    this.showLogo(identity.logoId ?? null);
     this.form.reset({
       legalName: identity.legalName ?? '', legalForm: identity.legalForm, siret: identity.siret ?? '', vatExempt: identity.vatExempt,
       vatNumber: identity.vatNumber ?? '', vatRate: identity.vatRate, shareCapital: identity.shareCapital,

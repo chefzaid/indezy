@@ -28,12 +28,16 @@ abstract class BillingPage {
     static final float SMALL = 8;
     static final float LINE = 13;
     static final float ROW = 16;
+    static final float LOGO_WIDTH = 160;
+    static final float LOGO_HEIGHT = 56;
 
     final PdfPageWriter writer;
     final InvoiceSeller seller;
     final InvoiceBuyer buyer;
     final DocumentLanguage language;
     private final Locale locale;
+    /** The seller's logo, printed above it; null for none. */
+    private byte[] logo;
 
     BillingPage(PdfPageWriter writer, InvoiceSeller seller, InvoiceBuyer buyer, DocumentLanguage language) {
         this.writer = writer;
@@ -41,6 +45,11 @@ abstract class BillingPage {
         this.buyer = buyer;
         this.language = language;
         this.locale = language.locale();
+    }
+
+    /** Prints this logo above the seller. */
+    void logo(byte[] image) {
+        this.logo = image == null ? null : image.clone();
     }
 
     /** Amounts owed back, as a credit note's, are written negative. */
@@ -100,6 +109,9 @@ abstract class BillingPage {
     /** The seller beside the document's heading, then the client below both. */
     void header(HeadingWriter heading, String buyerLabel) throws IOException {
         float top = writer.cursor();
+        if (logo != null) {
+            writer.moveDown(writer.image(logo, writer.left(), top, LOGO_WIDTH, LOGO_HEIGHT) + LINE);
+        }
         sellerBlock();
         float afterSeller = writer.cursor();
         moveTo(top);

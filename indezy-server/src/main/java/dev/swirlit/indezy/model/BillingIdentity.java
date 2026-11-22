@@ -65,6 +65,10 @@ public class BillingIdentity {
     @Column(name = "billing_accent_color", length = 7)
     private String accentColor;
 
+    /** The logo printed on the documents ({@link DocumentLogo}); null for none. */
+    @Column(name = "billing_logo_id")
+    private Long logoId;
+
     /** The terms and conditions of sale printed after each quote; null for none. */
     @Column(name = "billing_quote_terms", columnDefinition = "TEXT")
     private String quoteTerms;

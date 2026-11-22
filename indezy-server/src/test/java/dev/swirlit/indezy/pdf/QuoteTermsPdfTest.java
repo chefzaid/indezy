@@ -62,5 +62,29 @@ class QuoteTermsPdfTest {
             assertThat(operators).containsPattern("0\\.12\\d* 0\\.30\\d* 0\\.47\\d* rg");
         }
     }
+
+    @Test
+    void printsTheSellersLogoAboveItsName() throws IOException {
+        java.awt.image.BufferedImage picture = new java.awt.image.BufferedImage(300, 100, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.io.ByteArrayOutputStream png = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(picture, "png", png);
+        dev.swirlit.indezy.model.DocumentLogo logo = new dev.swirlit.indezy.model.DocumentLogo();
+        logo.setContent(png.toByteArray());
+        dev.swirlit.indezy.repository.DocumentLogoRepository logos = org.mockito.Mockito.mock(dev.swirlit.indezy.repository.DocumentLogoRepository.class);
+        org.mockito.Mockito.when(logos.findById(5L)).thenReturn(java.util.Optional.of(logo));
+        QuotePdfRenderer withLogos = new QuotePdfRenderer();
+        withLogos.setLogos(logos);
+        InvoiceSeller seller = seller();
+        seller.setLogoId(5L);
+        try (PDDocument document = Loader.loadPDF(withLogos.render(quote(), seller, new InvoiceBuyer(), 30, null))) {
+            assertThat(document.getPage(0).getResources().getXObjectNames()).hasSize(1);
+        }
+        // Without one, or with one gone, nothing is drawn.
+        seller.setLogoId(6L);
+        org.mockito.Mockito.when(logos.findById(6L)).thenReturn(java.util.Optional.empty());
+        try (PDDocument document = Loader.loadPDF(withLogos.render(quote(), seller, new InvoiceBuyer(), 30, null))) {
+            assertThat(document.getPage(0).getResources().getXObjectNames()).isEmpty();
+        }
+    }
 }
 

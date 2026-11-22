@@ -19,6 +19,13 @@ for (const width of [1280, 390]) {
       }
       return route.fulfill({ json: identity });
     });
+    // A 1×1 PNG.
+    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+    await page.route('**/api/users/billing/logo', route => {
+      identity = { ...identity, logoId: route.request().method() === 'POST' ? 9 : null };
+      return route.fulfill({ json: identity });
+    });
+    await page.route('**/api/users/billing/logos/9', route => route.fulfill({ body: png, contentType: 'image/png' }));
 
     await page.goto('/profile');
     await page.getByRole('tab', { name: 'Billing' }).click();
@@ -32,6 +39,8 @@ for (const width of [1280, 390]) {
     await card.locator('[data-billing-save]').click();
     await expect(card.getByText('This IBAN is not valid')).toBeVisible();
     await card.getByLabel('IBAN').fill('FR76 3000 6000 0112 3456 7890 189');
+    await card.locator('[data-billing-logo-file]').setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: png });
+    await expect(card.locator('[data-billing-logo-preview]')).toBeVisible();
     await card.locator('[data-billing-quote-terms]').fill('Article 1 — Objet');
     await card.locator('[data-billing-accent]').evaluate((input: HTMLInputElement) => {
       input.value = '#1f4e79';

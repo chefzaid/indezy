@@ -1400,7 +1400,15 @@
       "accentNone": "Noir",
       "accentClear": "Revenir au noir",
       "accentHint": "Le titre, l'en-tête du tableau et les filets de vos factures et devis ; un document émis garde la couleur qu'il avait.",
-      "accentPale": "Cette couleur est trop pâle pour être lue ou imprimée : choisissez-en une plus foncée."
+      "accentPale": "Cette couleur est trop pâle pour être lue ou imprimée : choisissez-en une plus foncée.",
+      "logo": "Logo",
+      "logoAlt": "Le logo de vos documents",
+      "logoUpload": "Ajouter un logo",
+      "logoReplace": "Remplacer le logo",
+      "logoRemove": "Retirer",
+      "logoHint": "Un PNG ou un JPEG de 2 Mo au plus, imprimé au-dessus de votre nom sur les factures et devis ; un document émis garde le logo qu'il avait.",
+      "logoSaved": "Logo enregistré.",
+      "logoRefused": "Ce logo ne peut pas être utilisé : envoyez un PNG ou un JPEG de 2 Mo au plus."
     },
     "webhooks": {
       "title": "Webhooks",

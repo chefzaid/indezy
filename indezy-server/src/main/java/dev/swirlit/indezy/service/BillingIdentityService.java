@@ -39,6 +39,8 @@ public class BillingIdentityService {
         }
         Freelance freelance = freelance(freelanceId);
         BillingIdentity billing = new BillingIdentity();
+        // The logo is set on its own (DocumentLogoService), never by the identity's form.
+        billing.setLogoId(freelance.getBilling() == null ? null : freelance.getBilling().getLogoId());
         billing.setLegalName(request.legalName());
         billing.setLegalForm(request.legalForm());
         billing.setSiret(request.siret());
@@ -73,7 +75,7 @@ public class BillingIdentityService {
             Objects.requireNonNullElse(billing.getVatRate(), DEFAULT_VAT_RATE), billing.getShareCapital(), billing.getRegistration(),
             address, billing.getIban(), billing.getBic(), Objects.requireNonNullElse(billing.getPaymentTermDays(), DEFAULT_PAYMENT_TERM_DAYS),
             Objects.requireNonNullElse(billing.getInvoicePrefix(), DEFAULT_PREFIX), billing.getLatePaymentRate(), billing.getQuoteTerms(), billing.getAccentColor(),
-            complete);
+            billing.getLogoId(), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

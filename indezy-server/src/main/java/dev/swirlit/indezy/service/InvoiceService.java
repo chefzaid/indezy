@@ -474,6 +474,7 @@ public class InvoiceService {
         seller.setBic(identity.bic());
         seller.setLatePaymentRate(identity.latePaymentRate());
         seller.setAccentColor(identity.accentColor());
+        seller.setLogoId(identity.logoId());
         return seller;
     }
 

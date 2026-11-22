@@ -35,7 +35,7 @@ public class AccountPurge {
         "pipeline_template_steps", "pipeline_templates", "contacts", "clients", "sources", "seasons", "email_templates",
         "offer_board_visits", "offer_publisher_blocks", "offer_site_exclusions", "offer_suggestion_dismissals",
         "saved_offer_searches", "trainings", "booking_windows", "bookings", "booking_pages", "compliance_pack_documents",
-        "compliance_packs", "compliance_documents", "freelances", "api_token_scopes", "api_tokens", "account_sessions",
+        "compliance_packs", "compliance_documents", "document_logos", "freelances", "api_token_scopes", "api_tokens", "account_sessions",
         "account_events", "user_skills", "user_skill_details", "user_languages", "users");
 
     /**
@@ -183,7 +183,7 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM compliance_pack_documents WHERE pack_id IN (SELECT id FROM compliance_packs WHERE freelance_id = ?)", f);
         for (String table : List.of("clients", "sources", "seasons", "email_templates", "offer_board_visits", "offer_publisher_blocks",
             "offer_site_exclusions", "offer_suggestion_dismissals", "saved_offer_searches", "trainings", "bookings", "booking_pages",
-            "compliance_packs", "compliance_documents")) {
+            "compliance_packs", "compliance_documents", "document_logos")) {
             rows += jdbc.update("DELETE FROM " + table + " WHERE freelance_id = ?", f);
         }
         rows += jdbc.update("DELETE FROM freelances WHERE id = ?", f);

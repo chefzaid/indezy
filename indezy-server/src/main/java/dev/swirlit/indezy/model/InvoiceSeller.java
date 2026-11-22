@@ -49,6 +49,10 @@ public class InvoiceSeller {
     @Column(name = "seller_late_payment_rate")
     private Double latePaymentRate;
 
+    /** The logo the document prints ({@link DocumentLogo}), kept at issue; null for none. */
+    @Column(name = "seller_logo_id")
+    private Long logoId;
+
     /** The accent colour of the document's title, table header and rules, as #RRGGBB; null for black. */
     @Column(name = "seller_accent_color", length = 7)
     private String accentColor;

@@ -20,4 +20,20 @@ export class BillingService {
   saveIdentity(identity: BillingIdentity): Observable<BillingIdentity> {
     return this.http.put<BillingIdentity>(this.API_URL, identity);
   }
+
+  /** Sets the logo of the invoices and quotes to come (a PNG or JPEG of 2 MB at most). */
+  uploadLogo(file: File): Observable<BillingIdentity> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<BillingIdentity>(`${this.API_URL}/logo`, form);
+  }
+
+  removeLogo(): Observable<BillingIdentity> {
+    return this.http.delete<BillingIdentity>(`${this.API_URL}/logo`);
+  }
+
+  /** One of the workspace's logos, to show. */
+  logo(id: number): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/logos/${id}`, { responseType: 'blob' });
+  }
 }

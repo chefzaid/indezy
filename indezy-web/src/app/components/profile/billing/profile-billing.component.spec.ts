@@ -36,7 +36,8 @@ describe('ProfileBillingComponent', () => {
   }
 
   beforeEach(() => {
-    billing = jasmine.createSpyObj('BillingService', ['identity', 'saveIdentity']);
+    billing = jasmine.createSpyObj('BillingService', ['identity', 'saveIdentity', 'uploadLogo', 'removeLogo', 'logo']);
+    billing.logo.and.returnValue(of(new Blob(['png'], { type: 'image/png' })));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
   });
 
@@ -112,6 +113,37 @@ describe('ProfileBillingComponent', () => {
     component.clearAccent();
     expect(component.form.value.accentColor).toBe('');
     expect(contrastOnWhite('#000000')).toBeCloseTo(21, 0);
+  });
+
+  it('shows, replaces and removes the documents\' logo', () => {
+    const fixture = create(of({ ...defaults, logoId: 3 }));
+    expect(billing.logo).toHaveBeenCalledWith(3);
+    const component = fixture.componentInstance;
+    billing.logo.and.returnValue(of(new Blob(['png'], { type: 'image/png' })));
+    billing.uploadLogo.and.returnValue(of({ ...defaults, logoId: 4 }));
+    const input = document.createElement('input');
+    input.type = 'file';
+    const files = new DataTransfer();
+    files.items.add(new File(['png'], 'logo.png', { type: 'image/png' }));
+    input.files = files.files;
+    component.uploadLogo({ target: input } as unknown as Event);
+    expect(billing.uploadLogo).toHaveBeenCalled();
+    expect(component.logoId).toBe(4);
+    expect(component.logoUrl).toContain('blob:');
+    expect(notifications.success).toHaveBeenCalledWith('profile.billing.logoSaved');
+
+    const gif = new DataTransfer();
+    gif.items.add(new File(['gif'], 'logo.gif', { type: 'image/gif' }));
+    input.files = gif.files;
+    component.uploadLogo({ target: input } as unknown as Event);
+    expect(notifications.error).toHaveBeenCalledWith('profile.billing.logoRefused');
+    expect(billing.uploadLogo).toHaveBeenCalledTimes(1);
+
+    billing.removeLogo.and.returnValue(of({ ...defaults, logoId: null }));
+    component.removeLogo();
+    expect(component.logoId).toBeNull();
+    expect(component.logoUrl).toBeNull();
+    fixture.destroy();
   });
 });
 

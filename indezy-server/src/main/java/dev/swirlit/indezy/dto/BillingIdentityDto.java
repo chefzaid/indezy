@@ -31,6 +31,7 @@ public record BillingIdentityDto(
     @DecimalMin("0") @DecimalMax("100") Double latePaymentRate,
     @Size(max = BillingIdentityDto.QUOTE_TERMS_MAX) String quoteTerms,
     @Pattern(regexp = "#[0-9A-Fa-f]{6}", message = "A colour as #RRGGBB") String accentColor,
+    Long logoId,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;

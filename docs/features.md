@@ -1313,7 +1313,10 @@ digits, a SIRET without 14 digits or a malformed VAT number or BIC is refused. I
 address, an IBAN and, when VAT applies, a VAT number are set. Under portage the portage company invoices, so Indezy
 does not. An **Accent colour** (`accentColor`, #RRGGBB, refused under a 3 to 1 contrast on white as too pale to read or
 print) draws the title, the table header and the rules of invoices, credit notes and quotes; it is part of the seller
-frozen at issue, so an issued document keeps the colour it had.
+frozen at issue, so an issued document keeps the colour it had. A **Logo** (`POST`/`DELETE /api/users/billing/logo`, a
+PNG or JPEG of 2 MB at most, drawn anew at most 600 pixels on its longest side) is printed above the seller, 160 by 56
+points at most; each upload is a new logo (`GET /api/users/billing/logos/{id}`), so issued documents, which keep the id
+they were issued with, still print theirs. Logos go with the workspace.
 
 ### Factur-X
 

@@ -100,6 +100,21 @@
           <mat-error>{{ error('latePaymentRate') }}</mat-error>
         </mat-form-field>
       </div>
+      <div class="logo" data-billing-logo>
+        <span class="logo-label">{{ 'profile.billing.logo' | translate }}</span>
+        @if (logoUrl) {
+          <img [src]="logoUrl" [alt]="'profile.billing.logoAlt' | translate" data-billing-logo-preview>
+        }
+        <input #logoInput type="file" hidden accept="image/png,image/jpeg" (change)="uploadLogo($event)" data-billing-logo-file
+          [attr.aria-label]="'profile.billing.logoUpload' | translate">
+        <button mat-stroked-button type="button" (click)="logoInput.click()" [disabled]="uploadingLogo" data-billing-logo-upload>
+          <mat-icon>image</mat-icon>{{ (logoId ? 'profile.billing.logoReplace' : 'profile.billing.logoUpload') | translate }}
+        </button>
+        @if (logoId) {
+          <button mat-button type="button" (click)="removeLogo()" data-billing-logo-remove>{{ 'profile.billing.logoRemove' | translate }}</button>
+        }
+        <span class="hint">{{ 'profile.billing.logoHint' | translate }}</span>
+      </div>
       <div class="accent" data-billing-accent-row>
         <label for="billing-accent">{{ 'profile.billing.accentColor' | translate }}</label>
         <input id="billing-accent" type="color" [value]="form.value.accentColor || '#000000'" (input)="setAccent($event)" data-billing-accent>

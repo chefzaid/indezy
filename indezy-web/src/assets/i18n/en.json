@@ -1400,7 +1400,15 @@
       "accentNone": "Black",
       "accentClear": "Back to black",
       "accentHint": "The title, the table header and the rules of your invoices and quotes; an issued one keeps the colour it had.",
-      "accentPale": "This colour is too pale to read or print: pick a darker one."
+      "accentPale": "This colour is too pale to read or print: pick a darker one.",
+      "logo": "Logo",
+      "logoAlt": "Your documents' logo",
+      "logoUpload": "Add a logo",
+      "logoReplace": "Replace the logo",
+      "logoRemove": "Remove",
+      "logoHint": "A PNG or JPEG of 2 MB at most, printed above your name on invoices and quotes; an issued document keeps the logo it had.",
+      "logoSaved": "Logo saved.",
+      "logoRefused": "This logo cannot be used: send a PNG or a JPEG of 2 MB at most."
     },
     "webhooks": {
       "title": "Webhooks",
