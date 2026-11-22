@@ -47,15 +47,26 @@ export interface AiAvailability {
   availableFrom: string;
 }
 
+/** A rate negotiation prepared: the counter-offer, the walk-away rate, why, the ESN's margin (null without its client rate). */
+export interface AiNegotiation {
+  counterOffer: number;
+  walkAway: number;
+  strategy: string;
+  arguments: string[];
+  marginEuros: number | null;
+  marginPercent: number | null;
+  marketMedian: number;
+}
+
 /** How to polish a message: spelling and grammar only, more formal, warmer, or shorter. */
 export type AiPolishTone = 'KEEP' | 'FORMAL' | 'FRIENDLY' | 'SHORTER';
 
 export const AI_POLISH_TONES: AiPolishTone[] = ['KEEP', 'FORMAL', 'FRIENDLY', 'SHORTER'];
 
 /** What an AI request is for, each on its own model unless one is chosen. */
-export type AiTask = 'POSTING' | 'MESSAGE' | 'FIT' | 'CHAT' | 'TRIAGE' | 'DOSSIER' | 'RATE';
+export type AiTask = 'POSTING' | 'MESSAGE' | 'FIT' | 'CHAT' | 'TRIAGE' | 'DOSSIER' | 'RATE' | 'NEGOTIATION';
 
-export const AI_TASKS: AiTask[] = ['POSTING', 'TRIAGE', 'MESSAGE', 'DOSSIER', 'RATE', 'FIT', 'CHAT'];
+export const AI_TASKS: AiTask[] = ['POSTING', 'TRIAGE', 'MESSAGE', 'DOSSIER', 'RATE', 'FIT', 'NEGOTIATION', 'CHAT'];
 
 /** A job posting read into an opportunity's fields: null where it says nothing. */
 export interface AiPosting {

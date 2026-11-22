@@ -4837,7 +4837,8 @@
         "DOSSIER": "Tailored dossier",
         "FIT": "Weighing an opportunity",
         "CHAT": "Conversation about an opportunity",
-        "RATE": "Suggesting a rate"
+        "RATE": "Suggesting a rate",
+        "NEGOTIATION": "Preparing a negotiation"
       }
     },
     "fit": {
@@ -4904,6 +4905,17 @@
       "draft": "Keep as a network draft",
       "drafted": "Kept in your network drafts",
       "draftError": "The draft could not be kept: join the network first, or copy the text."
+    },
+    "negotiation": {
+      "open": "Prepare the negotiation (AI)",
+      "title": "Prepare the rate negotiation",
+      "busy": "The AI is preparing the negotiation",
+      "counter": "Counter-offer",
+      "walkAway": "Walk away below",
+      "margin": "The ESN's margin",
+      "market": "Market median",
+      "arguments": "Arguments for the call",
+      "again": "Prepare again"
     }
   }
 }

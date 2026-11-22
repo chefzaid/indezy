@@ -65,6 +65,7 @@ class AiServiceTest {
         assertThat(byTask.model(AiFeature.RATE)).isEqualTo("claude-sonnet-5-5");
         assertThat(byTask.model(AiFeature.FIT)).isEqualTo("claude-opus-5-5");
         assertThat(byTask.model(AiFeature.CHAT)).isEqualTo("claude-opus-5-5");
+        assertThat(byTask.model(AiFeature.NEGOTIATION)).isEqualTo("claude-opus-5-5");
         assertThat(AiProperties.BY_TASK).containsOnlyKeys(AiFeature.values());
 
         AiProperties one = new AiProperties("sk-ant-indezy", "claude-sonnet-5-5", "https://api.anthropic.com", 2.0, 100.0,

@@ -101,6 +101,19 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     expect(tailoredUrl).toContain('/api/ai/dossier/42?layout=ANONYMOUS&language=EN');
     await expect(page.locator('[data-dossier="tailored"]')).toBeEnabled();
 
+    await page.route(/\/api\/ai\/negotiation\/42/, route => route.fulfill({ json: { counterOffer: 680, walkAway: 620,
+      strategy: en ? 'Anchor high.' : 'Ancrez haut.', arguments: [en ? 'Kafka is rare.' : 'Kafka est rare.'], marginEuros: 150, marginPercent: 20,
+      marketMedian: 640 } }));
+    await page.locator('[data-ai-negotiation-open]').click();
+    const negotiating = page.getByRole('dialog');
+    await expect(negotiating.locator('[data-ai-negotiation-counter]')).toContainText('680');
+    await expect(negotiating).toContainText(en ? 'Kafka is rare.' : 'Kafka est rare.');
+    await settleDialog(page);
+    const negotiationAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
+    expect(negotiationAudit.violations.map(violation => violation.id)).toEqual([]);
+    await page.keyboard.press('Escape');
+    await expect(negotiating).toHaveCount(0);
+
     const turns = [{ id: 1, fromMember: true, text: en ? 'How should I negotiate the rate for this mission?' : 'Comment négocier le TJM de cette mission ?',
       createdAt: '2026-11-22T10:00:00' }, { id: 2, fromMember: false, text: en ? 'Anchor at 720 €.' : 'Ancrez à 720 €.', createdAt: '2026-11-22T10:00:05' }];
     await page.route('**/api/ai/chat/42', route => route.fulfill({ json: route.request().method() === 'POST' ? turns : [] }));

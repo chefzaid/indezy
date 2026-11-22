@@ -4837,7 +4837,8 @@
         "DOSSIER": "Dossier adapté",
         "FIT": "Évaluation d'une opportunité",
         "CHAT": "Conversation sur une opportunité",
-        "RATE": "Suggestion d'un TJM"
+        "RATE": "Suggestion d'un TJM",
+        "NEGOTIATION": "Préparation d'une négociation"
       }
     },
     "fit": {
@@ -4904,6 +4905,17 @@
       "draft": "Garder en brouillon du réseau",
       "drafted": "Gardé dans vos brouillons du réseau",
       "draftError": "Le brouillon n'a pas pu être gardé : rejoignez d'abord le réseau, ou copiez le texte."
+    },
+    "negotiation": {
+      "open": "Préparer la négociation (IA)",
+      "title": "Préparer la négociation du TJM",
+      "busy": "L'IA prépare la négociation",
+      "counter": "Contre-proposition",
+      "walkAway": "Refuser en dessous de",
+      "margin": "La marge de l'ESN",
+      "market": "Médiane du marché",
+      "arguments": "Arguments pour l'échange",
+      "again": "Préparer à nouveau"
     }
   }
 }

@@ -15,5 +15,7 @@ public enum AiFeature {
     /** The dossier de compétences tailored to an opportunity. */
     DOSSIER,
     /** A daily rate suggested for an opportunity being written. */
-    RATE
+    RATE,
+    /** A rate negotiation prepared for an opportunity. */
+    NEGOTIATION
 }

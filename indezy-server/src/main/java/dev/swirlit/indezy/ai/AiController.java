@@ -47,6 +47,7 @@ public class AiController {
     private final DossierAiService dossiers;
     private final RateAiService rates;
     private final AvailabilityAiService availability;
+    private final NegotiationAiService negotiations;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -124,6 +125,13 @@ public class AiController {
         accessGuard.requireProject(request.projectId());
         return fits.weigh(SecurityUtils.getCurrentUserId(), request.projectId(),
             request.language() == null ? DocumentLanguage.FR : request.language(), request.priorities());
+    }
+
+    @Operation(summary = "Prepare the rate negotiation of an opportunity: counter-offer, walk-away rate, the ESN's margin, arguments")
+    @PostMapping("/negotiation/{projectId}")
+    public NegotiationAiService.Preparation negotiation(@PathVariable Long projectId, @RequestParam(required = false) DocumentLanguage language) {
+        accessGuard.requireProject(projectId);
+        return negotiations.prepare(SecurityUtils.getCurrentUserId(), projectId, language == null ? DocumentLanguage.FR : language);
     }
 
     @Operation(summary = "Draft a message about an opportunity: an application, a follow-up, a thank-you or a decline")

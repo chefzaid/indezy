@@ -67,6 +67,9 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = "{\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}}";
             } else if (body.contains("PLEASE-REFUSE")) {
                 answer = message("", "refusal");
+            } else if (body.contains("You prepare a French freelance")) {
+                answer = message("{\"counterOffer\":680,\"walkAway\":720,\"strategy\":\"Ancrer haut.\",\"arguments\":[\"Kafka rare\",\"\"]}",
+                    "end_turn");
             } else if (body.contains("You write the posts")) {
                 answer = message("{\"linkedin\":\"Disponible bientôt pour une mission Java.\",\"network\":\" Dispo en janvier. \"}", "end_turn");
             } else if (body.contains("You polish")) {
@@ -308,6 +311,17 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.POST, "/ai/polish", Map.of("body", "bonjour {{firstName}}, {{myName}}"), Map.class).getBody())
             .containsEntry("message", "The AI changed the message's variables: polish it again or edit it by hand");
         assertThat(call(alice, HttpMethod.POST, "/ai/polish", Map.of("body", " "), String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        // A negotiation prepared: the ESN's margin from its client rate, the walk-away kept at most at the counter-offer.
+        long negotiated = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Kafka", "dailyRate", 600, "clientDailyRate", 750,
+            "status", "OFFER", "clientId", aliceClientId, "techStack", "Kafka"), Map.class));
+        Map<String, Object> preparation = call(alice, HttpMethod.POST, "/ai/negotiation/" + negotiated + "?language=FR", null, Map.class).getBody();
+        assertThat(preparation).containsEntry("counterOffer", 680).containsEntry("walkAway", 680).containsEntry("marginEuros", 150)
+            .containsEntry("marginPercent", 20).containsEntry("strategy", "Ancrer haut.");
+        assertThat((List<String>) preparation.get("arguments")).containsExactly("Kafka rare");
+        assertThat(BODIES.getLast()).contains("Rate offered: 600 EUR", "Rate the client pays the ESN: 750 EUR", "20 % of the client rate");
+        assertThat(call(bob, HttpMethod.POST, "/ai/negotiation/" + negotiated, null, String.class).getStatusCode())
+            .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
 
         // The availability announced from the day after the running mission ends.
         call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "WON", "clientId", aliceClientId,
