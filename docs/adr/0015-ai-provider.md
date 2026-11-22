@@ -16,7 +16,7 @@ spending cap by default, plus an optional bring-your-own key that lifts the limi
   (`INDEZY_AI_MODEL`), each feature asking for a structured answer (a JSON schema from a Java record) at the lowest effort
   that serves it, with the server-side refusal fallback on (`fallbacks: "default"`).
 - Indezy's key (`INDEZY_AI_ANTHROPIC_API_KEY`, from Vault) serves every account within a monthly allowance in US dollars
-  (`INDEZY_AI_ACCOUNT_MONTHLY_CAP_USD`, 2 by default, the same for every account until plans exist), and all accounts
+  (`INDEZY_AI_ACCOUNT_MONTHLY_CAP_USD`, 10 by default: the free tier, the same for every account until paid plans, which will allow more), and all accounts
   together within a monthly cap (`INDEZY_AI_MONTHLY_CAP_USD`, 100 by default). Each request's tokens and cost are counted
   in `ai_usage` by account, month (Paris time), feature and key, from the response's usage and the model's list price.
 - A member may set their own Anthropic key (Profile → Preferences → AI) and choose Opus, Sonnet or Haiku 5.5: their

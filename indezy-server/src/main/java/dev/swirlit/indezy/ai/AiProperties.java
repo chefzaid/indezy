@@ -13,7 +13,7 @@ public record AiProperties(
     String apiKey,
     @DefaultValue("claude-opus-5-5") String model,
     @DefaultValue("https://api.anthropic.com") String baseUrl,
-    @DefaultValue("2.0") double accountMonthlyCapUsd,
+    @DefaultValue("10.0") double accountMonthlyCapUsd,
     @DefaultValue("100.0") double monthlyCapUsd) {
 
     public boolean configured() {

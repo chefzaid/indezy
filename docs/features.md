@@ -645,7 +645,7 @@ never saved or sent on its own:
   (2,000 characters at most), and the history stays with the opportunity, cleared on request, deleted with it and part of
   the data export.
 - **Profile → Preferences → AI** (`GET /api/ai/status`, `PUT`/`DELETE /api/ai/key`): whether AI can be used and this
-  month's allowance on Indezy's key (2 US dollars by default), or the member's own Anthropic key, stored encrypted, with
+  month's allowance on Indezy's key (10 US dollars a month on the free tier, all accounts together within 100), or the member's own Anthropic key, stored encrypted, with
   Opus, Sonnet or Haiku 5.5, which no limit applies to. An allowance used up, Indezy's monthly cap reached, a refusal or a
   key Anthropic refuses are each said as such.
 

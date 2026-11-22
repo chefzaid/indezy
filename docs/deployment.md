@@ -93,10 +93,12 @@ idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 ho
 
 ## AI key
 
+The owner's steps are in [Owner Actions](./owner-actions.md#1-turn-on-the-ai-features-anthropic-key).
+
 The AI features ([ADR 0015](./adr/0015-ai-provider.md)) use Indezy's Anthropic key from the optional `indezy-ai`
 secret (`INDEZY_AI_ANTHROPIC_API_KEY`). Without it they say AI is not available, and members can still set their own key.
 Limits are set in the `indezy-server-config` ConfigMap or the deployment's environment: `INDEZY_AI_ACCOUNT_MONTHLY_CAP_USD`
-(2 by default, per account and month), `INDEZY_AI_MONTHLY_CAP_USD` (100 by default, all accounts) and `INDEZY_AI_MODEL`
+(10 by default, per account and month: the free tier), `INDEZY_AI_MONTHLY_CAP_USD` (100 by default, all accounts) and `INDEZY_AI_MODEL`
 (`claude-opus-5-5` by default). To set it up once:
 
 1. In the Anthropic Console, create an API key for Indezy (a workspace of its own lets you set a spend limit there too).
@@ -126,6 +128,8 @@ Limits are set in the `indezy-server-config` ConfigMap or the deployment's envir
 The server reaches `api.anthropic.com` over its existing HTTPS egress.
 
 ## Web push keys
+
+The owner's steps are in [Owner Actions](./owner-actions.md#2-turn-on-web-push-vapid-keys).
 
 Web push (Profile → Notifications → **Notifications on this device**) signs each push with a VAPID key pair. Until the
 server has one, nothing is pushed and the switch says push is not available yet. The deployment reads the pair from the

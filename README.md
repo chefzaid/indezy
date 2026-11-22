@@ -31,6 +31,7 @@ Build and package are required; tests, E2E, quality and security reports never b
 - [Development Guide](./docs/development.md)
 - [Testing Guide](./docs/testing.md)
 - [Deployment Guide](./docs/deployment.md)
+- [Owner Actions](./docs/owner-actions.md): the keys, facts and settings only the owner can provide
 - [Operations Runbook](./docs/operations.md)
 - [Security Reference](./docs/security.md)
 - [Infrastructure Layout](./docs/deployment.md#infrastructure-layout)
