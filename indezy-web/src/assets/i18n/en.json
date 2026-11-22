@@ -2810,7 +2810,9 @@
       "removeSkill": "Remove {{skill}}",
       "address": "Address",
       "addressHint": "Used to work out commute times to on-site missions",
-      "city": "City"
+      "city": "City",
+      "import": "Start from LinkedIn or my CV",
+      "imported": "Filled in from your file: check these steps, then continue."
     },
     "rate": {
       "label": "Rate and availability",

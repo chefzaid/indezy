@@ -22,6 +22,9 @@ import { PipelineTemplateService } from '../../services/pipeline-template/pipeli
 import { UserManagementService } from '../../services/user-management/user-management.service';
 import { skillKey } from '../../shared/utils/skill-names';
 import { STARTER_PROCESSES, StarterProcess, starterSteps } from './onboarding-processes';
+import { MatDialog } from '@angular/material/dialog';
+import { CvImportData, ProfileCvImportDialogComponent } from '../profile/cv-import/profile-cv-import-dialog.component';
+import { PROFILE_LANGUAGES } from '../profile/profile-languages';
 
 /** Most skills the welcome step takes, as the profile's skills editor allows more later. */
 export const ONBOARDING_SKILLS_MAX = 30;
@@ -49,7 +52,10 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
   private readonly destroy$ = new Subject<void>();
+  /** What the import took beyond these steps' fields (phone, company, presentation, links, languages, skill years), saved with them. */
+  private imported: Partial<UserProfile> = {};
 
   readonly processes = STARTER_PROCESSES;
   readonly vertical$ = inject(BreakpointObserver).observe('(max-width: 720px)').pipe(map(state => state.matches));
@@ -72,6 +78,10 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   isLoading = true;
   isSaving = false;
   private profile?: UserProfile;
+
+  get profileLoaded(): boolean {
+    return this.profile !== undefined;
+  }
   /** The starter process already saved, so going back and forth does not save it twice. */
   private savedProcess?: StarterProcess['id'];
 
@@ -115,6 +125,31 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     this.skills = this.skills.filter(known => known !== skill);
   }
 
+  /** Starts from a CV or LinkedIn's archive: what is taken fills these steps, the rest is saved with them. */
+  importProfile(): void {
+    if (!this.profile) {
+      return;
+    }
+    const about = this.aboutForm.getRawValue();
+    const current: Partial<UserProfile> = { ...this.profile, ...this.imported, firstName: about.firstName, lastName: about.lastName,
+      position: about.position, city: about.city, skills: this.skills };
+    const data: CvImportData = { current, languages: [...PROFILE_LANGUAGES] };
+    this.dialog.open(ProfileCvImportDialogComponent, { data, width: '640px', maxWidth: '96vw', autoFocus: false }).afterClosed()
+      .pipe(takeUntil(this.destroy$)).subscribe(patch => {
+        if (!patch || !Object.keys(patch).length) {
+          return;
+        }
+        const { firstName, lastName, position, city, skills, ...rest } = patch;
+        this.aboutForm.patchValue({ ...(firstName ? { firstName } : {}), ...(lastName ? { lastName } : {}), ...(position ? { position } : {}),
+          ...(city ? { city } : {}) });
+        if (skills) {
+          this.skills = skills.slice(0, ONBOARDING_SKILLS_MAX);
+        }
+        this.imported = { ...this.imported, ...rest };
+        this.notifications.info('onboarding.about.imported');
+      });
+  }
+
   /** Saves the first two steps together, on leaving the second one. */
   saveProfile(stepper: MatStepper): void {
     if (!this.profile || this.aboutForm.invalid || this.rateForm.invalid || this.isSaving) {
@@ -126,6 +161,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     const rate = this.rateForm.getRawValue();
     const update: Partial<UserProfile> = {
       ...this.profile,
+      ...this.imported,
       firstName: about.firstName.trim(),
       lastName: about.lastName.trim(),
       position: about.position.trim() || undefined,

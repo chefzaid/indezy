@@ -2810,7 +2810,9 @@
       "removeSkill": "Retirer {{skill}}",
       "address": "Adresse",
       "addressHint": "Sert à calculer les temps de trajet vers les missions sur site",
-      "city": "Ville"
+      "city": "Ville",
+      "import": "Partir de LinkedIn ou de mon CV",
+      "imported": "Rempli depuis votre fichier : vérifiez ces étapes, puis continuez."
     },
     "rate": {
       "label": "TJM et disponibilité",

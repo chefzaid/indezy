@@ -16,6 +16,7 @@ import { UserProfile } from '../../../models/user-management.models';
 import { ProfileSkillsEditorComponent } from '../skills-editor/profile-skills-editor.component';
 import { CvImportData, ProfileCvImportDialogComponent } from '../cv-import/profile-cv-import-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { PROFILE_LANGUAGES } from '../profile-languages';
 
 /**
  * "Personal information" tab of the profile page: avatar, basic/professional
@@ -75,10 +76,7 @@ export class ProfilePersonalInfoComponent {
     }
   }
 
-  availableLanguages = [
-    'Français', 'Anglais', 'Espagnol', 'Allemand', 'Italien', 'Portugais',
-    'Chinois', 'Japonais', 'Arabe', 'Russe', 'Néerlandais'
-  ];
+  availableLanguages = [...PROFILE_LANGUAGES];
 
   addLanguage(language: string): void {
     const languages: string[] = this.form.get('languages')?.value || [];

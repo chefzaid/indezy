@@ -183,7 +183,8 @@ ESNs, contacts, seasons, opportunities with their steps and checklists, and jour
 ### Welcome Steps
 
 A new account opens on **Welcome to Indezy** until it is finished or skipped (**Skip the setup**): about you (name,
-title, up to 30 skills, address), rate and availability (saved to the profile), a starter recruitment process
+title, up to 30 skills, address; **Start from LinkedIn or my CV** opens the [profile import](#profile-import), what it takes
+filling these fields and the rest, such as the phone, company, links, languages and skill years, saved with them), rate and availability (saved to the profile), a starter recruitment process
 (**Through an ESN** or **Direct client**, with checklists, or **Not now**), then links to add an opportunity, browse
 missions or open the dashboard. Accounts older than the welcome steps never see them.
 

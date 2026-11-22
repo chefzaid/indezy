@@ -16,6 +16,9 @@
       <mat-step [stepControl]="aboutForm" [label]="'onboarding.about.label' | translate">
         <form [formGroup]="aboutForm" class="step-form">
           <p class="step-intro">{{ 'onboarding.about.intro' | translate }}</p>
+          <button mat-stroked-button type="button" class="import" (click)="importProfile()" [disabled]="!profileLoaded" data-onboarding-import>
+            <mat-icon>upload_file</mat-icon>{{ 'onboarding.about.import' | translate }}
+          </button>
           <div class="row">
             <mat-form-field appearance="outline">
               <mat-label>{{ 'onboarding.about.firstName' | translate }}</mat-label>

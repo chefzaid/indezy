@@ -100,3 +100,25 @@ test('lets a new account skip the setup for good (fr, phone)', async ({ page }) 
   await page.reload();
   await expect(page).toHaveURL(/\/dashboard$/);
 });
+
+test('starts the welcome from LinkedIn\'s archive, saving what it found with the first steps (fr, phone)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const calls = await registerNewAccount(page, 'fr');
+  await page.route('**/api/users/profile-import/linkedin', route => route.fulfill({ json: { firstName: 'Jean', lastName: 'Dupont',
+    phone: '+33 6 12 34 56 78', city: 'Lyon', position: 'Lead Java', company: 'Jean Conseil', bio: null, website: null, linkedin: null,
+    github: null, languages: [], skills: [{ name: 'Kafka', years: 3 }] } }));
+
+  await page.locator('[data-onboarding-import]').click();
+  const dialog = page.getByRole('dialog');
+  await dialog.locator('[data-cv-import-linkedin-file]').setInputFiles({ name: 'Basic_LinkedInDataExport.zip', mimeType: 'application/zip',
+    buffer: Buffer.from('PK') });
+  await dialog.locator('[data-cv-import-apply]').click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByLabel('Ville')).toHaveValue('Lyon');
+  await expect(page.locator('[data-skills] mat-chip')).toHaveText([/^\s*Kafka/]);
+  await page.locator('[data-about-next]').click();
+  await page.locator('[data-save-profile]').click();
+  await expect.poll(() => calls.profiles.length).toBe(1);
+  expect(calls.profiles[0]).toEqual(expect.objectContaining({ city: 'Lyon', position: 'Lead Java', company: 'Jean Conseil',
+    phone: '+33 6 12 34 56 78', skills: ['Kafka'], skillDetails: { Kafka: { years: 3 } } }));
+});

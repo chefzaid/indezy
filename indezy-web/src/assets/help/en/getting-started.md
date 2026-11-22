@@ -17,7 +17,7 @@ Open sign-up is not available on every instance yet: if you see no **Create my a
 
 The first time you sign in, Indezy opens **Welcome to Indezy**. Three short steps set up your workspace, and you can change all of it later in your profile.
 
-1. **About you**: your first and last name, your **Title**, up to 30 **Skills** (type one, then Enter) and your **Address**, used to work out commute times.
+1. **About you**: your first and last name, your **Title**, up to 30 **Skills** (type one, then Enter) and your **Address**, used to work out commute times. **Start from LinkedIn or my CV** fills them in from your CV or LinkedIn's archive of your data, after you tick what to take.
 2. **Rate and availability**: your **Target daily rate** and the date you are **Available from**.
 3. **Recruitment process**: pick **Through an ESN** or **Direct client** to save the usual interview steps as a template, or **Not now**.
 4. **Ready**: choose where to start, **Add an opportunity**, **Browse freelance missions** or **Open the dashboard**.

@@ -165,6 +165,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/profile/password-rejection',
   'components/profile/personal-info/profile-personal-info.component',
   'components/profile/privacy/profile-privacy.component',
+  'components/profile/profile-languages',
   'components/profile/profile.component',
   'components/profile/public-page/profile-public-page.component',
   'components/profile/push-toggle/push-toggle.component',

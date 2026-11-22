@@ -15,6 +15,7 @@ import { UserManagementService } from '../../services/user-management/user-manag
 import { UserProfile } from '../../models/user-management.models';
 import { PipelineTemplate } from '../../models';
 import { User } from '../../models/auth.models';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 describe('OnboardingComponent', () => {
   let fixture: ComponentFixture<OnboardingComponent>;
@@ -37,7 +38,7 @@ describe('OnboardingComponent', () => {
     users = jasmine.createSpyObj<UserManagementService>('UserManagementService', ['getUserProfile', 'updateUserProfile']);
     templates = jasmine.createSpyObj<PipelineTemplateService>('PipelineTemplateService', ['createFromSteps']);
     auth = jasmine.createSpyObj<AuthService>('AuthService', ['getUser', 'completeOnboarding']);
-    notifications = jasmine.createSpyObj<NotificationService>('NotificationService', ['error', 'success']);
+    notifications = jasmine.createSpyObj<NotificationService>('NotificationService', ['error', 'success', 'info']);
     stepper = jasmine.createSpyObj<MatStepper>('MatStepper', ['next']);
     auth.getUser.and.returnValue({ id: 1, firstName: 'Ali', onboardingPending: true } as User);
     users.getUserProfile.and.returnValue(of(profile));
@@ -71,6 +72,26 @@ describe('OnboardingComponent', () => {
     expect(component.aboutForm.getRawValue()).toEqual({ firstName: 'Alice', lastName: 'Martin', position: '', address: '', city: '' });
     expect(component.skills).toEqual(['Java']);
     expect((fixture.nativeElement as HTMLElement).querySelector('mat-stepper')).not.toBeNull();
+  });
+
+  it('starts from a CV or LinkedIn, filling these steps and saving the rest with them', () => {
+    fixture.detectChanges();
+    const open = spyOn(TestBed.inject(MatDialog), 'open').and.returnValues(
+      { afterClosed: () => of({ lastName: 'Durand', city: 'Lyon', company: 'Alice Conseil', skills: ['Java', 'Kafka'],
+        skillDetails: { Kafka: { years: 2 } } }) } as MatDialogRef<unknown>,
+      { afterClosed: () => of(undefined) } as MatDialogRef<unknown>);
+    component.importProfile();
+    expect(open.calls.mostRecent().args[1]!.data).toEqual(jasmine.objectContaining({
+      current: jasmine.objectContaining({ firstName: 'Alice', skills: ['Java'] }) }));
+    expect(component.aboutForm.getRawValue()).toEqual(jasmine.objectContaining({ firstName: 'Alice', lastName: 'Durand', city: 'Lyon' }));
+    expect(component.skills).toEqual(['Java', 'Kafka']);
+    expect(notifications.info).toHaveBeenCalledWith('onboarding.about.imported');
+    component.importProfile();
+    expect(notifications.info).toHaveBeenCalledTimes(1);
+
+    component.saveProfile(stepper);
+    expect(users.updateUserProfile).toHaveBeenCalledWith(jasmine.objectContaining({ lastName: 'Durand', company: 'Alice Conseil',
+      skills: ['Java', 'Kafka'], skillDetails: { Kafka: { years: 2 } } }));
   });
 
   it('reports a profile that cannot be loaded and saves nothing then', () => {

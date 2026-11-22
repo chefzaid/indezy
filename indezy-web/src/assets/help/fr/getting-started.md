@@ -17,7 +17,7 @@ L'inscription libre n'est pas encore ouverte sur toutes les instances : si le bo
 
 À la première connexion, Indezy ouvre **Bienvenue sur Indezy**. Trois étapes courtes préparent votre espace, et tout reste modifiable ensuite dans votre profil.
 
-1. **Vous** : votre prénom, votre nom, votre **Intitulé**, jusqu'à 30 **Compétences** (tapez-en une, puis Entrée) et votre **Adresse**, qui sert aux temps de trajet.
+1. **Vous** : votre prénom, votre nom, votre **Intitulé**, jusqu'à 30 **Compétences** (tapez-en une, puis Entrée) et votre **Adresse**, qui sert aux temps de trajet. **Partir de LinkedIn ou de mon CV** les remplit depuis votre CV ou l'archive de vos données LinkedIn, une fois cochés ce que vous reprenez.
 2. **TJM et disponibilité** : votre **TJM visé** et la date **Disponible à partir du**.
 3. **Processus de recrutement** : choisissez **Via une ESN** ou **Client direct** pour enregistrer des étapes d'entretien types comme modèle, ou **Plus tard**.
 4. **Prêt** : choisissez par quoi commencer, **Ajouter une opportunité**, **Parcourir les missions freelance** ou **Ouvrir le tableau de bord**.
