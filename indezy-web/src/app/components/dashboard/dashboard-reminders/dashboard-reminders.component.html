@@ -107,6 +107,37 @@
         }
       </section>
     }
+    @if (stats?.benchPlan; as plan) {
+      <section class="reminder-card accent-orange bench" data-bench-plan>
+        <h3 class="reminder-title">
+          <mat-icon>flag</mat-icon>
+          {{ 'dashboard.bench.title' | translate }}
+          <span class="count">{{ plan.addedThisWeek }}/{{ plan.weeklyGoal }}</span>
+        </h3>
+        <p class="bench-goal">
+          @if (plan.projectId) {
+            {{ 'dashboard.bench.ends' | translate:{ role: plan.role, weeks: plan.weeksLeft, date: (plan.endDate | date:'d MMM') } }}
+          } @else {
+            {{ 'dashboard.bench.between' | translate }}
+          }
+          {{ 'dashboard.bench.goal' | translate:{ goal: plan.weeklyGoal } }}
+        </p>
+        <span class="bench-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="benchProgress(plan)"
+          [attr.aria-label]="'dashboard.bench.progress' | translate:{ added: plan.addedThisWeek, goal: plan.weeklyGoal }">
+          <span [style.width.%]="benchProgress(plan)"></span>
+        </span>
+        <p class="bench-meta">
+          {{ 'dashboard.bench.pipeline' | translate:{ active: plan.activeOpportunities, advanced: plan.advancedOpportunities } }}
+          @if (plan.daysSinceLastAdded !== null && plan.daysSinceLastAdded >= 7) {
+            {{ 'dashboard.bench.quiet' | translate:{ days: plan.daysSinceLastAdded } }}
+          }
+        </p>
+        <div class="bench-actions">
+          <a class="toggle-btn" routerLink="/offers" data-bench-offers>{{ 'dashboard.bench.offers' | translate }}</a>
+          <a class="toggle-btn" routerLink="/projects/new">{{ 'dashboard.bench.add' | translate }}</a>
+        </div>
+      </section>
+    }
     @if (getMissionsEndingSoon().length > 0) {
       <section class="reminder-card accent-orange">
         <h3 class="reminder-title">

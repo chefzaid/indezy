@@ -44,6 +44,8 @@ public class DashboardStatsDto {
     private List<FunnelBreakdown> funnelByClientType;
     private List<FunnelBreakdown> funnelByEsn;
     private List<MissionEndingSoon> missionsEndingSoon;
+    /** This week's goal against the bench; null while no mission ends within 12 weeks. */
+    private BenchPlan benchPlan;
     private List<StaleOpportunity> staleOpportunities;
     private List<UpcomingRenewal> upcomingRenewals;
     private List<OnThisDayItem> onThisDay;
@@ -132,6 +134,28 @@ public class DashboardStatsDto {
      * A signed mission whose end date is approaching, so prospection can be restarted before the
      * bench. {@code daysUntilEnd} is the number of days from today to {@code endDate}.
      */
+    /**
+     * This week's goal against the bench (see docs/features.md#bench-planner): the running mission ending soonest within
+     * 12 weeks ({@code projectId} null between missions, {@code weeksLeft} 0), the opportunities under way and those at
+     * the interview or offer stage, those added since Monday, the days since the latest was added (null without one),
+     * and how many to add this week.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BenchPlan {
+        private Long projectId;
+        private String role;
+        private LocalDate endDate;
+        private long weeksLeft;
+        private long activeOpportunities;
+        private long advancedOpportunities;
+        private long addedThisWeek;
+        private Long daysSinceLastAdded;
+        private long weeklyGoal;
+    }
+
     @Data
     @Builder
     @NoArgsConstructor

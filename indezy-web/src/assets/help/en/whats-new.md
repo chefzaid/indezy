@@ -2,9 +2,13 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### This week's goal
+
+When your mission ends within 12 weeks, the dashboard sets how many opportunities to add this week and shows your progress. See [The dashboard](/help/dashboard).
+
 ### Skills in demand you lack
 
-The **Market** panel of the offers now shows the skills the offers matching yours ask for that your profile lacks, by share of those offers. See [Job offers](/help/offers).
+The **Market** panel of the offers now shows the skills the offers matching yours ask for that your profile lacks, by share of those offers. See [The offer feed](/help/offers).
 
 ### Emails sent from Indezy
 

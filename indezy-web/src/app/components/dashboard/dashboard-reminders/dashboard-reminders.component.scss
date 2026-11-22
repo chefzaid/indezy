@@ -135,3 +135,35 @@
 
   a { color: var(--app-link); }
 }
+
+.bench {
+  .bench-goal,
+  .bench-meta {
+    margin: 4px 0 8px;
+    font-size: .875rem;
+  }
+
+  .bench-meta {
+    color: var(--app-text-muted, var(--mat-sys-on-surface-variant));
+  }
+
+  .bench-bar {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--mat-sys-surface-container-high);
+    overflow: hidden;
+
+    span {
+      display: block;
+      height: 100%;
+      background: var(--accent);
+    }
+  }
+
+  .bench-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}

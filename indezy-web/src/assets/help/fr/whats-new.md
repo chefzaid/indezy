@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### L'objectif de la semaine
+
+Quand votre mission se termine dans les 12 semaines, le tableau de bord fixe combien d'opportunités ajouter cette semaine et montre où vous en êtes. Voir [Le tableau de bord](/help/dashboard).
+
 ### Les compétences demandées qui vous manquent
 
 Le panneau **Marché** des offres montre désormais les compétences que demandent les offres correspondant aux vôtres et qui manquent à votre profil, par part de ces offres. Voir [Le flux d'offres](/help/offers).

@@ -46,10 +46,15 @@ export class DashboardRemindersComponent {
   }
 
   hasReminders(): boolean {
-    return this.getUpcomingInterviews().length + this.getMissionsEndingSoon().length + this.getUpcomingRenewals().length +
+    return !!this.stats?.benchPlan || this.getUpcomingInterviews().length + this.getMissionsEndingSoon().length + this.getUpcomingRenewals().length +
       this.getOnThisDay().length + this.getDormantContacts().length + this.getStaleOpportunities().length +
       this.getFollowUpsDue().length + this.getOverdueInvoices().length + this.getPurchaseOrderAlerts().length +
       this.getExpiringDocuments().length + this.getTrainingFundingDue().length > 0;
+  }
+
+  /** The share of this week's goal reached, for the bar. */
+  benchProgress(plan: { addedThisWeek: number; weeklyGoal: number }): number {
+    return plan.weeklyGoal > 0 ? Math.min(100, Math.round(plan.addedThisWeek * 100 / plan.weeklyGoal)) : 100;
   }
 
   getUpcomingInterviews(): UpcomingInterview[] {

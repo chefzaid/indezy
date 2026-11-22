@@ -319,6 +319,17 @@
       "interview": "1 entretien",
       "days": "{{count}} jours",
       "day": "1 jour"
+    },
+    "bench": {
+      "title": "Objectif de la semaine",
+      "ends": "{{role}} se termine dans {{weeks}} semaines, le {{date}}.",
+      "between": "Vous êtes entre deux missions.",
+      "goal": "Ajoutez {{goal}} opportunités cette semaine.",
+      "progress": "{{added}} opportunités ajoutées sur {{goal}} cette semaine",
+      "pipeline": "{{active}} en cours, {{advanced}} au stade de l'entretien ou de l'offre.",
+      "quiet": "Rien ajouté depuis {{days}} jours.",
+      "offers": "Trouver des offres",
+      "add": "Ajouter une opportunité"
     }
   },
   "projects": {

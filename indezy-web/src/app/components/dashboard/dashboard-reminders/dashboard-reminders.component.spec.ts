@@ -229,4 +229,22 @@ describe('DashboardRemindersComponent', () => {
     expect(rows(card)[1].textContent).toContain('dashboard.charts.expiresInDays');
     expect(rows(card)[1].querySelector('.secondary')).toBeNull();
   });
+
+  it('shows this week\'s goal against the bench, with its progress', () => {
+    const element = render({ benchPlan: { projectId: 4, role: 'Lead Java', endDate: '2027-01-04', weeksLeft: 7, activeOpportunities: 2,
+      advancedOpportunities: 1, addedThisWeek: 1, daysSinceLastAdded: 9, weeklyGoal: 3 } });
+    const card = element.querySelector('[data-bench-plan]') as HTMLElement;
+    expect(card).not.toBeNull();
+    expect(card.querySelector('.count')?.textContent).toBe('1/3');
+    expect(card.textContent).toContain('dashboard.bench.ends');
+    expect(card.textContent).toContain('dashboard.bench.quiet');
+    expect(card.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('33');
+    expect(component.benchProgress({ addedThisWeek: 5, weeklyGoal: 3 })).toBe(100);
+    expect(component.benchProgress({ addedThisWeek: 0, weeklyGoal: 0 })).toBe(100);
+
+    const between = render({ benchPlan: { projectId: null, role: null, endDate: null, weeksLeft: 0, activeOpportunities: 0,
+      advancedOpportunities: 0, addedThisWeek: 0, daysSinceLastAdded: 2, weeklyGoal: 8 } });
+    expect(between.querySelector('[data-bench-plan]')?.textContent).toContain('dashboard.bench.between');
+    expect(between.querySelector('[data-bench-plan]')?.textContent).not.toContain('dashboard.bench.quiet');
+  });
 });

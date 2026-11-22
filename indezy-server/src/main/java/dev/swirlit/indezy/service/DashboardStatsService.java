@@ -161,6 +161,7 @@ public class DashboardStatsService {
             .funnelByEsn(DashboardAnalytics.buildFunnelBreakdown(projects,
                 p -> p.getMiddleman() != null ? p.getMiddleman().getCompanyName() : null))
             .missionsEndingSoon(DashboardReminders.buildMissionsEndingSoon(projects, today))
+            .benchPlan(DashboardReminders.buildBenchPlan(projects, today))
             .staleOpportunities(DashboardReminders.buildStaleOpportunities(
                 projects, LocalDateTime.now(ZoneId.systemDefault()), inactivityDays))
             .upcomingRenewals(DashboardReminders.buildUpcomingRenewals(projects, today, noticePeriodInDays, this::market))

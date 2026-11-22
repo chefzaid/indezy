@@ -63,6 +63,75 @@ final class DashboardReminders {
         return stale;
     }
 
+    /** The bench planner looks this many weeks ahead. */
+    static final int BENCH_WEEKS = 12;
+
+    /**
+     * This week's goal against the bench: none while a running mission has no end or ends beyond {@value #BENCH_WEEKS}
+     * weeks; otherwise opportunities to add this week, more the nearer the end (8 within 4 weeks or between missions, 5
+     * within 8, 3 beyond), two fewer for each at the interview or offer stage, never under 1.
+     */
+    static DashboardStatsDto.BenchPlan buildBenchPlan(List<Project> projects, LocalDate today) {
+        Project ending = null;
+        LocalDate endDate = null;
+        boolean hasMission = false;
+        for (Project project : projects) {
+            if (project.getStatus() != ProjectStatus.WON || project.getArchivedAt() != null || project.getStartDate() == null ||
+                project.getStartDate().isAfter(today)) {
+                continue;
+            }
+            LocalDate last = project.lastDay();
+            if (last == null) {
+                // A running open-ended mission: no bench in sight.
+                return null;
+            }
+            if (last.isBefore(today)) {
+                continue;
+            }
+            hasMission = true;
+            if (endDate == null || last.isAfter(endDate)) {
+                ending = project;
+                endDate = last;
+            }
+        }
+        long weeksLeft = hasMission ? (ChronoUnit.DAYS.between(today, endDate) + 6) / 7 : 0;
+        if (weeksLeft > BENCH_WEEKS) {
+            return null;
+        }
+        LocalDateTime monday = today.minusDays(today.getDayOfWeek().getValue() - 1L).atStartOfDay();
+        long active = 0;
+        long advanced = 0;
+        long added = 0;
+        LocalDateTime latest = null;
+        for (Project project : projects) {
+            if (project.getArchivedAt() != null || project.getStatus() == ProjectStatus.WON) {
+                continue;
+            }
+            if (project.getStatus() == ProjectStatus.CONTACT || project.getStatus() == ProjectStatus.INTERVIEW ||
+                project.getStatus() == ProjectStatus.OFFER) {
+                active++;
+                advanced += project.getStatus() == ProjectStatus.CONTACT ? 0 : 1;
+            }
+            LocalDateTime created = project.getCreatedAt();
+            if (created != null) {
+                added += created.isBefore(monday) ? 0 : 1;
+                latest = latest == null || created.isAfter(latest) ? created : latest;
+            }
+        }
+        long base = weeksLeft <= 4 ? 8 : weeksLeft <= 8 ? 5 : 3;
+        return DashboardStatsDto.BenchPlan.builder()
+            .projectId(ending == null ? null : ending.getId())
+            .role(ending == null ? null : ending.getRole())
+            .endDate(endDate)
+            .weeksLeft(weeksLeft)
+            .activeOpportunities(active)
+            .advancedOpportunities(advanced)
+            .addedThisWeek(added)
+            .daysSinceLastAdded(latest == null ? null : ChronoUnit.DAYS.between(latest.toLocalDate(), today))
+            .weeklyGoal(Math.max(1, base - 2 * advanced))
+            .build();
+    }
+
     /**
      * Lists signed (WON) missions whose end date ({@code startDate + durationInMonths}) falls
      * between today and {@link #ENDING_SOON_WEEKS} weeks out, so the freelance can restart

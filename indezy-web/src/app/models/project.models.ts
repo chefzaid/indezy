@@ -199,6 +199,8 @@ export interface DashboardStatsDto {
   funnelByClientType: FunnelBreakdown[];
   funnelByEsn: FunnelBreakdown[];
   missionsEndingSoon: MissionEndingSoon[];
+  /** This week's goal against the bench; null while no mission ends within 12 weeks. */
+  benchPlan?: BenchPlan | null;
   staleOpportunities: StaleOpportunity[];
   upcomingRenewals: UpcomingRenewal[];
   onThisDay: OnThisDayItem[];
@@ -250,6 +252,19 @@ export interface ConversionFunnelStage {
 export interface FunnelBreakdown {
   group: string;
   stages: ConversionFunnelStage[];
+}
+
+/** This week's goal against the bench: the mission ending (none between missions), the pipeline and the goal. */
+export interface BenchPlan {
+  projectId: number | null;
+  role: string | null;
+  endDate: string | null;
+  weeksLeft: number;
+  activeOpportunities: number;
+  advancedOpportunities: number;
+  addedThisWeek: number;
+  daysSinceLastAdded: number | null;
+  weeklyGoal: number;
 }
 
 export interface MissionEndingSoon {

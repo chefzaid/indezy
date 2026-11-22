@@ -1255,6 +1255,11 @@ mode. **Customize** shows, hides and orders its six blocks, saved with the accou
   renew, contacts without activity for six months, and "on this day" anniversaries. Each renewal also shows the current
   daily rate and the market median of the mission's first skill in the offer feed, with **Ask for the new rate**, which
   opens the opportunity's email on the built-in **Rate review at renewal** template.
+- **This week's goal** (the bench planner), first among the reminders while the running mission ending soonest ends
+  within 12 weeks, or between missions: when it ends, how many opportunities to add this week (8 within 4 weeks or
+  between missions, 5 within 8, 3 beyond, two fewer for each at the interview or offer stage, at least 1), those added
+  since Monday against it, the opportunities under way, and how long nothing was added once it is a week or more; with
+  **Find offers** and **Add an opportunity**. A running open-ended mission shows none.
 - **New offers**: the five unseen offers matching the profile best (the five newest without skills).
 - **Analytics**: [trends](#trends), outcomes and refusal reasons, source ROI, conversion funnels (overall and by source,
   client type and ESN), asked against obtained rates by year, bench time with its cost, time to signature per client or
