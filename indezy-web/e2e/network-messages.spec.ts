@@ -82,7 +82,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/network/messages/1/pipeline', route => route.fulfill({ status: 201, json: { id: 77, role: 'Lead Kafka' } }));
     await thread.locator('[data-thread-share]').click();
     await page.locator('[data-share-opportunity="12"]').click();
-    expect(sent.at(-1)).toEqual({ text: '', replyTo: null, opportunityId: 12 });
+    await expect.poll(() => sent.at(-1)).toEqual({ text: '', replyTo: null, opportunityId: 12 });
 
     // Another member's message is reported to the moderators with a reason.
     let reported: unknown = null;
