@@ -4,6 +4,7 @@ import dev.swirlit.indezy.model.DocumentLogo;
 import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.Quote;
+import dev.swirlit.indezy.model.enums.DocumentFont;
 import dev.swirlit.indezy.repository.DocumentLogoRepository;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -26,6 +27,8 @@ public final class QuotePdfRenderer {
 
     private final byte[] regularFont = PdfFonts.read(PdfFonts.REGULAR);
     private final byte[] boldFont = PdfFonts.read(PdfFonts.BOLD);
+    private final byte[] serifFont = PdfFonts.read(PdfFonts.SERIF_REGULAR);
+    private final byte[] serifBoldFont = PdfFonts.read(PdfFonts.SERIF_BOLD);
     private DocumentLogoRepository logos;
 
     /** Where the sellers' logos are read; without it, as in tests, documents print none. */
@@ -50,8 +53,9 @@ public final class QuotePdfRenderer {
     /** As above, the terms and conditions PDF's pages appended after the quote when given. */
     public byte[] render(Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays, String terms, byte[] termsPdf) {
         try (PDDocument document = new PDDocument()) {
-            PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(regularFont));
-            PDFont bold = PDType0Font.load(document, new ByteArrayInputStream(boldFont));
+            boolean serif = seller.getFont() == DocumentFont.SERIF;
+            PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(serif ? serifFont : regularFont));
+            PDFont bold = PDType0Font.load(document, new ByteArrayInputStream(serif ? serifBoldFont : boldFont));
             QuotePage page;
             try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold)) {
                 page = new QuotePage(writer, quote, seller, buyer, paymentTermDays, terms, termsPdf != null);

@@ -482,6 +482,7 @@ public class InvoiceService {
         seller.setLogoPlacement(identity.logoPlacement());
         seller.setLogoSize(identity.logoSize());
         seller.setHeader(identity.header());
+        seller.setFont(identity.font());
         seller.setFooter(identity.footer());
         return seller;
     }

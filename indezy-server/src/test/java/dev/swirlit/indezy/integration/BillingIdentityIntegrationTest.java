@@ -49,6 +49,9 @@ class BillingIdentityIntegrationTest extends TwoAccountsIntegrationTest {
         identity.put("logoSize", "SMALL");
         assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("logoPlacement", "RIGHT")
             .containsEntry("logoSize", "SMALL");
+        identity.put("font", "SERIF");
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("font", "SERIF");
+        identity.remove("font");
         identity.put("header", "  Architecte   Java  ");
         assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("header", "Architecte Java");
         identity.remove("header");

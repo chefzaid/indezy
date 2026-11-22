@@ -32,6 +32,8 @@ export interface BillingIdentity {
   footer?: string | null;
   /** Read-only: the terms and conditions PDF appended after each quote; null for none. Set with its own upload. */
   quoteTermsFileId?: number | null;
+  /** The documents' font, both embedded open-licence fonts. */
+  font?: 'SANS' | 'SERIF';
   /** Where the logo sits at the top of the documents, and how large. */
   logoPlacement?: 'LEFT' | 'CENTER' | 'RIGHT';
   logoSize?: 'SMALL' | 'MEDIUM' | 'LARGE';

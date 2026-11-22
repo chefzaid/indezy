@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.model;
 
+import dev.swirlit.indezy.model.enums.DocumentFont;
 import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
@@ -82,6 +83,11 @@ public class BillingIdentity {
     /** The free text at the foot of each page of the documents (website, phone); null for none. */
     @Column(name = "billing_footer", length = 200)
     private String footer;
+
+    /** The font of the document; null for the sans-serif one. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "billing_font", length = 10)
+    private DocumentFont font;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "billing_logo_placement", length = 10)

@@ -4,6 +4,7 @@ import dev.swirlit.indezy.model.DocumentLogo;
 import dev.swirlit.indezy.model.Invoice;
 import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceSeller;
+import dev.swirlit.indezy.model.enums.DocumentFont;
 import dev.swirlit.indezy.repository.DocumentLogoRepository;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -31,6 +32,8 @@ public final class InvoicePdfRenderer {
 
     private final byte[] regularFont = PdfFonts.read(PdfFonts.REGULAR);
     private final byte[] boldFont = PdfFonts.read(PdfFonts.BOLD);
+    private final byte[] serifFont = PdfFonts.read(PdfFonts.SERIF_REGULAR);
+    private final byte[] serifBoldFont = PdfFonts.read(PdfFonts.SERIF_BOLD);
     private DocumentLogoRepository logos;
 
     /** Where the sellers' logos are read; without it, as in tests, documents print none. */
@@ -47,8 +50,9 @@ public final class InvoicePdfRenderer {
     /** The invoice as it states the seller and the buyer: frozen once issued, the live ones for a draft. */
     public byte[] render(Invoice invoice, InvoiceSeller seller, InvoiceBuyer buyer) {
         try (PDDocument document = new PDDocument()) {
-            PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(regularFont));
-            PDFont bold = PDType0Font.load(document, new ByteArrayInputStream(boldFont));
+            boolean serif = seller.getFont() == DocumentFont.SERIF;
+            PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(serif ? serifFont : regularFont));
+            PDFont bold = PDType0Font.load(document, new ByteArrayInputStream(serif ? serifBoldFont : boldFont));
             InvoicePage page;
             try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold)) {
                 page = new InvoicePage(writer, invoice, seller, buyer);

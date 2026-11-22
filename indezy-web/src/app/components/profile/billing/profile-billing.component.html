@@ -133,6 +133,13 @@
           </mat-form-field>
         }
       </div>
+      <mat-form-field appearance="outline" class="font">
+        <mat-label>{{ 'profile.billing.font' | translate }}</mat-label>
+        <mat-select formControlName="font" data-billing-font>
+          <mat-option value="SANS">{{ 'profile.billing.fonts.SANS' | translate }}</mat-option>
+          <mat-option value="SERIF">{{ 'profile.billing.fonts.SERIF' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
       <div class="accent" data-billing-accent-row>
         <label for="billing-accent">{{ 'profile.billing.accentColor' | translate }}</label>
         <input id="billing-accent" type="color" [value]="form.value.accentColor || '#000000'" (input)="setAccent($event)" data-billing-accent>

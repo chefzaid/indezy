@@ -1,4 +1,4 @@
-Liberation Sans Regular and Bold (version 2.1.5), bundled to render activity report PDFs.
+Liberation Sans and Liberation Serif, Regular and Bold, bundled to render the PDFs (Serif as an invoice and quote font).
 
 Digitized data copyright (c) 2010 Google Corporation with Reserved Font Arimo, Tinos and Cousine.
 Copyright (c) 2012 Red Hat, Inc. with Reserved Font Name Liberation.

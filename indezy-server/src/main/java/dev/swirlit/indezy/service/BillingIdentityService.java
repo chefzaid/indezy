@@ -5,6 +5,7 @@ import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.BillingIdentity;
 import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.model.enums.DocumentFont;
 import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
@@ -65,6 +66,7 @@ public class BillingIdentityService {
         billing.setLogoPlacement(request.logoPlacement());
         billing.setLogoSize(request.logoSize());
         billing.setHeader(request.header());
+        billing.setFont(request.font());
         billing.setQuoteNotes(request.quoteNotes());
         freelance.setBilling(billing);
         return toDto(freelance);
@@ -86,7 +88,8 @@ public class BillingIdentityService {
             Objects.requireNonNullElse(billing.getInvoicePrefix(), DEFAULT_PREFIX), billing.getLatePaymentRate(), billing.getQuoteTerms(), billing.getAccentColor(),
             billing.getLogoId(), billing.getFooter(), billing.getInvoiceNotes(), billing.getQuoteNotes(),
             billing.getQuoteTermsFileId(), Objects.requireNonNullElse(billing.getLogoPlacement(), LogoPlacement.LEFT),
-            Objects.requireNonNullElse(billing.getLogoSize(), LogoSize.MEDIUM), billing.getHeader(), complete);
+            Objects.requireNonNullElse(billing.getLogoSize(), LogoSize.MEDIUM), billing.getHeader(),
+            Objects.requireNonNullElse(billing.getFont(), DocumentFont.SANS), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

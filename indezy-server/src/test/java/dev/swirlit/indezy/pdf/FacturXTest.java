@@ -209,6 +209,7 @@ class FacturXTest {
         seller.setVatExempt(exempt);
         seller.setAddress("18 rue du Sentier\nBât. B\n75002 Paris");
         seller.setAccentColor("#1F4E79");
+        seller.setFont(dev.swirlit.indezy.model.enums.DocumentFont.SERIF);
         seller.setIban("FR7630006000011234567890189");
         seller.setBic("BNPAFRPP");
         return seller;

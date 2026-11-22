@@ -1432,7 +1432,12 @@
         "LARGE": "Grand"
       },
       "header": "Ligne sous votre nom",
-      "headerHint": "Une accroche ou des coordonnées imprimées sous votre nom sur les factures et devis."
+      "headerHint": "Une accroche ou des coordonnées imprimées sous votre nom sur les factures et devis.",
+      "font": "Police des factures et devis",
+      "fonts": {
+        "SANS": "Sans empattement (Liberation Sans)",
+        "SERIF": "À empattements (Liberation Serif)"
+      }
     },
     "webhooks": {
       "title": "Webhooks",

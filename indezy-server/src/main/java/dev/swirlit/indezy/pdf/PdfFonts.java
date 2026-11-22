@@ -11,6 +11,8 @@ final class PdfFonts {
 
     static final String REGULAR = "fonts/LiberationSans-Regular.ttf";
     static final String BOLD = "fonts/LiberationSans-Bold.ttf";
+    static final String SERIF_REGULAR = "fonts/LiberationSerif-Regular.ttf";
+    static final String SERIF_BOLD = "fonts/LiberationSerif-Bold.ttf";
 
     private PdfFonts() {
     }

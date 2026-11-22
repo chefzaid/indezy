@@ -1432,7 +1432,12 @@
         "LARGE": "Large"
       },
       "header": "Line under your name",
-      "headerHint": "A tagline or contact details printed under your name on invoices and quotes."
+      "headerHint": "A tagline or contact details printed under your name on invoices and quotes.",
+      "font": "Font of invoices and quotes",
+      "fonts": {
+        "SANS": "Sans-serif (Liberation Sans)",
+        "SERIF": "Serif (Liberation Serif)"
+      }
     },
     "webhooks": {
       "title": "Webhooks",

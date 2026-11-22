@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.model;
 
+import dev.swirlit.indezy.model.enums.DocumentFont;
 import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
@@ -60,6 +61,11 @@ public class InvoiceSeller {
     private String footer;
 
     /** Where the logo sits and how large, kept at issue; null for left and medium. */
+    /** The font of the document; null for the sans-serif one. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seller_font", length = 10)
+    private DocumentFont font;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "seller_logo_placement", length = 10)
     private LogoPlacement logoPlacement;

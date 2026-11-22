@@ -143,5 +143,22 @@ class QuoteTermsPdfTest {
             assertThat(text.indexOf("Architecte Java · alice.dev")).isGreaterThan(text.indexOf("Alice Martin"));
         }
     }
+
+    @Test
+    void embedsTheSerifFontWhenChosen() throws IOException {
+        InvoiceSeller seller = seller();
+        seller.setFont(dev.swirlit.indezy.model.enums.DocumentFont.SERIF);
+        try (PDDocument document = Loader.loadPDF(renderer.render(quote(), seller, new InvoiceBuyer(), 30, null))) {
+            java.util.List<String> fonts = new java.util.ArrayList<>();
+            for (org.apache.pdfbox.cos.COSName name : document.getPage(0).getResources().getFontNames()) {
+                fonts.add(document.getPage(0).getResources().getFont(name).getName());
+            }
+            assertThat(fonts).allMatch(font -> font.contains("LiberationSerif"));
+        }
+        try (PDDocument document = Loader.loadPDF(renderer.render(quote(), seller(), new InvoiceBuyer(), 30, null))) {
+            org.apache.pdfbox.cos.COSName first = document.getPage(0).getResources().getFontNames().iterator().next();
+            assertThat(document.getPage(0).getResources().getFont(first).getName()).contains("LiberationSans");
+        }
+    }
 }
 

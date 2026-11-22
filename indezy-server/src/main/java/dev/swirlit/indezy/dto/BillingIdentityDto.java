@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.model.enums.DocumentFont;
 import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
@@ -41,6 +42,7 @@ public record BillingIdentityDto(
     LogoPlacement logoPlacement,
     LogoSize logoSize,
     @Size(max = 150) String header,
+    DocumentFont font,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;
