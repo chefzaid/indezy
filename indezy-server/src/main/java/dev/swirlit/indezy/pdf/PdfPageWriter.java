@@ -69,6 +69,14 @@ final class PdfPageWriter implements Closeable {
         return false;
     }
 
+    /** Draws what follows (text and rules) in the #RRGGBB colour, or black when null. */
+    void color(String hex) throws IOException {
+        float[] rgb = hex == null ? new float[] {0f, 0f, 0f} : new float[] {Integer.parseInt(hex.substring(1, 3), 16) / 255f,
+            Integer.parseInt(hex.substring(3, 5), 16) / 255f, Integer.parseInt(hex.substring(5, 7), 16) / 255f};
+        content.setNonStrokingColor(rgb[0], rgb[1], rgb[2]);
+        content.setStrokingColor(rgb[0], rgb[1], rgb[2]);
+    }
+
     void text(float x, float baseline, String text, boolean useBold, float size) throws IOException {
         String drawableText = sanitize(text, useBold);
         if (drawableText.isEmpty()) {

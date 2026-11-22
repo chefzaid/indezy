@@ -100,6 +100,18 @@
           <mat-error>{{ error('latePaymentRate') }}</mat-error>
         </mat-form-field>
       </div>
+      <div class="accent" data-billing-accent-row>
+        <label for="billing-accent">{{ 'profile.billing.accentColor' | translate }}</label>
+        <input id="billing-accent" type="color" [value]="form.value.accentColor || '#000000'" (input)="setAccent($event)" data-billing-accent>
+        <span class="accent-value">{{ form.value.accentColor || ('profile.billing.accentNone' | translate) }}</span>
+        @if (form.value.accentColor) {
+          <button mat-button type="button" (click)="clearAccent()" data-billing-accent-clear>{{ 'profile.billing.accentClear' | translate }}</button>
+        }
+        <span class="hint">{{ 'profile.billing.accentHint' | translate }}</span>
+        @if (accentTooPale) {
+          <span class="accent-error" role="alert" data-billing-accent-pale>{{ 'profile.billing.accentPale' | translate }}</span>
+        }
+      </div>
       <mat-form-field appearance="outline" class="full">
         <mat-label>{{ 'profile.billing.quoteTerms' | translate }}</mat-label>
         <textarea matInput formControlName="quoteTerms" rows="6" maxlength="20000" data-billing-quote-terms></textarea>

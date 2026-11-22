@@ -1395,7 +1395,12 @@
       "saveError": "L'identité de facturation n'a pas pu être enregistrée",
       "loadError": "L'identité de facturation n'a pas pu être chargée",
       "quoteTerms": "Conditions générales de vente",
-      "quoteTermsHint": "Imprimées sur des pages après chaque devis, qui indique qu'elles s'appliquent ; un devis envoyé garde celles qu'il avait. 20 000 caractères au plus."
+      "quoteTermsHint": "Imprimées sur des pages après chaque devis, qui indique qu'elles s'appliquent ; un devis envoyé garde celles qu'il avait. 20 000 caractères au plus.",
+      "accentColor": "Couleur d'accent",
+      "accentNone": "Noir",
+      "accentClear": "Revenir au noir",
+      "accentHint": "Le titre, l'en-tête du tableau et les filets de vos factures et devis ; un document émis garde la couleur qu'il avait.",
+      "accentPale": "Cette couleur est trop pâle pour être lue ou imprimée : choisissez-en une plus foncée."
     },
     "webhooks": {
       "title": "Webhooks",

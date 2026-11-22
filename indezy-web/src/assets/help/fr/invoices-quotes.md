@@ -9,7 +9,8 @@ Une facture française doit porter des mentions précises. Renseignez-les une fo
 3. Le **Numéro de TVA** et le **Taux de TVA** (20 % par défaut), ou **Exonéré de TVA (franchise en base, art. 293 B du CGI)**, coché par défaut.
 4. L'**Adresse de facturation**, l'**IBAN** et le **BIC**.
 5. Le **Délai de paiement (jours)** (30 par défaut, 60 au plus) et le **Préfixe des numéros de facture** (`F` par défaut, soit F2026-0001).
-6. Le **Taux des pénalités de retard (par an)** de vos conditions, par exemple 12,15 %. La loi demande au moins trois fois le taux d'intérêt légal ; vide, les factures indiquent le taux de la BCE majoré de 10 points, sans chiffre.
+6. Au besoin une **Couleur d'accent** pour le titre, l'en-tête du tableau et les filets de vos factures et devis (une couleur trop pâle pour être lue ou imprimée est refusée) ; un document émis garde la couleur qu'il avait.
+7. Le **Taux des pénalités de retard (par an)** de vos conditions, par exemple 12,15 %. La loi demande au moins trois fois le taux d'intérêt légal ; vide, les factures indiquent le taux de la BCE majoré de 10 points, sans chiffre.
 
 Vous pouvez écrire des brouillons à tout moment, mais émettre une facture demande un SIRET, une adresse, un IBAN et, si la TVA s'applique, un numéro de TVA. Un IBAN, un SIRET, un numéro de TVA ou un BIC mal formé est refusé.
 

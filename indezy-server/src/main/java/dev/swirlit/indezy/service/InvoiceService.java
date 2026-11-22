@@ -473,6 +473,7 @@ public class InvoiceService {
         seller.setIban(identity.iban());
         seller.setBic(identity.bic());
         seller.setLatePaymentRate(identity.latePaymentRate());
+        seller.setAccentColor(identity.accentColor());
         return seller;
     }
 

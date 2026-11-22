@@ -6,6 +6,17 @@ import java.util.Locale;
 /** Billing identifiers as people type them (in groups, lower case) made comparable, and IBANs checked. */
 public final class BillingText {
 
+    /** The contrast ratio of a #RRGGBB colour on white, from 1 (white) to 21 (black), as WCAG measures it. */
+    public static double contrastOnWhite(String hex) {
+        double luminance = 0.2126 * linear(hex, 1) + 0.7152 * linear(hex, 3) + 0.0722 * linear(hex, 5);
+        return 1.05 / (luminance + 0.05);
+    }
+
+    private static double linear(String hex, int at) {
+        double channel = Integer.parseInt(hex.substring(at, at + 2), 16) / 255.0;
+        return channel <= 0.04045 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+    }
+
     private static final BigInteger NINETY_SEVEN = BigInteger.valueOf(97);
 
     private BillingText() {

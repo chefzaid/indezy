@@ -30,6 +30,7 @@ public record BillingIdentityDto(
     @Pattern(regexp = "[A-Za-z0-9-]{0,10}", message = "Letters, digits and dashes, 10 at most") String invoicePrefix,
     @DecimalMin("0") @DecimalMax("100") Double latePaymentRate,
     @Size(max = BillingIdentityDto.QUOTE_TERMS_MAX) String quoteTerms,
+    @Pattern(regexp = "#[0-9A-Fa-f]{6}", message = "A colour as #RRGGBB") String accentColor,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;
@@ -44,6 +45,14 @@ public record BillingIdentityDto(
         address = blankToNull(address);
         invoicePrefix = blankToNull(invoicePrefix);
         quoteTerms = blankToNull(quoteTerms);
+        accentColor = accentColor == null || accentColor.isBlank() ? null : accentColor.strip().toUpperCase(java.util.Locale.ROOT);
+    }
+
+    /** Whether the colour stands out enough from white paper to read the title and print the rules: a contrast of 3 to 1 at least. */
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @jakarta.validation.constraints.AssertTrue(message = "This colour is too pale to read or print: pick a darker one")
+    public boolean isAccentReadable() {
+        return accentColor == null || !accentColor.matches("#[0-9A-F]{6}") || BillingText.contrastOnWhite(accentColor) >= 3.0;
     }
 
     private static String blankToNull(String value) {

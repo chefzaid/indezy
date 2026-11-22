@@ -33,11 +33,16 @@ for (const width of [1280, 390]) {
     await expect(card.getByText('This IBAN is not valid')).toBeVisible();
     await card.getByLabel('IBAN').fill('FR76 3000 6000 0112 3456 7890 189');
     await card.locator('[data-billing-quote-terms]').fill('Article 1 — Objet');
+    await card.locator('[data-billing-accent]').evaluate((input: HTMLInputElement) => {
+      input.value = '#1f4e79';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await expect(card.locator('[data-billing-accent-row]')).toContainText('#1F4E79');
     await card.locator('[data-billing-save]').click();
 
     await expect(card.locator('[data-billing-status]')).toContainText('Ready to issue invoices');
     expect(saved).toEqual([expect.objectContaining({ legalForm: 'MICRO_ENTREPRISE', siret: '55210055400012',
-      iban: 'FR7630006000011234567890189', vatExempt: true, quoteTerms: 'Article 1 — Objet' })]);
+      iban: 'FR7630006000011234567890189', vatExempt: true, quoteTerms: 'Article 1 — Objet', accentColor: '#1F4E79' })]);
     const audit = await new AxeBuilder({ page }).include('[data-billing]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

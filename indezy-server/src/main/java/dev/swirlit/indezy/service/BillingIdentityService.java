@@ -54,6 +54,7 @@ public class BillingIdentityService {
         billing.setInvoicePrefix(request.invoicePrefix());
         billing.setLatePaymentRate(request.latePaymentRate());
         billing.setQuoteTerms(request.quoteTerms());
+        billing.setAccentColor(request.accentColor());
         freelance.setBilling(billing);
         return toDto(freelance);
     }
@@ -71,7 +72,8 @@ public class BillingIdentityService {
         return new BillingIdentityDto(legalName, billing.getLegalForm(), billing.getSiret(), billing.getVatNumber(), exempt,
             Objects.requireNonNullElse(billing.getVatRate(), DEFAULT_VAT_RATE), billing.getShareCapital(), billing.getRegistration(),
             address, billing.getIban(), billing.getBic(), Objects.requireNonNullElse(billing.getPaymentTermDays(), DEFAULT_PAYMENT_TERM_DAYS),
-            Objects.requireNonNullElse(billing.getInvoicePrefix(), DEFAULT_PREFIX), billing.getLatePaymentRate(), billing.getQuoteTerms(), complete);
+            Objects.requireNonNullElse(billing.getInvoicePrefix(), DEFAULT_PREFIX), billing.getLatePaymentRate(), billing.getQuoteTerms(), billing.getAccentColor(),
+            complete);
     }
 
     private Freelance freelance(Long freelanceId) {

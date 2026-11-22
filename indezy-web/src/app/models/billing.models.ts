@@ -23,6 +23,8 @@ export interface BillingIdentity {
   invoicePrefix: string | null;
   /** The late-payment interest rate the terms state, in percent a year; null for the statutory rate without a figure. */
   latePaymentRate?: number | null;
+  /** The accent colour of the documents' title, table header and rules, as #RRGGBB; null for black. */
+  accentColor?: string | null;
   /** The terms and conditions of sale printed after each quote; null for none. */
   quoteTerms?: string | null;
   /** Read-only: whether invoices can be issued. */

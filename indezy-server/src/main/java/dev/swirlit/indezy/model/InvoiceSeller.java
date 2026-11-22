@@ -48,4 +48,8 @@ public class InvoiceSeller {
     /** The late-payment interest rate stated, in percent a year; null for the statutory rate without a figure. */
     @Column(name = "seller_late_payment_rate")
     private Double latePaymentRate;
+
+    /** The accent colour of the document's title, table header and rules, as #RRGGBB; null for black. */
+    @Column(name = "seller_accent_color", length = 7)
+    private String accentColor;
 }

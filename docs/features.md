@@ -1311,7 +1311,9 @@ the payment term (30 days by default, 60 at most), the invoice prefix (`F` by de
 the freelancer's terms state (0 to 100 % a year; left empty, the PDFs state the ECB rate plus 10 points without a figure). An IBAN with wrong check
 digits, a SIRET without 14 digits or a malformed VAT number or BIC is refused. Invoices can be issued once a SIRET, an
 address, an IBAN and, when VAT applies, a VAT number are set. Under portage the portage company invoices, so Indezy
-does not.
+does not. An **Accent colour** (`accentColor`, #RRGGBB, refused under a 3 to 1 contrast on white as too pale to read or
+print) draws the title, the table header and the rules of invoices, credit notes and quotes; it is part of the seller
+frozen at issue, so an issued document keeps the colour it had.
 
 ### Factur-X
 

@@ -72,7 +72,9 @@ abstract class BillingPage {
     void headingBlock(String heading, List<String> lines, String draftMark) throws IOException {
         float right = writer.right();
         writer.moveDown(TITLE);
+        writer.color(accent());
         writer.textRight(right, writer.cursor(), heading, true, TITLE);
+        writer.color(null);
         for (String line : lines) {
             writer.moveDown(LINE);
             writer.textRight(right, writer.cursor(), line, false, BODY);
@@ -111,9 +113,11 @@ abstract class BillingPage {
     void lines(List<InvoiceLine> lines) throws IOException {
         float[] columns = {0, 0.56f, 0.66f, 0.8f, 0.88f};
         writer.moveDown(ROW);
+        writer.color(accent());
         row(columns, new String[] {InvoiceLabel.COLUMN_DESCRIPTION.in(language), InvoiceLabel.COLUMN_QUANTITY.in(language),
             InvoiceLabel.COLUMN_PRICE.in(language), InvoiceLabel.COLUMN_VAT.in(language), InvoiceLabel.COLUMN_AMOUNT.in(language)}, true);
         writer.line(writer.left(), writer.cursor() - 5, writer.right(), writer.cursor() - 5);
+        writer.color(null);
         for (InvoiceLine line : lines) {
             List<String> description = writer.wrap(line.getDescription(), false, BODY, writer.width() * (columns[1] - 0.02f));
             writer.ensureSpace(ROW + LINE * (description.size() - 1));
@@ -125,7 +129,15 @@ abstract class BillingPage {
                 writer.text(writer.left(), writer.cursor(), more, false, BODY);
             }
         }
+        writer.color(accent());
         writer.line(writer.left(), writer.cursor() - 6, writer.right(), writer.cursor() - 6);
+        writer.color(null);
+    }
+
+    /** The seller's accent colour, when a valid one. */
+    private String accent() {
+        String color = seller.getAccentColor();
+        return color != null && color.matches("#[0-9A-Fa-f]{6}") ? color : null;
     }
 
     /** The totals before VAT, of VAT (unless exempt) and to pay, under the lines. */

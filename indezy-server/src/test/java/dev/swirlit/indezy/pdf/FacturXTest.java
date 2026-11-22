@@ -208,6 +208,7 @@ class FacturXTest {
         seller.setVatNumber("FR40552100554");
         seller.setVatExempt(exempt);
         seller.setAddress("18 rue du Sentier\nBât. B\n75002 Paris");
+        seller.setAccentColor("#1F4E79");
         seller.setIban("FR7630006000011234567890189");
         seller.setBic("BNPAFRPP");
         return seller;

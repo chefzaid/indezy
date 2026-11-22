@@ -48,7 +48,8 @@ export class ProfileBillingComponent implements OnInit {
     paymentTermDays: [30 as number | null, [Validators.min(0), Validators.max(60)]],
     invoicePrefix: ['F', [Validators.pattern(/^[A-Za-z0-9-]{0,10}$/)]],
     latePaymentRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
-    quoteTerms: ['', Validators.maxLength(20000)]
+    quoteTerms: ['', Validators.maxLength(20000)],
+    accentColor: ['']
   });
   complete = false;
   saving = false;
@@ -72,8 +73,24 @@ export class ProfileBillingComponent implements OnInit {
     return fieldError(this.form.get(field), this.translate);
   }
 
+  /** Whether the chosen accent colour is too pale to read on white paper or print (a contrast under 3 to 1). */
+  get accentTooPale(): boolean {
+    const color = this.form.value.accentColor;
+    return !!color && contrastOnWhite(color) < 3;
+  }
+
+  setAccent(event: Event): void {
+    this.form.patchValue({ accentColor: (event.target as HTMLInputElement).value.toUpperCase() });
+    this.form.markAsDirty();
+  }
+
+  clearAccent(): void {
+    this.form.patchValue({ accentColor: '' });
+    this.form.markAsDirty();
+  }
+
   save(): void {
-    if (this.form.invalid || this.saving) {
+    if (this.form.invalid || this.saving || this.accentTooPale) {
       this.form.markAllAsTouched();
       return;
     }
@@ -93,7 +110,8 @@ export class ProfileBillingComponent implements OnInit {
       paymentTermDays: value.paymentTermDays,
       invoicePrefix: value.invoicePrefix?.trim() || null,
       latePaymentRate: value.latePaymentRate ?? null,
-      quoteTerms: value.quoteTerms?.trim() || null
+      quoteTerms: value.quoteTerms?.trim() || null,
+      accentColor: value.accentColor || null
     };
     this.saving = true;
     this.billing.saveIdentity(identity).subscribe({
@@ -117,7 +135,18 @@ export class ProfileBillingComponent implements OnInit {
       registration: identity.registration ?? '', address: identity.address ?? '', iban: identity.iban ?? '', bic: identity.bic ?? '',
       paymentTermDays: identity.paymentTermDays, invoicePrefix: identity.invoicePrefix ?? '',
       latePaymentRate: identity.latePaymentRate ?? null,
-      quoteTerms: identity.quoteTerms ?? ''
+      quoteTerms: identity.quoteTerms ?? '',
+      accentColor: identity.accentColor ?? ''
     });
   }
+}
+
+/** The contrast ratio of a #RRGGBB colour on white, from 1 to 21, as WCAG measures it (the server checks the same). */
+export function contrastOnWhite(hex: string): number {
+  const linear = (at: number): number => {
+    const channel = parseInt(hex.substring(at, at + 2), 16) / 255;
+    return channel <= 0.04045 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+  };
+  const luminance = 0.2126 * linear(1) + 0.7152 * linear(3) + 0.0722 * linear(5);
+  return 1.05 / (luminance + 0.05);
 }

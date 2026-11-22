@@ -50,4 +50,17 @@ class QuoteTermsPdfTest {
             assertThat(new PDFTextStripper().getText(document)).doesNotContain("conditions générales");
         }
     }
+
+    @Test
+    void drawsTheTitleInTheSellersAccentColour() throws IOException {
+        InvoiceSeller seller = seller();
+        seller.setAccentColor("#1F4E79");
+        byte[] pdf = renderer.render(quote(), seller, new InvoiceBuyer(), 30, null);
+        try (PDDocument document = Loader.loadPDF(pdf)) {
+            String operators = new String(document.getPage(0).getContents().readAllBytes(), java.nio.charset.StandardCharsets.ISO_8859_1);
+            // 0x1F/255, 0x4E/255 and 0x79/255 set as the fill colour.
+            assertThat(operators).containsPattern("0\\.12\\d* 0\\.30\\d* 0\\.47\\d* rg");
+        }
+    }
 }
+

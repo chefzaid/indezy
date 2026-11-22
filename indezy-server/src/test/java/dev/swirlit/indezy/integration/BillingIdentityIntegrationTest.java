@@ -36,6 +36,14 @@ class BillingIdentityIntegrationTest extends TwoAccountsIntegrationTest {
         tooLong.put("quoteTerms", "x".repeat(20_001));
         assertThat(call(alice, HttpMethod.PUT, "/users/billing", tooLong, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         identity.remove("quoteTerms");
+        // An accent colour dark enough to read; a pale one is refused.
+        identity.put("accentColor", "#1f4e79");
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("accentColor", "#1F4E79")
+            .doesNotContainKey("accentReadable");
+        Map<String, Object> pale = new HashMap<>(identity);
+        pale.put("accentColor", "#FFEE88");
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", pale, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        identity.remove("accentColor");
 
         // A wrong IBAN, SIRET or payment term is refused, and the saved identity kept.
         for (Map.Entry<String, Object> wrong : Map.<String, Object>of("iban", "FR7630006000011234567890188", "siret", "1234",

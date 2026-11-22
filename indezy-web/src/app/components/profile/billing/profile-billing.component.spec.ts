@@ -6,7 +6,7 @@ import { of, throwError } from 'rxjs';
 import { BillingIdentity } from '../../../models';
 import { BillingService } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
-import { ProfileBillingComponent } from './profile-billing.component';
+import { ProfileBillingComponent, contrastOnWhite } from './profile-billing.component';
 import en from '../../../../assets/i18n/en.json';
 
 describe('ProfileBillingComponent', () => {
@@ -99,4 +99,19 @@ describe('ProfileBillingComponent', () => {
     create(throwError(() => new Error('500')));
     expect(notifications.error).toHaveBeenCalledWith('profile.billing.loadError');
   });
+
+  it('takes an accent colour dark enough to read, refusing a pale one', () => {
+    const component = create().componentInstance;
+    component.setAccent({ target: { value: '#ffee88' } } as unknown as Event);
+    expect(component.accentTooPale).toBeTrue();
+    component.save();
+    expect(billing.saveIdentity).not.toHaveBeenCalled();
+    component.setAccent({ target: { value: '#1f4e79' } } as unknown as Event);
+    expect(component.form.value.accentColor).toBe('#1F4E79');
+    expect(component.accentTooPale).toBeFalse();
+    component.clearAccent();
+    expect(component.form.value.accentColor).toBe('');
+    expect(contrastOnWhite('#000000')).toBeCloseTo(21, 0);
+  });
 });
+

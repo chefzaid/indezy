@@ -1395,7 +1395,12 @@
       "saveError": "The billing identity could not be saved",
       "loadError": "The billing identity could not be loaded",
       "quoteTerms": "Terms and conditions of sale",
-      "quoteTermsHint": "Printed on pages after each quote, which says they apply; a sent quote keeps those it had. 20,000 characters at most."
+      "quoteTermsHint": "Printed on pages after each quote, which says they apply; a sent quote keeps those it had. 20,000 characters at most.",
+      "accentColor": "Accent colour",
+      "accentNone": "Black",
+      "accentClear": "Back to black",
+      "accentHint": "The title, the table header and the rules of your invoices and quotes; an issued one keeps the colour it had.",
+      "accentPale": "This colour is too pale to read or print: pick a darker one."
     },
     "webhooks": {
       "title": "Webhooks",
