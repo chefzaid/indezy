@@ -169,9 +169,11 @@ export class OfferFiltersComponent implements OnInit, OnChanges {
 
   private emit(): void {
     const q = this.draft.q?.trim();
+    const exclude = this.draft.exclude?.trim();
     this.filtersChange.emit({
       ...this.draft,
       q: q ? q : undefined,
+      exclude: exclude ? exclude : undefined,
       rateMin: positive(this.draft.rateMin),
       rateMax: positive(this.draft.rateMax),
       rateKnown: this.draft.rateKnown || undefined,

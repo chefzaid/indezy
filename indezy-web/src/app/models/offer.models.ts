@@ -266,6 +266,8 @@ export interface OfferPage {
 /** What the feed can be narrowed down by; empty lists and undefined values filter nothing. */
 export interface OfferFilters {
   q?: string;
+  /** Words none of which may appear in an offer (a sector, a client). */
+  exclude?: string;
   rateMin?: number;
   rateMax?: number;
   rateKnown?: boolean;

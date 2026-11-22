@@ -87,6 +87,9 @@ public final class JobOfferSpecifications {
             predicates.add(freelanceId == null ? inText :
                 cb.or(inText, state(freelanceId, root, query, cb, state -> cb.like(state.get("noteKey"), pattern, '\\'))));
         }
+        for (String term : keywords(request.getExclude())) {
+            predicates.add(cb.notLike(root.get("searchText"), "%" + escapeLike(term) + "%", '\\'));
+        }
         rate(request, root, cb, predicates);
         place(request, origin, root, cb, predicates);
         work(request, root, cb, predicates);

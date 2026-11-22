@@ -26,6 +26,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(page).toHaveURL(/skills=Kafka/);
     await expect(page).toHaveURL(/rateMin=650/);
     await expect(page).toHaveURL(/regions=11/);
-    await expect(page.getByText(en ? /cannot leave out yet: banking/ : /ne sait pas encore écarter : banque/)).toBeVisible();
+    await expect(page).toHaveURL(en ? /exclude=banking/ : /exclude=banque/);
+    await expect(page.getByText(en ? /Left out the offers mentioning: banking/ : /Offres écartées qui mentionnent : banque/)).toBeVisible();
   });
 }

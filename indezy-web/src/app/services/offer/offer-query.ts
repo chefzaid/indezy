@@ -64,6 +64,10 @@ export function offerQueryFromParams(params: ParamMap): OfferQuery {
   if (text) {
     query.q = text.slice(0, 200);
   }
+  const exclude = params.get('exclude')?.trim();
+  if (exclude) {
+    query.exclude = exclude.slice(0, 200);
+  }
   for (const key of NUMBER_KEYS) {
     const value = Number(params.get(key));
     if (params.has(key) && Number.isInteger(value) && value >= 0) {
@@ -139,7 +143,7 @@ export function countActiveFilters(filters: OfferFilters): number {
   for (const key of NUMBER_KEYS) {
     count += filters[key] !== undefined ? 1 : 0;
   }
-  return count + [filters.q, filters.startBefore, filters.rateKnown, filters.unseenOnly, filters.matchesProfile, filters.hideSuspicious]
+  return count + [filters.q, filters.exclude, filters.startBefore, filters.rateKnown, filters.unseenOnly, filters.matchesProfile, filters.hideSuspicious]
     .filter(Boolean).length;
 }
 

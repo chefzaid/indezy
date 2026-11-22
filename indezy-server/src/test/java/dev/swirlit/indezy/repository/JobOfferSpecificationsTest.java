@@ -149,6 +149,18 @@ class JobOfferSpecificationsTest {
     }
 
     @Test
+    void leavesOutTheOffersNamingAnExcludedWord() {
+        List<String> all = search(request(r -> { }), null);
+        List<String> withoutJava = search(request(r -> r.setExclude("JAVA")), null);
+        assertThat(withoutJava).doesNotContain("java").isNotEmpty().hasSizeLessThan(all.size());
+        assertThat(search(request(r -> r.setExclude("zzz-absent")), null)).hasSameSizeAs(all);
+        assertThat(search(request(r -> {
+            r.setQ("java");
+            r.setExclude("java");
+        }), null)).isEmpty();
+    }
+
+    @Test
     void filtersOnTheDailyRate() {
         assertThat(search(request(r -> r.setRateMin(600)), null)).containsExactly("java", "courbevoie", "unknown");
         assertThat(search(request(r -> {

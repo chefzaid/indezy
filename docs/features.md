@@ -677,8 +677,8 @@ never saved or sent on its own:
   to it. Nothing is kept.
 - **Describe my search (AI)** above the offer feed (`POST /api/ai/offer-brief`, 2,000 characters at most): what the
   freelancer looks for in their own words set as the feed's filters (skills, minimum rate, remote days, work modes,
-  regions by name, latest start, minimum duration, keywords), every other filter cleared, ready to save as a search;
-  what to avoid (a sector, a client) is said back, the feed not filtering on it yet.
+  regions by name, latest start, minimum duration, keywords, and what to avoid as words to leave out), every other filter
+  cleared, ready to save as a search.
 - **Prepare my application (AI)** on a feed offer's page not yet in the pipeline (`POST /api/ai/offers/{offerId}/pack?channel=ESN_EMAIL|MALT|LINKEDIN`):
   the message in the channel's format (an ESN email with its subject, a Malt proposal, a LinkedIn message cut to 300
   characters), editable and copied, the answers to the usual screening questions (availability, notice, rate, remote)
@@ -975,7 +975,8 @@ remote mission), work mode (read from the text when the site gives none), durati
 and its age; unseen offers are marked **New**. The **distance** sort is also the commute order, the estimate growing
 with the distance.
 
-- **Filters** (kept in the address): keywords in the offer or the workspace's note, rate range, regions, departments,
+- **Filters** (kept in the address): keywords in the offer or the workspace's note, words to leave out (an offer naming
+  any of them in its title, company, skills, place or description is not shown: a sector, a client), rate range, regions, departments,
   distance (10 to 200 km), work modes, remote days, duration, start date, seniority, skills, publication age, sites,
   unseen only, **Matches my profile** and **Hide suspicious offers**. Offers not stating a duration, start or seniority
   stay listed when filtering on them. **Sort** by newest, rate, distance or **Best match**. **Views**: all, saved,

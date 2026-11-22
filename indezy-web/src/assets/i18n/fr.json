@@ -2382,7 +2382,9 @@
       "matchesProfile": "Correspond à mon profil",
       "matchNeedsSkills": "Ajoutez d'abord des compétences à votre profil",
       "clear": "Effacer les filtres ({{count}})",
-      "hideSuspicious": "Masquer les offres douteuses"
+      "hideSuspicious": "Masquer les offres douteuses",
+      "exclude": "Écarter les offres qui mentionnent",
+      "excludePlaceholder": "banque assurance"
     },
     "savedSearches": {
       "title": "Recherches enregistrées",
@@ -4971,7 +4973,7 @@
       "text": "Ce que vous cherchez",
       "placeholder": "Java et Kafka, 650 € par jour au moins, 2 jours de télétravail, Île-de-France, début avant mars",
       "read": "Régler les filtres",
-      "avoid": "Le fil ne sait pas encore écarter : {{avoid}}. Masquez leurs éditeurs depuis le menu d'une offre."
+      "avoid": "Offres écartées qui mentionnent : {{avoid}}."
     }
   }
 }

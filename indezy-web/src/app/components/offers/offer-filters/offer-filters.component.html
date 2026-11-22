@@ -5,6 +5,12 @@
     <input matInput name="q" [(ngModel)]="draft.q" (ngModelChange)="typed()" maxlength="200"
       [placeholder]="'offers.filters.keywordsPlaceholder' | translate">
   </mat-form-field>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+    <mat-label>{{ 'offers.filters.exclude' | translate }}</mat-label>
+    <mat-icon matPrefix>block</mat-icon>
+    <input matInput name="exclude" [(ngModel)]="draft.exclude" (ngModelChange)="typed()" maxlength="200" data-filter-exclude
+      [placeholder]="'offers.filters.excludePlaceholder' | translate">
+  </mat-form-field>
 
   <div class="match-toggle">
     <mat-slide-toggle name="matchesProfile" [(ngModel)]="draft.matchesProfile" (ngModelChange)="changed()" [disabled]="!matchAvailable">

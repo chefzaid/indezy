@@ -15,7 +15,7 @@ Each card shows the site, title, publisher, daily rate, place with its distance 
 **Describe my search (AI)** sets the filters from what you look for, said in your own words ("Java and Kafka, 650 € a day at least, 2 remote days, Île-de-France"); then save it as a search.
 
 1. Open **Filters**.
-2. Combine **Keywords**, **Daily rate (excl. VAT)**, **Regions**, **Departments**, **Distance from my city**, **Remote work**, duration, **Starting by**, **Seniority**, **Skills**, **Published within** and **Sites**.
+2. Combine **Keywords**, **Leave out offers mentioning** (a sector or a client you do not want), **Daily rate (excl. VAT)**, **Regions**, **Departments**, **Distance from my city**, **Remote work**, duration, **Starting by**, **Seniority**, **Skills**, **Published within** and **Sites**.
 3. Tick **Only offers I have not seen**, **Matches my profile** or **Hide suspicious offers** if you want.
 4. Sort by **Newest**, **Highest daily rate**, **Closest** or **Best match**.
 

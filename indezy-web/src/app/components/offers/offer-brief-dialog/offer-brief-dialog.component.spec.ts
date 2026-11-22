@@ -34,7 +34,7 @@ describe('OfferBriefDialogComponent', () => {
     expect(ai.offerBrief).toHaveBeenCalledWith('Java Kafka, 650 €');
     const result = close.calls.mostRecent().args[0];
     expect(result.filters).toEqual(jasmine.objectContaining({ skills: ['Java', 'Kafka'], rateMin: 650, minRemoteDays: 2, regions: ['11'],
-      startBefore: '2027-03-01', durationMin: undefined, q: undefined }));
+      startBefore: '2027-03-01', durationMin: undefined, q: undefined, exclude: 'banque' }));
     expect(result.avoid).toEqual(['banque']);
   });
 
@@ -46,6 +46,7 @@ describe('OfferBriefDialogComponent', () => {
     expect(component.errorKey).toBe('ai.errors.unavailable');
     expect(component.reading).toBeFalse();
     expect(close).not.toHaveBeenCalled();
-    expect(toFilters({ ...brief, rateMin: null, workModes: [] }).rateMin).toBeUndefined();
+    expect(toFilters({ ...brief, rateMin: null, workModes: [], avoid: [] }).rateMin).toBeUndefined();
+    expect(toFilters({ ...brief, avoid: [] }).exclude).toBeUndefined();
   });
 });

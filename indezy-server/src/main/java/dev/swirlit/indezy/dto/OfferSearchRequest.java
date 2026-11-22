@@ -31,6 +31,10 @@ public class OfferSearchRequest {
     @Size(max = 200)
     private String q;
 
+    /** Words none of which may appear in the title, company, skills, place or description (a sector, a client). */
+    @Size(max = 200)
+    private String exclude;
+
     @Min(0)
     @Max(10_000)
     private Integer rateMin;

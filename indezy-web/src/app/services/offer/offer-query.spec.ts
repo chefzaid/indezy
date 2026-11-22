@@ -27,7 +27,7 @@ describe('offer query', () => {
 
   it('reads every filter of the page address', () => {
     const query = offerQueryFromParams(convertToParamMap({
-      q: '  java spring  ', rateMin: '500', rateMax: '800', rateKnown: 'true', regions: ['11', '84'], departments: '2A,92',
+      q: '  java spring  ', exclude: ' banque ', rateMin: '500', rateMax: '800', rateKnown: 'true', regions: ['11', '84'], departments: '2A,92',
       radiusKm: '30', workModes: ['REMOTE', 'HYBRID'], minRemoteDays: '2', durationMin: '6', durationMax: '24',
       startBefore: '2026-12-01', publishedWithinDays: '7', sites: ['FREE_WORK', 'SIXIEME_HOMME'], seniorities: 'SENIOR',
       skills: ['Java', 'Kafka'], unseenOnly: 'true', matchesProfile: 'true', hideSuspicious: 'true', view: 'SAVED', sort: 'MATCH',
@@ -35,7 +35,7 @@ describe('offer query', () => {
     }));
 
     expect(query).toEqual({
-      q: 'java spring', rateMin: 500, rateMax: 800, rateKnown: true, regions: ['11', '84'], departments: ['2A', '92'],
+      q: 'java spring', exclude: 'banque', rateMin: 500, rateMax: 800, rateKnown: true, regions: ['11', '84'], departments: ['2A', '92'],
       radiusKm: 30, workModes: ['REMOTE', 'HYBRID'], minRemoteDays: 2, durationMin: 6, durationMax: 24, startBefore: '2026-12-01',
       publishedWithinDays: 7, sites: ['FREE_WORK', 'SIXIEME_HOMME'], seniorities: ['SENIOR'], skills: ['Java', 'Kafka'],
       unseenOnly: true, matchesProfile: true, hideSuspicious: true, view: 'SAVED', sort: 'MATCH', page: 2, size: 50

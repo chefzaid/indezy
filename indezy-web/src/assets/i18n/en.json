@@ -2382,7 +2382,9 @@
       "matchesProfile": "Matches my profile",
       "matchNeedsSkills": "Add skills to your profile first",
       "clear": "Clear filters ({{count}})",
-      "hideSuspicious": "Hide suspicious offers"
+      "hideSuspicious": "Hide suspicious offers",
+      "exclude": "Leave out offers mentioning",
+      "excludePlaceholder": "banking insurance"
     },
     "savedSearches": {
       "title": "Saved searches",
@@ -4971,7 +4973,7 @@
       "text": "What you look for",
       "placeholder": "Java and Kafka, 650 € a day at least, 2 remote days, Île-de-France, starting before March",
       "read": "Set the filters",
-      "avoid": "The feed cannot leave out yet: {{avoid}}. Hide their publishers from an offer’s menu."
+      "avoid": "Left out the offers mentioning: {{avoid}}."
     }
   }
 }

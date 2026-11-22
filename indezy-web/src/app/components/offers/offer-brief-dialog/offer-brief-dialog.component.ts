@@ -10,7 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AiOfferBrief, OfferFilters, emptyOfferFilters } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 
-/** What the dialog gives back: the feed's filters read, and what to avoid, which the feed cannot filter on. */
+/** What the dialog gives back: the feed's filters read, what to avoid among them as words to leave out. */
 export interface OfferBriefResult {
   filters: OfferFilters;
   avoid: string[];
@@ -91,6 +91,7 @@ export function toFilters(brief: AiOfferBrief): OfferFilters {
     regions: brief.regions,
     startBefore: brief.startBefore ?? undefined,
     durationMin: brief.durationMin ?? undefined,
-    q: brief.q ?? undefined
+    q: brief.q ?? undefined,
+    exclude: brief.avoid.length ? brief.avoid.join(' ') : undefined
   };
 }
