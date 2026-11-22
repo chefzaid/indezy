@@ -64,4 +64,30 @@ class OfferRelationServiceTest {
         assertThat(relations.get("conseil x")).isEqualTo(new OfferRelationDto(true, null, null, 4));
         assertThat(relations.get("conseil muet")).isEqualTo(new OfferRelationDto(false, null, null, 3));
     }
+
+    @Test
+    void guessesTheEndClientAnOfferNames() {
+        dev.swirlit.indezy.model.JobOffer offer = new dev.swirlit.indezy.model.JobOffer();
+        offer.setTitle("Lead Java H/F");
+        offer.setCompany("Conseil X");
+        offer.setDescription("Pour notre client la Société Générale, au sein de la DSI, mission Kafka.");
+        List<String> endClients = List.of("Société Générale", "Airbus", "SG");
+
+        assertThat(OfferRelationService.guessEndClient(offer, endClients)).isEqualTo("Société Générale");
+        // A name inside another word is no mention; the publisher itself is not its own end client.
+        offer.setDescription("Mission chez Airbusiness, en direct avec Conseil X.");
+        assertThat(OfferRelationService.guessEndClient(offer, List.of("Airbus", "Conseil X"))).isNull();
+        assertThat(OfferRelationService.guessEndClient(offer, List.of())).isNull();
+    }
+
+    @Test
+    void addsTheGuessToWhatElseRelatesThePublisher() {
+        dev.swirlit.indezy.model.JobOffer offer = new dev.swirlit.indezy.model.JobOffer();
+        offer.setCompany("Conseil X");
+        offer.setDescription("Client final : Airbus.");
+        assertThat(OfferSearchService.relation(Map.of(), offer, List.of("Airbus"))).isEqualTo(new OfferRelationDto(false, null, null, null, "Airbus"));
+        assertThat(OfferSearchService.relation(Map.of("conseil x", new OfferRelationDto(true, null, null)), offer, List.of("Airbus")))
+            .isEqualTo(new OfferRelationDto(true, null, null, null, "Airbus"));
+        assertThat(OfferSearchService.relation(Map.of(), offer, List.of())).isNull();
+    }
 }

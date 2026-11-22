@@ -451,4 +451,9 @@ describe('OfferCardComponent', () => {
     expect(badge.getAttribute('aria-label')).toContain('4 messages');
     expect(element(silent, '[data-offer-worked-with]')).toBeNull();
   });
+
+  it('names the end client the offer likely hides', () => {
+    const guessed = create({ ...offer(), relation: { workedWith: false, endClient: 'Airbus' } });
+    expect(element(guessed, '[data-offer-end-client]').textContent).toContain('Airbus');
+  });
 });

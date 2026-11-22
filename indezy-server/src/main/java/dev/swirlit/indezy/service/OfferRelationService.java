@@ -5,16 +5,20 @@ import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
+import dev.swirlit.indezy.util.TextFolding;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The publishers of the feed the workspace has to do with (see docs/features.md#freelance-offer-feed), by their folded name: the
@@ -27,6 +31,47 @@ public class OfferRelationService {
 
     private final ProjectRepository projects;
     private final ContactInteractionRepository interactions;
+    private final ClientRepository clients;
+
+    /** An end client's name must fold to this many letters at least to be looked for in an offer. */
+    static final int END_CLIENT_MIN = 3;
+
+    /**
+     * The workspace's end clients, to spot in offers: the companies marked final, and the clients of its missions signed
+     * through an ESN; the longest names first, each once.
+     */
+    @Transactional(readOnly = true)
+    public List<String> endClients(Long freelanceId) {
+        Map<String, String> byKey = new HashMap<>();
+        clients.findByFreelanceId(freelanceId).stream().filter(client -> Boolean.TRUE.equals(client.getIsFinal()))
+            .forEach(client -> putName(byKey, client.getCompanyName()));
+        projects.findByFreelanceId(freelanceId).stream().filter(project -> project.getMiddleman() != null && project.getClient() != null)
+            .forEach(project -> putName(byKey, project.getClient().getCompanyName()));
+        return byKey.entrySet().stream().sorted(Comparator.comparingInt((Map.Entry<String, String> entry) -> entry.getKey().length()).reversed())
+            .map(Map.Entry::getValue).toList();
+    }
+
+    /** The first of the end clients that the offer's title or description names, its publisher aside; none otherwise. */
+    public static String guessEndClient(JobOffer offer, List<String> endClients) {
+        if (endClients.isEmpty()) {
+            return null;
+        }
+        // The folding keeps dots (".NET"): a sentence's last one is dropped so that "Airbus." names Airbus.
+        String text = (" " + Objects.toString(TextFolding.words(Objects.toString(offer.getTitle(), "") + " " +
+            Objects.toString(offer.getDescription(), "")), "") + " ").replaceAll("\\.+ ", " ");
+        String publisher = offer.getCompanyKey() != null ? offer.getCompanyKey() : JobOffer.companyKeyOf(offer.getCompany());
+        return endClients.stream().filter(name -> {
+            String key = JobOffer.companyKeyOf(name);
+            return key != null && !key.equals(publisher) && text.contains(" " + key + " ");
+        }).findFirst().orElse(null);
+    }
+
+    private static void putName(Map<String, String> byKey, String name) {
+        String key = JobOffer.companyKeyOf(name);
+        if (key != null && key.replace(" ", "").length() >= END_CLIENT_MIN) {
+            byKey.putIfAbsent(key, name.strip());
+        }
+    }
 
     /** The relations of workspace {@code freelanceId}'s publishers on {@code today}, by {@link JobOffer#companyKeyOf} name. */
     @Transactional(readOnly = true)

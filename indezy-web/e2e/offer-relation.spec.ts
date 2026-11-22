@@ -13,7 +13,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route(/\/api\/offers(\?.*)?$/, route => route.fulfill({ json: { content: [
       offer(1, { company: 'Conseil X', relation: { workedWith: true } }),
       offer(2, { company: 'Airbus', relation: { workedWith: true, clauseEsn: 'Conseil X', clauseUntil: '2027-08-31' } }),
-      offer(3, { company: 'Conseil Muet', relation: { workedWith: false, unanswered: 4 } })
+      offer(3, { company: 'Conseil Muet', relation: { workedWith: false, unanswered: 4, endClient: 'Airbus' } })
     ], page: 0, size: 20, totalElements: 3, totalPages: 1, distanceAvailable: false, matchAvailable: false } }));
 
     await page.goto('/offers');
@@ -22,6 +22,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(clause).toHaveAttribute('aria-label', /Conseil X/);
     await expect(page.locator('[data-offer="3"] [data-offer-unanswered]')).toHaveAttribute('aria-label', /4 messages/);
     await expect(page.locator('[data-offer="3"] [data-offer-worked-with]')).toHaveCount(0);
+    await expect(page.locator('[data-offer="3"] [data-offer-end-client]')).toContainText('Airbus');
     const audit = await new AxeBuilder({ page }).include('[data-offer="2"]').include('[data-offer="3"]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
   });

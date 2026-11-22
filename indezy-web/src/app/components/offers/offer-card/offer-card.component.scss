@@ -370,7 +370,8 @@
 
 .clause-badge,
 .worked-badge,
-.silent-badge {
+.silent-badge,
+.end-client-badge {
   display: inline-flex;
   align-items: center;
   gap: 2px;
@@ -385,6 +386,12 @@
 .clause-badge {
   background: var(--app-chip-warning-bg);
   color: var(--app-chip-warning-text);
+  cursor: help;
+}
+
+.end-client-badge {
+  background: var(--app-chip-info-bg);
+  color: var(--app-chip-info-text);
   cursor: help;
 }
 

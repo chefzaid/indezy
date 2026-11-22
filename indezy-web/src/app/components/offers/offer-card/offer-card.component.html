@@ -28,6 +28,12 @@
           <mat-icon aria-hidden="true">handshake</mat-icon>{{ 'offers.card.workedWith' | translate }}
         </span>
       }
+      @if (relation.endClient) {
+        <span class="badge end-client-badge" data-offer-end-client tabindex="0" [matTooltip]="'offers.card.endClientDetails' | translate"
+          [attr.aria-label]="('offers.card.endClient' | translate:{ name: relation.endClient }) + ' ' + ('offers.card.endClientDetails' | translate)">
+          <mat-icon aria-hidden="true">apartment</mat-icon>{{ 'offers.card.endClient' | translate:{ name: relation.endClient } }}
+        </span>
+      }
       @if (relation.unanswered) {
         <span class="badge silent-badge" data-offer-unanswered tabindex="0"
           [matTooltip]="'offers.card.unansweredDetails' | translate:{ count: relation.unanswered }"

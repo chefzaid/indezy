@@ -126,10 +126,11 @@ public class OfferSearchService {
         Set<OfferSite> excluded = excludedSites(freelanceId);
         Map<Long, OfferHistoryDto> histories = history.of(page.getContent(), now);
         Map<String, OfferRelationDto> publishers = relationsOf(freelanceId);
+        List<String> endClients = endClientsOf(freelanceId);
         List<OfferDto> content = page.getContent().stream()
             .map(offer -> toDto(offer, skills.get(offer.getId()), stateByOffer.get(offer.getId()),
                 alsoOn(offer, copies.getOrDefault(offer.getId(), List.of()), excluded, now).with(histories.get(offer.getId()))
-                    .relating(relation(publishers, offer)), profile, now, false))
+                    .relating(relation(publishers, offer, endClients)), profile, now, false))
             .toList();
         return new OfferPageDto(content, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
             profile.origin() != null, profile.canMatch());
@@ -144,7 +145,7 @@ public class OfferSearchService {
         Instant now = clock.instant();
         return toDto(offer, skillsOf(List.of(id)).get(id), statesOf(freelanceId, List.of(offer), copies).get(id),
             alsoOn(offer, copies.getOrDefault(id, List.of()), excludedSites(freelanceId), now).with(history.of(List.of(offer), now).get(id))
-                .relating(relation(relationsOf(freelanceId), offer)), profile, now, true);
+                .relating(relation(relationsOf(freelanceId), offer, endClientsOf(freelanceId))), profile, now, true);
     }
 
     /** Every job board of the feed, with its open offers, collection health and whether the workspace (if any) keeps it. */
@@ -283,9 +284,19 @@ public class OfferSearchService {
         return freelanceId == null || relations == null ? Map.of() : relations.of(freelanceId, LocalDate.now(clock.withZone(PARIS)));
     }
 
-    private static OfferRelationDto relation(Map<String, OfferRelationDto> publishers, JobOffer offer) {
+    /** The workspace's end clients, to guess the one behind an offer; none without a workspace. */
+    private List<String> endClientsOf(Long freelanceId) {
+        return freelanceId == null || relations == null ? List.of() : relations.endClients(freelanceId);
+    }
+
+    static OfferRelationDto relation(Map<String, OfferRelationDto> publishers, JobOffer offer, List<String> endClients) {
         String key = offer.getCompanyKey() != null ? offer.getCompanyKey() : JobOffer.companyKeyOf(offer.getCompany());
-        return key == null ? null : publishers.get(key);
+        OfferRelationDto known = key == null ? null : publishers.get(key);
+        String endClient = OfferRelationService.guessEndClient(offer, endClients);
+        if (endClient == null) {
+            return known;
+        }
+        return (known == null ? new OfferRelationDto(false, null, null) : known).endClient(endClient);
     }
 
     /** The other offers of each offer's copy group, keyed by the offer. */
