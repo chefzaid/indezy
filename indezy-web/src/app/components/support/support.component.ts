@@ -15,6 +15,7 @@ import { SUPPORT_KINDS, SupportKind, SupportRequest } from '../../models';
 import { NotificationService } from '../../services/notification/notification.service';
 import { SupportService } from '../../services/support/support.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { version as APP_VERSION } from '../../../../package.json';
 
 /**
  * Support (`/support`, see docs/features.md#support-requests): a request to the Indezy team, with the technical context
@@ -61,6 +62,7 @@ export class SupportComponent implements OnInit {
   get context(): string {
     const page = this.route.snapshot.queryParamMap.get('page') ?? document.referrer.replace(location.origin, '') ?? '';
     return [`${this.translate.instant('support.context.page')}: ${page || '/support'}`,
+      `${this.translate.instant('support.context.version')}: ${APP_VERSION}`,
       `${this.translate.instant('support.context.browser')}: ${navigator.userAgent}`,
       `${this.translate.instant('support.context.screen')}: ${window.innerWidth}×${window.innerHeight}`,
       `${this.translate.instant('support.context.language')}: ${this.translate.currentLang ?? ''}`,

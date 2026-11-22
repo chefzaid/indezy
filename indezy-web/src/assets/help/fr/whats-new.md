@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Chercher dans l'aide depuis toute page
+
+Le panneau d'aide (**?** en haut) cherche maintenant dans toute l'aide, et propose **Signaler un problème**, **Proposer une fonctionnalité** et **Mes demandes**. Voir [Prise en main](/help/getting-started).
+
 ### Votre profil depuis votre CV
 
 Remplissez votre profil depuis votre CV avec l'IA : vous cochez ce que vous reprenez, et rien n'est enregistré avant que vous enregistriez votre profil. Voir [Compte, sécurité et données](/help/account).

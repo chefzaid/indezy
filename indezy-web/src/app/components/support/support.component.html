@@ -34,7 +34,7 @@
     </mat-card-content>
   </mat-card>
 
-  <h2 class="mine-title">{{ 'support.mine' | translate }}</h2>
+  <h2 class="mine-title" id="mine">{{ 'support.mine' | translate }}</h2>
   @for (request of requests; track request.id) {
     <mat-card appearance="outlined" class="request" [attr.data-support-request]="request.id">
       <mat-card-content>

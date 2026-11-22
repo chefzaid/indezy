@@ -56,6 +56,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/help/help-articles',
   'components/help/help-center.component',
   'components/help/help-panel.component',
+  'components/help/help-search.service',
   'components/home/home.component',
   'components/invoices/client-shares/client-shares',
   'components/invoices/client-shares/client-shares.component',

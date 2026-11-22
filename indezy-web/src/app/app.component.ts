@@ -26,7 +26,6 @@ import { NetworkNoticesService } from './services/network/network-notices.servic
 import { CapabilitiesService } from './services/admin/capabilities.service';
 import { FeatureFlag } from './models';
 import { MessengerDockComponent } from './components/network/messenger-dock/messenger-dock.component';
-import { HelpPanelComponent, helpArticleFor } from './components/help/help-panel.component';
 
 interface MenuItem {
   labelKey: string;
@@ -233,13 +232,15 @@ export class AppComponent implements OnInit {
     });
   }
 
-  /** Toolbar shortcut: flips between light and dark and saves it as the account preference. */
-  /** Opens the help of the page in use in a panel at the side. */
+  /** Opens the help of the page in use in a panel at the side, loaded on first use to keep it out of the first page. */
   openHelp(): void {
-    this.dialog.open(HelpPanelComponent, { data: helpArticleFor(globalThis.location?.pathname ?? this.router.url), position: { right: '0', top: '0' }, height: '100vh',
-      width: '480px', maxWidth: '100vw', panelClass: 'help-panel-dialog', autoFocus: 'dialog' });
+    void import('./components/help/help-panel.component').then(({ HelpPanelComponent, helpArticleFor }) =>
+      this.dialog.open(HelpPanelComponent, { data: helpArticleFor(globalThis.location?.pathname ?? this.router.url),
+        position: { right: '0', top: '0' }, height: '100vh', width: '480px', maxWidth: '100vw', panelClass: 'help-panel-dialog',
+        autoFocus: 'dialog' }));
   }
 
+  /** Toolbar shortcut: flips between light and dark and saves it as the account preference. */
   toggleTheme(): void {
     const next = this.themeService.isDark() ? 'light' : 'dark';
     this.themeService.apply(next);

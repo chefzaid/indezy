@@ -11,7 +11,8 @@ import en from '../../../assets/i18n/en.json';
 import { LegalPageComponent } from '../legal/legal-page.component';
 import { HELP_ARTICLES } from './help-articles';
 import { HelpArticleComponent } from './help-article.component';
-import { HelpCenterComponent, excerptAround } from './help-center.component';
+import { HelpCenterComponent } from './help-center.component';
+import { excerptAround } from './help-search.service';
 
 function configure(component: unknown, providers: unknown[] = [], signedIn = true): void {
   TestBed.configureTestingModule({ imports: [component as never, TranslateModule.forRoot()],

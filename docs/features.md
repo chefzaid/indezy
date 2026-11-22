@@ -36,15 +36,17 @@ instead of keeping them a year as it does the build's hashed scripts, styles and
 
 The **?** button in the top bar opens the help of the page in use in a panel at the side, its article chosen from the
 address (the opportunities, Kanban and timeline: the pipeline; invoices, quotes and expenses: quotes and invoices; the
-profile: the account; any other page: getting started), with **Open the full article**, **All the help** and **Contact
-support**.
+profile: the account; any other page: getting started), with a search over all the help (as the help center's, its
+results opening in the panel), **Open the full article**, **All the help**, **Report a problem** and **Suggest a feature**
+(the support form with that kind and the page it came from) and **My requests**. The panel loads on first use, out of
+the first page's download.
 
 ### Support Requests
 
 **Support** (`/support`, from the help panel or `?kind=` and `?error=` to prefill one) sends the Indezy team a request
 (`POST /api/support/requests`): a problem, a feature request, a question or the account and billing, a subject (150
 characters) and a description (5,000), and the technical context shown before sending and sent unless unticked (the
-page it came from, the browser, the screen size, the language and the error shown if any). Ten go a day at most.
+page it came from, the app's version, the browser, the screen size, the language and the error shown if any). Ten go a day at most.
 **My requests** lists them, the newest first, with their status and answer (`GET /api/support/requests`). **Admin →
 Support** lists every request, open ones first, with its author's address, and answers it, closing it or not
 (`GET`/`PUT /api/admin/support/requests`); the member is emailed that an answer waits in the app, the answer itself not

@@ -4735,7 +4735,10 @@
       "open": "Help on this page",
       "full": "Open the full article",
       "all": "All the help",
-      "support": "Contact support"
+      "search": "Search the help",
+      "problem": "Report a problem",
+      "feature": "Suggest a feature",
+      "requests": "My requests"
     }
   },
   "legal": {
@@ -5026,7 +5029,8 @@
       "browser": "Browser",
       "screen": "Screen",
       "language": "Language",
-      "error": "Error"
+      "error": "Error",
+      "version": "App version"
     },
     "send": "Send",
     "sent": "Sent: the answer will show here and come by email.",

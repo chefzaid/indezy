@@ -1,11 +1,14 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import { HELP_ARTICLES } from './help-articles';
 import { HelpPanelComponent, helpArticleFor } from './help-panel.component';
+import { HelpSearchService } from './help-search.service';
 
 describe('HelpPanelComponent', () => {
   it('finds the article of each page of the app, the getting started one elsewhere', () => {
@@ -36,4 +39,43 @@ describe('HelpPanelComponent', () => {
     fixture.componentInstance.close();
     expect(close).toHaveBeenCalled();
   });
+
+  it('searches the help and opens what it finds in the panel', fakeAsync(() => {
+    const invoices = HELP_ARTICLES.find(article => article.slug === 'invoices-quotes')!;
+    const search = jasmine.createSpy('search').and.callFake((typed: string) => of(typed === 'zzz' ? [] : [{ article: invoices, excerpt: '…a CRA…' }]));
+    TestBed.configureTestingModule({
+      imports: [HelpPanelComponent, TranslateModule.forRoot()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: HelpSearchService, useValue: { search } },
+        { provide: MAT_DIALOG_DATA, useValue: helpArticleFor('/offers') }, { provide: MatDialogRef, useValue: { close: () => undefined } }]
+    });
+    const fixture = TestBed.createComponent(HelpPanelComponent);
+    const panel = fixture.componentInstance;
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    // The support entries: a problem and a feature prefilled with the page, and the requests sent.
+    expect(element.querySelector('[data-help-panel-problem]')!.getAttribute('href')).toContain('kind=PROBLEM');
+    expect(element.querySelector('[data-help-panel-feature]')!.getAttribute('href')).toContain('kind=FEATURE');
+    expect(element.querySelector('[data-help-panel-requests]')!.getAttribute('href')).toBe('/support#mine');
+
+    panel.query.setValue('c');
+    tick(200);
+    expect(search).not.toHaveBeenCalled();
+    panel.query.setValue('cra');
+    tick(200);
+    fixture.detectChanges();
+    expect(element.querySelector('[data-help-panel-hit]')!.textContent).toContain('…a CRA…');
+    element.querySelector<HTMLButtonElement>('[data-help-panel-hit="invoices-quotes"]')!.click();
+    tick(200);
+    fixture.detectChanges();
+    expect(panel.article).toBe(invoices);
+    expect(panel.hits).toBeNull();
+    expect(panel.query.value).toBe('');
+
+    panel.query.setValue('zzz');
+    tick(200);
+    fixture.detectChanges();
+    expect(element.querySelector('[data-help-panel-no-hit]')).not.toBeNull();
+    TestBed.inject(HttpTestingController).match(() => true);
+  }));
 });

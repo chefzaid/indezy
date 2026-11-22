@@ -8,6 +8,7 @@ import { SupportRequest } from '../../models';
 import { NotificationService } from '../../services/notification/notification.service';
 import { SupportService } from '../../services/support/support.service';
 import { SupportComponent } from './support.component';
+import { version as APP_VERSION } from '../../../../package.json';
 
 describe('SupportComponent', () => {
   let support: jasmine.SpyObj<SupportService>;
@@ -38,6 +39,7 @@ describe('SupportComponent', () => {
     expect(component.form.value.kind).toBe('QUESTION');
     expect(component.context).toContain('/invoices');
     expect(component.context).toContain('Server error');
+    expect(component.context).toContain(`support.context.version: ${APP_VERSION}`);
     component.send();
     expect(support.send).not.toHaveBeenCalled();
 

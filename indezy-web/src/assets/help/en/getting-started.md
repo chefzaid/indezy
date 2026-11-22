@@ -1,7 +1,7 @@
 Indezy brings your mission search and the missions themselves into one place: offers, pipeline, clients, timesheets and invoices. This guide helps you set up your workspace and fill in the profile everything else relies on.
 
 
-On any page, the **?** button in the top bar opens the help of that page beside it.
+On any page, the **?** button in the top bar opens the help of that page beside it. Search all the help from there, report a problem, suggest a feature or read your requests to support.
 
 ## Your account
 

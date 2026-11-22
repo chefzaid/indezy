@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Search the help from any page
+
+The help panel (**?** at the top) now searches all the help, and offers **Report a problem**, **Suggest a feature** and **My requests**. See [Getting started](/help/getting-started).
+
 ### Your profile from your CV
 
 Fill in your profile from your CV with AI: you tick what to take, and nothing is saved until you save your profile. See [Account, security and data](/help/account).

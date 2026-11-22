@@ -4735,7 +4735,10 @@
       "open": "Aide sur cette page",
       "full": "Ouvrir l'article complet",
       "all": "Toute l'aide",
-      "support": "Contacter le support"
+      "search": "Chercher dans l'aide",
+      "problem": "Signaler un problème",
+      "feature": "Proposer une fonctionnalité",
+      "requests": "Mes demandes"
     }
   },
   "legal": {
@@ -5026,7 +5029,8 @@
       "browser": "Navigateur",
       "screen": "Écran",
       "language": "Langue",
-      "error": "Erreur"
+      "error": "Erreur",
+      "version": "Version de l'application"
     },
     "send": "Envoyer",
     "sent": "Envoyé : la réponse s'affichera ici et arrivera par e-mail.",

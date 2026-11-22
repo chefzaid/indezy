@@ -96,7 +96,10 @@
       </mat-sidenav-content>
     </mat-sidenav-container>
     @if (messengerShown) {
-      <app-messenger-dock></app-messenger-dock>
+      <!-- Loaded once the first page is idle, to keep the messenger out of the first download. -->
+      @defer (on idle) {
+        <app-messenger-dock></app-messenger-dock>
+      }
     }
   } @else {
     <router-outlet></router-outlet>

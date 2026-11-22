@@ -18,8 +18,15 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await settleDialog(page);
     const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    // A search over all the help, its result opening in the panel.
+    await panel.locator('[data-help-panel-search]').fill(en ? 'invoice' : 'facture');
+    await panel.locator('[data-help-panel-hit="invoices-quotes"]').click();
+    await expect(panel.locator('[data-help-panel] [data-markdown]')).toContainText(en ? 'Complete your billing identity' :
+      'Compléter votre identité de facturation');
+    await expect(panel.locator('[data-help-panel-problem]')).toHaveAttribute('href', /kind=PROBLEM.*page=%2Foffers|page=%2Foffers.*kind=PROBLEM/);
+    await expect(panel.locator('[data-help-panel-requests]')).toHaveAttribute('href', '/support#mine');
     await panel.locator('[data-help-panel-full]').click();
-    await expect(page).toHaveURL(/\/help\/offers$/);
+    await expect(page).toHaveURL(/\/help\/invoices-quotes$/);
     await expect(panel).toHaveCount(0);
   });
 }
