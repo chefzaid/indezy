@@ -38,6 +38,7 @@ Le bouton **Marché** ouvre un **Aperçu du marché** des offres que trouvent vo
 - **Sauvegarder l'offre** la garde dans la vue **Sauvegardées** ; **Masquer l'offre** la retire du fil.
 - **Ajouter une note** (dans **Plus d'actions**) garde jusqu'à 2 000 caractères, retrouvés par les mots-clés et recopiés dans l'opportunité.
 - **J'ai postulé** note comment (**Formulaire du site**, **E-mail** ou **Téléphone**) et quand. La mission entre dans le pipeline avec une étape de candidature et, si vous cochez **Planifier une relance**, une relance dans votre [calendrier](/help/calendar). **Annuler la candidature** l'oublie.
+- Quand vous masquez souvent les offres d'un éditeur (cinq en 30 jours), le fil propose de les masquer toutes ; **Pas maintenant** cesse de le proposer sur cet appareil.
 - **Masquer toutes les offres de …** bloque un éditeur, quelle que soit l'orthographe de son nom. La liste se gère dans **Profil → Fil d'offres**.
 - Les cases à cocher agissent sur plusieurs offres à la fois : **Sauvegarder**, **Masquer**, **Marquer comme vues**, **Ajouter au pipeline**.
 - Sur la page d'une offre, **Postuler ? (IA)** dit en une ligne si l'offre vaut une candidature pour votre profil, et liste ses points bloquants (sur site tous les jours, un TJM sous votre objectif, un CDI publié comme mission freelance...). La réponse est conservée : **Demander à nouveau** après avoir modifié votre profil.

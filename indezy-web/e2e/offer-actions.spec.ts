@@ -15,6 +15,9 @@ test('hides a publisher from an offer and shows it again from the profile (en)',
     return route.fulfill({ json: block });
   });
   await page.route('**/api/offers/blocked-publishers/*', route => {
+    if (route.request().url().includes('/suggestions')) {
+      return route.fulfill({ json: [] });
+    }
     const id = Number(new URL(route.request().url()).pathname.split('/').at(-1));
     calls.push(`unblock ${id}`);
     blocks.splice(blocks.findIndex(block => block.id === id), 1);
@@ -47,6 +50,29 @@ test('hides a publisher from an offer and shows it again from the profile (en)',
   expect(calls).toEqual(['block Exemple Conseil', 'block Acme', 'unblock 8']);
   await settle(page);
   await page.screenshot({ path: test.info().outputPath('blocked-publishers-en.png'), fullPage: true });
+});
+
+test('offers to hide a publisher whose offers keep being hidden (fr)', async ({ page }) => {
+  await mockFeed(page, 'fr');
+  const blocked: string[] = [];
+  await page.route('**/api/offers/blocked-publishers/suggestions', route => route.fulfill({ json: [{ name: 'Grosse ESN', hidden: 7 },
+    { name: 'Conseil Y', hidden: 6 }] }));
+  await page.route('**/api/offers/blocked-publishers', route => {
+    blocked.push(route.request().postDataJSON().name);
+    return route.fulfill({ json: { id: 3, name: 'Grosse ESN' } });
+  });
+
+  await page.goto('/offers');
+  await expect(page.locator('[data-block-suggestion="Grosse ESN"]')).toContainText('Vous avez masqué 7 offres de Grosse ESN');
+  await page.locator('[data-block-suggestion="Grosse ESN"] [data-block-suggestion-accept]').click();
+  await expect.poll(() => blocked).toEqual(['Grosse ESN']);
+  await expect(page.locator('[data-block-suggestion="Grosse ESN"]')).toHaveCount(0);
+  await page.locator('[data-block-suggestion="Conseil Y"] [data-block-suggestion-decline]').click();
+  await expect(page.locator('[data-block-suggestion]')).toHaveCount(0);
+  // Declined, it is not offered again on this device.
+  await page.reload();
+  await expect(page.locator('app-offer-card').first()).toBeVisible();
+  await expect(page.locator('[data-block-suggestion="Conseil Y"]')).toHaveCount(0);
 });
 
 test('moves through the feed and acts on offers with the keyboard (en)', async ({ page }) => {

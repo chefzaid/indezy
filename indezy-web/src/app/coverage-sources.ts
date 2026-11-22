@@ -127,6 +127,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/network/viewers/network-viewers.component',
   'components/offers/offer-apply-dialog/offer-apply-dialog.component',
   'components/offers/offer-bar-chart/offer-bar-chart.component',
+  'components/offers/offer-block-suggestions/offer-block-suggestions.component',
   'components/offers/offer-brief-dialog/offer-brief-dialog.component',
   'components/offers/offer-card/offer-card.component',
   'components/offers/offer-feed/offer-actions',

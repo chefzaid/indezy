@@ -488,6 +488,12 @@ export interface OfferPublisherBlock {
   name: string;
 }
 
+/** A publisher the workspace keeps hiding offers from, offered to block, with the offers hidden lately. */
+export interface OfferPublisherSuggestion {
+  name: string;
+  hidden: number;
+}
+
 /** How publishers are told apart, as the server does: case, accents and punctuation aside. */
 export function publisherKey(name: string | undefined | null): string {
   return (name ?? '').normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase().replace(/[^\p{L}\p{N}+#.]+/gu, ' ').trim();

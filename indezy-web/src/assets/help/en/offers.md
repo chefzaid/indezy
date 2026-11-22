@@ -38,6 +38,7 @@ The **Market** button opens a **Market snapshot** of what your filters find: off
 - **Save the offer** keeps it in the **Saved** view; **Hide the offer** takes it out of the feed.
 - **Add a note** (under **More actions**) keeps up to 2,000 characters, found by the keyword filter and copied to the opportunity.
 - **I applied** records how (**The site's form**, **Email** or **Phone**) and when. The mission joins the pipeline with an application step and, if you tick **Plan a follow-up**, a follow-up in your [calendar](/help/calendar). **Undo the application** forgets it.
+- When you keep hiding a publisher's offers (five in 30 days), the feed offers to hide all of them; **Not now** stops asking on this device.
 - **Hide every offer from …** blocks a publisher, however its name is spelled. Manage the list in **Profile → Offer feed**.
 - Checkboxes act on several offers at once: **Save**, **Hide**, **Mark seen**, **Add to pipeline**.
 - On an offer's page, **Should I apply? (AI)** says in one line whether the offer is worth applying to for your profile, and lists its deal-breakers (on site every day, a rate under your target, a permanent job posted as freelance...). The answer is kept: **Ask again** after changing your profile.

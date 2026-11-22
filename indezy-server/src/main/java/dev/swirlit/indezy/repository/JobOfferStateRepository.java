@@ -26,6 +26,16 @@ public interface JobOfferStateRepository extends JpaRepository<JobOfferState, Lo
 
     List<JobOfferState> findByFreelanceId(Long freelanceId);
 
+    /** How many of each publisher's offers the workspace hid since {@code since}, by the name they were published under. */
+    @Query("select s.offer.company, count(s) from JobOfferState s where s.freelance.id = :freelanceId and s.hidden = true " +
+        "and s.updatedAt >= :since and s.offer.company is not null group by s.offer.company")
+    List<Object[]> countHiddenByPublisher(@Param("freelanceId") Long freelanceId, @Param("since") java.time.LocalDateTime since);
+
+    /** The publishers of the offers the workspace kept or applied to, ever. */
+    @Query("select distinct s.offer.company from JobOfferState s where s.freelance.id = :freelanceId " +
+        "and (s.saved = true or s.application is not null) and s.offer.company is not null")
+    List<String> findKeptPublishers(@Param("freelanceId") Long freelanceId);
+
     @Modifying
     @Query("update JobOfferState s set s.importedProject = null where s.importedProject.id = :projectId")
     int clearImportedProject(@Param("projectId") Long projectId);

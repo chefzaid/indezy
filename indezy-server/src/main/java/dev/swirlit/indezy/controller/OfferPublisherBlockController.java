@@ -41,6 +41,13 @@ public class OfferPublisherBlockController {
         return blocks.list(accessGuard.requireWorkspace(freelanceId));
     }
 
+    @Operation(summary = "The publishers the workspace keeps hiding offers from, offered to block",
+        description = "Five offers hidden or more in 30 days, never kept nor applied to; three at most")
+    @GetMapping("/suggestions")
+    public List<OfferPublisherBlockDto.Suggestion> suggestions(@RequestParam(required = false) Long freelanceId) {
+        return blocks.suggestions(accessGuard.requireWorkspace(freelanceId));
+    }
+
     @Operation(summary = "Keep a publisher's offers out of the workspace's feed; blocking it again answers the same block")
     @PostMapping
     public OfferPublisherBlockDto block(@Valid @RequestBody OfferPublisherBlockRequest request, @RequestParam(required = false) Long freelanceId) {

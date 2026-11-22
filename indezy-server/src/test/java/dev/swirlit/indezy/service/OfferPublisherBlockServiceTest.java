@@ -25,7 +25,9 @@ class OfferPublisherBlockServiceTest {
 
     private final OfferPublisherBlockRepository blocks = mock(OfferPublisherBlockRepository.class);
     private final FreelanceRepository freelances = mock(FreelanceRepository.class);
-    private final OfferPublisherBlockService service = new OfferPublisherBlockService(blocks, freelances);
+    private final dev.swirlit.indezy.repository.JobOfferStateRepository states = mock(dev.swirlit.indezy.repository.JobOfferStateRepository.class);
+    private final OfferPublisherBlockService service = new OfferPublisherBlockService(blocks, freelances, states,
+        java.time.Clock.fixed(java.time.Instant.parse("2026-11-22T10:00:00Z"), java.time.ZoneOffset.UTC));
 
     @Test
     void blocksAPublisherOnceUnderTheNameItWasGiven() {
@@ -71,5 +73,20 @@ class OfferPublisherBlockServiceTest {
         verify(blocks).delete(block);
         assertThatThrownBy(() -> service.unblock(4L, 8L)).isInstanceOf(ResourceNotFoundException.class)
             .hasMessage("Blocked publisher not found with id: 8");
+    }
+
+    @Test
+    void offersToBlockThePublishersWhoseOffersKeepBeingHidden() {
+        OfferPublisherBlock blocked = new OfferPublisherBlock();
+        blocked.setPublisherKey("deja bloque");
+        when(blocks.findByFreelanceIdOrderByNameAsc(3L)).thenReturn(List.of(blocked));
+        when(states.findKeptPublishers(3L)).thenReturn(List.of("Gardé SAS"));
+        when(states.countHiddenByPublisher(3L, java.time.LocalDateTime.of(2026, 10, 23, 10, 0))).thenReturn(List.of(
+            new Object[] {"Conseil Y", 3L}, new Object[] {"CONSEIL Y", 3L}, new Object[] {"Petite ESN", 4L},
+            new Object[] {"Déjà bloqué", 9L}, new Object[] {"Gardé SAS", 8L}, new Object[] {"Grosse ESN", 7L}));
+
+        // Spellings fold together; a publisher kept from or blocked, or hidden fewer than five times, is not offered.
+        assertThat(service.suggestions(3L)).containsExactly(new OfferPublisherBlockDto.Suggestion("Grosse ESN", 7),
+            new OfferPublisherBlockDto.Suggestion("Conseil Y", 6));
     }
 }

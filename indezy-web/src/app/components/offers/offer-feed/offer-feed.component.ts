@@ -45,6 +45,7 @@ import { OfferKeyAction, OfferListKeysDirective } from './offer-list-keys.direct
 import { OfferSavedSearchesComponent } from '../offer-saved-searches/offer-saved-searches.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { HelpLinkComponent } from '../../help/help-link.component';
+import { OfferBlockSuggestionsComponent } from '../offer-block-suggestions/offer-block-suggestions.component';
 
 /** Whether the market snapshot was left open, in this browser. */
 const MARKET_OPEN_KEY = 'indezy.offers.marketOpen';
@@ -54,7 +55,7 @@ const MARKET_OPEN_KEY = 'indezy.offers.marketOpen';
   selector: 'app-offer-feed',
   imports: [HelpLinkComponent, PageHeaderComponent, MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule, MatIconModule, MatPaginatorModule,
     MatProgressSpinnerModule, MatSelectModule, RouterLink, TranslateModule, OfferCardComponent, OfferSelectionBarComponent, OfferFiltersComponent, OfferMarketComponent,
-    OfferSavedSearchesComponent, OfferListKeysDirective],
+    OfferSavedSearchesComponent, OfferListKeysDirective, OfferBlockSuggestionsComponent],
   templateUrl: './offer-feed.component.html',
   styleUrls: ['./offer-feed.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

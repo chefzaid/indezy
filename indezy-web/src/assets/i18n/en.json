@@ -2625,6 +2625,13 @@
       "noSkills": "Add your skills to your profile to see which ones the offers ask for that you lack.",
       "profile": "Complete my profile",
       "none": "The {{count}} open offers matching your skills ask for nothing you lack often enough to show."
+    },
+    "blockSuggestion": {
+      "text": "You hid {{count}} offers from {{name}} in the last 30 days.",
+      "accept": "Hide all its offers",
+      "decline": "Not now",
+      "done": "{{name}}'s offers are hidden. Bring them back in Profile → Offer feed.",
+      "error": "The publisher could not be hidden: try again."
     }
   },
   "emailsUnsubscribe": {

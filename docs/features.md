@@ -1058,7 +1058,9 @@ with the distance.
   description names as a whole word, the longest name first, not the publisher itself (`relation` on each offer,
   `unanswered` and `endClient`).
 - **Hide every offer from …**, or a name typed in **Profile → Offer feed**, blocks a publisher whatever its spelling, up
-  to 200 per workspace.
+  to 200 per workspace. Above the results, a publisher of which the workspace hid five offers or more in 30 days (its
+  spellings together), never kept nor applied to, is offered to block (**Hide all its offers**, three at most,
+  `GET /api/offers/blocked-publishers/suggestions`); **Not now** leaves it, not offered again on that device.
 - **Market** opens a snapshot of what the filters find: offer count, median and middle half of the rates, share
   reaching the profile's target with a rate histogram, work modes, top skills and publishers and daily publications
   over 30 days, refreshed once a minute at most, ending with [trends](#market-trends).

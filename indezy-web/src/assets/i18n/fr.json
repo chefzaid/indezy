@@ -2625,6 +2625,13 @@
       "noSkills": "Ajoutez vos compétences à votre profil pour voir celles que les offres demandent et qui vous manquent.",
       "profile": "Compléter mon profil",
       "none": "Les {{count}} offres ouvertes qui correspondent à vos compétences ne demandent rien qui vous manque assez souvent pour l'afficher."
+    },
+    "blockSuggestion": {
+      "text": "Vous avez masqué {{count}} offres de {{name}} ces 30 derniers jours.",
+      "accept": "Masquer toutes ses offres",
+      "decline": "Pas maintenant",
+      "done": "Les offres de {{name}} sont masquées. Faites-les revenir dans Profil → Fil d'offres.",
+      "error": "L'éditeur n'a pas pu être masqué : réessayez."
     }
   },
   "emailsUnsubscribe": {

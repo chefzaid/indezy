@@ -13,7 +13,7 @@ import {
   OfferMarket,
   OfferPage,
   OfferPublisher,
-  OfferPublisherBlock,
+  OfferPublisherBlock, OfferPublisherSuggestion,
   OfferQuery,
   OfferRegion,
   OfferSearchSuggestion,
@@ -138,6 +138,11 @@ export class OfferService {
   }
 
   /** Keeps a publisher's offers out of the feed; blocking one already blocked answers that block. */
+  /** The publishers the workspace keeps hiding offers from, offered to block. */
+  blockSuggestions(): Observable<OfferPublisherSuggestion[]> {
+    return this.http.get<OfferPublisherSuggestion[]>(`${this.API_URL}/blocked-publishers/suggestions`);
+  }
+
   blockPublisher(name: string): Observable<OfferPublisherBlock> {
     return this.http.post<OfferPublisherBlock>(`${this.API_URL}/blocked-publishers`, { name });
   }
