@@ -67,6 +67,8 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = "{\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}}";
             } else if (body.contains("PLEASE-REFUSE")) {
                 answer = message("", "refusal");
+            } else if (body.contains("You polish")) {
+                answer = message("{\"subject\":\"Point sur la mission\",\"body\":\"Bonjour {{firstName}},\\n\\nOù en est-on ?\"}", "end_turn");
             } else if (body.contains("You suggest the daily rate")) {
                 answer = message("{\"rate\":700,\"low\":650,\"high\":600,\"reasons\":[\"Kafka est rare\",\" \"]}", "end_turn");
             } else if (body.contains("You tailor")) {
@@ -255,6 +257,22 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.POST, "/ai/dossier/" + project, null, String.class).getStatusCode())
             .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
 
+        // A refusal, and a key Anthropic refuses, are told as such.
+        assertThat(call(alice, HttpMethod.POST, "/ai/posting", Map.of("text", "PLEASE-REFUSE"), Map.class).getBody())
+            .containsEntry("message", "The AI declined this request");
+        call(alice, HttpMethod.PUT, "/ai/key", Map.of("apiKey", "sk-ant-refused"), Map.class);
+        assertThat(call(alice, HttpMethod.POST, "/ai/posting", Map.of("text", "Une mission"), Map.class).getBody())
+            .containsEntry("message", "The AI key was refused: check it");
+        assertThat(call(alice, HttpMethod.DELETE, "/ai/key", null, Map.class).getBody()).containsEntry("ownKey", false)
+            .containsEntry("available", false);
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM ai_usage WHERE own_key = true", Integer.class)).isPositive();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void readsPdfsPolishesMessagesAndSuggestsRates() throws IOException {
+        // Alice's own key: no allowance to mind here.
+        call(alice, HttpMethod.PUT, "/ai/key", Map.of("apiKey", "sk-ant-alice-own"), Map.class);
         // A posting saved as a PDF gives its text to check, without AI; anything else is refused.
         org.springframework.util.LinkedMultiValueMap<String, Object> form = new org.springframework.util.LinkedMultiValueMap<>();
         form.add("file", new org.springframework.core.io.ByteArrayResource(dev.swirlit.indezy.ai.PostingPdfTextTest.pdf(false, "Mission Kafka")) {
@@ -280,6 +298,15 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(exchange("/ai/posting/pdf", HttpMethod.POST, new HttpEntity<>(notPdf, multipart), String.class).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);
 
+        // A message polished in the tone asked, its variables kept; one whose variables the AI lost is refused.
+        assertThat(call(alice, HttpMethod.POST, "/ai/polish", Map.of("subject", "point mission", "body", "bonjour {{ firstName }}, ou en est on",
+            "tone", "FORMAL"), Map.class).getBody()).containsEntry("subject", "Point sur la mission")
+            .containsEntry("body", "Bonjour {{firstName}},\n\nOù en est-on ?");
+        assertThat(BODIES.getLast()).contains("more formal", "ou en est on");
+        assertThat(call(alice, HttpMethod.POST, "/ai/polish", Map.of("body", "bonjour {{firstName}}, {{myName}}"), Map.class).getBody())
+            .containsEntry("message", "The AI changed the message's variables: polish it again or edit it by hand");
+        assertThat(call(alice, HttpMethod.POST, "/ai/polish", Map.of("body", " "), String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
         // A rate suggested for an opportunity being written, its range kept around the rate.
         Map<String, Object> rate = call(alice, HttpMethod.POST, "/ai/rate", Map.of("role", "Lead Kafka", "techStack", "Kafka, Java",
             "workMode", "REMOTE", "durationInMonths", 6, "language", "FR"), Map.class).getBody();
@@ -288,15 +315,5 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(BODIES.getLast()).contains("Lead Kafka", "Kafka, Java", "REMOTE", "6 months");
         assertThat(call(alice, HttpMethod.POST, "/ai/rate", Map.of("role", "x".repeat(301)), String.class).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);
-
-        // A refusal, and a key Anthropic refuses, are told as such.
-        assertThat(call(alice, HttpMethod.POST, "/ai/posting", Map.of("text", "PLEASE-REFUSE"), Map.class).getBody())
-            .containsEntry("message", "The AI declined this request");
-        call(alice, HttpMethod.PUT, "/ai/key", Map.of("apiKey", "sk-ant-refused"), Map.class);
-        assertThat(call(alice, HttpMethod.POST, "/ai/posting", Map.of("text", "Une mission"), Map.class).getBody())
-            .containsEntry("message", "The AI key was refused: check it");
-        assertThat(call(alice, HttpMethod.DELETE, "/ai/key", null, Map.class).getBody()).containsEntry("ownKey", false)
-            .containsEntry("available", false);
-        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM ai_usage WHERE own_key = true", Integer.class)).isPositive();
     }
 }

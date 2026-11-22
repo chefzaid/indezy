@@ -43,6 +43,8 @@ describe('AiService', () => {
     service.suggestRate({ role: 'Lead', techStack: null, workMode: null, remoteDaysPerMonth: null, place: null, durationInMonths: null,
       description: null, language: 'FR' }).subscribe();
     expect(http.expectOne(`${url}/rate`).request.body.role).toBe('Lead');
+    service.polish('point', 'bonjour', 'FORMAL').subscribe();
+    expect(http.expectOne(`${url}/polish`).request.body).toEqual({ subject: 'point', body: 'bonjour', tone: 'FORMAL' });
     service.tailoredDossier(4, 'ANONYMOUS', 'EN').subscribe(pdf => expect(pdf.size).toBe(4));
     const dossier = http.expectOne(`${url}/dossier/4?layout=ANONYMOUS&language=EN`);
     expect(dossier.request.method).toBe('POST');
@@ -59,6 +61,7 @@ describe('AiService', () => {
     expect(aiErrorKey(failed('The AI declined this request'))).toBe('ai.errors.declined');
     expect(aiErrorKey(failed('The AI key was refused: check it'))).toBe('ai.errors.keyRefused');
     expect(aiErrorKey(failed('The AI answer was cut short: shorten the text'))).toBe('ai.errors.tooLong');
+    expect(aiErrorKey(failed("The AI changed the message's variables: polish it again"))).toBe('ai.errors.variables');
     expect(aiErrorKey(failed())).toBe('ai.errors.failed');
   });
 

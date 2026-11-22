@@ -133,6 +133,25 @@ public class AiController {
             request.language() == null ? DocumentLanguage.FR : request.language(), request.notes());
     }
 
+    /** A message to polish. */
+    public record PolishRequest(@Size(max = MessageAiService.POLISH_SUBJECT_MAX) String subject,
+                                @NotBlank @Size(max = MessageAiService.POLISH_BODY_MAX) String body, MessageAiService.Tone tone) {
+
+        // Spring MVC logs bodies through toString at DEBUG: never the message.
+        @Override
+        public String toString() {
+            return "PolishRequest[tone=" + tone + "]";
+        }
+    }
+
+    @Operation(summary = "Polish a message before sending it: spelling and grammar, and the tone asked, its variables kept")
+    @PostMapping("/polish")
+    public MessageAiService.Draft polish(@Valid @RequestBody PolishRequest request) {
+        accessGuard.requireWorkspace(null);
+        return messages.polish(SecurityUtils.getCurrentUserId(), request.subject(), request.body(),
+            request.tone() == null ? MessageAiService.Tone.KEEP : request.tone());
+    }
+
     @Operation(summary = "The AI conversation about an opportunity, oldest first")
     @GetMapping("/chat/{projectId}")
     public List<ChatAiService.Turn> chat(@PathVariable Long projectId) {

@@ -7,6 +7,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { ContactDto, ProjectDto } from '../../../models';
+import { AiService } from '../../../services/ai/ai.service';
 import { ContactService } from '../../../services/contact/contact.service';
 import { EmailTemplateService } from '../../../services/email-template/email-template.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -26,6 +27,7 @@ describe('ProjectEmailDialogComponent', () => {
   const silent = { id: 13, firstName: 'Sans', lastName: 'Email', clientName: 'Airbus' } as ContactDto;
   let contactsWithBasis = false;
   let dialogRef: jasmine.SpyObj<MatDialogRef<ProjectEmailDialogComponent>>;
+  let ai: jasmine.SpyObj<AiService>;
 
   function create(setup: () => void = () => undefined, data: object = project): ComponentFixture<ProjectEmailDialogComponent> {
     registerLocaleData(localeFr);
@@ -40,6 +42,7 @@ describe('ProjectEmailDialogComponent', () => {
     users.getUserProfile.and.returnValue(of({ firstName: 'Ada', lastName: 'Lovelace', phone: '0600000000', availabilityDate: '2026-12-01' } as UserProfile));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    ai = jasmine.createSpyObj('AiService', ['polish']);
     setup();
     TestBed.configureTestingModule({
       imports: [ProjectEmailDialogComponent, TranslateModule.forRoot()],
@@ -50,7 +53,8 @@ describe('ProjectEmailDialogComponent', () => {
         { provide: EmailTemplateService, useValue: templates },
         { provide: UserManagementService, useValue: users },
         { provide: NotificationService, useValue: notifications },
-        { provide: MatDialogRef, useValue: dialogRef }
+        { provide: MatDialogRef, useValue: dialogRef },
+        { provide: AiService, useValue: ai }
       ]
     });
     const translate = TestBed.inject(TranslateService);
@@ -200,5 +204,32 @@ describe('ProjectEmailDialogComponent', () => {
     const fixture = create(() => contacts.emailStatus.and.returnValue(throwError(() => new Error('down'))));
     expect(fixture.componentInstance.sending).toBeNull();
     expect(fixture.nativeElement.querySelector('a[href^="mailto:"]')).not.toBeNull();
+  });
+
+  it('polishes the message in the tone chosen, and undoes it', () => {
+    const component = create().componentInstance;
+    component.form.patchValue({ subject: 'point', body: 'bonjour {{firstName}}' });
+    ai.polish.and.returnValue(of({ subject: 'Point', body: 'Bonjour {{firstName}},' }));
+    component.polish('FORMAL');
+    expect(ai.polish).toHaveBeenCalledOnceWith('point', 'bonjour {{firstName}}', 'FORMAL');
+    expect(component.form.value.body).toBe('Bonjour {{firstName}},');
+    expect(component.form.value.subject).toBe('Point');
+    component.undoPolish();
+    expect(component.form.value.body).toBe('bonjour {{firstName}}');
+    expect(component.beforePolish).toBeNull();
+  });
+
+  it('polishes nothing empty, and says why a polish failed', () => {
+    const component = create().componentInstance;
+    component.form.patchValue({ body: '  ' });
+    component.polish('KEEP');
+    expect(ai.polish).not.toHaveBeenCalled();
+    component.form.patchValue({ body: 'bonjour' });
+    ai.polish.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409,
+      error: { message: "The AI changed the message's variables: polish it again or edit it by hand" } })));
+    component.polish('SHORTER');
+    expect(notifications.error).toHaveBeenCalledWith('ai.errors.variables');
+    expect(component.polishing).toBeFalse();
+    expect(component.form.value.body).toBe('bonjour');
   });
 });

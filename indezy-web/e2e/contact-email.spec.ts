@@ -25,6 +25,13 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const dialog = page.getByRole('dialog');
     await dialog.locator('input[formcontrolname="subject"]').fill(en ? 'Java developer mission' : 'Mission développeur Java');
     await dialog.locator('textarea[formcontrolname="body"]').fill(en ? 'Hello Alice,\n\nWhere does it stand?' : 'Bonjour Alice,\n\nOù en est-on ?');
+    await page.route('**/api/ai/polish', route => route.fulfill({ json: { subject: en ? 'Java developer mission' : 'Mission développeur Java',
+      body: en ? 'Hello Alice,\n\nWhere does the process stand?' : 'Bonjour Alice,\n\nOù en est le processus ?' } }));
+    await dialog.locator('[data-email-polish]').click();
+    await page.locator('[data-email-polish-tone="FORMAL"]').click();
+    await expect(dialog.locator('textarea[formcontrolname="body"]')).toHaveValue(en ? 'Hello Alice,\n\nWhere does the process stand?' :
+      'Bonjour Alice,\n\nOù en est le processus ?');
+    await expect(dialog.locator('[data-email-polish-undo]')).toBeVisible();
     await expect(dialog.locator('[data-email-send]')).toBeEnabled();
     await dialog.locator('[data-email-track] input').check();
     await settleDialog(page);

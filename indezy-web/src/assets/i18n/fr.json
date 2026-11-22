@@ -2646,6 +2646,17 @@
       "sent": "E-mail envoyé à {{name}}.",
       "dailyLimit": "Jusqu'à 50 e-mails par jour partent d'Indezy : envoyez celui-ci depuis votre messagerie.",
       "error": "L'e-mail n'a pas pu partir : réessayez dans un instant, ou ouvrez-le dans votre messagerie."
+    },
+    "polish": {
+      "button": "Améliorer (IA)",
+      "busy": "Amélioration…",
+      "undo": "Annuler",
+      "tones": {
+        "KEEP": "Corriger l'orthographe et la grammaire",
+        "FORMAL": "Plus formel",
+        "FRIENDLY": "Plus chaleureux",
+        "SHORTER": "Plus court"
+      }
     }
   },
   "calendar": {
@@ -4734,7 +4745,8 @@
       "declined": "L'IA a refusé cette demande.",
       "keyRefused": "Anthropic a refusé votre clé : vérifiez-la dans Profil → Préférences.",
       "tooLong": "La réponse a été coupée : raccourcissez le texte.",
-      "failed": "L'IA ne peut pas répondre pour l'instant : réessayez dans un moment."
+      "failed": "L'IA ne peut pas répondre pour l'instant : réessayez dans un moment.",
+      "variables": "L'IA a modifié les variables du message : améliorez-le à nouveau ou modifiez-le vous-même."
     },
     "posting": {
       "open": "Remplir depuis une annonce collée (IA)",

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiChatTurn, AiFit, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
+import { AiChatTurn, AiFit, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -60,6 +60,11 @@ export class AiService {
     return this.http.post<AiOfferVerdict>(`${this.API_URL}/offers/${offerId}/verdict`, null, { params: { language } });
   }
 
+  /** The message polished in the tone asked, its {{variables}} kept. */
+  polish(subject: string, body: string, tone: AiPolishTone): Observable<AiMessageDraft> {
+    return this.http.post<AiMessageDraft>(`${this.API_URL}/polish`, { subject, body, tone });
+  }
+
   suggestRate(request: AiRateRequest): Observable<AiRateSuggestion> {
     return this.http.post<AiRateSuggestion>(`${this.API_URL}/rate`, request);
   }
@@ -107,6 +112,9 @@ function aiMessageKey(message: string): string {
   }
   if (message.startsWith('The AI key was refused')) {
     return 'ai.errors.keyRefused';
+  }
+  if (message.startsWith("The AI changed the message's variables")) {
+    return 'ai.errors.variables';
   }
   if (message.startsWith('The AI answer was cut short')) {
     return 'ai.errors.tooLong';

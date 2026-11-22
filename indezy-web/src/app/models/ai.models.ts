@@ -40,6 +40,11 @@ export interface AiRateRequest {
   language: DocumentLanguage;
 }
 
+/** How to polish a message: spelling and grammar only, more formal, warmer, or shorter. */
+export type AiPolishTone = 'KEEP' | 'FORMAL' | 'FRIENDLY' | 'SHORTER';
+
+export const AI_POLISH_TONES: AiPolishTone[] = ['KEEP', 'FORMAL', 'FRIENDLY', 'SHORTER'];
+
 /** What an AI request is for, each on its own model unless one is chosen. */
 export type AiTask = 'POSTING' | 'MESSAGE' | 'FIT' | 'CHAT' | 'TRIAGE' | 'DOSSIER' | 'RATE';
 

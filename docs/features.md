@@ -643,6 +643,9 @@ never saved or sent on its own:
 - **Draft a message (AI)** on an opportunity (`POST /api/ai/message`): an application, a follow-up, a thank-you after an
   interview or a decline, in French or English, from the role, the company, the stack, the stage, the description and a
   few words on what to say; the subject and the message are editable and copied in one click.
+- **Polish (AI)** in **Write an email** (`POST /api/ai/polish`, 5,000 characters at most): the subject and message with
+  their spelling and grammar fixed, or more formal, warmer or shorter, in their own language, every `{{variable}}` kept
+  (an answer that drops or adds one is refused, saying so); **Undo** brings back what was there.
 - **Weigh this opportunity (AI)** on an opportunity (`POST /api/ai/fit`): a fit score out of 100 and a verdict, what
   fits and what may not, the soft criteria to check (management, team, pace, remote culture), the questions to ask in
   the interview, and what to think of the rate against the profile's target and the feed's market median for its main

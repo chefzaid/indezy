@@ -2646,6 +2646,17 @@
       "sent": "Email sent to {{name}}.",
       "dailyLimit": "Up to 50 emails a day go from Indezy: send this one from your mail app.",
       "error": "The email could not be sent: try again in a moment, or open it in your mail app."
+    },
+    "polish": {
+      "button": "Polish (AI)",
+      "busy": "Polishing…",
+      "undo": "Undo",
+      "tones": {
+        "KEEP": "Fix spelling and grammar",
+        "FORMAL": "More formal",
+        "FRIENDLY": "Warmer",
+        "SHORTER": "Shorter"
+      }
     }
   },
   "calendar": {
@@ -4734,7 +4745,8 @@
       "declined": "The AI declined this request.",
       "keyRefused": "Anthropic refused your key: check it in Profile → Preferences.",
       "tooLong": "The answer was cut short: shorten the text.",
-      "failed": "The AI could not answer for now: try again in a moment."
+      "failed": "The AI could not answer for now: try again in a moment.",
+      "variables": "The AI changed the message's variables: polish it again or edit it by hand."
     },
     "posting": {
       "open": "Fill in from a pasted posting (AI)",

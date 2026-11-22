@@ -258,7 +258,7 @@ Matrix is used only if a key is ever set.
 ## Communications
 
 - [x] Email templates (follow-up, rate proposal, availability announcement) with variables: **Write an email** on an opportunity and Profile → **Emails** (`docs/features.md#emails-from-templates`)
-- [ ] AI polish of outgoing messages (grammar/tone fix before sending a follow-up or proposal)
+- [x] AI polish of outgoing messages (grammar/tone fix before sending a follow-up or proposal). Done on 2026-11-22: **Polish (AI)** in **Write an email**, spelling and grammar or more formal, warmer or shorter, its variables kept, undone in one click (`docs/features.md#ai-features`).
 - [ ] Gmail/Outlook inbox sync: auto-link emails to the matching project/contact
 - [x] Follow-up sequences (auto-remind me to relance after N days without reply). Done on 2026-10-26: a contact whose latest exchange is a message sent and unanswered past the follow-up delay (5 days, set in Profile → Preferences) shows in the dashboard's **Follow-ups due**, linked to the contact (`docs/features.md#contact-interaction-history`).
 - [ ] Email open/reply tracking on sent follow-ups Partly done on 2026-11-22: opens, for emails sent from Indezy with tracking asked (`docs/features.md#emails-sent-from-indezy`); replies wait on the inbound address (Needs Input).
@@ -393,7 +393,7 @@ Increments, implemented in order:
 
 ## AI & Automation
 
-- [ ] AI parsing of job descriptions (PDF/URL/email -> structured project: rate, stack, location, duration, suggested skill tags) Partly done on 2026-11-22: **Fill in from a pasted posting (AI)** on a new opportunity reads pasted text (an email or a page copied) into its fields (`docs/features.md#ai-features`); **From a PDF** followed the same day, its text put in the box to check first; links of other sites than the job boards Indezy reads remain.
+- [x] AI parsing of job descriptions (PDF/URL/email -> structured project: rate, stack, location, duration, suggested skill tags) Done on 2026-11-22: **Fill in from a pasted posting (AI)** on a new opportunity reads pasted text (an email or a page copied) into its fields (`docs/features.md#ai-features`); **From a PDF** followed the same day, its text put in the box to check first; links are read by **From an offer link** (`docs/features.md#from-an-offer-link`), on any public site from its schema.org posting.
 - [x] AI-suggested daily rate based on stack, seniority and market data Done on 2026-11-22: the fit analysis suggests a rate from the profile's target, the skills' years and the feed's median for the main skill; a rate suggestion of its own on the opportunity form followed the same day: **Suggest a rate (AI)** under the daily rate, with its range, reasons and the market median, put in the field on **Use** (`docs/features.md#ai-features`).
 - [x] AI job-fit analysis: which job is more adapted to your profile, pros vs cons per opportunity, including soft criteria in decision making (management style, team spirit, ...). Done on 2026-11-22: **Weigh this opportunity (AI)**, a score, pros and cons, soft criteria to check, interview questions and rate advice (`docs/features.md#ai-features`); comparing several opportunities side by side remains.
 - [ ] Project recommendation engine combining peer-shared opportunities, skill match, market data, and soft criteria

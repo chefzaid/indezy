@@ -8,12 +8,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, forkJoin, map, Observable, of, OperatorFunction } from 'rxjs';
 
 import { ContactDto, EmailTemplate, ProjectDto } from '../../../models';
 import { ContactEmailStatus } from '../../../models/contact.models';
+import { AI_POLISH_TONES, AiPolishTone } from '../../../models/ai.models';
+import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { UserProfile } from '../../../models/user-management.models';
 import { ContactService } from '../../../services/contact/contact.service';
 import { EmailTemplateService } from '../../../services/email-template/email-template.service';
@@ -39,11 +42,13 @@ interface TemplateChoice {
 @Component({
   selector: 'app-project-email-dialog',
   imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule,
-    MatSelectModule, TranslateModule],
+    MatMenuModule, MatSelectModule, TranslateModule],
   templateUrl: './project-email-dialog.component.html',
   styles: [`
     .email-form { display: flex; flex-direction: column; min-width: min(560px, 85vw); padding-top: 4px; }
     .missing { margin: 0 0 8px; color: var(--app-warning, #b26a00); font-size: .875rem; }
+    .polish { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: -4px 0 12px; }
+    .polish-note { color: var(--mat-sys-on-surface-variant); font-size: .8125rem; }
     .send-options { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
     .send-hint { margin: 0 0 0 40px; color: var(--mat-sys-on-surface-variant); font-size: .8125rem; }
   `],
@@ -56,6 +61,11 @@ export class ProjectEmailDialogComponent implements OnInit {
   /** Whether the email can go from Indezy; null until known or when it cannot be read. */
   sending: ContactEmailStatus | null = null;
   sendingNow = false;
+  readonly tones = AI_POLISH_TONES;
+  polishing = false;
+  /** The subject and message before the last polish, to undo it. */
+  beforePolish: { subject: string; body: string } | null = null;
+  private readonly ai = inject(AiService);
   private profile: UserProfile | null = null;
   private readonly dialogRef = inject<MatDialogRef<ProjectEmailDialogComponent>>(MatDialogRef, { optional: true });
 
@@ -131,6 +141,35 @@ export class ProjectEmailDialogComponent implements OnInit {
 
   get mailto(): string {
     return mailtoLink(this.recipient()?.email, this.form.value.subject, this.form.value.body);
+  }
+
+  /** Polishes the subject and message with AI in the tone chosen, keeping their {{variables}}; undone by {@link undoPolish}. */
+  polish(tone: AiPolishTone): void {
+    const { subject, body } = this.form.value as { subject: string; body: string };
+    if (!body?.trim() || this.polishing) {
+      return;
+    }
+    this.polishing = true;
+    this.ai.polish(subject ?? '', body, tone).subscribe({
+      next: draft => {
+        this.polishing = false;
+        this.beforePolish = { subject, body };
+        this.form.patchValue({ subject: draft.subject || subject, body: draft.body });
+        this.changes.markForCheck();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.polishing = false;
+        this.notificationService.error(aiErrorKey(error));
+        this.changes.markForCheck();
+      }
+    });
+  }
+
+  undoPolish(): void {
+    if (this.beforePolish) {
+      this.form.patchValue(this.beforePolish);
+      this.beforePolish = null;
+    }
   }
 
   /** Whether the email can go from Indezy now: email is set up, a recipient is chosen and nothing is left to fill. */

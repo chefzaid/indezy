@@ -8,7 +8,7 @@ Envoyez un e-mail à un contact depuis **Écrire un e-mail**, en votre nom avec 
 
 ### L'aide de l'IA
 
-Remplissez une nouvelle opportunité depuis une annonce collée, et évaluez une opportunité face à votre profil, interrogez l'IA à son sujet, demandez si une offre du fil vaut une candidature, téléchargez votre dossier de compétences adapté à elle, obtenez un TJM à demander sur le formulaire, et rédigez une candidature, une relance, un remerciement ou un refus depuis sa page. Un forfait mensuel accompagne chaque compte, ou utilisez votre propre clé Anthropic dans **Profil → Préférences → IA**. Voir [Pipeline et opportunités](/help/pipeline).
+Remplissez une nouvelle opportunité depuis une annonce collée, et évaluez une opportunité face à votre profil, interrogez l'IA à son sujet, demandez si une offre du fil vaut une candidature, téléchargez votre dossier de compétences adapté à elle, obtenez un TJM à demander sur le formulaire, améliorez un e-mail avant de l'envoyer, et rédigez une candidature, une relance, un remerciement ou un refus depuis sa page. Un forfait mensuel accompagne chaque compte, ou utilisez votre propre clé Anthropic dans **Profil → Préférences → IA**. Voir [Pipeline et opportunités](/help/pipeline).
 
 ### Les TJM du réseau
 

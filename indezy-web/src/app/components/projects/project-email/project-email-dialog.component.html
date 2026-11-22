@@ -26,6 +26,22 @@
       <mat-label>{{ 'emails.body' | translate }}</mat-label>
       <textarea matInput formControlName="body" rows="10"></textarea>
     </mat-form-field>
+    <div class="polish">
+      <button mat-stroked-button type="button" [matMenuTriggerFor]="tonesMenu" [disabled]="polishing || !form.value.body?.trim()" data-email-polish>
+        <mat-icon>auto_fix_high</mat-icon>{{ (polishing ? 'emails.polish.busy' : 'emails.polish.button') | translate }}
+      </button>
+      <mat-menu #tonesMenu="matMenu">
+        @for (tone of tones; track tone) {
+          <button mat-menu-item type="button" (click)="polish(tone)" [attr.data-email-polish-tone]="tone">{{ 'emails.polish.tones.' + tone | translate }}</button>
+        }
+      </mat-menu>
+      @if (beforePolish) {
+        <button mat-button type="button" (click)="undoPolish()" data-email-polish-undo>
+          <mat-icon>undo</mat-icon>{{ 'emails.polish.undo' | translate }}
+        </button>
+        <span class="polish-note">{{ 'ai.disclaimer' | translate }}</span>
+      }
+    </div>
     @if (missing) {
       <p class="missing" role="status">{{ 'emails.missing' | translate }}</p>
     }
