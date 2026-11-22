@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
 import { settleDialog } from './helpers/dialog';
+import { mockFeed } from './helpers/offer-feed';
 
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const status = { available: true, reason: null, ownKey: false, model: 'claude-opus-5-5', spentUsd: 0.4, limitUsd: 2 };
@@ -78,6 +79,22 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const chatAudit = await new AxeBuilder({ page }).include('[data-ai-chat]').withTags(WCAG).analyze();
     expect(chatAudit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test(`triages a feed offer on its page (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockFeed(page, language);
+    await page.route(/\/api\/ai\/offers\/1\/verdict/, route => route.request().method() === 'POST' ?
+      route.fulfill({ json: { offerId: 1, goodFit: false, verdict: en ? 'On site every day.' : 'Sur site tous les jours.',
+        dealBreakers: [en ? '5 days on site' : '5 jours sur site'], createdAt: '2026-11-22T10:00:00' } }) :
+      route.fulfill({ status: 204, body: '' }));
+    await page.goto('/offers/1');
+    const card = page.locator('[data-offer-verdict]');
+    await card.locator('[data-offer-verdict-ask]').click();
+    await expect(card.locator('[data-offer-deal-breakers]')).toContainText(en ? '5 days on site' : '5 jours sur site');
+    const audit = await new AxeBuilder({ page }).include('[data-offer-verdict]').withTags(WCAG).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
   });
 
   test(`shows the AI allowance and takes the member's own key (${language}, ${width}px)`, async ({ page }) => {

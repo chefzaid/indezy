@@ -1,8 +1,15 @@
 package dev.swirlit.indezy.integration;
 
 import com.sun.net.httpserver.HttpServer;
+import dev.swirlit.indezy.ai.OfferTriageAiService;
+import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.enums.OfferDatePrecision;
+import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.repository.JobOfferRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -12,8 +19,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +60,9 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = "{\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}}";
             } else if (body.contains("PLEASE-REFUSE")) {
                 answer = message("", "refusal");
+            } else if (body.contains("You triage")) {
+                answer = message("{\"goodFit\":false,\"verdict\":\"Sur site tous les jours.\",\"dealBreakers\":[\"5 jours sur site\",\"\",\"TJM sous l'objectif\"]}",
+                    "end_turn");
             } else if (body.contains("You are the coach")) {
                 answer = message("Préparez trois exemples de projets Kafka.", "end_turn");
             } else if (body.contains("<profile>")) {
@@ -80,6 +92,33 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         return "{\"id\":\"msg_1\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-opus-5-5\",\"content\":[" +
             (json.isEmpty() ? "" : "{\"type\":\"text\",\"text\":\"" + text + "\"}") + "],\"stop_reason\":\"" + stopReason +
             "\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1000,\"output_tokens\":200}}";
+    }
+
+    @Autowired
+    private JobOfferRepository offers;
+
+    @Autowired
+    private OfferTriageAiService triageService;
+
+    private static JobOffer offer() {
+        JobOffer offer = new JobOffer();
+        offer.setSite(OfferSite.FREE_WORK);
+        offer.setExternalId("ai-" + UUID.randomUUID());
+        offer.setUrl("https://www.free-work.com/fr/tech-it/job-mission/kotlin/" + UUID.randomUUID());
+        offer.setTitle("Lead Kotlin");
+        offer.setCompany("Conseil Z");
+        offer.setDescription("Sur site 5 jours");
+        offer.setRateMin(450);
+        offer.setRateMax(500);
+        offer.setWorkMode(WorkMode.ONSITE);
+        offer.setSkills(List.of("Kotlin"));
+        offer.setSearchText("lead kotlin");
+        Instant now = Instant.now();
+        offer.setPublishedAt(now);
+        offer.setDatePrecision(OfferDatePrecision.EXACT);
+        offer.setFirstSeenAt(now);
+        offer.setLastSeenAt(now);
+        return offer;
     }
 
     @DynamicPropertySource
@@ -162,6 +201,22 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.GET, "/ai/chat/" + project, null, String.class).getStatusCode()).isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.DELETE, "/ai/chat/" + project, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(call(alice, HttpMethod.GET, "/ai/chat/" + project, null, List.class).getBody()).isEmpty();
+
+        // A feed offer triaged and its verdict kept for Alice's workspace only, dropped once the offer is gone.
+        long offerId = offers.save(offer()).getId();
+        assertThat(call(alice, HttpMethod.GET, "/ai/offers/" + offerId + "/verdict", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+        Map<String, Object> verdict = call(alice, HttpMethod.POST, "/ai/offers/" + offerId + "/verdict?language=FR", null, Map.class).getBody();
+        assertThat(verdict).containsEntry("goodFit", false).containsEntry("verdict", "Sur site tous les jours.");
+        assertThat((List<String>) verdict.get("dealBreakers")).containsExactly("5 jours sur site", "TJM sous l'objectif");
+        assertThat(BODIES.getLast()).contains("Lead Kotlin", "<profile>");
+        assertThat(call(alice, HttpMethod.GET, "/ai/offers/" + offerId + "/verdict", null, Map.class).getBody()).containsEntry("goodFit", false);
+        assertThat(call(bob, HttpMethod.GET, "/ai/offers/" + offerId + "/verdict", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+        jdbcTemplate.update("DELETE FROM job_offer_skills WHERE offer_id = ?", offerId);
+        offers.deleteById(offerId);
+        triageService.dropOrphans();
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM offer_ai_verdicts WHERE offer_id = ?", Integer.class, offerId)).isZero();
 
         // A refusal, and a key Anthropic refuses, are told as such.
         assertThat(call(alice, HttpMethod.POST, "/ai/posting", Map.of("text", "PLEASE-REFUSE"), Map.class).getBody())

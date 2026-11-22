@@ -18,6 +18,7 @@ import { OfferCardComponent } from '../offer-card/offer-card.component';
 import { NetworkShare, ShareToNetworkComponent } from '../../network/share/share-to-network.component';
 import { offerShare } from '../../network/share/network-shares';
 import { OfferActions, OfferActionsHost } from '../offer-feed/offer-actions';
+import { OfferVerdictComponent } from '../offer-verdict/offer-verdict.component';
 
 /**
  * One offer's own page (`/offers/{id}`, see docs/features.md#offer-page): its full description, facts, copies and match,
@@ -25,7 +26,7 @@ import { OfferActions, OfferActionsHost } from '../offer-feed/offer-actions';
  */
 @Component({
   selector: 'app-offer-page',
-  imports: [DatePipe, RouterModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, TranslateModule,
+  imports: [OfferVerdictComponent, DatePipe, RouterModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, TranslateModule,
     OfferCardComponent, ShareToNetworkComponent],
   templateUrl: './offer-page.component.html',
   styleUrls: ['./offer-page.component.scss'],

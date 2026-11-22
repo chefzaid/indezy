@@ -56,6 +56,15 @@ export interface AiChatTurn {
   createdAt: string;
 }
 
+/** What the AI made of a feed offer for the workspace. */
+export interface AiOfferVerdict {
+  offerId: number;
+  goodFit: boolean;
+  verdict: string;
+  dealBreakers: string[];
+  createdAt: string;
+}
+
 export interface AiMessageDraft {
   subject: string;
   body: string;

@@ -46,6 +46,7 @@
         <mat-icon>open_in_new</mat-icon>{{ 'offers.page.openOnSite' | translate: { site: offer.siteName } }}
       </a>
     </div>
+    <app-offer-verdict [offerId]="offer.id"></app-offer-verdict>
     @if (offer.hidden) {
       <p class="hint" data-offer-hidden>{{ 'offers.page.hidden' | translate }}</p>
     }

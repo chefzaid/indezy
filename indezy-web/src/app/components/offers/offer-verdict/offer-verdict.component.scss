@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  margin: 16px 0;
+}
+
+.offer-verdict {
+  padding: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+.verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 0 0;
+
+  mat-icon {
+    flex: none;
+    color: var(--app-chip-danger-text);
+  }
+
+  &.good mat-icon {
+    color: var(--app-chip-positive-text);
+  }
+}
+
+.breakers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: var(--app-chip-danger-bg);
+    color: var(--app-chip-danger-text);
+    font-size: 0.8125rem;
+  }
+}
+
+.hint {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.error {
+  margin: 8px 0 0;
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}
+
+mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}

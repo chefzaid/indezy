@@ -38,6 +38,7 @@ The **Market** button opens a **Market snapshot** of what your filters find: off
 - **I applied** records how (**The site's form**, **Email** or **Phone**) and when. The mission joins the pipeline with an application step and, if you tick **Plan a follow-up**, a follow-up in your [calendar](/help/calendar). **Undo the application** forgets it.
 - **Hide every offer from …** blocks a publisher, however its name is spelled. Manage the list in **Profile → Offer feed**.
 - Checkboxes act on several offers at once: **Save**, **Hide**, **Mark seen**, **Add to pipeline**.
+- On an offer's page, **Should I apply? (AI)** says in one line whether the offer is worth applying to for your profile, and lists its deal-breakers (on site every day, a rate under your target, a permanent job posted as freelance...). The answer is kept: **Ask again** after changing your profile.
 
 ## Add an offer to the pipeline
 

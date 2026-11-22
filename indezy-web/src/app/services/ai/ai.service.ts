@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiChatTurn, AiFit, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
+import { AiChatTurn, AiFit, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -42,6 +42,15 @@ export class AiService {
 
   clearChat(projectId: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/chat/${projectId}`);
+  }
+
+  /** The verdict kept on an offer, null when none was asked yet. */
+  offerVerdict(offerId: number): Observable<AiOfferVerdict | null> {
+    return this.http.get<AiOfferVerdict | null>(`${this.API_URL}/offers/${offerId}/verdict`);
+  }
+
+  triageOffer(offerId: number, language: DocumentLanguage): Observable<AiOfferVerdict> {
+    return this.http.post<AiOfferVerdict>(`${this.API_URL}/offers/${offerId}/verdict`, null, { params: { language } });
   }
 
   draftMessage(projectId: number, kind: AiMessageKind, language: DocumentLanguage, notes: string | null): Observable<AiMessageDraft> {

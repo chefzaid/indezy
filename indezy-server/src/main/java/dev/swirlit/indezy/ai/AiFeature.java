@@ -9,5 +9,7 @@ public enum AiFeature {
     /** An opportunity weighed against the profile. */
     FIT,
     /** A conversation about an opportunity. */
-    CHAT
+    CHAT,
+    /** A feed offer's verdict and deal-breakers. */
+    TRIAGE
 }

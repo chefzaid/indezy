@@ -4805,6 +4805,13 @@
       "ask": "Ask",
       "clear": "Clear the conversation",
       "clearConfirm": "Clear the whole conversation about this opportunity?"
+    },
+    "triage": {
+      "title": "Should I apply? (AI)",
+      "ask": "Ask the AI",
+      "again": "Ask again",
+      "hint": "The AI weighs this offer against your profile: one line on whether it is worth applying, and its deal-breakers.",
+      "dealBreakers": "Deal-breakers"
     }
   }
 }

@@ -129,6 +129,7 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkDraft` | `network_drafts` | member (by id) | by hand, once published (by hand or at its time), or with its account |
 | `NetworkHeld` | `network_held` | member (by id) | when an administrator publishes or rejects it, or with its account |
 | `ProjectChatMessage` | `project_chat_messages` | project (by id) | cleared on request, with its project or its account |
+| `OfferVerdict` | `offer_ai_verdicts` | freelance (by id) and offer (by id), one each | asked again, every night once the offer is gone, or with the account |
 | `AiUsage` | `ai_usage` | account (by id), one per month, feature and key | with the account |
 | `PushSubscription` | `push_subscriptions` | account (by id), one per browser (`endpoint` unique) | when the browser turns push off, its push service forgets it, or with the account |
 | `NetworkReview` | `network_reviews` | member (by id), one per company (`company_key`: `siren:` and the SIREN, else `name:` and the name folded) | by its author, or with its account; a rejected or removed one stays, so it is not written again unseen |

@@ -1,0 +1,29 @@
+<section class="offer-verdict" data-offer-verdict aria-labelledby="offer-verdict-title">
+  <div class="head">
+    <h2 id="offer-verdict-title"><mat-icon aria-hidden="true">auto_awesome</mat-icon>{{ 'ai.triage.title' | translate }}</h2>
+    <button mat-stroked-button type="button" (click)="ask()" [disabled]="asking" data-offer-verdict-ask>
+      @if (asking) {
+        <mat-spinner diameter="18" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+      }
+      {{ (verdict ? 'ai.triage.again' : 'ai.triage.ask') | translate }}
+    </button>
+  </div>
+  @if (verdict; as verdict) {
+    <p class="verdict" [class.good]="verdict.goodFit" [attr.data-offer-verdict-fit]="verdict.goodFit">
+      <mat-icon aria-hidden="true">{{ verdict.goodFit ? 'thumb_up' : 'thumb_down' }}</mat-icon>
+      <span>{{ verdict.verdict }}</span>
+    </p>
+    @if (verdict.dealBreakers.length) {
+      <ul class="breakers" [attr.aria-label]="'ai.triage.dealBreakers' | translate" data-offer-deal-breakers>
+        @for (breaker of verdict.dealBreakers; track $index) {
+          <li>{{ breaker }}</li>
+        }
+      </ul>
+    }
+  } @else {
+    <p class="hint">{{ 'ai.triage.hint' | translate }}</p>
+  }
+  @if (errorKey) {
+    <p class="error" role="alert" data-ai-error>{{ errorKey | translate }}</p>
+  }
+</section>

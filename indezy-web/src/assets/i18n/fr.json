@@ -4805,6 +4805,13 @@
       "ask": "Demander",
       "clear": "Effacer la conversation",
       "clearConfirm": "Effacer toute la conversation sur cette opportunité ?"
+    },
+    "triage": {
+      "title": "Postuler ? (IA)",
+      "ask": "Demander à l'IA",
+      "again": "Demander à nouveau",
+      "hint": "L'IA évalue cette offre face à votre profil : une ligne pour dire si elle vaut une candidature, et ses points bloquants.",
+      "dealBreakers": "Points bloquants"
     }
   }
 }

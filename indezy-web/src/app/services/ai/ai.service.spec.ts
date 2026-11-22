@@ -30,6 +30,10 @@ describe('AiService', () => {
     expect(http.expectOne(`${url}/chat/4`).request.body).toEqual({ text: 'Comment préparer ?' });
     service.clearChat(4).subscribe();
     expect(http.expectOne(`${url}/chat/4`).request.method).toBe('DELETE');
+    service.offerVerdict(9).subscribe(verdict => expect(verdict).toBeNull());
+    http.expectOne(`${url}/offers/9/verdict`).flush(null, { status: 204, statusText: 'No Content' });
+    service.triageOffer(9, 'FR').subscribe();
+    expect(http.expectOne(`${url}/offers/9/verdict?language=FR`).request.method).toBe('POST');
     service.draftMessage(4, 'FOLLOW_UP', 'FR', null).subscribe();
     expect(http.expectOne(`${url}/message`).request.body).toEqual({ projectId: 4, kind: 'FOLLOW_UP', language: 'FR', notes: null });
     http.verify();

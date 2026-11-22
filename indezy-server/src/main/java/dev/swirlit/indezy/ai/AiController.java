@@ -12,12 +12,14 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,6 +37,7 @@ public class AiController {
     private final MessageAiService messages;
     private final FitAiService fits;
     private final ChatAiService chats;
+    private final OfferTriageAiService triage;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -135,5 +138,19 @@ public class AiController {
     public void clearChat(@PathVariable Long projectId) {
         accessGuard.requireProject(projectId);
         chats.clear(projectId);
+    }
+
+    @Operation(summary = "The AI verdict kept on a feed offer for the workspace", description = "204 when none was asked yet")
+    @GetMapping("/offers/{offerId}/verdict")
+    public ResponseEntity<OfferTriageAiService.Verdict> verdict(@PathVariable Long offerId) {
+        return triage.stored(accessGuard.requireWorkspace(null), offerId).map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
+    @Operation(summary = "Ask the AI whether a feed offer is worth applying to, and its deal-breakers")
+    @PostMapping("/offers/{offerId}/verdict")
+    public OfferTriageAiService.Verdict triage(@PathVariable Long offerId, @RequestParam(required = false) DocumentLanguage language) {
+        return triage.triage(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), offerId,
+            language == null ? DocumentLanguage.FR : language);
     }
 }
