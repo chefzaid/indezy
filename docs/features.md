@@ -225,6 +225,19 @@ dossier "Client communiqué sur demande", and initials instead of the name), the
 the tech stack. Nothing in it is written by AI (`GET /api/users/dossier?layout=NAMED|ANONYMOUS&language=FR|EN`); the
 **Tailored dossier (AI)** on an opportunity's page is the AI version (see [AI Features](#ai-features)).
 
+### Profile Import
+
+**Import my profile** on the personal information fills the form from a CV read by AI (see [AI Features](#ai-features))
+or from LinkedIn's data archive, read without AI (`POST /api/users/profile-import/linkedin`, the ZIP of **Get a copy of
+your data**, 20 MB at most, nothing kept): `Profile.csv` gives the name, the place's town, the summary (else the
+headline) and the websites (GitHub apart), `PhoneNumbers.csv` the phone, `Positions.csv` the running position (else the
+latest) as title and company, `Skills.csv` the skills, each with the years of the dated positions whose title or
+description names it (overlaps counted once), and `Languages.csv` the languages under the profile's names (English
+becomes Anglais). Columns are found by their names and notes above a header skipped; the archive's other files are not
+read, and an archive of over 2,000 files, a file of over 5 MB in it or a file that is not one is refused. Both end on the
+same review: each field found beside the profile's value, ticked when the profile's is empty, new skills and languages
+added, and nothing saved until the profile is.
+
 ### Public Profile
 
 **Profile → Public profile** publishes, once turned on, a page at `/p/<address>` that anyone with the link can read:
@@ -704,7 +717,7 @@ never saved or sent on its own:
   dossier's language. The AI only rewords: a skill it names that the profile lacks is dropped, a mission without a
   description gets none, the summary is cut at 900 characters, and the name, contact details and clients are never sent
   to it. Nothing is kept.
-- **Import from my CV (AI)** on the profile's personal information (`POST /api/ai/profile-import`, a PDF, Word `.docx` or
+- **Import my profile → Choose my CV** on the profile's personal information (`POST /api/ai/profile-import`, a PDF, Word `.docx` or
   OpenDocument `.odt` of 10 MB at most, its first 20,000 characters read): the name, phone, city, current position and
   company, presentation, links, languages and skills with their years, nothing it does not state. A review shows each
   field found beside the profile's value, ticked when the profile's field is empty and unticked when it differs, the

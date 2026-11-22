@@ -226,6 +226,25 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     expect(saved[0]['position']).not.toBe('Lead Java');
   });
 
+  test(`fills the profile in from LinkedIn's archive without AI (${language}, ${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await mockWorkspaceData(page, language);
+    await page.route('**/api/users/profile-import/linkedin', route => route.fulfill({ json: { firstName: 'Workspace', lastName: 'Test',
+      phone: '+33 6 12 34 56 78', city: 'Lyon', position: null, company: 'Alice Conseil', bio: null, website: null, linkedin: null,
+      github: 'https://github.com/alice', languages: ['Anglais'], skills: [{ name: 'Kafka', years: 2 }] } }));
+    await page.goto('/profile');
+    await page.locator('[data-cv-import]').click();
+    const dialog = page.getByRole('dialog');
+    await dialog.locator('[data-cv-import-linkedin-file]').setInputFiles({ name: 'Basic_LinkedInDataExport.zip', mimeType: 'application/zip',
+      buffer: Buffer.from('PK') });
+    await expect(dialog.locator('[data-cv-import-row="company"] input')).toBeChecked();
+    await expect(dialog.locator('[data-cv-import-row="github"]')).toContainText('github.com/alice');
+    await expect(dialog.locator('[data-cv-import-row="firstName"]')).toHaveCount(0);
+    await dialog.locator('[data-cv-import-apply]').click();
+    await expect(dialog).toBeHidden();
+  });
+
   test(`shows the AI allowance and takes the member's own key (${language}, ${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);

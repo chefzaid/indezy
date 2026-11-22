@@ -14,9 +14,9 @@ Add up to three screenshots or a PDF to a request to support. See [Frequently as
 
 The help panel (**?** at the top) now searches all the help, and offers **Report a problem**, **Suggest a feature** and **My requests**. See [Getting started](/help/getting-started).
 
-### Your profile from your CV
+### Your profile from your CV or LinkedIn
 
-Fill in your profile from your CV with AI: you tick what to take, and nothing is saved until you save your profile. See [Account, security and data](/help/account).
+Fill in your profile from your CV with AI, or from LinkedIn's archive of your data without AI: you tick what to take, and nothing is saved until you save your profile. See [Account, security and data](/help/account).
 
 ### This week's goal
 

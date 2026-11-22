@@ -81,7 +81,7 @@ public class ProfileImportAiService {
         return clean(reading);
     }
 
-    static Reading clean(Reading reading) {
+    public static Reading clean(Reading reading) {
         return new Reading(blank(reading.firstName()), blank(reading.lastName()), blank(reading.phone()), blank(reading.city()),
             blank(reading.position()), blank(reading.company()), blank(reading.bio()), blank(reading.website()), blank(reading.linkedin()),
             blank(reading.github()),

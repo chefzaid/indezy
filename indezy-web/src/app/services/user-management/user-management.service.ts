@@ -9,6 +9,7 @@ import {
   PasswordChangeRequest,
   WorkspaceImportReport
 } from '../../models/user-management.models';
+import { AiProfileImport } from '../../models/ai.models';
 
 export interface SecuritySettings {
   twoFactorEnabled: boolean;
@@ -42,6 +43,13 @@ export class UserManagementService {
     const formData = new FormData();
     formData.append('file', file, filename);
     return this.http.post(`${this.API_URL}/avatar`, formData, { responseType: 'text' });
+  }
+
+  /** LinkedIn's data archive (the ZIP of Get a copy of your data) read into the profile's fields, nothing saved. */
+  linkedInImport(file: File): Observable<AiProfileImport> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<AiProfileImport>(`${this.API_URL}/profile-import/linkedin`, form);
   }
 
   // Password Management

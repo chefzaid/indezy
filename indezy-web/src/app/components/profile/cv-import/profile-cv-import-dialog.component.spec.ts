@@ -7,12 +7,14 @@ import { of, throwError } from 'rxjs';
 import { AiProfileImport, UserProfile } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { CV_IMPORT_SKILLS_MAX, CvImportData, ProfileCvImportDialogComponent } from './profile-cv-import-dialog.component';
 
 describe('ProfileCvImportDialogComponent', () => {
   let ai: jasmine.SpyObj<AiService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let dialogRef: jasmine.SpyObj<MatDialogRef<ProfileCvImportDialogComponent>>;
+  let users: jasmine.SpyObj<UserManagementService>;
 
   const reading: AiProfileImport = {
     firstName: 'Alice', lastName: 'Martin', phone: null, city: 'Lyon', position: 'Lead Java', company: null, bio: 'b'.repeat(600),
@@ -24,25 +26,26 @@ describe('ProfileCvImportDialogComponent', () => {
     ai = jasmine.createSpyObj('AiService', ['profileImport']);
     notifications = jasmine.createSpyObj('NotificationService', ['error']);
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    users = jasmine.createSpyObj('UserManagementService', ['linkedInImport']);
     const data: CvImportData = { current, languages: ['Français', 'Anglais'] };
     TestBed.configureTestingModule({
       imports: [ProfileCvImportDialogComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: NotificationService, useValue: notifications }, { provide: MatDialogRef, useValue: dialogRef },
-        { provide: MAT_DIALOG_DATA, useValue: data }]
+        { provide: MAT_DIALOG_DATA, useValue: data }, { provide: UserManagementService, useValue: users }]
     });
     const fixture = TestBed.createComponent(ProfileCvImportDialogComponent);
     fixture.detectChanges();
     return fixture.componentInstance;
   }
 
-  function pick(component: ProfileCvImportDialogComponent): void {
+  function pick(component: ProfileCvImportDialogComponent, linkedIn = false): void {
     const input = document.createElement('input');
     input.type = 'file';
     const files = new DataTransfer();
     files.items.add(new File(['%PDF'], 'cv.pdf'));
     input.files = files.files;
-    component.read({ target: input } as unknown as Event);
+    component.read({ target: input } as unknown as Event, linkedIn);
   }
 
   it('shows what the CV says beside the profile, ticked where the profile is empty, and fills in only what is ticked', () => {
@@ -95,5 +98,21 @@ describe('ProfileCvImportDialogComponent', () => {
     // No file chosen: nothing is read.
     component.read({ target: document.createElement('input') } as unknown as Event);
     expect(ai.profileImport).toHaveBeenCalledTimes(2);
+  });
+
+  it('reads LinkedIn\'s archive without AI, saying when the file is not one', () => {
+    const component = create({ firstName: 'Alice' });
+    users.linkedInImport.and.returnValue(of({ ...reading, bio: null }));
+    pick(component, true);
+    expect(users.linkedInImport).toHaveBeenCalled();
+    expect(ai.profileImport).not.toHaveBeenCalled();
+    expect(component.rows.map(row => row.field)).toContain('city');
+
+    users.linkedInImport.and.returnValue(throwError(() => new HttpErrorResponse({ status: 400 })));
+    pick(component, true);
+    expect(notifications.error).toHaveBeenCalledWith('profile.cvImport.notLinkedIn');
+    users.linkedInImport.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    pick(component, true);
+    expect(notifications.error).toHaveBeenCalledWith('profile.cvImport.readError');
   });
 });

@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AiProfileImport, SkillDetail, UserProfile } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { UserManagementService } from '../../../services/user-management/user-management.service';
 
 /** At most this many skills on a profile, as the skills editor keeps. */
 export const CV_IMPORT_SKILLS_MAX = 50;
@@ -42,8 +43,8 @@ const FIELDS: { field: TextField; label: string }[] = [
 ];
 
 /**
- * Fills the profile from a CV with AI (see docs/features.md#ai-features): the CV is read on the server and nothing is
- * kept there; what it says is shown beside what the profile holds, ticked where the profile is empty, and only what is
+ * Fills the profile from a CV with AI (see docs/features.md#ai-features), or from LinkedIn's data archive without AI
+ * (docs/features.md#profile-import): the file is read on the server and nothing is kept there; what it says is shown beside what the profile holds, ticked where the profile is empty, and only what is
  * ticked goes into the form, to review and save as usual. Skills and languages the profile lacks are added, never removed.
  */
 @Component({
@@ -57,14 +58,21 @@ const FIELDS: { field: TextField; label: string }[] = [
         <p class="hint">{{ 'profile.cvImport.hint' | translate }}</p>
         <input #file type="file" accept=".pdf,.docx,.odt" hidden (change)="read($event)" data-cv-import-file
           [attr.aria-label]="'profile.cvImport.pick' | translate">
-        <button mat-stroked-button type="button" (click)="file.click()" [disabled]="loading" data-cv-import-pick>
-          @if (loading) {
-            <mat-spinner diameter="18" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
-          } @else {
-            <mat-icon>upload_file</mat-icon>
-          }
-          {{ (loading ? 'profile.cvImport.reading' : 'profile.cvImport.pick') | translate }}
-        </button>
+        <input #archive type="file" accept=".zip,application/zip" hidden (change)="read($event, true)" data-cv-import-linkedin-file
+          [attr.aria-label]="'profile.cvImport.pickLinkedIn' | translate">
+        <div class="picks">
+          <button mat-stroked-button type="button" (click)="file.click()" [disabled]="loading" data-cv-import-pick>
+            <mat-icon>upload_file</mat-icon>{{ 'profile.cvImport.pick' | translate }}
+          </button>
+          <button mat-stroked-button type="button" (click)="archive.click()" [disabled]="loading" data-cv-import-linkedin>
+            <mat-icon>folder_zip</mat-icon>{{ 'profile.cvImport.pickLinkedIn' | translate }}
+          </button>
+        </div>
+        <p class="hint">{{ 'profile.cvImport.linkedInHint' | translate }}</p>
+        @if (loading) {
+          <p class="loading"><mat-spinner diameter="18" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+            {{ 'profile.cvImport.reading' | translate }}</p>
+        }
       } @else {
         @if (!rows.length && !skills.length && !languages.length) {
           <p data-cv-import-nothing>{{ 'profile.cvImport.nothing' | translate }}</p>
@@ -111,6 +119,8 @@ const FIELDS: { field: TextField; label: string }[] = [
   `,
   styles: [`
     .hint { color: var(--mat-sys-on-surface-variant); }
+    .picks { display: flex; flex-wrap: wrap; gap: 8px; }
+    .loading { display: flex; align-items: center; gap: 8px; }
     .rows { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
     .rows li { display: flex; flex-direction: column; }
     .current { margin-left: 40px; font-size: 0.85em; color: var(--mat-sys-on-surface-variant); }
@@ -119,6 +129,7 @@ const FIELDS: { field: TextField; label: string }[] = [
 })
 export class ProfileCvImportDialogComponent {
   private readonly ai = inject(AiService);
+  private readonly users = inject(UserManagementService);
   private readonly notifications = inject(NotificationService);
   private readonly dialogRef = inject<MatDialogRef<ProfileCvImportDialogComponent, Partial<UserProfile>>>(MatDialogRef);
   private readonly data = inject<CvImportData>(MAT_DIALOG_DATA);
@@ -141,7 +152,8 @@ export class ProfileCvImportDialogComponent {
       (this.takeLanguages && this.languages.length > 0);
   }
 
-  read(event: Event): void {
+  /** Reads a CV with AI, or LinkedIn's data archive without it. */
+  read(event: Event, linkedIn = false): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     input.value = '';
@@ -149,7 +161,7 @@ export class ProfileCvImportDialogComponent {
       return;
     }
     this.loading = true;
-    this.ai.profileImport(file).subscribe({
+    (linkedIn ? this.users.linkedInImport(file) : this.ai.profileImport(file)).subscribe({
       next: reading => {
         this.loading = false;
         this.show(reading);
@@ -157,7 +169,8 @@ export class ProfileCvImportDialogComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.loading = false;
-        this.notifications.error(error.status === 400 ? 'profile.cvImport.unreadable' : aiErrorKey(error));
+        this.notifications.error(error.status === 400 ? (linkedIn ? 'profile.cvImport.notLinkedIn' : 'profile.cvImport.unreadable') :
+          linkedIn ? 'profile.cvImport.readError' : aiErrorKey(error));
         this.changes.markForCheck();
       }
     });

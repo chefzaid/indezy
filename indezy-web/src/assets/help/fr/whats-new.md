@@ -14,9 +14,9 @@ Ajoutez jusqu'à trois captures ou un PDF à une demande au support. Voir [Quest
 
 Le panneau d'aide (**?** en haut) cherche maintenant dans toute l'aide, et propose **Signaler un problème**, **Proposer une fonctionnalité** et **Mes demandes**. Voir [Prise en main](/help/getting-started).
 
-### Votre profil depuis votre CV
+### Votre profil depuis votre CV ou LinkedIn
 
-Remplissez votre profil depuis votre CV avec l'IA : vous cochez ce que vous reprenez, et rien n'est enregistré avant que vous enregistriez votre profil. Voir [Compte, sécurité et données](/help/account).
+Remplissez votre profil depuis votre CV avec l'IA, ou depuis l'archive de vos données LinkedIn sans IA : vous cochez ce que vous reprenez, et rien n'est enregistré avant que vous enregistriez votre profil. Voir [Compte, sécurité et données](/help/account).
 
 ### L'objectif de la semaine
 
