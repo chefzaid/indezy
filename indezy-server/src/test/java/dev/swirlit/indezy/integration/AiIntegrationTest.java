@@ -67,6 +67,10 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = "{\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}}";
             } else if (body.contains("PLEASE-REFUSE")) {
                 answer = message("", "refusal");
+            } else if (body.contains("You prepare a French freelance IT consultant's application")) {
+                answer = message("{\"subject\":\"Candidature Lead Kotlin\",\"message\":\"" + "Bonjour ".repeat(60) + "\"," +
+                    "\"screening\":[{\"question\":\"Disponibilité\",\"answer\":\"Dès janvier.\"},{\"question\":\" \",\"answer\":\"x\"}]," +
+                    "\"rate\":620,\"rateReasons\":[\"Kotlin rare\",\" \"]}", "end_turn");
             } else if (body.contains("You coach")) {
                 answer = message("{\"technical\":[{\"question\":\"Kafka exactly-once ?\",\"hint\":\"Idempotence.\"},{\"question\":\" \",\"hint\":\"x\"}]," +
                     "\"behavioural\":[{\"question\":\"Un conflit ?\",\"hint\":null}],\"pitch\":\" Bonjour, je suis Alice. \",\"toAsk\":[\"Taille de l'équipe ?\",\"\"]}",
@@ -326,6 +330,20 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(BODIES.getLast()).contains("Rate offered: 600 EUR", "Rate the client pays the ESN: 750 EUR", "20 % of the client rate");
         assertThat(call(bob, HttpMethod.POST, "/ai/negotiation/" + negotiated, null, String.class).getStatusCode())
             .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
+
+        // An application pack for a feed offer: the LinkedIn message cut to 300 characters, without a subject; an email keeps it.
+        long packed = offers.save(offer()).getId();
+        Map<String, Object> linkedin = call(alice, HttpMethod.POST, "/ai/offers/" + packed + "/pack?channel=LINKEDIN&language=FR", null,
+            Map.class).getBody();
+        assertThat((String) linkedin.get("message")).hasSizeLessThanOrEqualTo(300).endsWith("…");
+        assertThat(linkedin).containsEntry("subject", "").containsEntry("rate", 620);
+        assertThat((List<Map<String, Object>>) linkedin.get("screening")).hasSize(1);
+        assertThat((List<String>) linkedin.get("rateReasons")).containsExactly("Kotlin rare");
+        assertThat(BODIES.getLast()).contains("a LinkedIn message of 300 characters", "Lead Kotlin");
+        assertThat(call(alice, HttpMethod.POST, "/ai/offers/" + packed + "/pack", null, Map.class).getBody())
+            .containsEntry("subject", "Candidature Lead Kotlin");
+        jdbcTemplate.update("DELETE FROM job_offer_skills WHERE offer_id = ?", packed);
+        offers.deleteById(packed);
 
         // The next interview prepared from the opportunity, its steps and the profile; blank points dropped.
         Map<String, Object> interview = call(alice, HttpMethod.POST, "/ai/interview/" + negotiated + "?language=FR", null, Map.class).getBody();

@@ -77,6 +77,10 @@ Le panneau s'ouvre de lui-même tant que vous n'avez aucune recherche enregistr�
 
 Le nom de l'éditeur sur une carte ouvre ce qu'il publie dans le fil : ses missions ouvertes, leur TJM médian et leur âge, la part qu'il republie, ses sites, et s'il figure dans vos clients. **Masquer ses offres** le bloque.
 
+## Préparer ma candidature (IA)
+
+Sur la page d'une offre, **Préparer ma candidature (IA)** rédige le message pour un e-mail à l'ESN, une proposition Malt ou un message LinkedIn (300 caractères), vos réponses aux questions de présélection habituelles et un TJM à proposer avec ses raisons. Modifiez et copiez le message, puis **Ajouter au pipeline avec cette candidature** pour la garder dans le journal de la nouvelle opportunité, où **Dossier adapté (IA)** télécharge le dossier pour elle.
+
 ## Les éditeurs que vous connaissez
 
 **Déjà travaillé avec** signale une offre d'une entreprise avec qui vous avez remporté une mission, comme client ou comme ESN. **Non-sollicitation** signale celle du client final d'une mission réalisée via une ESN dont la clause de non-sollicitation court encore : survolez-la pour voir l'ESN et jusqu'à quand y prendre une mission sans elle enfreint la clause.

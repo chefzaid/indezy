@@ -4942,6 +4942,27 @@
       "keep": "Keep as a note",
       "kept": "Kept in the journal",
       "keepError": "The note could not be kept."
+    },
+    "pack": {
+      "title": "Prepare my application (AI)",
+      "channel": "Channel",
+      "channels": {
+        "ESN_EMAIL": "ESN email",
+        "MALT": "Malt proposal",
+        "LINKEDIN": "LinkedIn message"
+      },
+      "write": "Prepare it",
+      "again": "Prepare again",
+      "busy": "The AI is preparing the application",
+      "subject": "Subject:",
+      "message": "Message",
+      "copy": "Copy",
+      "copied": "Copied",
+      "screening": "Screening questions",
+      "rate": "Rate to propose: {{rate}} €",
+      "add": "Add to pipeline with this pack",
+      "added": "Added to the pipeline, with the pack in its journal",
+      "addError": "The offer could not be added to the pipeline."
     }
   }
 }

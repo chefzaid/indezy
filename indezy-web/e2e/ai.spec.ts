@@ -164,6 +164,24 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(card.locator('[data-offer-deal-breakers]')).toContainText(en ? '5 days on site' : '5 jours sur site');
     const audit = await new AxeBuilder({ page }).include('[data-offer-verdict]').withTags(WCAG).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
+
+    // The application prepared as a LinkedIn message, with the screening answers and a rate.
+    let asked = '';
+    await page.route(/\/api\/ai\/offers\/1\/pack/, route => {
+      asked = route.request().url();
+      return route.fulfill({ json: { subject: '', message: en ? 'Hello, Kotlin lead available in January.' : 'Bonjour, lead Kotlin dispo en janvier.',
+        screening: [{ question: en ? 'Availability' : 'Disponibilité', answer: en ? 'From January.' : 'Dès janvier.' }], rate: 620,
+        rateReasons: [en ? 'Kotlin is rare.' : 'Kotlin est rare.'] } });
+    });
+    const pack = page.locator('[data-offer-pack]');
+    await pack.getByRole('radio', { name: en ? 'LinkedIn message' : 'Message LinkedIn' }).click();
+    await pack.locator('[data-offer-pack-write]').click();
+    await expect(pack.locator('[data-offer-pack-message]')).toHaveValue(en ? 'Hello, Kotlin lead available in January.' :
+      'Bonjour, lead Kotlin dispo en janvier.');
+    expect(asked).toContain('channel=LINKEDIN');
+    await expect(pack).toContainText(en ? 'From January.' : 'Dès janvier.');
+    const packAudit = await new AxeBuilder({ page }).include('[data-offer-pack]').withTags(WCAG).analyze();
+    expect(packAudit.violations.map(violation => violation.id)).toEqual([]);
   });
 
   test(`shows the AI allowance and takes the member's own key (${language}, ${width}px)`, async ({ page }) => {

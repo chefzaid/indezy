@@ -18,6 +18,7 @@ import { OfferCardComponent } from '../offer-card/offer-card.component';
 import { NetworkShare, ShareToNetworkComponent } from '../../network/share/share-to-network.component';
 import { offerShare } from '../../network/share/network-shares';
 import { OfferActions, OfferActionsHost } from '../offer-feed/offer-actions';
+import { OfferPackComponent } from '../offer-pack/offer-pack.component';
 import { OfferVerdictComponent } from '../offer-verdict/offer-verdict.component';
 
 /**
@@ -26,7 +27,7 @@ import { OfferVerdictComponent } from '../offer-verdict/offer-verdict.component'
  */
 @Component({
   selector: 'app-offer-page',
-  imports: [OfferVerdictComponent, DatePipe, RouterModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, TranslateModule,
+  imports: [OfferVerdictComponent, OfferPackComponent, DatePipe, RouterModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, TranslateModule,
     OfferCardComponent, ShareToNetworkComponent],
   templateUrl: './offer-page.component.html',
   styleUrls: ['./offer-page.component.scss'],

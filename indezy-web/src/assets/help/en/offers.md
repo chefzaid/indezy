@@ -77,6 +77,10 @@ The panel opens by itself while you have no saved search, and names the profile 
 
 The publisher's name on a card opens what that publisher puts in the feed: its open missions, their median rate and age, how much it republishes, its sites, and whether it is among your clients. **Hide its offers** blocks it.
 
+## Prepare my application (AI)
+
+On an offer's page, **Prepare my application (AI)** writes the message for an ESN email, a Malt proposal or a LinkedIn message (300 characters), your answers to the usual screening questions and a rate to propose with its reasons. Edit and copy the message, then **Add to pipeline with this pack** to keep it in the new opportunity's journal, where **Tailored dossier (AI)** downloads the dossier for it.
+
 ## Publishers you know
 
 **Worked with** marks an offer from a company you won a mission with, as the client or the ESN. **Non-solicitation** marks one from the end client of a mission you did through an ESN whose non-solicitation clause still runs: hover it to see the ESN and until when taking a mission there without it breaches the clause.

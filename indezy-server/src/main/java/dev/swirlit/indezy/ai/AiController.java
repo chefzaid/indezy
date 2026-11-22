@@ -49,6 +49,7 @@ public class AiController {
     private final AvailabilityAiService availability;
     private final NegotiationAiService negotiations;
     private final InterviewAiService interviews;
+    private final ApplicationPackAiService packs;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -226,6 +227,15 @@ public class AiController {
     @PostMapping("/availability")
     public AvailabilityAiService.Announcement availability(@RequestParam(required = false) DocumentLanguage language) {
         return availability.draft(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null),
+            language == null ? DocumentLanguage.FR : language);
+    }
+
+    @Operation(summary = "Prepare the application to a feed offer: the channel's message, screening answers and a rate to propose")
+    @PostMapping("/offers/{offerId}/pack")
+    public ApplicationPackAiService.Draft pack(@PathVariable Long offerId,
+                                               @RequestParam(defaultValue = "ESN_EMAIL") ApplicationPackAiService.Channel channel,
+                                               @RequestParam(required = false) DocumentLanguage language) {
+        return packs.pack(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), offerId, channel,
             language == null ? DocumentLanguage.FR : language);
     }
 

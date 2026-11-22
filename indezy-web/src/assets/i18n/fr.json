@@ -4942,6 +4942,27 @@
       "keep": "Garder en note",
       "kept": "Gardé dans le journal",
       "keepError": "La note n'a pas pu être gardée."
+    },
+    "pack": {
+      "title": "Préparer ma candidature (IA)",
+      "channel": "Canal",
+      "channels": {
+        "ESN_EMAIL": "E-mail à l’ESN",
+        "MALT": "Proposition Malt",
+        "LINKEDIN": "Message LinkedIn"
+      },
+      "write": "La préparer",
+      "again": "Préparer à nouveau",
+      "busy": "L'IA prépare la candidature",
+      "subject": "Objet :",
+      "message": "Message",
+      "copy": "Copier",
+      "copied": "Copié",
+      "screening": "Questions de présélection",
+      "rate": "TJM à proposer : {{rate}} €",
+      "add": "Ajouter au pipeline avec cette candidature",
+      "added": "Ajoutée au pipeline, avec la candidature dans son journal",
+      "addError": "L'offre n'a pas pu être ajoutée au pipeline."
     }
   }
 }

@@ -66,6 +66,18 @@ export interface AiInterview {
   toAsk: string[];
 }
 
+/** Where an application goes. */
+export type AiPackChannel = 'ESN_EMAIL' | 'MALT' | 'LINKEDIN';
+
+/** An application prepared for a feed offer: the channel's message, screening answers and a rate to propose. */
+export interface AiApplicationPack {
+  subject: string;
+  message: string;
+  screening: { question: string; answer: string }[];
+  rate: number;
+  rateReasons: string[];
+}
+
 /** How to polish a message: spelling and grammar only, more formal, warmer, or shorter. */
 export type AiPolishTone = 'KEEP' | 'FORMAL' | 'FRIENDLY' | 'SHORTER';
 

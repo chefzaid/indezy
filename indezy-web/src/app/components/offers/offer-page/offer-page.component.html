@@ -47,6 +47,9 @@
       </a>
     </div>
     <app-offer-verdict [offerId]="offer.id"></app-offer-verdict>
+    @if (!offer.importedProjectId) {
+      <app-offer-pack [offerId]="offer.id"></app-offer-pack>
+    }
     @if (offer.hidden) {
       <p class="hint" data-offer-hidden>{{ 'offers.page.hidden' | translate }}</p>
     }

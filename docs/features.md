@@ -675,6 +675,12 @@ never saved or sent on its own:
   dossier's language. The AI only rewords: a skill it names that the profile lacks is dropped, a mission without a
   description gets none, the summary is cut at 900 characters, and the name, contact details and clients are never sent
   to it. Nothing is kept.
+- **Prepare my application (AI)** on a feed offer's page not yet in the pipeline (`POST /api/ai/offers/{offerId}/pack?channel=ESN_EMAIL|MALT|LINKEDIN`):
+  the message in the channel's format (an ESN email with its subject, a Malt proposal, a LinkedIn message cut to 300
+  characters), editable and copied, the answers to the usual screening questions (availability, notice, rate, remote)
+  and a rate to propose with its reasons, from the offer, the profile, its availability date and the feed's median for
+  the offer's first skill. **Add to pipeline with this pack** adds the offer as a Contact-stage opportunity, keeps the
+  pack in its journal and opens it, where **Tailored dossier (AI)** is.
 - **Should I apply? (AI)** on a feed offer's page (`GET`/`POST /api/ai/offers/{offerId}/verdict`): one line on whether
   the offer is worth applying to for the profile (skills, target rate, town) and its deal-breakers (on site every day, a
   rate under the target, a permanent job posted as freelance, portage required, a start date passed, required skills the

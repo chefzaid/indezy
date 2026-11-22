@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiAvailability, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
+import { AiApplicationPack, AiAvailability, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -58,6 +58,10 @@ export class AiService {
 
   triageOffer(offerId: number, language: DocumentLanguage): Observable<AiOfferVerdict> {
     return this.http.post<AiOfferVerdict>(`${this.API_URL}/offers/${offerId}/verdict`, null, { params: { language } });
+  }
+
+  applicationPack(offerId: number, channel: AiPackChannel, language: DocumentLanguage): Observable<AiApplicationPack> {
+    return this.http.post<AiApplicationPack>(`${this.API_URL}/offers/${offerId}/pack`, null, { params: { channel, language } });
   }
 
   interview(projectId: number, language: DocumentLanguage): Observable<AiInterview> {
