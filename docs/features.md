@@ -673,8 +673,10 @@ never saved or sent on its own:
   around it.
 - **Prepare the interview (AI)** on an opportunity (`POST /api/ai/interview/{projectId}`): up to six technical and six
   behavioural questions it will likely ask, each with a hint drawn from the profile, a two-minute pitch for this mission
-  to copy, and up to six questions to ask, from the opportunity, its steps so far (with their notes) and the profile;
-  **Keep as a note** puts it in the journal as Markdown. A mock interview is a conversation in **Ask the AI about this
+  to copy, and up to six questions to ask, from the opportunity, its steps so far (with their notes), the profile and
+  what the [company health check](#company-health-check) says of the client and the ESN when they have a SIREN (in
+  business, closed, or under proceedings since a date, which brings questions on the mission's stability and how
+  invoices are paid); **Keep as a note** puts it in the journal as Markdown. A mock interview is a conversation in **Ask the AI about this
   opportunity**.
 - **Prepare the negotiation (AI)** on an opportunity (`POST /api/ai/negotiation/{projectId}`): a counter-offer, the rate
   below which to walk away (never above the counter-offer), a strategy and up to five arguments for the call, from the
@@ -1419,7 +1421,8 @@ how many opportunities could not be placed, and links the profile when it has no
 **Professional kilometres** on the Timesheets page downloads this year's or last year's kilometres as CSV for the
 accountant to claim mileage (frais réels or indemnités kilométriques): a row per month and mission with the client, the
 days on site of its validated activity report (half days counting half), the round trip by car and their product, then
-the total (`GET /api/commute/kilometres/{freelanceId}/{year}?language=FR`, French decimals and headers, or `EN`). A
+a total per client (its days on site and kilometres, clients by name, those without a known route left out) and the
+year's total (`GET /api/commute/kilometres/{freelanceId}/{year}?language=FR`, French decimals and headers, or `EN`). A
 mission whose route is unknown keeps its days with the kilometres left blank; client names stay text in spreadsheets.
 The amount on the official scale is not computed: its yearly rates wait on the owner (see TODO.md).
 

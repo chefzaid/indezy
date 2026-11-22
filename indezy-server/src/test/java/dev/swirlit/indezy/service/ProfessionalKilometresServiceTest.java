@@ -78,6 +78,8 @@ class ProfessionalKilometresServiceTest {
                 "2026-02;'=Banque;Lead Java;12;56,7;680,4\r\n" +
                 "2026-02;;Audit;4;;\r\n" +
                 "2026-03;'=Banque;Lead Java;10,5;56,7;595,4\r\n" +
+                // A total per client whose trip is known, then the year's.
+                "Total;'=Banque;;22,5;;1275,8\r\n" +
                 "Total;;;;;1275,8\r\n");
         // Each mission's distance is looked up once.
         verify(commutes, times(1)).drivingMeters(bank);

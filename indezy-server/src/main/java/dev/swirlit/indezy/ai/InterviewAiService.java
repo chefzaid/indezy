@@ -2,7 +2,9 @@ package dev.swirlit.indezy.ai;
 
 import com.anthropic.models.messages.OutputConfig;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import dev.swirlit.indezy.dto.CompanyHealthDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
@@ -12,14 +14,18 @@ import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.UserRepository;
+import dev.swirlit.indezy.service.CompanyHealthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Prepares the next interview of an opportunity (see docs/features.md#ai-features): the technical and behavioural
@@ -39,13 +45,15 @@ public class InterviewAiService {
         You coach a French freelance IT consultant for their next interview for a mission. From the mission, the steps so
         far and their profile, list the technical questions it will likely ask and the behavioural ones, each with a short
         hint on how to answer from the profile's own experience, write a two-minute pitch for this mission in the first
-        person, and the questions they should ask. Never invent experience the profile does not state. Write in the
-        language asked.""";
+        person, and the questions they should ask. When the company's health says it closed or is under insolvency
+        proceedings, include questions on the mission's stability and how invoices are paid. Never invent experience the
+        profile does not state. Write in the language asked.""";
 
     private final AiService ai;
     private final ProjectRepository projects;
     private final InterviewStepRepository steps;
     private final UserRepository users;
+    private final CompanyHealthService health;
 
     /** A question likely asked, and how to answer it. */
     public record Question(
@@ -78,7 +86,10 @@ public class InterviewAiService {
             .append("Company: ").append(project.getClient() == null ? "" : project.getClient().getCompanyName())
             .append(project.getMiddleman() == null ? "" : ", through the ESN " + project.getMiddleman().getCompanyName()).append('\n')
             .append("Stack: ").append(Objects.toString(project.getTechStack(), "")).append('\n')
-            .append("Description: ").append(description, 0, Math.min(description.length(), DESCRIPTION_MAX)).append("\n</mission>\n<steps>\n");
+            .append("Description: ").append(description, 0, Math.min(description.length(), DESCRIPTION_MAX)).append('\n');
+        Stream.of(project.getClient(), project.getMiddleman()).filter(Objects::nonNull)
+            .forEach(company -> health(company, health.check(company.getSiren())).ifPresent(line -> context.append(line).append('\n')));
+        context.append("</mission>\n<steps>\n");
         steps.findByProjectIdOrderByDate(projectId).stream().limit(STEPS_MAX).forEach(step -> context.append("- ").append(line(step)).append('\n'));
         context.append("</steps>\n");
         if (user != null) {
@@ -93,6 +104,17 @@ public class InterviewAiService {
             OutputConfig.Effort.MEDIUM);
         return new Preparation(questions(answer.technical()), questions(answer.behavioural()), Objects.toString(answer.pitch(), "").strip(),
             answer.toAsk().stream().filter(question -> !question.isBlank()).map(String::strip).limit(LIST_MAX).toList());
+    }
+
+    /** What the public registers say of a company, when they were asked: in business, closed, or under proceedings since a date. */
+    static Optional<String> health(Client company, CompanyHealthDto found) {
+        if (!found.checked()) {
+            return Optional.empty();
+        }
+        String state = found.closed() ? "closed" : found.procedure() == null ? "in business, no insolvency proceedings" :
+            "under insolvency proceedings (" + found.procedure().name().toLowerCase(Locale.ROOT) + ")" +
+                (found.procedureOn() == null ? "" : " since " + found.procedureOn());
+        return Optional.of("Health of " + company.getCompanyName() + ": " + state);
     }
 
     private static String line(InterviewStep step) {

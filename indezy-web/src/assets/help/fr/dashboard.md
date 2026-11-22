@@ -63,7 +63,7 @@ La page d'une opportunité montre sa carte **Trajet** et son TJM effectif, traje
 
 ## Kilomètres professionnels
 
-Sur la page **CRA**, **Kilomètres professionnels** télécharge en CSV les kilomètres de l'année en cours ou de la précédente : une ligne par mois et par mission, avec les jours sur site de ses CRA validés et l'aller-retour en voiture. Le montant au barème fiscal n'est pas calculé : transmettez le fichier à votre comptable.
+Sur la page **CRA**, **Kilomètres professionnels** télécharge en CSV les kilomètres de l'année en cours ou de la précédente : une ligne par mois et par mission, avec les jours sur site de ses CRA validés et l'aller-retour en voiture, puis un total par client et celui de l'année. Le montant au barème fiscal n'est pas calculé : transmettez le fichier à votre comptable.
 
 ## Le résumé hebdomadaire
 
