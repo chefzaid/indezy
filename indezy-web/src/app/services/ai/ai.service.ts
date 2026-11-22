@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiApplicationPack, AiAvailability, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
+import { AiApplicationPack, AiOfferBrief, AiAvailability, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -29,6 +29,10 @@ export class AiService {
     const form = new FormData();
     form.append('file', file);
     return this.http.post<{ text: string; cut: boolean }>(`${this.API_URL}/posting/pdf`, form);
+  }
+
+  offerBrief(text: string): Observable<AiOfferBrief> {
+    return this.http.post<AiOfferBrief>(`${this.API_URL}/offer-brief`, { text });
   }
 
   readPosting(text: string): Observable<AiPosting> {

@@ -39,6 +39,7 @@ import { OfferSelectionBarComponent } from '../offer-selection-bar/offer-selecti
 import { OfferBulkActions, OfferPageHost } from './offer-bulk-actions';
 import { OfferActions, OfferActionsHost } from './offer-actions';
 import { OfferFiltersComponent } from '../offer-filters/offer-filters.component';
+import { OfferBriefDialogComponent, OfferBriefResult } from '../offer-brief-dialog/offer-brief-dialog.component';
 import { OfferMarketComponent } from '../offer-market/offer-market.component';
 import { OfferKeyAction, OfferListKeysDirective } from './offer-list-keys.directive';
 import { OfferSavedSearchesComponent } from '../offer-saved-searches/offer-saved-searches.component';
@@ -156,6 +157,20 @@ export class OfferFeedComponent implements OnInit, OfferPageHost, OfferActionsHo
   get lastUpdate(): string | null {
     const times = this.sites.map(site => site.lastSuccessAt).filter((time): time is string => !!time).sort();
     return times.length ? relativeTime(times[times.length - 1], this.locale) : null;
+  }
+
+  /** Reads what the freelancer looks for into the feed's filters with AI, and says what it could not filter on. */
+  describeSearch(): void {
+    this.dialog.open(OfferBriefDialogComponent, { width: '640px', maxWidth: '96vw', autoFocus: 'textarea' }).afterClosed()
+      .subscribe((result?: OfferBriefResult) => {
+        if (!result) {
+          return;
+        }
+        this.onFiltersChange(result.filters);
+        if (result.avoid.length) {
+          this.notifications.info('ai.brief.avoid', 8000, { avoid: result.avoid.join(', ') });
+        }
+      });
   }
 
   onFiltersChange(filters: OfferFilters): void {

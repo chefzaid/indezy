@@ -675,6 +675,10 @@ never saved or sent on its own:
   dossier's language. The AI only rewords: a skill it names that the profile lacks is dropped, a mission without a
   description gets none, the summary is cut at 900 characters, and the name, contact details and clients are never sent
   to it. Nothing is kept.
+- **Describe my search (AI)** above the offer feed (`POST /api/ai/offer-brief`, 2,000 characters at most): what the
+  freelancer looks for in their own words set as the feed's filters (skills, minimum rate, remote days, work modes,
+  regions by name, latest start, minimum duration, keywords), every other filter cleared, ready to save as a search;
+  what to avoid (a sector, a client) is said back, the feed not filtering on it yet.
 - **Prepare my application (AI)** on a feed offer's page not yet in the pipeline (`POST /api/ai/offers/{offerId}/pack?channel=ESN_EMAIL|MALT|LINKEDIN`):
   the message in the channel's format (an ESN email with its subject, a Malt proposal, a LinkedIn message cut to 300
   characters), editable and copied, the answers to the usual screening questions (availability, notice, rate, remote)

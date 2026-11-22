@@ -4963,6 +4963,15 @@
       "add": "Add to pipeline with this pack",
       "added": "Added to the pipeline, with the pack in its journal",
       "addError": "The offer could not be added to the pipeline."
+    },
+    "brief": {
+      "open": "Describe my search (AI)",
+      "title": "What are you looking for?",
+      "hint": "Say it in your own words: the AI sets the feed’s filters, which you can then save as a search.",
+      "text": "What you look for",
+      "placeholder": "Java and Kafka, 650 € a day at least, 2 remote days, Île-de-France, starting before March",
+      "read": "Set the filters",
+      "avoid": "The feed cannot leave out yet: {{avoid}}. Hide their publishers from an offer’s menu."
     }
   }
 }

@@ -50,6 +50,7 @@ public class AiController {
     private final NegotiationAiService negotiations;
     private final InterviewAiService interviews;
     private final ApplicationPackAiService packs;
+    private final OfferBriefAiService briefs;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -105,6 +106,23 @@ public class AiController {
     @DeleteMapping("/key")
     public AiDtos.Status removeKey() {
         return ai.removeOwnKey(SecurityUtils.getCurrentUserId());
+    }
+
+    /** What the freelancer looks for, in their words. */
+    public record BriefRequest(@NotBlank @Size(max = OfferBriefAiService.TEXT_MAX) String text) {
+
+        // Spring MVC logs bodies through toString at DEBUG: never the text.
+        @Override
+        public String toString() {
+            return "BriefRequest[length=" + (text == null ? 0 : text.length()) + "]";
+        }
+    }
+
+    @Operation(summary = "Read what the freelancer looks for into the offer feed's filters")
+    @PostMapping("/offer-brief")
+    public OfferBriefAiService.Brief offerBrief(@Valid @RequestBody BriefRequest request) {
+        accessGuard.requireWorkspace(null);
+        return briefs.read(SecurityUtils.getCurrentUserId(), request.text());
     }
 
     @Operation(summary = "Read a job posting into the fields of a new opportunity")

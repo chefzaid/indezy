@@ -31,6 +31,10 @@
         {{ (page.totalElements === 1 ? 'offers.oneResult' : 'offers.results') | translate: { count: page.totalElements } }}
       }
     </span>
+    <button mat-stroked-button type="button" (click)="describeSearch()" data-offer-brief>
+      <mat-icon>auto_awesome</mat-icon>
+      {{ 'ai.brief.open' | translate }}
+    </button>
     <button mat-stroked-button type="button" class="market-toggle" (click)="toggleMarket()" [attr.aria-expanded]="marketOpen"
       aria-controls="offer-market-panel" data-market-toggle>
       <mat-icon>insights</mat-icon>

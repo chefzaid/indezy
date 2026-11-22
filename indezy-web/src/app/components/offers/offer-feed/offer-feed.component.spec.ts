@@ -1,3 +1,4 @@
+import { emptyOfferFilters } from '../../../models';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -41,7 +42,7 @@ describe('OfferFeedComponent', () => {
       'savedSearches', 'alerts', 'market', 'blockPublisher', 'apply', 'withdrawApplication', 'searchSuggestions', 'marketTrends', 'skillsGap']);
     service.marketTrends.and.returnValue(of({ skills: [] }));
     service.skillsGap.and.returnValue(of({ matchingOffers: 0, gaps: [] }));
-    notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
+    notifications = jasmine.createSpyObj('NotificationService', ['success', 'error', 'info']);
     service.search.and.returnValue(of(result));
     service.searchSuggestions.and.returnValue(of({ suggestions: [], missing: [] }));
     service.sites.and.returnValue(of([
@@ -128,6 +129,22 @@ describe('OfferFeedComponent', () => {
     expect(service.search.calls.mostRecent().args[0].sort).toBe('MATCH');
     expect(component.sortUnavailable('MATCH')).toBeFalse();
     expect(text(fixture)).not.toContain('Ajoutez vos compétences à votre profil');
+  });
+
+  it('sets the filters a brief described, and says what it cannot leave out', () => {
+    const component = create({ q: 'java', page: '3' }).componentInstance;
+    const dialog = TestBed.inject(MatDialog);
+    const open = spyOn(dialog, 'open').and.returnValue({ afterClosed: () => of({ filters: { ...emptyOfferFilters(), q: undefined, skills: ['Kafka'], rateMin: 650 },
+      avoid: ['banque'] }) } as never);
+    component.describeSearch();
+    expect(open).toHaveBeenCalled();
+    expect(lastQueryParams()).toEqual(jasmine.objectContaining({ skills: ['Kafka'], rateMin: '650' }));
+    expect(lastQueryParams()['q']).toBeUndefined();
+    expect(notifications.info).toHaveBeenCalledWith('ai.brief.avoid', 8000, { avoid: 'banque' });
+    open.and.returnValue({ afterClosed: () => of(undefined) } as never);
+    navigate.calls.reset();
+    component.describeSearch();
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('searches again when the address changes', () => {

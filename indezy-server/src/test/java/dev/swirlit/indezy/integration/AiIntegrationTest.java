@@ -71,6 +71,10 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = message("{\"subject\":\"Candidature Lead Kotlin\",\"message\":\"" + "Bonjour ".repeat(60) + "\"," +
                     "\"screening\":[{\"question\":\"Disponibilité\",\"answer\":\"Dès janvier.\"},{\"question\":\" \",\"answer\":\"x\"}]," +
                     "\"rate\":620,\"rateReasons\":[\"Kotlin rare\",\" \"]}", "end_turn");
+            } else if (body.contains("You turn what a French freelance")) {
+                answer = message("{\"skills\":[\"Java\",\" Kafka \",\"Java\"],\"rateMin\":650,\"minRemoteDays\":2,\"workModes\":[\"HYBRID\"]," +
+                    "\"regions\":[\"Île-de-France\",\"Atlantide\"],\"startBefore\":\"2027-03-01\",\"durationMin\":0,\"keywords\":\"\"," +
+                    "\"avoid\":[\"banque\"]}", "end_turn");
             } else if (body.contains("You coach")) {
                 answer = message("{\"technical\":[{\"question\":\"Kafka exactly-once ?\",\"hint\":\"Idempotence.\"},{\"question\":\" \",\"hint\":\"x\"}]," +
                     "\"behavioural\":[{\"question\":\"Un conflit ?\",\"hint\":null}],\"pitch\":\" Bonjour, je suis Alice. \",\"toAsk\":[\"Taille de l'équipe ?\",\"\"]}",
@@ -362,6 +366,16 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(announcement).containsEntry("linkedin", "Disponible bientôt pour une mission Java.").containsEntry("network", "Dispo en janvier.")
             .containsEntry("availableFrom", java.time.LocalDate.now().minusMonths(1).plusMonths(3).toString());
         assertThat(BODIES.getLast()).contains("You write the posts", "Available from: ");
+
+        // What Alice looks for, read into the feed's filters: the regions by their code, what was not said left out.
+        Map<String, Object> brief = call(alice, HttpMethod.POST, "/ai/offer-brief", Map.of("text", "Java Kafka, 650 € minimum, 2 jours de télétravail, " +
+            "Île-de-France, pas de banque, avant mars"), Map.class).getBody();
+        assertThat((List<String>) brief.get("skills")).containsExactly("Java", "Kafka");
+        assertThat(brief).containsEntry("rateMin", 650).containsEntry("minRemoteDays", 2).containsEntry("regions", List.of("11"))
+            .containsEntry("startBefore", "2027-03-01").containsEntry("durationMin", null).containsEntry("q", null)
+            .containsEntry("avoid", List.of("banque")).containsEntry("workModes", List.of("HYBRID"));
+        assertThat(call(alice, HttpMethod.POST, "/ai/offer-brief", Map.of("text", " "), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
 
         // A rate suggested for an opportunity being written, its range kept around the rate.
         Map<String, Object> rate = call(alice, HttpMethod.POST, "/ai/rate", Map.of("role", "Lead Kafka", "techStack", "Kafka, Java",

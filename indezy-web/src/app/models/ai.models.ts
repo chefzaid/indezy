@@ -66,6 +66,19 @@ export interface AiInterview {
   toAsk: string[];
 }
 
+/** What the freelancer looks for, read into the feed's filters; null for what was not said. */
+export interface AiOfferBrief {
+  skills: string[];
+  rateMin: number | null;
+  minRemoteDays: number | null;
+  workModes: WorkMode[];
+  regions: string[];
+  startBefore: string | null;
+  durationMin: number | null;
+  q: string | null;
+  avoid: string[];
+}
+
 /** Where an application goes. */
 export type AiPackChannel = 'ESN_EMAIL' | 'MALT' | 'LINKEDIN';
 

@@ -4963,6 +4963,15 @@
       "add": "Ajouter au pipeline avec cette candidature",
       "added": "Ajoutée au pipeline, avec la candidature dans son journal",
       "addError": "L'offre n'a pas pu être ajoutée au pipeline."
+    },
+    "brief": {
+      "open": "Décrire ma recherche (IA)",
+      "title": "Que cherchez-vous ?",
+      "hint": "Dites-le avec vos mots : l'IA règle les filtres du fil, que vous pouvez ensuite enregistrer comme recherche.",
+      "text": "Ce que vous cherchez",
+      "placeholder": "Java et Kafka, 650 € par jour au moins, 2 jours de télétravail, Île-de-France, début avant mars",
+      "read": "Régler les filtres",
+      "avoid": "Le fil ne sait pas encore écarter : {{avoid}}. Masquez leurs éditeurs depuis le menu d'une offre."
     }
   }
 }

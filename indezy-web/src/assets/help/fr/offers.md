@@ -12,6 +12,8 @@ Chaque carte montre le site, l'intitulé, l'éditeur, le TJM, le lieu avec sa di
 
 ## Filtrer et trier
 
+**Décrire ma recherche (IA)** règle les filtres à partir de ce que vous cherchez, dit avec vos mots (« Java et Kafka, 650 € par jour au moins, 2 jours de télétravail, Île-de-France ») ; enregistrez-la ensuite comme recherche.
+
 1. Ouvrez **Filtres**.
 2. Combinez **Mots-clés**, **TJM (HT, par jour)**, **Régions**, **Départements**, **Distance de ma ville**, **Télétravail**, durée, **Démarrage au plus tard le**, **Séniorité**, **Compétences**, **Publiée depuis** et **Sites**.
 3. Cochez au besoin **Seulement les offres non vues**, **Correspond à mon profil** ou **Masquer les offres douteuses**.
