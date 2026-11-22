@@ -22,6 +22,8 @@ describe('AiService', () => {
     expect(http.expectOne(`${url}/key`).request.method).toBe('DELETE');
     service.readPosting('Mission Java').subscribe();
     expect(http.expectOne(`${url}/posting`).request.body).toEqual({ text: 'Mission Java' });
+    service.weigh(4, 'EN', 'Remote first').subscribe();
+    expect(http.expectOne(`${url}/fit`).request.body).toEqual({ projectId: 4, language: 'EN', priorities: 'Remote first' });
     service.draftMessage(4, 'FOLLOW_UP', 'FR', null).subscribe();
     expect(http.expectOne(`${url}/message`).request.body).toEqual({ projectId: 4, kind: 'FOLLOW_UP', language: 'FR', notes: null });
     http.verify();

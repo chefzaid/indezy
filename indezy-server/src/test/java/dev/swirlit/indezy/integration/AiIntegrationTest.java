@@ -51,6 +51,10 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = "{\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}}";
             } else if (body.contains("PLEASE-REFUSE")) {
                 answer = message("", "refusal");
+            } else if (body.contains("<profile>")) {
+                answer = message("{\"score\":140,\"verdict\":\"Une bonne mission.\",\"pros\":[\"Stack Java\",\" \",\"Télétravail\"]," +
+                    "\"cons\":[\"Loin\"],\"softCriteria\":[\"Le style du manager\"],\"questions\":[\"Taille de l'équipe ?\"]," +
+                    "\"rateAdvice\":\"Le TJM est dans le marché.\",\"suggestedRate\":700}", "end_turn");
             } else if (body.contains("<posting>")) {
                 answer = message("{\"role\":\"Développeur Java Senior\",\"company\":\"Conseil X\",\"companyIsIntermediary\":true,\"endClient\":\"\"," +
                     "\"dailyRate\":650,\"techStack\":[\"Java\",\" Spring Boot \",\"Java\",\"\"],\"place\":\"92400 Courbevoie\"," +
@@ -135,6 +139,15 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
             .isEqualTo(HttpStatus.OK);
         assertThat(KEYS.getLast()).isEqualTo("sk-ant-alice-own");
         assertThat(BODIES.getLast()).contains("\"model\":\"claude-haiku-5-5\"");
+
+        // The opportunity weighed against the profile: the score kept within 0 to 100, blank points dropped.
+        Map<String, Object> fit = call(alice, HttpMethod.POST, "/ai/fit", Map.of("projectId", project, "language", "FR",
+            "priorities", "Pas plus de 2 jours sur site"), Map.class).getBody();
+        assertThat(fit).containsEntry("score", 100).containsEntry("verdict", "Une bonne mission.").containsEntry("suggestedRate", 700);
+        assertThat((List<String>) fit.get("pros")).containsExactly("Stack Java", "Télétravail");
+        assertThat(BODIES.getLast()).contains("<profile>", "Java Senior", "Pas plus de 2 jours sur site", "\"effort\":\"medium\"");
+        assertThat(call(bob, HttpMethod.POST, "/ai/fit", Map.of("projectId", project), String.class).getStatusCode())
+            .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
 
         // A refusal, and a key Anthropic refuses, are told as such.
         assertThat(call(alice, HttpMethod.POST, "/ai/posting", Map.of("text", "PLEASE-REFUSE"), Map.class).getBody())

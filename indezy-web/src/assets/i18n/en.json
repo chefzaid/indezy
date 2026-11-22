@@ -4773,6 +4773,22 @@
       "keySaved": "Your key is saved",
       "keyRemoved": "Your key is removed",
       "keyInvalid": "An Anthropic key starts with sk-ant-"
+    },
+    "fit": {
+      "open": "Weigh this opportunity (AI)",
+      "title": "Does this opportunity suit you?",
+      "priorities": "What matters to you (optional)",
+      "prioritiesHint": "For instance: two days on site at most, a team that ships, a 650 € rate",
+      "weigh": "Weigh",
+      "again": "Weigh again",
+      "groups": {
+        "pros": "What fits",
+        "cons": "What may not fit",
+        "softCriteria": "To check",
+        "questions": "Questions to ask",
+        "rate": "The rate"
+      },
+      "suggestedRate": "Rate to ask: {{rate}} € a day"
     }
   }
 }

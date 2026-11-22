@@ -49,6 +49,19 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const messageAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
     expect(messageAudit.violations.map(violation => violation.id)).toEqual([]);
     expect(asked[1]).toEqual(asked42(en));
+    await page.keyboard.press('Escape');
+    await expect(drafting).toHaveCount(0);
+
+    await page.route('**/api/ai/fit', route => route.fulfill({ json: { score: 78, verdict: en ? 'A good match.' : 'Une bonne mission.',
+      pros: ['Java'], cons: [en ? 'Far' : 'Loin'], softCriteria: [], questions: [en ? 'Team size?' : "Taille de l'équipe ?"],
+      rateAdvice: en ? 'Within the market.' : 'Dans le marché.', suggestedRate: 700 } }));
+    await page.locator('[data-ai-fit-open]').click();
+    const weighing = page.getByRole('dialog');
+    await weighing.locator('[data-ai-fit-weigh]').click();
+    await expect(weighing.locator('[data-ai-fit-score]')).toContainText('78');
+    await settleDialog(page);
+    const fitAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
+    expect(fitAudit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 

@@ -390,8 +390,8 @@ Increments, implemented in order:
 ## AI & Automation
 
 - [ ] AI parsing of job descriptions (PDF/URL/email -> structured project: rate, stack, location, duration, suggested skill tags) Partly done on 2026-11-22: **Fill in from a pasted posting (AI)** on a new opportunity reads pasted text (an email or a page copied) into its fields (`docs/features.md#ai-features`); PDFs and links remain.
-- [ ] AI-suggested daily rate based on stack, seniority and market data
-- [ ] AI job-fit analysis: which job is more adapted to your profile, pros vs cons per opportunity, including soft criteria in decision making (management style, team spirit, ...)
+- [ ] AI-suggested daily rate based on stack, seniority and market data Partly done on 2026-11-22: the fit analysis suggests a rate from the profile's target, the skills' years and the feed's median for the main skill; a rate suggestion of its own on the opportunity form remains.
+- [x] AI job-fit analysis: which job is more adapted to your profile, pros vs cons per opportunity, including soft criteria in decision making (management style, team spirit, ...). Done on 2026-11-22: **Weigh this opportunity (AI)**, a score, pros and cons, soft criteria to check, interview questions and rate advice (`docs/features.md#ai-features`); comparing several opportunities side by side remains.
 - [ ] Project recommendation engine combining peer-shared opportunities, skill match, market data, and soft criteria
 - [ ] Auto-adapt CV to postulate for each job with adapted tech stack and experiences
 - [x] AI-generated personalized follow-up and application messages. Done on 2026-11-22: **Draft a message (AI)** on an opportunity, an application, follow-up, thank-you or decline, editable and copied (`docs/features.md#ai-features`).

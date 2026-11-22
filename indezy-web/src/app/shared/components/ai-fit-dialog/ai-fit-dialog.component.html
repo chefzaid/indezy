@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>{{ 'ai.fit.title' | translate }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="weigh()">
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>{{ 'ai.fit.priorities' | translate }}</mat-label>
+      <textarea matInput formControlName="priorities" rows="2" maxlength="1000" data-ai-fit-priorities></textarea>
+      <mat-hint>{{ 'ai.fit.prioritiesHint' | translate }}</mat-hint>
+    </mat-form-field>
+  </form>
+  @if (errorKey) {
+    <p class="error" role="alert" data-ai-error>{{ errorKey | translate }}</p>
+  }
+  @if (fit; as fit) {
+    <div class="result" data-ai-fit>
+      <p [class]="'score ' + band(fit.score)" data-ai-fit-score>
+        <span class="value">{{ fit.score }}</span><span class="unit">/100</span>
+        <span class="verdict">{{ fit.verdict }}</span>
+      </p>
+      @for (group of groups; track group.key) {
+        @if (fit[group.key].length) {
+          <section [attr.data-ai-fit-group]="group.key">
+            <h3><mat-icon aria-hidden="true">{{ group.icon }}</mat-icon>{{ 'ai.fit.groups.' + group.key | translate }}</h3>
+            <ul>
+              @for (point of fit[group.key]; track $index) {
+                <li>{{ point }}</li>
+              }
+            </ul>
+          </section>
+        }
+      }
+      @if (fit.rateAdvice) {
+        <section data-ai-fit-rate>
+          <h3><mat-icon aria-hidden="true">euro</mat-icon>{{ 'ai.fit.groups.rate' | translate }}</h3>
+          <p>{{ fit.rateAdvice }}</p>
+          @if (fit.suggestedRate > 0) {
+            <p class="suggested">{{ 'ai.fit.suggestedRate' | translate: { rate: (fit.suggestedRate | number:'1.0-0') } }}</p>
+          }
+        </section>
+      }
+    </div>
+  }
+  <p class="disclaimer">{{ 'ai.disclaimer' | translate }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>{{ 'common.close' | translate }}</button>
+  <button mat-flat-button color="primary" type="button" (click)="weigh()" [disabled]="weighing" data-ai-fit-weigh>
+    @if (weighing) {
+      <mat-spinner diameter="18" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+    }
+    {{ (fit ? 'ai.fit.again' : 'ai.fit.weigh') | translate }}
+  </button>
+</mat-dialog-actions>

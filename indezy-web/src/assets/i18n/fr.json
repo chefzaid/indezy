@@ -4773,6 +4773,22 @@
       "keySaved": "Votre clé est enregistrée",
       "keyRemoved": "Votre clé est retirée",
       "keyInvalid": "Une clé Anthropic commence par sk-ant-"
+    },
+    "fit": {
+      "open": "Évaluer cette opportunité (IA)",
+      "title": "Cette opportunité vous convient-elle ?",
+      "priorities": "Ce qui compte pour vous (facultatif)",
+      "prioritiesHint": "Par exemple : deux jours sur site au plus, une équipe qui livre, un TJM de 650 €",
+      "weigh": "Évaluer",
+      "again": "Évaluer à nouveau",
+      "groups": {
+        "pros": "Ce qui convient",
+        "cons": "Ce qui peut ne pas convenir",
+        "softCriteria": "À vérifier",
+        "questions": "Questions à poser",
+        "rate": "Le TJM"
+      },
+      "suggestedRate": "TJM à demander : {{rate}} € par jour"
     }
   }
 }

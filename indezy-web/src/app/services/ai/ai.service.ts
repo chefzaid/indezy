@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
+import { AiFit, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -26,6 +26,10 @@ export class AiService {
 
   readPosting(text: string): Observable<AiPosting> {
     return this.http.post<AiPosting>(`${this.API_URL}/posting`, { text });
+  }
+
+  weigh(projectId: number, language: DocumentLanguage, priorities: string | null): Observable<AiFit> {
+    return this.http.post<AiFit>(`${this.API_URL}/fit`, { projectId, language, priorities });
   }
 
   draftMessage(projectId: number, kind: AiMessageKind, language: DocumentLanguage, notes: string | null): Observable<AiMessageDraft> {

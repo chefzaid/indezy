@@ -28,6 +28,7 @@ public class AiController {
     private final AiService ai;
     private final PostingAiService postings;
     private final MessageAiService messages;
+    private final FitAiService fits;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -46,6 +47,15 @@ public class AiController {
         @Override
         public String toString() {
             return "MessageRequest[projectId=" + projectId + ", kind=" + kind + "]";
+        }
+    }
+
+    /** An opportunity to weigh against the profile, with what matters to the freelancer. */
+    public record FitRequest(@NotNull Long projectId, DocumentLanguage language, @Size(max = FitAiService.PRIORITIES_MAX) String priorities) {
+
+        @Override
+        public String toString() {
+            return "FitRequest[projectId=" + projectId + "]";
         }
     }
 
@@ -72,6 +82,14 @@ public class AiController {
     public PostingAiService.Posting posting(@Valid @RequestBody PostingRequest request) {
         accessGuard.requireWorkspace(null);
         return postings.read(SecurityUtils.getCurrentUserId(), request.text());
+    }
+
+    @Operation(summary = "Weigh an opportunity against the profile: fit, pros and cons, soft criteria, questions, rate")
+    @PostMapping("/fit")
+    public FitAiService.Fit fit(@Valid @RequestBody FitRequest request) {
+        accessGuard.requireProject(request.projectId());
+        return fits.weigh(SecurityUtils.getCurrentUserId(), request.projectId(),
+            request.language() == null ? DocumentLanguage.FR : request.language(), request.priorities());
     }
 
     @Operation(summary = "Draft a message about an opportunity: an application, a follow-up, a thank-you or a decline")

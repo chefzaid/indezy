@@ -35,6 +35,19 @@ export type AiMessageKind = 'APPLICATION' | 'FOLLOW_UP' | 'THANK_YOU' | 'DECLINE
 
 export const AI_MESSAGE_KINDS: AiMessageKind[] = ['APPLICATION', 'FOLLOW_UP', 'THANK_YOU', 'DECLINE'];
 
+/** An opportunity weighed against the profile. */
+export interface AiFit {
+  score: number;
+  verdict: string;
+  pros: string[];
+  cons: string[];
+  softCriteria: string[];
+  questions: string[];
+  rateAdvice: string;
+  /** 0 when the context allows no figure. */
+  suggestedRate: number;
+}
+
 export interface AiMessageDraft {
   subject: string;
   body: string;

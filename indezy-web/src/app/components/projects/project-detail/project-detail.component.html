@@ -73,6 +73,9 @@
           }
           <app-non-solicitation-notice [projectId]="project.id!" [freelanceId]="project.freelanceId!"></app-non-solicitation-notice>
           <div class="ai-actions">
+            <button mat-stroked-button type="button" (click)="weighFit()" data-ai-fit-open>
+              <mat-icon>insights</mat-icon>{{ 'ai.fit.open' | translate }}
+            </button>
             <button mat-stroked-button type="button" (click)="draftMessage()" data-ai-message>
               <mat-icon>auto_awesome</mat-icon>{{ 'ai.message.open' | translate }}
             </button>

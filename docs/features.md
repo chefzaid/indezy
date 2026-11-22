@@ -634,6 +634,11 @@ never saved or sent on its own:
 - **Draft a message (AI)** on an opportunity (`POST /api/ai/message`): an application, a follow-up, a thank-you after an
   interview or a decline, in French or English, from the role, the company, the stack, the stage, the description and a
   few words on what to say; the subject and the message are editable and copied in one click.
+- **Weigh this opportunity (AI)** on an opportunity (`POST /api/ai/fit`): a fit score out of 100 and a verdict, what
+  fits and what may not, the soft criteria to check (management, team, pace, remote culture), the questions to ask in
+  the interview, and what to think of the rate against the profile's target and the feed's market median for its main
+  skill, with a rate to ask; from the opportunity, the profile (skills and years, target rate, town, presentation) and
+  what matters to the freelancer.
 - **Profile → Preferences → AI** (`GET /api/ai/status`, `PUT`/`DELETE /api/ai/key`): whether AI can be used and this
   month's allowance on Indezy's key (2 US dollars by default), or the member's own Anthropic key, stored encrypted, with
   Opus, Sonnet or Haiku 5.5, which no limit applies to. An allowance used up, Indezy's monthly cap reached, a refusal or a

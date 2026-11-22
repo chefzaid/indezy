@@ -64,6 +64,7 @@ import { ContractChecklistComponent } from './contract-checklist/contract-checkl
 import { NonSolicitationNoticeComponent } from './non-solicitation-notice/non-solicitation-notice.component';
 import { CompanyHealthComponent } from '../../../shared/components/company-health/company-health.component';
 import { AiMessageDialogComponent, AiMessageDialogData } from '../../../shared/components/ai-message-dialog/ai-message-dialog.component';
+import { AiFitDialogComponent, AiFitDialogData } from '../../../shared/components/ai-fit-dialog/ai-fit-dialog.component';
 
 @Component({
     selector: 'app-project-detail',
@@ -175,6 +176,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             error: () => this.notificationService.error('projects.skills.renameError')
           });
       });
+  }
+
+  /** Opens the AI analysis of how well this opportunity fits the profile. */
+  weighFit(): void {
+    if (this.project?.id) {
+      const data: AiFitDialogData = { projectId: this.project.id };
+      this.dialog.open(AiFitDialogComponent, { data, width: '720px', maxWidth: '96vw', autoFocus: false });
+    }
   }
 
   /** Opens the AI drafter of a message about this opportunity, the kind chosen from its stage. */

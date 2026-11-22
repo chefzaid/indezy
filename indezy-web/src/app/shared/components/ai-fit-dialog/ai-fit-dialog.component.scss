@@ -1,0 +1,81 @@
+.full {
+  width: 100%;
+}
+
+.error {
+  margin: 8px 0;
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 4px;
+    font-size: 0.9375rem;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+
+  .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+
+  .unit {
+    color: var(--text-secondary);
+  }
+
+  .verdict {
+    flex-basis: 100%;
+  }
+
+  &.good .value {
+    color: var(--app-chip-positive-text);
+  }
+
+  &.mixed .value {
+    color: var(--app-chip-indigo-text);
+  }
+
+  &.poor .value {
+    color: var(--app-chip-danger-text);
+  }
+}
+
+.suggested {
+  font-weight: 600;
+}
+
+.disclaimer {
+  margin: 12px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
