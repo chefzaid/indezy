@@ -213,6 +213,10 @@ public class User extends BaseEntity {
     @Column(name = "ai_model", length = 40)
     private String aiModel;
 
+    /** The models the member chose for some tasks with their own key, as {@code TASK=model} pairs joined by commas. */
+    @Column(name = "ai_task_models", length = 400)
+    private String aiTaskModels;
+
     /** Years without exchange after which a contact is anonymized every night; null or 0 for never. */
     @Column(name = "contact_retention_years")
     private Integer contactRetentionYears;

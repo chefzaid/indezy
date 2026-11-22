@@ -79,7 +79,7 @@ La page d'une opportunité réunit tout ce qui la concerne. **Changer l'étape d
 - Sur la page d'une opportunité, **Préparer la négociation (IA)** propose une contre-proposition, le TJM en dessous duquel refuser et les arguments pour l'échange, avec la marge de l'ESN quand vous avez saisi le TJM client.
 - Sur la page d'une opportunité, **Rédiger un message (IA)** écrit une candidature, une relance, un remerciement après un entretien ou un refus poli, en français ou en anglais, à partir de l'opportunité et de quelques mots sur ce que vous voulez dire. Modifiez-le à votre guise, puis **Copiez**-le dans votre e-mail.
 
-Chaque compte a un forfait IA mensuel ; **Profil → Préférences → IA** l'affiche, et accepte votre propre clé Anthropic pour aller au-delà. L'IA ne voit que ce que vous avez saisi et l'opportunité concernée.
+Chaque compte a un forfait IA mensuel ; **Profil → Préférences → IA** l'affiche, et accepte votre propre clé Anthropic pour aller au-delà ; avec votre clé, choisissez le modèle de chaque tâche dans la liste des tâches. L'IA ne voit que ce que vous avez saisi et l'opportunité concernée.
 
 ## Les étapes de recrutement
 

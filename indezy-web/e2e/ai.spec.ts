@@ -271,6 +271,15 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(card.locator('[data-ai-remove-key]')).toBeVisible();
     expect(keys).toEqual([{ apiKey: 'sk-ant-camille', model: null }]);
     await expect(card.locator('[data-ai-state]')).toContainText(language === 'en' ? 'each task on its own model' : 'chaque tâche avec son modèle');
+    // With their own key, the member picks a task's model.
+    const chosen: unknown[] = [];
+    await page.route('**/api/ai/key/models', route => {
+      chosen.push(route.request().postDataJSON());
+      return route.fulfill({ json: { ...current, chosen: { POSTING: 'claude-opus-5-5' } } });
+    });
+    await card.locator('[data-ai-models] [data-ai-task-model="POSTING"]').click();
+    await page.getByRole('option', { name: 'Claude Opus 5.5' }).click();
+    await expect.poll(() => chosen).toEqual([{ models: { POSTING: 'claude-opus-5-5' } }]);
   });
 }
 

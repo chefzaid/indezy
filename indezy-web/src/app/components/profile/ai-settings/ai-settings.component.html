@@ -23,7 +23,22 @@
           <dl>
             @for (task of tasks; track task) {
               @if (status.models[task]; as model) {
-                <div><dt>{{ 'ai.settings.tasks.' + task | translate }}</dt><dd>{{ 'ai.models.' + model | translate }}</dd></div>
+                <div>
+                  <dt>{{ 'ai.settings.tasks.' + task | translate }}</dt>
+                  @if (status.ownKey) {
+                    <dd>
+                      <mat-select [value]="status.chosen?.[task] ?? null" (selectionChange)="chooseModel(task, $event.value)" [disabled]="saving"
+                        [attr.data-ai-task-model]="task" [aria-label]="'ai.settings.tasks.' + task | translate">
+                        <mat-option [value]="null">{{ 'ai.settings.keepModel' | translate:{ model: ('ai.models.' + (status.model ?? model) | translate) } }}</mat-option>
+                        @for (option of models; track option) {
+                          <mat-option [value]="option">{{ 'ai.models.' + option | translate }}</mat-option>
+                        }
+                      </mat-select>
+                    </dd>
+                  } @else {
+                    <dd>{{ 'ai.models.' + model | translate }}</dd>
+                  }
+                </div>
               }
             }
           </dl>

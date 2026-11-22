@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { AI_MODELS, AI_TASKS, AiModel, AiStatus } from '../../../models';
+import { AI_MODELS, AI_TASKS, AiModel, AiStatus, AiTask } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 
@@ -67,6 +67,28 @@ export class AiSettingsComponent implements OnInit {
       error: (error: HttpErrorResponse) => {
         this.saving = false;
         this.notifications.error(error.status === 400 ? 'ai.settings.keyInvalid' : aiErrorKey(error));
+        this.changes.markForCheck();
+      }
+    });
+  }
+
+  /** Uses {@code model} for the task with the member's own key; null brings back the key's model or the task's own. */
+  chooseModel(task: AiTask, model: AiModel | null): void {
+    const chosen: Partial<Record<AiTask, AiModel>> = { ...(this.status?.chosen ?? {}) };
+    if (model) {
+      chosen[task] = model;
+    } else {
+      delete chosen[task];
+    }
+    this.saving = true;
+    this.ai.setTaskModels(chosen).subscribe({
+      next: status => {
+        this.show(status);
+        this.notifications.success('ai.settings.taskModelSaved');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.saving = false;
+        this.notifications.error(aiErrorKey(error));
         this.changes.markForCheck();
       }
     });

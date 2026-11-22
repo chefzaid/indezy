@@ -4917,7 +4917,9 @@
         "RATE": "Suggesting a rate",
         "NEGOTIATION": "Preparing a negotiation",
         "INTERVIEW": "Preparing an interview"
-      }
+      },
+      "keepModel": "Default ({{model}})",
+      "taskModelSaved": "Model saved for this task."
     },
     "fit": {
       "open": "Weigh this opportunity (AI)",

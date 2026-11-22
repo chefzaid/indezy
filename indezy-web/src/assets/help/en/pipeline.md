@@ -79,7 +79,7 @@ An opportunity's page holds everything about it. **Change pipeline stage** moves
 - On an opportunity's page, **Prepare the negotiation (AI)** proposes a counter-offer, the rate to walk away below and the arguments for the call, with the ESN's margin when you entered the client's rate.
 - On an opportunity's page, **Draft a message (AI)** writes an application, a follow-up, a thank-you after an interview or a polite decline, in French or English, from the opportunity and a few words on what to say. Change it as you like, then **Copy** it into your email.
 
-Each account has a monthly AI allowance; **Profile → Preferences → AI** shows it, and takes your own Anthropic key to go beyond it. The AI only sees what you typed and the opportunity concerned.
+Each account has a monthly AI allowance; **Profile → Preferences → AI** shows it, and takes your own Anthropic key to go beyond it; with your key, choose each task's model in the list of tasks. The AI only sees what you typed and the opportunity concerned.
 
 ## Recruitment steps
 

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
+import { AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -18,6 +18,11 @@ export class AiService {
 
   setKey(apiKey: string, model: AiModel | null): Observable<AiStatus> {
     return this.http.put<AiStatus>(`${this.API_URL}/key`, { apiKey, model });
+  }
+
+  /** The models the member's own key uses for some tasks; a task left out keeps the key's model or its own. */
+  setTaskModels(models: Partial<Record<AiTask, AiModel>>): Observable<AiStatus> {
+    return this.http.put<AiStatus>(`${this.API_URL}/key/models`, { models });
   }
 
   removeKey(): Observable<AiStatus> {

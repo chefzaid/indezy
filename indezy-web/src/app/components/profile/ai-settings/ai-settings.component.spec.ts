@@ -17,7 +17,7 @@ describe('AiSettingsComponent', () => {
     models: { POSTING: 'claude-haiku-5-5', FIT: 'claude-opus-5-5' } };
 
   function create(status: AiStatus = indezy): ComponentFixture<AiSettingsComponent> {
-    ai = jasmine.createSpyObj('AiService', ['status', 'setKey', 'removeKey']);
+    ai = jasmine.createSpyObj('AiService', ['status', 'setKey', 'removeKey', 'setTaskModels']);
     ai.status.and.returnValue(of(status));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
@@ -83,4 +83,23 @@ describe('AiSettingsComponent', () => {
     fixture.detectChanges();
     expect(element.querySelector('[data-ai-state]')?.textContent).toContain('each task on its own model');
   });
+
+  it('chooses a model per task with the member\'s own key, and brings the default back', () => {
+    const own: AiStatus = { ...indezy, ownKey: true, chosen: { FIT: 'claude-sonnet-5-5' } };
+    const fixture = create(own);
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-ai-task-model="POSTING"]')).not.toBeNull();
+    ai.setTaskModels.and.returnValue(of({ ...own, chosen: { FIT: 'claude-sonnet-5-5', POSTING: 'claude-opus-5-5' } }));
+    fixture.componentInstance.chooseModel('POSTING', 'claude-opus-5-5');
+    expect(ai.setTaskModels).toHaveBeenCalledWith({ FIT: 'claude-sonnet-5-5', POSTING: 'claude-opus-5-5' });
+    expect(notifications.success).toHaveBeenCalledWith('ai.settings.taskModelSaved');
+    fixture.componentInstance.chooseModel('FIT', null);
+    expect(ai.setTaskModels).toHaveBeenCalledWith({ POSTING: 'claude-opus-5-5' });
+
+    ai.setTaskModels.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'AI is not available yet' } })));
+    fixture.componentInstance.chooseModel('FIT', 'claude-haiku-5-5');
+    expect(notifications.error).toHaveBeenCalledWith('ai.errors.unavailable');
+    expect(fixture.componentInstance.saving).toBeFalse();
+  });
 });
+

@@ -103,6 +103,12 @@ public class AiController {
         return ai.setOwnKey(SecurityUtils.getCurrentUserId(), key);
     }
 
+    @Operation(summary = "Choose the model of some tasks for the member's own key", description = "Tasks left out keep the key's model or their own")
+    @PutMapping("/key/models")
+    public AiDtos.Status setTaskModels(@Valid @RequestBody AiDtos.TaskModels models) {
+        return ai.setTaskModels(SecurityUtils.getCurrentUserId(), models);
+    }
+
     @Operation(summary = "Go back to Indezy's key")
     @DeleteMapping("/key")
     public AiDtos.Status removeKey() {

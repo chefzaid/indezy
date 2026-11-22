@@ -292,6 +292,26 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void choosesAModelPerTaskWithTheMembersOwnKey() {
+        // Without their own key, a member keeps Indezy's choices.
+        assertThat(call(bob, HttpMethod.PUT, "/ai/key/models", Map.of("models", Map.of("MESSAGE", "claude-opus-5-5")), String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        call(bob, HttpMethod.PUT, "/ai/key", Map.of("apiKey", "sk-ant-bob-own"), Map.class);
+        assertThat(call(bob, HttpMethod.PUT, "/ai/key/models", Map.of("models", Map.of("MESSAGE", "gpt-5")), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+        Map<String, Object> status = call(bob, HttpMethod.PUT, "/ai/key/models", Map.of("models", Map.of("MESSAGE", "claude-opus-5-5")),
+            Map.class).getBody();
+        assertThat((Map<String, Object>) status.get("chosen")).containsExactly(Map.entry("MESSAGE", "claude-opus-5-5"));
+        assertThat((Map<String, Object>) status.get("models")).containsEntry("MESSAGE", "claude-opus-5-5");
+        call(bob, HttpMethod.POST, "/ai/polish", Map.of("subject", "point", "body", "bonjour {{ firstName }}, ou en est on", "tone", "FORMAL"),
+            Map.class);
+        assertThat(BODIES.getLast()).contains("\"model\":\"claude-opus-5-5\"");
+        // Going back to Indezy's key forgets the choices.
+        assertThat((Map<String, Object>) call(bob, HttpMethod.DELETE, "/ai/key", null, Map.class).getBody().get("chosen")).isEmpty();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void readsPdfsPolishesMessagesAndSuggestsRates() throws IOException {
         // Alice's own key: no allowance to mind here.
         call(alice, HttpMethod.PUT, "/ai/key", Map.of("apiKey", "sk-ant-alice-own"), Map.class);

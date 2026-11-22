@@ -13,6 +13,8 @@ export interface AiStatus {
   models: Partial<Record<AiTask, AiModel>>;
   spentUsd: number;
   limitUsd: number;
+  /** The models the member chose for some tasks with their own key. */
+  chosen?: Partial<Record<AiTask, AiModel>>;
 }
 
 export type AiModel = 'claude-opus-5-5' | 'claude-sonnet-5-5' | 'claude-haiku-5-5';

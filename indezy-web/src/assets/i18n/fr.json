@@ -4917,7 +4917,9 @@
         "RATE": "Suggestion d'un TJM",
         "NEGOTIATION": "Préparation d'une négociation",
         "INTERVIEW": "Préparation d'un entretien"
-      }
+      },
+      "keepModel": "Par défaut ({{model}})",
+      "taskModelSaved": "Modèle enregistré pour cette tâche."
     },
     "fit": {
       "open": "Évaluer cette opportunité (IA)",

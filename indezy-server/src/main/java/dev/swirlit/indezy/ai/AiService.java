@@ -20,6 +20,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * The AI features' gate (docs/adr/0015-ai-provider.md): a member's own key when they set one, else Indezy's, within what
@@ -66,7 +67,8 @@ public class AiService {
         for (AiFeature feature : AiFeature.values()) {
             models.put(feature, model(user, feature));
         }
-        return new AiDtos.Status(reason == null, reason, own, own ? user.getAiModel() : null, models, spent, properties.accountMonthlyCapUsd());
+        return new AiDtos.Status(reason == null, reason, own, own ? user.getAiModel() : null, models, spent, properties.accountMonthlyCapUsd(),
+            own ? taskModels(user.getAiTaskModels()) : Map.of());
     }
 
     /** Sets the member's own key and model; their requests then go through it, without Indezy's limits. */
@@ -81,6 +83,19 @@ public class AiService {
         return status(userId);
     }
 
+    /** Sets the models the member's own key uses for some tasks; a task left out goes back to the key's model or its own. */
+    @Transactional
+    public AiDtos.Status setTaskModels(Long userId, AiDtos.TaskModels request) {
+        User user = user(userId);
+        if (user.getAiApiKey() == null) {
+            throw new InvalidStateException("Choosing a model per task needs your own Anthropic key");
+        }
+        user.setAiTaskModels(request.models().isEmpty() ? null : request.models().entrySet().stream()
+            .sorted(Map.Entry.comparingByKey()).map(entry -> entry.getKey().name() + "=" + entry.getValue())
+            .collect(Collectors.joining(",")));
+        return status(userId);
+    }
+
     @Transactional
     public AiDtos.Status removeOwnKey(Long userId) {
         User user = user(userId);
@@ -89,6 +104,7 @@ public class AiService {
         }
         user.setAiApiKey(null);
         user.setAiModel(null);
+        user.setAiTaskModels(null);
         return status(userId);
     }
 
@@ -152,9 +168,32 @@ public class AiService {
         }
     }
 
-    /** The model of {@code feature} for the member: the one they chose with their key, else the task's own. */
+    /** The model of {@code feature} for the member: with their key, the one they chose for it, else for every task; else the task's own. */
     private String model(User user, AiFeature feature) {
-        return user.getAiApiKey() != null && user.getAiModel() != null ? user.getAiModel() : properties.model(feature);
+        if (user.getAiApiKey() == null) {
+            return properties.model(feature);
+        }
+        String chosen = taskModels(user.getAiTaskModels()).get(feature);
+        return chosen != null ? chosen : user.getAiModel() != null ? user.getAiModel() : properties.model(feature);
+    }
+
+    /** The {@code TASK=model} pairs stored for a member, those still valid. */
+    static Map<AiFeature, String> taskModels(String stored) {
+        Map<AiFeature, String> models = new EnumMap<>(AiFeature.class);
+        if (stored == null || stored.isBlank()) {
+            return models;
+        }
+        for (String pair : stored.split(",")) {
+            String[] parts = pair.split("=", 2);
+            if (parts.length == 2 && PRICES.containsKey(parts[1].strip())) {
+                try {
+                    models.put(AiFeature.valueOf(parts[0].strip()), parts[1].strip());
+                } catch (IllegalArgumentException ignored) {
+                    // A task that no longer exists: its choice is dropped.
+                }
+            }
+        }
+        return models;
     }
 
     private String month() {

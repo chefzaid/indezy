@@ -18,10 +18,20 @@ public final class AiDtos {
      * {@code reason} says why not when it cannot ({@code NO_KEY}, {@code ACCOUNT_LIMIT}, {@code MONTHLY_LIMIT}).
      */
     public record Status(boolean available, String reason, boolean ownKey, String model, Map<AiFeature, String> models, double spentUsd,
-                         double limitUsd) {
+                         double limitUsd, Map<AiFeature, String> chosen) {
 
         public Status {
             models = Map.copyOf(models);
+            chosen = chosen == null ? Map.of() : Map.copyOf(chosen);
+        }
+    }
+
+    /** The models a member with their own key chooses for some tasks; the others keep the key's model or their own. */
+    public record TaskModels(Map<AiFeature,
+        @Pattern(regexp = "claude-(opus|sonnet|haiku)-5-5", message = "Opus, Sonnet or Haiku 5.5") String> models) {
+
+        public TaskModels {
+            models = models == null ? Map.of() : Map.copyOf(models);
         }
     }
 

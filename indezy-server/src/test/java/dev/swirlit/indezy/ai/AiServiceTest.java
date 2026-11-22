@@ -94,4 +94,11 @@ class AiServiceTest {
         assertThat(service.status(8L).model()).isEqualTo("claude-haiku-5-5");
         assertThat(service.status(8L).models()).containsEntry(AiFeature.FIT, "claude-haiku-5-5");
     }
+
+    @Test
+    void readsTheModelsChosenPerTaskKeepingTheValidOnes() {
+        assertThat(AiService.taskModels(null)).isEmpty();
+        assertThat(AiService.taskModels("MESSAGE=claude-opus-5-5,GONE=claude-haiku-5-5,FIT=gpt-5,POSTING=claude-sonnet-5-5"))
+            .containsExactlyInAnyOrderEntriesOf(java.util.Map.of(AiFeature.MESSAGE, "claude-opus-5-5", AiFeature.POSTING, "claude-sonnet-5-5"));
+    }
 }

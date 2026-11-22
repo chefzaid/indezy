@@ -745,7 +745,9 @@ never saved or sent on its own:
   Opus, Sonnet or Haiku 5.5 for every task or **Automatic**, which no limit applies to. Automatic, as on Indezy's key,
   puts each task on the cheapest model that does it well: Haiku 5.5 reads postings and triages offers, Sonnet 5.5 writes
   messages, tailors dossiers and suggests rates, Opus 5.5 weighs opportunities, holds conversations and prepares negotiations and
-  interviews; the card lists them. An allowance used up, Indezy's monthly cap reached, a refusal or a
+  interviews; the card lists them. With their own key the member picks any task's model in that list
+  (`PUT /api/ai/key/models`, `chosen` in the status), the others keeping the key's model or their own; going back to
+  Indezy's key forgets the choices. An allowance used up, Indezy's monthly cap reached, a refusal or a
   key Anthropic refuses are each said as such.
 
 ## Projects And Opportunities
