@@ -40,7 +40,7 @@ public class AccountPurge {
 
     /**
      * Tables that hold no account's data: the shared offer feed and its indexes, places, flags; the conversations and
-     * messages, kept for the other side (an account's own conversations go with their last member); and the communities,
+     * messages, kept for the other side (a conversation goes with its last member); and the communities,
      * kept for their members when their creator goes (the administrators then name their moderators); and the ideas of the
      * ideas board, kept for those who voted for them, their author forgotten; and the addresses that declined the network's
      * invitations, kept as hashes only.
@@ -114,6 +114,16 @@ public class AccountPurge {
             "network_members")) {
             rows += jdbc.update("DELETE FROM " + table + " WHERE user_id = ?", u);
         }
+        // A conversation whose last member this was goes, with its messages, their reactions and files: kept for no one.
+        String orphans = "(SELECT c.id FROM network_conversations c WHERE NOT EXISTS " +
+            "(SELECT 1 FROM network_conversation_members m WHERE m.conversation_id = c.id))";
+        String orphanMessages = "(SELECT id FROM network_messages WHERE conversation_id IN " + orphans + ")";
+        rows += jdbc.update("DELETE FROM network_message_reactions WHERE message_id IN " + orphanMessages);
+        rows += jdbc.update("DELETE FROM network_file_contents WHERE file_id IN (SELECT id FROM network_files WHERE message_id IN " +
+            orphanMessages + ")");
+        rows += jdbc.update("DELETE FROM network_files WHERE message_id IN " + orphanMessages);
+        rows += jdbc.update("DELETE FROM network_messages WHERE conversation_id IN " + orphans);
+        rows += jdbc.update("DELETE FROM network_conversations WHERE id IN " + orphans);
         // The events the account organizes go, with their answers and what told of them.
         String meetups = "(SELECT id FROM network_meetups WHERE organizer_id = ?)";
         rows += jdbc.update("DELETE FROM network_meetup_attendees WHERE meetup_id IN " + meetups, u);

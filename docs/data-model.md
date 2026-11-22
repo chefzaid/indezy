@@ -147,7 +147,7 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkInvitationOptOut` | `network_invitation_opt_outs` | no account: an address's SHA-256 that declined every invitation | never |
 | `NetworkNotification` | `network_notifications` | member (by id) | with its post, or the recipient's or actor's account; never otherwise, read or not |
 | `NetworkReport` | `network_reports` | member (by id), on a post, comment, message or member | never once decided (the audit trail); with the reporter's or target's account |
-| `NetworkConversation` | `network_conversations` | shared by its members | never, not even once its last member's account is gone (TODO.md, Bugs to fix) |
+| `NetworkConversation` | `network_conversations` | shared by its members | with its last member's account, its messages, their reactions and files with it |
 | `NetworkConversationMember` | `network_conversation_members` | conversation and member (by id) | on leaving a group, or with its account |
 | `NetworkMessage` | `network_messages` (embeds `NetworkOpportunityCard` and `NetworkLinkPreview`) | conversation and sender (by id) | never: deleting within 15 minutes, or by the moderators, empties it and sets `deleted_at`; kept with its sender's account |
 | `NetworkMessageReaction` | `network_message_reactions` | member and message (by id) | by hand, when its message is deleted, or with its account |
