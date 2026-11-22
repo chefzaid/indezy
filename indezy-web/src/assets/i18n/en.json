@@ -4786,7 +4786,18 @@
       "removeKey": "Remove my key and use Indezy's allowance",
       "keySaved": "Your key is saved",
       "keyRemoved": "Your key is removed",
-      "keyInvalid": "An Anthropic key starts with sk-ant-"
+      "keyInvalid": "An Anthropic key starts with sk-ant-",
+      "ownKeyAuto": "AI features use your own Anthropic key, each task on its own model, without Indezy's limits.",
+      "automatic": "Automatic: the right model for each task",
+      "tasksTitle": "Model of each task",
+      "tasks": {
+        "POSTING": "Reading a posting",
+        "TRIAGE": "Should I apply?",
+        "MESSAGE": "Drafting a message",
+        "DOSSIER": "Tailored dossier",
+        "FIT": "Weighing an opportunity",
+        "CHAT": "Conversation about an opportunity"
+      }
     },
     "fit": {
       "open": "Weigh this opportunity (AI)",

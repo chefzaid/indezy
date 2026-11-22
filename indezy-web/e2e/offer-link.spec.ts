@@ -90,7 +90,7 @@ for (const language of ['en', 'fr'] as const) {
     await page.goto('/projects');
     await page.getByRole('link', { name: t.fromLink }).click();
     await page.getByRole('textbox', { name: t.label }).fill(KNOWN);
-    await page.getByRole('button', { name: t.fill }).click();
+    await page.getByRole('button', { name: t.fill, exact: true }).click();
     await page.getByRole('link', { name: t.open }).click();
     await expect(page).toHaveURL(/\/projects\/40$/);
   });

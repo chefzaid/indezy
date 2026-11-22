@@ -6,7 +6,9 @@ import { settleDialog } from './helpers/dialog';
 import { mockFeed } from './helpers/offer-feed';
 
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
-const status = { available: true, reason: null, ownKey: false, model: 'claude-opus-5-5', spentUsd: 0.4, limitUsd: 2 };
+const status = { available: true, reason: null, ownKey: false, model: null, spentUsd: 0.4, limitUsd: 2,
+  models: { POSTING: 'claude-haiku-5-5', TRIAGE: 'claude-haiku-5-5', MESSAGE: 'claude-sonnet-5-5', DOSSIER: 'claude-sonnet-5-5',
+    FIT: 'claude-opus-5-5', CHAT: 'claude-opus-5-5' } };
 
 for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
   test(`fills an opportunity in from a pasted posting and drafts a message with AI (${language}, ${width}px)`, async ({ page }) => {
@@ -118,19 +120,23 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/ai/status', route => route.fulfill({ json: current }));
     await page.route('**/api/ai/key', route => {
       keys.push(route.request().postDataJSON());
-      current = { ...status, ownKey: true, model: 'claude-haiku-5-5' };
+      current = { ...status, ownKey: true };
       return route.fulfill({ json: current });
     });
     await page.goto('/profile');
     await page.getByRole('tab', { name: language === 'en' ? 'Preferences' : 'Préférences' }).click();
     const card = page.locator('[data-ai-settings]');
     await expect(card.locator('[data-ai-allowance]')).toContainText(language === 'en' ? '$0.40 of $2.00' : '0,40 $ sur 2,00 $');
+    await card.locator('[data-ai-models] summary').click();
+    await expect(card.locator('[data-ai-models]')).toContainText(language === 'en' ? 'Reading a posting' : "Lecture d'une annonce");
+    await expect(card.locator('[data-ai-models]')).toContainText('Claude Haiku 5.5');
     const audit = await new AxeBuilder({ page }).include('[data-ai-settings]').withTags(WCAG).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     await card.locator('[data-ai-key]').fill('sk-ant-camille');
     await card.locator('[data-ai-save-key]').click();
     await expect(card.locator('[data-ai-remove-key]')).toBeVisible();
-    expect(keys).toEqual([{ apiKey: 'sk-ant-camille', model: 'claude-opus-5-5' }]);
+    expect(keys).toEqual([{ apiKey: 'sk-ant-camille', model: null }]);
+    await expect(card.locator('[data-ai-state]')).toContainText(language === 'en' ? 'each task on its own model' : 'chaque tâche avec son modèle');
   });
 }
 

@@ -6,7 +6,10 @@ export interface AiStatus {
   /** Why not: no key on the server, the account's or everyone's allowance used up. */
   reason: 'NO_KEY' | 'ACCOUNT_LIMIT' | 'MONTHLY_LIMIT' | null;
   ownKey: boolean;
-  model: string;
+  /** The model chosen with the member's own key; null when each task uses its own. */
+  model: AiModel | null;
+  /** The model each task uses. */
+  models: Partial<Record<AiTask, AiModel>>;
   spentUsd: number;
   limitUsd: number;
 }
@@ -14,6 +17,11 @@ export interface AiStatus {
 export type AiModel = 'claude-opus-5-5' | 'claude-sonnet-5-5' | 'claude-haiku-5-5';
 
 export const AI_MODELS: AiModel[] = ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'];
+
+/** What an AI request is for, each on its own model unless one is chosen. */
+export type AiTask = 'POSTING' | 'MESSAGE' | 'FIT' | 'CHAT' | 'TRIAGE' | 'DOSSIER';
+
+export const AI_TASKS: AiTask[] = ['POSTING', 'TRIAGE', 'MESSAGE', 'DOSSIER', 'FIT', 'CHAT'];
 
 /** A job posting read into an opportunity's fields: null where it says nothing. */
 export interface AiPosting {

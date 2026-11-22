@@ -27,8 +27,8 @@ for (const width of [1280, 390]) {
     }
     await page.getByRole('tab', { name: 'Notifications' }).click();
     const card = page.locator('[data-notifications]');
-    // The weekly digest, booked calls, network messages (the network is on) and the new offers badge.
-    await expect(card.getByRole('switch')).toHaveCount(4);
+    // The weekly digest, booked calls, network messages (the network is on), the new offers badge and browser notifications.
+    await expect(card.getByRole('switch')).toHaveCount(5);
     const audit = await new AxeBuilder({ page }).include('[data-notifications]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     await card.getByRole('switch', { name: 'Email me a weekly digest' }).click();

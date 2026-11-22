@@ -13,7 +13,8 @@ import { AiSettingsComponent } from './ai-settings.component';
 describe('AiSettingsComponent', () => {
   let ai: jasmine.SpyObj<AiService>;
   let notifications: jasmine.SpyObj<NotificationService>;
-  const indezy: AiStatus = { available: true, reason: null, ownKey: false, model: 'claude-opus-5-5', spentUsd: 0.5, limitUsd: 2 };
+  const indezy: AiStatus = { available: true, reason: null, ownKey: false, model: null, spentUsd: 0.5, limitUsd: 2,
+    models: { POSTING: 'claude-haiku-5-5', FIT: 'claude-opus-5-5' } };
 
   function create(status: AiStatus = indezy): ComponentFixture<AiSettingsComponent> {
     ai = jasmine.createSpyObj('AiService', ['status', 'setKey', 'removeKey']);
@@ -65,5 +66,21 @@ describe('AiSettingsComponent', () => {
     component.saveKey();
     expect(notifications.error).toHaveBeenCalledWith('ai.settings.keyInvalid');
     expect(component.saving).toBeFalse();
+  });
+
+  it('lists the model of each task, and runs each on its own with the member\'s key unless one is chosen', () => {
+    const fixture = create();
+    const element: HTMLElement = fixture.nativeElement;
+    const list = element.querySelector('[data-ai-models]')?.textContent ?? '';
+    expect(list).toContain('Reading a posting');
+    expect(list).toContain('Claude Haiku 5.5');
+    expect(list).not.toContain('Drafting a message');
+    expect(fixture.componentInstance.form.value.model).toBeNull();
+    ai.setKey.and.returnValue(of({ ...indezy, ownKey: true }));
+    fixture.componentInstance.form.controls.apiKey.setValue('sk-ant-abc');
+    fixture.componentInstance.saveKey();
+    expect(ai.setKey).toHaveBeenCalledWith('sk-ant-abc', null);
+    fixture.detectChanges();
+    expect(element.querySelector('[data-ai-state]')?.textContent).toContain('each task on its own model');
   });
 });

@@ -658,7 +658,9 @@ never saved or sent on its own:
   every night at 05:20 once the feed removes the offer.
 - **Profile → Preferences → AI** (`GET /api/ai/status`, `PUT`/`DELETE /api/ai/key`): whether AI can be used and this
   month's allowance on Indezy's key (10 US dollars a month on the free tier, all accounts together within 100), or the member's own Anthropic key, stored encrypted, with
-  Opus, Sonnet or Haiku 5.5, which no limit applies to. An allowance used up, Indezy's monthly cap reached, a refusal or a
+  Opus, Sonnet or Haiku 5.5 for every task or **Automatic**, which no limit applies to. Automatic, as on Indezy's key,
+  puts each task on the cheapest model that does it well: Haiku 5.5 reads postings and triages offers, Sonnet 5.5 writes
+  messages and tailors dossiers, Opus 5.5 weighs opportunities and holds conversations; the card lists them. An allowance used up, Indezy's monthly cap reached, a refusal or a
   key Anthropic refuses are each said as such.
 
 ## Projects And Opportunities

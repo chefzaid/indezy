@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { AI_MODELS, AiModel, AiStatus } from '../../../models';
+import { AI_MODELS, AI_TASKS, AiModel, AiStatus } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 
@@ -33,11 +33,13 @@ export class AiSettingsComponent implements OnInit {
   private readonly changes = inject(ChangeDetectorRef);
 
   readonly models = AI_MODELS;
+  readonly tasks = AI_TASKS;
   status: AiStatus | null = null;
   saving = false;
   readonly form = this.fb.nonNullable.group({
     apiKey: ['', [Validators.required, Validators.pattern(/^sk-ant-[A-Za-z0-9_-]+$/), Validators.maxLength(300)]],
-    model: ['claude-opus-5-5' as AiModel]
+    // Null: each task on its own model.
+    model: [null as AiModel | null]
   });
 
   ngOnInit(): void {

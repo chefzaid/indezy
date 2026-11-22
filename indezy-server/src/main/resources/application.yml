@@ -73,7 +73,8 @@ indezy:
     # available, unless the member sets their own key. Limits in US dollars a month: one account, and all of them (the free
     # tier; paid plans will allow more).
     api-key: ${INDEZY_AI_ANTHROPIC_API_KEY:}
-    model: ${INDEZY_AI_MODEL:claude-opus-5-5}
+    # Each task has its model (AiProperties.BY_TASK); INDEZY_AI_MODEL puts them all on one.
+    model: ${INDEZY_AI_MODEL:}
     account-monthly-cap-usd: ${INDEZY_AI_ACCOUNT_MONTHLY_CAP_USD:10.0}
     monthly-cap-usd: ${INDEZY_AI_MONTHLY_CAP_USD:100.0}
   push:

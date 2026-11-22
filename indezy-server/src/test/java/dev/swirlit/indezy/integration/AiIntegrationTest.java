@@ -132,6 +132,8 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
     @DynamicPropertySource
     static void anthropic(DynamicPropertyRegistry registry) {
         registry.add("indezy.ai.api-key", () -> "sk-ant-indezy");
+        // Every task on Opus, so the allowance below counts the same price for each request.
+        registry.add("indezy.ai.model", () -> "claude-opus-5-5");
         registry.add("indezy.ai.base-url", () -> "http://127.0.0.1:" + ANTHROPIC.getAddress().getPort());
         // 1.5 cents a month: two requests of 0.8 cents go (the second starts at 0.8), the third is refused.
         registry.add("indezy.ai.account-monthly-cap-usd", () -> "0.015");
@@ -152,7 +154,9 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
     @SuppressWarnings("unchecked")
     void readsPostingsAndDraftsMessagesWithinTheAllowanceOrWithTheMembersKey() throws IOException {
         assertThat(call(alice, HttpMethod.GET, "/ai/status", null, Map.class).getBody()).containsEntry("available", true)
-            .containsEntry("ownKey", false).containsEntry("model", "claude-opus-5-5").containsEntry("limitUsd", 0.015);
+            .containsEntry("ownKey", false).containsEntry("model", null).containsEntry("limitUsd", 0.015);
+        assertThat((Map<String, Object>) call(alice, HttpMethod.GET, "/ai/status", null, Map.class).getBody().get("models"))
+            .containsEntry("POSTING", "claude-opus-5-5").containsEntry("DOSSIER", "claude-opus-5-5");
 
         // A posting read into an opportunity's fields, through Indezy's key with the refusal fallback on.
         Map<String, Object> posting = call(alice, HttpMethod.POST, "/ai/posting", Map.of("text", "Mission Java Senior chez Conseil X..."),

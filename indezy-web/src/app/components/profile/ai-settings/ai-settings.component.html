@@ -6,13 +6,29 @@
     <mat-card-content>
       <p class="state" [attr.data-ai-state]="status.available ? 'available' : status.reason">
         @if (status.ownKey) {
-          {{ 'ai.settings.ownKey' | translate: { model: ('ai.models.' + status.model | translate) } }}
+          @if (status.model) {
+            {{ 'ai.settings.ownKey' | translate: { model: ('ai.models.' + status.model | translate) } }}
+          } @else {
+            {{ 'ai.settings.ownKeyAuto' | translate }}
+          }
         } @else if (status.available) {
           {{ 'ai.settings.indezyKey' | translate }}
         } @else {
           {{ 'ai.settings.reasons.' + status.reason | translate }}
         }
       </p>
+      @if (status.available && status.models) {
+        <details class="task-models" data-ai-models>
+          <summary>{{ 'ai.settings.tasksTitle' | translate }}</summary>
+          <dl>
+            @for (task of tasks; track task) {
+              @if (status.models[task]; as model) {
+                <div><dt>{{ 'ai.settings.tasks.' + task | translate }}</dt><dd>{{ 'ai.models.' + model | translate }}</dd></div>
+              }
+            }
+          </dl>
+        </details>
+      }
       @if (!status.ownKey && status.reason !== 'NO_KEY') {
         <div class="allowance" data-ai-allowance>
           <span>{{ 'ai.settings.allowance' | translate: { spent: (status.spentUsd | number:'1.2-2'), limit: (status.limitUsd | number:'1.2-2') } }}</span>
@@ -34,6 +50,7 @@
             <mat-form-field appearance="outline" class="grow">
               <mat-label>{{ 'ai.settings.model' | translate }}</mat-label>
               <mat-select formControlName="model">
+                <mat-option [value]="null">{{ 'ai.settings.automatic' | translate }}</mat-option>
                 @for (model of models; track model) {
                   <mat-option [value]="model">{{ 'ai.models.' + model | translate }}</mat-option>
                 }

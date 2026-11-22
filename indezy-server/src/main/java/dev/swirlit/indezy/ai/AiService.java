@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -61,7 +62,11 @@ public class AiService {
                 reason = "MONTHLY_LIMIT";
             }
         }
-        return new AiDtos.Status(reason == null, reason, own, model(user), spent, properties.accountMonthlyCapUsd());
+        Map<AiFeature, String> models = new EnumMap<>(AiFeature.class);
+        for (AiFeature feature : AiFeature.values()) {
+            models.put(feature, model(user, feature));
+        }
+        return new AiDtos.Status(reason == null, reason, own, own ? user.getAiModel() : null, models, spent, properties.accountMonthlyCapUsd());
     }
 
     /** Sets the member's own key and model; their requests then go through it, without Indezy's limits. */
@@ -109,7 +114,7 @@ public class AiService {
                 throw new InvalidStateException(unavailable(status.reason()));
             }
         }
-        String model = model(user);
+        String model = model(user, feature);
         AiClient.Answer<T> answer = request.apply(own ? cipher.decrypt(user.getAiApiKey()) : properties.apiKey(), model);
         record(userId, feature, own, model, answer.inputTokens(), answer.outputTokens());
         return answer.value();
@@ -147,8 +152,9 @@ public class AiService {
         }
     }
 
-    private String model(User user) {
-        return user.getAiApiKey() != null && user.getAiModel() != null ? user.getAiModel() : properties.model();
+    /** The model of {@code feature} for the member: the one they chose with their key, else the task's own. */
+    private String model(User user, AiFeature feature) {
+        return user.getAiApiKey() != null && user.getAiModel() != null ? user.getAiModel() : properties.model(feature);
     }
 
     private String month() {

@@ -4786,7 +4786,18 @@
       "removeKey": "Retirer ma clé et utiliser le forfait d'Indezy",
       "keySaved": "Votre clé est enregistrée",
       "keyRemoved": "Votre clé est retirée",
-      "keyInvalid": "Une clé Anthropic commence par sk-ant-"
+      "keyInvalid": "Une clé Anthropic commence par sk-ant-",
+      "ownKeyAuto": "Les fonctions IA utilisent votre propre clé Anthropic, chaque tâche avec son modèle, sans les limites d'Indezy.",
+      "automatic": "Automatique : le bon modèle pour chaque tâche",
+      "tasksTitle": "Modèle de chaque tâche",
+      "tasks": {
+        "POSTING": "Lecture d'une annonce",
+        "TRIAGE": "Faut-il postuler ?",
+        "MESSAGE": "Rédaction d'un message",
+        "DOSSIER": "Dossier adapté",
+        "FIT": "Évaluation d'une opportunité",
+        "CHAT": "Conversation sur une opportunité"
+      }
     },
     "fit": {
       "open": "Évaluer cette opportunité (IA)",

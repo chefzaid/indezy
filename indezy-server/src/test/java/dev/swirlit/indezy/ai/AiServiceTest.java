@@ -54,4 +54,41 @@ class AiServiceTest {
         assertThatThrownBy(() -> service.structured(7L, AiFeature.MESSAGE, "s", "t", String.class, 10, OutputConfig.Effort.LOW))
             .hasMessage("Indezy's AI allowance for this month is used up: add your own key to go on");
     }
+
+    @Test
+    void putsEachTaskOnItsModelUnlessOneIsChosen() {
+        AiProperties byTask = new AiProperties("sk-ant-indezy", "", "https://api.anthropic.com", 2.0, 100.0);
+        assertThat(byTask.model(AiFeature.POSTING)).isEqualTo("claude-haiku-5-5");
+        assertThat(byTask.model(AiFeature.TRIAGE)).isEqualTo("claude-haiku-5-5");
+        assertThat(byTask.model(AiFeature.MESSAGE)).isEqualTo("claude-sonnet-5-5");
+        assertThat(byTask.model(AiFeature.DOSSIER)).isEqualTo("claude-sonnet-5-5");
+        assertThat(byTask.model(AiFeature.FIT)).isEqualTo("claude-opus-5-5");
+        assertThat(byTask.model(AiFeature.CHAT)).isEqualTo("claude-opus-5-5");
+        assertThat(AiProperties.BY_TASK).containsOnlyKeys(AiFeature.values());
+
+        AiProperties one = new AiProperties("sk-ant-indezy", "claude-sonnet-5-5", "https://api.anthropic.com", 2.0, 100.0,
+            java.util.Map.of("chat", " claude-haiku-5-5 "));
+        assertThat(one.model(AiFeature.POSTING)).isEqualTo("claude-sonnet-5-5");
+        assertThat(one.model(AiFeature.CHAT)).isEqualTo("claude-haiku-5-5");
+        assertThat(one.toString()).doesNotContain("sk-ant-indezy");
+    }
+
+    @Test
+    void tellsTheModelOfEachTaskAndTheOneChosenWithTheMembersKey() {
+        User user = new User();
+        user.setId(8L);
+        when(users.findById(8L)).thenReturn(Optional.of(user));
+        AiService service = new AiService(new AiProperties("sk-ant-indezy", null, "https://api.anthropic.com", 2.0, 100.0), client,
+            new AiKeyCipher("secret"), usage, users, clock);
+        AiDtos.Status byTask = service.status(8L);
+        assertThat(byTask.model()).isNull();
+        assertThat(byTask.models()).containsEntry(AiFeature.POSTING, "claude-haiku-5-5").containsEntry(AiFeature.FIT, "claude-opus-5-5");
+
+        service.setOwnKey(8L, new AiDtos.OwnKey("sk-ant-own", null));
+        assertThat(service.status(8L).model()).isNull();
+        assertThat(service.status(8L).models()).containsEntry(AiFeature.MESSAGE, "claude-sonnet-5-5");
+        service.setOwnKey(8L, new AiDtos.OwnKey("sk-ant-own", "claude-haiku-5-5"));
+        assertThat(service.status(8L).model()).isEqualTo("claude-haiku-5-5");
+        assertThat(service.status(8L).models()).containsEntry(AiFeature.FIT, "claude-haiku-5-5");
+    }
 }
