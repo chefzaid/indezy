@@ -31,6 +31,8 @@ final class PdfPageWriter implements Closeable {
     private final Map<Integer, Boolean> drawableBold = new HashMap<>();
     private PDPageContentStream content;
     private float cursor;
+    /** Written at the foot of every page once the document is done, beside its page number; null for none. */
+    private String footer;
 
     PdfPageWriter(PDDocument document, PDRectangle pageSize, PDFont regular, PDFont bold) throws IOException {
         this.document = document;
@@ -186,6 +188,47 @@ final class PdfPageWriter implements Closeable {
     @Override
     public void close() throws IOException {
         content.close();
+        stampFooters();
+    }
+
+    /** Writes this text at the foot of every page, small, beside the page numbers. */
+    void footer(String text) {
+        this.footer = text == null || text.isBlank() ? null : text.strip().replaceAll("\\s+", " ");
+    }
+
+    /** The footer text on the left and, on a document of several pages, "1/2" on the right, under the bottom margin. */
+    private void stampFooters() throws IOException {
+        int pages = document.getNumberOfPages();
+        if (footer == null && pages < 2) {
+            return;
+        }
+        float size = 7.5f;
+        float baseline = MARGIN / 2;
+        for (int index = 0; index < pages; index++) {
+            try (PDPageContentStream stamp = new PDPageContentStream(document, document.getPage(index),
+                PDPageContentStream.AppendMode.APPEND, true, true)) {
+                stamp.setNonStrokingColor(0.35f, 0.35f, 0.35f);
+                if (footer != null) {
+                    writeAt(stamp, MARGIN, baseline, ellipsize(footer, false, size, pageSize.getWidth() - 2 * MARGIN - 40), size);
+                }
+                if (pages > 1) {
+                    String number = (index + 1) + "/" + pages;
+                    writeAt(stamp, pageSize.getWidth() - MARGIN - textWidth(number, false, size), baseline, number, size);
+                }
+            }
+        }
+    }
+
+    private void writeAt(PDPageContentStream stamp, float x, float baseline, String text, float size) throws IOException {
+        String drawable = sanitize(text, false);
+        if (drawable.isEmpty()) {
+            return;
+        }
+        stamp.beginText();
+        stamp.setFont(regular, size);
+        stamp.newLineAtOffset(x, baseline);
+        stamp.showText(drawable);
+        stamp.endText();
     }
 
     /** Goes on to a new page, whatever room is left. */

@@ -52,6 +52,7 @@ public final class InvoicePdfRenderer {
             InvoicePage page;
             try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold)) {
                 page = new InvoicePage(writer, invoice, seller, buyer);
+                writer.footer(seller.getFooter());
                 page.logo(logoOf(seller));
                 page.write();
             }

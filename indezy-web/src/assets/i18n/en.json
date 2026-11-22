@@ -1408,7 +1408,9 @@
       "logoRemove": "Remove",
       "logoHint": "A PNG or JPEG of 2 MB at most, printed above your name on invoices and quotes; an issued document keeps the logo it had.",
       "logoSaved": "Logo saved.",
-      "logoRefused": "This logo cannot be used: send a PNG or a JPEG of 2 MB at most."
+      "logoRefused": "This logo cannot be used: send a PNG or a JPEG of 2 MB at most.",
+      "footer": "Footer",
+      "footerHint": "A line at the foot of each page of your invoices and quotes, such as your website and phone; pages are numbered once there are several."
     },
     "webhooks": {
       "title": "Webhooks",

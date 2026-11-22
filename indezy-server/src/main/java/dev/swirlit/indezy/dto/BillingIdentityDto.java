@@ -32,6 +32,7 @@ public record BillingIdentityDto(
     @Size(max = BillingIdentityDto.QUOTE_TERMS_MAX) String quoteTerms,
     @Pattern(regexp = "#[0-9A-Fa-f]{6}", message = "A colour as #RRGGBB") String accentColor,
     Long logoId,
+    @Size(max = 200) String footer,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;
@@ -46,6 +47,7 @@ public record BillingIdentityDto(
         address = blankToNull(address);
         invoicePrefix = blankToNull(invoicePrefix);
         quoteTerms = blankToNull(quoteTerms);
+        footer = blankToNull(footer);
         accentColor = accentColor == null || accentColor.isBlank() ? null : accentColor.strip().toUpperCase(java.util.Locale.ROOT);
     }
 

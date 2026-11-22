@@ -1316,7 +1316,9 @@ print) draws the title, the table header and the rules of invoices, credit notes
 frozen at issue, so an issued document keeps the colour it had. A **Logo** (`POST`/`DELETE /api/users/billing/logo`, a
 PNG or JPEG of 2 MB at most, drawn anew at most 600 pixels on its longest side) is printed above the seller, 160 by 56
 points at most; each upload is a new logo (`GET /api/users/billing/logos/{id}`), so issued documents, which keep the id
-they were issued with, still print theirs. Logos go with the workspace.
+they were issued with, still print theirs. Logos go with the workspace. A **Footer** (`footer`, 200 characters, such
+as the website and phone) is written small at the foot of every page, also frozen at issue; every document of several
+pages (invoices, quotes, activity reports, dossiers) numbers them "1/2" at the bottom right.
 
 ### Factur-X
 

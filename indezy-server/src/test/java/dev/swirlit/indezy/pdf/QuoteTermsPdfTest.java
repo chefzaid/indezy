@@ -86,5 +86,25 @@ class QuoteTermsPdfTest {
             assertThat(document.getPage(0).getResources().getXObjectNames()).isEmpty();
         }
     }
+
+    @Test
+    void writesTheFooterAndThePageNumbersAtTheFootOfEveryPage() throws IOException {
+        InvoiceSeller seller = seller();
+        seller.setFooter("alice.dev · 06 12 34 56 78");
+        String terms = "Article 1. ".repeat(1200);
+        try (PDDocument document = Loader.loadPDF(renderer.render(quote(), seller, new InvoiceBuyer(), 30, terms))) {
+            int pages = document.getNumberOfPages();
+            for (int page = 1; page <= pages; page++) {
+                PDFTextStripper stripper = new PDFTextStripper();
+                stripper.setStartPage(page);
+                stripper.setEndPage(page);
+                assertThat(stripper.getText(document)).contains("alice.dev · 06 12 34 56 78", page + "/" + pages);
+            }
+        }
+        // One page without a footer: nothing at its foot.
+        try (PDDocument document = Loader.loadPDF(renderer.render(quote(), seller(), new InvoiceBuyer(), 30, null))) {
+            assertThat(new PDFTextStripper().getText(document)).doesNotContain("1/1");
+        }
+    }
 }
 

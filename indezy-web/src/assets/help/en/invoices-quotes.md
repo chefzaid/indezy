@@ -9,7 +9,7 @@ A French invoice must carry specific mentions. Fill them in once in **Profile â†
 3. The **VAT number** and **VAT rate** (20 % by default), or **Exempt from VAT (franchise en base, art. 293 B du CGI)**, ticked by default.
 4. The **Billing address**, **IBAN** and **BIC**.
 5. The **Payment term (days)** (30 by default, 60 at most) and the **Invoice number prefix** (`F` by default, giving F2026-0001).
-6. Optionally a **Logo** (PNG or JPEG, 2 MB at most), printed above your name, and an **Accent colour** for the title, the table header and the rules of your invoices and quotes (a colour too pale to read or print is refused); an issued document keeps the logo and colour it had.
+6. Optionally a **Logo** (PNG or JPEG, 2 MB at most), printed above your name, a **Footer** line (your website, your phone) at the foot of each page, and an **Accent colour** for the title, the table header and the rules of your invoices and quotes (a colour too pale to read or print is refused); an issued document keeps the logo, footer and colour it had.
 7. The **Late-payment interest rate (per year)** your terms state, for instance 12.15 %. French law asks at least three times the legal interest rate; left empty, invoices state the ECB rate plus 10 points, without a figure.
 
 You can write drafts at any time, but issuing an invoice needs a SIRET, an address, an IBAN and, when VAT applies, a VAT number. A malformed IBAN, SIRET, VAT number or BIC is refused.

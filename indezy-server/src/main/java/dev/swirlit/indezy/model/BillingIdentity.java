@@ -65,6 +65,10 @@ public class BillingIdentity {
     @Column(name = "billing_accent_color", length = 7)
     private String accentColor;
 
+    /** The free text at the foot of each page of the documents (website, phone); null for none. */
+    @Column(name = "billing_footer", length = 200)
+    private String footer;
+
     /** The logo printed on the documents ({@link DocumentLogo}); null for none. */
     @Column(name = "billing_logo_id")
     private Long logoId;

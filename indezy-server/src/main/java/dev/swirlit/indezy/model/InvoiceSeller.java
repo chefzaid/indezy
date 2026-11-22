@@ -49,6 +49,10 @@ public class InvoiceSeller {
     @Column(name = "seller_late_payment_rate")
     private Double latePaymentRate;
 
+    /** The free text at the foot of each page, kept at issue; null for none. */
+    @Column(name = "seller_footer", length = 200)
+    private String footer;
+
     /** The logo the document prints ({@link DocumentLogo}), kept at issue; null for none. */
     @Column(name = "seller_logo_id")
     private Long logoId;

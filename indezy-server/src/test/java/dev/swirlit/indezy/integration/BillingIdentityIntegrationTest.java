@@ -43,6 +43,9 @@ class BillingIdentityIntegrationTest extends TwoAccountsIntegrationTest {
         Map<String, Object> pale = new HashMap<>(identity);
         pale.put("accentColor", "#FFEE88");
         assertThat(call(alice, HttpMethod.PUT, "/users/billing", pale, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        identity.put("footer", "  alice.dev  ");
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("footer", "alice.dev");
+        identity.remove("footer");
         identity.remove("accentColor");
         // A logo, drawn anew; another workspace cannot read it, and taking it off keeps it for what was issued with it.
         java.awt.image.BufferedImage picture = new java.awt.image.BufferedImage(1200, 400, java.awt.image.BufferedImage.TYPE_INT_RGB);

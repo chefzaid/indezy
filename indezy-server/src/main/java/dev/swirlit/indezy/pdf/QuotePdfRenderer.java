@@ -48,6 +48,7 @@ public final class QuotePdfRenderer {
             QuotePage page;
             try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold)) {
                 page = new QuotePage(writer, quote, seller, buyer, paymentTermDays, terms);
+                writer.footer(seller.getFooter());
                 page.logo(logoOf(seller));
                 page.write();
             }
