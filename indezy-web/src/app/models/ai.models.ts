@@ -48,6 +48,14 @@ export interface AiFit {
   suggestedRate: number;
 }
 
+/** A turn of the AI conversation about an opportunity. */
+export interface AiChatTurn {
+  id: number;
+  fromMember: boolean;
+  text: string;
+  createdAt: string;
+}
+
 export interface AiMessageDraft {
   subject: string;
   body: string;

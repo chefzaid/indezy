@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiFit, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
+import { AiChatTurn, AiFit, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiStatus, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -30,6 +30,18 @@ export class AiService {
 
   weigh(projectId: number, language: DocumentLanguage, priorities: string | null): Observable<AiFit> {
     return this.http.post<AiFit>(`${this.API_URL}/fit`, { projectId, language, priorities });
+  }
+
+  chatHistory(projectId: number): Observable<AiChatTurn[]> {
+    return this.http.get<AiChatTurn[]>(`${this.API_URL}/chat/${projectId}`);
+  }
+
+  ask(projectId: number, text: string): Observable<AiChatTurn[]> {
+    return this.http.post<AiChatTurn[]>(`${this.API_URL}/chat/${projectId}`, { text });
+  }
+
+  clearChat(projectId: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/chat/${projectId}`);
   }
 
   draftMessage(projectId: number, kind: AiMessageKind, language: DocumentLanguage, notes: string | null): Observable<AiMessageDraft> {

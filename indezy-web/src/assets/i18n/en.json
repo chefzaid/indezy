@@ -4789,6 +4789,22 @@
         "rate": "The rate"
       },
       "suggestedRate": "Rate to ask: {{rate}} € a day"
+    },
+    "chat": {
+      "title": "Ask the AI about this opportunity",
+      "open": "Start",
+      "hint": "Prepare an interview, the negotiation or the next steps: the AI knows this opportunity, its notes, steps and journal. The conversation stays with the opportunity.",
+      "suggestions": {
+        "interview": "What questions should I prepare for the next interview?",
+        "negotiation": "How should I negotiate the rate for this mission?",
+        "postMortem": "What can I learn from how this opportunity went?"
+      },
+      "you": "You",
+      "ai": "AI",
+      "question": "Your question",
+      "ask": "Ask",
+      "clear": "Clear the conversation",
+      "clearConfirm": "Clear the whole conversation about this opportunity?"
     }
   }
 }

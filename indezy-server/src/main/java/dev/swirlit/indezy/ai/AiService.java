@@ -16,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 /**
  * The AI features' gate (docs/adr/0015-ai-provider.md): a member's own key when they set one, else Indezy's, within what
@@ -89,6 +91,16 @@ public class AiService {
     @Transactional
     public <T> T structured(Long userId, AiFeature feature, String system, String text, Class<T> type, long maxTokens,
                             OutputConfig.Effort effort) {
+        return call(userId, feature, (key, model) -> client.structured(key, model, system, text, type, maxTokens, effort));
+    }
+
+    /** A plain answer to a conversation for the member, as {@link #structured}. */
+    @Transactional
+    public String chat(Long userId, AiFeature feature, String system, List<AiClient.Turn> turns, long maxTokens, OutputConfig.Effort effort) {
+        return call(userId, feature, (key, model) -> client.chat(key, model, system, turns, maxTokens, effort));
+    }
+
+    private <T> T call(Long userId, AiFeature feature, BiFunction<String, String, AiClient.Answer<T>> request) {
         User user = user(userId);
         boolean own = user.getAiApiKey() != null;
         if (!own) {
@@ -98,8 +110,7 @@ public class AiService {
             }
         }
         String model = model(user);
-        AiClient.Answer<T> answer = client.structured(own ? cipher.decrypt(user.getAiApiKey()) : properties.apiKey(), model, system, text, type,
-            maxTokens, effort);
+        AiClient.Answer<T> answer = request.apply(own ? cipher.decrypt(user.getAiApiKey()) : properties.apiKey(), model);
         record(userId, feature, own, model, answer.inputTokens(), answer.outputTokens());
         return answer.value();
     }

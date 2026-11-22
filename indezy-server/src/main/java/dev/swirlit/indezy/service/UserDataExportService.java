@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.ai.ChatAiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class UserDataExportService {
     private final ProjectAttachmentService projectAttachmentService;
     private final EmailTemplateService emailTemplateService;
     private final ProjectNoteService projectNoteService;
+    private final ChatAiService chatAiService;
     private final SeasonService seasonService;
     private final FreelanceService freelanceService;
     private final PublicProfileService publicProfileService;
@@ -78,6 +80,7 @@ public class UserDataExportService {
         export.put("expenses", expenseService.list(freelanceId, null));
         export.put("projects", projectService.findByFreelanceId(freelanceId));
         export.put("projectNotes", projectNoteService.export(freelanceId));
+        export.put("aiConversations", chatAiService.export(freelanceId));
         export.put("seasons", seasonService.findByFreelanceId(freelanceId));
         export.put("clients", clientService.findByFreelanceId(freelanceId));
         export.put("contacts", contactService.findByFreelanceId(freelanceId));

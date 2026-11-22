@@ -11,12 +11,17 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @RestController
@@ -29,6 +34,7 @@ public class AiController {
     private final PostingAiService postings;
     private final MessageAiService messages;
     private final FitAiService fits;
+    private final ChatAiService chats;
     private final AccessGuard accessGuard;
 
     /** A job posting pasted as text. */
@@ -56,6 +62,15 @@ public class AiController {
         @Override
         public String toString() {
             return "FitRequest[projectId=" + projectId + "]";
+        }
+    }
+
+    /** A question about an opportunity. */
+    public record Question(@NotBlank @Size(max = ChatAiService.QUESTION_MAX) String text) {
+
+        @Override
+        public String toString() {
+            return "Question[]";
         }
     }
 
@@ -98,5 +113,27 @@ public class AiController {
         accessGuard.requireProject(request.projectId());
         return messages.draft(SecurityUtils.getCurrentUserId(), request.projectId(), request.kind(),
             request.language() == null ? DocumentLanguage.FR : request.language(), request.notes());
+    }
+
+    @Operation(summary = "The AI conversation about an opportunity, oldest first")
+    @GetMapping("/chat/{projectId}")
+    public List<ChatAiService.Turn> chat(@PathVariable Long projectId) {
+        accessGuard.requireProject(projectId);
+        return chats.history(projectId);
+    }
+
+    @Operation(summary = "Ask the AI about an opportunity; the question and the answer are kept with it")
+    @PostMapping("/chat/{projectId}")
+    public List<ChatAiService.Turn> ask(@PathVariable Long projectId, @Valid @RequestBody Question question) {
+        accessGuard.requireProject(projectId);
+        return chats.ask(SecurityUtils.getCurrentUserId(), projectId, question.text());
+    }
+
+    @Operation(summary = "Clear the AI conversation about an opportunity")
+    @DeleteMapping("/chat/{projectId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void clearChat(@PathVariable Long projectId) {
+        accessGuard.requireProject(projectId);
+        chats.clear(projectId);
     }
 }

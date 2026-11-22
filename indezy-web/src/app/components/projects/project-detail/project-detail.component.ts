@@ -65,10 +65,11 @@ import { NonSolicitationNoticeComponent } from './non-solicitation-notice/non-so
 import { CompanyHealthComponent } from '../../../shared/components/company-health/company-health.component';
 import { AiMessageDialogComponent, AiMessageDialogData } from '../../../shared/components/ai-message-dialog/ai-message-dialog.component';
 import { AiFitDialogComponent, AiFitDialogData } from '../../../shared/components/ai-fit-dialog/ai-fit-dialog.component';
+import { AiChatComponent } from './ai-chat/ai-chat.component';
 
 @Component({
     selector: 'app-project-detail',
-    imports: [CompanyHealthComponent, ProjectCommuteComponent, ContractChecklistComponent, NonSolicitationNoticeComponent, PaymentDelayComponent,
+    imports: [AiChatComponent, CompanyHealthComponent, ProjectCommuteComponent, ContractChecklistComponent, NonSolicitationNoticeComponent, PaymentDelayComponent,
         ProjectLinkComponent, ShareToNetworkComponent,
         ProjectResourcesComponent,
         ActivityReportCardComponent,

@@ -4789,6 +4789,22 @@
         "rate": "Le TJM"
       },
       "suggestedRate": "TJM à demander : {{rate}} € par jour"
+    },
+    "chat": {
+      "title": "Demander à l'IA sur cette opportunité",
+      "open": "Commencer",
+      "hint": "Préparez un entretien, la négociation ou la suite : l'IA connaît cette opportunité, ses notes, ses étapes et son journal. La conversation reste avec l'opportunité.",
+      "suggestions": {
+        "interview": "Quelles questions préparer pour le prochain entretien ?",
+        "negotiation": "Comment négocier le TJM de cette mission ?",
+        "postMortem": "Que retenir de la façon dont cette opportunité s'est passée ?"
+      },
+      "you": "Vous",
+      "ai": "IA",
+      "question": "Votre question",
+      "ask": "Demander",
+      "clear": "Effacer la conversation",
+      "clearConfirm": "Effacer toute la conversation sur cette opportunité ?"
     }
   }
 }

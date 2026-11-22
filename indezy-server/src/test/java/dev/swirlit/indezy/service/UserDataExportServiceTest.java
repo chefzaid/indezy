@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.ai.ChatAiService;
 import dev.swirlit.indezy.dto.AccountSecurityDtos;
 import dev.swirlit.indezy.dto.ActivityDayDto;
 import dev.swirlit.indezy.dto.ActivityReportDto;
@@ -133,6 +134,9 @@ class UserDataExportServiceTest {
 
     @Mock
     private ExpenseService expenseService;
+
+    @Mock
+    private ChatAiService chatAiService;
 
     @Mock
     private NetworkService networkService;

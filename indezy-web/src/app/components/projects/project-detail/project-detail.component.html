@@ -105,6 +105,7 @@
           </button>
         </mat-card-actions>
       </mat-card>
+      <app-ai-chat [projectId]="project.id!"></app-ai-chat>
       <div class="details-grid">
         @if (project.status === 'WON') {
           <app-activity-report-card [project]="project"></app-activity-report-card>

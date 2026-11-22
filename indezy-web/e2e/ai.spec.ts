@@ -62,6 +62,21 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await settleDialog(page);
     const fitAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
     expect(fitAudit.violations.map(violation => violation.id)).toEqual([]);
+    await page.keyboard.press('Escape');
+    await expect(weighing).toHaveCount(0);
+
+    const turns = [{ id: 1, fromMember: true, text: en ? 'How should I negotiate the rate for this mission?' : 'Comment négocier le TJM de cette mission ?',
+      createdAt: '2026-11-22T10:00:00' }, { id: 2, fromMember: false, text: en ? 'Anchor at 720 €.' : 'Ancrez à 720 €.', createdAt: '2026-11-22T10:00:05' }];
+    await page.route('**/api/ai/chat/42', route => route.fulfill({ json: route.request().method() === 'POST' ? turns : [] }));
+    const chat = page.locator('[data-ai-chat]');
+    await chat.locator('[data-ai-chat-open]').click();
+    await expect(chat.locator('[data-ai-chat-question]')).toBeVisible();
+    await chat.locator('[data-ai-chat-suggestion="negotiation"]').click();
+    await expect(chat.locator('[data-ai-chat-question]')).not.toHaveValue('');
+    await chat.locator('[data-ai-chat-ask]').click();
+    await expect(chat.locator('[data-ai-chat-turn="ai"]')).toContainText(en ? 'Anchor at 720 €.' : 'Ancrez à 720 €.');
+    const chatAudit = await new AxeBuilder({ page }).include('[data-ai-chat]').withTags(WCAG).analyze();
+    expect(chatAudit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 

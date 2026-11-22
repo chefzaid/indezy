@@ -1,0 +1,52 @@
+<mat-card class="ai-chat" data-ai-chat>
+  <mat-card-content>
+    <div class="head">
+      <h3 class="card-title"><mat-icon aria-hidden="true">forum</mat-icon>{{ 'ai.chat.title' | translate }}</h3>
+      @if (open) {
+        @if (turns.length) {
+          <button mat-button type="button" (click)="clear()" data-ai-chat-clear>{{ 'ai.chat.clear' | translate }}</button>
+        }
+      } @else {
+        <button mat-stroked-button type="button" (click)="start()" data-ai-chat-open>
+          <mat-icon>auto_awesome</mat-icon>{{ 'ai.chat.open' | translate }}
+        </button>
+      }
+    </div>
+    @if (open) {
+      @if (turns.length === 0) {
+        <p class="hint">{{ 'ai.chat.hint' | translate }}</p>
+        <div class="suggestions">
+          @for (suggestion of suggestions; track suggestion) {
+            <button mat-stroked-button type="button" (click)="suggest(suggestion)" [attr.data-ai-chat-suggestion]="suggestion">
+              {{ 'ai.chat.suggestions.' + suggestion | translate }}
+            </button>
+          }
+        </div>
+      }
+      <ol class="turns" aria-live="polite" data-ai-chat-turns>
+        @for (turn of turns; track turn.id) {
+          <li [class.mine]="turn.fromMember" [attr.data-ai-chat-turn]="turn.fromMember ? 'member' : 'ai'">
+            <span class="who">{{ (turn.fromMember ? 'ai.chat.you' : 'ai.chat.ai') | translate }}</span>
+            <p>{{ turn.text }}</p>
+          </li>
+        }
+      </ol>
+      @if (errorKey) {
+        <p class="error" role="alert" data-ai-error>{{ errorKey | translate }}</p>
+      }
+      <div class="ask">
+        <mat-form-field appearance="outline" class="full" subscriptSizing="dynamic">
+          <mat-label>{{ 'ai.chat.question' | translate }}</mat-label>
+          <textarea matInput [formControl]="question" rows="2" [attr.maxlength]="max" data-ai-chat-question></textarea>
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="button" (click)="ask()" [disabled]="asking" data-ai-chat-ask>
+          @if (asking) {
+            <mat-spinner diameter="18" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+          }
+          {{ 'ai.chat.ask' | translate }}
+        </button>
+      </div>
+      <p class="disclaimer">{{ 'ai.disclaimer' | translate }}</p>
+    }
+  </mat-card-content>
+</mat-card>

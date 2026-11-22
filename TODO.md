@@ -395,7 +395,7 @@ Increments, implemented in order:
 - [ ] Project recommendation engine combining peer-shared opportunities, skill match, market data, and soft criteria
 - [ ] Auto-adapt CV to postulate for each job with adapted tech stack and experiences
 - [x] AI-generated personalized follow-up and application messages. Done on 2026-11-22: **Draft a message (AI)** on an opportunity, an application, follow-up, thank-you or decline, editable and copied (`docs/features.md#ai-features`).
-- [ ] AI chat scoped to a project: the opportunity (description, notes, history) becomes the conversation context — interview prep, negotiation angles, post-mortem; history stored per project
+- [x] AI chat scoped to a project: the opportunity (description, notes, history) becomes the conversation context — interview prep, negotiation angles, post-mortem; history stored per project. Done on 2026-11-22: **Ask the AI about this opportunity** on its page (`docs/features.md#ai-features`).
 - [ ] Semantic search across past opportunities and notes (by meaning, not just keywords)
 - [ ] CV/Dossier de compétences generator tailored to a specific opportunity
 - [ ] Automated status update suggestions from email content and user behavior (e.g. detect rejection, interview invite, or likely stale opportunity)

@@ -639,6 +639,11 @@ never saved or sent on its own:
   the interview, and what to think of the rate against the profile's target and the feed's market median for its main
   skill, with a rate to ask; from the opportunity, the profile (skills and years, target rate, town, presentation) and
   what matters to the freelancer.
+- **Ask the AI about this opportunity**, a card on its page (`GET`/`POST`/`DELETE /api/ai/chat/{projectId}`): a
+  conversation for interview preparation, negotiation or a post-mortem, with suggested questions; the opportunity's
+  description, notes, steps and latest journal entries are its context, the last 20 turns go back with each question
+  (2,000 characters at most), and the history stays with the opportunity, cleared on request, deleted with it and part of
+  the data export.
 - **Profile → Preferences → AI** (`GET /api/ai/status`, `PUT`/`DELETE /api/ai/key`): whether AI can be used and this
   month's allowance on Indezy's key (2 US dollars by default), or the member's own Anthropic key, stored encrypted, with
   Opus, Sonnet or Haiku 5.5, which no limit applies to. An allowance used up, Indezy's monthly cap reached, a refusal or a

@@ -25,6 +25,7 @@ import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
 import dev.swirlit.indezy.repository.ProjectAttachmentRepository;
+import dev.swirlit.indezy.repository.ProjectChatMessageRepository;
 import dev.swirlit.indezy.repository.ProjectNoteRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
@@ -60,6 +61,7 @@ public class ProjectService {
     private final SourceRepository sourceRepository;
     private final InterviewStepRepository interviewStepRepository;
     private final ProjectNoteRepository projectNoteRepository;
+    private final ProjectChatMessageRepository projectChatMessageRepository;
     private final ProjectAttachmentRepository projectAttachmentRepository;
     private final ContactInteractionRepository contactInteractionRepository;
     private final ActivityReportRepository activityReportRepository;
@@ -284,6 +286,7 @@ public class ProjectService {
         // Interview steps cascade with the project; journal notes, files and activity reports are not mapped on it.
         contactInteractionRepository.clearProject(id);
         projectNoteRepository.deleteByProjectId(id);
+        projectChatMessageRepository.deleteByProjectId(id);
         projectAttachmentRepository.deleteByProjectId(id);
         activityReportRepository.deleteByProjectId(id);
         purchaseOrderRepository.deleteByProjectId(id);

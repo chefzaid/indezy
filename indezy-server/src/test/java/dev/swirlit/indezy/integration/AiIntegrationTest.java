@@ -51,6 +51,8 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = "{\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}}";
             } else if (body.contains("PLEASE-REFUSE")) {
                 answer = message("", "refusal");
+            } else if (body.contains("You are the coach")) {
+                answer = message("Préparez trois exemples de projets Kafka.", "end_turn");
             } else if (body.contains("<profile>")) {
                 answer = message("{\"score\":140,\"verdict\":\"Une bonne mission.\",\"pros\":[\"Stack Java\",\" \",\"Télétravail\"]," +
                     "\"cons\":[\"Loin\"],\"softCriteria\":[\"Le style du manager\"],\"questions\":[\"Taille de l'équipe ?\"]," +
@@ -148,6 +150,18 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(BODIES.getLast()).contains("<profile>", "Java Senior", "Pas plus de 2 jours sur site", "\"effort\":\"medium\"");
         assertThat(call(bob, HttpMethod.POST, "/ai/fit", Map.of("projectId", project), String.class).getStatusCode())
             .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
+
+        // A conversation about the opportunity, kept with it: the history goes back with each question.
+        List<Map<String, Object>> chat = call(alice, HttpMethod.POST, "/ai/chat/" + project, Map.of("text", "Comment préparer l'entretien ?"),
+            List.class).getBody();
+        assertThat(chat).extracting(turn -> turn.get("text")).containsExactly("Comment préparer l'entretien ?",
+            "Préparez trois exemples de projets Kafka.");
+        call(alice, HttpMethod.POST, "/ai/chat/" + project, Map.of("text", "Et pour le TJM ?"), List.class);
+        assertThat(BODIES.getLast()).contains("Comment préparer l'entretien ?", "Préparez trois exemples", "Et pour le TJM ?", "Java Senior");
+        assertThat(call(alice, HttpMethod.GET, "/ai/chat/" + project, null, List.class).getBody()).hasSize(4);
+        assertThat(call(bob, HttpMethod.GET, "/ai/chat/" + project, null, String.class).getStatusCode()).isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.DELETE, "/ai/chat/" + project, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(alice, HttpMethod.GET, "/ai/chat/" + project, null, List.class).getBody()).isEmpty();
 
         // A refusal, and a key Anthropic refuses, are told as such.
         assertThat(call(alice, HttpMethod.POST, "/ai/posting", Map.of("text", "PLEASE-REFUSE"), Map.class).getBody())

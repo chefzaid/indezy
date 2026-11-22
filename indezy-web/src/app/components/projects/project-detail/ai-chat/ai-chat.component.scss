@@ -1,0 +1,94 @@
+:host {
+  display: block;
+  margin: 16px 0;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.hint,
+.disclaimer {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.disclaimer {
+  margin: 8px 0 0;
+  font-size: 0.8125rem;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.turns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    max-width: 90%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: var(--app-chip-neutral-bg);
+
+    &.mine {
+      align-self: flex-end;
+      background: var(--app-chip-indigo-bg);
+    }
+  }
+
+  .who {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 2px 0 0;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+}
+
+.error {
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}
+
+.ask {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+
+  .full {
+    flex: 1 1 260px;
+  }
+}
+
+mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}

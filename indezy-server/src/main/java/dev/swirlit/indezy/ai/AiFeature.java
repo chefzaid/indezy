@@ -7,5 +7,7 @@ public enum AiFeature {
     /** A message to a contact drafted or polished. */
     MESSAGE,
     /** An opportunity weighed against the profile. */
-    FIT
+    FIT,
+    /** A conversation about an opportunity. */
+    CHAT
 }
