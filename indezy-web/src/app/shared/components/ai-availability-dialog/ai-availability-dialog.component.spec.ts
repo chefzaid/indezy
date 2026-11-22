@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 import { NetworkDraft } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NetworkService } from '../../../services/network/network.service';
+import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { AiAvailabilityDialogComponent } from './ai-availability-dialog.component';
 
@@ -26,7 +27,7 @@ describe('AiAvailabilityDialogComponent', () => {
       imports: [AiAvailabilityDialogComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
-        { provide: Clipboard, useValue: clipboard }]
+        { provide: Clipboard, useValue: clipboard }, { provide: ContactService, useValue: { availabilityRecipients: () => of([]) } }]
     });
     const fixture = TestBed.createComponent(AiAvailabilityDialogComponent);
     fixture.detectChanges();

@@ -329,6 +329,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/components/ai-interview-dialog/ai-interview-dialog.component',
   'shared/components/ai-message-dialog/ai-message-dialog.component',
   'shared/components/ai-negotiation-dialog/ai-negotiation-dialog.component',
+  'shared/components/availability-emails/availability-emails.component',
   'shared/components/company-health/company-health.component',
   'shared/components/confirm-dialog/confirm-dialog.component',
   'shared/components/list-selection-bar/list-selection-bar.component',

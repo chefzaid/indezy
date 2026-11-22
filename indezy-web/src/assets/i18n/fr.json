@@ -5059,5 +5059,19 @@
     "filesMax": "Jusqu'à {{max}} fichiers accompagnent une demande.",
     "fileRefused": "{{name}} est laissé de côté : envoyez un PNG, un JPEG ou un PDF de 5 Mo au plus.",
     "downloadError": "Le fichier n'a pas pu être téléchargé."
+  },
+  "availabilityEmails": {
+    "title": "Écrire à mes contacts ESN",
+    "none": "Aucune des ESN avec qui vous avez eu une opportunité n'a de contact avec une adresse e-mail.",
+    "hint": "Les contacts des ESN avec qui vous avez eu une opportunité. Un e-mail chacun part d'Indezy, à votre nom avec les réponses vers vous, noté dans leurs échanges.",
+    "subject": "Objet",
+    "body": "Message",
+    "variable": "{{firstName}} devient le prénom de chaque contact.",
+    "dossier": "Joindre mon dossier de compétences (PDF)",
+    "send": "Envoyer à {{count}} contacts",
+    "sent": "Envoyé à {{count}} contacts.",
+    "failed": "Non envoyé à {{names}} : réessayez, ou écrivez-leur depuis votre messagerie.",
+    "defaultText": "Je serai bientôt disponible pour une nouvelle mission. Avez-vous des besoins qui correspondent à mon profil ?",
+    "attached": "Vous trouverez mon dossier de compétences en pièce jointe."
   }
 }

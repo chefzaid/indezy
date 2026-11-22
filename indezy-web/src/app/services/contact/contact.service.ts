@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ContactDto, ContactEmailRequest, ContactEmailStatus, ContactInteraction, ContactInteractions, ContactRelation } from '../../models/contact.models';
+import { AvailabilityRecipient, ContactDto, ContactEmailRequest, ContactEmailStatus, ContactInteraction, ContactInteractions, ContactRelation } from '../../models/contact.models';
 import { AuthService } from '../auth/auth.service';
 import { BulkDeleteResult } from '../../models/bulk.models';
 
@@ -77,6 +77,11 @@ export class ContactService {
   /** Whether email can go from Indezy, and how many went in the last 24 hours. */
   emailStatus(): Observable<ContactEmailStatus> {
     return this.http.get<ContactEmailStatus>(`${this.API_URL}/emails/status`);
+  }
+
+  /** The contacts of the ESNs the workspace worked with who have an address: whom to tell of an availability. */
+  availabilityRecipients(): Observable<AvailabilityRecipient[]> {
+    return this.http.get<AvailabilityRecipient[]>(`${this.API_URL}/emails/availability-recipients`);
   }
 
   /** Emails a contact through Indezy; the exchange it is recorded as. */

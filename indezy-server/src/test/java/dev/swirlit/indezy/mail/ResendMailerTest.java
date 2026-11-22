@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,11 +68,23 @@ class ResendMailerTest {
     @Test
     void sendsAMembersEmailInTheirNameWithAnswersToThem() throws Exception {
         mailer("re_secret").send(new Email("lea@acme.example", "Mission Java", "<p>Bonjour</p>", "Bonjour", Map.of(), "contact-email-1",
-            "Alice Martin", "alice@example.com"));
+            "Alice Martin", "alice@example.com", List.of()));
         JsonNode body = JsonMapper.builder().build().readTree(received.get("body"));
         assertThat(body.path("from").asString()).isEqualTo("\"Alice Martin via Indezy\" <noreply@swirlit.dev>");
         assertThat(body.path("reply_to").get(0).asString()).isEqualTo("alice@example.com");
         assertThat(received.get("body")).doesNotContain("\"reply_to\":null");
+        assertThat(body.has("attachments")).isFalse();
+    }
+
+    @Test
+    void attachesFilesInBase64() throws Exception {
+        mailer("re_secret").send(new Email("lea@acme.example", "Dispo", "<p>Bonjour</p>", "Bonjour", Map.of(), "contact-email-2",
+            "Alice Martin", "alice@example.com", List.of()).withAttachments(List.of(new Email.Attachment("dossier.pdf", "application/pdf",
+            "%PDF".getBytes(java.nio.charset.StandardCharsets.US_ASCII)))));
+        JsonNode file = JsonMapper.builder().build().readTree(received.get("body")).path("attachments").get(0);
+        assertThat(file.path("filename").asString()).isEqualTo("dossier.pdf");
+        assertThat(file.path("content").asString()).isEqualTo("JVBERg==");
+        assertThat(file.path("content_type").asString()).isEqualTo("application/pdf");
     }
 
     @Test

@@ -29,6 +29,13 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     // The availability announced with AI: both posts drafted, the network one kept as a draft.
     await page.route('**/api/ai/availability**', route => route.fulfill({ json: { linkedin: en ? 'Available from February.' : 'Disponible en février.',
       network: en ? 'Free on 1 February.' : 'Dispo le 1er février.', availableFrom: '2027-02-01' } }));
+    await page.route('**/api/contacts/emails/availability-recipients', route => route.fulfill({ json: [
+      { id: 7, firstName: 'Léa', name: 'Léa Martin', company: 'Conseil Exemple', email: 'lea@conseil.example' }] }));
+    const emails: Record<string, unknown>[] = [];
+    await page.route('**/api/contacts/7/emails', route => {
+      emails.push(route.request().postDataJSON());
+      return route.fulfill({ status: 201, json: { id: 30, channel: 'EMAIL', direction: 'OUTGOING' } });
+    });
     const drafts: unknown[] = [];
     await page.route('**/api/network/drafts', route => {
       drafts.push(route.request().postDataJSON());
@@ -45,5 +52,17 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await dialog.locator('[data-ai-availability-draft]').click();
     await expect.poll(() => drafts.length).toBe(1);
     expect(drafts[0]).toEqual({ text: en ? 'Free on 1 February.' : 'Dispo le 1er février.', scheduledAt: null });
+
+    // The ESN contacts worked with, written to once ticked, the dossier attached.
+    await dialog.locator('[data-availability-emails] summary').click();
+    await expect(dialog.locator('[data-availability-emails-body]')).toHaveValue(new RegExp(en ? 'Free on 1 February' : 'Dispo le 1er février'));
+    const emailsAudit = await new AxeBuilder({ page }).include('[data-availability-emails]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(emailsAudit.violations.map(violation => violation.id)).toEqual([]);
+    await expect(dialog.locator('[data-availability-emails-send]')).toBeDisabled();
+    await dialog.locator('[data-availability-recipient="7"] input').check();
+    await dialog.locator('[data-availability-emails-send]').click();
+    await expect.poll(() => emails.length).toBe(1);
+    expect(emails[0]).toEqual(expect.objectContaining({ dossier: true, track: false }));
+    expect(String(emails[0]['body'])).toMatch(en ? /^Hello Léa,/ : /^Bonjour Léa,/);
   });
 }

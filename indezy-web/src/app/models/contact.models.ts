@@ -78,6 +78,17 @@ export interface ContactEmailRequest {
   track: boolean;
   copy: boolean;
   language: 'FR' | 'EN';
+  /** Attaches the dossier de compétences. */
+  dossier?: boolean;
+}
+
+/** A contact of an ESN the workspace worked with, who has an address. */
+export interface AvailabilityRecipient {
+  id: number;
+  firstName: string | null;
+  name: string;
+  company: string;
+  email: string;
 }
 
 /** A contact's exchanges, newest first, and what they say about the relationship. */

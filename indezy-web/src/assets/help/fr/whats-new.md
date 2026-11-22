@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Prévenir vos contacts ESN de votre disponibilité
+
+Depuis **Annoncer ma disponibilité (IA)**, écrivez aux contacts que vous cochez dans les ESN avec qui vous avez travaillé, votre dossier de compétences en pièce jointe. Voir [Le tableau de bord](/help/dashboard).
+
 ### Des captures pour le support
 
 Ajoutez jusqu'à trois captures ou un PDF à une demande au support. Voir [Questions fréquentes](/help/faq).

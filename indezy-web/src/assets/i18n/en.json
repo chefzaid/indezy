@@ -5059,5 +5059,19 @@
     "filesMax": "Up to {{max}} files go with a request.",
     "fileRefused": "{{name}} is left out: send a PNG, a JPEG or a PDF of 5 MB at most.",
     "downloadError": "The file could not be downloaded."
+  },
+  "availabilityEmails": {
+    "title": "Email my ESN contacts",
+    "none": "None of the ESNs you had an opportunity with has a contact with an email address.",
+    "hint": "The contacts of the ESNs you had an opportunity with. One email each goes from Indezy, in your name with answers to you, recorded in their exchanges.",
+    "subject": "Subject",
+    "body": "Message",
+    "variable": "{{firstName}} becomes each contact's first name.",
+    "dossier": "Attach my dossier de compétences (PDF)",
+    "send": "Send to {{count}} contacts",
+    "sent": "Sent to {{count}} contacts.",
+    "failed": "Not sent to {{names}}: try again, or write to them from your mail app.",
+    "defaultText": "I will be available for a new mission soon. Do you have needs that match my profile?",
+    "attached": "You will find my dossier de compétences attached."
   }
 }

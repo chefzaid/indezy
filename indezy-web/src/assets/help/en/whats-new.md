@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Tell your ESN contacts you are available
+
+From **Announce my availability (AI)**, email the contacts you tick at the ESNs you worked with, your dossier de compétences attached. See [The dashboard](/help/dashboard).
+
 ### Screenshots for support
 
 Add up to three screenshots or a PDF to a request to support. See [Frequently asked questions](/help/faq).

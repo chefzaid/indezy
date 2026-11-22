@@ -3,6 +3,7 @@ package dev.swirlit.indezy.mail;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 import static dev.swirlit.indezy.mail.SavedSearchEmailComposer.escape;
@@ -39,7 +40,7 @@ public class ContactEmailComposer {
             html.append("<img src=\"").append(escape(pixel(token))).append("\" width=\"1\" height=\"1\" alt=\"\" style=\"display:block;border:0\">");
         }
         String text = body.strip() + "\n\n--\n" + notice + "\n";
-        return new Email(to, subject.strip(), html.toString(), text, Map.of(), key, sender.name(), sender.replyTo());
+        return new Email(to, subject.strip(), html.toString(), text, Map.of(), key, sender.name(), sender.replyTo(), List.of());
     }
 
     /** The copy the sender gets: the same message, without the tracking image, so reading it counts nothing. */
@@ -52,7 +53,7 @@ public class ContactEmailComposer {
             html.append("<p>").append(escape(paragraph.strip()).replaceAll("\\R", "<br>")).append("</p>");
         }
         return new Email(to, (english ? "Copy: " : "Copie : ") + subject.strip(), html.toString(), intro + "\n\n" + body.strip() + "\n", Map.of(),
-            key, null, null);
+            key, null, null, List.of());
     }
 
     /** The tracking image's address. */

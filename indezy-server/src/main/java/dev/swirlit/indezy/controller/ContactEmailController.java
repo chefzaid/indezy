@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.ContactInteractionDto;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.ContactEmailService;
+import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Base64;
+import java.util.List;
 
 /** Emails sent to contacts through Indezy, and the image that tells when a tracked one is opened. */
 @RestController
@@ -36,7 +38,7 @@ public class ContactEmailController {
     /** An email to a contact. */
     public record SendRequest(Long projectId, @NotBlank @Size(max = ContactEmailService.SUBJECT_MAX) String subject,
                               @NotBlank @Size(max = ContactEmailService.BODY_MAX) String body, Boolean track, Boolean copy,
-                              DocumentLanguage language) {
+                              DocumentLanguage language, Boolean dossier) {
 
         // Spring MVC logs bodies through toString at DEBUG: never the subject or the message.
         @Override
@@ -56,8 +58,16 @@ public class ContactEmailController {
     public ContactInteractionDto send(@PathVariable Long contactId, @Valid @RequestBody SendRequest request) {
         accessGuard.requireContact(contactId);
         accessGuard.requireProjectIfPresent(request.projectId());
-        return emails.send(accessGuard.requireWorkspace(null), contactId, new ContactEmailService.Message(request.projectId(),
-            request.subject(), request.body(), Boolean.TRUE.equals(request.track()), Boolean.TRUE.equals(request.copy()), request.language()));
+        return emails.send(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), contactId, new ContactEmailService.Message(
+            request.projectId(), request.subject(), request.body(), Boolean.TRUE.equals(request.track()), Boolean.TRUE.equals(request.copy()),
+            request.language(), Boolean.TRUE.equals(request.dossier())));
+    }
+
+    @Operation(summary = "The contacts of the ESNs the workspace worked with, who have an address",
+        description = "Whom to tell of an availability, by company then name")
+    @GetMapping("/contacts/emails/availability-recipients")
+    public List<ContactEmailService.Recipient> availabilityRecipients() {
+        return emails.availabilityRecipients(accessGuard.requireWorkspace(null));
     }
 
     @Operation(summary = "The tracking image of an email sent through Indezy", description = "Counts an open; the same image for any token")

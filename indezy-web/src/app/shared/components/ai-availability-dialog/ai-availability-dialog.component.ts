@@ -15,15 +15,17 @@ import { DocumentLanguage } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { AvailabilityEmailsComponent } from '../availability-emails/availability-emails.component';
 
 /**
  * Drafts the announcement of the next availability with AI (see docs/features.md#ai-features): a LinkedIn post to copy
- * and a network post to copy or keep as a network draft, both editable; nothing is posted from here.
+ * and a network post to copy or keep as a network draft, both editable; nothing is posted from here. Below, the emails to
+ * the ESN contacts worked with, which go only once they are ticked and sent.
  */
 @Component({
   selector: 'app-ai-availability-dialog',
   imports: [DatePipe, ReactiveFormsModule, MatButtonModule, MatButtonToggleModule, MatDialogModule, MatFormFieldModule, MatIconModule,
-    MatInputModule, MatProgressSpinnerModule, TranslateModule],
+    MatInputModule, MatProgressSpinnerModule, TranslateModule, AvailabilityEmailsComponent],
   template: `
     <h2 mat-dialog-title>{{ 'ai.availability.title' | translate }}</h2>
     <mat-dialog-content>
@@ -63,6 +65,7 @@ import { NotificationService } from '../../../services/notification/notification
         </div>
         <p class="disclaimer">{{ 'ai.disclaimer' | translate }}</p>
       }
+      <app-availability-emails [language]="language.value" [availableFrom]="availableFrom" [text]="network.value" />
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button type="button" mat-dialog-close>{{ 'common.close' | translate }}</button>

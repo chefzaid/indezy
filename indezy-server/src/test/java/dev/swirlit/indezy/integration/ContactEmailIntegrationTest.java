@@ -133,4 +133,38 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM contact_interactions WHERE contact_id = ?", Integer.class, contact))
             .isEqualTo(2);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void listsTheEsnContactsWorkedWithAndAttachesTheDossier() throws Exception {
+        long esn = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Conseil Exemple", "city", "Lyon", "isFinal", false, "freelanceId", alice.freelanceId()), Map.class));
+        long endClient = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Banque Exemple", "city", "Lyon", "isFinal", true, "freelanceId", alice.freelanceId()), Map.class));
+        long unknown = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Autre ESN", "city", "Lyon", "isFinal", false, "freelanceId", alice.freelanceId()), Map.class));
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "WON", "clientId", endClient,
+            "middlemanId", esn), Map.class);
+        long lea = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Léa", "lastName", "Martin", "email", "lea@conseil.example",
+            "clientId", esn), Map.class));
+        call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Paul", "lastName", "Sans", "clientId", esn), Map.class);
+        call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Zoé", "lastName", "Banque", "email", "zoe@banque.example",
+            "clientId", endClient), Map.class);
+        call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Marc", "lastName", "Autre", "email", "marc@autre.example",
+            "clientId", unknown), Map.class);
+
+        List<Map<String, Object>> recipients = call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody();
+        assertThat(recipients).extracting(recipient -> recipient.get("name") + " <" + recipient.get("email") + "> " + recipient.get("company"))
+            .containsExactly("Léa Martin <lea@conseil.example> Conseil Exemple");
+        assertThat(call(bob, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody()).isEmpty();
+
+        when(mailer.configured()).thenReturn(true);
+        when(mailer.send(any())).thenReturn("e-3");
+        call(alice, HttpMethod.POST, "/contacts/" + lea + "/emails", Map.of("subject", "Disponible en février", "body", "Bonjour Léa,",
+            "dossier", true, "language", "FR"), Map.class);
+        ArgumentCaptor<Email> emails = ArgumentCaptor.forClass(Email.class);
+        verify(mailer).send(emails.capture());
+        assertThat(emails.getValue().attachments()).singleElement().satisfies(file -> {
+            assertThat(file.contentType()).isEqualTo("application/pdf");
+            assertThat(file.fileName()).endsWith(".pdf");
+            assertThat(new String(file.content(), 0, 5, java.nio.charset.StandardCharsets.US_ASCII)).isEqualTo("%PDF-");
+        });
+    }
 }

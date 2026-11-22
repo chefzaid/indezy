@@ -7,12 +7,14 @@ import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.exception.ServiceUnavailableException;
 import dev.swirlit.indezy.mail.ContactEmailComposer;
+import dev.swirlit.indezy.mail.Email;
 import dev.swirlit.indezy.mail.MailException;
 import dev.swirlit.indezy.mail.ResendMailer;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.ContactInteraction;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DossierLayout;
 import dev.swirlit.indezy.model.enums.InteractionChannel;
 import dev.swirlit.indezy.model.enums.InteractionDirection;
 import dev.swirlit.indezy.repository.ContactInteractionRepository;
@@ -31,7 +33,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Base64;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,16 +69,29 @@ public class ContactEmailService {
     private final ContactInteractionRepository interactions;
     private final ProjectRepository projects;
     private final FreelanceRepository freelances;
+    private final DossierService dossiers;
     private final Clock clock;
 
-    /** What to send: about an opportunity or not, with open tracking or not, with a copy to the sender or not. */
-    public record Message(Long projectId, String subject, String body, boolean track, boolean copy, DocumentLanguage language) {
+    /**
+     * What to send: about an opportunity or not, with open tracking or not, with a copy to the sender or not, with the
+     * dossier de compétences attached or not.
+     */
+    public record Message(Long projectId, String subject, String body, boolean track, boolean copy, DocumentLanguage language,
+                          boolean dossier) {
+
+        public Message(Long projectId, String subject, String body, boolean track, boolean copy, DocumentLanguage language) {
+            this(projectId, subject, body, track, copy, language, false);
+        }
 
         // Spring MVC logs bodies through toString at DEBUG: never the subject or the message.
         @Override
         public String toString() {
             return "Message[projectId=" + projectId + ", track=" + track + "]";
         }
+    }
+
+    /** A contact of an ESN the workspace worked with, who can be emailed. */
+    public record Recipient(Long id, String firstName, String name, String company, String email) {
     }
 
     /** Whether email can go from Indezy, and how many went for the workspace in the last 24 hours. */
@@ -85,8 +104,32 @@ public class ContactEmailService {
             clock.instant().minus(Duration.ofDays(1))), DAILY_MAX);
     }
 
+    /**
+     * The contacts with an address at the ESNs the workspace had an opportunity with (as the ESN or the client), not
+     * blacklisted, by company then name: whom to tell of an availability.
+     */
+    @Transactional(readOnly = true)
+    public List<Recipient> availabilityRecipients(Long freelanceId) {
+        Set<Long> workedWith = new HashSet<>();
+        projects.findByFreelanceId(freelanceId).forEach(project -> Stream.of(project.getClient(), project.getMiddleman())
+            .filter(Objects::nonNull).forEach(company -> workedWith.add(company.getId())));
+        return contacts.findByFreelanceId(freelanceId).stream()
+            .filter(contact -> contact.getEmail() != null && !contact.getEmail().isBlank() && contact.getAnonymizedAt() == null)
+            .filter(contact -> contact.getClient() != null && workedWith.contains(contact.getClient().getId()) &&
+                !Boolean.TRUE.equals(contact.getClient().getIsFinal()) && !Boolean.TRUE.equals(contact.getClient().getIsBlacklisted()))
+            .map(contact -> new Recipient(contact.getId(), contact.getFirstName(), contact.getFullName(), contact.getClient().getCompanyName(), contact.getEmail().strip()))
+            .sorted(Comparator.comparing(Recipient::company, String.CASE_INSENSITIVE_ORDER).thenComparing(Recipient::name, String.CASE_INSENSITIVE_ORDER))
+            .toList();
+    }
+
     @Transactional
     public ContactInteractionDto send(Long freelanceId, Long contactId, Message message) {
+        return send(null, freelanceId, contactId, message);
+    }
+
+    /** Sends the message, with the dossier de compétences of {@code userId}'s profile attached when asked. */
+    @Transactional
+    public ContactInteractionDto send(Long userId, Long freelanceId, Long contactId, Message message) {
         if (!mailer.configured()) {
             throw new InvalidStateException("Email cannot be sent from Indezy yet");
         }
@@ -121,9 +164,14 @@ public class ContactEmailService {
         String name = sender.isEmpty() ? "Indezy" : sender;
         DocumentLanguage language = message.language() == null ? DocumentLanguage.FR : message.language();
         String key = "contact-email-" + UUID.randomUUID();
+        Email email = composer.compose(contact.getEmail().strip(), subject, message.body(), new ContactEmailComposer.Sender(name,
+            freelance.getEmail()), language, interaction.getEmailToken(), key);
+        if (message.dossier() && userId != null) {
+            ActivityReportService.PdfFile dossier = dossiers.pdf(userId, freelanceId, DossierLayout.NAMED, language);
+            email = email.withAttachments(List.of(new Email.Attachment(dossier.fileName(), "application/pdf", dossier.content())));
+        }
         try {
-            mailer.send(composer.compose(contact.getEmail().strip(), subject, message.body(), new ContactEmailComposer.Sender(name,
-                freelance.getEmail()), language, interaction.getEmailToken(), key));
+            mailer.send(email);
         } catch (MailException e) {
             // Nothing is recorded: the transaction rolls back with this exception.
             throw new ServiceUnavailableException("The email could not be sent: try again in a moment, or send it from your mail app", e);

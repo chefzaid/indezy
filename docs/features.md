@@ -857,7 +857,15 @@ message to the chosen contact through Resend (`POST /api/contacts/{contactId}/em
 Indezy" at Indezy's sender address, answers going to the workspace's own address, the message as typed with a line under
 it saying who sent it through Indezy. It is recorded as an exchange by email from the freelancer, waiting for an answer,
 its subject as the summary and about the opportunity, so it counts in the follow-ups due; nothing is recorded when
-Resend refuses it. **Send me a copy** (on by default) sends the freelancer the same message without tracking.
+Resend refuses it. **Send me a copy** (on by default) sends the freelancer the same message without tracking. With
+`dossier: true` the [dossier de compétences](#dossier-de-competences) (named, in the email's language) goes attached.
+
+**Email my ESN contacts**, in **Announce my availability (AI)** on the week's goal, lists the contacts with an address at
+the ESNs the workspace had an opportunity with, as the ESN or the client (`GET /api/contacts/emails/availability-recipients`,
+end clients and blacklisted companies left out, by company then name), none ticked at first. The subject and message
+are written from the availability date and the network post when the section opens, `{{firstName}}` replaced by each
+contact's; **Send to N contacts** sends one email each, one after the other, with the dossier attached unless unticked,
+each recorded in the contact's exchanges and counted in the 50 a day; those that could not go are named and stay ticked.
 
 **Tell me when it is opened**, off by default and asked email by email (the owner's choice), adds a one-pixel image whose
 address holds a 256-bit random token (`GET /api/public/emails/{token}.gif`, the same image whatever the token) and says
@@ -1334,8 +1342,9 @@ mode. **Customize** shows, hides and orders its six blocks, saved with the accou
   since Monday against it, the opportunities under way, and how long nothing was added once it is a week or more; with
   **Find offers**, **Add an opportunity** and **Announce my availability (AI)** (`POST /api/ai/availability`): a
   LinkedIn post and a shorter network post from the profile and the day after the mission ends (else the profile's
-  availability date), editable, to copy, the network one kept as a network draft on request; nothing is posted. A
-  running open-ended mission shows none.
+  availability date), editable, to copy, the network one kept as a network draft on request; nothing is posted. Below,
+  **Email my ESN contacts** works without AI: see [Emails sent from Indezy](#emails-sent-from-indezy). A running
+  open-ended mission shows none.
 - **New offers**: the five unseen offers matching the profile best (the five newest without skills).
 - **Analytics**: [trends](#trends), outcomes and refusal reasons, source ROI, conversion funnels (overall and by source,
   client type and ESN), asked against obtained rates by year, bench time with its cost, time to signature per client or

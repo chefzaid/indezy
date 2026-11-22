@@ -43,10 +43,12 @@ class ContactEmailServiceTest {
     private ProjectRepository projects;
     @Mock
     private FreelanceRepository freelances;
+    @Mock
+    private DossierService dossiers;
 
     @Test
     void sendsAtMostFiftyEmailsADayForAWorkspace() throws Exception {
-        ContactEmailService service = new ContactEmailService(mailer, composer, contacts, interactions, projects, freelances,
+        ContactEmailService service = new ContactEmailService(mailer, composer, contacts, interactions, projects, freelances, dossiers,
             Clock.fixed(NOW, ZoneOffset.UTC));
         Contact contact = new Contact();
         contact.setEmail("lea@acme.example");

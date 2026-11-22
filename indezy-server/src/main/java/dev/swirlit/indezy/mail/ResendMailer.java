@@ -59,6 +59,11 @@ public class ResendMailer {
         body.put("text", email.text());
         ObjectNode headers = body.putObject("headers");
         email.headers().forEach(headers::put);
+        if (!email.attachments().isEmpty()) {
+            var files = body.putArray("attachments");
+            email.attachments().forEach(file -> files.addObject().put("filename", file.fileName())
+                .put("content", java.util.Base64.getEncoder().encodeToString(file.content())).put("content_type", file.contentType()));
+        }
         HttpRequest request = HttpRequest.newBuilder(URI.create(properties.resendUrl() + "/emails"))
             .timeout(REQUEST_TIMEOUT)
             .header("Authorization", "Bearer " + properties.resendApiKey())
