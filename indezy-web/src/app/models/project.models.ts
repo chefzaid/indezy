@@ -339,6 +339,8 @@ export interface FollowUpDue {
   channel: string;
   sentOn: string;
   daysWaiting: number;
+  /** How many days the contact's company usually takes to answer; absent until two answers are recorded. */
+  usualAnswerDays?: number | null;
 }
 
 export interface DormantContact {

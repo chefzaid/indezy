@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.ContactInteractionDto;
 import dev.swirlit.indezy.dto.ContactInteractionsDto;
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
+import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.ContactInteraction;
 import dev.swirlit.indezy.model.enums.InteractionChannel;
@@ -123,6 +124,41 @@ class ContactInteractionServiceTest {
             .containsExactly(tuple("Bob", 22L), tuple("Alice", 11L));
         assertThat(due.get(1).getChannel()).isEqualTo(EMAIL);
         assertThat(due.get(1).getSentOn()).isEqualTo(LocalDate.of(2026, 9, 1));
+    }
+
+    @Test
+    void timesAFollowUpFromTheCompanysUsualAnswerTime() {
+        Client esn = new Client();
+        esn.setId(50L);
+        Contact lea = contact(6L, "Léa");
+        lea.setClient(esn);
+        Contact paul = contact(7L, "Paul");
+        paul.setClient(esn);
+        // Léa answered after 3, 2 and 5 days: the median is 3.
+        List<ContactInteraction> leas = new java.util.ArrayList<>();
+        int[][] exchanges = {{25, 1}, {20, 0}, {12, 1}, {10, 0}, {4, 1}, {1, 0}};
+        for (int[] exchange : exchanges) {
+            ContactInteraction interaction = interaction(exchange[0], EMAIL, exchange[1] == 1 ? INCOMING : OUTGOING, null);
+            interaction.setContact(lea);
+            leas.add(interaction);
+        }
+        ContactInteraction waiting = interaction(28, EMAIL, OUTGOING, null);
+        waiting.setContact(paul);
+        List<ContactInteraction> all = new java.util.ArrayList<>(leas);
+        all.add(waiting);
+        assertThat(ContactInteractionService.usualAnswerDays(all)).containsExactly(java.util.Map.entry(50L, 3));
+
+        ContactInteractionRepository repository = mock(ContactInteractionRepository.class);
+        when(repository.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(7L)).thenReturn(all);
+        ContactInteractionService service = new ContactInteractionService(repository, mock(ContactRepository.class),
+            mock(ProjectRepository.class), Clock.systemUTC());
+        // Paul waits 5 days: past Conseil's usual 3 days and its 2 days' grace, though the workspace's delay is 10.
+        List<DashboardStatsDto.FollowUpDue> due = service.followUpsDue(7L, 10, LocalDate.of(2026, 9, 1).plusDays(32));
+        assertThat(due).extracting(DashboardStatsDto.FollowUpDue::getName, DashboardStatsDto.FollowUpDue::getUsualAnswerDays)
+            .containsExactly(tuple("Paul", 3));
+        assertThat(service.followUpsDue(7L, 10, LocalDate.of(2026, 9, 1).plusDays(31))).isEmpty();
+        // One answer is not enough to say.
+        assertThat(ContactInteractionService.usualAnswerDays(leas.subList(4, 6))).isEmpty();
     }
 
     private static Contact contact(Long id, String firstName) {

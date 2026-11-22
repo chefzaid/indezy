@@ -231,7 +231,8 @@
       "expiringDocuments": "Documents to renew",
       "expiresInDays": "expires in {{days}} days",
       "expiredDaysAgo": "expired {{days}} days ago",
-      "trainingFundingDue": "Training funding to request"
+      "trainingFundingDue": "Training funding to request",
+      "usualAnswer": "usually answers in {{days}} days"
     },
     "estimatedRevenueHint": "Value of your accepted missions over their whole duration: daily rate × working days (218 a year when the mission states none), up to its end or the day it was ended.",
     "forecastRevenueHint": "What your accepted missions will still bring, from today to their end: all of their value before they start, nothing once over.",

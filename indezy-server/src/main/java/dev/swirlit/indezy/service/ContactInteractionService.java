@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,14 +93,16 @@ public class ContactInteractionService {
 
     /**
      * The contacts of workspace {@code freelanceId} whose latest exchange is a message the freelancer sent, still
-     * waiting for an answer {@code followUpDays} days or more after {@code today}'s, longest waiting first.
+     * waiting for an answer {@code followUpDays} days or more on {@code today} (two days past their company's usual answer
+     * time once known, see {@link #usualAnswerDays(Long)}), longest waiting first.
      */
     @Transactional(readOnly = true)
     public List<DashboardStatsDto.FollowUpDue> followUpsDue(Long freelanceId, int followUpDays, LocalDate today) {
         Map<Long, ContactInteraction> latest = new LinkedHashMap<>();
+        List<ContactInteraction> all = interactions.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(freelanceId);
+        Map<Long, Integer> usual = usualAnswerDays(all);
         // Newest first within each contact: the first one seen is its latest.
-        interactions.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(freelanceId)
-            .forEach(interaction -> latest.putIfAbsent(interaction.getContact().getId(), interaction));
+        all.forEach(interaction -> latest.putIfAbsent(interaction.getContact().getId(), interaction));
         return latest.values().stream()
             .filter(interaction -> interaction.getDirection() == InteractionDirection.OUTGOING && interaction.getReplied() == null)
             .map(interaction -> DashboardStatsDto.FollowUpDue.builder()
@@ -109,10 +112,61 @@ public class ContactInteractionService {
                 .channel(interaction.getChannel())
                 .sentOn(interaction.getOccurredOn())
                 .daysWaiting(ChronoUnit.DAYS.between(interaction.getOccurredOn(), today))
+                .usualAnswerDays(interaction.getContact().getClient() == null ? null : usual.get(interaction.getContact().getClient().getId()))
                 .build())
-            .filter(due -> due.getDaysWaiting() >= followUpDays)
+            // Timed from the company's usual answer time when known: two days' grace after it, else the workspace's delay.
+            .filter(due -> due.getDaysWaiting() >= (due.getUsualAnswerDays() == null ? followUpDays : due.getUsualAnswerDays() + ANSWER_GRACE_DAYS))
             .sorted(Comparator.comparingLong(DashboardStatsDto.FollowUpDue::getDaysWaiting).reversed())
             .toList();
+    }
+
+    /** A company's answers need this many to say how long it usually takes. */
+    static final int ANSWERS_MIN = 2;
+    /** A follow-up is due this many days after a company's usual answer time. */
+    static final int ANSWER_GRACE_DAYS = 2;
+
+    /**
+     * How many days each company of workspace {@code freelanceId} usually takes to answer, by company id: for each message
+     * the freelancer sent one of its contacts, the days until that contact's next exchange started by them, the median of
+     * at least {@value #ANSWERS_MIN} such answers.
+     */
+    @Transactional(readOnly = true)
+    public Map<Long, Integer> usualAnswerDays(Long freelanceId) {
+        return usualAnswerDays(interactions.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(freelanceId));
+    }
+
+    static Map<Long, Integer> usualAnswerDays(List<ContactInteraction> byContactNewestFirst) {
+        Map<Long, List<Long>> delays = new HashMap<>();
+        Map<Long, List<ContactInteraction>> byContact = new LinkedHashMap<>();
+        byContactNewestFirst.forEach(interaction -> byContact.computeIfAbsent(interaction.getContact().getId(), id -> new ArrayList<>())
+            .add(interaction));
+        for (List<ContactInteraction> exchanges : byContact.values()) {
+            Long companyId = exchanges.getFirst().getContact().getClient() == null ? null : exchanges.getFirst().getContact().getClient().getId();
+            if (companyId == null) {
+                continue;
+            }
+            // Oldest first: each message sent waits for the next exchange the contact starts.
+            LocalDate sent = null;
+            for (int index = exchanges.size() - 1; index >= 0; index--) {
+                ContactInteraction exchange = exchanges.get(index);
+                if (exchange.getDirection() == InteractionDirection.OUTGOING) {
+                    sent = sent == null ? exchange.getOccurredOn() : sent;
+                } else if (sent != null) {
+                    delays.computeIfAbsent(companyId, id -> new ArrayList<>()).add(ChronoUnit.DAYS.between(sent, exchange.getOccurredOn()));
+                    sent = null;
+                }
+            }
+        }
+        Map<Long, Integer> usual = new HashMap<>();
+        delays.forEach((companyId, days) -> {
+            if (days.size() >= ANSWERS_MIN) {
+                List<Long> sorted = days.stream().sorted().toList();
+                int middle = sorted.size() / 2;
+                long median = sorted.size() % 2 == 1 ? sorted.get(middle) : Math.round((sorted.get(middle - 1) + sorted.get(middle)) / 2.0);
+                usual.put(companyId, (int) median);
+            }
+        });
+        return usual;
     }
 
     /** Every exchange of workspace {@code freelanceId}, by contact, for the account data export. */

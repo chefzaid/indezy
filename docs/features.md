@@ -884,7 +884,9 @@ channel**.
 
 A recent exchange keeps a contact off the dashboard's contacts to reconnect with. A contact whose latest exchange is an
 unanswered message from the freelancer appears in **Follow-ups due** after the follow-up delay (5 days by default, 1 to
-60 in Preferences), until an answer or a newer exchange is recorded.
+60 in Preferences), until an answer or a newer exchange is recorded. Once its company (client or ESN) answered twice, the
+row says how long it usually takes ("usually answers in 3 days": the median days from a message sent to one of its
+contacts to that contact's next exchange), and the follow-up is due two days after that instead of after the delay.
 
 ### Contact Network And Org Charts
 

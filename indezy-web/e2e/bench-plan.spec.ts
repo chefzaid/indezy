@@ -11,6 +11,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await mockWorkspaceSession(page, language);
     await mockWorkspaceData(page, language);
     await page.route(/\/api\/projects\/stats\/dashboard\/1/, route => route.fulfill({ json: { ...emptyDashboardStats, totalProjects: 3,
+      followUpsDue: [{ contactId: 2, name: 'Alice Martin', clientName: 'Acme', channel: 'EMAIL', sentOn: '2026-11-17', daysWaiting: 5,
+        usualAnswerDays: 3 }],
       benchPlan: { projectId: 42, role: 'Java developer', endDate: '2027-01-04', weeksLeft: 7, activeOpportunities: 2,
         advancedOpportunities: 1, addedThisWeek: 1, daysSinceLastAdded: 9, weeklyGoal: 3 } } }));
 
@@ -19,6 +21,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(card).toContainText(en ? 'Java developer ends in 7 weeks' : 'Java developer se termine dans 7 semaines');
     await expect(card).toContainText(en ? 'Add 3 opportunities this week.' : 'Ajoutez 3 opportunités cette semaine.');
     await expect(card.locator('.count')).toHaveText('1/3');
+    await expect(page.locator('[data-usual-answer]')).toContainText(en ? 'usually answers in 3 days' : 'répond en général en 3 jours');
     const audit = await new AxeBuilder({ page }).include('[data-bench-plan]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

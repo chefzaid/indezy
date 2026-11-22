@@ -252,4 +252,12 @@ describe('DashboardRemindersComponent', () => {
     expect(between.querySelector('[data-bench-plan]')?.textContent).toContain('dashboard.bench.between');
     expect(between.querySelector('[data-bench-plan]')?.textContent).not.toContain('dashboard.bench.quiet');
   });
+
+  it('tells how long the contact\'s company usually takes to answer', () => {
+    const element = render({ followUpsDue: [{ contactId: 6, name: 'Paul', clientName: 'Conseil', channel: 'EMAIL', sentOn: '2026-09-28',
+      daysWaiting: 5, usualAnswerDays: 3 }, { contactId: 7, name: 'Zoé', channel: 'EMAIL', sentOn: '2026-09-20', daysWaiting: 9 }] });
+    const usual = element.querySelectorAll('[data-usual-answer]');
+    expect(usual.length).toBe(1);
+    expect(usual[0].textContent).toContain('dashboard.charts.usualAnswer');
+  });
 });

@@ -292,6 +292,8 @@ public class DashboardStatsDto {
         private InteractionChannel channel;
         private LocalDate sentOn;
         private long daysWaiting;
+        /** How many days the contact's company usually takes to answer, from at least two answers recorded; null otherwise. */
+        private Integer usualAnswerDays;
     }
 
     /**
