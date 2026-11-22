@@ -48,6 +48,9 @@ export function helpArticleFor(url: string): HelpArticle {
         <mat-icon>open_in_full</mat-icon>{{ 'help.panel.full' | translate }}
       </a>
       <a mat-button routerLink="/help" (click)="close()">{{ 'help.panel.all' | translate }}</a>
+      <a mat-button routerLink="/support" [queryParams]="{ page: page }" (click)="close()" data-help-panel-support>
+        <mat-icon>support_agent</mat-icon>{{ 'help.panel.support' | translate }}
+      </a>
     </mat-dialog-actions>
   `,
   styles: [`
@@ -61,6 +64,8 @@ export function helpArticleFor(url: string): HelpArticle {
 })
 export class HelpPanelComponent {
   readonly article = inject<HelpArticle>(MAT_DIALOG_DATA);
+  /** The page the help was opened from, sent with a request to support. */
+  readonly page = globalThis.location?.pathname ?? '';
   private readonly dialogRef = inject(MatDialogRef<HelpPanelComponent>);
 
   close(): void {

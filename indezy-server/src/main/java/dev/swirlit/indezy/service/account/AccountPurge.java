@@ -26,7 +26,7 @@ public class AccountPurge {
         "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications", "network_comments",
         "network_file_contents", "network_files", "network_held", "network_reviews", "push_subscriptions", "ai_usage", "network_posts", "network_follows",
         "network_follow_requests", "network_restrictions", "network_tag_follows", "network_drafts", "network_reports",
-        "network_message_reactions", "network_conversation_members", "network_page_views", "network_community_members", "network_idea_votes",
+        "network_message_reactions", "network_conversation_members", "support_requests", "network_page_views", "network_community_members", "network_idea_votes",
         "network_meetup_attendees", "network_meetups", "network_invitations", "network_members",
         "webhook_events", "webhook_deliveries", "webhooks", "activity_report_days", "interview_step_checklist",
         "interview_steps", "contact_interactions", "contact_relations", "project_attachments", "project_notes", "project_chat_messages",
@@ -107,6 +107,7 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM network_reviews WHERE author_id = ?", u);
         rows += jdbc.update("DELETE FROM push_subscriptions WHERE user_id = ?", u);
         rows += jdbc.update("DELETE FROM ai_usage WHERE user_id = ?", u);
+        rows += jdbc.update("DELETE FROM support_requests WHERE user_id = ?", u);
         rows += jdbc.update("DELETE FROM network_posts WHERE author_id = ?", u);
         for (String table : List.of("network_likes", "network_comment_likes", "network_mission_takes",
             "network_poll_votes", "network_bookmarks", "network_tag_follows", "network_message_reactions",

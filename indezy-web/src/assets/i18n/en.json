@@ -2858,7 +2858,8 @@
       "overview": "Overview",
       "accounts": "Accounts",
       "features": "Features",
-      "moderation": "Moderation"
+      "moderation": "Moderation",
+      "support": "Support"
     },
     "accounts": "Accounts",
     "signups": "Sign-ups in the last 30 days",
@@ -3001,6 +3002,15 @@
         "companies": "Companies whose reviews were reported",
         "companyCounts": "{{open}} open of {{total}}"
       }
+    },
+    "support": {
+      "answer": "Answer",
+      "reply": "Answer",
+      "replyAndClose": "Answer and close",
+      "none": "No request.",
+      "answered": "Answered: the member is told by email",
+      "loadError": "The requests could not be loaded.",
+      "answerError": "The answer could not be sent."
     }
   },
   "invoices": {
@@ -4709,7 +4719,8 @@
     "panel": {
       "open": "Help on this page",
       "full": "Open the full article",
-      "all": "All the help"
+      "all": "All the help",
+      "support": "Contact support"
     }
   },
   "legal": {
@@ -4979,6 +4990,41 @@
       "placeholder": "Java and Kafka, 650 € a day at least, 2 remote days, Île-de-France, starting before March",
       "read": "Set the filters",
       "avoid": "Left out the offers mentioning: {{avoid}}."
+    }
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Write to the Indezy team: a problem, an idea, a question.",
+    "kind": "About",
+    "kinds": {
+      "PROBLEM": "A problem",
+      "FEATURE": "A feature request",
+      "QUESTION": "A question",
+      "ACCOUNT": "Account or billing"
+    },
+    "subject": "Subject",
+    "description": "What happened, or what you need",
+    "required": "Required",
+    "sendContext": "Send the technical context below, to help us understand",
+    "context": {
+      "page": "Page",
+      "browser": "Browser",
+      "screen": "Screen",
+      "language": "Language",
+      "error": "Error"
+    },
+    "send": "Send",
+    "sent": "Sent: the answer will show here and come by email.",
+    "dailyLimit": "Up to 10 requests a day: add to an open one, or wait for an answer.",
+    "sendError": "The request could not be sent: try again in a moment.",
+    "loadError": "Your requests could not be loaded.",
+    "mine": "My requests",
+    "none": "No request yet.",
+    "answered": "Answered on {{date}}",
+    "statuses": {
+      "OPEN": "Open",
+      "ANSWERED": "Answered",
+      "CLOSED": "Closed"
     }
   }
 }

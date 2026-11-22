@@ -60,5 +60,10 @@
         <app-admin-moderation></app-admin-moderation>
       </ng-template>
     </mat-tab>
+    <mat-tab [label]="'admin.tabs.support' | translate">
+      <ng-template matTabContent>
+        <app-admin-support></app-admin-support>
+      </ng-template>
+    </mat-tab>
   </mat-tab-group>
 </div>

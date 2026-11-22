@@ -58,6 +58,7 @@ public class UserDataExportService {
     private final TrainingService trainingService;
     private final TestimonialService testimonialService;
     private final BookingService bookingService;
+    private final SupportService supportService;
     private final JsonMapper jsonMapper;
 
     /** The profile of account {@code userId} and the records of its workspace {@code freelanceId}. */
@@ -107,6 +108,7 @@ public class UserDataExportService {
         export.put("emailTemplates", emailTemplateService.list(freelanceId));
         export.put("sessions", accountSessionService.list(userId, null));
         export.put("accountActivity", accountEventService.export(userId));
+        export.put("supportRequests", supportService.mine(userId));
 
         try {
             // Dates are ISO-8601 text, Jackson 3's default; each record's properties keep their declaration order, as

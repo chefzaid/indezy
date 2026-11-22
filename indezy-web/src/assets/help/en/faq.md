@@ -69,3 +69,7 @@ Every email has a one-click unsubscribe link. You can also set everything in **P
 ## Can I connect Indezy to my other tools?
 
 Yes, to read from it. An API token lets a script, a spreadsheet or an automation service read your workspace, and a webhook tells your tools about events (an opportunity added, an invoice paid, a call booked…). Both are created in **Profile → Security**. See [Account](/help/account).
+
+## How do I contact support?
+
+Click **?** in the top bar, then **Contact support**, or open **Support**. Choose what it is about, write a subject and a description, and keep **Send the technical context** ticked so we see the page and your browser. The answer shows in **My requests** and you are told by email.

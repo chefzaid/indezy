@@ -69,3 +69,7 @@ Chaque e-mail contient un lien de désinscription en un clic. Vous pouvez aussi 
 ## Puis-je connecter Indezy à mes autres outils ?
 
 Oui, en lecture. Un jeton d'API permet à un script, un tableur ou un service d'automatisation de lire votre espace, et un webhook prévient vos outils des événements (opportunité ajoutée, facture payée, appel réservé…). Les deux se créent dans **Profil → Sécurité**. Voir [Compte](/help/account).
+
+## Comment contacter le support ?
+
+Cliquez sur **?** dans la barre du haut, puis **Contacter le support**, ou ouvrez **Support**. Choisissez le sujet, écrivez un objet et une description, et laissez **Envoyer le contexte technique** coché pour que nous voyions la page et votre navigateur. La réponse s'affiche dans **Mes demandes** et vous êtes prévenu par e-mail.

@@ -150,6 +150,9 @@ class UserDataExportServiceTest {
     @Mock
     private BookingService bookingService;
 
+    @Mock
+    private SupportService supportService;
+
     // As Spring Boot builds it, with no spring.jackson settings.
     @Spy
     private JsonMapper jsonMapper = JsonMapper.builder().build();

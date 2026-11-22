@@ -2858,7 +2858,8 @@
       "overview": "Vue d'ensemble",
       "accounts": "Comptes",
       "features": "Fonctionnalités",
-      "moderation": "Modération"
+      "moderation": "Modération",
+      "support": "Support"
     },
     "accounts": "Comptes",
     "signups": "Inscriptions sur 30 jours",
@@ -3001,6 +3002,15 @@
         "companies": "Entreprises dont des avis ont été signalés",
         "companyCounts": "{{open}} ouverts sur {{total}}"
       }
+    },
+    "support": {
+      "answer": "Réponse",
+      "reply": "Répondre",
+      "replyAndClose": "Répondre et fermer",
+      "none": "Aucune demande.",
+      "answered": "Répondu : le membre est prévenu par e-mail",
+      "loadError": "Les demandes n'ont pas pu être chargées.",
+      "answerError": "La réponse n'a pas pu partir."
     }
   },
   "invoices": {
@@ -4709,7 +4719,8 @@
     "panel": {
       "open": "Aide sur cette page",
       "full": "Ouvrir l'article complet",
-      "all": "Toute l'aide"
+      "all": "Toute l'aide",
+      "support": "Contacter le support"
     }
   },
   "legal": {
@@ -4979,6 +4990,41 @@
       "placeholder": "Java et Kafka, 650 € par jour au moins, 2 jours de télétravail, Île-de-France, début avant mars",
       "read": "Régler les filtres",
       "avoid": "Offres écartées qui mentionnent : {{avoid}}."
+    }
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Écrivez à l'équipe Indezy : un problème, une idée, une question.",
+    "kind": "Sujet",
+    "kinds": {
+      "PROBLEM": "Un problème",
+      "FEATURE": "Une demande de fonctionnalité",
+      "QUESTION": "Une question",
+      "ACCOUNT": "Compte ou facturation"
+    },
+    "subject": "Objet",
+    "description": "Ce qui s'est passé, ou ce dont vous avez besoin",
+    "required": "Obligatoire",
+    "sendContext": "Envoyer le contexte technique ci-dessous, pour nous aider à comprendre",
+    "context": {
+      "page": "Page",
+      "browser": "Navigateur",
+      "screen": "Écran",
+      "language": "Langue",
+      "error": "Erreur"
+    },
+    "send": "Envoyer",
+    "sent": "Envoyé : la réponse s'affichera ici et arrivera par e-mail.",
+    "dailyLimit": "Jusqu'à 10 demandes par jour : complétez une demande ouverte, ou attendez une réponse.",
+    "sendError": "La demande n'a pas pu partir : réessayez dans un instant.",
+    "loadError": "Vos demandes n'ont pas pu être chargées.",
+    "mine": "Mes demandes",
+    "none": "Aucune demande pour le moment.",
+    "answered": "Répondu le {{date}}",
+    "statuses": {
+      "OPEN": "Ouverte",
+      "ANSWERED": "Répondue",
+      "CLOSED": "Fermée"
     }
   }
 }

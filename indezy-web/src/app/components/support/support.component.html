@@ -1,0 +1,58 @@
+<div class="support-page">
+  <app-page-header [title]="'support.title' | translate" [subtitle]="'support.subtitle' | translate" icon="support_agent"></app-page-header>
+  <mat-card appearance="outlined" class="new-request">
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="send()" data-support-form>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'support.kind' | translate }}</mat-label>
+          <mat-select formControlName="kind">
+            @for (kind of kinds; track kind) {
+              <mat-option [value]="kind">{{ 'support.kinds.' + kind | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'support.subject' | translate }}</mat-label>
+          <input matInput formControlName="subject" maxlength="150" data-support-subject>
+          <mat-error>{{ 'support.required' | translate }}</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'support.description' | translate }}</mat-label>
+          <textarea matInput formControlName="description" rows="6" maxlength="5000" data-support-description></textarea>
+          <mat-error>{{ 'support.required' | translate }}</mat-error>
+        </mat-form-field>
+        <mat-checkbox formControlName="sendContext" data-support-context-toggle>{{ 'support.sendContext' | translate }}</mat-checkbox>
+        @if (form.controls.sendContext.value) {
+          <pre class="context" data-support-context>{{ context }}</pre>
+        }
+        <div class="actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="sending" data-support-send>
+            <mat-icon>send</mat-icon>{{ 'support.send' | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <h2 class="mine-title">{{ 'support.mine' | translate }}</h2>
+  @for (request of requests; track request.id) {
+    <mat-card appearance="outlined" class="request" [attr.data-support-request]="request.id">
+      <mat-card-content>
+        <div class="request-head">
+          <strong>{{ request.subject }}</strong>
+          <span class="status" [class]="request.status.toLowerCase()">{{ 'support.statuses.' + request.status | translate }}</span>
+        </div>
+        <p class="meta">{{ 'support.kinds.' + request.kind | translate }} · {{ request.createdAt | date:'medium' }}</p>
+        <p class="description">{{ request.description }}</p>
+        @if (request.answer) {
+          <div class="answer" data-support-answer>
+            <p class="meta">{{ 'support.answered' | translate:{ date: (request.answeredAt | date:'medium') } }}</p>
+            <p>{{ request.answer }}</p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  } @empty {
+    <p class="empty">{{ 'support.none' | translate }}</p>
+  }
+</div>
