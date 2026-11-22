@@ -116,6 +116,9 @@ public class InvoiceService {
         Invoice invoice = new Invoice();
         invoice.setFreelanceId(freelanceId);
         write(invoice, draft);
+        if (invoice.getNotes() == null && !invoice.isCreditNote()) {
+            invoice.setNotes(freelances.findById(freelanceId).map(BillingIdentityService::toDto).map(BillingIdentityDto::invoiceNotes).orElse(null));
+        }
         return toDto(invoices.save(invoice));
     }
 
@@ -184,6 +187,7 @@ public class InvoiceService {
         invoice.setLanguage(language);
         invoice.setLines(List.of(new InvoiceLine(description, BigDecimal.valueOf(report.getWorkedDays()).setScale(2),
             BigDecimal.valueOf(project.getDailyRate()).setScale(2), vatRate.setScale(2))));
+        invoice.setNotes(seller.invoiceNotes());
         return toDto(invoices.save(invoice));
     }
 

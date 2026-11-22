@@ -1410,7 +1410,9 @@
       "logoSaved": "Logo enregistré.",
       "logoRefused": "Ce logo ne peut pas être utilisé : envoyez un PNG ou un JPEG de 2 Mo au plus.",
       "footer": "Pied de page",
-      "footerHint": "Une ligne au pied de chaque page de vos factures et devis, comme votre site et votre téléphone ; les pages sont numérotées dès qu'il y en a plusieurs."
+      "footerHint": "Une ligne au pied de chaque page de vos factures et devis, comme votre site et votre téléphone ; les pages sont numérotées dès qu'il y en a plusieurs.",
+      "invoiceNotes": "Notes de départ d'une nouvelle facture",
+      "quoteNotes": "Notes de départ d'un nouveau devis"
     },
     "webhooks": {
       "title": "Webhooks",

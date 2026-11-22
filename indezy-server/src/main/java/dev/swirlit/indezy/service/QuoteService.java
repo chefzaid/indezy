@@ -74,6 +74,9 @@ public class QuoteService {
         Quote quote = new Quote();
         quote.setFreelanceId(freelanceId);
         write(quote, draft);
+        if (quote.getNotes() == null) {
+            quote.setNotes(identity(freelanceId).quoteNotes());
+        }
         return toDto(quotes.save(quote));
     }
 

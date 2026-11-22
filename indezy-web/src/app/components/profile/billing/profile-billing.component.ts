@@ -50,7 +50,9 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     latePaymentRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
     quoteTerms: ['', Validators.maxLength(20000)],
     accentColor: [''],
-    footer: ['', Validators.maxLength(200)]
+    footer: ['', Validators.maxLength(200)],
+    invoiceNotes: ['', Validators.maxLength(2000)],
+    quoteNotes: ['', Validators.maxLength(2000)]
   });
   complete = false;
   saving = false;
@@ -175,7 +177,9 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       latePaymentRate: value.latePaymentRate ?? null,
       quoteTerms: value.quoteTerms?.trim() || null,
       accentColor: value.accentColor || null,
-      footer: value.footer?.trim() || null
+      footer: value.footer?.trim() || null,
+      invoiceNotes: value.invoiceNotes?.trim() || null,
+      quoteNotes: value.quoteNotes?.trim() || null
     };
     this.saving = true;
     this.billing.saveIdentity(identity).subscribe({
@@ -202,7 +206,9 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       latePaymentRate: identity.latePaymentRate ?? null,
       quoteTerms: identity.quoteTerms ?? '',
       accentColor: identity.accentColor ?? '',
-      footer: identity.footer ?? ''
+      footer: identity.footer ?? '',
+      invoiceNotes: identity.invoiceNotes ?? '',
+      quoteNotes: identity.quoteNotes ?? ''
     });
   }
 }

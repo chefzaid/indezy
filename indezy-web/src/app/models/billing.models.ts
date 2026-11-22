@@ -23,6 +23,9 @@ export interface BillingIdentity {
   invoicePrefix: string | null;
   /** The late-payment interest rate the terms state, in percent a year; null for the statutory rate without a figure. */
   latePaymentRate?: number | null;
+  /** The notes a new invoice and a new quote start with; null for none. */
+  invoiceNotes?: string | null;
+  quoteNotes?: string | null;
   /** The free text at the foot of each page of the documents (website, phone); null for none. */
   footer?: string | null;
   /** Read-only: the logo printed on the documents; null for none. Set with its own upload. */

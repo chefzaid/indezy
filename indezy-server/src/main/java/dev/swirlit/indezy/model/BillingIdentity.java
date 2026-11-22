@@ -65,6 +65,14 @@ public class BillingIdentity {
     @Column(name = "billing_accent_color", length = 7)
     private String accentColor;
 
+    /** The notes a new invoice starts with; null for none. */
+    @Column(name = "billing_invoice_notes", length = 2000)
+    private String invoiceNotes;
+
+    /** The notes a new quote starts with; null for none. */
+    @Column(name = "billing_quote_notes", length = 2000)
+    private String quoteNotes;
+
     /** The free text at the foot of each page of the documents (website, phone); null for none. */
     @Column(name = "billing_footer", length = 200)
     private String footer;

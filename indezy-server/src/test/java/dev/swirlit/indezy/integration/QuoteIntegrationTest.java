@@ -114,11 +114,16 @@ class QuoteIntegrationTest extends TwoAccountsIntegrationTest {
             org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("invoiceId", null);
         assertThat(call(alice, HttpMethod.POST, quote + "/invoice", null, Map.class).getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-        // Another quote, numbered next, refused.
+        // Another quote, numbered next, refused; started with the default notes of the billing identity.
+        Map<String, Object> billing = call(alice, HttpMethod.GET, "/users/billing", null, Map.class).getBody();
+        billing.put("quoteNotes", "Devis établi sur la base d'un cahier des charges.");
+        billing.put("invoiceNotes", "Merci de rappeler le numéro de facture.");
+        call(alice, HttpMethod.PUT, "/users/billing", billing, Map.class);
         Map<String, Object> other = call(alice, HttpMethod.POST, "/quotes", Map.of("clientId", aliceClientId, "language", "EN",
             "lines", List.of(LINE)), Map.class).getBody();
         String refused = "/quotes/" + other.get("id");
-        assertThat(other).containsEntry("validityDays", 30).containsEntry("depositPercent", null);
+        assertThat(other).containsEntry("validityDays", 30).containsEntry("depositPercent", null)
+            .containsEntry("notes", "Devis établi sur la base d'un cahier des charges.");
         assertThat(call(alice, HttpMethod.POST, refused + "/send", null, Map.class).getBody())
             .containsEntry("number", "D" + today().getYear() + "-0002");
         assertThat(call(alice, HttpMethod.PUT, refused + "/decision", Map.of("accepted", false), Map.class).getBody())

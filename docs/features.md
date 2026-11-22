@@ -1318,7 +1318,9 @@ PNG or JPEG of 2 MB at most, drawn anew at most 600 pixels on its longest side) 
 points at most; each upload is a new logo (`GET /api/users/billing/logos/{id}`), so issued documents, which keep the id
 they were issued with, still print theirs. Logos go with the workspace. A **Footer** (`footer`, 200 characters, such
 as the website and phone) is written small at the foot of every page, also frozen at issue; every document of several
-pages (invoices, quotes, activity reports, dossiers) numbers them "1/2" at the bottom right.
+pages (invoices, quotes, activity reports, dossiers) numbers them "1/2" at the bottom right. The **Notes a new invoice
+starts with** and **Notes a new quote starts with** (`invoiceNotes`, `quoteNotes`, 2,000 characters) fill the notes of
+a draft created without any, by hand or from an activity report; credit notes keep their own.
 
 ### Factur-X
 

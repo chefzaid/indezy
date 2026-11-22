@@ -1410,7 +1410,9 @@
       "logoSaved": "Logo saved.",
       "logoRefused": "This logo cannot be used: send a PNG or a JPEG of 2 MB at most.",
       "footer": "Footer",
-      "footerHint": "A line at the foot of each page of your invoices and quotes, such as your website and phone; pages are numbered once there are several."
+      "footerHint": "A line at the foot of each page of your invoices and quotes, such as your website and phone; pages are numbered once there are several.",
+      "invoiceNotes": "Notes a new invoice starts with",
+      "quoteNotes": "Notes a new quote starts with"
     },
     "webhooks": {
       "title": "Webhooks",

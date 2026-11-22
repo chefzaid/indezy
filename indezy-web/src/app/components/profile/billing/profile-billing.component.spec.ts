@@ -63,12 +63,12 @@ describe('ProfileBillingComponent', () => {
     const component = fixture.componentInstance;
     billing.saveIdentity.and.returnValue(of({ ...defaults, siret: '55210055400012', complete: true }));
     component.form.patchValue({ legalForm: 'MICRO_ENTREPRISE', siret: '552 100 554 00012', iban: 'fr76 3000 6000 0112 3456 7890 189',
-      bic: 'bnpafrpp', shareCapital: 1000, registration: 'RCS Paris', latePaymentRate: 12.15, quoteTerms: '  Article 1  ', footer: ' alice.dev ' });
+      bic: 'bnpafrpp', shareCapital: 1000, registration: 'RCS Paris', latePaymentRate: 12.15, quoteTerms: '  Article 1  ', footer: ' alice.dev ', quoteNotes: ' Sur devis. ' });
 
     component.save();
 
     expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ siret: '55210055400012', iban: 'FR7630006000011234567890189',
-      bic: 'BNPAFRPP', shareCapital: null, registration: null, vatExempt: true, latePaymentRate: 12.15, quoteTerms: 'Article 1', footer: 'alice.dev' }));
+      bic: 'BNPAFRPP', shareCapital: null, registration: null, vatExempt: true, latePaymentRate: 12.15, quoteTerms: 'Article 1', footer: 'alice.dev', quoteNotes: 'Sur devis.', invoiceNotes: null }));
     expect(component.complete).toBeTrue();
     expect(notifications.success).toHaveBeenCalledWith('profile.billing.saved');
 

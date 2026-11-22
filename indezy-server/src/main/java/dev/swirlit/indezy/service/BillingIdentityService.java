@@ -58,6 +58,8 @@ public class BillingIdentityService {
         billing.setQuoteTerms(request.quoteTerms());
         billing.setAccentColor(request.accentColor());
         billing.setFooter(request.footer());
+        billing.setInvoiceNotes(request.invoiceNotes());
+        billing.setQuoteNotes(request.quoteNotes());
         freelance.setBilling(billing);
         return toDto(freelance);
     }
@@ -76,7 +78,7 @@ public class BillingIdentityService {
             Objects.requireNonNullElse(billing.getVatRate(), DEFAULT_VAT_RATE), billing.getShareCapital(), billing.getRegistration(),
             address, billing.getIban(), billing.getBic(), Objects.requireNonNullElse(billing.getPaymentTermDays(), DEFAULT_PAYMENT_TERM_DAYS),
             Objects.requireNonNullElse(billing.getInvoicePrefix(), DEFAULT_PREFIX), billing.getLatePaymentRate(), billing.getQuoteTerms(), billing.getAccentColor(),
-            billing.getLogoId(), billing.getFooter(), complete);
+            billing.getLogoId(), billing.getFooter(), billing.getInvoiceNotes(), billing.getQuoteNotes(), complete);
     }
 
     private Freelance freelance(Long freelanceId) {
