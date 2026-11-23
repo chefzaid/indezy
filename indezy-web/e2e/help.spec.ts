@@ -69,6 +69,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
 
 test('reads the help and the legal texts without an account, linked from the presentation page', async ({ page }) => {
   await page.goto('/');
+  // Visitors without an account write to the contact address.
+  await expect(page.locator('[data-home-contact]')).toHaveAttribute('href', 'mailto:contact@swirlit.dev');
   await page.locator('[data-home-legal="privacy"]').click();
   await expect(page).toHaveURL(/\/legal\/privacy$/);
   await expect(page.locator('[data-legal="privacy"] [data-markdown] h2').first()).toBeVisible();
@@ -76,6 +78,7 @@ test('reads the help and the legal texts without an account, linked from the pre
   expect(audit.violations.map(violation => violation.id)).toEqual([]);
   await page.locator('[data-legal-link="notice"]').click();
   await expect(page.locator('[data-legal="notice"] [data-markdown]')).toContainText('OVH');
+  await expect(page.locator('[data-legal="notice"] [data-markdown]')).toContainText('contact@swirlit.dev');
   await page.goto('/help/getting-started');
   await expect(page.locator('app-public-page-header')).toBeVisible();
   await expect(page.locator('[data-markdown] h2').first()).toBeVisible();

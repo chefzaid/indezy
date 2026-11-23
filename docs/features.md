@@ -92,7 +92,7 @@ with its two languages.
 The legal texts (`/legal/notice`, `/legal/terms`, `/legal/privacy`: legal notice, terms of use, privacy policy) are
 Markdown files too (`src/assets/legal/<fr|en>/`), the French version prevailing, open without an account and linked from
 the presentation page's footer and the help center. What the publisher still has to give (legal form, address,
-registration) is marked **[à compléter]** in them.
+registration) is marked **[à compléter]** in them. Visitors write to `contact@swirlit.dev`, given in those texts and as **Contact** in the presentation page's footer.
 
 ## Privacy Settings
 

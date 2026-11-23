@@ -1,4 +1,4 @@
-Last updated: 20 November 2026
+Last updated: 23 November 2026
 
 This English version is a translation provided for convenience. The French version is the reference version and prevails in case of conflict.
 
@@ -15,7 +15,7 @@ The Service is published by:
 - **SIREN number and registration (RCS or national business register):** [to be completed]
 - **EU VAT number:** [to be completed]
 - **Telephone:** [to be completed]
-- **Email:** zaid@swirlit.dev
+- **Email:** contact@swirlit.dev
 
 Indezy is a brand of Swirlit.
 
@@ -35,7 +35,7 @@ Data is hosted on dedicated servers located in the European Union, in France. Th
 
 ## Contact
 
-For any question about the Service, this notice or your personal data, write to zaid@swirlit.dev.
+For any question about the Service, this notice or your personal data, write to contact@swirlit.dev.
 
 ## Reporting illegal content
 
@@ -44,7 +44,7 @@ The Service lets its members publish content (posts, comments, messages, files, 
 Anyone may report content they consider illegal:
 
 - in the Service, with the **Report** function of a post, a comment, a message or a member's page;
-- or by email to zaid@swirlit.dev.
+- or by email to contact@swirlit.dev.
 
 To be handled quickly, a report by email states:
 
@@ -55,7 +55,7 @@ To be handled quickly, a report by email states:
 
 An abusive report, presenting as illegal content known to be lawful in order to have it removed, may make its author liable.
 
-**Single point of contact** (articles 11 and 12 of the DSA) for authorities and users: zaid@swirlit.dev, in French or English.
+**Single point of contact** (articles 11 and 12 of the DSA) for authorities and users: contact@swirlit.dev, in French or English.
 
 ## Intellectual property
 

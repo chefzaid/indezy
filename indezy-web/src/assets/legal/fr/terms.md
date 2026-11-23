@@ -1,4 +1,4 @@
-Dernière mise à jour : 20 novembre 2026
+Dernière mise à jour : 23 novembre 2026
 
 ## 1. Objet
 
@@ -72,7 +72,7 @@ Le flux d'offres présente des offres de missions freelance collectées automati
 - Les offres sont présentées à titre d'information. Leur contenu relève de la seule responsabilité de leurs éditeurs ; l'Éditeur ne garantit ni leur exactitude, ni leur actualité, ni leur disponibilité, ni leur caractère licite.
 - L'Éditeur n'est ni un intermédiaire, ni une agence de placement, ni une partie aux missions. Il ne perçoit aucune rémunération liée aux missions et n'intervient pas dans la relation entre l'Utilisateur, le client, l'ESN ou l'éditeur de l'offre.
 - Le repérage des offres suspectes est une aide qui ne garantit pas l'absence de fraude. L'Utilisateur vérifie toute offre auprès de sa source avant de s'engager.
-- L'éditeur d'un site ou d'une offre qui souhaite le retrait d'un contenu peut écrire à zaid@swirlit.dev.
+- L'éditeur d'un site ou d'une offre qui souhaite le retrait d'un contenu peut écrire à contact@swirlit.dev.
 
 Les missions partagées par les Membres sur le réseau relèvent de la seule responsabilité de leurs auteurs.
 
@@ -146,7 +146,7 @@ Les Modérateurs de communauté peuvent retirer une publication de leur communau
 
 En cas de manquement grave ou répété aux présentes Conditions, l'Éditeur peut en outre désactiver le compte de l'Utilisateur (article 15).
 
-**Information et contestation.** L'auteur d'un contenu retiré, d'un avertissement ou d'une suspension en est informé dans le Service, avec le motif de la décision, sauf lorsque la loi ou une autorité s'y oppose. L'auteur du signalement est informé de la suite donnée. Toute personne concernée peut contester une décision en écrivant à zaid@swirlit.dev ; la décision est alors réexaminée.
+**Information et contestation.** L'auteur d'un contenu retiré, d'un avertissement ou d'une suspension en est informé dans le Service, avec le motif de la décision, sauf lorsque la loi ou une autorité s'y oppose. L'auteur du signalement est informé de la suite donnée. Toute personne concernée peut contester une décision en écrivant à contact@swirlit.dev ; la décision est alors réexaminée.
 
 L'Éditeur n'est pas tenu de surveiller les Contenus avant leur publication. Il agit promptement pour retirer un contenu manifestement illicite dès qu'il en a connaissance.
 
@@ -252,7 +252,7 @@ L'Utilisateur qui refuse les nouvelles Conditions peut supprimer son compte avan
 
 Les présentes Conditions sont soumises au droit français.
 
-En cas de différend, l'Utilisateur et l'Éditeur s'efforcent de le résoudre à l'amiable : l'Utilisateur adresse une réclamation écrite à zaid@swirlit.dev, et les parties disposent de trente jours pour trouver une solution.
+En cas de différend, l'Utilisateur et l'Éditeur s'efforcent de le résoudre à l'amiable : l'Utilisateur adresse une réclamation écrite à contact@swirlit.dev, et les parties disposent de trente jours pour trouver une solution.
 
 À défaut d'accord amiable, et dans la mesure permise par l'article 48 du code de procédure civile, le litige est soumis aux tribunaux compétents du ressort de [à compléter : ville du siège ou du domicile professionnel de l'Éditeur]. À défaut, les règles de compétence de droit commun s'appliquent.
 
@@ -260,4 +260,4 @@ Les Utilisateurs étant des professionnels, le dispositif de médiation de la co
 
 ## 22. Contact
 
-Pour toute question relative aux présentes Conditions : zaid@swirlit.dev.
+Pour toute question relative aux présentes Conditions : contact@swirlit.dev.

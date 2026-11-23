@@ -1,4 +1,4 @@
-Last updated: 20 November 2026
+Last updated: 23 November 2026
 
 This English version is a translation provided for convenience. The French version is the reference version and prevails in case of conflict.
 
@@ -74,7 +74,7 @@ The offer feed shows freelance offers collected automatically from public job bo
 - Offers are shown for information. Their content is the sole responsibility of their publishers; the Publisher does not guarantee their accuracy, currency, availability or lawfulness.
 - The Publisher is neither an intermediary, nor a placement agency, nor a party to the missions. It receives no remuneration linked to missions and takes no part in the relationship between the User and the client, the ESN or the offer's publisher.
 - Flagging suspicious offers is an aid that does not guarantee the absence of fraud. The User checks any offer with its source before committing.
-- The publisher of a site or of an offer who wants content removed may write to zaid@swirlit.dev.
+- The publisher of a site or of an offer who wants content removed may write to contact@swirlit.dev.
 
 Missions shared by Members on the network are the sole responsibility of their authors.
 
@@ -148,7 +148,7 @@ Community moderators may remove a post from their community and exclude a Member
 
 In the event of a serious or repeated breach of these Terms, the Publisher may also disable the User's account (section 15).
 
-**Notice and appeal.** The author of removed content, a warning or a suspension is told so in the Service, with the reason for the decision, unless the law or an authority prevents it. The author of a report is told what was done. Anyone concerned may challenge a decision by writing to zaid@swirlit.dev; the decision is then reviewed again.
+**Notice and appeal.** The author of removed content, a warning or a suspension is told so in the Service, with the reason for the decision, unless the law or an authority prevents it. The author of a report is told what was done. Anyone concerned may challenge a decision by writing to contact@swirlit.dev; the decision is then reviewed again.
 
 The Publisher has no obligation to monitor Content before it is published. It acts promptly to remove manifestly illegal content once it becomes aware of it.
 
@@ -254,7 +254,7 @@ A User who refuses the new Terms may delete their account before they take effec
 
 These Terms are governed by French law.
 
-In the event of a dispute, the User and the Publisher endeavour to settle it amicably: the User sends a written complaint to zaid@swirlit.dev, and the parties have thirty days to find a solution.
+In the event of a dispute, the User and the Publisher endeavour to settle it amicably: the User sends a written complaint to contact@swirlit.dev, and the parties have thirty days to find a solution.
 
 Failing an amicable settlement, and to the extent permitted by article 48 of the French Code of Civil Procedure, the dispute is submitted to the competent courts within the jurisdiction of [to be completed: city of the Publisher's registered office or business address]. Otherwise, the ordinary rules of jurisdiction apply.
 
@@ -262,4 +262,4 @@ As Users are professionals, the consumer mediation scheme does not apply. Any ma
 
 ## 22. Contact
 
-For any question about these Terms: zaid@swirlit.dev.
+For any question about these Terms: contact@swirlit.dev.

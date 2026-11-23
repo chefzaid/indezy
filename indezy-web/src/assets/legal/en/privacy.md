@@ -1,4 +1,4 @@
-Last updated: 20 November 2026
+Last updated: 23 November 2026
 
 This English version is a translation provided for convenience. The French version is the reference version and prevails in case of conflict.
 
@@ -10,7 +10,7 @@ It applies to the Service's users, to the members of its network and to people w
 
 The controller is Zaid Chefchaouni, publisher of the Service under the Swirlit brand (the "Publisher"), whose address appears in the [legal notice](/legal/notice): [to be completed].
 
-Contact for any question about your data: zaid@swirlit.dev.
+Contact for any question about your data: contact@swirlit.dev.
 
 The Publisher has not appointed a data protection officer. [to be verified]
 
@@ -92,7 +92,7 @@ A fingerprint does not reveal the address, but remains pseudonymised data.
 ### Public profile and recommendations
 
 - **Public profile:** if you turn it on, a page readable by anyone with the link shows your name, headline, city, presentation, skills, languages, links, photo, availability and the recommendations you approve. Your email, phone, address and Workspace never appear on it. Search engines are asked not to index it (robots.txt file). Legal basis: performance of the contract, at your request; you may turn it off at any time.
-- **Recommendations:** the author of a recommendation gives their name, their text and, if they wish, their title, and agrees to be named with their text. Legal basis: their consent (article 6(1)(a)), which they may withdraw by contacting the freelancer or zaid@swirlit.dev. Retention: until the recommendation or the freelancer's account is deleted. A recommendation shows only once the freelancer approves it.
+- **Recommendations:** the author of a recommendation gives their name, their text and, if they wish, their title, and agrees to be named with their text. Legal basis: their consent (article 6(1)(a)), which they may withdraw by contacting the freelancer or contact@swirlit.dev. Retention: until the recommendation or the freelancer's account is deleted. A recommendation shows only once the freelancer approves it.
 
 ### Pages opened without an account
 
@@ -119,7 +119,7 @@ If you are among a user's contacts, send your requests to that user: they can do
 - **Legal basis:** the legitimate interest of the Publisher and users in an overview of published missions.
 - **Retention:** 90 days after publication or until they expire, unless a user saved, applied to or imported them into their Workspace.
 
-Anyone named in an offer may object to this processing by writing to zaid@swirlit.dev.
+Anyone named in an offer may object to this processing by writing to contact@swirlit.dev.
 
 ### Security and technical logs
 
@@ -179,7 +179,7 @@ Data is hosted in France. Two transfers take place outside the European Union:
 - **Resend (United States)** receives the address, subject and content of the emails the Service sends. This transfer is governed by [to be verified: the EU–US Data Privacy Framework and/or the European Commission's Standard Contractual Clauses].
 - **The OpenStreetMap Foundation (United Kingdom)** receives your IP address when you open the map; the United Kingdom benefits from an adequacy decision of the European Commission.
 
-You can obtain a copy of the applicable safeguards by writing to zaid@swirlit.dev.
+You can obtain a copy of the applicable safeguards by writing to contact@swirlit.dev.
 
 ## Account deletion
 
@@ -191,10 +191,10 @@ From **Profile → Account → Delete my account**:
 
 What remains after deletion:
 
-- the messages you sent and their files, which stay readable by their recipients and show as coming from a "former member", in those recipients' legitimate interest in keeping their conversations; you may ask for their erasure at zaid@swirlit.dev, and each request will be considered;
+- the messages you sent and their files, which stay readable by their recipients and show as coming from a "former member", in those recipients' legitimate interest in keeping their conversations; you may ask for their erasure at contact@swirlit.dev, and each request will be considered;
 - the communities you created, and the ideas you suggested, attributed to a "former member";
 - the fingerprints of addresses that declined every invitation;
-- your identity in the Swirlit sign-in service, which is not deleted automatically: ask for its deletion at zaid@swirlit.dev;
+- your identity in the Swirlit sign-in service, which is not deleted automatically: ask for its deletion at contact@swirlit.dev;
 - data in backups, until they are overwritten [to be completed: backup retention period].
 
 Remember to export your data, in particular your invoices, which you must keep, before deleting your account.
@@ -212,7 +212,7 @@ You have the following rights over your data:
 - **Withdrawal of consent:** at any time, where processing relies on your consent, without affecting processing already carried out.
 - **Instructions after death:** set instructions on the retention, erasure and communication of your data after your death (article 85 of the French Data Protection Act).
 
-To exercise these rights, write to zaid@swirlit.dev. You will receive an answer within one month, which may be extended by two months for a complex request; you will then be told. Proof of identity may be asked for only where there is reasonable doubt about your identity.
+To exercise these rights, write to contact@swirlit.dev. You will receive an answer within one month, which may be extended by two months for a complex request; you will then be told. Proof of identity may be asked for only where there is reasonable doubt about your identity.
 
 You may lodge a complaint with the French data protection authority, the Commission nationale de l'informatique et des libertés (CNIL), 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07, France, or at https://www.cnil.fr.
 

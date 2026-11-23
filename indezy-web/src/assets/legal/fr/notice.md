@@ -1,4 +1,4 @@
-Dernière mise à jour : 20 novembre 2026
+Dernière mise à jour : 23 novembre 2026
 
 Les présentes mentions légales sont établies en application de l'article 6 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN). Elles s'appliquent au service Indezy, accessible à l'adresse https://indezy.swirlit.dev (le « Service »).
 
@@ -13,7 +13,7 @@ Le Service est édité par :
 - **Numéro SIREN et immatriculation (RCS ou Registre national des entreprises) :** [à compléter]
 - **Numéro de TVA intracommunautaire :** [à compléter]
 - **Téléphone :** [à compléter]
-- **Courriel :** zaid@swirlit.dev
+- **Courriel :** contact@swirlit.dev
 
 Indezy est une marque de Swirlit.
 
@@ -33,7 +33,7 @@ Les données sont hébergées sur des serveurs dédiés situés dans l'Union eur
 
 ## Contact
 
-Pour toute question relative au Service, à ces mentions ou à vos données personnelles, écrivez à zaid@swirlit.dev.
+Pour toute question relative au Service, à ces mentions ou à vos données personnelles, écrivez à contact@swirlit.dev.
 
 ## Signaler un contenu illicite
 
@@ -42,7 +42,7 @@ Le Service permet à ses membres de publier des contenus (publications, commenta
 Toute personne peut signaler un contenu qu'elle estime illicite :
 
 - depuis le Service, par la fonction **Signaler** d'une publication, d'un commentaire, d'un message ou d'une page de membre ;
-- ou par courriel à zaid@swirlit.dev.
+- ou par courriel à contact@swirlit.dev.
 
 Pour être traité rapidement, un signalement par courriel indique :
 
@@ -53,7 +53,7 @@ Pour être traité rapidement, un signalement par courriel indique :
 
 Un signalement abusif, c'est-à-dire présentant comme illicite un contenu que l'on sait licite dans le but d'en obtenir le retrait, peut engager la responsabilité de son auteur.
 
-**Point de contact unique** (articles 11 et 12 du DSA) pour les autorités et les utilisateurs : zaid@swirlit.dev, en français ou en anglais.
+**Point de contact unique** (articles 11 et 12 du DSA) pour les autorités et les utilisateurs : contact@swirlit.dev, en français ou en anglais.
 
 ## Propriété intellectuelle
 

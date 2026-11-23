@@ -1,4 +1,4 @@
-Dernière mise à jour : 20 novembre 2026
+Dernière mise à jour : 23 novembre 2026
 
 La présente politique explique quelles données personnelles le service Indezy (https://indezy.swirlit.dev, le « Service ») traite, pourquoi, sur quelle base, pendant combien de temps, avec qui elles sont partagées et comment exercer vos droits. Elle est établie conformément au règlement (UE) 2016/679 (RGPD) et à la loi n° 78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés.
 
@@ -8,7 +8,7 @@ Elle s'applique aux utilisateurs du Service, aux membres de son réseau et aux p
 
 Le responsable du traitement est Zaid Chefchaouni, éditeur du Service sous la marque Swirlit (l'« Éditeur »), dont l'adresse figure dans les [mentions légales](/legal/notice) : [à compléter].
 
-Contact pour toute question relative à vos données : zaid@swirlit.dev.
+Contact pour toute question relative à vos données : contact@swirlit.dev.
 
 L'Éditeur n'a pas désigné de délégué à la protection des données. [à vérifier]
 
@@ -90,7 +90,7 @@ Une empreinte ne permet pas de lire l'adresse, mais reste une donnée pseudonymi
 ### Profil public et recommandations
 
 - **Profil public :** si vous l'activez, une page lisible par toute personne disposant du lien affiche votre nom, titre, ville, présentation, compétences, langues, liens, photo, disponibilité et les recommandations que vous approuvez. Votre e-mail, votre téléphone, votre adresse et votre Espace de travail n'y figurent jamais. Les moteurs de recherche sont invités à ne pas l'indexer (fichier robots.txt). Base légale : exécution du contrat, à votre demande ; vous pouvez la désactiver à tout moment.
-- **Recommandations :** l'auteur d'une recommandation fournit son nom, son texte et, s'il le souhaite, son titre, et accepte d'être nommé avec son texte. Base légale : son consentement (article 6.1.a), qu'il peut retirer en s'adressant au freelance ou à zaid@swirlit.dev. Conservation : jusqu'à la suppression de la recommandation ou du compte du freelance. Une recommandation n'apparaît qu'une fois approuvée par le freelance.
+- **Recommandations :** l'auteur d'une recommandation fournit son nom, son texte et, s'il le souhaite, son titre, et accepte d'être nommé avec son texte. Base légale : son consentement (article 6.1.a), qu'il peut retirer en s'adressant au freelance ou à contact@swirlit.dev. Conservation : jusqu'à la suppression de la recommandation ou du compte du freelance. Une recommandation n'apparaît qu'une fois approuvée par le freelance.
 
 ### Pages ouvertes sans compte
 
@@ -117,7 +117,7 @@ Si vous figurez parmi les contacts d'un utilisateur, adressez vos demandes à ce
 - **Base légale :** intérêt légitime de l'Éditeur et des utilisateurs à disposer d'une vue d'ensemble des missions publiées.
 - **Conservation :** 90 jours après leur publication ou jusqu'à leur expiration, sauf lorsqu'un utilisateur les a enregistrées, y a postulé ou les a importées dans son Espace de travail.
 
-Toute personne citée dans une offre peut s'opposer à ce traitement en écrivant à zaid@swirlit.dev.
+Toute personne citée dans une offre peut s'opposer à ce traitement en écrivant à contact@swirlit.dev.
 
 ### Sécurité et journaux techniques
 
@@ -177,7 +177,7 @@ Les données sont hébergées en France. Deux transferts ont lieu hors de l'Unio
 - **Resend (États-Unis)** reçoit l'adresse, l'objet et le contenu des e-mails envoyés par le Service. Ce transfert est encadré par [à vérifier : le cadre de protection des données UE–États-Unis (Data Privacy Framework) et/ou les clauses contractuelles types de la Commission européenne].
 - **La Fondation OpenStreetMap (Royaume-Uni)** reçoit, lorsque vous affichez la carte, votre adresse IP ; le Royaume-Uni bénéficie d'une décision d'adéquation de la Commission européenne.
 
-Vous pouvez obtenir une copie des garanties applicables en écrivant à zaid@swirlit.dev.
+Vous pouvez obtenir une copie des garanties applicables en écrivant à contact@swirlit.dev.
 
 ## Suppression du compte
 
@@ -189,10 +189,10 @@ Depuis **Profil → Compte → Supprimer mon compte** :
 
 Subsistent après la suppression :
 
-- les messages que vous avez envoyés et leurs fichiers, qui restent lisibles par leurs destinataires et apparaissent comme venant d'un « ancien membre », dans l'intérêt légitime de ces destinataires à conserver leurs conversations ; vous pouvez demander leur effacement à zaid@swirlit.dev, et chaque demande sera examinée ;
+- les messages que vous avez envoyés et leurs fichiers, qui restent lisibles par leurs destinataires et apparaissent comme venant d'un « ancien membre », dans l'intérêt légitime de ces destinataires à conserver leurs conversations ; vous pouvez demander leur effacement à contact@swirlit.dev, et chaque demande sera examinée ;
 - les communautés que vous avez créées, ainsi que les idées que vous avez proposées, attribuées à un « ancien membre » ;
 - l'empreinte des adresses ayant refusé toute invitation ;
-- votre identité dans le service de connexion de Swirlit, qui n'est pas supprimée automatiquement : demandez sa suppression à zaid@swirlit.dev ;
+- votre identité dans le service de connexion de Swirlit, qui n'est pas supprimée automatiquement : demandez sa suppression à contact@swirlit.dev ;
 - les données présentes dans les sauvegardes, jusqu'à leur remplacement [à compléter : durée de conservation des sauvegardes].
 
 Pensez à exporter vos données, et en particulier vos factures, que vous devez conserver, avant de supprimer votre compte.
@@ -210,7 +210,7 @@ Vous disposez des droits suivants sur vos données :
 - **Retrait du consentement :** à tout moment, lorsque le traitement repose sur votre consentement, sans remettre en cause les traitements déjà effectués.
 - **Directives après votre décès :** définir des directives sur la conservation, l'effacement et la communication de vos données après votre décès (article 85 de la loi Informatique et Libertés).
 
-Pour exercer ces droits, écrivez à zaid@swirlit.dev. Une réponse vous est apportée dans un délai d'un mois, qui peut être prolongé de deux mois en cas de demande complexe ; vous en êtes alors informé. Un justificatif d'identité ne peut vous être demandé qu'en cas de doute raisonnable sur votre identité.
+Pour exercer ces droits, écrivez à contact@swirlit.dev. Une réponse vous est apportée dans un délai d'un mois, qui peut être prolongé de deux mois en cas de demande complexe ; vous en êtes alors informé. Un justificatif d'identité ne peut vous être demandé qu'en cas de doute raisonnable sur votre identité.
 
 Vous pouvez introduire une réclamation auprès de la Commission nationale de l'informatique et des libertés (CNIL), 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07, ou sur https://www.cnil.fr.
 
