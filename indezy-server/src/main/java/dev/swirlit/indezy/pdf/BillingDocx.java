@@ -135,12 +135,23 @@ final class BillingDocx {
         if (page.acceptance() != null) {
             docx.paragraph("", false, DocxDocument.SMALL, DocxDocument.Align.LEFT);
             docx.paragraph(page.acceptance(), true, DocxDocument.SMALL, DocxDocument.Align.LEFT);
+            BlockStyle style = BlockStyle.of(page.blockStyles(), BodyBlock.SIGNATURE);
+            int lines = switch (style.size()) {
+                case SMALL -> SIGNATURE_LINES;
+                case NORMAL -> SIGNATURE_LINES * 3 / 2;
+                case LARGE -> SIGNATURE_LINES * 2;
+            };
             List<List<DocxDocument.Run>> box = new ArrayList<>();
-            for (int line = 0; line < SIGNATURE_LINES; line++) {
+            for (int line = 0; line < lines; line++) {
                 box.add(List.of(plain("")));
             }
-            docx.table(SIGNATURE, List.of(List.of(new DocxDocument.Cell(List.of(), DocxDocument.Align.LEFT),
-                new DocxDocument.Cell(box, DocxDocument.Align.LEFT))), false, false, true, null);
+            DocxDocument.Cell empty = new DocxDocument.Cell(List.of(), DocxDocument.Align.LEFT);
+            DocxDocument.Cell signed = new DocxDocument.Cell(box, DocxDocument.Align.LEFT);
+            switch (style.align()) {
+                case LEFT -> docx.table(SIGNATURE, List.of(List.of(signed, empty)), false, false, true, null);
+                case CENTER -> docx.table(columns(0.25, 0.5, 0.25), List.of(List.of(empty, signed, empty)), false, false, true, null);
+                default -> docx.table(SIGNATURE, List.of(List.of(empty, signed)), false, false, true, null); // RIGHT
+            }
         }
     }
 

@@ -285,7 +285,26 @@
                   {{ 'profile.billing.signatureShown' | translate }}
                 </mat-checkbox>
               }
-              @if (block === 'LINES') {
+              @if (block === 'SIGNATURE') {
+                <span class="block-style" [attr.data-body-block-style]="block">
+                  <mat-form-field appearance="outline" class="style-field" subscriptSizing="dynamic">
+                    <mat-label>{{ 'profile.billing.blockStyle.height' | translate }}</mat-label>
+                    <mat-select [value]="styleOf(block).size" (selectionChange)="setStyle(block, { size: $event.value })" data-signature-size>
+                      @for (size of blockSizes; track size) {
+                        <mat-option [value]="size">{{ 'profile.billing.blockStyle.sizes.' + size | translate }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="style-field" subscriptSizing="dynamic">
+                    <mat-label>{{ 'profile.billing.blockStyle.side' | translate }}</mat-label>
+                    <mat-select [value]="styleOf(block).align" (selectionChange)="setStyle(block, { align: $event.value })" data-signature-side>
+                      @for (align of blockAligns; track align) {
+                        <mat-option [value]="align">{{ 'profile.billing.blockStyle.aligns.' + align | translate }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </span>
+              } @else if (block === 'LINES') {
                 <span class="block-style" [attr.data-body-block-style]="block">
                   <mat-checkbox [checked]="styleOf(block).framed" (change)="setStyle(block, { framed: $event.checked })" data-lines-filled-header>
                     {{ 'profile.billing.blockStyle.filledHeader' | translate }}

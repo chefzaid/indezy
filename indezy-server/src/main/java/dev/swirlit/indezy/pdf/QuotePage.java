@@ -4,6 +4,7 @@ import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.Quote;
+import dev.swirlit.indezy.model.enums.BodyBlock;
 import dev.swirlit.indezy.model.enums.QuoteStatus;
 import dev.swirlit.indezy.service.InvoiceTotals;
 
@@ -155,11 +156,22 @@ final class QuotePage extends BillingPage {
     /** The box the client signs in, with the words it writes first. */
     @Override
     void signature() throws IOException {
-        writer.ensureSpace(LINE * 4 + SIGNATURE_BOX);
+        dev.swirlit.indezy.model.BlockStyle style = dev.swirlit.indezy.model.BlockStyle.of(blockStyles(), BodyBlock.SIGNATURE);
+        float height = switch (style.size()) {
+            case SMALL -> SIGNATURE_BOX;
+            case NORMAL -> SIGNATURE_BOX * 1.5f;
+            case LARGE -> SIGNATURE_BOX * 2;
+        };
+        writer.ensureSpace(LINE * 4 + height);
         writer.moveDown(LINE * 2);
-        float left = writer.left() + writer.width() / 2;
+        float half = writer.width() / 2;
+        float left = switch (style.align()) {
+            case LEFT -> writer.left();
+            case CENTER -> writer.left() + half / 2;
+            case RIGHT -> writer.left() + half;
+        };
         writer.paragraph(acceptance(), true, SMALL, writer.width());
-        writer.moveDown(SIGNATURE_BOX + 6);
-        writer.box(left, writer.cursor(), writer.right() - left, SIGNATURE_BOX);
+        writer.moveDown(height + 6);
+        writer.box(left, writer.cursor(), half, height);
     }
 }

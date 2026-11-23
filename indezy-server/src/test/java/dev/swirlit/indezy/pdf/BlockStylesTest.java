@@ -29,7 +29,8 @@ class BlockStylesTest {
 
     @Test
     void storesOnlyTheStylesOfTheTextBlocksThatDifferFromTheUsual() {
-        Map<BodyBlock, BlockStyle> styles = Map.of(BodyBlock.NOTES, CENTRED, BodyBlock.SIGNATURE, CENTRED, BodyBlock.MENTIONS, BlockStyle.USUAL);
+        Map<BodyBlock, BlockStyle> styles = Map.of(BodyBlock.NOTES, CENTRED, BodyBlock.SIGNATURE, BlockStyle.USUAL_SIGNATURE,
+            BodyBlock.MENTIONS, BlockStyle.USUAL);
         assertThat(BlockStyle.store(styles)).isEqualTo("NOTES=LARGE,CENTER,FRAMED,SHADED");
         // Of the lines table, only its shaded rows and filled header are kept.
         assertThat(BlockStyle.store(Map.of(BodyBlock.LINES, CENTRED))).isEqualTo("LINES=SMALL,LEFT,FRAMED,SHADED");
@@ -170,5 +171,38 @@ class BlockStylesTest {
         String document = new String(BillingDocxTest.parts(new QuotePdfRenderer().renderDocx(quote, seller, new InvoiceBuyer(), 30, null, false))
             .get("word/document.xml"), StandardCharsets.UTF_8);
         assertThat(document).contains("w:fill=\"1F4E79\"", "w:fill=\"EDEDED\"");
+    }
+
+    @Test
+    void drawsTheSignatureBoxTallerAndOnTheLeft() throws IOException {
+        assertThat(BlockStyle.of(Map.of(), BodyBlock.SIGNATURE)).isEqualTo(BlockStyle.USUAL_SIGNATURE);
+        BlockStyle tall = new BlockStyle(BlockStyle.Size.LARGE, BlockStyle.Align.LEFT, true, true, BlockStyle.Color.GREY, true, null);
+        assertThat(BlockStyle.store(Map.of(BodyBlock.SIGNATURE, tall))).isEqualTo("SIGNATURE=LARGE,LEFT");
+        InvoiceSeller seller = new InvoiceSeller();
+        seller.setName("Alice Martin");
+        float[] usual = signatureBox(new QuotePdfRenderer().render(quote(), seller, new InvoiceBuyer(), 30, null));
+        seller.setBlockStyles(BlockStyle.store(Map.of(BodyBlock.SIGNATURE, tall)));
+        float[] moved = signatureBox(new QuotePdfRenderer().render(quote(), seller, new InvoiceBuyer(), 30, null));
+        // x, width and height of the last rectangle drawn: twice as tall, as wide, from the left margin rather than the middle.
+        assertThat(moved[2]).isEqualTo(usual[2]);
+        assertThat(moved[3]).isEqualTo(usual[3] * 2);
+        assertThat(moved[0]).isLessThan(usual[0] - 200);
+        String document = new String(BillingDocxTest.parts(new QuotePdfRenderer().renderDocx(quote(), seller, new InvoiceBuyer(), 30, null, false))
+            .get("word/document.xml"), StandardCharsets.UTF_8);
+        String table = document.substring(document.lastIndexOf("<w:tbl>"));
+        assertThat(table.indexOf("<w:p>")).isLessThan(table.indexOf("<w:p/>"));
+    }
+
+    private static float[] signatureBox(byte[] pdf) throws IOException {
+        try (PDDocument document = Loader.loadPDF(pdf)) {
+            String operators = new String(document.getPage(0).getContents().readAllBytes(), StandardCharsets.ISO_8859_1);
+            java.util.regex.Matcher rect = java.util.regex.Pattern.compile("([\\d.-]+) ([\\d.-]+) ([\\d.-]+) ([\\d.-]+) re").matcher(operators);
+            float[] last = null;
+            while (rect.find()) {
+                last = new float[] {Float.parseFloat(rect.group(1)), Float.parseFloat(rect.group(2)), Float.parseFloat(rect.group(3)),
+                    Float.parseFloat(rect.group(4))};
+            }
+            return new float[] {last[0], last[1], last[2], last[3]};
+        }
     }
 }

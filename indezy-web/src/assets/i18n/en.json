@@ -1495,7 +1495,7 @@
         "CUSTOM": "{{family}} (my font)"
       },
       "bodyBlocks": "Order of the body",
-      "bodyBlocksHint": "Under the seller, the heading and the client, the blocks print in this order on invoices and quotes, in the PDF and the Word copy. The lines, mentions and notes always print; only the signature box can be left out of the quotes. The lines table can fill its header and shade every other row; the mentions and the notes take their own size, alignment, font, colour, bold, frame and shading.",
+      "bodyBlocksHint": "Under the seller, the heading and the client, the blocks print in this order on invoices and quotes, in the PDF and the Word copy. The lines, mentions and notes always print; only the signature box can be left out of the quotes. The signature box takes a height and a side; the lines table can fill its header and shade every other row; the mentions and the notes take their own size, alignment, font, colour, bold, frame and shading.",
       "blocks": {
         "LINES": "Lines and totals",
         "MENTIONS": "Mentions (payment, bank details, penalties)",
@@ -1544,7 +1544,9 @@
           "SERIF": "Serif"
         },
         "filledHeader": "Header filled with the accent colour",
-        "shadedRows": "Shaded rows"
+        "shadedRows": "Shaded rows",
+        "height": "Height",
+        "side": "Side"
       },
       "previewPageAlt": "Page {{page}} of {{pages}} of the preview",
       "previewOfInvoice": "A sample invoice in these settings, {{pages}} page(s), drawn again as you change them.",

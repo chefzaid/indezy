@@ -403,7 +403,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   readonly blockFamilies: BlockStyle['family'][] = ['DOCUMENT', 'SANS', 'SERIF'];
 
   styleOf(block: BodyBlock): BlockStyle {
-    return this.blockStyles[block] ?? USUAL_BLOCK_STYLE;
+    return this.blockStyles[block] ?? (block === 'SIGNATURE' ? { ...USUAL_BLOCK_STYLE, align: 'RIGHT' } : USUAL_BLOCK_STYLE);
   }
 
   /** Changes one part of a block's style. */

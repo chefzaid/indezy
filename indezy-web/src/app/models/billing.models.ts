@@ -34,7 +34,7 @@ export interface BlockStyle {
 }
 
 /** The blocks a style applies to, and the style they have without one. */
-export const STYLED_BLOCKS: BodyBlock[] = ['MENTIONS', 'NOTES', 'LINES'];
+export const STYLED_BLOCKS: BodyBlock[] = ['MENTIONS', 'NOTES', 'LINES', 'SIGNATURE'];
 export const USUAL_BLOCK_STYLE: BlockStyle = { size: 'SMALL', align: 'LEFT', framed: false, shaded: false, color: 'TEXT', bold: false,
   family: 'DOCUMENT' };
 

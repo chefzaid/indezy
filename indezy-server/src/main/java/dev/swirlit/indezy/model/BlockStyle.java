@@ -29,9 +29,19 @@ public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded,
 
     /**
      * The blocks a style applies to: the mentions and the notes wholly; of the lines table, only {@code shaded}
-     * (alternate rows shaded) and {@code framed} (its header row filled with the accent colour).
+     * (alternate rows shaded) and {@code framed} (its header row filled with the accent colour); of a quote's signature
+     * box, only its {@code size} (its height: small as usual, normal or large) and {@code align} (its side, the right as
+     * usual).
      */
-    public static final Set<BodyBlock> STYLED = Set.of(BodyBlock.MENTIONS, BodyBlock.NOTES, BodyBlock.LINES);
+    public static final Set<BodyBlock> STYLED = Set.of(BodyBlock.MENTIONS, BodyBlock.NOTES, BodyBlock.LINES, BodyBlock.SIGNATURE);
+
+    /** The signature box as usual: small, on the right. */
+    public static final BlockStyle USUAL_SIGNATURE = new BlockStyle(Size.SMALL, Align.RIGHT, false, false, Color.TEXT, false, Family.DOCUMENT);
+
+    /** A block's style when it has none of its own. */
+    public static BlockStyle usualFor(BodyBlock block) {
+        return block == BodyBlock.SIGNATURE ? USUAL_SIGNATURE : USUAL;
+    }
 
     /** As the layout draws a text block. */
     public static final BlockStyle USUAL = new BlockStyle(Size.SMALL, Align.LEFT, false, false, Color.TEXT, false, Family.DOCUMENT);
@@ -52,9 +62,10 @@ public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded,
         Map<BodyBlock, BlockStyle> kept = new EnumMap<>(BodyBlock.class);
         if (styles != null) {
             styles.forEach((block, style) -> {
-                BlockStyle kept1 = block == BodyBlock.LINES && style != null ? new BlockStyle(null, null, style.framed(), style.shaded(), null, null, null) :
-                    style;
-                if (block != null && kept1 != null && STYLED.contains(block) && !kept1.equals(USUAL)) {
+                BlockStyle kept1 = style == null ? null : block == BodyBlock.LINES ?
+                    new BlockStyle(null, null, style.framed(), style.shaded(), null, null, null) : block == BodyBlock.SIGNATURE ?
+                    new BlockStyle(style.size(), style.align(), null, null, null, null, null) : style;
+                if (block != null && kept1 != null && STYLED.contains(block) && !kept1.equals(usualFor(block))) {
                     kept.put(block, kept1);
                 }
             });
@@ -109,6 +120,6 @@ public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded,
 
     /** The style of a block, the usual one without its own. */
     public static BlockStyle of(Map<BodyBlock, BlockStyle> styles, BodyBlock block) {
-        return styles.getOrDefault(block, USUAL);
+        return styles.getOrDefault(block, usualFor(block));
     }
 }
