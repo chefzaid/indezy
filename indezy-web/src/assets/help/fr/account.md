@@ -78,7 +78,7 @@ Un webhook prévient vos outils (Zapier, Make, n8n, un script) des événements 
 Pour obtenir l'archive LinkedIn : sur LinkedIn, **Préférences et confidentialité → Confidentialité des données → Obtenir une copie de vos données** ; LinkedIn vous envoie un ZIP par e-mail, en général sous un jour.
 
 1. Cliquez sur **Choisir mon CV** ou **Choisir mon archive LinkedIn**.
-2. Cochez ce que vous reprenez : chaque champ trouvé montre ce que contient votre profil ; les champs vides sont cochés. Les compétences et langues absentes de votre profil sont ajoutées, aucune retirée, jusqu'à 50 compétences.
+2. Cochez ce que vous reprenez : chaque champ trouvé montre ce que contient votre profil ; les champs vides sont cochés. Les compétences et langues absentes de votre profil sont ajoutées, aucune retirée. Une compétence que votre profil nomme déjà, sous une autre écriture (« spring-boot » pour « Spring Boot ») ou un alias connu (« JS » pour JavaScript), est indiquée comme déjà présente, et une langue que votre profil ne propose pas comme écartée. Un profil nomme 50 compétences au plus : quand il en est trouvé plus que la place restante, choisissez lesquelles ajouter.
 3. Cliquez sur **Remplir le formulaire**, vérifiez, puis **Sauvegarder** : rien n'est enregistré avant, sauf les certifications cochées.
 
 Les certifications rejoignent **Formations et certifications** sur la page [Documents](/help/documents), avec leur organisme, leur date d'obtention et leur fin de validité ; celle que vos formations nomment déjà est marquée **Déjà dans vos formations** et n'est pas ajoutée une seconde fois.

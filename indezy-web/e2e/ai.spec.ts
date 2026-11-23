@@ -191,7 +191,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await mockWorkspaceData(page, language);
     await page.route('**/api/ai/profile-import', route => route.fulfill({ json: { firstName: 'Camille', lastName: 'Test', phone: null,
       city: 'Lyon', position: 'Lead Java', company: null, bio: null, website: null, linkedin: null, github: null,
-      languages: ['Anglais'], skills: [{ name: 'java', years: 9 }, { name: 'Kafka', years: 4 }] } }));
+      languages: ['Anglais', 'Klingon'], skills: [{ name: 'java', years: 9 }, { name: 'Kafka', years: 4 }] } }));
     const saved: Record<string, unknown>[] = [];
     await page.route(/\/api\/users\/profile$/, route => {
       if (route.request().method() !== 'PUT') {
@@ -210,6 +210,9 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(dialog).toContainText(en ? 'Now: Workspace' : 'Actuellement : Workspace');
     await expect(dialog.locator('[data-cv-import-skills]')).toContainText('Kafka');
     await expect(dialog.locator('[data-cv-import-skills]')).not.toContainText('java');
+    // A skill the profile names under another spelling, and a language it does not offer, are marked.
+    await expect(dialog.locator('[data-cv-import-skills-here]')).toContainText('Java');
+    await expect(dialog.locator('[data-cv-import-left-out]')).toContainText('Klingon');
     await expect(dialog.locator('[data-cv-import-row="lastName"]')).toHaveCount(0);
     await settleDialog(page);
     const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();

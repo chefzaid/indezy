@@ -1801,7 +1801,10 @@
       "alreadyHere": "Déjà dans vos formations",
       "obtained": "(obtenue en {{date}})",
       "certificationsAdded": "{{count}} certifications ajoutées à vos formations et certifications (page Documents).",
-      "certificationsError": "Les certifications n'ont pas pu être ajoutées à vos formations : réessayez."
+      "certificationsError": "Les certifications n'ont pas pu être ajoutées à vos formations : réessayez.",
+      "skillsOver": "Votre profil compte {{max}} compétences au plus : choisissez-en {{room}} parmi ces {{count}}.",
+      "skillsHere": "Déjà dans votre profil : {{skills}}",
+      "languagesLeftOut": "Écartées, absentes des langues du profil : {{languages}}"
     }
   },
   "errors": {

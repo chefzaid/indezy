@@ -8,10 +8,12 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, first, forkJoin, of } from 'rxjs';
 import { AiImportedCertification, AiProfileImport, SkillDetail, Training, UserProfile } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { SkillNamesService } from '../../../services/skill/skill-names.service';
+import { SkillNames, skillKey } from '../../../shared/utils/skill-names';
 import { TrainingService } from '../../../services/training/training.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 
@@ -87,6 +89,9 @@ const FIELDS: { field: TextField; label: string }[] = [
       } @else {
         @if (!rows.length && !skills.length && !languages.length && !newCertifications) {
           <p data-cv-import-nothing>{{ 'profile.cvImport.nothing' | translate }}</p>
+          @if (skillsHere.length) {
+            <p class="current" data-cv-import-skills-here>{{ 'profile.cvImport.skillsHere' | translate:{ skills: skillsHere.join(', ') } }}</p>
+          }
         } @else {
           <p class="hint">{{ 'profile.cvImport.review' | translate }}</p>
           <ul class="rows">
@@ -100,7 +105,7 @@ const FIELDS: { field: TextField; label: string }[] = [
                 }
               </li>
             }
-            @if (skills.length) {
+            @if (skills.length && !overLimit) {
               <li>
                 <mat-checkbox [(ngModel)]="takeSkills" data-cv-import-skills>
                   <strong>{{ 'profile.cvImport.skills' | translate:{ count: skills.length } }}</strong>
@@ -108,11 +113,30 @@ const FIELDS: { field: TextField; label: string }[] = [
                 </mat-checkbox>
               </li>
             }
+            @if (overLimit) {
+              <li data-cv-import-skills-over>
+                <strong>{{ 'profile.cvImport.skillsOver' | translate:{ room: room, count: skills.length, max: maxSkills } }}</strong>
+                <span class="choices">
+                  @for (skill of skills; track skill.name) {
+                    <mat-checkbox [(ngModel)]="skill.chosen" [disabled]="!skill.chosen && chosenSkills >= room"
+                      [attr.data-cv-import-skill]="skill.name">{{ skill.name }}</mat-checkbox>
+                  }
+                </span>
+              </li>
+            }
+            @if (skillsHere.length) {
+              <li class="current" data-cv-import-skills-here>{{ 'profile.cvImport.skillsHere' | translate:{ skills: skillsHere.join(', ') } }}</li>
+            }
             @if (languages.length) {
               <li>
                 <mat-checkbox [(ngModel)]="takeLanguages" data-cv-import-languages>
                   <strong>{{ 'profile.cvImport.languages' | translate }}</strong> {{ languages.join(', ') }}
                 </mat-checkbox>
+              </li>
+            }
+            @if (languagesLeftOut.length) {
+              <li class="current" data-cv-import-left-out>
+                {{ 'profile.cvImport.languagesLeftOut' | translate:{ languages: languagesLeftOut.join(', ') } }}
               </li>
             }
           </ul>
@@ -158,6 +182,7 @@ const FIELDS: { field: TextField; label: string }[] = [
     .rows { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
     .rows li { display: flex; flex-direction: column; }
     .section { margin: 16px 0 0; font-size: 1em; }
+    .choices { display: flex; flex-wrap: wrap; gap: 0 8px; }
     .current { margin-left: 40px; font-size: 0.85em; color: var(--mat-sys-on-surface-variant); }
     mat-spinner { display: inline-block; margin-right: 8px; }
   `]
@@ -166,6 +191,7 @@ export class ProfileCvImportDialogComponent {
   private readonly ai = inject(AiService);
   private readonly users = inject(UserManagementService);
   private readonly trainings = inject(TrainingService);
+  private readonly skillNamesService = inject(SkillNamesService);
   private readonly notifications = inject(NotificationService);
   private readonly dialogRef = inject<MatDialogRef<ProfileCvImportDialogComponent, Partial<UserProfile>>>(MatDialogRef);
   private readonly data = inject<CvImportData>(MAT_DIALOG_DATA);
@@ -174,8 +200,15 @@ export class ProfileCvImportDialogComponent {
   loading = false;
   reading: AiProfileImport | null = null;
   rows: CvImportRow[] = [];
-  skills: { name: string; years: number }[] = [];
+  readonly maxSkills = CV_IMPORT_SKILLS_MAX;
+  /** Skills the profile lacks; past the limit, each is chosen on its own, at most {@link room}. */
+  skills: { name: string; years: number; chosen: boolean }[] = [];
+  /** Skills found that the profile already names, under another spelling or alias too, as the profile writes them. */
+  skillsHere: string[] = [];
+  room = 0;
   languages: string[] = [];
+  /** Languages found that the profile does not offer. */
+  languagesLeftOut: string[] = [];
   certifications: CvImportCertification[] = [];
   saving = false;
   takeSkills = true;
@@ -185,8 +218,22 @@ export class ProfileCvImportDialogComponent {
     return this.skills.map(skill => skill.name).join(', ');
   }
 
+  /** More skills found than the profile has room for. */
+  get overLimit(): boolean {
+    return this.skills.length > this.room;
+  }
+
+  get chosenSkills(): number {
+    return this.skills.filter(skill => skill.chosen).length;
+  }
+
+  /** The skills to add: all when they fit and are ticked, else those chosen. */
+  get skillsTaken(): { name: string; years: number }[] {
+    return this.overLimit ? this.skills.filter(skill => skill.chosen) : this.takeSkills ? this.skills : [];
+  }
+
   get anyChosen(): boolean {
-    return this.rows.some(row => row.chosen) || (this.takeSkills && this.skills.length > 0) ||
+    return this.rows.some(row => row.chosen) || this.skillsTaken.length > 0 ||
       (this.takeLanguages && this.languages.length > 0) || this.certifications.some(certification => certification.chosen);
   }
 
@@ -205,10 +252,11 @@ export class ProfileCvImportDialogComponent {
     }
     this.loading = true;
     const known: Observable<Training[]> = this.trainings.list().pipe(catchError(() => of([])));
-    forkJoin([linkedIn ? this.users.linkedInImport(file) : this.ai.profileImport(file), known]).subscribe({
-      next: ([reading, trainings]) => {
+    const names = this.skillNamesService.names$.pipe(first(), catchError(() => of(SkillNames.NONE)));
+    forkJoin([linkedIn ? this.users.linkedInImport(file) : this.ai.profileImport(file), known, names]).subscribe({
+      next: ([reading, trainings, skillNames]) => {
         this.loading = false;
-        this.show(reading, trainings);
+        this.show(reading, trainings, skillNames);
         this.changes.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
@@ -221,7 +269,7 @@ export class ProfileCvImportDialogComponent {
   }
 
   /** Lays out what the CV says beside what the profile holds. */
-  show(reading: AiProfileImport, trainings: Training[] = []): void {
+  show(reading: AiProfileImport, trainings: Training[] = [], names: SkillNames = SkillNames.NONE): void {
     const current = this.data.current;
     this.rows = FIELDS.flatMap(({ field, label }) => {
       let found = reading[field]?.trim() ?? '';
@@ -231,14 +279,21 @@ export class ProfileCvImportDialogComponent {
       const now = (current[field] as string | null | undefined)?.trim() || null;
       return found && found !== now ? [{ field, label, found, current: now, chosen: !now }] : [];
     });
-    const listed = new Set((current.skills ?? []).map(skill => skill.toLowerCase()));
-    const room = Math.max(0, CV_IMPORT_SKILLS_MAX - listed.size);
-    this.skills = (reading.skills ?? []).filter(skill => skill.name?.trim() && !listed.has(skill.name.trim().toLowerCase()))
-      .map(skill => ({ name: skill.name.trim(), years: skill.years }))
-      .slice(0, room);
+    const key = (skill: string): string => skillKey(names.canonical(skill));
+    const listed = new Map((current.skills ?? []).map(skill => [key(skill), skill]));
+    const seen = new Set<string>();
+    const found = (reading.skills ?? []).filter(skill => skill.name?.trim()).map(skill => ({ name: names.canonical(skill.name), years: skill.years }))
+      .filter(skill => !seen.has(key(skill.name)) && !!seen.add(key(skill.name)));
+    this.skillsHere = found.filter(skill => listed.has(key(skill.name))).map(skill => listed.get(key(skill.name)) as string);
+    this.room = Math.max(0, CV_IMPORT_SKILLS_MAX - listed.size);
+    this.skills = found.filter(skill => !listed.has(key(skill.name))).map((skill, index) => ({ ...skill, chosen: index < this.room }));
+    if (!this.room) {
+      this.skills = [];
+    }
     const spoken = new Set(current.languages ?? []);
-    this.languages = [...new Set((reading.languages ?? []).map(language => language.trim()))]
-      .filter(language => this.data.languages.includes(language) && !spoken.has(language));
+    const languages = [...new Set((reading.languages ?? []).map(language => language.trim()).filter(Boolean))];
+    this.languages = languages.filter(language => this.data.languages.includes(language) && !spoken.has(language));
+    this.languagesLeftOut = languages.filter(language => !this.data.languages.includes(language));
     const named = new Set(trainings.flatMap(training => [training.certification, training.title])
       .filter((name): name is string => !!name).map(name => name.trim().toLowerCase()));
     this.certifications = (reading.certifications ?? []).filter(certification => certification.name?.trim())
@@ -255,10 +310,11 @@ export class ProfileCvImportDialogComponent {
     for (const row of this.rows.filter(chosen => chosen.chosen)) {
       patch[row.field] = row.found;
     }
-    if (this.takeSkills && this.skills.length) {
+    const skills = this.skillsTaken;
+    if (skills.length) {
       const details: Record<string, SkillDetail> = { ...this.data.current.skillDetails };
-      this.skills.filter(skill => skill.years > 0).forEach(skill => details[skill.name] = { years: skill.years });
-      patch.skills = [...(this.data.current.skills ?? []), ...this.skills.map(skill => skill.name)];
+      skills.filter(skill => skill.years > 0).forEach(skill => details[skill.name] = { years: skill.years });
+      patch.skills = [...(this.data.current.skills ?? []), ...skills.map(skill => skill.name)];
       patch.skillDetails = details;
     }
     if (this.takeLanguages && this.languages.length) {

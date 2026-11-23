@@ -7,7 +7,9 @@ import { of, throwError } from 'rxjs';
 import { AiProfileImport, Training, UserProfile } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { SkillNamesService } from '../../../services/skill/skill-names.service';
 import { TrainingService } from '../../../services/training/training.service';
+import { SkillNames } from '../../../shared/utils/skill-names';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { CV_IMPORT_SKILLS_MAX, CvImportData, ProfileCvImportDialogComponent } from './profile-cv-import-dialog.component';
 
@@ -37,7 +39,8 @@ describe('ProfileCvImportDialogComponent', () => {
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: NotificationService, useValue: notifications }, { provide: MatDialogRef, useValue: dialogRef },
         { provide: MAT_DIALOG_DATA, useValue: data }, { provide: UserManagementService, useValue: users },
-        { provide: TrainingService, useValue: trainings }]
+        { provide: TrainingService, useValue: trainings },
+        { provide: SkillNamesService, useValue: { names$: of(new SkillNames({ JavaScript: ['JS'], Java: [] })) } }]
     });
     const fixture = TestBed.createComponent(ProfileCvImportDialogComponent);
     fixture.detectChanges();
@@ -66,7 +69,10 @@ describe('ProfileCvImportDialogComponent', () => {
     expect(component.rows[3].found.length).toBe(500);
     // Skills already listed and languages the profile does not offer are left out.
     expect(component.skills.map(skill => skill.name)).toEqual(['Kafka', 'Scrum']);
+    expect(component.skillsHere).toEqual(['java']);
+    expect(component.overLimit).toBeFalse();
     expect(component.languages).toEqual(['Anglais']);
+    expect(component.languagesLeftOut).toEqual(['Klingon']);
 
     component.rows[2].chosen = false;
     component.apply();
@@ -82,7 +88,16 @@ describe('ProfileCvImportDialogComponent', () => {
       languages: ['Anglais', 'Français'] });
     component.show(reading);
     expect(component.rows.map(row => row.field)).toEqual(['bio']);
-    expect(component.skills.map(skill => skill.name)).toEqual(['Java']);
+    // One place left for three skills: the first is chosen, the member picks which.
+    expect(component.overLimit).toBeTrue();
+    expect(component.room).toBe(1);
+    expect(component.skills.map(skill => [skill.name, skill.chosen])).toEqual([['Java', true], ['Kafka', false], ['Scrum', false]]);
+    component.skills[0].chosen = false;
+    component.skills[1].chosen = true;
+    expect(component.chosenSkills).toBe(1);
+    component.apply();
+    expect(dialogRef.close).toHaveBeenCalledWith(jasmine.objectContaining({ skills: [...full, 'Kafka'] }));
+
 
     component.show({ ...reading, bio: 'b'.repeat(600), skills: [] });
     component.takeLanguages = false;
@@ -156,5 +171,21 @@ describe('ProfileCvImportDialogComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('profile.cvImport.certificationsError');
     expect(component.saving).toBeFalse();
     expect(dialogRef.close).not.toHaveBeenCalled();
+  });
+
+  it('takes no more skills into a full profile', () => {
+    const component = create({ skills: Array.from({ length: CV_IMPORT_SKILLS_MAX }, (_, index) => `Skill ${index}`) });
+    component.show(reading);
+    expect(component.room).toBe(0);
+    expect(component.skills).toEqual([]);
+    expect(component.overLimit).toBeFalse();
+  });
+
+  it('folds the skills\' spellings and aliases into the profile\'s', () => {
+    const component = create({ skills: ['JavaScript', 'spring-boot'] });
+    component.show({ ...reading, skills: [{ name: 'JS', years: 3 }, { name: 'Spring Boot', years: 2 }, { name: 'java', years: 5 },
+      { name: 'Java', years: 1 }] }, [], new SkillNames({ JavaScript: ['JS'], Java: [] }));
+    expect(component.skillsHere).toEqual(['JavaScript', 'spring-boot']);
+    expect(component.skills.map(skill => [skill.name, skill.years])).toEqual([['Java', 5]]);
   });
 });

@@ -78,7 +78,7 @@ A webhook tells your tools (Zapier, Make, n8n, a script) about your workspace's 
 To get LinkedIn's archive: on LinkedIn, **Settings & Privacy → Data privacy → Get a copy of your data**; LinkedIn emails you a ZIP, usually within a day.
 
 1. Click **Choose my CV** or **Choose my LinkedIn archive**.
-2. Tick what to take: each field found shows what your profile holds now; the empty ones are ticked. Skills and languages your profile lacks are added, none removed, up to 50 skills.
+2. Tick what to take: each field found shows what your profile holds now; the empty ones are ticked. Skills and languages your profile lacks are added, none removed. A skill your profile already names, under another spelling ("spring-boot" for "Spring Boot") or a known alias ("JS" for JavaScript), is listed as already there, and a language your profile does not offer as left out. A profile names 50 skills at most: when more are found than it has room for, choose which to add.
 3. Click **Fill in the form**, check it, then **Save**: nothing is saved before, except the certifications you ticked.
 
 Certifications go to **Trainings and certifications** on the [Documents](/help/documents) page, with their issuer, the date obtained and the expiry; one your trainings already name is marked **Already in your trainings** and not added again.

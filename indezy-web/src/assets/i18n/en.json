@@ -1801,7 +1801,10 @@
       "alreadyHere": "Already in your trainings",
       "obtained": "(obtained in {{date}})",
       "certificationsAdded": "{{count}} certifications added to your trainings and certifications (Documents page).",
-      "certificationsError": "The certifications could not be added to your trainings: try again."
+      "certificationsError": "The certifications could not be added to your trainings: try again.",
+      "skillsOver": "Your profile holds {{max}} skills at most: choose {{room}} of these {{count}}.",
+      "skillsHere": "Already in your profile: {{skills}}",
+      "languagesLeftOut": "Left out, not among the profile's languages: {{languages}}"
     }
   },
   "errors": {
