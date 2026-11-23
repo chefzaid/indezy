@@ -69,7 +69,16 @@ public class ProspectionCampaignService {
     /** The latest twenty campaigns with their results, the newest first; those that sent nothing and wait for nothing left out. */
     @Transactional(readOnly = true)
     public List<Campaign> list(Long freelanceId) {
-        List<ProspectionCampaign> latest = campaigns.findTop20ByFreelanceIdOrderByCreatedAtDescIdDesc(freelanceId);
+        return results(freelanceId, campaigns.findTop20ByFreelanceIdOrderByCreatedAtDescIdDesc(freelanceId));
+    }
+
+    /** Every campaign with its results and the contacts it wrote to, for the account export. */
+    @Transactional(readOnly = true)
+    public List<Campaign> export(Long freelanceId) {
+        return results(freelanceId, campaigns.findByFreelanceIdOrderByCreatedAtDescIdDesc(freelanceId));
+    }
+
+    private List<Campaign> results(Long freelanceId, List<ProspectionCampaign> latest) {
         if (latest.isEmpty()) {
             return List.of();
         }

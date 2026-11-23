@@ -28,6 +28,8 @@ public class UserDataExportService {
     private final ContactService contactService;
     private final ContactInteractionService contactInteractionService;
     private final ContactRelationService contactRelationService;
+    private final ProspectionCampaignService prospectionCampaignService;
+    private final ContactEmailScheduleService contactEmailScheduleService;
     private final SourceService sourceService;
     private final ActivityReportService activityReportService;
     private final OfferStateService offerStateService;
@@ -89,6 +91,8 @@ public class UserDataExportService {
         export.put("contacts", contactService.findByFreelanceId(freelanceId));
         export.put("contactInteractions", contactInteractionService.export(freelanceId));
         export.put("contactRelations", contactRelationService.export(freelanceId));
+        export.put("prospectionCampaigns", prospectionCampaignService.export(freelanceId));
+        export.put("scheduledEmails", contactEmailScheduleService.waiting(freelanceId));
         export.put("sources", sourceService.findByFreelanceId(freelanceId));
         export.put("activityReports", activityReportService.findByFreelanceId(freelanceId));
         export.put("purchaseOrders", purchaseOrderService.export(freelanceId));

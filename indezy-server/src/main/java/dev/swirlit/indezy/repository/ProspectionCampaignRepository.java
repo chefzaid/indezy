@@ -10,5 +10,7 @@ public interface ProspectionCampaignRepository extends JpaRepository<Prospection
 
     List<ProspectionCampaign> findTop20ByFreelanceIdOrderByCreatedAtDescIdDesc(Long freelanceId);
 
+    List<ProspectionCampaign> findByFreelanceIdOrderByCreatedAtDescIdDesc(Long freelanceId);
+
     Optional<ProspectionCampaign> findByIdAndFreelanceId(Long id, Long freelanceId);
 }

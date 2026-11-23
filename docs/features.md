@@ -112,7 +112,7 @@ Local accounts register and sign in with an email and a password of 8 characters
 as 2, an emoji as 4), and can turn on TOTP two-factor authentication. In production, sign-in goes through Keycloak. The
 profile page has the tabs **Personal information**, **Preferences**, **Notifications**, **Security**, **Billing**,
 **Emails**, **Public profile**, **Offer feed** and **Account**, where **Export my data** downloads every piece of the
-account's data as JSON.
+account's data as JSON, the prospection campaigns with their results and contacts (`prospectionCampaigns`) and the emails waiting to go (`scheduledEmails`) included.
 
 ### Account Deletion
 

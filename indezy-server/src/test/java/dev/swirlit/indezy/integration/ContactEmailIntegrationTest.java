@@ -352,6 +352,14 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
         call(alice, HttpMethod.POST, "/interview-steps", Map.of("title", "Appel", "status", "PLANNED", "projectId", project), Map.class);
         assertThat(((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/contacts/emails/campaigns", null, List.class).getBody()).getFirst())
             .containsEntry("interviews", 1);
+        // The account export carries the campaigns and the emails waiting to go.
+        tools.jackson.databind.JsonNode export = new tools.jackson.databind.ObjectMapper().readTree(
+            call(alice, HttpMethod.GET, "/users/export", null, String.class).getBody());
+        assertThat(export.get("prospectionCampaigns")).anySatisfy(item -> {
+            assertThat(item.get("name").asText()).isEqualTo("Disponible en janvier");
+            assertThat(item.get("sent").asInt()).isEqualTo(1);
+        });
+        assertThat(export.has("scheduledEmails")).isTrue();
         assertThat(results.getFirst().get("contactIds")).isEqualTo(List.of((int) lea));
         Map<String, Object> opportunity = call(alice, HttpMethod.GET, "/projects/" + project, null, Map.class).getBody();
         opportunity.put("status", "WON");

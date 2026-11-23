@@ -91,6 +91,12 @@ class UserDataExportServiceTest {
     private ContactRelationService contactRelationService;
 
     @Mock
+    private ProspectionCampaignService prospectionCampaignService;
+
+    @Mock
+    private ContactEmailScheduleService contactEmailScheduleService;
+
+    @Mock
     private ProjectNoteService projectNoteService;
 
     @Mock
