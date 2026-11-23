@@ -1412,7 +1412,13 @@ bundled under the SIL Open Font Licence and embedded as Factur-X needs, frozen a
 forbid embedding (OS/2 `fsType` restricted or bitmap-only) or when it lacks letters a French invoice prints (accents,
 €, guillemets); it becomes the documents' font (`font` CUSTOM, `fontFileId`, `fontFamily`), the regular face printing
 the bold text when no bold one was given. Each upload is a new file, frozen with the seller at issue; **Remove** (`DELETE
-/api/users/billing/font`) goes back to Liberation Sans, and issued documents keep theirs. Word copies name its family. A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
+/api/users/billing/font`) goes back to Liberation Sans, and issued documents keep theirs. Word copies name its family.
+A **Letterhead** (`POST /api/users/billing/letterhead`, a PDF of 5 MB at most) is drawn under every page of the invoices
+and quotes, its first page under a document's first page and its second (or the first again) under the others, never
+under a quote's appended terms PDF; it is refused unless it has one or two upright A4 pages, no password, no script or
+action, and every font embedded (so that Factur-X stays PDF/A), and it is checked by ClamAV. Each upload is a new file
+(`GET /api/users/billing/letterheads/{id}`), frozen with the seller at issue (`letterheadId`); `DELETE` stops using it.
+The document is drawn in its usual place: a letterhead leaves the page's centre free. A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
 printed under the seller's name, frozen at issue too. A **Footer** (`footer`, 200 characters, such
 as the website and phone) is written small at the foot of every page, also frozen at issue; every document of several
 pages (invoices, quotes, activity reports, dossiers) numbers them "1/2" at the bottom right. The **Notes a new invoice

@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Your letterhead under invoices and quotes
+
+Upload a PDF letterhead in Profile → Billing: your invoices and quotes are drawn over it, and stay Factur-X files. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Your own Word template
 
 **Word templates**, in Profile → Billing, fill a layout you made in Word with each invoice or quote, for **Download as Word**. See [Quotes and invoices](/help/invoices-quotes).

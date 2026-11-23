@@ -38,7 +38,7 @@ describe('ProfileBillingComponent', () => {
 
   beforeEach(() => {
     billing = jasmine.createSpyObj('BillingService', ['identity', 'saveIdentity', 'uploadLogo', 'removeLogo', 'logo', 'uploadTermsFile', 'removeTermsFile', 'termsFile',
-      'uploadFont', 'removeFont']);
+      'uploadFont', 'removeFont', 'uploadLetterhead', 'removeLetterhead', 'letterhead']);
     billing.logo.and.returnValue(of(new Blob(['png'], { type: 'image/png' })));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
   });
@@ -216,5 +216,43 @@ describe('ProfileBillingComponent', () => {
     billing.removeFont.and.returnValue(throwError(() => new Error('down')));
     component.removeFont();
     expect(notifications.error).toHaveBeenCalledWith('profile.billing.saveError');
+  });
+
+  it('draws the documents over a letterhead, says why one is refused, opens and removes it', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const input = document.createElement('input');
+    input.type = 'file';
+    const pick = (name: string, type: string): void => {
+      const files = new DataTransfer();
+      files.items.add(new File(['%PDF'], name, { type }));
+      input.files = files.files;
+      component.uploadLetterhead({ target: input } as unknown as Event);
+    };
+    billing.uploadLetterhead.and.returnValue(of({ ...defaults, letterheadId: 6 }));
+    pick('papier.pdf', 'application/pdf');
+    expect(component.letterheadId).toBe(6);
+    expect(notifications.success).toHaveBeenCalledWith('profile.billing.letterheadSaved');
+    expect(text(fixture)).toContain('Replace the letterhead');
+
+    pick('papier.png', 'image/png');
+    expect(notifications.error).toHaveBeenCalledWith('profile.billing.letterheadRefused');
+    for (const [message, key] of [['A letterhead is an upright A4 page', 'letterheadSize'], ['uses fonts it does not embed', 'letterheadFonts'],
+      ['A letterhead has one or two pages', 'letterheadPages'], ['other', 'letterheadRefused']]) {
+      billing.uploadLetterhead.and.returnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { message } })));
+      pick('papier.pdf', 'application/pdf');
+      expect(notifications.error).toHaveBeenCalledWith(`profile.billing.${key}`);
+    }
+
+    const link = jasmine.createSpyObj('a', ['click']);
+    spyOn(document, 'createElement').and.callFake(() => link as never);
+    billing.letterhead.and.returnValue(of(new Blob(['%PDF'])));
+    component.openLetterhead();
+    expect(billing.letterhead).toHaveBeenCalledWith(6);
+    billing.removeLetterhead.and.returnValue(of({ ...defaults, letterheadId: null }));
+    component.removeLetterhead();
+    expect(component.letterheadId).toBeNull();
+    component.openLetterhead();
+    expect(billing.letterhead).toHaveBeenCalledTimes(1);
   });
 });

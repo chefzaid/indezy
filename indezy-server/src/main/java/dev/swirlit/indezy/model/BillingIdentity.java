@@ -101,6 +101,10 @@ public class BillingIdentity {
     @Column(name = "billing_logo_id")
     private Long logoId;
 
+    /** The letterhead PDF the documents are drawn over ({@link DocumentLetterhead}); null for none. */
+    @Column(name = "billing_letterhead_id")
+    private Long letterheadId;
+
     /** The uploaded font ({@link DocumentFontFile}) the documents print in when {@code font} is CUSTOM; null for none. */
     @Column(name = "billing_font_file_id")
     private Long fontFileId;

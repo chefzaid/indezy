@@ -81,6 +81,21 @@ export class BillingService {
     return this.http.delete<void>(`${this.API_URL}/templates/${kind}`);
   }
 
+  /** Draws the documents to come over a letterhead (a PDF of one or two A4 pages, its fonts embedded). */
+  uploadLetterhead(file: File): Observable<BillingIdentity> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<BillingIdentity>(`${this.API_URL}/letterhead`, form);
+  }
+
+  removeLetterhead(): Observable<BillingIdentity> {
+    return this.http.delete<BillingIdentity>(`${this.API_URL}/letterhead`);
+  }
+
+  letterhead(id: number): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/letterheads/${id}`, { responseType: 'blob' });
+  }
+
   removeLogo(): Observable<BillingIdentity> {
     return this.http.delete<BillingIdentity>(`${this.API_URL}/logo`);
   }

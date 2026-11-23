@@ -74,6 +74,10 @@ public class InvoiceSeller {
     @Column(name = "seller_logo_size", length = 10)
     private LogoSize logoSize;
 
+    /** The letterhead the document is drawn over ({@link DocumentLetterhead}), kept at issue; null for none. */
+    @Column(name = "seller_letterhead_id")
+    private Long letterheadId;
+
     /** The uploaded font ({@link DocumentFontFile}) the document prints in when {@code font} is CUSTOM, kept at issue. */
     @Column(name = "seller_font_file_id")
     private Long fontFileId;

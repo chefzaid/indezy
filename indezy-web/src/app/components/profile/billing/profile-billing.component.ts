@@ -79,6 +79,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   /** The uploaded font's family; null for none. */
   fontFamily: string | null = null;
   uploadingFont = false;
+  letterheadId: number | null = null;
 
   ngOnDestroy(): void {
     this.revokeLogo();
@@ -130,6 +131,47 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     });
   }
 
+  uploadLetterhead(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024 || file.type !== 'application/pdf') {
+      this.notifications.error('profile.billing.letterheadRefused');
+      return;
+    }
+    this.billing.uploadLetterhead(file).subscribe({
+      next: identity => {
+        this.letterheadId = identity.letterheadId ?? null;
+        this.notifications.success('profile.billing.letterheadSaved');
+      },
+      error: (error: HttpErrorResponse) => {
+        const reason = error.status === 400 ? (error.error as { message?: string } | null)?.message ?? '' : '';
+        this.notifications.error(/A4/.test(reason) ? 'profile.billing.letterheadSize' : /embed/.test(reason) ? 'profile.billing.letterheadFonts' :
+          /one or two/.test(reason) ? 'profile.billing.letterheadPages' : 'profile.billing.letterheadRefused');
+      }
+    });
+  }
+
+  openLetterhead(): void {
+    if (this.letterheadId === null) {
+      return;
+    }
+    this.billing.letterhead(this.letterheadId).subscribe({
+      next: blob => saveBlob(blob, 'papier-en-tete.pdf'),
+      error: () => this.notifications.error('profile.billing.loadError')
+    });
+  }
+
+  removeLetterhead(): void {
+    this.billing.removeLetterhead().subscribe({
+      next: () => this.letterheadId = null,
+      error: () => this.notifications.error('profile.billing.saveError')
+    });
+  }
+
   removeTermsFile(): void {
     this.billing.removeTermsFile().subscribe({
       next: () => this.termsFileId = null,
@@ -166,6 +208,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       next: identity => {
         this.uploadingFont = false;
         this.fontFamily = identity.fontFamily ?? null;
+    this.letterheadId = identity.letterheadId ?? null;
         this.form.patchValue({ font: identity.font ?? 'CUSTOM' });
         this.notifications.success('profile.billing.fontSaved', undefined, { family: this.fontFamily });
       },
@@ -291,6 +334,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   private show(identity: BillingIdentity): void {
     this.complete = !!identity.complete;
     this.fontFamily = identity.fontFamily ?? null;
+    this.letterheadId = identity.letterheadId ?? null;
     this.showLogo(identity.logoId ?? null);
     this.form.reset({
       legalName: identity.legalName ?? '', legalForm: identity.legalForm, siret: identity.siret ?? '', vatExempt: identity.vatExempt,

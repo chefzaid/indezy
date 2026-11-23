@@ -143,6 +143,18 @@
           }
         </mat-select>
       </mat-form-field>
+      <div class="terms-file" data-billing-letterhead>
+        <input #letterheadInput type="file" hidden accept="application/pdf" (change)="uploadLetterhead($event)" data-billing-letterhead-file
+          [attr.aria-label]="'profile.billing.letterheadUpload' | translate">
+        <button mat-stroked-button type="button" (click)="letterheadInput.click()" data-billing-letterhead-upload>
+          <mat-icon>wallpaper</mat-icon>{{ (letterheadId ? 'profile.billing.letterheadReplace' : 'profile.billing.letterheadUpload') | translate }}
+        </button>
+        @if (letterheadId) {
+          <button mat-button type="button" (click)="openLetterhead()" data-billing-letterhead-open>{{ 'profile.billing.termsFileOpen' | translate }}</button>
+          <button mat-button type="button" (click)="removeLetterhead()" data-billing-letterhead-remove>{{ 'profile.billing.logoRemove' | translate }}</button>
+        }
+        <span class="hint">{{ 'profile.billing.letterheadHint' | translate }}</span>
+      </div>
       <div class="font-upload" data-billing-font-upload>
         <input #fontInput type="file" hidden multiple accept=".ttf,.otf,font/ttf,font/otf" (change)="uploadFont($event)" data-billing-font-file
           [attr.aria-label]="'profile.billing.fontUpload' | translate">

@@ -46,6 +46,8 @@ public record BillingIdentityDto(
     /** The uploaded font and its family, set by its own upload, never by this form. */
     Long fontFileId,
     String fontFamily,
+    /** The letterhead PDF the documents are drawn over, set by its own upload, never by this form. */
+    Long letterheadId,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;

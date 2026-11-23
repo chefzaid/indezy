@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.BillingIdentityDto;
 import dev.swirlit.indezy.dto.DocumentTemplateDto;
 import dev.swirlit.indezy.model.DocumentFontFile;
+import dev.swirlit.indezy.model.DocumentLetterhead;
 import dev.swirlit.indezy.model.DocumentTemplate;
 import dev.swirlit.indezy.model.enums.DocumentTemplateKind;
 import dev.swirlit.indezy.pdf.DocxTemplate;
@@ -11,6 +12,7 @@ import dev.swirlit.indezy.model.DocumentTermsFile;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.BillingIdentityService;
 import dev.swirlit.indezy.service.DocumentFontService;
+import dev.swirlit.indezy.service.DocumentLetterheadService;
 import dev.swirlit.indezy.service.DocumentTemplateService;
 import dev.swirlit.indezy.service.DocumentLogoService;
 import dev.swirlit.indezy.service.DocumentTermsService;
@@ -49,6 +51,7 @@ public class BillingController {
     private final DocumentTermsService termsFiles;
     private final DocumentFontService fonts;
     private final DocumentTemplateService templates;
+    private final DocumentLetterheadService letterheads;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "The seller's identity, its defaults drawn from the profile")
@@ -109,6 +112,29 @@ public class BillingController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeTemplate(@PathVariable DocumentTemplateKind kind) {
         templates.remove(workspace(), kind);
+    }
+
+    @Operation(summary = "Draw the invoices and quotes to come over a letterhead",
+        description = "A PDF of 5 MB at most, one or two upright A4 pages, not encrypted, without scripts, its fonts embedded")
+    @PostMapping(value = "/letterhead", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BillingIdentityDto uploadLetterhead(@RequestParam("file") MultipartFile file) throws IOException {
+        if (file.getSize() > DocumentLetterhead.MAX_BYTES) {
+            throw new IllegalArgumentException("A letterhead holds 5 MB at most");
+        }
+        return letterheads.upload(workspace(), file.getOriginalFilename(), file.getBytes());
+    }
+
+    @Operation(summary = "Stop drawing the documents to come over a letterhead")
+    @DeleteMapping("/letterhead")
+    public BillingIdentityDto removeLetterhead() {
+        return letterheads.remove(workspace());
+    }
+
+    @Operation(summary = "One of the workspace's letterheads, as a PDF")
+    @GetMapping("/letterheads/{id}")
+    public ResponseEntity<byte[]> letterhead(@PathVariable Long id) {
+        DocumentLetterhead letterhead = letterheads.get(workspace(), id);
+        return DocumentResponses.of(letterhead.getFileName(), "application/pdf", letterhead.getContent(), true);
     }
 
     @Operation(summary = "Go back to a bundled font for the documents to come")

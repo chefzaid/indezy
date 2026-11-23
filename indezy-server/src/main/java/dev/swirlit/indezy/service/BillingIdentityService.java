@@ -46,6 +46,7 @@ public class BillingIdentityService {
         billing.setLogoId(freelance.getBilling() == null ? null : freelance.getBilling().getLogoId());
         billing.setQuoteTermsFileId(freelance.getBilling() == null ? null : freelance.getBilling().getQuoteTermsFileId());
         billing.setFontFileId(freelance.getBilling() == null ? null : freelance.getBilling().getFontFileId());
+        billing.setLetterheadId(freelance.getBilling() == null ? null : freelance.getBilling().getLetterheadId());
         billing.setFontFamily(freelance.getBilling() == null ? null : freelance.getBilling().getFontFamily());
         billing.setLegalName(request.legalName());
         billing.setLegalForm(request.legalForm());
@@ -92,7 +93,8 @@ public class BillingIdentityService {
             billing.getLogoId(), billing.getFooter(), billing.getInvoiceNotes(), billing.getQuoteNotes(),
             billing.getQuoteTermsFileId(), Objects.requireNonNullElse(billing.getLogoPlacement(), LogoPlacement.LEFT),
             Objects.requireNonNullElse(billing.getLogoSize(), LogoSize.MEDIUM), billing.getHeader(),
-            Objects.requireNonNullElse(billing.getFont(), DocumentFont.SANS), billing.getFontFileId(), billing.getFontFamily(), complete);
+            Objects.requireNonNullElse(billing.getFont(), DocumentFont.SANS), billing.getFontFileId(), billing.getFontFamily(),
+            billing.getLetterheadId(), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

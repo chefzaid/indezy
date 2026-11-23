@@ -4,7 +4,9 @@ import dev.swirlit.indezy.model.DocumentLogo;
 import dev.swirlit.indezy.model.Invoice;
 import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceSeller;
+import dev.swirlit.indezy.model.DocumentLetterhead;
 import dev.swirlit.indezy.repository.DocumentFontFileRepository;
+import dev.swirlit.indezy.repository.DocumentLetterheadRepository;
 import dev.swirlit.indezy.repository.DocumentLogoRepository;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -32,12 +34,24 @@ public final class InvoicePdfRenderer {
 
     private final BillingFonts fonts = new BillingFonts();
     private DocumentFontFileRepository uploadedFonts;
+    private DocumentLetterheadRepository letterheads;
     private DocumentLogoRepository logos;
 
     /** Where the sellers' logos are read; without it, as in tests, documents print none. */
     @Autowired(required = false)
     public void setLogos(DocumentLogoRepository logos) {
         this.logos = logos;
+    }
+
+    /** Where the letterheads are read; without it, as in tests, documents are drawn on blank pages. */
+    @Autowired(required = false)
+    public void setLetterheads(DocumentLetterheadRepository repository) {
+        this.letterheads = repository;
+    }
+
+    private byte[] letterheadOf(InvoiceSeller seller) {
+        return letterheads == null || seller.getLetterheadId() == null ? null :
+            letterheads.findById(seller.getLetterheadId()).map(DocumentLetterhead::getContent).orElse(null);
     }
 
     /** Where the uploaded fonts are read; without it, as in tests, documents print in the bundled ones. */
@@ -64,7 +78,8 @@ public final class InvoicePdfRenderer {
 
     /** The invoice as it states the seller and the buyer: frozen once issued, the live ones for a draft. */
     public byte[] render(Invoice invoice, InvoiceSeller seller, InvoiceBuyer buyer) {
-        try (PDDocument document = new PDDocument()) {
+        byte[] letterheadPdf = letterheadOf(seller);
+        try (PDDocument document = new PDDocument(); Letterhead letterhead = letterheadPdf == null ? null : Letterhead.open(letterheadPdf, document)) {
             BillingFonts.Faces faces = fonts.of(seller, uploadedFonts);
             PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(faces.regular()));
             PDFont bold = PDType0Font.load(document, new ByteArrayInputStream(faces.bold()));
@@ -74,6 +89,9 @@ public final class InvoicePdfRenderer {
                 writer.footer(seller.getFooter());
                 page.logo(logoOf(seller));
                 page.write();
+            }
+            if (letterhead != null) {
+                letterhead.drawUnder(document);
             }
             if (invoice.getNumber() == null) {
                 PDDocumentInformation information = document.getDocumentInformation();

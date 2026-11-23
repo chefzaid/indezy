@@ -26,6 +26,10 @@ for (const width of [1280, 390]) {
       return route.fulfill({ json: identity });
     });
     await page.route('**/api/users/billing/logos/9', route => route.fulfill({ body: png, contentType: 'image/png' }));
+    await page.route('**/api/users/billing/letterhead', route => {
+      identity = { ...identity, letterheadId: 6 };
+      return route.fulfill({ json: identity });
+    });
     await page.route('**/api/users/billing/font', route => {
       identity = { ...identity, font: 'CUSTOM', fontFileId: 4, fontFamily: 'Ma Police' };
       return route.fulfill({ json: identity });
@@ -45,6 +49,8 @@ for (const width of [1280, 390]) {
     await card.getByLabel('IBAN').fill('FR76 3000 6000 0112 3456 7890 189');
     await card.locator('[data-billing-logo-file]').setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: png });
     await expect(card.locator('[data-billing-logo-preview]')).toBeVisible();
+    await card.locator('[data-billing-letterhead-file]').setInputFiles({ name: 'papier.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF') });
+    await expect(card.locator('[data-billing-letterhead-open]')).toBeVisible();
     // An uploaded font becomes the documents' one.
     await card.locator('[data-billing-font-file]').setInputFiles([{ name: 'MaPolice-Regular.ttf', mimeType: 'font/ttf', buffer: Buffer.from('ttf') },
       { name: 'MaPolice-Bold.ttf', mimeType: 'font/ttf', buffer: Buffer.from('ttf') }]);
