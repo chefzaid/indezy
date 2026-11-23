@@ -323,7 +323,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   }
 
   /** The placeholders the page zones take, shown in their hint. */
-  readonly zonePlaceholders = ['{{page}}', '{{pages}}', '{{document.title}}', '{{document.number}}', '{{document.issueDate}}',
+  readonly zonePlaceholders = ['{{logo}}', '{{page}}', '{{pages}}', '{{document.title}}', '{{document.number}}', '{{document.issueDate}}',
     '{{document.dueDate}}', '{{seller.name}}', '{{seller.siret}}', '{{seller.vatNumber}}'].join(' ');
 
   /** The body's blocks in the order the documents print them, the signature box always listed (printed when {@link signature}). */

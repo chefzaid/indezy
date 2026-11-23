@@ -101,6 +101,7 @@ public final class QuotePdfRenderer {
             try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold, margins(seller, letterhead != null))) {
                 page = new QuotePage(writer, quote, seller, buyer, paymentTermDays, terms, termsPdf != null);
                 writer.zones(page.zones());
+                writer.zoneLogo(logoOf(seller));
                 page.logo(logoOf(seller));
                 page.write();
             }

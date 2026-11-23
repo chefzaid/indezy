@@ -73,7 +73,7 @@ final class DocxDocument {
     }
 
     /** A footer or header paragraph: the zones at the left margin, the centre and the right margin. */
-    private static String zoneParagraph(String left, String center, String right) {
+    private String zoneParagraph(String left, String center, String right) {
         StringBuilder xml = new StringBuilder("<w:p><w:pPr><w:tabs><w:tab w:val=\"center\" w:pos=\"").append(CONTENT_WIDTH / 2)
             .append("\"/><w:tab w:val=\"right\" w:pos=\"").append(CONTENT_WIDTH).append("\"/></w:tabs></w:pPr>");
         xml.append(zoneRuns(left));
@@ -86,21 +86,25 @@ final class DocxDocument {
         return "<w:r><w:rPr><w:sz w:val=\"" + (SMALL - 2) + "\"/></w:rPr><w:tab/></w:r>";
     }
 
-    /** A zone's text, {@code {{page}}} and {@code {{pages}}} as Word's PAGE and NUMPAGES fields. */
-    private static String zoneRuns(String text) {
+    /** A zone's text, {@code {{page}}} and {@code {{pages}}} as Word's PAGE and NUMPAGES fields, {@code {{logo}}} as the logo, small. */
+    private String zoneRuns(String text) {
         if (text == null) {
             return "";
         }
         StringBuilder xml = new StringBuilder();
-        java.util.regex.Matcher field = java.util.regex.Pattern.compile("\\{\\{(page|pages)}}").matcher(text);
+        java.util.regex.Matcher field = java.util.regex.Pattern.compile("\\{\\{(page|pages|logo)}}").matcher(text);
         int at = 0;
         while (field.find()) {
             if (field.start() > at) {
                 xml.append(run(new Run(text.substring(at, field.start()), false, SMALL - 2, "666666")));
             }
+            at = field.end();
+            if ("logo".equals(field.group(1))) {
+                xml.append(zoneLogo());
+                continue;
+            }
             xml.append("<w:fldSimple w:instr=\"").append("page".equals(field.group(1)) ? "PAGE" : "NUMPAGES").append("\"><w:r><w:rPr><w:sz w:val=\"")
                 .append(SMALL - 2).append("\"/></w:rPr><w:t>1</w:t></w:r></w:fldSimple>");
-            at = field.end();
         }
         if (at < text.length()) {
             xml.append(run(new Run(text.substring(at), false, SMALL - 2, "666666")));
@@ -201,6 +205,44 @@ final class DocxDocument {
             .append("</a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>");
     }
 
+    /** The height of the logo in a header or footer zone, in points. */
+    private static final int ZONE_LOGO_HEIGHT = 14;
+
+    /** Whether a zone holds the logo and there is one to show. */
+    private boolean zoneLogoShown() {
+        return picture != null && java.util.stream.Stream.of(zones.footerLeft(), zones.footerCenter(), zones.footerRight(), zones.headerLeft(),
+            zones.headerRight()).anyMatch(zone -> zone != null && zone.contains("{{logo}}"));
+    }
+
+    /** The logo, small, as a run of a header or footer; nothing without one. */
+    private String zoneLogo() {
+        if (picture == null) {
+            return "";
+        }
+        BufferedImage read;
+        try {
+            read = ImageIO.read(new ByteArrayInputStream(picture));
+        } catch (IOException e) {
+            return "";
+        }
+        if (read == null) {
+            return "";
+        }
+        long cy = (long) ZONE_LOGO_HEIGHT * EMU_PER_POINT;
+        long cx = Math.round((double) read.getWidth() / read.getHeight() * ZONE_LOGO_HEIGHT * EMU_PER_POINT);
+        return "<w:r><w:drawing><wp:inline distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\"><wp:extent cx=\"" + cx + "\" cy=\"" + cy +
+            "\"/><wp:docPr id=\"2\" name=\"Logo\"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect=\"1\"/></wp:cNvGraphicFramePr>" +
+            "<a:graphic><a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/picture\"><pic:pic><pic:nvPicPr>" +
+            "<pic:cNvPr id=\"2\" name=\"logo\"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed=\"rIdZoneLogo\"/>" +
+            "<a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"" + cx + "\" cy=\"" + cy +
+            "\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>";
+    }
+
+    /** The namespaces a header or a footer holding the logo needs. */
+    private static final String PART_NAMESPACES = " xmlns:r=\"" + "http://schemas.openxmlformats.org/officeDocument/2006/relationships" +
+        "\" xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing\" " +
+        "xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:pic=\"http://schemas.openxmlformats.org/drawingml/2006/picture\"";
+
     /** The document as a {@code .docx} file. */
     byte[] save(String title, String author) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -224,11 +266,19 @@ final class DocxDocument {
                 "<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii=\"" + escape(font) + "\" w:hAnsi=\"" + escape(font) + "\" w:cs=\"" +
                 escape(font) + "\"/><w:sz w:val=\"" + BODY + "\"/><w:lang w:val=\"fr-FR\"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr>" +
                 "<w:spacing w:after=\"40\" w:line=\"252\" w:lineRule=\"auto\"/></w:pPr></w:pPrDefault></w:docDefaults></w:styles>");
-            put(zip, "word/footer1.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:ftr xmlns:w=\"" + WORD + "\">" +
+            put(zip, "word/footer1.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:ftr xmlns:w=\"" + WORD + "\"" + PART_NAMESPACES + ">" +
                 zoneParagraph(zones.footerLeft(), zones.footerCenter(), zones.footerRight() == null ? "{{page}}" : zones.footerRight()) +
                 "</w:ftr>");
+            if (zoneLogoShown()) {
+                String rels = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"" + RELATIONSHIPS + "\">" +
+                    "<Relationship Id=\"rIdZoneLogo\" Type=\"" + OFFICE + "/image\" Target=\"media/logo." + extension() + "\"/></Relationships>";
+                put(zip, "word/_rels/footer1.xml.rels", rels);
+                if (header()) {
+                    put(zip, "word/_rels/header1.xml.rels", rels);
+                }
+            }
             if (header()) {
-                put(zip, "word/header1.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:hdr xmlns:w=\"" + WORD + "\">" +
+                put(zip, "word/header1.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:hdr xmlns:w=\"" + WORD + "\"" + PART_NAMESPACES + ">" +
                     zoneParagraph(zones.headerLeft(), null, zones.headerRight()) + "</w:hdr>");
                 put(zip, "word/header2.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:hdr xmlns:w=\"" + WORD + "\"><w:p/></w:hdr>");
             }

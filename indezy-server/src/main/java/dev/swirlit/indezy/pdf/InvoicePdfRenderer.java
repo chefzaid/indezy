@@ -107,6 +107,7 @@ public final class InvoicePdfRenderer {
             try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold, margins(seller, letterhead != null))) {
                 page = new InvoicePage(writer, invoice, seller, buyer);
                 writer.zones(page.zones());
+                writer.zoneLogo(logoOf(seller));
                 page.logo(logoOf(seller));
                 page.write();
             }

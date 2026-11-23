@@ -87,4 +87,39 @@ class PageZonesTest {
         stripper.setEndPage(number);
         return stripper.getText(document).replaceAll("\\s+", " ");
     }
+
+    @Test
+    void showsTheLogoInAZoneThatAsksForIt() throws IOException {
+        java.awt.image.BufferedImage picture = new java.awt.image.BufferedImage(300, 100, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.io.ByteArrayOutputStream png = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(picture, "png", png);
+        dev.swirlit.indezy.model.DocumentLogo logo = new dev.swirlit.indezy.model.DocumentLogo();
+        logo.setContent(png.toByteArray());
+        dev.swirlit.indezy.repository.DocumentLogoRepository logos = org.mockito.Mockito.mock(dev.swirlit.indezy.repository.DocumentLogoRepository.class);
+        org.mockito.Mockito.when(logos.findById(5L)).thenReturn(java.util.Optional.of(logo));
+        InvoicePdfRenderer renderer = new InvoicePdfRenderer();
+        renderer.setLogos(logos);
+        InvoiceSeller seller = seller();
+        seller.setLogoId(5L);
+        seller.setFooter("{{logo}} alice.dev");
+        try (PDDocument document = Loader.loadPDF(renderer.render(invoice(), seller, new InvoiceBuyer()))) {
+            // The logo above the seller on the first page, and small in the footer of every page.
+            assertThat(document.getPage(0).getResources().getXObjectNames()).hasSize(2);
+            assertThat(document.getPage(1).getResources().getXObjectNames()).hasSize(1);
+            assertThat(page(document, 1)).contains("alice.dev").doesNotContain("{{logo}}");
+        }
+        Map<String, byte[]> parts = BillingDocxTest.parts(renderer.renderDocx(invoice(), seller, new InvoiceBuyer()));
+        assertThat(new String(parts.get("word/footer1.xml"), StandardCharsets.UTF_8)).contains("r:embed=\"rIdZoneLogo\"", "alice.dev")
+            .doesNotContain("{{logo}}");
+        assertThat(new String(parts.get("word/_rels/footer1.xml.rels"), StandardCharsets.UTF_8)).contains("media/logo.png");
+
+        // Without a logo, the token is left out.
+        InvoiceSeller bare = seller();
+        bare.setFooter("{{logo}} alice.dev");
+        try (PDDocument document = Loader.loadPDF(new InvoicePdfRenderer().render(invoice(), bare, new InvoiceBuyer()))) {
+            assertThat(page(document, 1)).contains("alice.dev").doesNotContain("{{logo}}");
+        }
+        assertThat(new String(BillingDocxTest.parts(new InvoicePdfRenderer().renderDocx(invoice(), bare, new InvoiceBuyer())).get("word/footer1.xml"),
+            StandardCharsets.UTF_8)).doesNotContain("{{logo}}", "rIdZoneLogo");
+    }
 }

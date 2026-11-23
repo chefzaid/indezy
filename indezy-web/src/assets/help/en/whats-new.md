@@ -8,7 +8,7 @@ In **Order of the body**, the mentions and the notes of your invoices and quotes
 
 ### Header and footer zones on your documents
 
-Your invoices and quotes can carry a footer in three zones and a header on the following pages, with placeholders such as the page count or your SIRET. See [Quotes and invoices](/help/invoices-quotes).
+Your invoices and quotes can carry a footer in three zones and a header on the following pages, with placeholders such as your logo, the page count or your SIRET. See [Quotes and invoices](/help/invoices-quotes).
 
 ### Word templates in three layouts, and a filled example
 

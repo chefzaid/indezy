@@ -33,6 +33,11 @@ final class PdfPageWriter implements Closeable {
     private float cursor;
     /** Written at the foot of every page once the document is done, beside its page number; null for none. */
     private Zones zones = new Zones(null, null, null, null, null);
+    private byte[] zoneLogoBytes;
+    /** The logo drawn in the zones while they are stamped. */
+    private PDImageXObject zoneImage;
+    /** The height of the logo in a zone, in points. */
+    private static final float ZONE_LOGO_HEIGHT = 12;
     /** The size of the footer's and the header's zones. */
     private static final float ZONE_SIZE = 7.5f;
 
@@ -292,6 +297,11 @@ final class PdfPageWriter implements Closeable {
         this.zones = given == null ? new Zones(null, null, null, null, null) : given;
     }
 
+    /** The logo a zone's {@code {{logo}}} shows, small; none leaves the token out. */
+    void zoneLogo(byte[] logo) {
+        this.zoneLogoBytes = logo == null ? null : logo.clone();
+    }
+
     /** The zones under the bottom margin of every page and above the top one of the following pages. */
     private void stampFooters() throws IOException {
         int pages = document.getNumberOfPages();
@@ -302,6 +312,14 @@ final class PdfPageWriter implements Closeable {
         float baseline = keptBottom - MARGIN / 2;
         float top = pageSize.getHeight() - keptTop + MARGIN / 2;
         float third = (pageSize.getWidth() - 2 * MARGIN) / 3 - 6;
+        zoneImage = null;
+        if (zoneLogoBytes != null) {
+            try {
+                zoneImage = PDImageXObject.createFromByteArray(document, zoneLogoBytes, "logo");
+            } catch (IOException | IllegalArgumentException unreadable) {
+                zoneImage = null;
+            }
+        }
         for (int index = 0; index < pages; index++) {
             try (PDPageContentStream stamp = new PDPageContentStream(document, document.getPage(index),
                 PDPageContentStream.AppendMode.APPEND, true, true)) {
@@ -329,17 +347,31 @@ final class PdfPageWriter implements Closeable {
     /** A row of zones: on the left, centred and on the right, each cut to its width. */
     private void stampRow(PDPageContentStream stamp, float baseline, String left, float leftWidth, String center, String right,
                           float width) throws IOException {
-        float size = ZONE_SIZE;
         if (left != null) {
-            writeAt(stamp, MARGIN, baseline, ellipsize(left, false, size, leftWidth), size);
+            stampZone(stamp, baseline, left, leftWidth, -1);
         }
         if (center != null) {
-            String text = ellipsize(center, false, size, width);
-            writeAt(stamp, (pageSize.getWidth() - textWidth(text, false, size)) / 2, baseline, text, size);
+            stampZone(stamp, baseline, center, width, 0);
         }
         if (right != null) {
-            String text = ellipsize(right, false, size, width);
-            writeAt(stamp, pageSize.getWidth() - MARGIN - textWidth(text, false, size), baseline, text, size);
+            stampZone(stamp, baseline, right, width, 1);
+        }
+    }
+
+    /** One zone: the logo when it holds {@code {{logo}}} and there is one, then its text, at the left (-1), centre (0) or right (1). */
+    private void stampZone(PDPageContentStream stamp, float baseline, String zone, float width, int side) throws IOException {
+        float size = ZONE_SIZE;
+        boolean logo = zone.contains("{{logo}}") && zoneImage != null;
+        float logoWidth = logo ? zoneImage.getWidth() * ZONE_LOGO_HEIGHT / zoneImage.getHeight() : 0;
+        float gap = logo ? 4 : 0;
+        String text = ellipsize(zone.replace("{{logo}}", "").strip(), false, size, Math.max(0, width - logoWidth - gap));
+        float total = logoWidth + gap + (text.isEmpty() ? 0 : textWidth(text, false, size));
+        float x = side < 0 ? MARGIN : side == 0 ? (pageSize.getWidth() - total) / 2 : pageSize.getWidth() - MARGIN - total;
+        if (logo) {
+            stamp.drawImage(zoneImage, x, baseline - 2, logoWidth, ZONE_LOGO_HEIGHT);
+        }
+        if (!text.isEmpty()) {
+            writeAt(stamp, x + logoWidth + gap, baseline, text, size);
         }
     }
 

@@ -8,7 +8,7 @@ Dans **Ordre du corps**, les mentions et les notes de vos factures et devis pren
 
 ### Les zones d'en-tête et de pied de vos documents
 
-Vos factures et devis peuvent porter un pied de page en trois zones et un en-tête sur les pages suivantes, avec des champs comme le nombre de pages ou votre SIRET. Voir [Devis et factures](/help/invoices-quotes).
+Vos factures et devis peuvent porter un pied de page en trois zones et un en-tête sur les pages suivantes, avec des champs comme votre logo, le nombre de pages ou votre SIRET. Voir [Devis et factures](/help/invoices-quotes).
 
 ### Les modèles Word en trois mises en page, et un exemple rempli
 
