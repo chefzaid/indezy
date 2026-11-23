@@ -9,6 +9,7 @@ import dev.swirlit.indezy.model.enums.DossierLayout;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.pdf.DossierPdfRenderer;
 import dev.swirlit.indezy.repository.ProjectRepository;
+import dev.swirlit.indezy.util.SkillNames;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 /**
@@ -82,6 +85,26 @@ public class DossierService {
         byte[] content = renderer.render(dossier, language, LocalDate.now(clock.withZone(PARIS)));
         String prefix = language == DocumentLanguage.EN ? "skills-profile" : "dossier-competences";
         return new ActivityReportService.PdfFile(prefix + "-" + fileWord(dossier.name()) + ".pdf", content);
+    }
+
+    /**
+     * The dossier focused on what a company hires for: the skills it asked for lately first, then the missions and
+     * positions whose stack names most of them, the rest in their usual order; nothing is left out or rewritten.
+     * {@code asked} holds skill keys ({@link SkillNames#key} of the canonical name); empty, the dossier is returned as is.
+     */
+    public static DossierDto focused(DossierDto dossier, Set<String> asked) {
+        if (asked.isEmpty()) {
+            return dossier;
+        }
+        ToIntFunction<DossierDto.Mission> matches = mission -> mission.stack() == null ? 0 : (int) Stream.of(mission.stack().split("[,;/|]"))
+            .map(String::strip).filter(part -> !part.isEmpty()).map(part -> SkillNames.key(SkillNames.canonical(part)))
+            .filter(asked::contains).distinct().count();
+        Comparator<DossierDto.Mission> byMatches = Comparator.comparingInt(matches).reversed();
+        return new DossierDto(dossier.name(), dossier.position(), dossier.city(), dossier.contact(), dossier.summary(),
+            dossier.skills().stream().sorted(Comparator.comparing((DossierDto.Skill skill) ->
+                !asked.contains(SkillNames.key(SkillNames.canonical(skill.name()))))).toList(),
+            dossier.languages(), dossier.certifications(), dossier.missions().stream().sorted(byMatches).toList(),
+            dossier.positions().stream().sorted(byMatches).toList(), dossier.education());
     }
 
     private static String fullName(UserDto profile) {

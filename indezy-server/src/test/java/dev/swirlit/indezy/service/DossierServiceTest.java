@@ -121,4 +121,21 @@ class DossierServiceTest {
         UserDto nameless = new UserDto();
         assertThat(DossierService.initials(nameless)).isEmpty();
     }
+
+    @Test
+    void focusesTheDossierOnTheSkillsACompanyAskedFor() {
+        DossierDto.Mission php = new DossierDto.Mission("Dev PHP", null, null, null, "PHP, Symfony", null);
+        DossierDto.Mission kafka = new DossierDto.Mission("Lead Java", null, null, null, "Java; Kafka / Spring-Boot", null);
+        DossierDto.Mission plain = new DossierDto.Mission("Dev Java", null, null, null, "Java", null);
+        DossierDto dossier = new DossierDto("A. M.", null, null, List.of(), null, List.of(new DossierDto.Skill("PHP", null, null),
+            new DossierDto.Skill("Spring Boot", null, null), new DossierDto.Skill("Java", null, null)), List.of(), List.of(),
+            List.of(php, kafka, plain), List.of(php, plain), List.of());
+
+        DossierDto focused = DossierService.focused(dossier, java.util.Set.of("java", "springboot", "kafka"));
+
+        assertThat(focused.skills()).extracting(DossierDto.Skill::name).containsExactly("Spring Boot", "Java", "PHP");
+        assertThat(focused.missions()).containsExactly(kafka, plain, php);
+        assertThat(focused.positions()).containsExactly(plain, php);
+        assertThat(DossierService.focused(dossier, java.util.Set.of())).isSameAs(dossier);
+    }
 }

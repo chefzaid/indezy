@@ -288,6 +288,22 @@ public class ContactEmailService {
         return counts;
     }
 
+    /** The skill keys the contact's company asked for in the offers it published in the last {@value #POSTINGS_DAYS} days. */
+    private Set<String> asked(Contact contact) {
+        String key = contact.getClient() == null ? null : JobOffer.companyKeyOf(contact.getClient().getCompanyName());
+        if (offers == null || key == null) {
+            return Set.of();
+        }
+        Set<String> skills = new HashSet<>();
+        for (Object[] row : offers.findPublishersSkills(Set.of(key), clock.instant().minus(Duration.ofDays(POSTINGS_DAYS)))) {
+            if (row[2] instanceof String skill) {
+                skills.add(SkillNames.key(SkillNames.canonical(skill)));
+            }
+        }
+        skills.remove("");
+        return skills;
+    }
+
     @Transactional
     public ContactInteractionDto send(Long freelanceId, Long contactId, Message message) {
         return send(null, freelanceId, contactId, message);
@@ -335,7 +351,9 @@ public class ContactEmailService {
         Email email = composer.compose(contact.getEmail().strip(), subject, message.body(), new ContactEmailComposer.Sender(name,
             freelance.getEmail()), language, new ContactEmailComposer.Delivery(interaction.getEmailToken(), key, interaction.getObjectionToken()));
         if (message.dossier() && userId != null) {
-            ActivityReportService.PdfFile dossier = dossiers.pdf(userId, freelanceId, DossierLayout.NAMED, language);
+            // Focused on the skills their company asked for in the missions it posted lately, when it posted any.
+            ActivityReportService.PdfFile dossier = dossiers.render(DossierService.focused(dossiers.dossier(userId, freelanceId,
+                DossierLayout.NAMED), asked(contact)), language);
             email = email.withAttachments(List.of(new Email.Attachment(dossier.fileName(), "application/pdf", dossier.content())));
         }
         try {

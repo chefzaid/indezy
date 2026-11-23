@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### A dossier focused on each company
+
+The dossier de compétences attached to a prospection email now puts first the skills and missions matching what the contact's company posted lately. See [Dashboard](/help/dashboard).
+
 ### Network members' missions in your prospection
 
 Below the contacts of **Email my ESN contacts**, **Members passing on missions for you** lists the network missions that fit you best, to answer their members on the network. See [Dashboard](/help/dashboard).

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Un dossier adapté à chaque société
+
+Le dossier de compétences joint à un e-mail de prospection place désormais en tête les compétences et missions correspondant à ce que la société du contact a publié récemment. Voir [Le tableau de bord](/help/dashboard).
+
 ### Les missions des membres du réseau dans votre prospection
 
 Sous les contacts d'**Écrire à mes contacts ESN**, **Des membres font passer des missions pour vous** liste les missions du réseau qui vous correspondent le mieux, pour répondre à leurs membres sur le réseau. Voir [Le tableau de bord](/help/dashboard).
