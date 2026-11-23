@@ -159,6 +159,21 @@ database. Never point it at a database holding real data: it adds its offers and
 connections take the planner settings the database setup hook gives the application's role (`jit = off`,
 `random_page_cost = 1.1`, see [Architecture](./architecture.md#offer-search-at-scale)).
 
+## Factur-X Validation
+
+`FacturXStyleTest` renders an issued invoice in every font and layout, with a logo, the page zones (`{{page}}`,
+`{{pages}}`, `{{logo}}`) and styled, reordered body blocks, and checks the PDF/A-3B identification, the embedded fonts
+and the `factur-x.xml` written from the invoice's data. The Mustang validator (PDF/A and EN 16931 rules) is not part of
+the build; to run it on those files, keep them and validate each with the Mustang command-line tool:
+
+```bash
+cd indezy-server
+./mvnw -q test -Dtest=FacturXStyleTest -DargLine="-Dindezy.facturx.samples=/tmp/facturx" -Dcheckstyle.skip -Dspotbugs.skip -Djacoco.skip
+for f in /tmp/facturx/*.pdf; do java -jar Mustang-CLI.jar --no-notices --action validate --source "$f" | grep '<summary'; done
+```
+
+Every summary must read `status="valid"` (the last run, on 2026-11-23: the nine font and layout combinations valid).
+
 ## Troubleshooting
 
 - **Karma cannot find Chrome**: it launches the browser `CHROME_BIN` names. Install Chromium with

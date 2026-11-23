@@ -87,6 +87,16 @@ class FacturXStyleTest {
         seller.setFont(font);
         seller.setFontFileId(8L);
         seller.setFontFamily("Liberation Serif");
+        // The page zones with their placeholders and the logo, and the body's blocks reordered and styled.
+        seller.setFooterCenter("Page {{page}} / {{pages}}");
+        seller.setFooterRight("{{logo}}");
+        seller.setPageHeaderLeft("Martin Conseil");
+        seller.setPageHeaderRight("{{page}}");
+        seller.setBodyBlocks(dev.swirlit.indezy.model.enums.BodyBlock.store(List.of(dev.swirlit.indezy.model.enums.BodyBlock.NOTES,
+            dev.swirlit.indezy.model.enums.BodyBlock.LINES, dev.swirlit.indezy.model.enums.BodyBlock.MENTIONS)));
+        seller.setBlockStyles(dev.swirlit.indezy.model.BlockStyle.store(java.util.Map.of(dev.swirlit.indezy.model.enums.BodyBlock.MENTIONS,
+            new dev.swirlit.indezy.model.BlockStyle(dev.swirlit.indezy.model.BlockStyle.Size.NORMAL, dev.swirlit.indezy.model.BlockStyle.Align.CENTER,
+                true, true, dev.swirlit.indezy.model.BlockStyle.Color.ACCENT, true, dev.swirlit.indezy.model.BlockStyle.Family.SERIF))));
         return seller;
     }
 
@@ -114,7 +124,13 @@ class FacturXStyleTest {
           for (dev.swirlit.indezy.model.enums.DocumentTheme theme : dev.swirlit.indezy.model.enums.DocumentTheme.values()) {
             InvoiceSeller seller = seller(font);
             seller.setTheme(theme);
-            try (PDDocument document = Loader.loadPDF(renderer.render(invoice(), seller, buyer))) {
+            byte[] pdf = renderer.render(invoice(), seller, buyer);
+            // -Dindezy.facturx.samples=<folder> keeps each file, for the Mustang validator run by hand (docs/testing.md).
+            String samples = System.getProperty("indezy.facturx.samples");
+            if (samples != null) {
+                java.nio.file.Files.write(java.nio.file.Path.of(samples, "styled-" + font + "-" + theme + ".pdf"), pdf);
+            }
+            try (PDDocument document = Loader.loadPDF(pdf)) {
                 assertThat(document.getNumberOfPages()).as(font.name()).isGreaterThan(1);
                 assertThat(document.isEncrypted()).isFalse();
                 for (PDPage page : document.getPages()) {
