@@ -93,23 +93,13 @@ Europe/Paris:
 
 ## 6. Decisions still open
 
-Each waits on a word from you in TODO.md's **Needs Input**:
+Answered on 2026-11-23 (see TODO.md's **Needs Input**): the connectors (Google, Microsoft, Dropbox, LinkedIn), the
+paid compliance providers and the browser extension's publishing are parked; the template designer keeps its three
+zones; the ESN scorecard names ESNs backed by 5 freelancers or more, with an opt-out in the profile; reply detection
+and the opt-in daily autopilot are to be built; the Keycloak realm sends from `noreply@swirlit.dev`; visitors write to
+`contact@swirlit.dev`. Still yours:
 
-- **Google, Microsoft, Dropbox and LinkedIn sign-in and sync:** which providers first, and whether you will register
-  their OAuth clients (the ids and secrets would go to Vault).
-- **Paid compliance providers:** which e-signature provider, e-invoicing platform (PDP) and bank data provider, with
-  accounts you open.
-- **Keycloak:** the sender address for the realm's emails (Verify email, Forgot password), for Indezy's own realm with
-  its logo, as decided.
-- **Reply detection for emails sent from Indezy:** whether to route answers through a `replies.swirlit.dev` subdomain
-  (its MX record to Resend's inbound service, the inbound webhook's signing secret in Vault) so Indezy marks an email
-  answered and forwards the answer, or keep answers going straight to the member, marked by hand.
-- **Browser extension:** whether to publish it in the Chrome Web Store (a one-time developer fee, under your name or
-  company).
-- **ESN scorecard across members:** whether shared figures may name an ESN (a company) when 5 freelancers or more back
-  them, which amends ADR 0014; or only market-wide figures; or the private scorecard each workspace already has.
-- **AI spent unasked:** whether Indezy may spend the AI allowance overnight without being asked (offer verdicts,
-  packs and drafted replies ready in the morning, the **Daily autopilot run**), and within which monthly cap per plan;
-  part of **AI provider and costs**.
-- **Template designer canvas:** keep the header's and footer's three zones, or build a free canvas for the PDF only, or
-  for both the PDF and the Word copy (floating text boxes).
+- **Reply detection:** once built, add the `replies.swirlit.dev` MX record to Resend's inbound service and its webhook
+  signing secret in Vault (the steps will follow here).
+- **`contact@swirlit.dev`:** make sure it reaches a mailbox you read.
+- **Publisher's details** for the legal notice: to give in a few months (around 2027-03).
