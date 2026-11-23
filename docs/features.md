@@ -439,7 +439,11 @@ than a day, at least 2, 3 or 5 remote days a week, and **Hide those in my pipeli
 off or emailed in **Profile → Network**). After the members' missions, once their list ends, and while the offer feed is
 on, **On the job boards, for your profile** shows the five collected offers matching the reader's profile best (the
 skill filtered, when one is), each marked **Job board · <site>** and opening the offer, which adds it to the pipeline,
-with a link to all of them in **Offers**: the members' missions come first.
+with a link to all of them in **Offers**: the members' missions come first. Each mission shows how it fits the reader's
+profile, scored as the feed's offers are (`NetworkMissionMatchService`: its role and stack for the skills, its daily rate
+against the target, fully remote at 5 remote days or its city located against the profile's, its start against the
+availability, with the profile's weights; `GET /api/network/feed/missions/matches?ids=`, by post id), green from 60 and
+amber from 35; **Best match first** (`bestMatch=true`) ranks the latest 500 by that score, the newest first among equals.
 
 A tag's page lists its posts **Newest** or **Most liked** (whatever the reaction) first. **Like** a post, once, or no
 longer; a hover, a long press or the up arrow on **Like** offers the other reactions

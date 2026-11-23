@@ -3941,6 +3941,7 @@
       "missionsHint": "The missions members pass on, from the whole network: add those you like to your pipeline.",
       "missionsNone": "No mission passed on yet.",
       "boardTitle": "On the job boards, for your profile",
+      "missionMatch": "{{score}}% match for your profile",
       "boardHint": "The collected offers matching your profile best, after the members’ missions.",
       "boardSource": "Job board · {{site}}",
       "boardAll": "All matching offers"
@@ -4614,7 +4615,8 @@
       "rate": "Rate ≥ (€/day)",
       "before": "Starting by",
       "remote": "{{days}}+ days remote",
-      "hideTaken": "Hide those in my pipeline"
+      "hideTaken": "Hide those in my pipeline",
+      "bestMatch": "Best match first"
     },
     "ideas": {
       "title": "Ideas for Indezy",

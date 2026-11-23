@@ -29,9 +29,10 @@ describe('NetworkFeedComponent', () => {
       city: 'Lyon' } });
 
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou', 'membership', 'trendingTags', 'newerCount', 'missions', 'page', 'notInterested']);
+    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou', 'membership', 'trendingTags', 'newerCount', 'missions', 'page', 'notInterested', 'missionMatches']);
     network.page.and.returnValue(throwError(() => new Error('not here')));
     network.newerCount.and.returnValue(of(0));
+    network.missionMatches.and.returnValue(of({}));
     network.trendingTags.and.returnValue(of([{ tag: 'kafka', posts: 4 }, { tag: 'java', posts: 1 }]));
     network.feed.and.returnValue(feed);
     network.followedTags.and.returnValue(of(['kafka']));
@@ -295,7 +296,7 @@ describe('NetworkFeedComponent', () => {
     network.missions.and.returnValue(of({ posts: [{ ...post(5), kind: 'MISSION' as const }], page: 0, more: true }));
     (element.querySelector('[data-feed-tab-missions]') as HTMLButtonElement).click();
     fixture.detectChanges();
-    expect(network.missions).toHaveBeenCalledWith(0, { skill: '', city: '', remote: null, rate: null, before: '', hideTaken: false });
+    expect(network.missions).toHaveBeenCalledWith(0, { skill: '', city: '', remote: null, rate: null, before: '', hideTaken: false, bestMatch: false });
     expect(component.posts.map(found => found.id)).toEqual([5]);
     expect(element.querySelector('[data-feed-tab-missions]')?.getAttribute('aria-selected')).toBe('true');
     expect(element.querySelector('[data-feed-missions-hint]')).not.toBeNull();
@@ -342,7 +343,7 @@ describe('NetworkFeedComponent', () => {
     component.missionFilters.patchValue({ skill: 'Kafka', city: 'Lyon', rate: 600, before: '2027-01-31' });
     component.filterMissions();
     expect(network.missions).toHaveBeenCalledWith(0, { skill: 'Kafka', city: 'Lyon', remote: null, rate: 600, before: '2027-01-31',
-      hideTaken: false });
+      hideTaken: false, bestMatch: false });
     (element.querySelector('[data-mission-filter-remote="3"]') as HTMLButtonElement).click();
     expect(component.missionFilters.value.remote).toBe(3);
     component.pickRemote(3);
@@ -353,7 +354,28 @@ describe('NetworkFeedComponent', () => {
     expect(component.filteringMissions).toBeTrue();
     (element.querySelector('[data-mission-filter-clear]') as HTMLButtonElement).click();
     expect(component.filteringMissions).toBeFalse();
-    expect(network.missions).toHaveBeenCalledWith(0, { skill: '', city: '', remote: null, rate: null, before: '', hideTaken: false });
+    expect(network.missions).toHaveBeenCalledWith(0, { skill: '', city: '', remote: null, rate: null, before: '', hideTaken: false, bestMatch: false });
+  });
+
+  it('ranks the missions by how they fit the profile when asked, each showing its match', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    network.missionMatches.and.returnValue(of({ 5: { score: 85, skills: ['Kafka'], rate: 'MEETS' } }));
+    network.missions.and.returnValue(of({ posts: [{ ...post(5), kind: 'MISSION' as const }, { ...post(6), kind: 'MISSION' as const }], page: 0,
+      more: false }));
+    component.show('missions');
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(network.missionMatches).toHaveBeenCalledWith([5, 6]);
+    const badge = element.querySelector('[data-mission-match="5"]')!;
+    expect(badge.textContent).toContain('85% match for your profile · Kafka');
+    expect(badge.classList).toContain('good');
+    expect(element.querySelector('[data-mission-match="6"]')).toBeNull();
+    (element.querySelector('[data-mission-filter-best-match]') as HTMLButtonElement).click();
+    expect(network.missions).toHaveBeenCalledWith(0, jasmine.objectContaining({ bestMatch: true }));
+    // Matches already read are not asked again.
+    expect(network.missionMatches).toHaveBeenCalledTimes(2);
+    expect(network.missionMatches.calls.mostRecent().args[0]).toEqual([6]);
   });
 
   it('hides a post of For you the reader is not interested in, Undo bringing it back where it was', () => {

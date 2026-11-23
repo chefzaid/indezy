@@ -103,6 +103,8 @@
           }
           <button type="button" class="chip" [class.on]="missionFilters.value.hideTaken" [attr.aria-pressed]="!!missionFilters.value.hideTaken"
             (click)="toggleHideTaken()" data-mission-filter-hide-taken>{{ 'network.missionFilters.hideTaken' | translate }}</button>
+          <button type="button" class="chip" [class.on]="missionFilters.value.bestMatch" [attr.aria-pressed]="!!missionFilters.value.bestMatch"
+            (click)="toggleBestMatch()" data-mission-filter-best-match>{{ 'network.missionFilters.bestMatch' | translate }}</button>
           @if (filteringMissions) {
             <button type="button" class="clear" (click)="clearMissionFilters()" data-mission-filter-clear>{{ 'network.search.clearFilters' | translate }}</button>
           }
@@ -131,8 +133,20 @@
         }
         <ul class="posts">
           @for (post of posts; track post.id) {
-            <li><app-post-card [post]="post" [dismissible]="tab === 'forYou'" (dismissed)="notInterested($event)" (deleted)="remove($event)"
-              (reposted)="posts = [$event].concat(posts)"></app-post-card></li>
+            <li>
+              @if (tab === 'missions' && matches[post.id]; as match) {
+                <p class="mission-match" [class.good]="match.score >= 60" [class.fair]="match.score >= 35 && match.score < 60"
+                  [attr.data-mission-match]="post.id">
+                  <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+                  {{ 'network.feed.missionMatch' | translate:{ score: match.score } }}
+                  @if (match.skills.length) {
+                    <span class="skills">· {{ match.skills.join(', ') }}</span>
+                  }
+                </p>
+              }
+              <app-post-card [post]="post" [dismissible]="tab === 'forYou'" (dismissed)="notInterested($event)" (deleted)="remove($event)"
+              (reposted)="posts = [$event].concat(posts)"></app-post-card>
+            </li>
           }
         </ul>
         @if (tab === 'missions' && !more && boardOffers?.length) {

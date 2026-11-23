@@ -212,6 +212,8 @@ export interface MissionFilters {
   before?: string | null;
   /** The missions already in the reader's pipeline left out. */
   hideTaken?: boolean;
+  /** The missions that fit the reader's profile best first. */
+  bestMatch?: boolean;
 }
 
 /** The filters of the search for members. */

@@ -92,12 +92,18 @@ public class NetworkFeedService {
      * The filters of the **Missions** tab: a skill the mission asks, its city, at least so many remote days a week, a daily
      * rate it reaches, a start no later than a day, and the missions already in the reader's pipeline left out.
      */
-    public record MissionFilters(String skill, String city, Integer remoteDays, Integer rate, LocalDate startBy, boolean hideTaken) {
+    public record MissionFilters(String skill, String city, Integer remoteDays, Integer rate, LocalDate startBy, boolean hideTaken,
+                                 Long bestFor) {
 
-        public static final MissionFilters NONE = new MissionFilters(null, null, null, null, null, false);
+        public static final MissionFilters NONE = new MissionFilters(null, null, null, null, null, false, null);
+
+        public MissionFilters(String skill, String city, Integer remoteDays, Integer rate, LocalDate startBy, boolean hideTaken) {
+            this(skill, city, remoteDays, rate, startBy, hideTaken, null);
+        }
 
         boolean none() {
-            return equals(NONE) || (blank(skill) && blank(city) && remoteDays == null && rate == null && startBy == null && !hideTaken);
+            return equals(NONE) || (blank(skill) && blank(city) && remoteDays == null && rate == null && startBy == null && !hideTaken &&
+                bestFor == null);
         }
 
         private static boolean blank(String text) {
@@ -118,6 +124,12 @@ public class NetworkFeedService {
         Set<Long> taken = filters.hideTaken() ? takes.findByUserId(userId).stream().map(take -> take.getPostId()).collect(Collectors.toSet()) : Set.of();
         List<NetworkPost> found = posts.findTop500ByKindAndAuthorIdNotInOrderByCreatedAtDescIdDesc(NetworkPostKind.MISSION, List.copyOf(left))
             .stream().filter(post -> !taken.contains(post.getId()) && matches(post, filters)).toList();
+        if (filters.bestFor() != null && missionMatches != null) {
+            // The best match for the workspace's profile first, the newest first among equals (the list is newest first).
+            Map<Long, dev.swirlit.indezy.dto.OfferMatchDto> scores = missionMatches.scores(filters.bestFor(), found);
+            found = found.stream().sorted(java.util.Comparator.comparingInt((NetworkPost post) ->
+                scores.containsKey(post.getId()) ? scores.get(post.getId()).score() : -1).reversed()).toList();
+        }
         int from = (int) Math.min(found.size(), asked.getOffset());
         List<NetworkPost> shown = found.subList(from, Math.min(found.size(), from + asked.getPageSize()));
         return postService.page(new PageImpl<>(shown, asked, found.size()), userId);
@@ -137,6 +149,27 @@ public class NetworkFeedService {
             (filters.rate() == null || details.rateMax() != null && details.rateMax() >= filters.rate() ||
                 details.rateMax() == null && details.rateMin() != null && details.rateMin() >= filters.rate()) &&
             (filters.startBy() == null || details.start() == null || !details.start().isAfter(filters.startBy()));
+    }
+
+    private NetworkMissionMatchService missionMatches;
+
+    /** Scores the missions against the reader's profile; without it, as in some tests, they stay newest first. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setMissionMatches(NetworkMissionMatchService service) {
+        this.missionMatches = service;
+    }
+
+    /** How the missions of these ids, among those the reader can read, fit the workspace's profile; none without skills. */
+    @Transactional(readOnly = true)
+    public Map<Long, dev.swirlit.indezy.dto.OfferMatchDto> missionMatches(Long userId, Long freelanceId, List<Long> ids) {
+        network.requireMember(userId);
+        if (missionMatches == null || ids.isEmpty()) {
+            return Map.of();
+        }
+        Set<Long> left = excluded(userId);
+        List<NetworkPost> readable = posts.findAllById(ids.stream().limit(NetworkPostService.PAGE_SIZE * 5L).toList()).stream()
+            .filter(post -> post.getKind() == NetworkPostKind.MISSION && !left.contains(post.getAuthorId())).toList();
+        return missionMatches.scores(freelanceId, readable);
     }
 
     /** The filters of the search for posts: kinds (none for every kind), the last days (none for any time), the members followed only. */

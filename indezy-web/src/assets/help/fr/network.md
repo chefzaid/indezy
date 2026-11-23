@@ -24,7 +24,7 @@ Sur votre page, **Je suis disponible** affiche le badge **DISPO** sur votre phot
 
 - **Abonnements** : vos publications, celles des membres que vous suivez et celles qui nomment un tag que vous suivez, les plus récentes d'abord.
 - **Pour vous** : les publications des 30 derniers jours de tout le réseau, classées selon vos tags, vos compétences, votre ville et les réactions. **Pas intéressé**, dans le menu d'une publication, la masque et vous en montre moins de semblables (**Annuler** la fait revenir).
-- **Missions** : toutes les missions transmises par les membres, avec des filtres (compétence, ville, TJM, date de début, télétravail, **Masquer celles de mon pipeline**). Suivent les offres des job boards qui correspondent le mieux à votre profil.
+- **Missions** : toutes les missions transmises par les membres, avec des filtres (compétence, ville, TJM, date de début, télétravail, **Masquer celles de mon pipeline**). Chaque mission indique à quel point elle correspond à votre profil, notée comme les offres, et **Les plus proches de mon profil** place les meilleures en tête. Suivent les offres des job boards qui correspondent le mieux à votre profil.
 
 ## Publier
 

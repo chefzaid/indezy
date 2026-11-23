@@ -24,7 +24,7 @@ On your page, **I am open to work** puts the **OPEN** badge on your photo. The *
 
 - **Following**: your posts, those of the members you follow and those naming a tag you follow, the newest first.
 - **For you**: posts of the last 30 days from the whole network, ranked by your tags, your skills, your city and reactions. **Not interested**, in a post's menu, hides it and shows you fewer like it (**Undo** brings it back).
-- **Missions**: every mission members pass on, with filters (skill, city, rate, start date, remote days, **Hide those in my pipeline**). After them come the job board offers that match your profile best.
+- **Missions**: every mission members pass on, with filters (skill, city, rate, start date, remote days, **Hide those in my pipeline**). Each mission shows how it matches your profile, scored as the offers are, and **Best match first** puts the best fits on top. After them come the job board offers that match your profile best.
 
 ## Post
 

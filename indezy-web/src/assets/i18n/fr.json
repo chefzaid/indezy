@@ -3941,6 +3941,7 @@
       "missionsHint": "Les missions que les membres transmettent, de tout le réseau : ajoutez celles qui vous intéressent à votre pipeline.",
       "missionsNone": "Aucune mission transmise pour l'instant.",
       "boardTitle": "Sur les job boards, pour votre profil",
+      "missionMatch": "Correspond à {{score}} % à votre profil",
       "boardHint": "Les offres collectées qui correspondent le mieux à votre profil, après les missions des membres.",
       "boardSource": "Job board · {{site}}",
       "boardAll": "Toutes les offres correspondantes"
@@ -4614,7 +4615,8 @@
       "rate": "TJM ≥ (€/jour)",
       "before": "Début au plus tard",
       "remote": "{{days}} j+ de télétravail",
-      "hideTaken": "Masquer celles de mon pipeline"
+      "hideTaken": "Masquer celles de mon pipeline",
+      "bestMatch": "Les plus proches de mon profil"
     },
     "ideas": {
       "title": "Idées pour Indezy",

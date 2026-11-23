@@ -56,6 +56,7 @@ public class NetworkPostController {
     private final NetworkPollService pollVotes;
     private final NetworkPipelineService pipeline;
     private final NetworkForYouService forYou;
+    private final dev.swirlit.indezy.service.AccessGuard accessGuard;
     private final NetworkFeedService feed;
     private final NetworkAnalyticsService analytics;
 
@@ -299,12 +300,32 @@ public class NetworkPostController {
 
     @Operation(summary = "The missions members pass on, from every member the viewer can read but themselves, the newest first, 20 a page")
     @GetMapping("/feed/missions")
-    public NetworkDtos.Posts missions(@RequestParam(defaultValue = "0") int page, @RequestParam(required = false) String skill,
-                                      @RequestParam(required = false) String city, @RequestParam(required = false) Integer remote,
-                                      @RequestParam(required = false) Integer rate, @RequestParam(required = false) LocalDate before,
-                                      @RequestParam(defaultValue = "false") boolean hideTaken) {
-        return feed.missions(SecurityUtils.getCurrentUserId(), page, new NetworkFeedService.MissionFilters(skill, city, remote, rate, before,
-            hideTaken));
+    public NetworkDtos.Posts missions(@RequestParam(defaultValue = "0") int page, @org.springframework.web.bind.annotation.ModelAttribute MissionQuery query) {
+        return feed.missions(SecurityUtils.getCurrentUserId(), page, new NetworkFeedService.MissionFilters(query.skill(), query.city(), query.remote(),
+            query.rate(), query.before(), Boolean.TRUE.equals(query.hideTaken()), Boolean.TRUE.equals(query.bestMatch()) ? workspaceOrNull() : null));
+    }
+
+    /** The Missions tab's filters as the query string gives them; the best match first when {@code bestMatch}. */
+    public record MissionQuery(String skill, String city, Integer remote, Integer rate,
+                               @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE)
+                               LocalDate before, Boolean hideTaken, Boolean bestMatch) {
+    }
+
+    @Operation(summary = "How the missions of these ids fit the viewer's profile, scored as the feed's offers",
+        description = "By post id; empty when the profile names no skills; at most 100 ids")
+    @GetMapping("/feed/missions/matches")
+    public java.util.Map<Long, dev.swirlit.indezy.dto.OfferMatchDto> missionMatches(@RequestParam List<Long> ids) {
+        Long workspace = workspaceOrNull();
+        return workspace == null ? java.util.Map.of() : feed.missionMatches(SecurityUtils.getCurrentUserId(), workspace, ids);
+    }
+
+    /** The viewer's workspace, null for a member without one. */
+    private Long workspaceOrNull() {
+        try {
+            return accessGuard.requireWorkspace(null);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @Operation(summary = "The home feed: the viewer's posts, those of the members and tags they follow, the newest first, 20 a page")

@@ -100,6 +100,7 @@ test('adds a mission from the Missions tab to the pipeline, letting its author k
     repostOf: null, reposts: 0, repostsOff: false, kind: 'MISSION', details: { role: 'Lead Java', rateMin: 600, rateMax: 700, city: 'Lyon',
       remoteDays: 2, start: null, client: null, stack: [] }, answerCommentId: null, poll: null, taken: { count: null, mine: false },
     author }], page: 0, more: false } }));
+  await page.route('**/api/network/feed/missions/matches?**', route => route.fulfill({ json: { 6: { score: 72, skills: ['Java'], rate: 'MEETS' } } }));
   const takes: string[] = [];
   await page.route('**/api/network/posts/6/pipeline?**', route => {
     takes.push(new URL(route.request().url()).searchParams.get('named')!);
@@ -109,6 +110,11 @@ test('adds a mission from the Missions tab to the pipeline, letting its author k
   await page.goto('/network');
   await page.locator('[data-feed-tab-missions]').click();
   await expect(page.locator('[data-feed-missions-hint]')).toBeVisible();
+  // How it fits the profile, and the best fits first on request.
+  await expect(page.locator('[data-mission-match="6"]')).toContainText('72% match for your profile · Java');
+  const ranked = page.waitForRequest(request => request.url().includes('/feed/missions?') && request.url().includes('bestMatch=true'));
+  await page.locator('[data-mission-filter-best-match]').click();
+  await ranked;
   await page.locator('[data-post="6"] [data-mission-add]').click();
   await page.locator('[data-mission-add-named]').click();
   await expect(page.locator('[data-post="6"] [data-mission-taken]')).toContainText('In your pipeline');

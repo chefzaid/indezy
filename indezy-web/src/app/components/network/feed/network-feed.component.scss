@@ -639,3 +639,9 @@
     font-weight: 600;
   }
 }
+
+.mission-match { display: flex; align-items: center; gap: 4px; margin: 0 0 4px; font-size: .85rem; color: var(--mat-sys-on-surface-variant); }
+.mission-match mat-icon { font-size: 18px; width: 18px; height: 18px; }
+.mission-match.good { color: var(--app-success, #1b7f3b); }
+.mission-match.fair { color: var(--app-warning, #8a5a00); }
+.mission-match .skills { color: var(--mat-sys-on-surface-variant); }

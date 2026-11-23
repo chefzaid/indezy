@@ -1,3 +1,4 @@
+import { OfferMatch } from '../../models/offer.models';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
@@ -228,7 +229,15 @@ export class NetworkService {
     if (filters.hideTaken) {
       params = params.set('hideTaken', true);
     }
+    if (filters.bestMatch) {
+      params = params.set('bestMatch', true);
+    }
     return this.http.get<NetworkPosts>(`${this.API_URL}/feed/missions`, { params });
+  }
+
+  /** How the missions of these ids fit the reader's profile, by post id; empty without profile skills. */
+  missionMatches(ids: number[]): Observable<Record<number, OfferMatch>> {
+    return this.http.get<Record<number, OfferMatch>>(`${this.API_URL}/feed/missions/matches`, { params: { ids: ids.join(',') } });
   }
 
   forYou(page = 0): Observable<NetworkPosts> {

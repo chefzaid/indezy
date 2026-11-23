@@ -14,7 +14,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MentionsDirective } from '../mentions/mentions.directive';
 
-import { MemberCard, MemberSuggestion, NetworkPost, Offer, TrendingTag, isHeld } from '../../../models';
+import { MemberCard, MemberSuggestion, NetworkPost, Offer, TrendingTag, isHeld, OfferMatch } from '../../../models';
 import { InViewDirective } from '../../../shared/directives/in-view.directive';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
@@ -198,7 +198,7 @@ export class NetworkFeedComponent implements OnInit {
 
   /** The **Missions** tab's filters; changed, the tab is read again from its first page. */
   readonly missionFilters = inject(FormBuilder).nonNullable.group({
-    skill: '', city: '', remote: null as number | null, rate: null as number | null, before: '', hideTaken: false
+    skill: '', city: '', remote: null as number | null, rate: null as number | null, before: '', hideTaken: false, bestMatch: false
   });
   readonly remoteChoices = [2, 3, 5];
 
@@ -216,6 +216,30 @@ export class NetworkFeedComponent implements OnInit {
   toggleHideTaken(): void {
     this.missionFilters.controls.hideTaken.setValue(!this.missionFilters.controls.hideTaken.value);
     this.filterMissions();
+  }
+
+  /** The missions that fit the profile best first, or the newest first again. */
+  toggleBestMatch(): void {
+    this.missionFilters.controls.bestMatch.setValue(!this.missionFilters.controls.bestMatch.value);
+    this.filterMissions();
+  }
+
+  /** How each mission shown fits the profile, by post id; none for a profile without skills. */
+  matches: Record<number, OfferMatch> = {};
+
+  /** Reads how the missions just shown fit the profile. */
+  private loadMatches(shown: NetworkPost[]): void {
+    const ids = shown.filter(post => post.kind === 'MISSION' && !(post.id in this.matches)).map(post => post.id);
+    if (!ids.length) {
+      return;
+    }
+    this.network.missionMatches(ids).subscribe({
+      next: found => {
+        this.matches = { ...this.matches, ...found };
+        this.changes.markForCheck();
+      },
+      error: () => undefined
+    });
   }
 
   clearMissionFilters(): void {
@@ -308,6 +332,9 @@ export class NetworkFeedComponent implements OnInit {
     (this.tab === 'forYou' ? this.network.forYou(page) : this.tab === 'missions' ? this.network.missions(page, this.missionFilters.getRawValue()) : this.network.feed(page)).subscribe({
       next: found => {
         this.posts = page === 0 ? found.posts : [...this.posts, ...found.posts];
+        if (this.tab === 'missions') {
+          this.loadMatches(found.posts);
+        }
         this.page = found.page;
         this.more = found.more;
         this.loading = false;

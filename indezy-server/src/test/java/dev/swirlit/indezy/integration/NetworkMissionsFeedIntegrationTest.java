@@ -115,4 +115,29 @@ class NetworkMissionsFeedIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(told(carol)).contains(remote).doesNotContain(lyon);
         assertThat(told(alice)).isEmpty();
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void ranksTheMissionsByHowTheyFitTheReadersProfile() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        join(alice);
+        Map<String, Object> profile = call(bob, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        profile.put("skills", List.of("Kafka", "Java"));
+        profile.put("targetDailyRate", 650);
+        call(bob, HttpMethod.PUT, "/users/profile", profile, Map.class);
+        join(bob);
+        Object kafka = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Mission Kafka", "kind", "MISSION", "details",
+            Map.of("role", "Lead Kafka", "stack", List.of("Java", "Kafka"), "rateMin", 600, "rateMax", 700, "remoteDays", 5)), Map.class).getBody().get("id");
+        Object angular = mission(alice, "Lead Angular");
+
+        // Newest first as usual; the best fit first when asked.
+        assertThat(missions(bob)).containsSubsequence(angular, kafka);
+        assertThat(missions(bob, "bestMatch=true")).containsSubsequence(kafka, angular);
+        Map<String, Map<String, Object>> matches = call(bob, HttpMethod.GET, "/network/feed/missions/matches?ids=" + kafka + "," + angular,
+            null, Map.class).getBody();
+        // Kafka and Java (40 of 60 skill points with two skills, full marks), the rate met: 85 of 85 points.
+        assertThat(matches.get(String.valueOf(kafka))).containsEntry("score", 100).containsEntry("skills", List.of("Kafka", "Java"))
+            .containsEntry("rate", "MEETS");
+        assertThat(matches.get(String.valueOf(angular))).containsEntry("score", 29);
+    }
 }
