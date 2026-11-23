@@ -62,7 +62,7 @@ class PushIntegrationTest extends TwoAccountsIntegrationTest {
     @SuppressWarnings("unchecked")
     void turnsEachPushEventOffOrOnForItsAccount() {
         assertThat(call(alice, HttpMethod.GET, "/push/events", null, Map.class).getBody())
-            .isEqualTo(Map.of("NETWORK", true, "MESSAGES", true, "INTERVIEWS", true, "FOLLOW_UPS", true));
+            .isEqualTo(Map.of("NETWORK", true, "MESSAGES", true, "INTERVIEWS", true, "FOLLOW_UPS", true, "OFFERS", true));
         assertThat(call(alice, HttpMethod.PUT, "/push/events", Map.of("MESSAGES", false, "FOLLOW_UPS", false), Map.class).getBody())
             .containsEntry("MESSAGES", false).containsEntry("FOLLOW_UPS", false).containsEntry("NETWORK", true);
         call(alice, HttpMethod.PUT, "/push/events", Map.of("MESSAGES", true), Map.class);

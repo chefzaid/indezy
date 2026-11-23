@@ -79,7 +79,7 @@ L'onglet **Notifications** dit qui vous suit, réagit, commente, vous mentionne 
 
 Dans **Profil → Réseau**, chaque type se règle sur **Désactivé**, **Dans l'appli** ou **E-mail aussi** (un seul e-mail regroupé, au plus toutes les trois heures). Les messages non lus depuis une heure se règlent dans **Profil → Notifications** (voir [Compte](/help/account)).
 
-Dans **Profil → Notifications**, **Notifications sur cet appareil** envoie vos notifications, vos nouveaux messages, un entretien qui commence dans l'heure et, les matins de semaine, les relances à faire au navigateur où vous êtes, même Indezy fermé, une fois que le navigateur l'autorise. Activez-les dans chaque navigateur que vous utilisez ; une conversation masquée n'en envoie aucune. En dessous, décochez ce que vous ne voulez pas recevoir : notifications du réseau, nouveaux messages, entretiens ou relances.
+Dans **Profil → Notifications**, **Notifications sur cet appareil** envoie vos notifications, vos nouveaux messages, un entretien qui commence dans l'heure et, les matins de semaine, les relances à faire au navigateur où vous êtes, même Indezy fermé, une fois que le navigateur l'autorise. Activez-les dans chaque navigateur que vous utilisez ; une conversation masquée n'en envoie aucune. En dessous, décochez ce que vous ne voulez pas recevoir : notifications du réseau, nouveaux messages, entretiens, relances ou nouvelles offres de vos recherches enregistrées (au plus une fois par heure).
 
 ## Les TJM du réseau
 

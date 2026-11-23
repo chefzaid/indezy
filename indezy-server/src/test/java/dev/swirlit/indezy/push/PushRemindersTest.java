@@ -122,6 +122,43 @@ class PushRemindersTest {
     }
 
     @Test
+    void pushesTheSavedSearchesNewOffersOncePerIncrease() {
+        dev.swirlit.indezy.service.SavedOfferSearchService savedSearches = mock(dev.swirlit.indezy.service.SavedOfferSearchService.class);
+        reminders.setSavedSearches(savedSearches);
+        when(subscriptions.findUserIds()).thenReturn(List.of(7L, 8L, 9L));
+        dev.swirlit.indezy.model.User alice = user(7, "alice@example.com");
+        alice.setOffersPushedTotal(2L);
+        dev.swirlit.indezy.model.User bob = user(8, "bob@example.com");
+        bob.setOffersPushedTotal(5L);
+        when(users.findById(7L)).thenReturn(Optional.of(alice));
+        when(users.findById(8L)).thenReturn(Optional.of(bob));
+        when(users.findById(9L)).thenReturn(Optional.of(user(9, "carol@example.com")));
+        Freelance aliceWorkspace = new Freelance();
+        aliceWorkspace.setId(70L);
+        Freelance bobWorkspace = new Freelance();
+        bobWorkspace.setId(80L);
+        Freelance carolWorkspace = new Freelance();
+        carolWorkspace.setId(90L);
+        when(freelances.findByEmail("alice@example.com")).thenReturn(Optional.of(aliceWorkspace));
+        when(freelances.findByEmail("bob@example.com")).thenReturn(Optional.of(bobWorkspace));
+        when(freelances.findByEmail("carol@example.com")).thenReturn(Optional.of(carolWorkspace));
+        // Alice has more than she was told of; Bob opened his searches since (fewer); Carol has none.
+        when(savedSearches.alerts(70L)).thenReturn(new dev.swirlit.indezy.dto.OfferAlertsDto(6));
+        when(savedSearches.alerts(80L)).thenReturn(new dev.swirlit.indezy.dto.OfferAlertsDto(1));
+        when(savedSearches.alerts(90L)).thenReturn(new dev.swirlit.indezy.dto.OfferAlertsDto(0));
+        when(users.claimOffersPush(7L, 2L, 6L)).thenReturn(1);
+        when(users.claimOffersPush(8L, 5L, 1L)).thenReturn(1);
+
+        assertThat(reminders.newOffers()).isEqualTo(1);
+        verify(push).notify(eq(PushEvent.OFFERS), eq(List.of(7L)), anyMap(), eq("/offers"));
+        verify(push, never()).notify(any(), eq(List.of(8L)), anyMap(), anyString());
+        verify(users).claimOffersPush(8L, 5L, 1L);
+        verify(users, never()).claimOffersPush(eq(9L), org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.anyLong());
+        assertThat(PushReminders.offersText(6).get(DocumentLanguage.FR)[1]).isEqualTo("6 nouvelles offres pour vos recherches enregistrées.");
+        assertThat(PushReminders.offersText(1).get(DocumentLanguage.EN)[1]).isEqualTo("1 new offer for your saved searches.");
+    }
+
+    @Test
     void doesNothingWithoutTheVapidKeys() {
         when(push.available()).thenReturn(false);
         reminders.interviewsSoon();

@@ -1835,7 +1835,8 @@
         "NETWORK": "Notifications du réseau : réactions, commentaires, mentions, abonnés",
         "MESSAGES": "Nouveaux messages",
         "INTERVIEWS": "Un entretien dans l'heure",
-        "FOLLOW_UPS": "Les relances à faire, chaque matin de semaine"
+        "FOLLOW_UPS": "Les relances à faire, chaque matin de semaine",
+        "OFFERS": "Les nouvelles offres de vos recherches enregistrées, au plus une fois par heure"
       }
     },
     "cvImport": {

@@ -495,7 +495,7 @@ Fills the profile from what the freelancer already wrote elsewhere instead of ty
 
 - [x] Responsive polish of all pages (Kanban usable on phone)
 - [ ] Cross-platform mobile app (already in roadmap - implement)
-- [ ] Push notifications (interview reminder, follow-up due, new matching posting) Partly done on 2026-11-21: web push to the browsers that turn it on (Profile → Notifications), for the network's notifications and new messages (`docs/features.md#web-push`), off until the VAPID keys are in Vault (Needs Input); interview reminders within the hour and the follow-ups due each weekday morning followed on 2026-11-22; new matching postings remain (the saved searches' emails cover them).
+- [x] Push notifications (interview reminder, follow-up due, new matching posting) Partly done on 2026-11-21: web push to the browsers that turn it on (Profile → Notifications), for the network's notifications and new messages (`docs/features.md#web-push`), off until the VAPID keys are in Vault (Needs Input); interview reminders within the hour and the follow-ups due each weekday morning followed on 2026-11-22; then on 2026-11-23 the saved searches' new offers, hourly at most, each event turned off or on by the account; a mobile app's push waits on **Mobile app technology**.
 
 ## Social & Community
 

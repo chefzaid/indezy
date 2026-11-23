@@ -732,8 +732,11 @@ conversations not muted reach the device even with Indezy closed, in the account
 notifications or the conversation. So do an interview planned within the hour ("Interview at 14:00", its step, role and
 client, opening the opportunity; Paris time, checked every 5 minutes) and, on weekday mornings at 9:07, the follow-ups
 due ("3 contacts wait for your follow-up", opening the dashboard); each is claimed in the database first
-(`interview_steps.reminder_pushed_at`, `users.follow_ups_pushed_on`), so several replicas push it once. Once push is
-on, each of the four (network notifications, new messages, interviews, follow-ups due) is turned on or off for the
+(`interview_steps.reminder_pushed_at`, `users.follow_ups_pushed_on`), so several replicas push it once. Every hour from 8:13 to
+20:13, the saved searches' new offers are pushed too when there are more than the account was last told of ("6 new
+offers for your saved searches", opening the feed; `users.offers_pushed_total`, claimed the same way; fewer, once the
+searches are opened, are only noted). Once push is on, each of the five (network notifications, new messages,
+interviews, follow-ups due, new offers) is turned on or off for the
 account, saved at once and true in every browser it uses (`GET`/`PUT /api/push/events`, `users.push_events_off`); all are
 on until turned off. Each browser keeps its own subscription (ten per account at most), sent to the
 server (`POST /api/push/subscriptions`, `/remove`) and dropped once its push service no longer knows it. Pushes are

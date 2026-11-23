@@ -1835,7 +1835,8 @@
         "NETWORK": "Network notifications: reactions, comments, mentions, followers",
         "MESSAGES": "New messages",
         "INTERVIEWS": "An interview within the hour",
-        "FOLLOW_UPS": "The follow-ups due, each weekday morning"
+        "FOLLOW_UPS": "The follow-ups due, each weekday morning",
+        "OFFERS": "New offers for your saved searches, at most hourly"
       }
     },
     "cvImport": {

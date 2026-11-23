@@ -9,5 +9,7 @@ public enum PushEvent {
     /** An interview starting within the hour. */
     INTERVIEWS,
     /** The follow-ups due, each weekday morning. */
-    FOLLOW_UPS
+    FOLLOW_UPS,
+    /** New offers for the saved searches. */
+    OFFERS
 }

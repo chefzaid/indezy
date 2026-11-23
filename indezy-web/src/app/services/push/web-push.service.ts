@@ -5,9 +5,9 @@ import { Observable, firstValueFrom, map, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 /** Web push in this browser: whether it can, whether it is on, and turning it on or off with the server. */
-/** What web push tells: the network's notifications, new messages, interviews within the hour, the follow-ups due. */
-export type PushEvent = 'NETWORK' | 'MESSAGES' | 'INTERVIEWS' | 'FOLLOW_UPS';
-export const PUSH_EVENTS: readonly PushEvent[] = ['NETWORK', 'MESSAGES', 'INTERVIEWS', 'FOLLOW_UPS'];
+/** What web push tells: the network's notifications, new messages, interviews within the hour, the follow-ups due, new offers. */
+export type PushEvent = 'NETWORK' | 'MESSAGES' | 'INTERVIEWS' | 'FOLLOW_UPS' | 'OFFERS';
+export const PUSH_EVENTS: readonly PushEvent[] = ['NETWORK', 'MESSAGES', 'INTERVIEWS', 'FOLLOW_UPS', 'OFFERS'];
 
 @Injectable({
   providedIn: 'root'

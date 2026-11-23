@@ -58,6 +58,56 @@ public class PushReminders {
         }
     }
 
+    private dev.swirlit.indezy.service.SavedOfferSearchService savedSearches;
+
+    /** The saved searches whose new offers are pushed; without them, as in tests, none are. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setSavedSearches(dev.swirlit.indezy.service.SavedOfferSearchService service) {
+        this.savedSearches = service;
+    }
+
+    /** Every hour from 8:13 to 20:13, Paris time: the saved searches' new offers since the browsers were last told. */
+    @Scheduled(cron = "0 13 8-20 * * *", zone = "Europe/Paris")
+    public void newOffersFound() {
+        if (push.available()) {
+            newOffers();
+        }
+    }
+
+    /**
+     * Pushes each account with a browser whose saved searches have more new offers than when it was last told, once per
+     * increase (fewer, as once the searches are opened, are only noted); how many accounts were told.
+     */
+    @Transactional
+    public int newOffers() {
+        if (savedSearches == null) {
+            return 0;
+        }
+        int pushed = 0;
+        for (Long userId : subscriptions.findUserIds()) {
+            Optional<User> user = users.findById(userId);
+            Optional<Long> freelanceId = user.flatMap(account -> freelances.findByEmail(account.getEmail())).map(Freelance::getId);
+            if (freelanceId.isEmpty()) {
+                continue;
+            }
+            long total = savedSearches.alerts(freelanceId.get()).newOffers();
+            long previous = Optional.ofNullable(user.get().getOffersPushedTotal()).orElse(0L);
+            if (total == previous || users.claimOffersPush(userId, previous, total) == 0 || total < previous) {
+                continue;
+            }
+            push.notify(PushEvent.OFFERS, List.of(userId), offersText(total), "/offers");
+            pushed++;
+        }
+        return pushed;
+    }
+
+    static Map<DocumentLanguage, String[]> offersText(long total) {
+        return Map.of(DocumentLanguage.EN, new String[] {"New offers", total == 1 ? "1 new offer for your saved searches." :
+                total + " new offers for your saved searches."},
+            DocumentLanguage.FR, new String[] {"Nouvelles offres", total == 1 ? "1 nouvelle offre pour vos recherches enregistrées." :
+                total + " nouvelles offres pour vos recherches enregistrées."});
+    }
+
     @Scheduled(cron = "0 7 9 * * MON-FRI", zone = "Europe/Paris")
     public void followUpsDue() {
         if (push.available()) {

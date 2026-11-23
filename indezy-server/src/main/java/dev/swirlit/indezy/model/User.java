@@ -167,6 +167,10 @@ public class User extends BaseEntity {
     @Column(name = "follow_ups_pushed_on")
     private LocalDate followUpsPushedOn;
 
+    /** How many new offers the saved searches had when the browsers were last told; null before the first time. */
+    @Column(name = "offers_pushed_total")
+    private Long offersPushedTotal;
+
     /** Existing accounts can have a null column after Hibernate adds this preference. */
     public Integer getFollowUpDays() {
         return followUpDays != null ? followUpDays : UserPreferenceDefaults.FOLLOW_UP_DAYS;

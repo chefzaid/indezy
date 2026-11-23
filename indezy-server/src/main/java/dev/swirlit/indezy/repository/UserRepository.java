@@ -21,6 +21,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("update User u set u.followUpsPushedOn = :today where u.id = :id and (u.followUpsPushedOn is null or u.followUpsPushedOn < :today)")
     int claimFollowUpsPush(@Param("id") Long id, @Param("today") LocalDate today);
 
+    /** Moves the new offers last told of from {@code previous} to {@code total}, for one replica only: 1 when this one did. */
+    @Modifying
+    @Query("update User u set u.offersPushedTotal = :total where u.id = :id and coalesce(u.offersPushedTotal, 0) = :previous")
+    int claimOffersPush(@Param("id") Long id, @Param("previous") long previous, @Param("total") long total);
+
     /**
      * Find user by email address
      */
