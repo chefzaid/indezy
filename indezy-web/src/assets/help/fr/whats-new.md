@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Trois mises en page pour les factures et devis
+
+Choisissez **Simple**, **Moderne** ou **Classique** dans Profil → Facturation. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Votre papier en-tête sous les factures et devis
 
 Envoyez un papier en-tête en PDF dans Profil → Facturation : vos factures et devis sont dessinés dessus, et restent des fichiers Factur-X. Voir [Devis et factures](/help/invoices-quotes).

@@ -1418,7 +1418,12 @@ and quotes, its first page under a document's first page and its second (or the 
 under a quote's appended terms PDF; it is refused unless it has one or two upright A4 pages, no password, no script or
 action, and every font embedded (so that Factur-X stays PDF/A), and it is checked by ClamAV. Each upload is a new file
 (`GET /api/users/billing/letterheads/{id}`), frozen with the seller at issue (`letterheadId`); `DELETE` stops using it.
-The document is drawn in its usual place: a letterhead leaves the page's centre free. A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
+The document is drawn in its usual place: a letterhead leaves the page's centre free.
+The **Layout** (`theme`, frozen at issue) is **Simple** (black on white, the logo above the seller), **Modern** (a band of
+the accent colour, or a dark slate without one, across the top with the logo and the title in white, the table header
+and the amount to pay filled with it) or **Classic** (Liberation Serif unless a font was uploaded, the logo centred, a
+thin rule under the header and above the footer, every other line shaded and the bank details framed). Word copies keep
+the built-in layout without the theme. A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
 printed under the seller's name, frozen at issue too. A **Footer** (`footer`, 200 characters, such
 as the website and phone) is written small at the foot of every page, also frozen at issue; every document of several
 pages (invoices, quotes, activity reports, dossiers) numbers them "1/2" at the bottom right. The **Notes a new invoice

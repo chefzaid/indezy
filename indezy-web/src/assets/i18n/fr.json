@@ -1450,6 +1450,15 @@
       "letterheadSize": "Un papier en-tête est une page A4 en portrait.",
       "letterheadFonts": "Ce PDF utilise des polices qu'il n'incorpore pas : exportez-le à nouveau avec ses polices incorporées.",
       "letterheadPages": "Un papier en-tête a une ou deux pages.",
+      "theme": "Mise en page",
+      "themes": {
+        "SIMPLE": "Simple",
+        "MODERN": "Moderne",
+        "CLASSIC": "Classique",
+        "hint_SIMPLE": "Noir sur blanc, le logo au-dessus de votre nom.",
+        "hint_MODERN": "Un bandeau de votre couleur d'accent en haut avec le titre en blanc ; l'en-tête du tableau et le montant à payer remplis de cette couleur.",
+        "hint_CLASSIC": "Une police à empattements, le logo centré, de fins filets, des lignes ombrées et vos coordonnées bancaires encadrées."
+      },
       "fonts": {
         "SANS": "Sans empattement (Liberation Sans)",
         "SERIF": "À empattements (Liberation Serif)",

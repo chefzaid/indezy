@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.DocumentFont;
+import dev.swirlit.indezy.model.enums.DocumentTheme;
 import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
@@ -73,6 +74,11 @@ public class InvoiceSeller {
     @Enumerated(EnumType.STRING)
     @Column(name = "seller_logo_size", length = 10)
     private LogoSize logoSize;
+
+    /** The layout of the document, kept at issue; null for the simple one. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seller_theme", length = 10)
+    private DocumentTheme theme;
 
     /** The letterhead the document is drawn over ({@link DocumentLetterhead}), kept at issue; null for none. */
     @Column(name = "seller_letterhead_id")

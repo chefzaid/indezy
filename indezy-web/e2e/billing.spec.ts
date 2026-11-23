@@ -55,6 +55,8 @@ for (const width of [1280, 390]) {
     await card.locator('[data-billing-font-file]').setInputFiles([{ name: 'MaPolice-Regular.ttf', mimeType: 'font/ttf', buffer: Buffer.from('ttf') },
       { name: 'MaPolice-Bold.ttf', mimeType: 'font/ttf', buffer: Buffer.from('ttf') }]);
     await expect(card.locator('[data-billing-font]')).toContainText('Ma Police (my font)');
+    await card.locator('[data-billing-theme]').click();
+    await page.getByRole('option', { name: 'Modern' }).click();
     await card.locator('[data-billing-footer]').fill('alice.dev · 06 12 34 56 78');
     await card.locator('[data-billing-quote-terms]').fill('Article 1 — Objet');
     await card.locator('[data-billing-accent]').evaluate((input: HTMLInputElement) => {
@@ -67,7 +69,7 @@ for (const width of [1280, 390]) {
     await expect(card.locator('[data-billing-status]')).toContainText('Ready to issue invoices');
     expect(saved).toEqual([expect.objectContaining({ legalForm: 'MICRO_ENTREPRISE', siret: '55210055400012',
       iban: 'FR7630006000011234567890189', vatExempt: true, quoteTerms: 'Article 1 — Objet', accentColor: '#1F4E79',
-      footer: 'alice.dev · 06 12 34 56 78', font: 'CUSTOM' })]);
+      footer: 'alice.dev · 06 12 34 56 78', font: 'CUSTOM', theme: 'MODERN' })]);
     const audit = await new AxeBuilder({ page }).include('[data-billing]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

@@ -54,6 +54,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     accentColor: [''],
     header: ['', Validators.maxLength(150)],
     font: ['SANS' as 'SANS' | 'SERIF' | 'CUSTOM'],
+    theme: ['SIMPLE' as 'SIMPLE' | 'MODERN' | 'CLASSIC'],
     footer: ['', Validators.maxLength(200)],
     logoPlacement: ['LEFT' as 'LEFT' | 'CENTER' | 'RIGHT'],
     logoSize: ['MEDIUM' as 'SMALL' | 'MEDIUM' | 'LARGE'],
@@ -80,6 +81,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   fontFamily: string | null = null;
   uploadingFont = false;
   letterheadId: number | null = null;
+  readonly themes = ['SIMPLE', 'MODERN', 'CLASSIC'] as const;
 
   ngOnDestroy(): void {
     this.revokeLogo();
@@ -311,6 +313,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       accentColor: value.accentColor || null,
       header: value.header?.trim() || null,
       font: value.font ?? 'SANS',
+      theme: value.theme ?? 'SIMPLE',
       footer: value.footer?.trim() || null,
       logoPlacement: value.logoPlacement ?? 'LEFT',
       logoSize: value.logoSize ?? 'MEDIUM',
@@ -346,6 +349,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       accentColor: identity.accentColor ?? '',
       header: identity.header ?? '',
       font: identity.font ?? 'SANS',
+      theme: identity.theme ?? 'SIMPLE',
       footer: identity.footer ?? '',
       logoPlacement: identity.logoPlacement ?? 'LEFT',
       logoSize: identity.logoSize ?? 'MEDIUM',

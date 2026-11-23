@@ -197,6 +197,36 @@ final class PdfPageWriter implements Closeable {
         stampFooters();
     }
 
+    /** Whether a thin rule is drawn above the footer of every page. */
+    private boolean footerRule;
+
+    void footerRule(boolean drawn) {
+        this.footerRule = drawn;
+    }
+
+    /** The page's height and full width, for what is drawn edge to edge. */
+    float pageHeight() {
+        return pageSize.getHeight();
+    }
+
+    float pageWidth() {
+        return pageSize.getWidth();
+    }
+
+    /** A rectangle filled with the #RRGGBB colour, the colour back to black after it. */
+    void fill(float x, float y, float boxWidth, float height, String hex) throws IOException {
+        color(hex);
+        content.addRect(x, y, boxWidth, height);
+        content.fill();
+        color(null);
+    }
+
+    /** Draws what follows in white, as on a filled band. */
+    void white() throws IOException {
+        content.setNonStrokingColor(1f, 1f, 1f);
+        content.setStrokingColor(1f, 1f, 1f);
+    }
+
     /** Writes this text at the foot of every page, small, beside the page numbers. */
     void footer(String text) {
         this.footer = text == null || text.isBlank() ? null : text.strip().replaceAll("\\s+", " ");
@@ -205,7 +235,7 @@ final class PdfPageWriter implements Closeable {
     /** The footer text on the left and, on a document of several pages, "1/2" on the right, under the bottom margin. */
     private void stampFooters() throws IOException {
         int pages = document.getNumberOfPages();
-        if (footer == null && pages < 2) {
+        if (footer == null && pages < 2 && !footerRule) {
             return;
         }
         float size = 7.5f;
@@ -214,6 +244,13 @@ final class PdfPageWriter implements Closeable {
             try (PDPageContentStream stamp = new PDPageContentStream(document, document.getPage(index),
                 PDPageContentStream.AppendMode.APPEND, true, true)) {
                 stamp.setNonStrokingColor(0.35f, 0.35f, 0.35f);
+                if (footerRule) {
+                    stamp.setStrokingColor(0.35f, 0.35f, 0.35f);
+                    stamp.setLineWidth(0.4f);
+                    stamp.moveTo(MARGIN, baseline + size + 4);
+                    stamp.lineTo(pageSize.getWidth() - MARGIN, baseline + size + 4);
+                    stamp.stroke();
+                }
                 if (footer != null) {
                     writeAt(stamp, MARGIN, baseline, ellipsize(footer, false, size, pageSize.getWidth() - 2 * MARGIN - 40), size);
                 }

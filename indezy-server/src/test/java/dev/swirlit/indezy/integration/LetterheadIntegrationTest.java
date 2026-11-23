@@ -76,6 +76,7 @@ class LetterheadIntegrationTest extends TwoAccountsIntegrationTest {
         identity.putAll(Map.of("legalName", "Alice Martin", "legalForm", "MICRO_ENTREPRISE", "siret", "55210055400012", "address",
             "18 rue du Sentier\n75002 Paris", "iban", "FR7630006000011234567890189", "vatExempt", true, "header", "Conseil Java",
             "footer", "alice.dev", "accentColor", "#1F4E79", "font", "SERIF"));
+        identity.put("theme", "CLASSIC");
         assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getStatusCode()).isEqualTo(HttpStatus.OK);
         Map<String, Object> client = new HashMap<>(call(alice, HttpMethod.GET, "/clients/" + aliceClientId, null, Map.class).getBody());
         client.put("address", "1 place de la Bourse");
@@ -87,8 +88,8 @@ class LetterheadIntegrationTest extends TwoAccountsIntegrationTest {
 
         // Every style setting changed or removed afterwards.
         call(alice, HttpMethod.DELETE, "/users/billing/letterhead", null, Map.class);
-        identity.putAll(Map.of("header", "Autre accroche", "footer", "autre.dev", "accentColor", "#7A1F1F", "font", "SANS"));
-        call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class);
+        identity.putAll(Map.of("header", "Autre accroche", "footer", "autre.dev", "accentColor", "#7A1F1F", "font", "SANS", "theme", "MODERN"));
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("theme", "MODERN");
 
         byte[] again = call(alice, HttpMethod.GET, "/invoices/" + invoice + "/pdf", null, byte[].class).getBody();
         assertThat(text(again)).contains("Papier de novembre", "Conseil Java", "alice.dev").doesNotContain("Autre accroche", "autre.dev");

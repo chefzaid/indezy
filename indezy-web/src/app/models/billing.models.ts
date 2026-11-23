@@ -47,6 +47,8 @@ export interface BillingIdentity {
   quoteTermsFileId?: number | null;
   /** The documents' font: a bundled open-licence one, or the uploaded one (CUSTOM). */
   font?: 'SANS' | 'SERIF' | 'CUSTOM';
+  /** The layout of the documents: simple, modern (a coloured band) or classic (serif, rules and frames). */
+  theme?: 'SIMPLE' | 'MODERN' | 'CLASSIC';
   /** Read-only: the uploaded font and its family; null for none. Set with its own upload. */
   fontFileId?: number | null;
   /** Read-only: the letterhead PDF the documents are drawn over; null for none. Set with its own upload. */

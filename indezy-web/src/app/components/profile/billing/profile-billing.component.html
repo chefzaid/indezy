@@ -134,6 +134,15 @@
         }
       </div>
       <mat-form-field appearance="outline" class="font">
+        <mat-label>{{ 'profile.billing.theme' | translate }}</mat-label>
+        <mat-select formControlName="theme" data-billing-theme>
+          @for (theme of themes; track theme) {
+            <mat-option [value]="theme">{{ 'profile.billing.themes.' + theme | translate }}</mat-option>
+          }
+        </mat-select>
+        <mat-hint>{{ 'profile.billing.themes.hint_' + (form.value.theme || 'SIMPLE') | translate }}</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="font">
         <mat-label>{{ 'profile.billing.font' | translate }}</mat-label>
         <mat-select formControlName="font" data-billing-font>
           <mat-option value="SANS">{{ 'profile.billing.fonts.SANS' | translate }}</mat-option>

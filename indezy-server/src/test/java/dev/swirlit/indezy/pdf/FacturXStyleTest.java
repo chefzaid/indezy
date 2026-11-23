@@ -111,7 +111,10 @@ class FacturXStyleTest {
         InvoiceBuyer buyer = new InvoiceBuyer();
         buyer.setName("Société Générale");
         for (DocumentFont font : DocumentFont.values()) {
-            try (PDDocument document = Loader.loadPDF(renderer.render(invoice(), seller(font), buyer))) {
+          for (dev.swirlit.indezy.model.enums.DocumentTheme theme : dev.swirlit.indezy.model.enums.DocumentTheme.values()) {
+            InvoiceSeller seller = seller(font);
+            seller.setTheme(theme);
+            try (PDDocument document = Loader.loadPDF(renderer.render(invoice(), seller, buyer))) {
                 assertThat(document.getNumberOfPages()).as(font.name()).isGreaterThan(1);
                 assertThat(document.isEncrypted()).isFalse();
                 for (PDPage page : document.getPages()) {
@@ -129,6 +132,7 @@ class FacturXStyleTest {
                 // Written from the invoice's data: its number and seller, none of the style.
                 assertThat(xml).contains("F2026-0007", "Martin Conseil").doesNotContain("Conseil Java et Kafka", "alice.dev");
             }
+          }
         }
     }
 }

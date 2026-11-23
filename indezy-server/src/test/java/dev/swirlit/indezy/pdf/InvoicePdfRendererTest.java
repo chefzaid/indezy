@@ -95,4 +95,27 @@ class InvoicePdfRendererTest {
         assertThat(text).contains("BROUILLON — ce document n'est pas une facture", "Martin Conseil EI", "TVA non applicable, art. 293 B du CGI",
             "Net à payer").doesNotContain("N° F", "Date d'émission", "Total TTC", "FR40552100554");
     }
+
+    @Test
+    void laysTheInvoiceOutInEachTheme() throws IOException {
+        InvoiceSeller seller = company();
+        seller.setTheme(dev.swirlit.indezy.model.enums.DocumentTheme.MODERN);
+        byte[] modern = renderer.render(invoice(InvoiceStatus.ISSUED), seller, buyer());
+        try (PDDocument document = Loader.loadPDF(modern)) {
+            String content = new String(document.getPage(0).getContents().readAllBytes(), java.nio.charset.StandardCharsets.ISO_8859_1);
+            // The band in a dark slate without an accent colour, the title written in white on it.
+            assertThat(content).contains("0.12157 0.16078 0.21569 rg", "1 1 1 rg");
+        }
+        assertThat(text(modern)).contains("Facture", "N° F2026-0007", "Total TTC");
+        seller.setTheme(dev.swirlit.indezy.model.enums.DocumentTheme.CLASSIC);
+        try (PDDocument document = Loader.loadPDF(renderer.render(invoice(InvoiceStatus.ISSUED), seller, buyer()))) {
+            org.apache.pdfbox.pdmodel.PDResources resources = document.getPage(0).getResources();
+            java.util.List<String> fonts = new java.util.ArrayList<>();
+            for (org.apache.pdfbox.cos.COSName name : resources.getFontNames()) {
+                fonts.add(resources.getFont(name).getName());
+            }
+            // Serif without being asked, the sans-serif one left to the simple and modern themes.
+            assertThat(fonts).allMatch(name -> name.contains("LiberationSerif"));
+        }
+    }
 }

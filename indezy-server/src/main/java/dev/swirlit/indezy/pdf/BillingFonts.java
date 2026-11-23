@@ -34,15 +34,20 @@ final class BillingFonts {
                 return new Faces(file.get().getRegular(), file.get().getBold() != null ? file.get().getBold() : file.get().getRegular());
             }
         }
-        return seller.getFont() == DocumentFont.SERIF ? new Faces(serif, serifBold) : new Faces(sans, sansBold);
+        return serif(seller) ? new Faces(serif, serifBold) : new Faces(sans, sansBold);
+    }
+
+    /** Serif when chosen, and for the classic theme unless an uploaded font is. */
+    private static boolean serif(InvoiceSeller seller) {
+        return seller.getFont() == DocumentFont.SERIF || seller.getTheme() == dev.swirlit.indezy.model.enums.DocumentTheme.CLASSIC &&
+            (seller.getFont() == null || seller.getFont() == DocumentFont.SANS || seller.getFontFileId() == null);
     }
 
     /** The family the Word copy names. */
     static String family(InvoiceSeller seller) {
-        return switch (seller.getFont() == null ? DocumentFont.SANS : seller.getFont()) {
-            case SERIF -> "Liberation Serif";
-            case CUSTOM -> seller.getFontFamily() != null ? seller.getFontFamily() : "Liberation Sans";
-            case SANS -> "Liberation Sans";
-        };
+        if (seller.getFont() == DocumentFont.CUSTOM && seller.getFontFamily() != null && seller.getFontFileId() != null) {
+            return seller.getFontFamily();
+        }
+        return serif(seller) ? "Liberation Serif" : "Liberation Sans";
     }
 }

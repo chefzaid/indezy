@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.enums.DocumentFont;
+import dev.swirlit.indezy.model.enums.DocumentTheme;
 import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
@@ -43,6 +44,8 @@ public record BillingIdentityDto(
     LogoSize logoSize,
     @Size(max = 150) String header,
     DocumentFont font,
+    /** The layout of the documents: simple, modern or classic. */
+    DocumentTheme theme,
     /** The uploaded font and its family, set by its own upload, never by this form. */
     Long fontFileId,
     String fontFamily,

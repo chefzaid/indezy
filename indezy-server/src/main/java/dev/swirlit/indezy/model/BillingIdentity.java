@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.DocumentFont;
+import dev.swirlit.indezy.model.enums.DocumentTheme;
 import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
@@ -100,6 +101,11 @@ public class BillingIdentity {
     /** The logo printed on the documents ({@link DocumentLogo}); null for none. */
     @Column(name = "billing_logo_id")
     private Long logoId;
+
+    /** The layout of the documents; null for the simple one. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "billing_theme", length = 10)
+    private DocumentTheme theme;
 
     /** The letterhead PDF the documents are drawn over ({@link DocumentLetterhead}); null for none. */
     @Column(name = "billing_letterhead_id")

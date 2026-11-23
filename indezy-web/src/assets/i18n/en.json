@@ -1450,6 +1450,15 @@
       "letterheadSize": "A letterhead is an upright A4 page.",
       "letterheadFonts": "This PDF uses fonts it does not embed: export it again with its fonts embedded.",
       "letterheadPages": "A letterhead has one or two pages.",
+      "theme": "Layout",
+      "themes": {
+        "SIMPLE": "Simple",
+        "MODERN": "Modern",
+        "CLASSIC": "Classic",
+        "hint_SIMPLE": "Black on white, the logo above your name.",
+        "hint_MODERN": "A band of your accent colour across the top with the title in white; the table header and the amount to pay filled with it.",
+        "hint_CLASSIC": "A serif font, the logo centred, thin rules, shaded rows and your bank details framed."
+      },
       "fonts": {
         "SANS": "Sans-serif (Liberation Sans)",
         "SERIF": "Serif (Liberation Serif)",

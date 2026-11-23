@@ -4,9 +4,11 @@ import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DocumentTheme;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
 import dev.swirlit.indezy.service.InvoiceTotals;
+import dev.swirlit.indezy.util.BillingText;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -38,6 +40,12 @@ abstract class BillingPage {
     private final Locale locale;
     /** The seller's logo, printed above it; null for none. */
     private byte[] logo;
+    /** Whether the logo is already drawn, in a modern band. */
+    private boolean logoDrawn;
+    /** A modern band's height, and its logo's. */
+    private static final float BAND = 72;
+    private static final float BAND_LOGO = 44;
+    private static final String MODERN_DEFAULT = "#1F2937";
 
     BillingPage(PdfPageWriter writer, InvoiceSeller seller, InvoiceBuyer buyer, DocumentLanguage language) {
         this.writer = writer;
@@ -128,12 +136,45 @@ abstract class BillingPage {
         return rows;
     }
 
+    /** The layout the seller chose; simple when none. */
+    DocumentTheme theme() {
+        return seller.getTheme() == null ? DocumentTheme.SIMPLE : seller.getTheme();
+    }
+
+    /** The colour of a modern band and of what it fills: the accent, or a dark slate without one. */
+    private String bandColor() {
+        return accent() != null ? accent() : MODERN_DEFAULT;
+    }
+
     /** Lays the document out on the PDF's pages. */
     void write() throws IOException {
-        header(() -> headingBlock(heading(), headingLines(), draftMark()), buyerLabel());
+        if (theme() == DocumentTheme.MODERN) {
+            band();
+            header(() -> headingBlock(null, headingLines(), draftMark()), buyerLabel());
+        } else {
+            writer.footerRule(theme() == DocumentTheme.CLASSIC);
+            header(() -> headingBlock(heading(), headingLines(), draftMark()), buyerLabel());
+        }
+        if (theme() == DocumentTheme.CLASSIC) {
+            writer.line(writer.left(), writer.cursor() + 4, writer.right(), writer.cursor() + 4);
+        }
         lines(documentLines());
         totals();
         mentions(documentMentions(), notes());
+    }
+
+    /** A modern document's band across the top: the logo on its left and the title in white on its right. */
+    private void band() throws IOException {
+        float top = writer.pageHeight();
+        writer.fill(0, top - BAND, writer.pageWidth(), BAND, bandColor());
+        if (logo != null) {
+            writer.image(logo, writer.left(), top - (BAND - BAND_LOGO) / 2, BAND_LOGO * 3, BAND_LOGO);
+        }
+        writer.white();
+        writer.textRight(writer.right(), top - BAND / 2 - TITLE / 3, heading(), true, TITLE);
+        writer.color(null);
+        writer.moveDown(writer.cursor() - (top - BAND - LINE));
+        logoDrawn = true;
     }
 
     void sellerBlock() throws IOException {
@@ -163,13 +204,15 @@ abstract class BillingPage {
         return lines;
     }
 
-    /** The document's title, right-aligned, then its lines below it. */
+    /** The document's title, right-aligned, then its lines below it; without a title (in a modern band), its lines only. */
     void headingBlock(String heading, List<String> lines, String draftMark) throws IOException {
         float right = writer.right();
-        writer.moveDown(TITLE);
-        writer.color(accent());
-        writer.textRight(right, writer.cursor(), heading, true, TITLE);
-        writer.color(null);
+        if (heading != null) {
+            writer.moveDown(TITLE);
+            writer.color(accent());
+            writer.textRight(right, writer.cursor(), heading, true, TITLE);
+            writer.color(null);
+        }
         for (String line : lines) {
             writer.moveDown(LINE);
             writer.textRight(right, writer.cursor(), line, false, BODY);
@@ -200,9 +243,10 @@ abstract class BillingPage {
     /** The seller beside the document's heading, then the client below both. */
     void header(HeadingWriter heading, String buyerLabel) throws IOException {
         float top = writer.cursor();
-        if (logo != null) {
+        if (logo != null && !logoDrawn) {
             LogoSize size = seller.getLogoSize() == null ? LogoSize.MEDIUM : seller.getLogoSize();
-            LogoPlacement placement = seller.getLogoPlacement() == null ? LogoPlacement.LEFT : seller.getLogoPlacement();
+            LogoPlacement placement = theme() == DocumentTheme.CLASSIC ? LogoPlacement.CENTER :
+                seller.getLogoPlacement() == null ? LogoPlacement.LEFT : seller.getLogoPlacement();
             float x = switch (placement) {
                 case LEFT -> writer.left();
                 case CENTER -> writer.left() + (writer.width() - writer.imageWidth(logo, size.width(), size.height())) / 2;
@@ -228,14 +272,25 @@ abstract class BillingPage {
     void lines(List<InvoiceLine> lines) throws IOException {
         float[] columns = {0, 0.56f, 0.66f, 0.8f, 0.88f};
         writer.moveDown(ROW);
-        writer.color(accent());
-        row(columns, columnHeadings(), true);
-        writer.line(writer.left(), writer.cursor() - 5, writer.right(), writer.cursor() - 5);
+        if (theme() == DocumentTheme.MODERN) {
+            writer.fill(writer.left() - 4, writer.cursor() - 6, writer.width() + 8, ROW, bandColor());
+            writer.white();
+            row(columns, columnHeadings(), true);
+        } else {
+            writer.color(accent());
+            row(columns, columnHeadings(), true);
+            writer.line(writer.left(), writer.cursor() - 5, writer.right(), writer.cursor() - 5);
+        }
         writer.color(null);
+        int index = 0;
         for (InvoiceLine line : lines) {
             List<String> description = writer.wrap(line.getDescription(), false, BODY, writer.width() * (columns[1] - 0.02f));
             writer.ensureSpace(ROW + LINE * (description.size() - 1));
             writer.moveDown(ROW);
+            if (theme() == DocumentTheme.CLASSIC && index++ % 2 != 0) {
+                writer.shade(writer.left() - 4, writer.cursor() - 5 - LINE * (description.size() - 1), writer.width() + 8,
+                    ROW + LINE * (description.size() - 1) - 1);
+            }
             String[] cells = cells(line);
             cells[0] = description.getFirst();
             row(columns, cells, false);
@@ -261,7 +316,15 @@ abstract class BillingPage {
         float labelX = writer.left() + writer.width() * 0.6f;
         List<String[]> rows = totalRows();
         for (int index = 0; index < rows.size(); index++) {
-            total(labelX, rows.get(index)[0], rows.get(index)[1], index == rows.size() - 1);
+            boolean last = index == rows.size() - 1;
+            if (last && theme() == DocumentTheme.MODERN) {
+                writer.fill(labelX - 8, writer.cursor() - ROW - 6, writer.right() - labelX + 12, ROW + 4, bandColor());
+                writer.white();
+                total(labelX, rows.get(index)[0], rows.get(index)[1], true);
+                writer.color(null);
+            } else {
+                total(labelX, rows.get(index)[0], rows.get(index)[1], last);
+            }
         }
     }
 
@@ -272,9 +335,19 @@ abstract class BillingPage {
     /** The mentions in small letters, then the notes. */
     void mentions(List<String> mentions, String notes) throws IOException {
         writer.moveDown(LINE * 2);
+        String bank = seller.getIban() == null ? null : BillingText.groupIban(seller.getIban());
         for (String mention : mentions) {
             writer.ensureSpace(LINE * 2);
+            float before = writer.cursor();
+            boolean framed = theme() == DocumentTheme.CLASSIC && bank != null && mention.contains(bank);
+            if (framed) {
+                writer.moveDown(4);
+            }
             writer.paragraph(mention, false, SMALL, writer.width());
+            if (framed) {
+                writer.box(writer.left() - 4, writer.cursor() - 4, writer.width() + 8, before - writer.cursor() + 2);
+                writer.moveDown(4);
+            }
             writer.moveDown(3);
         }
         if (notes != null) {
