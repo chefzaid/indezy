@@ -23,7 +23,7 @@ Filters stay in the page's address, so you can bookmark a view. An offer that st
 
 ## Profile match
 
-Once your profile names skills, every offer gets a score out of 100: skills (60 points), rate against your target daily rate (25), place (15) and start date against your availability (10). The badge is green from 60 and amber from 35; hover it to see why. **Matches my profile** keeps offers scoring 60 or more.
+Once your profile names skills, every offer gets a score out of 100: skills (60 points), rate against your target daily rate (25), place (15) and start date against your availability (10). The badge is green from 60 and amber from 35; hover it to see why. **Matches my profile** keeps offers scoring 60 or more. In your profile, **What counts in the match score** makes a part count double, or not at all (the skills always count).
 
 > **Tip:** a profile without a city, target rate or availability date is scored on the other parts. Complete it from [Getting started](/help/getting-started) for fairer scores.
 

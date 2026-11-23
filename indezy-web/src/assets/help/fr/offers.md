@@ -23,7 +23,7 @@ Les filtres restent dans l'adresse de la page : vous pouvez la mettre en favori.
 
 ## La correspondance avec votre profil
 
-Dès que votre profil nomme des compétences, chaque offre reçoit un score sur 100 : compétences (60 points), TJM par rapport à votre TJM cible (25), lieu (15) et date de démarrage par rapport à votre disponibilité (10). Le badge est vert à partir de 60 et orange à partir de 35 ; survolez-le pour voir le détail. **Correspond à mon profil** garde les offres à 60 ou plus.
+Dès que votre profil nomme des compétences, chaque offre reçoit un score sur 100 : compétences (60 points), TJM par rapport à votre TJM cible (25), lieu (15) et date de démarrage par rapport à votre disponibilité (10). Le badge est vert à partir de 60 et orange à partir de 35 ; survolez-le pour voir le détail. **Correspond à mon profil** garde les offres à 60 ou plus. Dans votre profil, **Ce qui compte dans le score** fait compter une partie double, ou pas du tout (les compétences comptent toujours).
 
 > **Astuce :** un profil sans ville, TJM cible ou date de disponibilité est noté sur le reste. Complétez-le depuis [Prise en main](/help/getting-started) pour des scores plus justes.
 

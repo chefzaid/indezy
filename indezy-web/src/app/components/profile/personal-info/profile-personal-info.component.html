@@ -177,6 +177,23 @@
           <mat-error>{{ 'profile.maxCommuteError' | translate }}</mat-error>
         </mat-form-field>
 
+        <fieldset class="match-weights full-width" data-match-weights>
+          <legend>{{ 'profile.matchWeights.title' | translate }}</legend>
+          <p class="hint">{{ 'profile.matchWeights.hint' | translate }}</p>
+          @for (part of matchParts; track part.control) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>{{ 'profile.matchWeights.' + part.label | translate }}</mat-label>
+              <mat-select [formControlName]="part.control" [attr.data-match-weight]="part.label">
+                @if (part.optional) {
+                  <mat-option [value]="0">{{ 'profile.matchWeights.none' | translate }}</mat-option>
+                }
+                <mat-option [value]="1">{{ 'profile.matchWeights.usual' | translate }}</mat-option>
+                <mat-option [value]="2">{{ 'profile.matchWeights.double' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          }
+        </fieldset>
+
         <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>{{ 'profile.kmRate' | translate }}</mat-label>
           <input matInput type="number" min="0" max="5" step="0.01" formControlName="kmRate" data-km-rate>

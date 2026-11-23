@@ -88,9 +88,15 @@ test('sets the longest drive and public transport trip in the profile', async ({
   await expect(save).toBeDisabled();
   await page.locator('[data-km-rate]').fill('0.6');
   await page.locator('[data-transit-pass]').fill('88.8');
+  // The rate counting double in the match score, the start date not at all.
+  await page.locator('[data-match-weight="rate"]').click();
+  await page.getByRole('option', { name: 'Counts double' }).click();
+  await page.locator('[data-match-weight="start"]').click();
+  await page.getByRole('option', { name: "Doesn't count" }).click();
   await save.click();
   await expect.poll(() => [profile['maxDriveMinutes'], profile['maxTransitMinutes'], profile['kmRate'], profile['transitPassMonthly']])
     .toEqual([45, 60, 0.6, 88.8]);
+  expect([profile['matchWeightSkills'], profile['matchWeightRate'], profile['matchWeightPlace'], profile['matchWeightStart']]).toEqual([1, 2, 1, 0]);
 });
 
 test('sums the pipeline commute up on the dashboard', async ({ page }) => {

@@ -69,7 +69,7 @@ public final class OfferMatch {
      * {@code today} says), each optional.
      */
     public record Profile(List<String> skills, Integer targetRate, Origin origin, LocalDate availableFrom, LocalDate today,
-                          Set<String> recordedTerms, double nearKm, double reachableKm) {
+                          Set<String> recordedTerms, double nearKm, double reachableKm, Weights weights) {
 
         public static final Profile NONE = new Profile(List.of(), null, null);
 
@@ -78,12 +78,12 @@ public final class OfferMatch {
         }
 
         public Profile(List<String> skills, Integer targetRate, Origin origin, LocalDate availableFrom, LocalDate today) {
-            this(skills, targetRate, origin, availableFrom, today, Set.of(), NEAR_KM, REACHABLE_KM);
+            this(skills, targetRate, origin, availableFrom, today, Set.of(), NEAR_KM, REACHABLE_KM, Weights.USUAL);
         }
 
         /** The same profile, the given terms' mentions being recorded ({@code OfferMentionIndexer}). */
         public Profile recording(Set<String> terms) {
-            return new Profile(skills, targetRate, origin, availableFrom, today, terms, nearKm, reachableKm);
+            return new Profile(skills, targetRate, origin, availableFrom, today, terms, nearKm, reachableKm, weights);
         }
 
         /**
@@ -91,7 +91,12 @@ public final class OfferMatch {
          * profile's longest commute sets them, instead of {@value #NEAR_KM} and {@value #REACHABLE_KM}.
          */
         public Profile reaching(double near, double reachable) {
-            return new Profile(skills, targetRate, origin, availableFrom, today, recordedTerms, near, reachable);
+            return new Profile(skills, targetRate, origin, availableFrom, today, recordedTerms, near, reachable, weights);
+        }
+
+        /** The same profile, its parts counting as {@code given} says. */
+        public Profile weighing(Weights given) {
+            return new Profile(skills, targetRate, origin, availableFrom, today, recordedTerms, nearKm, reachableKm, given);
         }
 
         /** The terms a profile's skills are matched by: every spelling of each. */
@@ -112,6 +117,7 @@ public final class OfferMatch {
             recordedTerms = recordedTerms == null ? Set.of() : Set.copyOf(recordedTerms);
             nearKm = nearKm > 0 ? nearKm : NEAR_KM;
             reachableKm = Math.max(reachableKm, nearKm);
+            weights = weights == null ? Weights.USUAL : weights;
             targetRate = targetRate != null && targetRate > 0 ? targetRate : null;
             if (availableFrom == null || today == null) {
                 availableFrom = null;
@@ -132,13 +138,34 @@ public final class OfferMatch {
 
         /** The points the profile can earn. */
         int available() {
-            return SKILL_POINTS + (targetRate == null ? 0 : RATE_POINTS) + (origin == null ? 0 : PLACE_POINTS) +
-                (availableFrom == null ? 0 : AVAILABILITY_POINTS);
+            return SKILL_POINTS * weights.skills() + (targetRate == null ? 0 : RATE_POINTS * weights.rate()) +
+                (origin == null ? 0 : PLACE_POINTS * weights.place()) + (availableFrom == null ? 0 : AVAILABILITY_POINTS * weights.start());
         }
 
         /** Full skill points from this many skills mentioned. */
         int skillsForFull() {
             return Math.min(SKILLS_FOR_FULL, skills.size());
+        }
+    }
+
+    /**
+     * How much each part of the score counts, as the profile sets it: 0 not at all, 1 as usual, 2 double; the skills
+     * count once or twice, never not at all, as they decide whether an offer is scored.
+     */
+    public record Weights(int skills, int rate, int place, int start) {
+
+        public static final Weights USUAL = new Weights(1, 1, 1, 1);
+
+        public Weights {
+            skills = Math.clamp(skills, 1, 2);
+            rate = Math.clamp(rate, 0, 2);
+            place = Math.clamp(place, 0, 2);
+            start = Math.clamp(start, 0, 2);
+        }
+
+        /** The weights a profile stores, null standing for as usual. */
+        public static Weights of(Integer skills, Integer rate, Integer place, Integer start) {
+            return new Weights(skills == null ? 1 : skills, rate == null ? 1 : rate, place == null ? 1 : place, start == null ? 1 : start);
         }
     }
 
@@ -160,9 +187,10 @@ public final class OfferMatch {
         RateFit rate = profile.targetRate() == null ? null : rateFit(offer, profile.targetRate());
         PlaceFit place = profile.origin() == null ? null : placeFit(offer, profile.origin(), profile.nearKm(), profile.reachableKm());
         AvailabilityFit availability = profile.availableFrom() == null ? null : availabilityFit(offer, profile);
-        int points = Math.min(mentioned.size(), profile.skillsForFull()) * (SKILL_POINTS / profile.skillsForFull()) +
-            (rate == null ? 0 : RATE.get(rate)) + (place == null ? 0 : PLACE.get(place)) +
-            (availability == null ? 0 : AVAILABILITY.get(availability));
+        Weights weights = profile.weights();
+        int points = Math.min(mentioned.size(), profile.skillsForFull()) * (SKILL_POINTS / profile.skillsForFull()) * weights.skills() +
+            (rate == null ? 0 : RATE.get(rate) * weights.rate()) + (place == null ? 0 : PLACE.get(place) * weights.place()) +
+            (availability == null ? 0 : AVAILABILITY.get(availability) * weights.start());
         return new OfferMatchDto((int) Math.round(100.0 * points / profile.available()), mentioned, rate, place, availability);
     }
 
@@ -242,15 +270,16 @@ public final class OfferMatch {
         }
         int full = profile.skillsForFull();
         // least() names the skills once: each mention is a subquery the database would otherwise run twice.
-        Expression<Integer> points = cb.prod(cb.function("least", Integer.class, mentioned, cb.literal(full)), SKILL_POINTS / full);
-        if (profile.targetRate() != null) {
-            points = cb.sum(points, ratePoints(profile.targetRate(), root, cb));
+        Weights weights = profile.weights();
+        Expression<Integer> points = cb.prod(cb.function("least", Integer.class, mentioned, cb.literal(full)), SKILL_POINTS / full * weights.skills());
+        if (profile.targetRate() != null && weights.rate() > 0) {
+            points = cb.sum(points, cb.prod(ratePoints(profile.targetRate(), root, cb), weights.rate()));
         }
-        if (profile.origin() != null) {
-            points = cb.sum(points, placePoints(profile, root, cb));
+        if (profile.origin() != null && weights.place() > 0) {
+            points = cb.sum(points, cb.prod(placePoints(profile, root, cb), weights.place()));
         }
-        if (profile.availableFrom() != null) {
-            points = cb.sum(points, availabilityPoints(profile, root, cb));
+        if (profile.availableFrom() != null && weights.start() > 0) {
+            points = cb.sum(points, cb.prod(availabilityPoints(profile, root, cb), weights.start()));
         }
         return points;
     }

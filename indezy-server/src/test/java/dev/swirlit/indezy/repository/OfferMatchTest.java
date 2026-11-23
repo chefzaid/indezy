@@ -57,6 +57,21 @@ class OfferMatchTest {
     }
 
     @Test
+    void weighsEachPartAsTheProfileSays() {
+        JobOffer threeSkills = offer(o -> o.setSearchText("java spring boot kafka"));
+        // Skills counting double, the rate and the place not at all: 120 of 120.
+        assertThat(OfferMatch.score(threeSkills, threeSkills.getSkills(), JAVA_DEV.weighing(new OfferMatch.Weights(2, 0, 0, 1))).score())
+            .isEqualTo(100);
+        // The rate counting double, not stated (10 × 2), the place not at all: 80 of 110.
+        assertThat(OfferMatch.score(threeSkills, threeSkills.getSkills(), JAVA_DEV.weighing(new OfferMatch.Weights(1, 2, 0, 1))).score())
+            .isEqualTo(73);
+        // Out of range, the weights are brought back: skills count at least once.
+        assertThat(new OfferMatch.Weights(0, 5, -1, 3)).isEqualTo(new OfferMatch.Weights(1, 2, 0, 2));
+        assertThat(OfferMatch.Weights.of(null, 0, null, 2)).isEqualTo(new OfferMatch.Weights(1, 0, 1, 2));
+        assertThat(JAVA_DEV.weights()).isEqualTo(OfferMatch.Weights.USUAL);
+    }
+
+    @Test
     void comparesTheBestRateTheOfferPaysWithTheTarget() {
         assertThat(OfferMatch.rateFit(offer(o -> o.setRateMax(650)), 600)).isEqualTo(RateFit.MEETS);
         assertThat(OfferMatch.rateFit(offer(o -> o.setRateMin(600)), 600)).isEqualTo(RateFit.MEETS);

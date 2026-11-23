@@ -110,6 +110,19 @@ public class User extends BaseEntity {
     @Column(name = "max_transit_minutes")
     private Integer maxTransitMinutes;
 
+    /** How much each part of the offers' match score counts: 0 not at all, 1 as usual (null), 2 double; skills 1 or 2. */
+    @Column(name = "match_weight_skills")
+    private Integer matchWeightSkills;
+
+    @Column(name = "match_weight_rate")
+    private Integer matchWeightRate;
+
+    @Column(name = "match_weight_place")
+    private Integer matchWeightPlace;
+
+    @Column(name = "match_weight_start")
+    private Integer matchWeightStart;
+
     /** What a kilometre driven to a mission costs, in euros: the effective daily rate takes it off. */
     @Column(name = "km_rate", precision = 4, scale = 2)
     private BigDecimal kmRate;

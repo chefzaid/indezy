@@ -44,6 +44,14 @@ import { PROFILE_LANGUAGES } from '../profile-languages';
     styleUrls: ['../profile.component.scss']
 })
 export class ProfilePersonalInfoComponent {
+  /** The parts of the offers' match score the profile weighs; the skills always count. */
+  readonly matchParts = [
+    { control: 'matchWeightSkills', label: 'skills', optional: false },
+    { control: 'matchWeightRate', label: 'rate', optional: true },
+    { control: 'matchWeightPlace', label: 'place', optional: true },
+    { control: 'matchWeightStart', label: 'start', optional: true }
+  ] as const;
+
   @Input({ required: true }) form!: FormGroup;
   @Input({ required: true }) userProfile!: UserProfile;
   @Input() isUpdating = false;

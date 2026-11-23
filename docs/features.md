@@ -1186,6 +1186,11 @@ Once the profile names skills, every offer is scored out of 100:
 A profile without a target rate, city or availability date is scored on the other parts. The badge is green from 60 and
 amber from 35, with a tooltip explaining it. **Matches my profile** keeps scores of 60 or more.
 
+**What counts in the match score** on the profile weighs each part (`matchWeightSkills`, `matchWeightRate`,
+`matchWeightPlace`, `matchWeightStart`): **Doesn't count** (0), **As usual** (1, the default) or **Counts double** (2),
+the skills once or twice, never not at all. A part's points and its maximum are both multiplied, so the score stays out
+of 100 (`OfferMatch.Weights`), alike on the cards and in the SQL that sorts by match and keeps **Matches my profile**.
+
 ### Rate Versus Market
 
 A card stating a rate shows how it compares with the median of the open offers naming the same first skill (one per

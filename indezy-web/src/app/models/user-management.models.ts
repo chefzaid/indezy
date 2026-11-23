@@ -35,6 +35,11 @@ export interface UserProfile {
   maxDriveMinutes?: number | null;
   /** The longest acceptable public transport trip, one way at rush hour, in minutes. */
   maxTransitMinutes?: number | null;
+  /** How much each part of the offers' match score counts: 0 not at all, 1 as usual, 2 double; skills 1 or 2. */
+  matchWeightSkills?: number | null;
+  matchWeightRate?: number | null;
+  matchWeightPlace?: number | null;
+  matchWeightStart?: number | null;
   /** What a kilometre driven costs, in euros. */
   kmRate?: number | null;
   /** The monthly public transport pass, in euros. */

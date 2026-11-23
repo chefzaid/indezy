@@ -75,6 +75,23 @@ public class UserDto {
     @JsonDeserialize(using = WholeNumberDeserializer.class)
     private Integer maxTransitMinutes;
 
+    /** How much each part of the offers' match score counts: 0 not at all, 1 as usual (or null), 2 double; skills 1 or 2. */
+    @Min(1)
+    @Max(2)
+    private Integer matchWeightSkills;
+
+    @Min(0)
+    @Max(2)
+    private Integer matchWeightRate;
+
+    @Min(0)
+    @Max(2)
+    private Integer matchWeightPlace;
+
+    @Min(0)
+    @Max(2)
+    private Integer matchWeightStart;
+
     /** What a kilometre driven costs, in euros. */
     @DecimalMin("0.00")
     @DecimalMax("5.00")

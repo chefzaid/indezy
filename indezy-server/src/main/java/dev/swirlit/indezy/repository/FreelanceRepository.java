@@ -44,6 +44,11 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     @Query("SELECT u.maxTransitMinutes FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<Integer> findMaxTransitMinutes(@Param("freelanceId") Long freelanceId);
 
+    /** How much the profile's skills, rate, place and start date count in the match score; nulls for as usual. */
+    @Query("SELECT u.matchWeightSkills, u.matchWeightRate, u.matchWeightPlace, u.matchWeightStart FROM User u, Freelance f " +
+        "WHERE f.id = :freelanceId AND u.email = f.email")
+    List<Object[]> findMatchWeights(@Param("freelanceId") Long freelanceId);
+
     @Query("SELECT u.billedDaysTarget FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<Integer> findBilledDaysTarget(@Param("freelanceId") Long freelanceId);
 

@@ -215,6 +215,8 @@ public class OfferSearchService {
             freelances.findTargetDailyRate(freelanceId).orElse(null), home.map(OfferSearchService::origin).orElse(null),
             freelances.findAvailabilityDate(freelanceId).orElse(null), LocalDate.now(clock.withZone(PARIS)));
         profile = withLongestCommute(profile, freelanceId, home.map(CommuteService::ileDeFrance).orElse(false));
+        profile = profile.weighing(freelances.findMatchWeights(freelanceId).stream().findFirst()
+            .map(row -> OfferMatch.Weights.of((Integer) row[0], (Integer) row[1], (Integer) row[2], (Integer) row[3])).orElse(OfferMatch.Weights.USUAL));
         return profile.canMatch() && mentions != null ? profile.recording(mentions.indexed(profile.terms())) : profile;
     }
 

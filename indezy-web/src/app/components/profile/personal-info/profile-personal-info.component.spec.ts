@@ -37,6 +37,10 @@ describe('ProfilePersonalInfoComponent', () => {
       billedDaysTarget: [null],
       maxDriveMinutes: [null],
       maxTransitMinutes: [null],
+      matchWeightSkills: [1],
+      matchWeightRate: [1],
+      matchWeightPlace: [1],
+      matchWeightStart: [1],
       kmRate: [null],
       transitPassMonthly: [null],
       availabilityDate: [null],
@@ -130,6 +134,14 @@ describe('ProfilePersonalInfoComponent', () => {
 
     element().querySelector<HTMLButtonElement>('.languages-section mat-chip button')!.click();
     expect(form.value.languages).toEqual([]);
+  });
+
+  it('weighs the parts of the match score, the skills always counting', () => {
+    const weights = element().querySelector('[data-match-weights]')!;
+    expect(weights.querySelectorAll('mat-select').length).toBe(4);
+    expect(component.matchParts.filter(part => part.optional).map(part => part.label)).toEqual(['rate', 'place', 'start']);
+    form.patchValue({ matchWeightRate: 2, matchWeightPlace: 0 });
+    expect(form.value).toEqual(jasmine.objectContaining({ matchWeightSkills: 1, matchWeightRate: 2, matchWeightPlace: 0, matchWeightStart: 1 }));
   });
 
   it('counts the characters of the bio', () => {

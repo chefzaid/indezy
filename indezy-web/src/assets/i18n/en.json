@@ -1535,6 +1535,17 @@
     "billedDaysTargetError": "Enter a whole number of days from 1 to 366, or leave blank.",
     "maxDriveMinutes": "Longest drive to a mission",
     "maxTransitMinutes": "Longest public transport trip to a mission",
+    "matchWeights": {
+      "title": "What counts in the match score",
+      "hint": "Make a part count double, or not at all, in the score of the feed's offers.",
+      "skills": "Skills",
+      "rate": "Daily rate",
+      "place": "Remote or distance",
+      "start": "Start date",
+      "none": "Doesn't count",
+      "usual": "As usual",
+      "double": "Counts double"
+    },
     "maxCommuteHint": "Optional. One way at rush hour: longer commutes are flagged and the offer match counts it.",
     "maxCommuteError": "Enter a whole number of minutes from 1 to 600, or leave blank.",
     "kmRate": "Cost per kilometre driven",

@@ -1,0 +1,5 @@
+
+.match-weights { border: 1px solid var(--app-border, rgba(0, 0, 0, .12)); border-radius: 8px; padding: 8px 12px 4px; margin: 0 0 16px; display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.match-weights legend { padding: 0 4px; font-weight: 500; }
+.match-weights .hint { flex-basis: 100%; margin: 0; font-size: .875rem; color: var(--mat-sys-on-surface-variant); }
+.match-weights mat-form-field { flex: 1 1 180px; }

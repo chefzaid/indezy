@@ -1535,6 +1535,17 @@
     "billedDaysTargetError": "Saisissez un nombre entier de jours entre 1 et 366, ou laissez vide.",
     "maxDriveMinutes": "Trajet maximal en voiture vers une mission",
     "maxTransitMinutes": "Trajet maximal en transports vers une mission",
+    "matchWeights": {
+      "title": "Ce qui compte dans le score",
+      "hint": "Faites compter double une partie du score des offres du fil, ou pas du tout.",
+      "skills": "Compétences",
+      "rate": "TJM",
+      "place": "Télétravail ou distance",
+      "start": "Date de début",
+      "none": "Ne compte pas",
+      "usual": "Normalement",
+      "double": "Compte double"
+    },
     "maxCommuteHint": "Facultatif. Aller simple à l'heure de pointe : les trajets plus longs sont signalés et l'adéquation des offres en tient compte.",
     "maxCommuteError": "Saisissez un nombre entier de minutes entre 1 et 600, ou laissez vide.",
     "kmRate": "Coût du kilomètre en voiture",

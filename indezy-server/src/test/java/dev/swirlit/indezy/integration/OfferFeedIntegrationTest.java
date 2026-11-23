@@ -272,6 +272,21 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
             .get("content")).get(0)).get("match");
         assertThat(available.get("availability")).isEqualTo("UNKNOWN");
         assertThat(available.get("score")).isEqualTo(63);
+
+        // The rate counting double: 30 + 50 + 5 of 120; not at all: 30 + 5 of 70, the offer no longer matching, in SQL as in Java.
+        profile = new HashMap<>(call(alice, HttpMethod.GET, "/users/profile", null).getBody());
+        profile.put("matchWeightRate", 2);
+        assertThat(call(alice, HttpMethod.PUT, "/users/profile", profile).getBody()).containsEntry("matchWeightRate", 2);
+        assertThat(((Map<?, ?>) ((Map<?, ?>) ((List<?>) call(alice, HttpMethod.GET, "/offers?sort=MATCH", null).getBody().get("content")).get(0))
+            .get("match")).get("score")).isEqualTo(71);
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers?matchesProfile=true", null))).containsExactly("Développeur Java Spring");
+        profile.put("matchWeightRate", 0);
+        call(alice, HttpMethod.PUT, "/users/profile", profile);
+        assertThat(((Map<?, ?>) ((Map<?, ?>) ((List<?>) call(alice, HttpMethod.GET, "/offers?sort=MATCH", null).getBody().get("content")).get(0))
+            .get("match")).get("score")).isEqualTo(50);
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers?matchesProfile=true", null))).isEmpty();
+        profile.put("matchWeightRate", 3);
+        assertThat(call(alice, HttpMethod.PUT, "/users/profile", profile).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
