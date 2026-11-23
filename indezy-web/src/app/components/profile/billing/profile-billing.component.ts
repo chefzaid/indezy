@@ -337,6 +337,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   readonly styledBlocks = STYLED_BLOCKS;
   readonly blockSizes: BlockStyle['size'][] = ['SMALL', 'NORMAL', 'LARGE'];
   readonly blockAligns: BlockStyle['align'][] = ['LEFT', 'CENTER', 'RIGHT'];
+  readonly blockColors: BlockStyle['color'][] = ['TEXT', 'ACCENT', 'GREY'];
 
   styleOf(block: BodyBlock): BlockStyle {
     return this.blockStyles[block] ?? USUAL_BLOCK_STYLE;

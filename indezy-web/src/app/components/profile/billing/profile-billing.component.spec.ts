@@ -139,20 +139,20 @@ describe('ProfileBillingComponent', () => {
   });
 
   it('styles the mentions and the notes, the other blocks taking none', () => {
-    const fixture = create(of({ ...defaults, blockStyles: { NOTES: { size: 'LARGE', align: 'CENTER', framed: true, shaded: false } } }));
+    const fixture = create(of({ ...defaults, blockStyles: { NOTES: { size: 'LARGE', align: 'CENTER', framed: true, shaded: false, color: 'TEXT', bold: false } } }));
     const component = fixture.componentInstance;
     expect(component.styleOf('NOTES').align).toBe('CENTER');
-    expect(component.styleOf('MENTIONS')).toEqual({ size: 'SMALL', align: 'LEFT', framed: false, shaded: false });
+    expect(component.styleOf('MENTIONS')).toEqual({ size: 'SMALL', align: 'LEFT', framed: false, shaded: false, color: 'TEXT', bold: false });
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('[data-body-block-style="NOTES"]')).not.toBeNull();
     expect(element.querySelector('[data-body-block-style="LINES"]')).toBeNull();
-    component.setStyle('MENTIONS', { shaded: true });
+    component.setStyle('MENTIONS', { shaded: true, color: 'ACCENT', bold: true });
     expect(component.form.dirty).toBeTrue();
     billing.saveIdentity.and.returnValue(of(defaults));
     component.save();
     expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ blockStyles: {
-      NOTES: { size: 'LARGE', align: 'CENTER', framed: true, shaded: false },
-      MENTIONS: { size: 'SMALL', align: 'LEFT', framed: false, shaded: true } } }));
+      NOTES: { size: 'LARGE', align: 'CENTER', framed: true, shaded: false, color: 'TEXT', bold: false },
+      MENTIONS: { size: 'SMALL', align: 'LEFT', framed: false, shaded: true, color: 'ACCENT', bold: true } } }));
   });
 
   it('takes an accent colour dark enough to read, refusing a pale one', () => {

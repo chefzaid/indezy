@@ -101,7 +101,7 @@ final class BillingDocx {
         docx.paragraph("", false, DocxDocument.BODY, DocxDocument.Align.LEFT);
         BlockStyle style = BlockStyle.of(page.blockStyles(), BodyBlock.MENTIONS);
         if (!style.equals(BlockStyle.USUAL)) {
-            styled(docx, null, page.documentMentions(), style);
+            styled(docx, null, page.documentMentions(), style, accentOf(page));
             return;
         }
         for (String mention : page.documentMentions()) {
@@ -115,7 +115,7 @@ final class BillingDocx {
             docx.paragraph("", false, DocxDocument.SMALL, DocxDocument.Align.LEFT);
             BlockStyle style = BlockStyle.of(page.blockStyles(), BodyBlock.NOTES);
             if (!style.equals(BlockStyle.USUAL)) {
-                styled(docx, InvoiceLabel.NOTES.in(page.language), List.of(page.notes()), style);
+                styled(docx, InvoiceLabel.NOTES.in(page.language), List.of(page.notes()), style, accentOf(page));
                 return;
             }
             docx.paragraph(InvoiceLabel.NOTES.in(page.language), true, DocxDocument.SMALL, DocxDocument.Align.LEFT);
@@ -137,8 +137,13 @@ final class BillingDocx {
         }
     }
 
+    /** The accent colour as Word writes it, {@code RRGGBB}; none without one. */
+    private static String accentOf(BillingPage page) {
+        return page.accent() == null ? null : page.accent().substring(1).toUpperCase(java.util.Locale.ROOT);
+    }
+
     /** A text block in its own style: its size and alignment, in a one-cell table when framed or shaded. */
-    private static void styled(DocxDocument docx, String title, List<String> paragraphs, BlockStyle style) {
+    private static void styled(DocxDocument docx, String title, List<String> paragraphs, BlockStyle style, String accent) {
         int size = switch (style.size()) {
             case SMALL -> DocxDocument.SMALL;
             case NORMAL -> DocxDocument.BODY;
@@ -149,11 +154,16 @@ final class BillingDocx {
             case CENTER -> DocxDocument.Align.CENTER;
             case RIGHT -> DocxDocument.Align.RIGHT;
         };
+        String color = switch (style.color()) {
+            case TEXT -> null;
+            case ACCENT -> accent;
+            case GREY -> "666666";
+        };
         List<List<DocxDocument.Run>> runs = new ArrayList<>();
         if (title != null) {
-            runs.add(List.of(new DocxDocument.Run(title, true, size, null)));
+            runs.add(List.of(new DocxDocument.Run(title, true, size, color)));
         }
-        paragraphs.forEach(paragraph -> runs.add(List.of(new DocxDocument.Run(paragraph, false, size, null))));
+        paragraphs.forEach(paragraph -> runs.add(List.of(new DocxDocument.Run(paragraph, style.bold(), size, color))));
         if (style.framed() || style.shaded()) {
             docx.table(new int[] {DocxDocument.CONTENT_WIDTH}, List.of(List.of(new DocxDocument.Cell(runs, align, style.shaded() ? SHADE : null))),
                 false, false, style.framed(), null);

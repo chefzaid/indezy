@@ -4,7 +4,7 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ### Style your mentions and notes
 
-In **Order of the body**, the mentions and the notes of your invoices and quotes take their own size, alignment, frame and shading. See [Quotes and invoices](/help/invoices-quotes).
+In **Order of the body**, the mentions and the notes of your invoices and quotes take their own size, alignment, colour, bold, frame and shading. See [Quotes and invoices](/help/invoices-quotes).
 
 ### Header and footer zones on your documents
 

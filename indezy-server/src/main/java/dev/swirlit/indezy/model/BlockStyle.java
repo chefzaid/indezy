@@ -10,26 +10,34 @@ import java.util.stream.Collectors;
 
 /**
  * How a text block of an invoice's or a quote's body is drawn (see docs/features.md#billing-identity): its text size,
- * its alignment, a frame around it and a grey shading under it. Only the mentions and the notes take one; the others
+ * its alignment, a frame around it, a grey shading under it, its colour (the text's, the accent or grey) and bold. Only the mentions and the notes take one; the others
  * keep the layout's.
  */
-public record BlockStyle(Size size, Align align, boolean framed, boolean shaded) {
+public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded, Color color, Boolean bold) {
 
     /** The text size: small (the usual), normal (the body's) or large. */
     public enum Size { SMALL, NORMAL, LARGE }
 
     public enum Align { LEFT, CENTER, RIGHT }
 
+    /** The colour of the block's words: the text's, the documents' accent colour (black without one), or grey. */
+    public enum Color { TEXT, ACCENT, GREY }
+
     /** The blocks a style applies to. */
     public static final Set<BodyBlock> STYLED = Set.of(BodyBlock.MENTIONS, BodyBlock.NOTES);
 
     /** As the layout draws a text block. */
-    public static final BlockStyle USUAL = new BlockStyle(Size.SMALL, Align.LEFT, false, false);
+    public static final BlockStyle USUAL = new BlockStyle(Size.SMALL, Align.LEFT, false, false, Color.TEXT, false);
 
     public BlockStyle {
         size = size == null ? Size.SMALL : size;
         align = align == null ? Align.LEFT : align;
+        color = color == null ? Color.TEXT : color;
+        framed = Boolean.TRUE.equals(framed);
+        shaded = Boolean.TRUE.equals(shaded);
+        bold = Boolean.TRUE.equals(bold);
     }
+
 
     /** The styles of the blocks that take one, the usual ones left out; none for null. */
     public static Map<BodyBlock, BlockStyle> normalize(Map<BodyBlock, BlockStyle> styles) {
@@ -51,7 +59,8 @@ public record BlockStyle(Size size, Align align, boolean framed, boolean shaded)
             return null;
         }
         return kept.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(entry -> entry.getKey() + "=" + entry.getValue().size() + "," +
-                entry.getValue().align() + (entry.getValue().framed() ? ",FRAMED" : "") + (entry.getValue().shaded() ? ",SHADED" : ""))
+                entry.getValue().align() + (entry.getValue().framed() ? ",FRAMED" : "") + (entry.getValue().shaded() ? ",SHADED" : "") +
+                (entry.getValue().color() == Color.TEXT ? "" : "," + entry.getValue().color()) + (entry.getValue().bold() ? ",BOLD" : ""))
             .collect(Collectors.joining(";"));
     }
 
@@ -71,7 +80,8 @@ public record BlockStyle(Size size, Align align, boolean framed, boolean shaded)
                 String[] values = parts[1].toUpperCase(Locale.ROOT).split(",");
                 Set<String> flags = Set.of(values);
                 styles.put(block, new BlockStyle(Size.valueOf(values[0].strip()), values.length > 1 ? Align.valueOf(values[1].strip()) : null,
-                    flags.contains("FRAMED"), flags.contains("SHADED")));
+                    flags.contains("FRAMED"), flags.contains("SHADED"), flags.contains("ACCENT") ? Color.ACCENT : flags.contains("GREY") ? Color.GREY :
+                    Color.TEXT, flags.contains("BOLD")));
             } catch (IllegalArgumentException unknown) {
                 // A block or a value no longer known is skipped.
             }

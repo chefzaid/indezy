@@ -25,17 +25,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 /** The mentions and the notes in their own size, alignment, frame and shading, in the PDF and the Word copy. */
 class BlockStylesTest {
 
-    private static final BlockStyle CENTRED = new BlockStyle(BlockStyle.Size.LARGE, BlockStyle.Align.CENTER, true, true);
+    private static final BlockStyle CENTRED = new BlockStyle(BlockStyle.Size.LARGE, BlockStyle.Align.CENTER, true, true, null, false);
 
     @Test
     void storesOnlyTheStylesOfTheTextBlocksThatDifferFromTheUsual() {
         Map<BodyBlock, BlockStyle> styles = Map.of(BodyBlock.NOTES, CENTRED, BodyBlock.LINES, CENTRED, BodyBlock.MENTIONS, BlockStyle.USUAL);
         assertThat(BlockStyle.store(styles)).isEqualTo("NOTES=LARGE,CENTER,FRAMED,SHADED");
         assertThat(BlockStyle.read("NOTES=LARGE,CENTER,FRAMED,SHADED;MENTIONS=NORMAL,RIGHT;GONE=SMALL")).containsOnly(
-            Map.entry(BodyBlock.NOTES, CENTRED), Map.entry(BodyBlock.MENTIONS, new BlockStyle(BlockStyle.Size.NORMAL, BlockStyle.Align.RIGHT, false, false)));
+            Map.entry(BodyBlock.NOTES, CENTRED), Map.entry(BodyBlock.MENTIONS, new BlockStyle(BlockStyle.Size.NORMAL, BlockStyle.Align.RIGHT, false, false, null, false)));
         assertThat(BlockStyle.store(null)).isNull();
         assertThat(BlockStyle.read(null)).isEmpty();
-        assertThat(new BlockStyle(null, null, false, false)).isEqualTo(BlockStyle.USUAL);
+        assertThat(new BlockStyle(null, null, false, false, null, false)).isEqualTo(BlockStyle.USUAL);
     }
 
     @Test
@@ -100,5 +100,30 @@ class BlockStylesTest {
         }
         assertThat(found).as(word).isNotEmpty();
         return found.getFirst();
+    }
+
+    @Test
+    void writesABlockInTheAccentColourAndBold() throws IOException {
+        BlockStyle accent = new BlockStyle(BlockStyle.Size.NORMAL, BlockStyle.Align.LEFT, false, false, BlockStyle.Color.ACCENT, true);
+        assertThat(BlockStyle.store(Map.of(BodyBlock.MENTIONS, accent))).isEqualTo("MENTIONS=NORMAL,LEFT,ACCENT,BOLD");
+        assertThat(BlockStyle.read("MENTIONS=NORMAL,LEFT,ACCENT,BOLD")).containsEntry(BodyBlock.MENTIONS, accent);
+        assertThat(BlockStyle.read("NOTES=SMALL,LEFT,GREY").get(BodyBlock.NOTES).color()).isEqualTo(BlockStyle.Color.GREY);
+
+        InvoiceSeller seller = new InvoiceSeller();
+        seller.setName("Alice Martin");
+        seller.setAccentColor("#1F4E79");
+        seller.setBlockStyles(BlockStyle.store(Map.of(BodyBlock.NOTES, accent)));
+        TextPosition notes = firstOf(new QuotePdfRenderer().render(quote(), seller, new InvoiceBuyer(), 30, null), "Thanks");
+        assertThat(notes.getFont().getName()).containsIgnoringCase("bold");
+        try (PDDocument document = Loader.loadPDF(new QuotePdfRenderer().render(quote(), seller, new InvoiceBuyer(), 30, null))) {
+            String operators = new String(document.getPage(0).getContents().readAllBytes(), StandardCharsets.ISO_8859_1);
+            int thanks = operators.lastIndexOf("rg");
+            assertThat(operators).containsPattern("0\\.12\\d* 0\\.30\\d* 0\\.47\\d* rg");
+            assertThat(thanks).isPositive();
+        }
+        String document = new String(BillingDocxTest.parts(new QuotePdfRenderer().renderDocx(quote(), seller, new InvoiceBuyer(), 30, null, false))
+            .get("word/document.xml"), StandardCharsets.UTF_8);
+        String run = document.substring(document.lastIndexOf("<w:r>", document.indexOf("Thanks for your trust")), document.indexOf("Thanks for your trust"));
+        assertThat(run).contains("<w:b/>", "<w:color w:val=\"1F4E79\"/>");
     }
 }

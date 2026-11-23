@@ -32,6 +32,8 @@ abstract class BillingPage {
     static final float BODY = 9.5f;
     static final float SMALL = 8;
     static final float LINE = 13;
+    /** The grey of a block written in grey. */
+    static final String GREY = "#666666";
     static final float ROW = 16;
 
     final PdfPageWriter writer;
@@ -417,6 +419,11 @@ abstract class BillingPage {
             }
         }
         float height = lines.size() * leading + 2 * pad + (boxed ? 3 : 0);
+        String color = switch (style.color()) {
+            case TEXT -> null;
+            case ACCENT -> accent();
+            case GREY -> GREY;
+        };
         writer.ensureSpace(height);
         boolean whole = writer.fits(height);
         float top = writer.cursor();
@@ -427,13 +434,15 @@ abstract class BillingPage {
         for (String[] line : lines) {
             writer.ensureSpace(leading);
             writer.moveDown(leading);
-            boolean bold = line[1] != null;
+            boolean bold = line[1] != null || style.bold();
             float x = switch (style.align()) {
                 case LEFT -> writer.left() + pad;
                 case CENTER -> writer.left() + (writer.width() - writer.textWidth(line[0], bold, size)) / 2;
                 case RIGHT -> writer.right() - pad - writer.textWidth(line[0], bold, size);
             };
+            writer.color(color);
             writer.text(x, writer.cursor(), line[0], bold, size);
+            writer.color(null);
         }
         writer.moveDown(pad + (boxed ? 3 : 0));
         if (whole && style.framed()) {

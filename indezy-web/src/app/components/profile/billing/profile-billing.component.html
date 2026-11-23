@@ -293,6 +293,17 @@
                       }
                     </mat-select>
                   </mat-form-field>
+                  <mat-form-field appearance="outline" class="style-field" subscriptSizing="dynamic">
+                    <mat-label>{{ 'profile.billing.blockStyle.color' | translate }}</mat-label>
+                    <mat-select [value]="styleOf(block).color" (selectionChange)="setStyle(block, { color: $event.value })" [attr.data-block-color]="block">
+                      @for (color of blockColors; track color) {
+                        <mat-option [value]="color">{{ 'profile.billing.blockStyle.colors.' + color | translate }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-checkbox [checked]="styleOf(block).bold" (change)="setStyle(block, { bold: $event.checked })" [attr.data-block-bold]="block">
+                    {{ 'profile.billing.blockStyle.bold' | translate }}
+                  </mat-checkbox>
                   <mat-checkbox [checked]="styleOf(block).framed" (change)="setStyle(block, { framed: $event.checked })" [attr.data-block-framed]="block">
                     {{ 'profile.billing.blockStyle.framed' | translate }}
                   </mat-checkbox>
