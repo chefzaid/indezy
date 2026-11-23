@@ -34,6 +34,7 @@ export * from './purchase-order.models';
 export * from './compliance.models';
 export * from './training.models';
 export * from './career.models';
+export * from './profile-cv.models';
 export * from './testimonial.models';
 export * from './webhook.models';
 export * from './booking.models';

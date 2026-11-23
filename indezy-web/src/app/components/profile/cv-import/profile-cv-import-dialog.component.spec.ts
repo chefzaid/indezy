@@ -8,6 +8,7 @@ import { AiProfileImport, Training, UserProfile } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { CareerService } from '../../../services/career/career.service';
+import { ProfileCvService } from '../../../services/profile-cv/profile-cv.service';
 import { SkillNamesService } from '../../../services/skill/skill-names.service';
 import { TrainingService } from '../../../services/training/training.service';
 import { SkillNames } from '../../../shared/utils/skill-names';
@@ -21,6 +22,7 @@ describe('ProfileCvImportDialogComponent', () => {
   let users: jasmine.SpyObj<UserManagementService>;
   let trainings: jasmine.SpyObj<TrainingService>;
   let career: jasmine.SpyObj<CareerService> & { changed: Subject<void> };
+  let cvs: jasmine.SpyObj<ProfileCvService> & { changed: Subject<void> };
 
   const reading: AiProfileImport = {
     firstName: 'Alice', lastName: 'Martin', phone: null, city: 'Lyon', position: 'Lead Java', company: null, bio: 'b'.repeat(600),
@@ -36,6 +38,7 @@ describe('ProfileCvImportDialogComponent', () => {
     career = Object.assign(jasmine.createSpyObj('CareerService', ['experiences', 'educations', 'createExperience', 'createEducation']),
       { changed: new Subject<void>() });
     career.experiences.and.returnValue(of([]));
+    cvs = Object.assign(jasmine.createSpyObj('ProfileCvService', ['keep']), { changed: new Subject<void>() });
     career.educations.and.returnValue(of([]));
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     users = jasmine.createSpyObj('UserManagementService', ['linkedInImport']);
@@ -45,7 +48,7 @@ describe('ProfileCvImportDialogComponent', () => {
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: NotificationService, useValue: notifications }, { provide: MatDialogRef, useValue: dialogRef },
         { provide: MAT_DIALOG_DATA, useValue: data }, { provide: UserManagementService, useValue: users },
-        { provide: TrainingService, useValue: trainings }, { provide: CareerService, useValue: career },
+        { provide: TrainingService, useValue: trainings }, { provide: CareerService, useValue: career }, { provide: ProfileCvService, useValue: cvs },
         { provide: SkillNamesService, useValue: { names$: of(new SkillNames({ JavaScript: ['JS'], Java: [] })) } }]
     });
     const fixture = TestBed.createComponent(ProfileCvImportDialogComponent);
@@ -226,5 +229,27 @@ describe('ProfileCvImportDialogComponent', () => {
     expect(notifications.success).toHaveBeenCalledWith('profile.cvImport.recordsAdded', undefined, { count: 2 });
     expect(changed).toHaveBeenCalled();
     expect(dialogRef.close).toHaveBeenCalledWith({});
+  });
+
+  it('keeps the CV read in the profile when asked, never LinkedIn\'s files', () => {
+    const component = create({ firstName: 'Alice', lastName: 'Martin', city: 'Lyon', position: 'Lead Java', bio: 'b'.repeat(500),
+      skills: ['Java', 'Kafka', 'Scrum'], languages: ['Anglais', 'Français'] });
+    ai.profileImport.and.returnValue(of(reading));
+    pick(component);
+    expect(component.cvFile?.name).toBe('cv.pdf');
+    expect(component.anyChosen).toBeFalse();
+    component.keepCv = true;
+    expect(component.anyChosen).toBeTrue();
+    cvs.keep.and.returnValue(of({ fileName: 'cv.pdf', contentType: 'application/pdf', sizeBytes: 4, keptAt: '2026-11-23T10:00:00' }));
+    const changed = jasmine.createSpy('changed');
+    cvs.changed.subscribe(changed);
+    component.apply();
+    expect(cvs.keep).toHaveBeenCalledOnceWith(component.cvFile as File);
+    expect(notifications.success).toHaveBeenCalledWith('profile.cvImport.cvKept', undefined, { count: 0 });
+    expect(changed).toHaveBeenCalled();
+
+    users.linkedInImport.and.returnValue(of(reading));
+    pick(component, true);
+    expect(component.cvFile).toBeNull();
   });
 });

@@ -218,6 +218,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     await dialog.locator('[data-cv-import-row="position"] input').uncheck();
+    // Keeping the CV is offered, unticked.
+    await expect(dialog.locator('[data-cv-import-keep] input')).not.toBeChecked();
     await dialog.locator('[data-cv-import-apply]').click();
     await expect(dialog).toBeHidden();
     // Nothing is saved until the member saves the profile.

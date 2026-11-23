@@ -1798,6 +1798,8 @@
       "readError": "The archive could not be read: try again in a moment.",
       "certifications": "Certifications",
       "certificationsHint": "Ticked ones are added to your trainings and certifications (Documents page) when you fill in the form, with their issuer and dates.",
+      "keepCv": "Keep {{name}} as my profile's CV, to download and attach to applications",
+      "cvKept": "Your CV is kept in your profile.",
       "alreadyInProfile": "Already in your profile",
       "recordsAdded": "{{count}} added: certifications to your trainings, positions and schools under your personal information.",
       "recordsError": "Some entries could not be added: check your trainings and past positions, then try again.",
@@ -5217,5 +5219,20 @@
       "startYear": "From (year)",
       "endYear": "To (year)"
     }
+  },
+  "profileCv": {
+    "title": "My CV",
+    "none": "Keep your CV here to download it and attach it to your applications: a PDF, Word (.docx) or OpenDocument file of 10 MB at most, checked for viruses.",
+    "keep": "Keep a CV",
+    "replace": "Replace",
+    "download": "Download",
+    "keptOn": "kept on {{date}}",
+    "kept": "Your CV is kept in your profile.",
+    "refused": "This file cannot be kept: use a PDF, Word (.docx) or OpenDocument file of 10 MB at most, free of viruses.",
+    "keepError": "Your CV could not be kept: try again in a moment.",
+    "downloadError": "Your CV could not be downloaded.",
+    "removeTitle": "Remove your CV?",
+    "removeMessage": "The CV kept in your profile is deleted.",
+    "removeError": "Your CV could not be removed."
   }
 }

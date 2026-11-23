@@ -83,6 +83,8 @@ To get LinkedIn's archive: on LinkedIn, **Settings & Privacy → Data privacy �
 
 Certifications go to **Trainings and certifications** on the [Documents](/help/documents) page, with their issuer, the date obtained and the expiry; one your trainings already name is marked **Already in your trainings** and not added again. Positions and schools go to **Past positions** and **Education** under your personal information, kept off your public profile until you show them; one your profile holds already is marked **Already in your profile**. Importing again months later so ticks only what is new.
 
+Tick **Keep … as my profile's CV** to keep the file read: it then waits under **My CV** in your personal information, to download and attach to your applications. **Keep a CV** there keeps one without importing it, and **Replace** or **Delete** changes it; it is checked for viruses first.
+
 A scanned CV without text cannot be read. Reading a CV uses your monthly AI allowance, or your own key; LinkedIn's archive does not.
 
 ## Export and import your data

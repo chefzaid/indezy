@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Your CV in your profile
+
+**My CV**, under your personal information, keeps your CV to download and attach to applications; the profile import can keep the CV it reads. See [Account, security and data](/help/account).
+
 ### Past positions and education
 
 The profile keeps the positions you held before Indezy and your schools, filled from your CV or LinkedIn if you like; the dossier de compétences prints them after your won missions, and your public profile shows the ones you choose. See [Getting started](/help/getting-started).

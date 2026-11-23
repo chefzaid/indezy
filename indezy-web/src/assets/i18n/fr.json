@@ -1798,6 +1798,8 @@
       "readError": "L'archive n'a pas pu être lue : réessayez dans un instant.",
       "certifications": "Certifications",
       "certificationsHint": "Celles cochées rejoignent vos formations et certifications (page Documents) quand vous remplissez le formulaire, avec leur organisme et leurs dates.",
+      "keepCv": "Garder {{name}} comme CV de mon profil, à télécharger et joindre aux candidatures",
+      "cvKept": "Votre CV est gardé dans votre profil.",
       "alreadyInProfile": "Déjà dans votre profil",
       "recordsAdded": "{{count}} ajout(s) : les certifications à vos formations, les postes et formations sous vos informations personnelles.",
       "recordsError": "Certaines entrées n'ont pas pu être ajoutées : vérifiez vos formations et expériences, puis réessayez.",
@@ -5217,5 +5219,20 @@
       "startYear": "De (année)",
       "endYear": "À (année)"
     }
+  },
+  "profileCv": {
+    "title": "Mon CV",
+    "none": "Gardez votre CV ici pour le télécharger et le joindre à vos candidatures : un PDF, un Word (.docx) ou un OpenDocument de 10 Mo au plus, vérifié contre les virus.",
+    "keep": "Garder un CV",
+    "replace": "Remplacer",
+    "download": "Télécharger",
+    "keptOn": "gardé le {{date}}",
+    "kept": "Votre CV est gardé dans votre profil.",
+    "refused": "Ce fichier ne peut pas être gardé : utilisez un PDF, un Word (.docx) ou un OpenDocument de 10 Mo au plus, sans virus.",
+    "keepError": "Votre CV n'a pas pu être gardé : réessayez dans un instant.",
+    "downloadError": "Votre CV n'a pas pu être téléchargé.",
+    "removeTitle": "Supprimer votre CV ?",
+    "removeMessage": "Le CV gardé dans votre profil est supprimé.",
+    "removeError": "Votre CV n'a pas pu être supprimé."
   }
 }

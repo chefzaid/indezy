@@ -83,6 +83,8 @@ Pour obtenir l'archive LinkedIn : sur LinkedIn, **Préférences et confidentiali
 
 Les certifications rejoignent **Formations et certifications** sur la page [Documents](/help/documents), avec leur organisme, leur date d'obtention et leur fin de validité ; celle que vos formations nomment déjà est marquée **Déjà dans vos formations** et n'est pas ajoutée une seconde fois. Les postes et formations rejoignent **Expériences antérieures** et **Formation** sous vos informations personnelles, hors de votre profil public tant que vous ne les affichez pas ; celui que votre profil contient déjà est marqué **Déjà dans votre profil**. Importer à nouveau quelques mois plus tard ne coche donc que ce qui est nouveau.
 
+Cochez **Garder … comme CV de mon profil** pour garder le fichier lu : il vous attend alors sous **Mon CV** dans vos informations personnelles, à télécharger et joindre à vos candidatures. **Garder un CV** y garde un CV sans l'importer, et **Remplacer** ou **Supprimer** le change ; il est d'abord vérifié contre les virus.
+
 Un CV scanné sans texte ne peut pas être lu. Lire un CV utilise votre quota mensuel d'IA, ou votre propre clé ; l'archive LinkedIn non.
 
 ## Exporter et importer vos données

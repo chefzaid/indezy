@@ -13,6 +13,7 @@ import { AiImportedCertification, AiImportedPosition, AiImportedSchool, AiProfil
   Training, UserProfile } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { CareerService } from '../../../services/career/career.service';
+import { ProfileCvService } from '../../../services/profile-cv/profile-cv.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { SkillNamesService } from '../../../services/skill/skill-names.service';
 import { SkillNames, skillKey } from '../../../shared/utils/skill-names';
@@ -224,6 +225,9 @@ const FIELDS: { field: TextField; label: string }[] = [
           }
         }
       }
+      @if (reading && cvFile) {
+        <mat-checkbox class="keep" [(ngModel)]="keepCv" data-cv-import-keep>{{ 'profile.cvImport.keepCv' | translate:{ name: cvFile.name } }}</mat-checkbox>
+      }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
@@ -241,6 +245,7 @@ const FIELDS: { field: TextField; label: string }[] = [
     .rows { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
     .rows li { display: flex; flex-direction: column; }
     .section { margin: 16px 0 0; font-size: 1em; }
+    .keep { display: block; margin-top: 12px; }
     .choices { display: flex; flex-wrap: wrap; gap: 0 8px; }
     .current { margin-left: 40px; font-size: 0.85em; color: var(--mat-sys-on-surface-variant); }
     mat-spinner { display: inline-block; margin-right: 8px; }
@@ -251,6 +256,7 @@ export class ProfileCvImportDialogComponent {
   private readonly users = inject(UserManagementService);
   private readonly trainings = inject(TrainingService);
   private readonly career = inject(CareerService);
+  private readonly cvs = inject(ProfileCvService);
   private readonly skillNamesService = inject(SkillNamesService);
   private readonly notifications = inject(NotificationService);
   private readonly dialogRef = inject<MatDialogRef<ProfileCvImportDialogComponent, Partial<UserProfile>>>(MatDialogRef);
@@ -271,6 +277,9 @@ export class ProfileCvImportDialogComponent {
   languagesLeftOut: string[] = [];
   certifications: CvImportCertification[] = [];
   positions: CvImportPosition[] = [];
+  /** The CV read, which can be kept in the profile; none for LinkedIn's files. */
+  cvFile: File | null = null;
+  keepCv = false;
   schools: CvImportSchool[] = [];
   saving = false;
   takeSkills = true;
@@ -296,7 +305,7 @@ export class ProfileCvImportDialogComponent {
 
   get anyChosen(): boolean {
     return this.rows.some(row => row.chosen) || this.skillsTaken.length > 0 ||
-      (this.takeLanguages && this.languages.length > 0) || [...this.certifications, ...this.positions, ...this.schools].some(entry => entry.chosen);
+      (this.takeLanguages && this.languages.length > 0) || (this.keepCv && !!this.cvFile) || [...this.certifications, ...this.positions, ...this.schools].some(entry => entry.chosen);
   }
 
   get newPositions(): number {
@@ -321,6 +330,7 @@ export class ProfileCvImportDialogComponent {
       return;
     }
     this.loading = true;
+    this.cvFile = linkedIn ? null : file;
     const known: Observable<Training[]> = this.trainings.list().pipe(catchError(() => of([])));
     const names = this.skillNamesService.names$.pipe(first(), catchError(() => of(SkillNames.NONE)));
     const experiences: Observable<Experience[]> = this.career.experiences().pipe(catchError(() => of([])));
@@ -417,21 +427,28 @@ export class ProfileCvImportDialogComponent {
         shownPublicly: false
       }))
     ];
-    if (!additions.length) {
+    const keeping = this.keepCv && this.cvFile ? this.cvs.keep(this.cvFile) : null;
+    if (!additions.length && !keeping) {
       this.dialogRef.close(patch);
       return;
+    }
+    if (keeping) {
+      additions.push(keeping);
     }
     this.saving = true;
     forkJoin(additions).subscribe({
       next: () => {
-        this.notifications.success('profile.cvImport.recordsAdded', undefined, { count: additions.length });
+        this.notifications.success(keeping && additions.length === 1 ? 'profile.cvImport.cvKept' : 'profile.cvImport.recordsAdded', undefined,
+          { count: additions.length - (keeping ? 1 : 0) });
         this.career.changed.next();
+        this.cvs.changed.next();
         this.dialogRef.close(patch);
       },
       error: () => {
         this.saving = false;
         this.notifications.error('profile.cvImport.recordsError');
         this.career.changed.next();
+        this.cvs.changed.next();
         this.changes.markForCheck();
       }
     });

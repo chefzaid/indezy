@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Votre CV dans votre profil
+
+**Mon CV**, sous vos informations personnelles, garde votre CV à télécharger et joindre à vos candidatures ; l'import du profil peut garder le CV qu'il lit. Voir [Compte, sécurité et données](/help/account).
+
 ### Expériences antérieures et formation
 
 Le profil garde les postes tenus avant Indezy et vos formations, remplis depuis votre CV ou LinkedIn si vous le souhaitez ; le dossier de compétences les imprime après vos missions gagnées, et votre profil public montre ceux que vous choisissez. Voir [Prise en main](/help/getting-started).

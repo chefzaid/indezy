@@ -273,6 +273,12 @@ school in larger letters, its degree and years on the next line) or the CV (10 a
 (the same employer and title, or the same school with no other degree, case aside) is marked as there. They are added
 off the public profile, and the profile's lists show them at once.
 
+**Keep this CV**, offered unticked on the review of a CV (never of LinkedIn's files), keeps the file read as the
+profile's CV, also kept from **My CV** under the personal information (`POST /api/users/cv`, a PDF, `.docx` or `.odt`
+of 10 MB at most, checked by the platform's ClamAV like the network's documents): one per workspace, a new one replacing
+it, downloaded with its name (`GET /api/users/cv`, `GET /api/users/cv/info` answering 204 without one) or removed. The
+account export names it (not its content), and deleting the account removes it.
+
 ### Public Profile
 
 **Profile → Public profile** publishes, once turned on, a page at `/p/<address>` that anyone with the link can read:

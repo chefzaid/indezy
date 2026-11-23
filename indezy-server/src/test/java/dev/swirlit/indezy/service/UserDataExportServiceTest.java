@@ -130,6 +130,9 @@ class UserDataExportServiceTest {
     private CareerService careerService;
 
     @Mock
+    private ProfileCvService profileCvService;
+
+    @Mock
     private TestimonialService testimonialService;
 
     @Mock
