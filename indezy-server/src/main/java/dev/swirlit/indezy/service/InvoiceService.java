@@ -396,6 +396,16 @@ public class InvoiceService {
     /** As above, in the quotes' own accent colour and layout when {@code quote}. */
     @Transactional(readOnly = true)
     public byte[] stylePreview(Long freelanceId, BillingIdentityDto identity, boolean quote) {
+        return stylePreview(freelanceId, identity, quote, 1).png();
+    }
+
+    /**
+     * A page (from 1) of the preview, with the count: an invoice in the form's style, or with {@code quote} a quote in the
+     * quotes' own colour and layout, its notes, signature box and terms as the form sets them; the latest invoice's
+     * client and lines, or a sample's.
+     */
+    @Transactional(readOnly = true)
+    public dev.swirlit.indezy.pdf.PagePreview stylePreview(Long freelanceId, BillingIdentityDto identity, boolean quote, int page) {
         Invoice sample = new Invoice();
         sample.setStatus(InvoiceStatus.ISSUED);
         sample.setLanguage(DocumentLanguage.FR);
@@ -408,7 +418,27 @@ public class InvoiceService {
         sample.setNumber(Objects.requireNonNullElse(identity.invoicePrefix(), "F") + today.getYear() + "-0042");
         sample.setIssueDate(today);
         sample.setDueDate(today.plusDays(Objects.requireNonNullElse(identity.paymentTermDays(), 30)));
-        return pdf.previewImage(sample, quote ? quoteSeller(identity) : seller(identity), buyer);
+        if (quote && quotePdf != null) {
+            Quote sampleQuote = new Quote();
+            sampleQuote.setLanguage(DocumentLanguage.FR);
+            sampleQuote.setStatus(dev.swirlit.indezy.model.enums.QuoteStatus.SENT);
+            sampleQuote.setNumber("D" + today.getYear() + "-0042");
+            sampleQuote.setIssueDate(today);
+            sampleQuote.setNotes(identity.quoteNotes());
+            sampleQuote.setLines(sample.getLines());
+            return dev.swirlit.indezy.pdf.PagePreview.of(quotePdf.render(sampleQuote, quoteSeller(identity), buyer, identity.paymentTermDays(),
+                identity.quoteTerms()), page);
+        }
+        sample.setNotes(identity.invoiceNotes());
+        return dev.swirlit.indezy.pdf.PagePreview.of(pdf.render(sample, quote ? quoteSeller(identity) : seller(identity), buyer), page);
+    }
+
+    private dev.swirlit.indezy.pdf.QuotePdfRenderer quotePdf;
+
+    /** The quotes' renderer, for a quote's preview; without it, a quote is previewed as an invoice in its style. */
+    @Autowired(required = false)
+    void setQuotePdf(dev.swirlit.indezy.pdf.QuotePdfRenderer renderer) {
+        this.quotePdf = renderer;
     }
 
     /** The invoices' Word template filled with the latest invoice, or with a sample one before the first. */

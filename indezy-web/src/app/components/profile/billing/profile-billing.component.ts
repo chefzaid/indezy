@@ -10,9 +10,10 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subject, Subscription, debounceTime, forkJoin, map, merge, of, switchMap } from 'rxjs';
 
 import { BillingIdentity, BlockStyle, BodyBlock, LEGAL_FORMS, LegalForm, STYLED_BLOCKS, USUAL_BLOCK_STYLE, USUAL_BODY_BLOCKS } from '../../../models';
-import { BillingService } from '../../../services/billing/billing.service';
+import { BillingService, PreviewPage } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { billingId, compactId } from '../../../shared/utils/billing-validators';
 import { fieldError } from '../../../shared/utils/form-errors';
@@ -20,6 +21,12 @@ import { HelpLinkComponent } from '../../help/help-link.component';
 import { saveBlob } from '../../../shared/utils/download-file';
 
 const COMPANIES: LegalForm[] = ['EURL', 'SASU', 'SARL', 'SAS'];
+
+/** A shown preview is drawn again this long after the last change to the form. */
+export const PREVIEW_DELAY_MS = 800;
+
+/** At most this many pages of a preview are drawn. */
+export const PREVIEW_MAX_PAGES = 6;
 
 /** The seller's identity on the workspace's invoices: legal name and form, SIRET, VAT, address and bank details. */
 @Component({
@@ -90,12 +97,20 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   fontFamily: string | null = null;
   uploadingFont = false;
   letterheadId: number | null = null;
-  /** The style's preview, as an object URL; null until asked. */
-  previewUrl: string | null = null;
+  /** The preview's pages, as object URLs; none until asked. */
+  previewUrls: string[] = [];
+  /** How many pages the previewed document has (only the first few are drawn). */
+  previewPages = 0;
+  /** What is previewed: a quote, an invoice, or nothing yet (null). */
+  previewQuote: boolean | null = null;
   previewing = false;
+  /** The changes the form's values do not carry (the blocks' order and style). */
+  private readonly designChanges = new Subject<void>();
+  private previewRefresh?: Subscription;
   readonly themes = ['SIMPLE', 'MODERN', 'CLASSIC'] as const;
 
   ngOnDestroy(): void {
+    this.previewRefresh?.unsubscribe();
     this.revokeLogo();
     this.revokePreview();
   }
@@ -275,6 +290,12 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // A preview once shown follows the form: drawn again shortly after each change.
+    this.previewRefresh = merge(this.form.valueChanges, this.designChanges).pipe(debounceTime(PREVIEW_DELAY_MS)).subscribe(() => {
+      if (this.previewQuote !== null && !this.previewing && this.form.valid) {
+        this.preview(this.previewQuote);
+      }
+    });
     this.billing.identity().subscribe({
       next: identity => this.show(identity),
       error: () => this.notifications.error('profile.billing.loadError')
@@ -347,6 +368,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   setStyle(block: BodyBlock, change: Partial<BlockStyle>): void {
     this.blockStyles = { ...this.blockStyles, [block]: { ...this.styleOf(block), ...change } };
     this.form.markAsDirty();
+    this.designChanges.next();
   }
 
   /** Moves a block of the body up (-1) or down (1). */
@@ -359,11 +381,13 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     [blocks[index], blocks[to]] = [blocks[to], blocks[index]];
     this.blocks = blocks;
     this.form.markAsDirty();
+    this.designChanges.next();
   }
 
   setSignature(shown: boolean): void {
     this.signature = shown;
     this.form.markAsDirty();
+    this.designChanges.next();
   }
 
   save(): void {
@@ -386,19 +410,25 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Draws the first page of an invoice in the style the form sets, before it is saved. */
-  /** Draws the first page of an invoice, or of a quote in the quotes' own style, as the form holds it. */
+  /** Draws the pages of an invoice, or of a quote, as the form holds it, before it is saved; drawn again as the form changes. */
   preview(quote = false): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
     this.previewing = true;
-    this.billing.stylePreview(this.formIdentity(), quote).subscribe({
-      next: image => {
+    this.previewQuote = quote;
+    const identity = this.formIdentity();
+    this.billing.stylePreview(identity, quote, 1).pipe(switchMap(first => {
+      const more = Array.from({ length: Math.min(first.pages, PREVIEW_MAX_PAGES) - 1 }, (_, index) => index + 2);
+      return more.length ? forkJoin(more.map(page => this.billing.stylePreview(identity, quote, page)))
+        .pipe(map(rest => [first, ...rest])) : of([first]);
+    })).subscribe({
+      next: (pages: PreviewPage[]) => {
         this.previewing = false;
         this.revokePreview();
-        this.previewUrl = URL.createObjectURL(image);
+        this.previewPages = pages[0].pages;
+        this.previewUrls = pages.map(page => URL.createObjectURL(page.image));
       },
       error: () => {
         this.previewing = false;
@@ -408,10 +438,8 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   }
 
   private revokePreview(): void {
-    if (this.previewUrl) {
-      URL.revokeObjectURL(this.previewUrl);
-      this.previewUrl = null;
-    }
+    this.previewUrls.forEach(url => URL.revokeObjectURL(url));
+    this.previewUrls = [];
   }
 
   /** The identity the form holds, as saved. */

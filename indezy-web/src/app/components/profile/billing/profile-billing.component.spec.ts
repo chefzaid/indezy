@@ -1,13 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { BillingIdentity } from '../../../models';
 import { BillingService } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
-import { ProfileBillingComponent, contrastOnWhite } from './profile-billing.component';
+import { PREVIEW_DELAY_MS, ProfileBillingComponent, contrastOnWhite } from './profile-billing.component';
 import en from '../../../../assets/i18n/en.json';
 
 describe('ProfileBillingComponent', () => {
@@ -289,9 +289,9 @@ describe('ProfileBillingComponent', () => {
     // The room its header and footer take, sent with the form and read back.
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-billing-letterhead-margins]')).not.toBeNull();
     component.form.patchValue({ letterheadTop: 45, letterheadBottom: 20 });
-    billing.stylePreview.and.returnValue(of(new Blob(['png'])));
+    billing.stylePreview.and.returnValue(of({ image: new Blob(['png']), pages: 1 }));
     component.preview();
-    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ letterheadTop: 45, letterheadBottom: 20 }), false);
+    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ letterheadTop: 45, letterheadBottom: 20 }), false, 1);
 
     pick('papier.png', 'image/png');
     expect(notifications.error).toHaveBeenCalledWith('profile.billing.letterheadRefused');
@@ -314,13 +314,39 @@ describe('ProfileBillingComponent', () => {
     expect(billing.letterhead).toHaveBeenCalledTimes(1);
   });
 
+  it('draws every page of the preview, then draws it again shortly after a change', fakeAsync(() => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    billing.stylePreview.and.callFake((_identity: unknown, _quote: boolean, page: number) =>
+      of({ image: new Blob(['page ' + page], { type: 'image/png' }), pages: 2 }));
+    component.preview(true);
+    expect(billing.stylePreview.calls.allArgs().map(args => args[2])).toEqual([1, 2]);
+    expect(component.previewUrls.length).toBe(2);
+    expect(component.previewPages).toBe(2);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('[data-billing-preview] img').length).toBe(2);
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-billing-preview-page="2"]')!.getAttribute('alt'))
+      .toBe('Page 2 of 2 of the preview');
+
+    // A change to the form or to the blocks draws the quote again once things settle.
+    component.form.patchValue({ footer: 'alice.dev' });
+    component.setStyle('NOTES', { bold: true });
+    tick(PREVIEW_DELAY_MS - 1);
+    expect(billing.stylePreview).toHaveBeenCalledTimes(2);
+    tick(1);
+    expect(billing.stylePreview).toHaveBeenCalledTimes(4);
+    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ footer: 'alice.dev' }), true, 1);
+    fixture.destroy();
+    discardPeriodicTasks();
+  }));
+
   it('previews the style the form sets, saying when it cannot', () => {
     const fixture = create();
     const component = fixture.componentInstance;
     component.form.patchValue({ theme: 'MODERN', accentColor: '#1F4E79' });
-    billing.stylePreview.and.returnValue(of(new Blob(['png'], { type: 'image/png' })));
+    billing.stylePreview.and.returnValue(of({ image: new Blob(['png'], { type: 'image/png' }), pages: 1 }));
     component.preview();
-    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'MODERN', accentColor: '#1F4E79' }), false);
+    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'MODERN', accentColor: '#1F4E79' }), false, 1);
 
     // The quotes' own colour and layout, previewed on a quote, sent with the form, and taken back.
     component.setOwnQuoteStyle(true);
@@ -329,14 +355,14 @@ describe('ProfileBillingComponent', () => {
     component.form.patchValue({ quoteTheme: 'CLASSIC' });
     component.preview(true);
     expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'MODERN', quoteTheme: 'CLASSIC',
-      quoteAccentColor: '#7A1F1F' }), true);
+      quoteAccentColor: '#7A1F1F' }), true, 1);
     component.setQuoteAccent({ target: { value: '#ffee88' } } as unknown as Event);
     expect(component.quoteAccentTooPale).toBeTrue();
     component.setOwnQuoteStyle(false);
     expect(component.quoteAccentTooPale).toBeFalse();
     component.preview();
-    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ quoteTheme: null, quoteAccentColor: null }), false);
-    expect(component.previewUrl).toContain('blob:');
+    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ quoteTheme: null, quoteAccentColor: null }), false, 1);
+    expect(component.previewUrls[0]).toContain('blob:');
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-billing-preview] img')).not.toBeNull();
     billing.stylePreview.and.returnValue(throwError(() => new Error('down')));

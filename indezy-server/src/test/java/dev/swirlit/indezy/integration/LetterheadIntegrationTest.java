@@ -154,6 +154,16 @@ class LetterheadIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(page.getHeight()).isGreaterThan(page.getWidth());
         assertThat(new java.awt.Color(page.getRGB(page.getWidth() / 2, 4))).isEqualTo(new java.awt.Color(0x1F, 0x4E, 0x79));
         assertThat(call(alice, HttpMethod.GET, "/users/billing", null, Map.class).getBody()).containsEntry("theme", "SIMPLE");
+        assertThat(preview.getHeaders().getFirst("X-Preview-Pages")).isEqualTo("1");
+        // A quote, its terms on a page of their own: each page drawn on request, the count given.
+        identity.put("quoteTerms", "Article 1 — Objet");
+        ResponseEntity<byte[]> quote = call(alice, HttpMethod.POST, "/invoices/style-preview?quote=true", identity, byte[].class);
+        assertThat(quote.getHeaders().getFirst("X-Preview-Pages")).isEqualTo("2");
+        ResponseEntity<byte[]> terms = call(alice, HttpMethod.POST, "/invoices/style-preview?quote=true&page=2", identity, byte[].class);
+        assertThat(terms.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(terms.getBody()).isNotEqualTo(quote.getBody());
+        assertThat(call(alice, HttpMethod.POST, "/invoices/style-preview?quote=true&page=9", identity, byte[].class).getBody())
+            .isEqualTo(terms.getBody());
         identity.put("accentColor", "nope");
         assertThat(call(alice, HttpMethod.POST, "/invoices/style-preview", identity, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }

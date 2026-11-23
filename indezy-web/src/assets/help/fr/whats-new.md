@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Un aperçu en direct de vos documents
+
+Dans Profil → Facturation, l'aperçu montre désormais toutes les pages, d'une facture ou d'un devis, et se redessine à mesure que vous changez les réglages. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Le style de vos mentions et notes
 
 Dans **Ordre du corps**, les mentions et les notes de vos factures et devis prennent leur propre taille, alignement, couleur, gras, cadre et grisé. Voir [Devis et factures](/help/invoices-quotes).

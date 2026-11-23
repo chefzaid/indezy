@@ -1536,7 +1536,10 @@
           "ACCENT": "Couleur d'accent",
           "GREY": "Gris"
         }
-      }
+      },
+      "previewPageAlt": "Page {{page}} sur {{pages}} de l'aperçu",
+      "previewOfInvoice": "Une facture exemple avec ces réglages, {{pages}} page(s), redessinée à chaque changement.",
+      "previewOfQuote": "Un devis exemple avec ces réglages, {{pages}} page(s), redessiné à chaque changement."
     },
     "webhooks": {
       "title": "Webhooks",

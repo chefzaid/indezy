@@ -1550,10 +1550,13 @@ The **Layout** (`theme`, frozen at issue) is **Simple** (black on white, the log
 the accent colour, or a dark slate without one, across the top with the logo and the title in white, the table header
 and the amount to pay filled with it) or **Classic** (Liberation Serif unless a font was uploaded, the logo centred, a
 thin rule under the header and above the footer, every other line shaded and the bank details framed). Word copies keep
-the built-in layout without the theme. **Preview** draws the first page of an invoice in the style the form holds, saved
-or not, as an image (`POST /api/invoices/style-preview` with the form's identity, PNG): the latest invoice's client and
-lines, or a sample's before the first, numbered and dated as if issued today; the stored logo, font and letterhead are
-used, the form setting the rest. **Quotes have their own colour and layout** gives the quotes a **Quotes' layout** and a
+the built-in layout without the theme. **Preview** draws every page of an invoice in the style the form holds, saved
+or not, as images (`POST /api/invoices/style-preview?page=N` with the form's identity, PNG, the page count in
+`X-Preview-Pages`; the first six pages drawn): the latest invoice's client and lines, or a sample's before the first,
+numbered and dated as if issued today, with the form's notes; the stored logo, font and letterhead are used, the form
+setting the rest. **Preview a quote** draws a sample quote the same way (`quote=true`): its own colour and layout, its
+notes, signature box and terms as the form sets them. Once shown, the preview is drawn again 0.8 seconds after each
+change to the form, the blocks' order or their style, so the page seen is the one the server sends. **Quotes have their own colour and layout** gives the quotes a **Quotes' layout** and a
 **Quotes' accent colour** (`quoteTheme`, `quoteAccentColor`, refused too pale like the other; null for the invoices'
 ones), frozen with the quote's seller when it is sent, everything else shared; **Preview a quote** draws the preview in
 them (`?quote=true`). **Order of the body** lists the blocks under the seller, the heading and the client (`bodyBlocks`: `LINES` with the totals, `MENTIONS`, `NOTES`, `SIGNATURE`; `BodyBlock`), each moved up or down, printed in that order by the PDF, the preview and the Word copy of invoices and quotes; the lines, mentions and notes are always kept (a missing one goes back after the block that usually precedes it), only the quotes' signature box can be left out (**Printed** unticked); stored only when it differs from the usual order, and frozen with the seller at issue (`seller_body_blocks`). The mentions and the notes take their own style there (`blockStyles`, `BlockStyle`: **Size** small, normal or large, **Alignment** left, centred or right, **Colour** the text's, the accent colour or grey, **Bold**, **Framed** and **Shaded**), drawn by the PDF (the frame and the grey under the whole block when it fits a page) and by the Word copy (a one-cell table when framed or shaded), stored only when it differs from the layout's and frozen at issue (`seller_block_styles`). A **Line under your name** (`header`, 150 characters: a tagline or contact details) is

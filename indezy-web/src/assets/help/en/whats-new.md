@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### A live preview of your documents
+
+In Profile → Billing, the preview now shows every page, of an invoice or of a quote, and draws itself again as you change the settings. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Style your mentions and notes
 
 In **Order of the body**, the mentions and the notes of your invoices and quotes take their own size, alignment, colour, bold, frame and shading. See [Quotes and invoices](/help/invoices-quotes).

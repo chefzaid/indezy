@@ -1536,7 +1536,10 @@
           "ACCENT": "Accent colour",
           "GREY": "Grey"
         }
-      }
+      },
+      "previewPageAlt": "Page {{page}} of {{pages}} of the preview",
+      "previewOfInvoice": "A sample invoice in these settings, {{pages}} page(s), drawn again as you change them.",
+      "previewOfQuote": "A sample quote in these settings, {{pages}} page(s), drawn again as you change them."
     },
     "webhooks": {
       "title": "Webhooks",

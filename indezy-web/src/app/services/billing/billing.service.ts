@@ -1,10 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BillingIdentity, DocumentTemplate, DocumentTemplateKind } from '../../models';
 
 /** The seller's identity on the signed-in workspace's invoices. */
+/** A page of a style's preview, and how many pages the document has. */
+export interface PreviewPage {
+  image: Blob;
+  pages: number;
+}
+
 /** A built-in layout of the documents. */
 export type DocumentLayout = 'SIMPLE' | 'MODERN' | 'CLASSIC';
 
@@ -114,8 +120,10 @@ export class BillingService {
   }
 
   /** The first page of an invoice in the style of these settings, saved or not, as an image. */
-  stylePreview(identity: BillingIdentity, quote = false): Observable<Blob> {
-    return this.http.post(`${environment.apiUrl}/invoices/style-preview${quote ? '?quote=true' : ''}`, identity, { responseType: 'blob' });
+  stylePreview(identity: BillingIdentity, quote = false, page = 1): Observable<PreviewPage> {
+    return this.http.post(`${environment.apiUrl}/invoices/style-preview`, identity,
+      { params: { quote, page }, responseType: 'blob', observe: 'response' })
+      .pipe(map(response => ({ image: response.body ?? new Blob(), pages: Number(response.headers.get('X-Preview-Pages')) || 1 })));
   }
 
   removeLogo(): Observable<BillingIdentity> {

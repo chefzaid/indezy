@@ -68,9 +68,9 @@ for (const width of [1280, 390]) {
     await expect(card.locator('[data-billing-accent-row]')).toContainText('#1F4E79');
     // The style previewed before it is saved.
     let previewed: Record<string, unknown> | null = null;
-    await page.route('**/api/invoices/style-preview', route => {
+    await page.route('**/api/invoices/style-preview?quote=false**', route => {
       previewed = route.request().postDataJSON();
-      return route.fulfill({ body: png, contentType: 'image/png' });
+      return route.fulfill({ body: png, contentType: 'image/png', headers: { 'X-Preview-Pages': '1', 'Access-Control-Expose-Headers': 'X-Preview-Pages' } });
     });
     await card.locator('[data-billing-preview-button]').click();
     await expect(card.locator('[data-billing-preview] img')).toBeVisible();
@@ -80,13 +80,15 @@ for (const width of [1280, 390]) {
     await card.locator('[data-billing-quote-theme]').click();
     await page.getByRole('option', { name: 'Classic' }).click();
     let quotePreview = '';
-    await page.route('**/api/invoices/style-preview?quote=true', route => {
+    await page.route('**/api/invoices/style-preview?quote=true**', route => {
       quotePreview = route.request().url();
       previewed = route.request().postDataJSON();
-      return route.fulfill({ body: png, contentType: 'image/png' });
+      return route.fulfill({ body: png, contentType: 'image/png', headers: { 'X-Preview-Pages': '2', 'Access-Control-Expose-Headers': 'X-Preview-Pages' } });
     });
     await card.locator('[data-billing-preview-quote]').click();
     await expect.poll(() => quotePreview).toContain('quote=true');
+    // Both pages of the quote drawn, then drawn again as the form changes.
+    await expect(card.locator('[data-billing-preview] img')).toHaveCount(2);
     expect(previewed).toEqual(expect.objectContaining({ theme: 'MODERN', quoteTheme: 'CLASSIC' }));
     // The notes moved above the mentions, the quotes' signature box left out.
     await card.locator('[data-body-block-up="NOTES"]').click();

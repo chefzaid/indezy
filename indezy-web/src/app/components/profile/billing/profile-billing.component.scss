@@ -135,6 +135,10 @@
 .style-preview {
   margin: 8px 0 16px;
 
+  img + img {
+    margin-top: 12px;
+  }
+
   img {
     display: block;
     width: 100%;

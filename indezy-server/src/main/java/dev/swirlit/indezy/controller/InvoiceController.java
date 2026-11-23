@@ -131,14 +131,16 @@ public class InvoiceController {
         return PdfResponses.attachment(invoices.renderPdf(workspace(), id));
     }
 
-    @Operation(summary = "The first page of an invoice in the style the billing form sets, saved or not, as an image",
-        description = "With quote=true, in the quotes' own accent colour and layout when the form sets them")
+    @Operation(summary = "A page of an invoice in the style the billing form sets, saved or not, as an image",
+        description = "With quote=true, a quote in the quotes' own accent colour and layout; page from 1; X-Preview-Pages gives the count")
     @PostMapping(value = "/style-preview", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> stylePreview(@Valid @RequestBody BillingIdentityDto identity,
-                                               @RequestParam(defaultValue = "false") boolean quote) {
+                                               @RequestParam(defaultValue = "false") boolean quote,
+                                               @RequestParam(defaultValue = "1") @Min(1) @Max(50) int page) {
         Long workspace = workspace();
-        return ResponseEntity.ok().header(org.springframework.http.HttpHeaders.CACHE_CONTROL, "no-store").contentType(MediaType.IMAGE_PNG)
-            .body(invoices.stylePreview(workspace, billingIdentity.previewed(workspace, identity), quote));
+        dev.swirlit.indezy.pdf.PagePreview preview = invoices.stylePreview(workspace, billingIdentity.previewed(workspace, identity), quote, page);
+        return ResponseEntity.ok().header(org.springframework.http.HttpHeaders.CACHE_CONTROL, "no-store")
+            .header("X-Preview-Pages", String.valueOf(preview.pages())).contentType(MediaType.IMAGE_PNG).body(preview.png());
     }
 
     @Operation(summary = "The Word template filled with the latest document, or a sample before the first")

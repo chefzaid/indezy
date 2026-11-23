@@ -351,20 +351,23 @@
         }
         <span class="hint">{{ 'profile.billing.termsFileHint' | translate }}</span>
       </div>
-      @if (previewUrl) {
-        <figure class="style-preview" data-billing-preview>
-          <img [src]="previewUrl" [alt]="'profile.billing.previewAlt' | translate">
+      @if (previewUrls.length) {
+        <figure class="style-preview" data-billing-preview [attr.aria-busy]="previewing">
+          @for (url of previewUrls; track url; let index = $index) {
+            <img [src]="url" [alt]="'profile.billing.previewPageAlt' | translate:{ page: index + 1, pages: previewPages }" [attr.data-billing-preview-page]="index + 1">
+          }
+          <figcaption class="hint">
+            {{ (previewQuote ? 'profile.billing.previewOfQuote' : 'profile.billing.previewOfInvoice') | translate:{ pages: previewPages } }}
+          </figcaption>
         </figure>
       }
       <div class="actions">
         <button mat-stroked-button type="button" (click)="preview()" [disabled]="previewing" data-billing-preview-button>
           <mat-icon>preview</mat-icon>{{ 'profile.billing.preview' | translate }}
         </button>
-        @if (ownQuoteStyle) {
-          <button mat-stroked-button type="button" (click)="preview(true)" [disabled]="previewing" data-billing-preview-quote>
-            <mat-icon>preview</mat-icon>{{ 'profile.billing.previewQuote' | translate }}
-          </button>
-        }
+        <button mat-stroked-button type="button" (click)="preview(true)" [disabled]="previewing" data-billing-preview-quote>
+          <mat-icon>preview</mat-icon>{{ 'profile.billing.previewQuote' | translate }}
+        </button>
         <button mat-flat-button color="primary" type="submit" [disabled]="saving" data-billing-save>{{ 'common.save' | translate }}</button>
       </div>
     </form>

@@ -20,6 +20,8 @@ public class CorsConfig {
         // Expose headers that the client can access; Retry-After tells when a job board can be read on request again.
         configuration.addExposedHeader("Authorization");
         configuration.addExposedHeader("Retry-After");
+        // How many pages a style's preview has (its pages are drawn one request each).
+        configuration.addExposedHeader("X-Preview-Pages");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
