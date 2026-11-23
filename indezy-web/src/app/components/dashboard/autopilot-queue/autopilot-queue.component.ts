@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { AiAutopilotQueue, AiDraftedFollowUp, AiPreparedOffer } from '../../../models';
+import { AiAutopilotQueue, AiDraftedFollowUp, AiPreparedOffer, AiPreparedPack } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { AiService } from '../../../services/ai/ai.service';
 
@@ -20,10 +20,10 @@ export const PREPARED_SHOWN = 5;
   selector: 'app-autopilot-queue',
   imports: [RouterLink, MatButtonModule, MatIconModule, TranslateModule],
   template: `
-    @if (queue && queue.on && (queue.offers.length || drafts.length)) {
+    @if (queue && queue.on && (queue.offers.length || drafts.length || packs.length)) {
       <section class="autopilot" data-autopilot-queue aria-labelledby="autopilot-title">
         <h3 id="autopilot-title"><mat-icon aria-hidden="true">auto_awesome</mat-icon>{{ 'dashboard.autopilot.title' | translate }}</h3>
-        <p data-autopilot-summary>{{ 'dashboard.autopilot.summary' | translate:{ count: queue.offers.length, fit: fit, drafts: drafts.length } }}</p>
+        <p data-autopilot-summary>{{ 'dashboard.autopilot.summary' | translate:{ count: queue.offers.length, fit: fit, drafts: drafts.length, packs: packs.length } }}</p>
         <ul>
           @for (offer of shown; track offer.offerId) {
             <li [attr.data-autopilot-offer]="offer.offerId" [class.fit]="offer.goodFit">
@@ -35,6 +35,36 @@ export const PREPARED_SHOWN = 5;
             </li>
           }
         </ul>
+        @if (packs.length) {
+          <ul class="drafts">
+            @for (pack of packs; track pack.id) {
+              <li [attr.data-autopilot-pack]="pack.id">
+                <details>
+                  <summary>{{ 'dashboard.autopilot.packFor' | translate:{ title: pack.title } }}@if (pack.company) { · {{ pack.company }} }</summary>
+                  @if (pack.subject) {
+                    <p class="subject">{{ pack.subject }}</p>
+                  }
+                  <p class="body">{{ pack.message }}</p>
+                  @if (pack.screening.length) {
+                    <ul class="screening">
+                      @for (line of pack.screening; track $index) {
+                        <li>{{ line }}</li>
+                      }
+                    </ul>
+                  }
+                  @if (pack.rate) {
+                    <p class="rate" data-autopilot-pack-rate>{{ 'dashboard.autopilot.rate' | translate:{ rate: pack.rate } }}</p>
+                  }
+                </details>
+                <div class="actions">
+                  <button mat-button type="button" (click)="copyPack(pack)" data-autopilot-pack-copy>{{ 'dashboard.autopilot.copy' | translate }}</button>
+                  <a mat-button [routerLink]="['/offers', pack.offerId]">{{ 'dashboard.autopilot.openOffer' | translate }}</a>
+                  <button mat-button type="button" (click)="dismissPack(pack)" data-autopilot-pack-dismiss>{{ 'dashboard.autopilot.dismiss' | translate }}</button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
         @if (drafts.length) {
           <ul class="drafts">
             @for (draft of drafts; track draft.id) {
@@ -132,6 +162,24 @@ export const PREPARED_SHOWN = 5;
         color: inherit;
       }
 
+      .screening {
+        margin: 4px 0 0;
+        padding-left: 20px;
+        list-style: disc;
+        font-size: 0.875rem;
+      }
+
+      .screening li {
+        display: list-item;
+        padding: 0;
+        border: none;
+      }
+
+      .rate {
+        margin: 4px 0 0;
+        color: inherit;
+      }
+
       .actions {
         display: flex;
         flex-wrap: wrap;
@@ -170,6 +218,31 @@ export class AutopilotQueueComponent implements OnInit {
 
   get drafts(): AiDraftedFollowUp[] {
     return this.queue?.drafts ?? [];
+  }
+
+  get packs(): AiPreparedPack[] {
+    return this.queue?.packs ?? [];
+  }
+
+  /** Copies the application as it would be sent, its subject first. */
+  copyPack(pack: AiPreparedPack): void {
+    const text = pack.subject ? pack.subject + '\n\n' + pack.message : pack.message;
+    if (this.clipboard.copy(text)) {
+      this.notifications.success('dashboard.autopilot.copied');
+    }
+  }
+
+  /** Sets the application aside, for good. */
+  dismissPack(pack: AiPreparedPack): void {
+    this.ai.dismissPack(pack.id).subscribe({
+      next: () => {
+        if (this.queue) {
+          this.queue = { ...this.queue, packs: this.packs.filter(kept => kept.id !== pack.id) };
+        }
+        this.changes.markForCheck();
+      },
+      error: () => this.notifications.error('dashboard.autopilot.dismissError')
+    });
   }
 
   /** Copies the draft as it would be sent, its subject first. */

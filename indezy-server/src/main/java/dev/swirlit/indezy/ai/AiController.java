@@ -100,6 +100,13 @@ public class AiController {
         return autopilot.queue(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null));
     }
 
+    @Operation(summary = "Set aside an application the autopilot prepared")
+    @DeleteMapping("/autopilot/packs/{id}")
+    public ResponseEntity<Void> dismissPack(@PathVariable Long id) {
+        autopilot.dismissPack(accessGuard.requireWorkspace(null), id);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Set aside a follow-up the autopilot drafted")
     @DeleteMapping("/autopilot/drafts/{id}")
     public ResponseEntity<Void> dismissDraft(@PathVariable Long id) {

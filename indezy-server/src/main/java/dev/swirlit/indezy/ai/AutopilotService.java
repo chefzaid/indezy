@@ -6,6 +6,7 @@ import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.AutopilotDraft;
+import dev.swirlit.indezy.model.AutopilotPack;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
@@ -13,6 +14,7 @@ import dev.swirlit.indezy.model.OfferVerdict;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.repository.AutopilotDraftRepository;
+import dev.swirlit.indezy.repository.AutopilotPackRepository;
 import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
@@ -31,6 +33,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +56,8 @@ public class AutopilotService {
     static final int OFFERS = 10;
     /** Follow-ups drafted a night at most, per account. */
     static final int DRAFTS = 5;
+    /** Applications prepared a night at most, per account, for the offers found worth applying to. */
+    static final int PACKS = 3;
     /** How long a draft is kept, and how long before a contact is drafted for again. */
     static final Duration DRAFT_KEPT = Duration.ofDays(7);
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
@@ -69,6 +74,8 @@ public class AutopilotService {
     private final MessageAiService messages;
     private final AutopilotDraftRepository drafts;
     private final ContactRepository contacts;
+    private final ApplicationPackAiService applications;
+    private final AutopilotPackRepository packs;
     private final Clock clock;
 
     /** An offer triaged, as the morning's list shows it. */
@@ -85,12 +92,25 @@ public class AutopilotService {
                           LocalDateTime at) {
     }
 
-    /** Whether the run is on, the offers triaged in the last day, worth applying to first, and the follow-ups drafted this week. */
-    public record Queue(boolean on, List<Prepared> offers, List<Drafted> drafts) {
+    /** An application prepared overnight: for which offer, the email, the screening answers and the rate to propose. */
+    public record Pack(Long id, Long offerId, String title, String company, String subject, String message, List<String> screening,
+                       Integer rate, LocalDateTime at) {
+
+        public Pack {
+            screening = List.copyOf(screening);
+        }
+    }
+
+    /**
+     * Whether the run is on, the offers triaged in the last day (worth applying to first), the follow-ups drafted and the
+     * applications prepared this week.
+     */
+    public record Queue(boolean on, List<Prepared> offers, List<Drafted> drafts, List<Pack> packs) {
 
         public Queue {
             offers = List.copyOf(offers);
             drafts = List.copyOf(drafts);
+            packs = List.copyOf(packs);
         }
     }
 
@@ -127,6 +147,7 @@ public class AutopilotService {
         List<OfferDto> found = search.foundBetween(freelanceId, request, now.minus(DAY), now, OFFERS * 3).content();
         DocumentLanguage language = "fr".equalsIgnoreCase(user.getLanguagePreference()) ? DocumentLanguage.FR : DocumentLanguage.EN;
         int triaged = 0;
+        List<Long> worth = new ArrayList<>();
         for (OfferDto offer : found) {
             if (triaged >= OFFERS) {
                 break;
@@ -135,20 +156,60 @@ public class AutopilotService {
                 continue;
             }
             try {
-                triage.triage(user.getId(), freelanceId, offer.id(), language);
+                if (triage.triage(user.getId(), freelanceId, offer.id(), language).goodFit()) {
+                    worth.add(offer.id());
+                }
                 triaged++;
             } catch (InvalidStateException e) {
                 // The allowance is used up: the rest waits for the member, or for next month.
-                break;
+                return triaged;
             }
         }
+        prepare(user, freelanceId, worth, language);
         return triaged;
     }
 
-    /** Every night, the drafts older than a week go. */
+    /** Prepares the application, by email to the ESN, of the first {@value #PACKS} offers found worth applying to. */
+    private void prepare(User user, Long freelanceId, List<Long> worth, DocumentLanguage language) {
+        int prepared = 0;
+        for (Long offerId : worth) {
+            if (prepared >= PACKS) {
+                return;
+            }
+            if (packs.existsByFreelanceIdAndOfferId(freelanceId, offerId)) {
+                continue;
+            }
+            ApplicationPackAiService.Draft written;
+            try {
+                written = applications.pack(user.getId(), freelanceId, offerId, ApplicationPackAiService.Channel.ESN_EMAIL, language);
+            } catch (InvalidStateException e) {
+                return;
+            }
+            AutopilotPack pack = new AutopilotPack();
+            pack.setFreelanceId(freelanceId);
+            pack.setOfferId(offerId);
+            pack.setSubject(cut(written.subject(), AutopilotPack.SUBJECT_MAX));
+            pack.setMessage(cut(written.message(), AutopilotPack.TEXT_MAX));
+            pack.setScreening(cut(written.screening().stream().map(answer -> answer.question() + " — " + answer.answer())
+                .collect(Collectors.joining("\n")), AutopilotPack.TEXT_MAX));
+            pack.setRate(written.rate() > 0 ? written.rate() : null);
+            packs.save(pack);
+            prepared++;
+        }
+    }
+
+    /** Every night, the drafts and applications older than a week go. */
     @Scheduled(cron = "0 40 5 * * *", zone = "Europe/Paris")
     public void dropOld() {
-        drafts.deleteOlderThan(LocalDateTime.now(clock.withZone(PARIS)).minus(DRAFT_KEPT));
+        LocalDateTime before = LocalDateTime.now(clock.withZone(PARIS)).minus(DRAFT_KEPT);
+        drafts.deleteOlderThan(before);
+        packs.deleteOlderThan(before);
+    }
+
+    /** Sets an application aside: the member sent it their own way, or does not want it. */
+    @Transactional
+    public void dismissPack(Long freelanceId, Long packId) {
+        packs.delete(packs.findByIdAndFreelanceId(packId, freelanceId).orElseThrow(() -> new ResourceNotFoundException("Application not found")));
     }
 
     /**
@@ -229,7 +290,16 @@ public class AutopilotService {
                     contact.getClient() == null ? null : contact.getClient().getCompanyName(), draft.getProjectId(), draft.getSubject(),
                     draft.getBody(), draft.getCreatedAt());
             }).toList();
-        return new Queue(on, prepared, drafted);
+        List<AutopilotPack> applied = packs.findByFreelanceIdAndCreatedAtAfterOrderByCreatedAtDesc(freelanceId,
+            LocalDateTime.now(clock.withZone(PARIS)).minus(DRAFT_KEPT));
+        Map<Long, JobOffer> packOffers = offers.findAllById(applied.stream().map(AutopilotPack::getOfferId).toList()).stream()
+            .collect(Collectors.toMap(JobOffer::getId, Function.identity()));
+        List<Pack> ready = applied.stream().filter(pack -> packOffers.containsKey(pack.getOfferId()))
+            .map(pack -> new Pack(pack.getId(), pack.getOfferId(), packOffers.get(pack.getOfferId()).getTitle(),
+                packOffers.get(pack.getOfferId()).getCompany(), pack.getSubject(), pack.getMessage(), breakers(pack.getScreening()),
+                pack.getRate(), pack.getCreatedAt()))
+            .toList();
+        return new Queue(on, prepared, drafted, ready);
     }
 
     private static List<String> breakers(String stored) {

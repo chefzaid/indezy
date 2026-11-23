@@ -30,7 +30,8 @@ public class AccountPurge {
         "network_meetup_attendees", "network_meetups", "network_invitations", "network_members",
         "webhook_events", "webhook_deliveries", "webhooks", "activity_report_days", "interview_step_checklist",
         "interview_steps", "scheduled_contact_emails", "prospection_campaigns", "contact_interactions", "contact_relations", "project_attachments", "project_notes", "project_chat_messages",
-        "purchase_orders", "project_referrals", "project_contract_checks", "project_documents", "job_offer_states", "offer_ai_verdicts", "autopilot_drafts", "invoice_lines", "invoices",
+        "purchase_orders", "project_referrals", "project_contract_checks", "project_documents", "job_offer_states", "offer_ai_verdicts", "autopilot_drafts",
+        "autopilot_packs", "invoice_lines", "invoices",
         "invoice_counters", "activity_reports", "quote_lines", "quotes", "quote_counters", "expenses", "testimonials", "projects",
         "pipeline_template_steps", "pipeline_templates", "contacts", "clients", "sources", "seasons", "email_templates",
         "offer_board_visits", "offer_publisher_blocks", "offer_site_exclusions", "offer_suggestion_dismissals",
@@ -168,6 +169,7 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM job_offer_states WHERE freelance_id = ?", f);
         rows += jdbc.update("DELETE FROM offer_ai_verdicts WHERE freelance_id = ?", f);
         rows += jdbc.update("DELETE FROM autopilot_drafts WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM autopilot_packs WHERE freelance_id = ?", f);
         rows += jdbc.update("DELETE FROM invoice_lines WHERE invoice_id IN (SELECT id FROM invoices WHERE freelance_id = ?)", f);
         rows += jdbc.update("UPDATE invoices SET credited_invoice_id = NULL WHERE freelance_id = ?", f);
         rows += jdbc.update("DELETE FROM invoices WHERE freelance_id = ?", f);

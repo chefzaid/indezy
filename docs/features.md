@@ -879,8 +879,11 @@ deal-breakers and opening its page; it stays away while the autopilot is off or 
 contacts still waiting for an answer about an opportunity (the follow-ups due), the longest waiting first, it drafts a
 follow-up (**Draft a message (AI)**'s, `MessageAiService`), 5 at most, none for a contact drafted for in the week, kept a
 week (`autopilot_drafts`, removed with the account): **Prepared overnight** lists them, each with **Copy** (subject and
-text), **Open the opportunity** and **Dismiss** (`DELETE /api/ai/autopilot/drafts/{id}`). Application packs prepared
-overnight are not yet.
+text), **Open the opportunity** and **Dismiss** (`DELETE /api/ai/autopilot/drafts/{id}`). For the first 3 offers of the
+night found worth applying to, it also prepares the application by email to the ESN (**Prepare my application (AI)**'s,
+`ApplicationPackAiService`): subject and message, the screening answers and the rate to propose, kept a week
+(`autopilot_packs`, removed with the account), listed with **Copy**, **Open the offer** and **Dismiss**
+(`DELETE /api/ai/autopilot/packs/{id}`).
 
 ### Non-Solicitation Clauses
 

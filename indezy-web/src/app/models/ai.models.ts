@@ -232,6 +232,21 @@ export interface AiAutopilotQueue {
   on: boolean;
   offers: AiPreparedOffer[];
   drafts?: AiDraftedFollowUp[];
+  packs?: AiPreparedPack[];
+}
+
+/** An application the autopilot prepared overnight for an offer worth applying to, kept a week. */
+export interface AiPreparedPack {
+  id: number;
+  offerId: number;
+  title: string | null;
+  company: string | null;
+  subject: string | null;
+  message: string;
+  /** "question — answer", one per screening question. */
+  screening: string[];
+  rate: number | null;
+  at: string;
 }
 
 export interface AiOfferVerdict {

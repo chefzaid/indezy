@@ -8,6 +8,8 @@ import dev.swirlit.indezy.model.OfferVerdict;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.repository.AutopilotDraftRepository;
+import dev.swirlit.indezy.repository.AutopilotPackRepository;
+import dev.swirlit.indezy.model.AutopilotPack;
 import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.dto.DashboardStatsDto;
@@ -50,8 +52,10 @@ class AutopilotServiceTest {
     private final ContactInteractionService interactions = mock(ContactInteractionService.class);
     private final MessageAiService messages = mock(MessageAiService.class);
     private final AutopilotDraftRepository drafts = mock(AutopilotDraftRepository.class);
+    private final ApplicationPackAiService applications = mock(ApplicationPackAiService.class);
+    private final AutopilotPackRepository packs = mock(AutopilotPackRepository.class);
     private final AutopilotService autopilot = new AutopilotService(users, freelances, search, triage, verdicts, mock(JobOfferRepository.class), ai,
-        interactions, messages, drafts, mock(ContactRepository.class), Clock.fixed(Instant.parse("2026-11-24T03:10:00Z"), ZoneOffset.UTC));
+        interactions, messages, drafts, mock(ContactRepository.class), applications, packs, Clock.fixed(Instant.parse("2026-11-24T03:10:00Z"), ZoneOffset.UTC));
 
     private User member(boolean on) {
         User user = new User();
@@ -73,6 +77,11 @@ class AutopilotServiceTest {
             return offer;
         }).toList();
         when(search.foundBetween(eq(9L), any(), any(), any(), anyInt())).thenReturn(new OfferPageDto(offers, 0, offers.size(), offers.size(), 1, false, true));
+        when(applications.pack(eq(3L), eq(9L), anyLong(), any(), any())).thenReturn(new ApplicationPackAiService.Draft("", "Bonjour,", List.of(), 0,
+            List.of()));
+        // Even offers are worth applying to.
+        when(triage.triage(eq(3L), eq(9L), anyLong(), any())).thenAnswer(call -> new OfferTriageAiService.Verdict(call.getArgument(2),
+            (Long) call.getArgument(2) % 2 == 0, "Avis", List.of(), null));
     }
 
     @Test
@@ -122,5 +131,23 @@ class AutopilotServiceTest {
         assertThat(saved.getAllValues()).extracting(AutopilotDraft::getContactId).containsExactly(1L, 4L);
         assertThat(saved.getAllValues().getFirst().getSubject()).isEqualTo("Point sur la mission");
         assertThat(autopilot.draft(member(false))).isZero();
+    }
+
+    @Test
+    void preparesTheApplicationOfTheFirstThreeOffersWorthApplyingTo() {
+        User user = member(true);
+        found(10);
+        when(packs.existsByFreelanceIdAndOfferId(9L, 4L)).thenReturn(true);
+        when(applications.pack(eq(3L), eq(9L), anyLong(), eq(ApplicationPackAiService.Channel.ESN_EMAIL), eq(DocumentLanguage.FR)))
+            .thenReturn(new ApplicationPackAiService.Draft("Candidature", "Bonjour,", List.of(new ApplicationPackAiService.Answer("Disponibilité", "Janvier")),
+                650, List.of()));
+
+        autopilot.run(user);
+
+        ArgumentCaptor<AutopilotPack> saved = ArgumentCaptor.forClass(AutopilotPack.class);
+        verify(packs, times(AutopilotService.PACKS)).save(saved.capture());
+        assertThat(saved.getAllValues()).extracting(AutopilotPack::getOfferId).containsExactly(2L, 6L, 8L);
+        assertThat(saved.getAllValues().getFirst().getScreening()).isEqualTo("Disponibilité — Janvier");
+        assertThat(saved.getAllValues().getFirst().getRate()).isEqualTo(650);
     }
 }

@@ -13,12 +13,13 @@ describe('AutopilotQueueComponent', () => {
   const offer = (id: number, goodFit: boolean) => ({ offerId: id, title: 'Lead Java ' + id, company: id % 2 ? 'Conseil' : null, goodFit,
     verdict: goodFit ? 'Bonne mission.' : 'Sur site tous les jours.', dealBreakers: goodFit ? [] : ['5 jours sur site'], at: '2026-11-24T04:10:00' });
 
-  let ai: { autopilot: () => Observable<AiAutopilotQueue>; dismissDraft: jasmine.Spy };
+  let ai: { autopilot: () => Observable<AiAutopilotQueue>; dismissDraft: jasmine.Spy; dismissPack: jasmine.Spy };
   let clipboard: jasmine.SpyObj<Clipboard>;
 
   function create(queue: AiAutopilotQueue): HTMLElement {
     TestBed.resetTestingModule();
-    ai = { autopilot: () => of(queue), dismissDraft: jasmine.createSpy('dismissDraft').and.returnValue(of(undefined)) };
+    ai = { autopilot: () => of(queue), dismissDraft: jasmine.createSpy('dismissDraft').and.returnValue(of(undefined)),
+      dismissPack: jasmine.createSpy('dismissPack').and.returnValue(of(undefined)) };
     clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
     clipboard.copy.and.returnValue(true);
     TestBed.configureTestingModule({
@@ -48,6 +49,18 @@ describe('AutopilotQueueComponent', () => {
     expect(clipboard.copy).toHaveBeenCalledWith('Point sur la mission\n\nBonjour Léa,');
     (draft.querySelector('[data-autopilot-dismiss]') as HTMLButtonElement).click();
     expect(ai.dismissDraft).toHaveBeenCalledWith(5);
+  });
+
+  it('lists the applications prepared, with their rate, to copy or set aside', () => {
+    const element = create({ on: true, offers: [], packs: [{ id: 8, offerId: 12, title: 'Lead Kotlin', company: 'Conseil', subject: 'Candidature',
+      message: 'Bonjour,', screening: ['Disponibilité — Janvier'], rate: 650, at: '2026-11-24T04:10:00' }] });
+    const pack = element.querySelector('[data-autopilot-pack="8"]')!;
+    expect(pack.querySelector('[data-autopilot-pack-rate]')!.textContent).toContain('dashboard.autopilot.rate');
+    expect(pack.textContent).toContain('Disponibilité — Janvier');
+    (pack.querySelector('[data-autopilot-pack-copy]') as HTMLButtonElement).click();
+    expect(clipboard.copy).toHaveBeenCalledWith('Candidature\n\nBonjour,');
+    (pack.querySelector('[data-autopilot-pack-dismiss]') as HTMLButtonElement).click();
+    expect(ai.dismissPack).toHaveBeenCalledWith(8);
   });
 
   it('stays away while off or when the night found nothing', () => {

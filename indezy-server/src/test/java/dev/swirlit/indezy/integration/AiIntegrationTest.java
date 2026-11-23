@@ -143,6 +143,9 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
     @Autowired
     private dev.swirlit.indezy.repository.AutopilotDraftRepository autopilotDrafts;
 
+    @Autowired
+    private dev.swirlit.indezy.repository.AutopilotPackRepository autopilotPacks;
+
     private static JobOffer offer() {
         JobOffer offer = new JobOffer();
         offer.setSite(OfferSite.FREE_WORK);
@@ -266,27 +269,6 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.GET, "/ai/offers/" + offerId + "/verdict", null, Map.class).getBody()).containsEntry("goodFit", false);
         assertThat(call(bob, HttpMethod.GET, "/ai/offers/" + offerId + "/verdict", null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.NO_CONTENT);
-        // The morning's list: the offers triaged in the last day, the autopilot off until turned on.
-        Map<String, Object> queue = call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody();
-        assertThat(queue).containsEntry("on", false);
-        assertThat((List<Map<String, Object>>) queue.get("offers")).singleElement().satisfies(item ->
-            assertThat(item).containsEntry("offerId", (int) offerId).containsEntry("goodFit", false).containsEntry("title", "Lead Kotlin"));
-        assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("autopilot", true), Map.class).getBody()).containsEntry("autopilot", true);
-        assertThat(call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody()).containsEntry("on", true);
-        assertThat((List<?>) call(bob, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("offers")).isEmpty();
-        // A follow-up drafted overnight for one of Alice's contacts: listed for her, set aside by her only.
-        long lea = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Léa", "lastName", "Suivi", "clientId", aliceClientId), Map.class));
-        dev.swirlit.indezy.model.AutopilotDraft draft = new dev.swirlit.indezy.model.AutopilotDraft();
-        draft.setFreelanceId(alice.freelanceId());
-        draft.setContactId(lea);
-        draft.setSubject("Point sur la mission");
-        draft.setBody("Bonjour Léa,");
-        long draftId = autopilotDrafts.save(draft).getId();
-        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts"))
-            .singleElement().satisfies(item -> assertThat(item).containsEntry("contact", "Léa Suivi").containsEntry("subject", "Point sur la mission"));
-        assertThat(call(bob, HttpMethod.DELETE, "/ai/autopilot/drafts/" + draftId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(call(alice, HttpMethod.DELETE, "/ai/autopilot/drafts/" + draftId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat((List<?>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts")).isEmpty();
         jdbcTemplate.update("DELETE FROM job_offer_skills WHERE offer_id = ?", offerId);
         offers.deleteById(offerId);
         triageService.dropOrphans();
@@ -335,6 +317,52 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(BODIES.getLast()).contains("\"model\":\"claude-opus-5-5\"");
         // Going back to Indezy's key forgets the choices.
         assertThat((Map<String, Object>) call(bob, HttpMethod.DELETE, "/ai/key", null, Map.class).getBody().get("chosen")).isEmpty();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void listsWhatTheAutopilotPreparedOvernight() {
+        call(alice, HttpMethod.PUT, "/ai/key", Map.of("apiKey", "sk-ant-alice-own"), Map.class);
+        long offerId = offers.save(offer()).getId();
+        call(alice, HttpMethod.POST, "/ai/offers/" + offerId + "/verdict?language=FR", null, Map.class);
+        // The morning's list: the offers triaged in the last day, the autopilot off until turned on.
+        Map<String, Object> queue = call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody();
+        assertThat(queue).containsEntry("on", false);
+        assertThat((List<Map<String, Object>>) queue.get("offers")).singleElement().satisfies(item ->
+            assertThat(item).containsEntry("offerId", (int) offerId).containsEntry("goodFit", false).containsEntry("title", "Lead Kotlin"));
+        assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("autopilot", true), Map.class).getBody()).containsEntry("autopilot", true);
+        assertThat(call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody()).containsEntry("on", true);
+        assertThat((List<?>) call(bob, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("offers")).isEmpty();
+        // A follow-up drafted overnight for one of Alice's contacts: listed for her, set aside by her only.
+        long lea = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Léa", "lastName", "Suivi", "clientId", aliceClientId), Map.class));
+        dev.swirlit.indezy.model.AutopilotDraft draft = new dev.swirlit.indezy.model.AutopilotDraft();
+        draft.setFreelanceId(alice.freelanceId());
+        draft.setContactId(lea);
+        draft.setSubject("Point sur la mission");
+        draft.setBody("Bonjour Léa,");
+        long draftId = autopilotDrafts.save(draft).getId();
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts"))
+            .singleElement().satisfies(item -> assertThat(item).containsEntry("contact", "Léa Suivi").containsEntry("subject", "Point sur la mission"));
+        assertThat(call(bob, HttpMethod.DELETE, "/ai/autopilot/drafts/" + draftId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.DELETE, "/ai/autopilot/drafts/" + draftId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat((List<?>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts")).isEmpty();
+        // An application prepared overnight for the offer: listed with its rate, set aside.
+        dev.swirlit.indezy.model.AutopilotPack pack = new dev.swirlit.indezy.model.AutopilotPack();
+        pack.setFreelanceId(alice.freelanceId());
+        pack.setOfferId(offerId);
+        pack.setSubject("Candidature Lead Kotlin");
+        pack.setMessage("Bonjour,");
+        pack.setScreening("Disponibilité — Janvier");
+        pack.setRate(650);
+        long packId = autopilotPacks.save(pack).getId();
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("packs"))
+            .singleElement().satisfies(item -> assertThat(item).containsEntry("title", "Lead Kotlin").containsEntry("rate", 650)
+                .containsEntry("screening", List.of("Disponibilité — Janvier")));
+        assertThat(call(bob, HttpMethod.DELETE, "/ai/autopilot/packs/" + packId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.DELETE, "/ai/autopilot/packs/" + packId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        jdbcTemplate.update("DELETE FROM offer_ai_verdicts WHERE offer_id = ?", offerId);
+        jdbcTemplate.update("DELETE FROM job_offer_skills WHERE offer_id = ?", offerId);
+        offers.deleteById(offerId);
     }
 
     @Test
