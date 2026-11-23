@@ -136,6 +136,10 @@ export interface AvailabilityRecipient {
   postings: number;
   /** The title of the newest of those missions, for `{{mission}}`; null without any. */
   mission: string | null;
+  /** How many earlier campaigns wrote to them without an answer. */
+  silentCampaigns: number;
+  /** How many opportunities opened with their company after a campaign wrote there. */
+  campaignOpportunities: number;
 }
 
 /** A contact's exchanges, newest first, and what they say about the relationship. */

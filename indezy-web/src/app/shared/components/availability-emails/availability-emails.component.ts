@@ -20,6 +20,9 @@ import { NotificationService } from '../../../services/notification/notification
  * days, not those in touch in the last six weeks nor those who asked not to be contacted, those who answered most first
  * then those posting most, none ticked at first; one email each from Indezy, `{{firstName}}`, `{{company}}` and `{{mission}}` replaced by theirs (or a message written for one contact), with the dossier de compétences attached unless unticked, each recorded in their exchanges.
  */
+/** Contacts this many campaigns wrote to without an answer are not ticked again by **Prospect again**. */
+export const SILENT_LIMIT = 2;
+
 @Component({
   selector: 'app-availability-emails',
   imports: [FormsModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressSpinnerModule,
@@ -43,6 +46,12 @@ import { NotificationService } from '../../../services/notification/notification
                   }
                   @if (recipient.postings) {
                     · <span data-recipient-postings>{{ 'availabilityEmails.postings' | translate:{ count: recipient.postings } }}</span>
+                  }
+                  @if (recipient.campaignOpportunities) {
+                    · <span data-recipient-campaign-opportunities>{{ 'availabilityEmails.campaignOpportunities' | translate:{ count: recipient.campaignOpportunities } }}</span>
+                  }
+                  @if (recipient.silentCampaigns) {
+                    · <span data-recipient-silent>{{ 'availabilityEmails.silentCampaigns' | translate:{ count: recipient.silentCampaigns } }}</span>
                   }
                 </span>
               </mat-checkbox>
@@ -225,12 +234,18 @@ export class AvailabilityEmailsComponent implements OnInit {
     return (this.recipients ?? []).filter(recipient => !reached.has(recipient.id));
   }
 
-  /** Starts again from a campaign: its subject, and every contact listed today that it did not write to ticked. */
+  /**
+   * Starts again from a campaign: its subject, and every contact listed today that it did not write to ticked, but for
+   * those {@link SILENT_LIMIT} campaigns or more wrote to without an answer (left for the user to tick).
+   */
   prospectAgain(campaign: ProspectionCampaign): void {
     this.chosen.clear();
-    this.newTargets(campaign).forEach(recipient => this.chosen.add(recipient.id));
+    const targets = this.newTargets(campaign);
+    targets.filter(recipient => (recipient.silentCampaigns ?? 0) < SILENT_LIMIT).forEach(recipient => this.chosen.add(recipient.id));
     this.subject = campaign.name;
-    this.notifications.info('availabilityEmails.againReady', 6000, { count: this.chosen.size });
+    const left = targets.length - this.chosen.size;
+    this.notifications.info(left ? 'availabilityEmails.againReadyLeftOut' : 'availabilityEmails.againReady', 6000,
+      left ? { count: this.chosen.size, left } : { count: this.chosen.size });
   }
 
   /** A new campaign for this sending, named after its subject; none (the emails still go) when it cannot be started. */

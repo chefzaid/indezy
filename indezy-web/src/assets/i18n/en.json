@@ -5257,7 +5257,7 @@
   "availabilityEmails": {
     "title": "Email my ESN contacts",
     "none": "None of the ESNs you had an opportunity with has a contact with an email address.",
-    "hint": "The contacts of the ESNs you had an opportunity with, that answered you or that posted missions for your profile in the feed in the last 60 days, those who answered most first; anyone you were in touch with in the last six weeks, or who asked not to be contacted, is left out. One email each goes from Indezy, in your name with answers to you, recorded in their exchanges.",
+    "hint": "The contacts of the ESNs you had an opportunity with, that answered you or that posted missions for your profile in the feed in the last 60 days, those who answered most first, then those whose company gave opportunities after a campaign, and last those who left earlier campaigns unanswered; anyone you were in touch with in the last six weeks, or who asked not to be contacted, is left out. One email each goes from Indezy, in your name with answers to you, recorded in their exchanges.",
     "subject": "Subject",
     "body": "Message",
     "variable": "{{firstName}}, {{company}} and {{mission}} become each contact's first name, company and newest mission posted for you (a line with {{mission}} is left out when they posted none).",
@@ -5288,7 +5288,10 @@
     "scheduled": "{{count}} emails planned. They go over the coming working days.",
     "scheduleFailed": "The emails could not be planned: try again.",
     "waiting": "Waiting to go ({{count}})",
-    "cancelFailed": "The email could not be cancelled: try again."
+    "cancelFailed": "The email could not be cancelled: try again.",
+    "campaignOpportunities": "opportunities after a campaign: {{count}}",
+    "silentCampaigns": "unanswered campaigns: {{count}}",
+    "againReadyLeftOut": "{{count}} contacts this campaign did not reach are ticked; {{left}} who did not answer two campaigns or more are left unticked: check the message, then send."
   },
   "marketReport": {
     "title": "IT freelance market report",

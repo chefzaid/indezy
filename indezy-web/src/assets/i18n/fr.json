@@ -5257,7 +5257,7 @@
   "availabilityEmails": {
     "title": "Écrire à mes contacts ESN",
     "none": "Aucune des ESN avec qui vous avez eu une opportunité n'a de contact avec une adresse e-mail.",
-    "hint": "Les contacts des ESN avec qui vous avez eu une opportunité, qui vous ont répondu ou qui ont publié des missions pour votre profil dans le fil ces 60 derniers jours, ceux qui ont le plus répondu d'abord ; ceux avec qui vous avez échangé ces six dernières semaines, ou qui ont demandé à ne pas être contactés, sont laissés de côté. Un e-mail chacun part d'Indezy, à votre nom avec les réponses vers vous, noté dans leurs échanges.",
+    "hint": "Les contacts des ESN avec qui vous avez eu une opportunité, qui vous ont répondu ou qui ont publié des missions pour votre profil dans le fil ces 60 derniers jours, ceux qui ont le plus répondu d'abord, puis ceux dont la société a donné des opportunités après une campagne, et en dernier ceux qui ont laissé des campagnes précédentes sans réponse ; ceux avec qui vous avez échangé ces six dernières semaines, ou qui ont demandé à ne pas être contactés, sont laissés de côté. Un e-mail chacun part d'Indezy, à votre nom avec les réponses vers vous, noté dans leurs échanges.",
     "subject": "Objet",
     "body": "Message",
     "variable": "{{firstName}}, {{company}} et {{mission}} deviennent le prénom, la société et la dernière mission publiée pour vous de chaque contact (une ligne avec {{mission}} est retirée quand il n'en a publié aucune).",
@@ -5288,7 +5288,10 @@
     "scheduled": "{{count}} e-mails programmés. Ils partent au fil des prochains jours ouvrés.",
     "scheduleFailed": "Les e-mails n'ont pas pu être programmés : réessayez.",
     "waiting": "En attente d'envoi ({{count}})",
-    "cancelFailed": "L'e-mail n'a pas pu être annulé : réessayez."
+    "cancelFailed": "L'e-mail n'a pas pu être annulé : réessayez.",
+    "campaignOpportunities": "opportunités après une campagne : {{count}}",
+    "silentCampaigns": "campagnes sans réponse : {{count}}",
+    "againReadyLeftOut": "{{count}} contacts que cette campagne n'a pas touchés sont cochés ; {{left}} qui n'ont pas répondu à deux campagnes ou plus restent décochés : relisez le message, puis envoyez."
   },
   "marketReport": {
     "title": "Baromètre des TJM freelance IT",

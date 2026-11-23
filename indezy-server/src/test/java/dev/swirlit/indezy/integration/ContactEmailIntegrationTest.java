@@ -308,6 +308,45 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
             .containsEntry("won", 1);
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    void ranksTheNextProspectionByWhatTheEarlierCampaignsGot() throws Exception {
+        long silentEsn = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Silence ESN", "city", "Lyon", "isFinal", false,
+            "freelanceId", alice.freelanceId()), Map.class));
+        long answeringEsn = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Réponse ESN", "city", "Lyon", "isFinal", false,
+            "freelanceId", alice.freelanceId()), Map.class));
+        long plainEsn = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Neutre ESN", "city", "Lyon", "isFinal", false,
+            "freelanceId", alice.freelanceId()), Map.class));
+        long old = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Java", "dailyRate", 600, "status", "WON", "clientId", silentEsn), Map.class));
+        long older = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Java", "dailyRate", 600, "status", "WON", "clientId", plainEsn), Map.class));
+        jdbcTemplate.update("UPDATE projects SET created_at = ? WHERE id IN (?, ?)", java.time.LocalDateTime.now().minusDays(100), old, older);
+        long silent = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Sil", "lastName", "Rangé", "email", "sil@silence.example",
+            "clientId", silentEsn), Map.class));
+        long chosen = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Cho", "lastName", "Rangé", "email", "cho@reponse.example",
+            "clientId", answeringEsn), Map.class));
+        call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Neu", "lastName", "Rangé", "email", "neu@neutre.example", "clientId", plainEsn),
+            Map.class);
+        when(mailer.configured()).thenReturn(true);
+        when(mailer.send(any())).thenReturn("e-20");
+        for (String name : List.of("Septembre", "Octobre")) {
+            Object campaign = call(alice, HttpMethod.POST, "/contacts/emails/campaigns", Map.of("name", name), Map.class).getBody().get("id");
+            call(alice, HttpMethod.POST, "/contacts/" + silent + "/emails", Map.of("subject", name, "body", "Bonjour", "campaignId", campaign), Map.class);
+            if ("Septembre".equals(name)) {
+                call(alice, HttpMethod.POST, "/contacts/" + chosen + "/emails", Map.of("subject", name, "body", "Bonjour", "campaignId", campaign),
+                    Map.class);
+            }
+        }
+        // Written two months ago; an opportunity opened since with the second ESN only.
+        jdbcTemplate.update("UPDATE contact_interactions SET occurred_on = ? WHERE contact_id IN (?, ?)", java.time.LocalDate.now().minusDays(60),
+            silent, chosen);
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "CONTACT", "clientId", answeringEsn), Map.class);
+
+        List<Map<String, Object>> recipients = call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody();
+        assertThat(recipients).filteredOn(recipient -> "Rangé".equals(String.valueOf(recipient.get("name")).split(" ")[1]))
+            .extracting(recipient -> recipient.get("company") + " " + recipient.get("campaignOpportunities") + " " + recipient.get("silentCampaigns"))
+            .containsExactly("Réponse ESN 1 1", "Neutre ESN 0 0", "Silence ESN 0 2");
+    }
+
     private static JobOffer offer(String company, List<String> skills, java.time.Instant publishedAt) {
         JobOffer offer = new JobOffer();
         offer.setSite(OfferSite.FREE_WORK);

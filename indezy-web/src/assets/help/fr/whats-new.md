@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Votre prochaine prospection classée par les précédentes
+
+Dans **Écrire à mes contacts ESN**, les contacts dont la société vous a donné des opportunités après une campagne passent d'abord et ceux qui ont laissé des campagnes sans réponse en dernier ; **Prospecter à nouveau** laisse décoché qui en a ignoré deux. Voir [Le tableau de bord](/help/dashboard).
+
 ### Vos e-mails de disponibilité étalés sur des jours ouvrés
 
 **Écrire à mes contacts ESN** peut programmer les e-mails sur quelques jours ouvrés, aux heures de bureau, avec un plafond par jour ; celui dont le contact se manifeste d'abord ne part pas. Voir [Le tableau de bord](/help/dashboard).

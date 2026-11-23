@@ -10,9 +10,11 @@ import dev.swirlit.indezy.mail.ContactEmailComposer;
 import dev.swirlit.indezy.mail.Email;
 import dev.swirlit.indezy.mail.MailException;
 import dev.swirlit.indezy.mail.ResendMailer;
+import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.ContactInteraction;
 import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.DossierLayout;
 import dev.swirlit.indezy.model.enums.InteractionChannel;
@@ -36,6 +38,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -102,10 +105,11 @@ public class ContactEmailService {
 
     /**
      * A contact of an ESN the workspace worked with or heard from, who can be emailed: how many times they answered or
-     * wrote, and when they were last in touch.
+     * wrote, and when they were last in touch; what their company posted lately; and what earlier campaigns got from
+     * them: how many wrote to them without an answer, and how many opportunities opened with their company after one did.
      */
     public record Recipient(Long id, String firstName, String name, String company, String email, int answers, LocalDate lastContactedOn,
-                            int postings, String mission) {
+                            int postings, String mission, int silentCampaigns, int campaignOpportunities) {
     }
 
     /** What a company posted for the profile lately: how many offers, and the newest one's title. */
@@ -144,13 +148,16 @@ public class ContactEmailService {
     @Transactional(readOnly = true)
     public List<Recipient> availabilityRecipients(Long freelanceId) {
         Set<Long> workedWith = new HashSet<>();
-        projects.findByFreelanceId(freelanceId).forEach(project -> Stream.of(project.getClient(), project.getMiddleman())
+        List<Project> pipeline = projects.findByFreelanceId(freelanceId);
+        pipeline.forEach(project -> Stream.of(project.getClient(), project.getMiddleman())
             .filter(Objects::nonNull).forEach(company -> workedWith.add(company.getId())));
         Map<Long, int[]> answers = new HashMap<>();
         Map<Long, LocalDate> lastInTouch = new HashMap<>();
         Set<Long> answeringCompanies = new HashSet<>();
+        Map<Long, List<ContactInteraction>> exchanges = new HashMap<>();
         for (ContactInteraction interaction : interactions.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(freelanceId)) {
             Contact contact = interaction.getContact();
+            exchanges.computeIfAbsent(contact.getId(), id -> new ArrayList<>()).add(interaction);
             lastInTouch.merge(contact.getId(), interaction.getOccurredOn(), (one, other) -> one.isAfter(other) ? one : other);
             if (interaction.getDirection() == InteractionDirection.INCOMING || Boolean.TRUE.equals(interaction.getReplied())) {
                 answers.computeIfAbsent(contact.getId(), id -> new int[1])[0]++;
@@ -169,16 +176,64 @@ public class ContactEmailService {
             .toList();
         Map<String, Postings> postings = postings(freelanceId, reachable);
         Postings none = new Postings(0, null);
+        Map<Long, Integer> silent = new HashMap<>();
+        Map<Long, Integer> opportunities = campaignOpportunities(exchanges, pipeline, silent);
         return reachable.stream()
             .filter(contact -> workedWith.contains(contact.getClient().getId()) || answeringCompanies.contains(contact.getClient().getId()) ||
                 postings.containsKey(JobOffer.companyKeyOf(contact.getClient().getCompanyName())))
             .map(contact -> new Recipient(contact.getId(), contact.getFirstName(), contact.getFullName(), contact.getClient().getCompanyName(),
                 contact.getEmail().strip(), answers.getOrDefault(contact.getId(), new int[1])[0], lastInTouch.get(contact.getId()),
                 postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).count(),
-                postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).latest()))
-            .sorted(Comparator.comparingInt(Recipient::answers).reversed().thenComparing(Comparator.comparingInt(Recipient::postings).reversed())
+                postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).latest(),
+                silent.getOrDefault(contact.getId(), 0), opportunities.getOrDefault(contact.getClient().getId(), 0)))
+            .sorted(Comparator.comparingInt(Recipient::answers).reversed()
+                .thenComparing(Comparator.comparingInt(Recipient::campaignOpportunities).reversed())
+                .thenComparingInt(Recipient::silentCampaigns)
+                .thenComparing(Comparator.comparingInt(Recipient::postings).reversed())
                 .thenComparing(Recipient::company, String.CASE_INSENSITIVE_ORDER).thenComparing(Recipient::name, String.CASE_INSENSITIVE_ORDER))
             .toList();
+    }
+
+    /**
+     * What the earlier campaigns got: into {@code silent}, how many campaigns wrote to each contact without an answer
+     * ({@link ProspectionCampaignService#answered}); returned, how many opportunities opened with each company (as the
+     * client or the ESN) on or after the day a campaign first wrote to one of its contacts, by company id.
+     */
+    private static Map<Long, Integer> campaignOpportunities(Map<Long, List<ContactInteraction>> exchanges, List<Project> pipeline,
+                                                            Map<Long, Integer> silent) {
+        Map<Long, LocalDate> firstWritten = new HashMap<>();
+        exchanges.forEach((contactId, history) -> {
+            Set<Long> unanswered = new HashSet<>();
+            for (ContactInteraction email : history) {
+                if (email.getCampaignId() == null || email.getDirection() == InteractionDirection.INCOMING) {
+                    continue;
+                }
+                if (email.getContact().getClient() != null) {
+                    firstWritten.merge(email.getContact().getClient().getId(), email.getOccurredOn(),
+                        (one, other) -> one.isBefore(other) ? one : other);
+                }
+                if (!ProspectionCampaignService.answered(email, history)) {
+                    unanswered.add(email.getCampaignId());
+                }
+            }
+            if (!unanswered.isEmpty()) {
+                silent.put(contactId, unanswered.size());
+            }
+        });
+        Map<Long, Integer> opened = new HashMap<>();
+        if (firstWritten.isEmpty()) {
+            return opened;
+        }
+        for (Project project : pipeline) {
+            if (project.getCreatedAt() == null) {
+                continue;
+            }
+            LocalDate created = project.getCreatedAt().toLocalDate();
+            Stream.of(project.getClient(), project.getMiddleman()).filter(Objects::nonNull).map(Client::getId).distinct()
+                .filter(id -> firstWritten.containsKey(id) && !created.isBefore(firstWritten.get(id)))
+                .forEach(id -> opened.merge(id, 1, Integer::sum));
+        }
+        return opened;
     }
 
     /**

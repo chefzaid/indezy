@@ -10,9 +10,9 @@ import { AvailabilityEmailsComponent } from './availability-emails.component';
 
 describe('AvailabilityEmailsComponent', () => {
   const lea: AvailabilityRecipient = { id: 1, firstName: 'Léa', name: 'Léa Martin', company: 'Conseil', email: 'lea@conseil.example', answers: 3,
-    lastContactedOn: '2026-08-01', postings: 0, mission: null };
+    lastContactedOn: '2026-08-01', postings: 0, mission: null, silentCampaigns: 0, campaignOpportunities: 1 };
   const marc: AvailabilityRecipient = { id: 2, firstName: null, name: 'Marc Durand', company: 'Autre', email: 'marc@autre.example', answers: 0,
-    lastContactedOn: null, postings: 2, mission: 'Lead Java' };
+    lastContactedOn: null, postings: 2, mission: 'Lead Java', silentCampaigns: 0, campaignOpportunities: 0 };
 
   function create(recipients = of([lea, marc])) {
     const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail', 'scheduledEmails', 'scheduleEmails',
@@ -53,6 +53,9 @@ describe('AvailabilityEmailsComponent', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-availability-recipient="2"] [data-recipient-postings]')!.textContent)
       .toContain('availabilityEmails.postings');
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-availability-recipient="1"] [data-recipient-postings]')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-availability-recipient="1"] [data-recipient-campaign-opportunities]')!
+      .textContent).toContain('availabilityEmails.campaignOpportunities');
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-recipient-silent]')).toBeNull();
 
     component.send();
     expect(contacts.sendEmail).not.toHaveBeenCalled();
@@ -168,6 +171,12 @@ describe('AvailabilityEmailsComponent', () => {
     expect([...component.chosen]).toEqual([2]);
     expect(component.subject).toBe('Disponible');
     expect(notifications.info).toHaveBeenCalledWith('availabilityEmails.againReady', 6000, { count: 1 });
+
+    // Who did not answer two campaigns stays unticked, and is said.
+    component.recipients = [lea, { ...marc, silentCampaigns: 2 }];
+    component.prospectAgain(component.campaigns[0]);
+    expect([...component.chosen]).toEqual([]);
+    expect(notifications.info).toHaveBeenCalledWith('availabilityEmails.againReadyLeftOut', 6000, { count: 0, left: 1 });
   });
 
   it('says when no ESN contact can be written to, or the list cannot be read', () => {

@@ -87,6 +87,13 @@ public class ProspectionCampaignService {
             .filter(campaign -> campaign.sent() + campaign.waiting() > 0).toList();
     }
 
+    /** Whether the contact answered this email: it is marked replied, or they wrote on or after the day it went. */
+    static boolean answered(ContactInteraction email, List<ContactInteraction> exchanges) {
+        LocalDate sentOn = email.getOccurredOn();
+        return Boolean.TRUE.equals(email.getReplied()) || exchanges.stream()
+            .anyMatch(other -> other.getDirection() == InteractionDirection.INCOMING && !other.getOccurredOn().isBefore(sentOn));
+    }
+
     private static Campaign results(ProspectionCampaign campaign, List<ContactInteraction> sent, List<ScheduledContactEmail> waiting,
                                     Map<Long, List<ContactInteraction>> exchanges, List<Project> pipeline) {
         Set<Long> answered = new HashSet<>();
@@ -96,10 +103,7 @@ public class ProspectionCampaignService {
             if (email.getContact().getClient() != null) {
                 companies.add(email.getContact().getClient().getId());
             }
-            LocalDate sentOn = email.getOccurredOn();
-            boolean replied = Boolean.TRUE.equals(email.getReplied()) || exchanges.getOrDefault(contactId, List.of()).stream()
-                .anyMatch(other -> other.getDirection() == InteractionDirection.INCOMING && !other.getOccurredOn().isBefore(sentOn));
-            if (replied) {
+            if (answered(email, exchanges.getOrDefault(contactId, List.of()))) {
                 answered.add(contactId);
             }
         }

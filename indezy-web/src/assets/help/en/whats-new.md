@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Your next prospection ranked by the last ones
+
+In **Email my ESN contacts**, the contacts whose company gave you opportunities after a campaign come first and those who left campaigns unanswered come last; **Prospect again** leaves unticked anyone who ignored two. See [Dashboard](/help/dashboard).
+
 ### Spread your availability emails over working days
 
 **Email my ESN contacts** can plan the emails over a few working days, office hours only, with a daily cap; one whose contact gets in touch first is not sent. See [Dashboard](/help/dashboard).
