@@ -80,3 +80,14 @@ test('reads the help and the legal texts without an account, linked from the pre
   await expect(page.locator('app-public-page-header')).toBeVisible();
   await expect(page.locator('[data-markdown] h2').first()).toBeVisible();
 });
+
+test('opens the help in the language of its address for a visitor', async ({ page }) => {
+  await page.goto('/en/help/offers');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('[data-help-read="offers"] h1')).toHaveText('The offer feed');
+  await page.goto('/aide/offers');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
+  await expect(page.locator('[data-help-read="offers"] h1')).toHaveText('Le flux d’offres');
+  await page.goto('/aide');
+  await expect(page.locator('[data-help-article="invoices-quotes"]')).toBeVisible();
+});

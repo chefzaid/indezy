@@ -76,6 +76,14 @@ once per article on a device (remembered in the browser) and counted anonymously
 article's, or past 100 articles a day, is not counted). `e2e/help.spec.ts` checks that every article exists in both
 languages, with its screenshots and the articles it links to.
 
+For search engines, the help is also at **/aide** and **/aide/<slug>** in French and **/en/help** and **/en/help/<slug>**
+in English, written as static HTML after the build (`scripts/prerender-help.mjs`, served by nginx): each the built page
+with the article's title, summary as its description, canonical address and `hreflang` links to both languages in its
+head, and its text (headings, paragraphs, lists, tables and links, rewritten to the same language's addresses; no
+screenshots) in the page, which the app replaces once it starts. Opened at those addresses without an account, the app
+shows the help in their language. The build writes `sitemap.xml` too: the presentation page and every help page, each
+with its two languages.
+
 The legal texts (`/legal/notice`, `/legal/terms`, `/legal/privacy`: legal notice, terms of use, privacy policy) are
 Markdown files too (`src/assets/legal/<fr|en>/`), the French version prevailing, open without an account and linked from
 the presentation page's footer and the help center. What the publisher still has to give (legal form, address,

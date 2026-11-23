@@ -6,7 +6,7 @@
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0 --port 4200",
     "build": "ng build",
-    "postbuild": "node scripts/prerender-home.mjs",
+    "postbuild": "node scripts/prerender-home.mjs && node scripts/prerender-help.mjs",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI",
     "test:e2e": "playwright test",

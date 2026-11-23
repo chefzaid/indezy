@@ -54,6 +54,27 @@ export const routes: Routes = [
     loadComponent: () => import('./components/help/help-article.component').then(m => m.HelpArticleComponent)
   },
   {
+    // The help center's addresses in each language, as search engines find them (scripts/prerender-help.mjs).
+    path: 'aide',
+    loadComponent: () => import('./components/help/help-center.component').then(m => m.HelpCenterComponent),
+    data: { language: 'fr' }
+  },
+  {
+    path: 'aide/:slug',
+    loadComponent: () => import('./components/help/help-article.component').then(m => m.HelpArticleComponent),
+    data: { language: 'fr' }
+  },
+  {
+    path: 'en/help',
+    loadComponent: () => import('./components/help/help-center.component').then(m => m.HelpCenterComponent),
+    data: { language: 'en' }
+  },
+  {
+    path: 'en/help/:slug',
+    loadComponent: () => import('./components/help/help-article.component').then(m => m.HelpArticleComponent),
+    data: { language: 'en' }
+  },
+  {
     // The quarterly market report of the feed's rates, open without an account.
     path: 'market-report',
     loadComponent: () => import('./components/market-report/market-report.component').then(m => m.MarketReportComponent)

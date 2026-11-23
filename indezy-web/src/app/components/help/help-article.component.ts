@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnIn
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { useAddressLanguage } from './help-language';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -29,6 +30,7 @@ export class HelpArticleComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly auth = inject(AuthService);
   private readonly http = inject(HttpClient);
+  private readonly translate = inject(TranslateService);
 
   /** The articles answered on this device, so Was this helpful? is asked once each. */
   private static readonly ANSWERED_KEY = 'indezy.help.answered';
@@ -42,6 +44,7 @@ export class HelpArticleComponent implements OnInit {
   headings: MarkdownHeading[] = [];
 
   ngOnInit(): void {
+    useAddressLanguage(this.route, this.auth, this.translate);
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       this.article = helpArticle(params.get('slug'));
       const at = this.article ? HELP_ARTICLES.indexOf(this.article) : -1;

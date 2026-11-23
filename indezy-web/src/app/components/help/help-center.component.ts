@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { useAddressLanguage } from './help-language';
 import { debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
 
 import { AuthService } from '../../services/auth/auth.service';
@@ -31,6 +32,8 @@ export class HelpCenterComponent implements OnInit {
   private readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   readonly auth = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
 
   readonly sections = HELP_SECTIONS;
   readonly query = new FormControl('', { nonNullable: true });
@@ -42,6 +45,7 @@ export class HelpCenterComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    useAddressLanguage(this.route, this.auth, this.translate);
     this.query.valueChanges.pipe(debounceTime(200), map(typed => typed.trim()), distinctUntilChanged(),
       switchMap(typed => typed.length < 2 ? of(null) : this.searcher.search(typed)), takeUntilDestroyed(this.destroyRef))
       .subscribe(hits => {
