@@ -244,7 +244,13 @@
     "showLess": "Réduire",
     "autopilot": {
       "title": "Préparé cette nuit",
-      "summary": "{{count}} offres triées, dont {{fit}} qui valent une candidature"
+      "draftFor": "Relance rédigée pour {{contact}}",
+      "copy": "Copier",
+      "copied": "Copié : collez-le dans votre e-mail",
+      "openOpportunity": "Ouvrir l'opportunité",
+      "dismiss": "Écarter",
+      "dismissError": "Le brouillon n'a pas pu être écarté : réessayez",
+      "summary": "{{count}} offres triées, dont {{fit}} qui valent une candidature ; {{drafts}} relance(s) rédigée(s)"
     },
     "offers": {
       "bestMatches": "Recommandées pour vous",

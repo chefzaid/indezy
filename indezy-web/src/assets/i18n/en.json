@@ -244,7 +244,13 @@
     "showLess": "Show less",
     "autopilot": {
       "title": "Prepared overnight",
-      "summary": "{{count}} offers triaged, {{fit}} worth applying to"
+      "draftFor": "Follow-up drafted for {{contact}}",
+      "copy": "Copy",
+      "copied": "Copied: paste it in your email",
+      "openOpportunity": "Open the opportunity",
+      "dismiss": "Dismiss",
+      "dismissError": "The draft could not be set aside: try again",
+      "summary": "{{count}} offers triaged, {{fit}} worth applying to; {{drafts}} follow-up(s) drafted"
     },
     "offers": {
       "bestMatches": "Recommended for you",

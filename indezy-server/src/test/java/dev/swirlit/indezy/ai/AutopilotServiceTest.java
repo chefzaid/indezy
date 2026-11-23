@@ -7,7 +7,13 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.OfferVerdict;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.repository.AutopilotDraftRepository;
+import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.dto.DashboardStatsDto;
+import dev.swirlit.indezy.model.AutopilotDraft;
+import dev.swirlit.indezy.service.ContactInteractionService;
+import org.mockito.ArgumentCaptor;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.OfferVerdictRepository;
 import dev.swirlit.indezy.repository.UserRepository;
@@ -41,8 +47,11 @@ class AutopilotServiceTest {
     private final OfferTriageAiService triage = mock(OfferTriageAiService.class);
     private final OfferVerdictRepository verdicts = mock(OfferVerdictRepository.class);
     private final AiService ai = mock(AiService.class);
+    private final ContactInteractionService interactions = mock(ContactInteractionService.class);
+    private final MessageAiService messages = mock(MessageAiService.class);
+    private final AutopilotDraftRepository drafts = mock(AutopilotDraftRepository.class);
     private final AutopilotService autopilot = new AutopilotService(users, freelances, search, triage, verdicts, mock(JobOfferRepository.class), ai,
-        Clock.fixed(Instant.parse("2026-11-24T03:10:00Z"), ZoneOffset.UTC));
+        interactions, messages, drafts, mock(ContactRepository.class), Clock.fixed(Instant.parse("2026-11-24T03:10:00Z"), ZoneOffset.UTC));
 
     private User member(boolean on) {
         User user = new User();
@@ -92,5 +101,26 @@ class AutopilotServiceTest {
         User again = member(true);
         when(ai.status(3L)).thenReturn(new AiDtos.Status(false, "NO_KEY", false, null, Map.of(), 0, 10, Map.of()));
         assertThat(autopilot.run(again)).isZero();
+    }
+
+    private static DashboardStatsDto.FollowUpDue due(long contactId, Long projectId) {
+        return DashboardStatsDto.FollowUpDue.builder().contactId(contactId).name("Contact " + contactId).projectId(projectId).daysWaiting(9).build();
+    }
+
+    @Test
+    void draftsAFollowUpForTheContactsWaitingAboutAnOpportunityNotDraftedThisWeek() {
+        User user = member(true);
+        when(interactions.followUpsDue(eq(9L), anyInt(), any())).thenReturn(List.of(due(1, 41L), due(2, null), due(3, 43L), due(4, 44L)));
+        when(drafts.existsByFreelanceIdAndContactIdAndCreatedAtAfter(eq(9L), eq(3L), any())).thenReturn(true);
+        when(messages.draft(eq(3L), anyLong(), eq(MessageAiService.Kind.FOLLOW_UP), eq(DocumentLanguage.FR), any()))
+            .thenReturn(new MessageAiService.Draft("Point sur la mission", "Bonjour,\n\nOù en est le processus ?"));
+
+        assertThat(autopilot.draft(user)).isEqualTo(2);
+
+        ArgumentCaptor<AutopilotDraft> saved = ArgumentCaptor.forClass(AutopilotDraft.class);
+        verify(drafts, times(2)).save(saved.capture());
+        assertThat(saved.getAllValues()).extracting(AutopilotDraft::getContactId).containsExactly(1L, 4L);
+        assertThat(saved.getAllValues().getFirst().getSubject()).isEqualTo("Point sur la mission");
+        assertThat(autopilot.draft(member(false))).isZero();
     }
 }

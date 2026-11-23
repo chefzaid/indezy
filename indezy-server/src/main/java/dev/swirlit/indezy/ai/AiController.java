@@ -100,6 +100,13 @@ public class AiController {
         return autopilot.queue(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null));
     }
 
+    @Operation(summary = "Set aside a follow-up the autopilot drafted")
+    @DeleteMapping("/autopilot/drafts/{id}")
+    public ResponseEntity<Void> dismissDraft(@PathVariable Long id) {
+        autopilot.dismiss(accessGuard.requireWorkspace(null), id);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Whether AI can be used, through whose key, and this month's allowance")
     @GetMapping("/status")
     public AiDtos.Status status() {

@@ -215,10 +215,23 @@ export interface AiPreparedOffer {
   at: string;
 }
 
-/** Whether the daily autopilot run is on, and the offers triaged in the last day, worth applying to first. */
+/** A follow-up the autopilot drafted overnight for a contact still waiting for an answer, kept a week. */
+export interface AiDraftedFollowUp {
+  id: number;
+  contactId: number;
+  contact: string;
+  company: string | null;
+  projectId: number | null;
+  subject: string | null;
+  body: string;
+  at: string;
+}
+
+/** Whether the daily autopilot run is on, the offers triaged in the last day (worth applying to first) and the follow-ups drafted this week. */
 export interface AiAutopilotQueue {
   on: boolean;
   offers: AiPreparedOffer[];
+  drafts?: AiDraftedFollowUp[];
 }
 
 export interface AiOfferVerdict {

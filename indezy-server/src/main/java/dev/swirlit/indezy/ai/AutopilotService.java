@@ -1,17 +1,24 @@
 package dev.swirlit.indezy.ai;
 
+import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.exception.InvalidStateException;
+import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.AutopilotDraft;
+import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.OfferVerdict;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.repository.AutopilotDraftRepository;
+import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.OfferVerdictRepository;
 import dev.swirlit.indezy.repository.UserRepository;
+import dev.swirlit.indezy.service.ContactInteractionService;
 import dev.swirlit.indezy.service.OfferSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +51,10 @@ public class AutopilotService {
 
     /** Offers triaged a night at most, per account. */
     static final int OFFERS = 10;
+    /** Follow-ups drafted a night at most, per account. */
+    static final int DRAFTS = 5;
+    /** How long a draft is kept, and how long before a contact is drafted for again. */
+    static final Duration DRAFT_KEPT = Duration.ofDays(7);
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
     private static final Duration DAY = Duration.ofDays(1);
 
@@ -54,6 +65,10 @@ public class AutopilotService {
     private final OfferVerdictRepository verdicts;
     private final JobOfferRepository offers;
     private final AiService ai;
+    private final ContactInteractionService interactions;
+    private final MessageAiService messages;
+    private final AutopilotDraftRepository drafts;
+    private final ContactRepository contacts;
     private final Clock clock;
 
     /** An offer triaged, as the morning's list shows it. */
@@ -65,11 +80,17 @@ public class AutopilotService {
         }
     }
 
-    /** Whether the run is on, and the offers triaged in the last day, worth applying to first. */
-    public record Queue(boolean on, List<Prepared> offers) {
+    /** A follow-up drafted overnight: for whom, about which opportunity, its subject and text. */
+    public record Drafted(Long id, Long contactId, String contact, String company, Long projectId, String subject, String body,
+                          LocalDateTime at) {
+    }
+
+    /** Whether the run is on, the offers triaged in the last day, worth applying to first, and the follow-ups drafted this week. */
+    public record Queue(boolean on, List<Prepared> offers, List<Drafted> drafts) {
 
         public Queue {
             offers = List.copyOf(offers);
+            drafts = List.copyOf(drafts);
         }
     }
 
@@ -78,8 +99,9 @@ public class AutopilotService {
         for (User user : users.findByAutopilotTrue()) {
             try {
                 int triaged = run(user);
-                if (triaged > 0) {
-                    log.info("Autopilot triaged {} offer(s) for account {}", triaged, user.getId());
+                int drafted = draft(user);
+                if (triaged + drafted > 0) {
+                    log.info("Autopilot triaged {} offer(s) and drafted {} follow-up(s) for account {}", triaged, drafted, user.getId());
                 }
             } catch (RuntimeException e) {
                 log.warn("Autopilot run failed for account {}: {}", user.getId(), e.getMessage());
@@ -123,6 +145,65 @@ public class AutopilotService {
         return triaged;
     }
 
+    /** Every night, the drafts older than a week go. */
+    @Scheduled(cron = "0 40 5 * * *", zone = "Europe/Paris")
+    public void dropOld() {
+        drafts.deleteOlderThan(LocalDateTime.now(clock.withZone(PARIS)).minus(DRAFT_KEPT));
+    }
+
+    /**
+     * Drafts a follow-up for the account's contacts waiting for an answer about an opportunity, the longest waiting
+     * first, {@value #DRAFTS} at most, none for a contact drafted for this week; how many were.
+     */
+    int draft(User user) {
+        if (user.getDeletedAt() != null || !Boolean.TRUE.equals(user.getAutopilot())) {
+            return 0;
+        }
+        Optional<Freelance> freelance = freelances.findByEmail(user.getEmail());
+        if (freelance.isEmpty() || !ai.status(user.getId()).available()) {
+            return 0;
+        }
+        Long freelanceId = freelance.get().getId();
+        LocalDateTime now = LocalDateTime.now(clock.withZone(PARIS));
+        DocumentLanguage language = "fr".equalsIgnoreCase(user.getLanguagePreference()) ? DocumentLanguage.FR : DocumentLanguage.EN;
+        int drafted = 0;
+        for (DashboardStatsDto.FollowUpDue due : interactions.followUpsDue(freelanceId, user.getFollowUpDays(), now.toLocalDate())) {
+            if (drafted >= DRAFTS) {
+                break;
+            }
+            if (due.getProjectId() == null || drafts.existsByFreelanceIdAndContactIdAndCreatedAtAfter(freelanceId, due.getContactId(), now.minus(DRAFT_KEPT))) {
+                continue;
+            }
+            MessageAiService.Draft written;
+            try {
+                written = messages.draft(user.getId(), due.getProjectId(), MessageAiService.Kind.FOLLOW_UP, language, null);
+            } catch (InvalidStateException e) {
+                break;
+            }
+            AutopilotDraft draft = new AutopilotDraft();
+            draft.setFreelanceId(freelanceId);
+            draft.setContactId(due.getContactId());
+            draft.setProjectId(due.getProjectId());
+            draft.setSubject(cut(written.subject(), AutopilotDraft.SUBJECT_MAX));
+            draft.setBody(cut(written.body(), AutopilotDraft.BODY_MAX));
+            drafts.save(draft);
+            drafted++;
+        }
+        return drafted;
+    }
+
+    /** Sets a draft aside: the member sent it their own way, or does not want it. */
+    @Transactional
+    public void dismiss(Long freelanceId, Long draftId) {
+        drafts.delete(drafts.findByIdAndFreelanceId(draftId, freelanceId)
+            .orElseThrow(() -> new ResourceNotFoundException("Draft not found")));
+    }
+
+    private static String cut(String text, int max) {
+        String stripped = text == null ? "" : text.strip();
+        return stripped.length() > max ? stripped.substring(0, max) : stripped;
+    }
+
     /** The offers triaged for the workspace in the last day, those worth applying to first, then the newest. */
     @Transactional(readOnly = true)
     public Queue queue(Long userId, Long freelanceId) {
@@ -137,7 +218,18 @@ public class AutopilotService {
                 verdict.getCreatedAt()))
             .sorted((one, other) -> Boolean.compare(other.goodFit(), one.goodFit()))
             .toList();
-        return new Queue(on, prepared);
+        List<AutopilotDraft> written = drafts.findByFreelanceIdAndCreatedAtAfterOrderByCreatedAtDesc(freelanceId,
+            LocalDateTime.now(clock.withZone(PARIS)).minus(DRAFT_KEPT));
+        Map<Long, Contact> people = contacts.findAllById(written.stream().map(AutopilotDraft::getContactId).toList()).stream()
+            .collect(Collectors.toMap(Contact::getId, Function.identity()));
+        List<Drafted> drafted = written.stream().filter(draft -> people.containsKey(draft.getContactId()))
+            .map(draft -> {
+                Contact contact = people.get(draft.getContactId());
+                return new Drafted(draft.getId(), contact.getId(), contact.getFullName(),
+                    contact.getClient() == null ? null : contact.getClient().getCompanyName(), draft.getProjectId(), draft.getSubject(),
+                    draft.getBody(), draft.getCreatedAt());
+            }).toList();
+        return new Queue(on, prepared, drafted);
     }
 
     private static List<String> breakers(String stored) {

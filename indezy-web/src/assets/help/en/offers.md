@@ -47,7 +47,7 @@ The **Market** button opens a **Market snapshot** of what your filters find: off
 - **Hide every offer from …** blocks a publisher, however its name is spelled. Manage the list in **Profile → Offer feed**.
 - Checkboxes act on several offers at once: **Save**, **Hide**, **Mark seen**, **Add to pipeline**.
 - On an offer's page, **Should I apply? (AI)** says in one line whether the offer is worth applying to for your profile, and lists its deal-breakers (on site every day, a rate under your target, a permanent job posted as freelance...). The answer is kept: **Ask again** after changing your profile.
-- Turn on **Triage the new offers overnight (autopilot)** in Profile → Preferences → AI, and every night the new offers that fit your profile get that answer, 10 at most, from your AI allowance. Your dashboard lists them in the morning under **Prepared overnight**, those worth applying to first.
+- Turn on **Triage the new offers overnight (autopilot)** in Profile → Preferences → AI, and every night the new offers that fit your profile get that answer, 10 at most, from your AI allowance. Your dashboard lists them in the morning under **Prepared overnight**, those worth applying to first, with a follow-up drafted for up to 5 contacts who have not answered you about an opportunity, to copy into your email or dismiss.
 
 ## Add an offer to the pipeline
 

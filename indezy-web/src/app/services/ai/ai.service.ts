@@ -22,6 +22,11 @@ export class AiService {
     return this.http.get<AiAutopilotQueue>(`${this.API_URL}/autopilot`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
   }
 
+  /** Sets aside a follow-up the autopilot drafted. */
+  dismissDraft(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/autopilot/drafts/${id}`);
+  }
+
   setKey(apiKey: string, model: AiModel | null): Observable<AiStatus> {
     return this.http.put<AiStatus>(`${this.API_URL}/key`, { apiKey, model });
   }

@@ -875,8 +875,12 @@ match the profile and were not opened yet, the best matches first, get the verdi
 account's AI allowance or its own key, stopping when the allowance is used up (the owner's answer of 2026-11-23: opt-in,
 within the allowance). In the morning, **Prepared overnight** at the top of the dashboard's offers lists the offers
 triaged in the last day (`GET /api/ai/autopilot`), those worth applying to first, five shown, each with its verdict and
-deal-breakers and opening its page; it stays away while the autopilot is off or found nothing. Application packs and
-replies drafted overnight are not prepared yet.
+deal-breakers and opening its page; it stays away while the autopilot is off or found nothing. The same night, for the
+contacts still waiting for an answer about an opportunity (the follow-ups due), the longest waiting first, it drafts a
+follow-up (**Draft a message (AI)**'s, `MessageAiService`), 5 at most, none for a contact drafted for in the week, kept a
+week (`autopilot_drafts`, removed with the account): **Prepared overnight** lists them, each with **Copy** (subject and
+text), **Open the opportunity** and **Dismiss** (`DELETE /api/ai/autopilot/drafts/{id}`). Application packs prepared
+overnight are not yet.
 
 ### Non-Solicitation Clauses
 

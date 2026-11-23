@@ -140,6 +140,9 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
     @Autowired
     private OfferTriageAiService triageService;
 
+    @Autowired
+    private dev.swirlit.indezy.repository.AutopilotDraftRepository autopilotDrafts;
+
     private static JobOffer offer() {
         JobOffer offer = new JobOffer();
         offer.setSite(OfferSite.FREE_WORK);
@@ -271,6 +274,19 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("autopilot", true), Map.class).getBody()).containsEntry("autopilot", true);
         assertThat(call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody()).containsEntry("on", true);
         assertThat((List<?>) call(bob, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("offers")).isEmpty();
+        // A follow-up drafted overnight for one of Alice's contacts: listed for her, set aside by her only.
+        long lea = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Léa", "lastName", "Suivi", "clientId", aliceClientId), Map.class));
+        dev.swirlit.indezy.model.AutopilotDraft draft = new dev.swirlit.indezy.model.AutopilotDraft();
+        draft.setFreelanceId(alice.freelanceId());
+        draft.setContactId(lea);
+        draft.setSubject("Point sur la mission");
+        draft.setBody("Bonjour Léa,");
+        long draftId = autopilotDrafts.save(draft).getId();
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts"))
+            .singleElement().satisfies(item -> assertThat(item).containsEntry("contact", "Léa Suivi").containsEntry("subject", "Point sur la mission"));
+        assertThat(call(bob, HttpMethod.DELETE, "/ai/autopilot/drafts/" + draftId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.DELETE, "/ai/autopilot/drafts/" + draftId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat((List<?>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts")).isEmpty();
         jdbcTemplate.update("DELETE FROM job_offer_skills WHERE offer_id = ?", offerId);
         offers.deleteById(offerId);
         triageService.dropOrphans();

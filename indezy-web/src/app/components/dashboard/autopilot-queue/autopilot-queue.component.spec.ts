@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { Observable, of } from 'rxjs';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 import { AiAutopilotQueue } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
@@ -11,11 +13,18 @@ describe('AutopilotQueueComponent', () => {
   const offer = (id: number, goodFit: boolean) => ({ offerId: id, title: 'Lead Java ' + id, company: id % 2 ? 'Conseil' : null, goodFit,
     verdict: goodFit ? 'Bonne mission.' : 'Sur site tous les jours.', dealBreakers: goodFit ? [] : ['5 jours sur site'], at: '2026-11-24T04:10:00' });
 
+  let ai: { autopilot: () => Observable<AiAutopilotQueue>; dismissDraft: jasmine.Spy };
+  let clipboard: jasmine.SpyObj<Clipboard>;
+
   function create(queue: AiAutopilotQueue): HTMLElement {
     TestBed.resetTestingModule();
+    ai = { autopilot: () => of(queue), dismissDraft: jasmine.createSpy('dismissDraft').and.returnValue(of(undefined)) };
+    clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
+    clipboard.copy.and.returnValue(true);
     TestBed.configureTestingModule({
       imports: [AutopilotQueueComponent, TranslateModule.forRoot()],
-      providers: [provideRouter([]), { provide: AiService, useValue: { autopilot: () => of(queue) } }]
+      providers: [provideRouter([]), { provide: AiService, useValue: ai }, { provide: Clipboard, useValue: clipboard },
+        { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['success', 'error']) }]
     });
     const fixture = TestBed.createComponent(AutopilotQueueComponent);
     fixture.detectChanges();
@@ -27,6 +36,18 @@ describe('AutopilotQueueComponent', () => {
     expect(element.querySelectorAll('[data-autopilot-offer]').length).toBe(PREPARED_SHOWN);
     expect(element.querySelector('[data-autopilot-offer="1"] a')!.getAttribute('href')).toBe('/offers/1');
     expect(element.querySelector('[data-autopilot-offer="3"]')!.textContent).toContain('5 jours sur site');
+  });
+
+  it('lists the follow-ups drafted, to copy or set aside', () => {
+    TestBed.resetTestingModule();
+    const element = create({ on: true, offers: [], drafts: [{ id: 5, contactId: 2, contact: 'Léa Martin', company: 'Conseil', projectId: 41,
+      subject: 'Point sur la mission', body: 'Bonjour Léa,', at: '2026-11-24T04:10:00' }] });
+    const draft = element.querySelector('[data-autopilot-draft="5"]')!;
+    expect(draft.textContent).toContain('Point sur la mission');
+    (draft.querySelector('[data-autopilot-copy]') as HTMLButtonElement).click();
+    expect(clipboard.copy).toHaveBeenCalledWith('Point sur la mission\n\nBonjour Léa,');
+    (draft.querySelector('[data-autopilot-dismiss]') as HTMLButtonElement).click();
+    expect(ai.dismissDraft).toHaveBeenCalledWith(5);
   });
 
   it('stays away while off or when the night found nothing', () => {
