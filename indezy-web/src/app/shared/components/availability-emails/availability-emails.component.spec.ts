@@ -1,3 +1,4 @@
+import { ChangeDetectorRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -14,8 +15,10 @@ describe('AvailabilityEmailsComponent', () => {
     lastContactedOn: null, postings: 2 };
 
   function create(recipients = of([lea, marc])) {
-    const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail']);
+    const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail', 'scheduledEmails', 'scheduleEmails',
+      'cancelScheduledEmail']);
     contacts.availabilityRecipients.and.returnValue(recipients);
+    contacts.scheduledEmails.and.returnValue(of([]));
     const notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
       imports: [AvailabilityEmailsComponent, TranslateModule.forRoot()],
@@ -62,6 +65,50 @@ describe('AvailabilityEmailsComponent', () => {
     expect([...component.chosen]).toEqual([2]);
     component.toggle(2);
     expect(component.chosen.size).toBe(0);
+  });
+
+  it('plans the emails over working days, lists those waiting and cancels one', () => {
+    const { fixture, component, contacts, notifications } = create();
+    component.subject = 'Disponible chez {{company}}';
+    component.body = 'Bonjour {{firstName}}';
+    component.toggle(1);
+    component.toggle(2);
+    component.days = 3;
+    component.dailyMax = 80;
+    const waiting = [{ id: 9, contactId: 1, name: 'Léa Martin', company: 'Conseil', subject: 'Disponible chez Conseil', sendAt: '2026-11-24T08:00:00Z' },
+      { id: 10, contactId: 2, name: 'Marc Durand', company: null, subject: 'Disponible chez Autre', sendAt: '2026-11-24T12:00:00Z' }];
+    contacts.scheduleEmails.and.returnValue(of(waiting));
+    contacts.scheduledEmails.and.returnValue(of(waiting));
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck();
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-availability-emails-send]')!.textContent).toContain('availabilityEmails.schedule');
+    component.send();
+    expect(contacts.sendEmail).not.toHaveBeenCalled();
+    expect(contacts.scheduleEmails).toHaveBeenCalledWith({
+      emails: [{ contactId: 1, subject: 'Disponible chez Conseil', body: 'Bonjour Léa' }, { contactId: 2, subject: 'Disponible chez Autre', body: 'Bonjour Marc Durand' }],
+      dossier: true, language: 'FR', days: 3, dailyMax: 50
+    });
+    expect(notifications.success).toHaveBeenCalledWith('availabilityEmails.scheduled', 6000, { count: 2 });
+    expect(component.chosen.size).toBe(0);
+    fixture.detectChanges();
+    const list = (fixture.nativeElement as HTMLElement).querySelector('[data-availability-emails-waiting]')!;
+    expect(list.querySelectorAll('li').length).toBe(2);
+    expect(list.textContent).toContain('Léa Martin · Conseil');
+
+    contacts.cancelScheduledEmail.and.returnValue(of(undefined));
+    component.cancel(component.waiting[0]);
+    expect(contacts.cancelScheduledEmail).toHaveBeenCalledWith(9);
+    expect(component.waiting.map(email => email.id)).toEqual([10]);
+    contacts.cancelScheduledEmail.and.returnValue(throwError(() => new Error('down')));
+    component.cancel(component.waiting[0]);
+    expect(notifications.error).toHaveBeenCalledWith('availabilityEmails.cancelFailed');
+
+    contacts.scheduleEmails.and.returnValue(throwError(() => new Error('down')));
+    component.toggle(1);
+    component.send();
+    expect(notifications.error).toHaveBeenCalledWith('availabilityEmails.scheduleFailed');
+    expect(component.sending).toBeFalse();
+    expect([...component.chosen]).toEqual([1]);
   });
 
   it('says when no ESN contact can be written to, or the list cannot be read', () => {

@@ -27,7 +27,7 @@ describe('AiAvailabilityDialogComponent', () => {
       imports: [AiAvailabilityDialogComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
-        { provide: Clipboard, useValue: clipboard }, { provide: ContactService, useValue: { availabilityRecipients: () => of([]) } }]
+        { provide: Clipboard, useValue: clipboard }, { provide: ContactService, useValue: { availabilityRecipients: () => of([]), scheduledEmails: () => of([]) } }]
     });
     const fixture = TestBed.createComponent(AiAvailabilityDialogComponent);
     fixture.detectChanges();

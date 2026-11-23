@@ -3,7 +3,15 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.ContactInteractionDto;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.service.AccessGuard;
+import dev.swirlit.indezy.service.ContactEmailScheduleService;
 import dev.swirlit.indezy.service.ContactEmailService;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +41,7 @@ public class ContactEmailController {
     private static final byte[] PIXEL = Base64.getDecoder().decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
 
     private final ContactEmailService emails;
+    private final ContactEmailScheduleService schedule;
     private final AccessGuard accessGuard;
 
     /** An email to a contact. */
@@ -68,6 +77,49 @@ public class ContactEmailController {
     @GetMapping("/contacts/emails/availability-recipients")
     public List<ContactEmailService.Recipient> availabilityRecipients() {
         return emails.availabilityRecipients(accessGuard.requireWorkspace(null));
+    }
+
+    /** One email of a plan, written for its contact. */
+    public record ScheduledDraft(@NotNull Long contactId, @NotBlank @Size(max = ContactEmailService.SUBJECT_MAX) String subject,
+                                 @NotBlank @Size(max = ContactEmailService.BODY_MAX) String body) {
+
+        // Spring MVC logs bodies through toString at DEBUG: never the subject or the message.
+        @Override
+        public String toString() {
+            return "ScheduledDraft[contactId=" + contactId + "]";
+        }
+    }
+
+    /** Emails to send later, spread over working days. */
+    public record ScheduleRequest(@NotEmpty @Size(max = 100) List<@Valid @NotNull ScheduledDraft> emails, Boolean dossier, DocumentLanguage language,
+                                  @Min(1) @Max(10) int days, @Min(1) @Max(ContactEmailService.DAILY_MAX) int dailyMax) {
+
+        public ScheduleRequest {
+            emails = emails == null ? null : java.util.Collections.unmodifiableList(new java.util.ArrayList<>(emails));
+        }
+    }
+
+    @Operation(summary = "Send emails to contacts later, spread over working days",
+        description = "Monday to Friday but public holidays, 9:00 to 17:00 in Paris, at most dailyMax a day; each recorded when it goes")
+    @PostMapping("/contacts/emails/scheduled")
+    public List<ContactEmailScheduleService.Waiting> schedule(@Valid @RequestBody ScheduleRequest request) {
+        request.emails().forEach(email -> accessGuard.requireContact(email.contactId()));
+        return schedule.schedule(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), new ContactEmailScheduleService.Plan(
+            request.emails().stream().map(email -> new ContactEmailScheduleService.Draft(email.contactId(), email.subject(), email.body())).toList(),
+            Boolean.TRUE.equals(request.dossier()), request.language(), request.days(), request.dailyMax()));
+    }
+
+    @Operation(summary = "The workspace's emails waiting to go, the soonest first")
+    @GetMapping("/contacts/emails/scheduled")
+    public List<ContactEmailScheduleService.Waiting> waiting() {
+        return schedule.waiting(accessGuard.requireWorkspace(null));
+    }
+
+    @Operation(summary = "Cancel an email waiting to go")
+    @DeleteMapping("/contacts/emails/scheduled/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cancel(@PathVariable Long id) {
+        schedule.cancel(accessGuard.requireWorkspace(null), id);
     }
 
     @Operation(summary = "The tracking image of an email sent through Indezy", description = "Counts an open; the same image for any token")

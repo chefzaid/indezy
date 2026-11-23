@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Spread your availability emails over working days
+
+**Email my ESN contacts** can plan the emails over a few working days, office hours only, with a daily cap; one whose contact gets in touch first is not sent. See [Dashboard](/help/dashboard).
+
 ### Leave out a sector you keep hiding
 
 When many of the offers you hide mention the same sector (banking, defence…), the feed offers to leave out the offers mentioning it. See [Freelance offers](/help/offers).

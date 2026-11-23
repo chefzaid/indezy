@@ -5221,7 +5221,18 @@
     "defaultText": "I will be available for a new mission soon. Do you have needs that match my profile?",
     "attached": "You will find my dossier de compétences attached.",
     "answers": "answered {{count}}×",
-    "postings": "posted {{count}} matching missions lately"
+    "postings": "posted {{count}} matching missions lately",
+    "when": "When",
+    "now": "Now",
+    "over": "Over {{count}} working days",
+    "nowHint": "One email after the other, now.",
+    "spreadHint": "Monday to Friday, 9:00 to 17:00 (Paris), evenly apart. One whose contact gets in touch first is not sent.",
+    "dailyMax": "At most a day",
+    "schedule": "Plan {{count}} emails",
+    "scheduled": "{{count}} emails planned. They go over the coming working days.",
+    "scheduleFailed": "The emails could not be planned: try again.",
+    "waiting": "Waiting to go ({{count}})",
+    "cancelFailed": "The email could not be cancelled: try again."
   },
   "marketReport": {
     "title": "IT freelance market report",

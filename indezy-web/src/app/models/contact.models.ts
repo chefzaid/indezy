@@ -84,6 +84,27 @@ export interface ContactEmailRequest {
   dossier?: boolean;
 }
 
+/** Emails to send later from Indezy, spread over working days (9:00 to 17:00 in Paris, Monday to Friday). */
+export interface ScheduledEmailPlan {
+  emails: { contactId: number; subject: string; body: string }[];
+  dossier: boolean;
+  language: 'FR' | 'EN';
+  /** Over how many working days, 1 to 10. */
+  days: number;
+  /** At most this many a day, 1 to 50. */
+  dailyMax: number;
+}
+
+/** An email waiting to go; dropped unsent if the contact gets in touch first. */
+export interface ScheduledEmail {
+  id: number;
+  contactId: number;
+  name: string;
+  company: string | null;
+  subject: string;
+  sendAt: string;
+}
+
 /** A contact of an ESN the workspace worked with or heard from, who has an address; those who answered most first. */
 export interface AvailabilityRecipient {
   id: number;

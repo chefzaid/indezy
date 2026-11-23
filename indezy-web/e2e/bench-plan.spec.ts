@@ -37,6 +37,20 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       emails.push(route.request().postDataJSON());
       return route.fulfill({ status: 201, json: { id: 30, channel: 'EMAIL', direction: 'OUTGOING' } });
     });
+    const plans: Record<string, unknown>[] = [];
+    const waiting: Record<string, unknown>[] = [];
+    await page.route('**/api/contacts/emails/scheduled', route => {
+      if (route.request().method() === 'POST') {
+        plans.push(route.request().postDataJSON());
+        waiting.push({ id: 40, contactId: 7, name: 'Léa Martin', company: 'Conseil Exemple', subject: 'x', sendAt: '2027-01-25T08:00:00Z' });
+        return route.fulfill({ json: waiting });
+      }
+      return route.fulfill({ json: waiting });
+    });
+    await page.route('**/api/contacts/emails/scheduled/40', route => {
+      waiting.splice(0);
+      return route.fulfill({ status: 204 });
+    });
     const drafts: unknown[] = [];
     await page.route('**/api/network/drafts', route => {
       drafts.push(route.request().postDataJSON());
@@ -67,5 +81,19 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect.poll(() => emails.length).toBe(1);
     expect(emails[0]).toEqual(expect.objectContaining({ dossier: true, track: false }));
     expect(String(emails[0]['body'])).toMatch(en ? /^Hello Léa,/ : /^Bonjour Léa,/);
+
+    // Planned over working days instead, then cancelled.
+    await dialog.locator('[data-availability-recipient="7"] input').check();
+    await dialog.locator('[data-availability-emails-days]').click();
+    await page.getByRole('option', { name: en ? 'Over 3 working days' : 'Sur 3 jours ouvrés' }).click();
+    await dialog.locator('[data-availability-emails-daily-max]').fill('5');
+    await dialog.locator('[data-availability-emails-send]').click();
+    await expect.poll(() => plans.length).toBe(1);
+    expect(plans[0]).toEqual(expect.objectContaining({ days: 3, dailyMax: 5, dossier: true }));
+    expect(emails).toHaveLength(1);
+    const planned = dialog.locator('[data-scheduled-email="40"]');
+    await expect(planned).toContainText('Léa Martin · Conseil Exemple');
+    await planned.locator('[data-scheduled-email-cancel]').click();
+    await expect(planned).toHaveCount(0);
   });
 }

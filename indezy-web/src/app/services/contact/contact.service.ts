@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AvailabilityRecipient, ContactDto, ContactEmailRequest, ContactEmailStatus, ContactInteraction, ContactInteractions, ContactRelation } from '../../models/contact.models';
+import { AvailabilityRecipient, ContactDto, ContactEmailRequest, ContactEmailStatus, ContactInteraction, ContactInteractions, ContactRelation,
+  ScheduledEmail, ScheduledEmailPlan } from '../../models/contact.models';
 import { AuthService } from '../auth/auth.service';
 import { BulkDeleteResult } from '../../models/bulk.models';
 
@@ -82,6 +83,19 @@ export class ContactService {
   /** The contacts of the ESNs the workspace worked with who have an address: whom to tell of an availability. */
   availabilityRecipients(): Observable<AvailabilityRecipient[]> {
     return this.http.get<AvailabilityRecipient[]>(`${this.API_URL}/emails/availability-recipients`);
+  }
+
+  /** Plans emails to go later, spread over working days; the times they go. */
+  scheduleEmails(plan: ScheduledEmailPlan): Observable<ScheduledEmail[]> {
+    return this.http.post<ScheduledEmail[]>(`${this.API_URL}/emails/scheduled`, plan);
+  }
+
+  scheduledEmails(): Observable<ScheduledEmail[]> {
+    return this.http.get<ScheduledEmail[]>(`${this.API_URL}/emails/scheduled`);
+  }
+
+  cancelScheduledEmail(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/emails/scheduled/${id}`);
   }
 
   /** Emails a contact through Indezy; the exchange it is recorded as. */

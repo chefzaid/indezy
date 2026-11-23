@@ -6,9 +6,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { DatePipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { concatMap, from, map, of, catchError, toArray } from 'rxjs';
-import { AvailabilityRecipient, DocumentLanguage } from '../../../models';
+import { AvailabilityRecipient, DocumentLanguage, ScheduledEmail } from '../../../models';
 import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 
@@ -21,7 +23,7 @@ import { NotificationService } from '../../../services/notification/notification
 @Component({
   selector: 'app-availability-emails',
   imports: [FormsModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressSpinnerModule,
-    TranslateModule],
+    MatSelectModule, DatePipe, TranslateModule],
   template: `
     <details class="emails" (toggle)="opened($event)" data-availability-emails>
       <summary>{{ 'availabilityEmails.title' | translate }}</summary>
@@ -57,6 +59,24 @@ import { NotificationService } from '../../../services/notification/notification
           <mat-hint>{{ 'availabilityEmails.variable' | translate }}</mat-hint>
         </mat-form-field>
         <mat-checkbox [(ngModel)]="dossier" data-availability-emails-dossier>{{ 'availabilityEmails.dossier' | translate }}</mat-checkbox>
+        <div class="when">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'availabilityEmails.when' | translate }}</mat-label>
+            <mat-select [(ngModel)]="days" data-availability-emails-days>
+              <mat-option [value]="0">{{ 'availabilityEmails.now' | translate }}</mat-option>
+              @for (count of spreads; track count) {
+                <mat-option [value]="count">{{ 'availabilityEmails.over' | translate:{ count } }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>{{ (days ? 'availabilityEmails.spreadHint' : 'availabilityEmails.nowHint') | translate }}</mat-hint>
+          </mat-form-field>
+          @if (days) {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'availabilityEmails.dailyMax' | translate }}</mat-label>
+              <input matInput type="number" min="1" max="50" [(ngModel)]="dailyMax" data-availability-emails-daily-max>
+            </mat-form-field>
+          }
+        </div>
         <div class="row">
           <button mat-flat-button color="primary" type="button" (click)="send()" data-availability-emails-send
             [disabled]="sending || !chosen.size || !subject.trim() || !body.trim()">
@@ -65,9 +85,20 @@ import { NotificationService } from '../../../services/notification/notification
             } @else {
               <mat-icon>send</mat-icon>
             }
-            {{ 'availabilityEmails.send' | translate:{ count: chosen.size } }}
+            {{ (days ? 'availabilityEmails.schedule' : 'availabilityEmails.send') | translate:{ count: chosen.size } }}
           </button>
         </div>
+      }
+      @if (waiting.length) {
+        <h4 class="waiting-title">{{ 'availabilityEmails.waiting' | translate:{ count: waiting.length } }}</h4>
+        <ul class="waiting" data-availability-emails-waiting>
+          @for (email of waiting; track email.id) {
+            <li [attr.data-scheduled-email]="email.id">
+              <span>{{ email.name }}@if (email.company) { · {{ email.company }} } · {{ email.sendAt | date:'EEE d MMM, HH:mm' }}</span>
+              <button mat-button type="button" (click)="cancel(email)" data-scheduled-email-cancel>{{ 'common.cancel' | translate }}</button>
+            </li>
+          }
+        </ul>
       }
     </details>
   `,
@@ -79,6 +110,11 @@ import { NotificationService } from '../../../services/notification/notification
     .company { color: var(--mat-sys-on-surface-variant); }
     .full { width: 100%; }
     .row { display: flex; justify-content: flex-end; margin-top: 8px; }
+    .when { display: flex; flex-wrap: wrap; gap: 0 12px; margin-top: 12px; }
+    .when mat-form-field { flex: 1 1 200px; }
+    .waiting-title { margin: 16px 0 4px; font-weight: 500; }
+    .waiting { list-style: none; margin: 0; padding: 0; }
+    .waiting li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; }
     mat-spinner { display: inline-block; margin-right: 8px; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -101,6 +137,11 @@ export class AvailabilityEmailsComponent implements OnInit {
   body = '';
   dossier = true;
   sending = false;
+  /** 0 to send now, else over how many working days. */
+  days = 0;
+  dailyMax = 15;
+  readonly spreads = [1, 2, 3, 5];
+  waiting: ScheduledEmail[] = [];
 
   ngOnInit(): void {
     this.contacts.availabilityRecipients().subscribe({
@@ -112,6 +153,28 @@ export class AvailabilityEmailsComponent implements OnInit {
         this.recipients = [];
         this.changes.markForCheck();
       }
+    });
+    this.loadWaiting();
+  }
+
+  private loadWaiting(): void {
+    this.contacts.scheduledEmails().subscribe({
+      next: waiting => {
+        this.waiting = Array.isArray(waiting) ? waiting : [];
+        this.changes.markForCheck();
+      },
+      error: () => undefined
+    });
+  }
+
+  /** Cancels an email waiting to go. */
+  cancel(email: ScheduledEmail): void {
+    this.contacts.cancelScheduledEmail(email.id).subscribe({
+      next: () => {
+        this.waiting = this.waiting.filter(other => other !== email);
+        this.changes.markForCheck();
+      },
+      error: () => this.notifications.error('availabilityEmails.cancelFailed')
     });
   }
 
@@ -144,11 +207,13 @@ export class AvailabilityEmailsComponent implements OnInit {
       return;
     }
     this.sending = true;
+    if (this.days) {
+      this.schedule(recipients);
+      return;
+    }
     from(recipients).pipe(
       concatMap(recipient => this.contacts.sendEmail(recipient.id, {
-        subject: this.subject.trim().replaceAll('{{company}}', recipient.company),
-        body: this.body.replaceAll('{{firstName}}', recipient.firstName?.trim() || recipient.name).replaceAll('{{company}}', recipient.company),
-        track: false, copy: false, language: this.language, dossier: this.dossier
+        ...this.written(recipient), track: false, copy: false, language: this.language, dossier: this.dossier
       }).pipe(map(() => ({ recipient, sent: true })), catchError(() => of({ recipient, sent: false })))),
       toArray()
     ).subscribe(results => {
@@ -164,5 +229,35 @@ export class AvailabilityEmailsComponent implements OnInit {
       }
       this.changes.markForCheck();
     });
+  }
+
+  /** Plans one email each over the working days chosen; nothing is planned when the server refuses. */
+  private schedule(recipients: AvailabilityRecipient[]): void {
+    const dailyMax = Math.min(50, Math.max(1, Math.round(Number(this.dailyMax) || 1)));
+    this.contacts.scheduleEmails({
+      emails: recipients.map(recipient => ({ contactId: recipient.id, ...this.written(recipient) })),
+      dossier: this.dossier, language: this.language, days: this.days, dailyMax
+    }).subscribe({
+      next: planned => {
+        this.sending = false;
+        recipients.forEach(recipient => this.chosen.delete(recipient.id));
+        this.notifications.success('availabilityEmails.scheduled', 6000, { count: planned.length });
+        this.loadWaiting();
+        this.changes.markForCheck();
+      },
+      error: () => {
+        this.sending = false;
+        this.notifications.error('availabilityEmails.scheduleFailed');
+        this.changes.markForCheck();
+      }
+    });
+  }
+
+  /** The subject and message for one contact, its first name and company in place. */
+  private written(recipient: AvailabilityRecipient): { subject: string; body: string } {
+    return {
+      subject: this.subject.trim().replaceAll('{{company}}', recipient.company),
+      body: this.body.replaceAll('{{firstName}}', recipient.firstName?.trim() || recipient.name).replaceAll('{{company}}', recipient.company)
+    };
   }
 }

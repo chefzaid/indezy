@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Vos e-mails de disponibilité étalés sur des jours ouvrés
+
+**Écrire à mes contacts ESN** peut programmer les e-mails sur quelques jours ouvrés, aux heures de bureau, avec un plafond par jour ; celui dont le contact se manifeste d'abord ne part pas. Voir [Le tableau de bord](/help/dashboard).
+
 ### Écarter un secteur que vous masquez souvent
 
 Quand beaucoup des offres que vous masquez mentionnent le même secteur (banque, défense…), le fil propose d'écarter les offres qui le mentionnent. Voir [Offres freelance](/help/offers).

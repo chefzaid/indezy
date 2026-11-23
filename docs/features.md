@@ -932,7 +932,17 @@ published offers in the feed in the last 60 days naming one of the profile's ski
 spelling, `postings` the count) (`GET /api/contacts/emails/availability-recipients`, end clients and blacklisted
 companies left out, anyone in touch in the last six weeks, and anyone marked **Asked not to be contacted**), those who
 answered or wrote most first with how many times, then those posting most ("posted 3 matching missions lately"), then
-by company and name, none ticked at first. The subject and message are written from the availability date and the network post when the section
+by company and name, none ticked at first.
+
+**When** sends them now or plans them **Over 1, 2, 3 or 5 working days** with **At most a day** (15 by default, 1 to 50):
+`POST /api/contacts/emails/scheduled` (one email per contact, written for it) spreads them evenly over Monday to Friday
+but French public holidays, 9:00 to 17:00 in Paris, the first of today five minutes on at the earliest, taking more days
+when the cap asks. A job sends each when its time comes (one replica only, claimed first), as **Send from Indezy** does
+and recorded in the contact's exchanges then; one whose contact was in touch since it was planned, asked not to be
+contacted or was anonymized is dropped unsent. Refused for the day's 50 emails, one waits for the next working morning;
+another failure tries again an hour later, five tries at most. **Waiting to go** lists them, the soonest first, each
+with **Cancel** (`GET` and `DELETE /api/contacts/emails/scheduled/{id}`); up to 200 wait per workspace, gone with the
+contact or the account. The subject and message are written from the availability date and the network post when the section
 opens, `{{firstName}}` and `{{company}}` replaced by each contact's; **Send to N contacts** sends one email each, one after the other, with the dossier attached unless unticked,
 each recorded in the contact's exchanges and counted in the 50 a day; those that could not go are named and stay ticked.
 

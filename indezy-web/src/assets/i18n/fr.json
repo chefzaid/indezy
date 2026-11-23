@@ -5221,7 +5221,18 @@
     "defaultText": "Je serai bientôt disponible pour une nouvelle mission. Avez-vous des besoins qui correspondent à mon profil ?",
     "attached": "Vous trouverez mon dossier de compétences en pièce jointe.",
     "answers": "a répondu {{count}} fois",
-    "postings": "a publié {{count}} missions pour vous récemment"
+    "postings": "a publié {{count}} missions pour vous récemment",
+    "when": "Quand",
+    "now": "Maintenant",
+    "over": "Sur {{count}} jours ouvrés",
+    "nowHint": "Un e-mail après l'autre, maintenant.",
+    "spreadHint": "Du lundi au vendredi, de 9 h à 17 h (Paris), espacés régulièrement. Celui dont le contact se manifeste d'abord ne part pas.",
+    "dailyMax": "Au plus par jour",
+    "schedule": "Programmer {{count}} e-mails",
+    "scheduled": "{{count}} e-mails programmés. Ils partent au fil des prochains jours ouvrés.",
+    "scheduleFailed": "Les e-mails n'ont pas pu être programmés : réessayez.",
+    "waiting": "En attente d'envoi ({{count}})",
+    "cancelFailed": "L'e-mail n'a pas pu être annulé : réessayez."
   },
   "marketReport": {
     "title": "Baromètre des TJM freelance IT",

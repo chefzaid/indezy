@@ -41,6 +41,9 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
     @Autowired
     private JobOfferRepository offers;
 
+    @Autowired
+    private dev.swirlit.indezy.service.ContactEmailScheduleService schedule;
+
     private ResponseEntity<byte[]> pixel(String token) {
         return exchange("/public/emails/" + token + ".gif", HttpMethod.GET, HttpEntity.EMPTY, byte[].class);
     }
@@ -223,6 +226,52 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
         } finally {
             offers.deleteAll(saved);
         }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void sendsThePlannedEmailsWhenTheirTimeComesUnlessTheContactWasInTouchSince() throws Exception {
+        long lea = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Léa", "lastName", "Plan", "email", "lea@plan.example",
+            "clientId", aliceClientId), Map.class));
+        long tom = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Tom", "lastName", "Plan", "email", "tom@plan.example",
+            "clientId", aliceClientId), Map.class));
+        long ana = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Ana", "lastName", "Plan", "email", "ana@plan.example",
+            "clientId", aliceClientId), Map.class));
+        Map<String, Object> plan = Map.of("emails", List.of(Map.of("contactId", lea, "subject", "Disponible", "body", "Bonjour Léa"),
+            Map.of("contactId", tom, "subject", "Disponible", "body", "Bonjour Tom"), Map.of("contactId", ana, "subject", "Disponible", "body", "Bonjour Ana")),
+            "dossier", false, "language", "FR", "days", 2, "dailyMax", 10);
+
+        assertThat(call(bob, HttpMethod.POST, "/contacts/emails/scheduled", plan, String.class).getStatusCode())
+            .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
+        List<Map<String, Object>> planned = call(alice, HttpMethod.POST, "/contacts/emails/scheduled", plan, List.class).getBody();
+        assertThat(planned).extracting(email -> email.get("name")).containsExactly("Léa Plan", "Tom Plan", "Ana Plan");
+        assertThat(call(alice, HttpMethod.GET, "/contacts/emails/scheduled", null, List.class).getBody()).hasSize(3);
+        assertThat(call(bob, HttpMethod.GET, "/contacts/emails/scheduled", null, List.class).getBody()).isEmpty();
+        Object anaEmail = planned.get(2).get("id");
+        assertThat(call(bob, HttpMethod.DELETE, "/contacts/emails/scheduled/" + anaEmail, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.DELETE, "/contacts/emails/scheduled/" + anaEmail, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(alice, HttpMethod.POST, "/contacts/emails/scheduled", Map.of("emails", List.of(), "days", 2, "dailyMax", 10), String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        // Tom answered meanwhile: his email is dropped; Léa's goes, recorded in her exchanges.
+        call(alice, HttpMethod.POST, "/contacts/" + tom + "/interactions", Map.of("occurredOn", java.time.LocalDate.now().toString(),
+            "channel", "PHONE", "direction", "INCOMING", "summary", "Appel"), Map.class);
+        jdbcTemplate.update("UPDATE scheduled_contact_emails SET send_at = ? WHERE contact_id IN (?, ?)",
+            java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(60)), lea, tom);
+        when(mailer.configured()).thenReturn(true);
+        when(mailer.send(any())).thenReturn("e-9");
+        schedule.sendDue();
+
+        ArgumentCaptor<Email> sent = ArgumentCaptor.forClass(Email.class);
+        verify(mailer, times(1)).send(sent.capture());
+        assertThat(sent.getValue().to()).isEqualTo("lea@plan.example");
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM contact_interactions WHERE contact_id = ? AND email_sent_at IS NOT NULL",
+            Integer.class, lea)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM contact_interactions WHERE contact_id = ? AND email_sent_at IS NOT NULL",
+            Integer.class, tom)).isZero();
+        assertThat(call(alice, HttpMethod.GET, "/contacts/emails/scheduled", null, List.class).getBody()).isEmpty();
     }
 
     private static JobOffer offer(String company, List<String> skills, java.time.Instant publishedAt) {

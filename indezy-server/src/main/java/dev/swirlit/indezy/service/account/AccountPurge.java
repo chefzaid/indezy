@@ -29,7 +29,7 @@ public class AccountPurge {
         "network_message_reactions", "network_conversation_members", "support_attachments", "support_requests", "network_page_views", "network_community_members", "network_idea_votes",
         "network_meetup_attendees", "network_meetups", "network_invitations", "network_members",
         "webhook_events", "webhook_deliveries", "webhooks", "activity_report_days", "interview_step_checklist",
-        "interview_steps", "contact_interactions", "contact_relations", "project_attachments", "project_notes", "project_chat_messages",
+        "interview_steps", "scheduled_contact_emails", "contact_interactions", "contact_relations", "project_attachments", "project_notes", "project_chat_messages",
         "purchase_orders", "project_referrals", "project_contract_checks", "project_documents", "job_offer_states", "offer_ai_verdicts", "invoice_lines", "invoices",
         "invoice_counters", "activity_reports", "quote_lines", "quotes", "quote_counters", "expenses", "testimonials", "projects",
         "pipeline_template_steps", "pipeline_templates", "contacts", "clients", "sources", "seasons", "email_templates",
@@ -156,6 +156,7 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM interview_step_checklist WHERE step_id IN (SELECT id FROM interview_steps WHERE project_id IN " +
             PROJECTS + ")", f);
         rows += jdbc.update("DELETE FROM interview_steps WHERE project_id IN " + PROJECTS, f);
+        rows += jdbc.update("DELETE FROM scheduled_contact_emails WHERE freelance_id = ? OR contact_id IN " + CONTACTS, f, f);
         rows += jdbc.update("DELETE FROM contact_interactions WHERE contact_id IN " + CONTACTS + " OR project_id IN " + PROJECTS, f, f);
         rows += jdbc.update("DELETE FROM contact_relations WHERE first_contact_id IN " + CONTACTS + " OR second_contact_id IN " + CONTACTS, f, f);
         for (String table : List.of("project_attachments", "project_notes", "project_chat_messages", "project_contract_checks", "project_documents", "project_referrals")) {
