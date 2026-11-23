@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
@@ -20,7 +21,7 @@ describe('BillingTemplatesComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
       imports: [BillingTemplatesComponent, TranslateModule.forRoot()],
-      providers: [{ provide: BillingService, useValue: billing }, { provide: NotificationService, useValue: notifications }]
+      providers: [provideRouter([]), { provide: BillingService, useValue: billing }, { provide: NotificationService, useValue: notifications }]
     });
     const fixture = TestBed.createComponent(BillingTemplatesComponent);
     fixture.detectChanges();
@@ -50,6 +51,8 @@ describe('BillingTemplatesComponent', () => {
     expect(component.key('#lines')).toBe('lines');
     expect(component.key('/lines')).toBe('linesEnd');
     expect(component.key('seller.name')).toBe('seller_name');
+    expect(component.key('^vatExempt')).toBe('not_vatExempt');
+    expect(component.key('/vatExempt')).toBe('vatExemptEnd');
     expect(component.missingNames(['mentions', 'lines'])).toBe('mentions, lines');
   });
 

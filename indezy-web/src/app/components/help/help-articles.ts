@@ -22,6 +22,7 @@ export const HELP_ARTICLES: readonly HelpArticle[] = [
   { slug: 'calendar', icon: 'calendar_month', section: 'work' },
   { slug: 'activity-reports', icon: 'edit_calendar', section: 'money' },
   { slug: 'invoices-quotes', icon: 'receipt_long', section: 'money' },
+  { slug: 'document-templates', icon: 'article', section: 'money' },
   { slug: 'documents', icon: 'folder_shared', section: 'money' },
   { slug: 'dashboard', icon: 'insights', section: 'money' },
   { slug: 'network', icon: 'diversity_3', section: 'network' },

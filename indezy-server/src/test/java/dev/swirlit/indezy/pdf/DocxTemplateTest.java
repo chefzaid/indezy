@@ -117,4 +117,16 @@ public class DocxTemplateTest {
         assertThatThrownBy(() -> DocxTemplate.analyse(new DocxDocument("Liberation Sans", null).save("t", "a")))
             .hasMessageContaining("no placeholder");
     }
+
+    @Test
+    void showsAPartOnlyInItsCase() {
+        String xml = "<w:p><w:r><w:t>{{#vatExempt}}TVA non applicable{{/vatExempt}}{{^vatExempt}}TVA {{seller.vatNumber}}{{/vatExempt}}</w:t></w:r></w:p>" +
+            "<w:p><w:r><w:t>{{^vatExempt}}Taux</w:t></w:r></w:p><w:p><w:r><w:t>20 %{{/vatExempt}}</w:t></w:r></w:p>";
+        assertThat(DocxTemplate.cases(xml, Map.of("vatExempt", true))).isEqualTo("<w:p><w:r><w:t>TVA non applicable</w:t></w:r></w:p>" +
+            "<w:p><w:r><w:t></w:t></w:r></w:p><w:p><w:r><w:t></w:t></w:r></w:p>");
+        assertThat(DocxTemplate.cases(xml, Map.of("vatExempt", false))).isEqualTo("<w:p><w:r><w:t>TVA {{seller.vatNumber}}</w:t></w:r></w:p>" +
+            "<w:p><w:r><w:t>Taux</w:t></w:r></w:p><w:p><w:r><w:t>20 %</w:t></w:r></w:p>");
+        // A case left open loses its marker only.
+        assertThat(DocxTemplate.cases("<w:t>{{#vatExempt}}seul</w:t>", Map.of())).isEqualTo("<w:t>seul</w:t>");
+    }
 }

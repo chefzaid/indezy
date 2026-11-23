@@ -4810,6 +4810,10 @@
         "title": "Quotes and invoices",
         "summary": "Quotes, invoices, Factur-X, late payments and the accounting export."
       },
+      "document-templates": {
+        "title": "Document templates",
+        "summary": "Your own Word templates for invoices and quotes, and every placeholder."
+      },
       "documents": {
         "title": "Documents and compliance",
         "summary": "Your documents, their expiry dates, shared packs and templates."
@@ -5259,6 +5263,7 @@
     "replace": "Replace",
     "remove": "Back to the built-in layout",
     "preview": "Preview",
+    "guide": "Every placeholder, with examples",
     "previewError": "The preview could not be made.",
     "found": "{{count}} placeholders found.",
     "unknown": "Unknown, left as written: {{names}}",
@@ -5304,7 +5309,10 @@
       "mentions": "The mentions French law requires (VAT, payment, penalties, the €40 indemnity)",
       "notes": "The notes",
       "acceptance": "A quote's words above the signature",
-      "logo": "Your logo"
+      "logo": "Your logo",
+      "vatExempt": "Starts a part shown only when VAT does not apply",
+      "not_vatExempt": "Starts a part shown only when VAT applies",
+      "vatExemptEnd": "Ends that part"
     }
   }
 }

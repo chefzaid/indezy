@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject }
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DocumentTemplate, DocumentTemplateKind } from '../../../models';
 import { BillingService } from '../../../services/billing/billing.service';
@@ -14,12 +15,13 @@ import { saveBlob } from '../../../shared/utils/download-file';
  */
 @Component({
   selector: 'app-billing-templates',
-  imports: [MatButtonModule, MatIconModule, TranslateModule],
+  imports: [MatButtonModule, MatIconModule, RouterLink, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="templates" aria-labelledby="billing-templates-title" data-billing-templates>
       <h2 id="billing-templates-title">{{ 'billingTemplates.title' | translate }}</h2>
-      <p class="hint">{{ 'billingTemplates.hint' | translate:{ example: example } }}</p>
+      <p class="hint">{{ 'billingTemplates.hint' | translate:{ example: example } }}
+        <a routerLink="/help/document-templates" data-billing-templates-guide>{{ 'billingTemplates.guide' | translate }}</a></p>
       @for (kind of kinds; track kind) {
         <div class="kind" [attr.data-billing-template]="kind">
           <h3>{{ 'billingTemplates.kinds.' + kind | translate }}</h3>
@@ -110,9 +112,11 @@ export class BillingTemplatesComponent implements OnInit {
     return this.templates.find(template => template.kind === kind);
   }
 
-  /** The translation key of a placeholder's meaning: "#lines" as "lines", "/lines" as "linesEnd". */
+  /** The translation key of a placeholder's meaning: "#lines" as "lines", "/lines" as "linesEnd", "^vatExempt" as "not_vatExempt". */
   key(placeholder: string): string {
-    return placeholder === '#lines' ? 'lines' : placeholder === '/lines' ? 'linesEnd' : placeholder.replace('.', '_');
+    const name = placeholder.slice(1);
+    return placeholder.startsWith('#') ? name : placeholder.startsWith('/') ? `${name}End` : placeholder.startsWith('^') ? `not_${name}` :
+      placeholder.replace('.', '_');
   }
 
   braces(names: string[]): string {

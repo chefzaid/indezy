@@ -79,7 +79,7 @@ Les **Modèles Word**, dans Profil → Facturation, permettent à **Télécharge
 2. Pour les lignes, mettez `{{#lines}}` au début d'une ligne de tableau et `{{/lines}}` à sa fin, avec `{{line.description}}`, `{{line.quantity}}`, `{{line.unitPrice}}` et `{{line.amount}}` dans ses cellules : la ligne est répétée pour chaque ligne de la facture.
 3. Cliquez sur **Envoyer un modèle** sous **Factures et avoirs** ou **Devis**. Indezy montre les champs trouvés, ceux qu'il ne connaît pas, et les mentions absentes de votre modèle : elles sont ajoutées à la fin, pour que rien de ce qu'exige la loi ne manque.
 
-**Aperçu** télécharge votre modèle rempli avec votre dernière facture ou votre dernier devis (un exemple avant le premier). **Revenir à la mise en page intégrée** retire le modèle. Le PDF garde la mise en page intégrée.
+Tous les champs, avec un exemple, sont dans [Modèles de documents](/help/document-templates). **Aperçu** télécharge votre modèle rempli avec votre dernière facture ou votre dernier devis (un exemple avant le premier). **Revenir à la mise en page intégrée** retire le modèle. Le PDF garde la mise en page intégrée.
 
 ## L'export pour le comptable
 

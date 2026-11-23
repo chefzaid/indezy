@@ -4,7 +4,7 @@ import { mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
 
 const SLUGS = ['getting-started', 'account', 'shortcuts', 'faq', 'offers', 'pipeline', 'clients-contacts', 'calendar', 'activity-reports',
-  'invoices-quotes', 'documents', 'dashboard', 'network', 'whats-new'];
+  'invoices-quotes', 'document-templates', 'documents', 'dashboard', 'network', 'whats-new'];
 const AUDIT = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 test('every help article and legal text exists in French and English, its screenshots too', async ({ request }) => {

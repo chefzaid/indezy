@@ -1336,7 +1336,10 @@ notes and deposit invoices too) and one for the quotes. Its placeholders (`GET /
 are `{{document.title|number|issueDate|dueDate|period|validUntil|draft}}`, `{{seller.name|details|address|siret|vatNumber|iban|bic}}`,
 `{{client.name|details|address|siren|vatNumber}}`, `{{totals.excludingVat|vat|toPay}}`, `{{mentions}}`, `{{notes}}`,
 `{{acceptance}}` and `{{logo}}`, `{{invoice.…}}` and `{{quote.…}}` standing for `{{document.…}}`, and the part between
-`{{#lines}}` and `{{/lines}}` (its table row, or its paragraphs) is repeated per line with `{{line.description|quantity|unitPrice|vatRate|amount}}`.
+`{{#lines}}` and `{{/lines}}` (its table row, or its paragraphs) is repeated per line with `{{line.description|quantity|unitPrice|vatRate|amount}}`;
+a part between `{{#vatExempt}}` and `{{/vatExempt}}` shows only without VAT, after `{{^vatExempt}}` only with it. The help
+center's **Document templates** article (`/help/document-templates`) lists every placeholder with its meaning and an
+example, in both languages; `PlaceholderGuideTest` fails when it misses one the filler knows.
 Word splits a typed placeholder across runs: a paragraph holding one is written as one run first, its breaks and tabs
 kept. On upload the page shows the placeholders found, those unknown (left as written) and the mentions the template
 lacks (number, date, seller, client, lines, totals, mentions), which the filled document adds at its end rather than

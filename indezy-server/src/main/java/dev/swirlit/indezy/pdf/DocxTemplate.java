@@ -38,10 +38,12 @@ public final class DocxTemplate {
         "document.period", "document.validUntil", "document.draft", "seller.name", "seller.details", "seller.address", "seller.siret",
         "seller.vatNumber", "seller.iban", "seller.bic", "client.name", "client.details", "client.address", "client.siren", "client.vatNumber",
         "#lines", "line.description", "line.quantity", "line.unitPrice", "line.vatRate", "line.amount", "/lines", "totals.excludingVat",
-        "totals.vat", "totals.toPay", "mentions", "notes", "acceptance", "logo");
+        "totals.vat", "totals.toPay", "mentions", "notes", "acceptance", "logo", "#vatExempt", "^vatExempt", "/vatExempt");
+    /** The cases a part of the template can be shown in, between {@code {{#case}}} (or {@code {{^case}}} for its opposite) and {@code {{/case}}}. */
+    static final List<String> CASES = List.of("vatExempt");
     /** The mentions a document must carry, each satisfied by any of its placeholders. */
     private static final Map<String, List<String>> REQUIRED = requiredMentions();
-    private static final Pattern PLACEHOLDER = Pattern.compile("\\{\\{\\s*([#/]?[A-Za-z]+(?:\\.[A-Za-z]+)?)\\s*}}");
+    private static final Pattern PLACEHOLDER = Pattern.compile("\\{\\{\\s*([#/^]?[A-Za-z]+(?:\\.[A-Za-z]+)?)\\s*}}");
     private static final Pattern PARAGRAPH = Pattern.compile("<w:p[ >].*?</w:p>", Pattern.DOTALL);
     private static final Pattern TEXT = Pattern.compile("(<w:t(?: [^>]*)?>)(.*?)(</w:t>)", Pattern.DOTALL);
     private static final Pattern EMPTY_TEXT = Pattern.compile("<w:t/>");
@@ -68,9 +70,10 @@ public final class DocxTemplate {
     }
 
     /** What a filled template says: the fields by placeholder, the lines, and the mentions French law asks for. */
-    record Values(Map<String, String> fields, List<Map<String, String>> lines, byte[] logo, LogoSize logoSize) {
+    record Values(Map<String, String> fields, List<Map<String, String>> lines, byte[] logo, LogoSize logoSize, Map<String, Boolean> cases) {
 
         Values {
+            cases = cases == null ? Map.of() : Map.copyOf(cases);
             fields = Map.copyOf(fields);
             lines = List.copyOf(lines.stream().map(Map::copyOf).toList());
             logo = logo == null ? null : logo.clone();
@@ -114,6 +117,7 @@ public final class DocxTemplate {
         boolean logoUsed = false;
         for (String name : textParts(parts)) {
             String xml = merged(new String(parts.get(name), StandardCharsets.UTF_8));
+            xml = cases(xml, values.cases());
             xml = repeatLines(xml, values.lines());
             if (values.logo() != null && xml.contains("{{logo}}") && name.equals(DOCUMENT)) {
                 xml = xml.replace("{{logo}}", "</w:t></w:r>" + logoRun(values) + "<w:r><w:t xml:space=\"preserve\">");
@@ -160,7 +164,8 @@ public final class DocxTemplate {
             lines.add(Map.of("line.description", cells[0], "line.quantity", cells[1], "line.unitPrice", cells[2], "line.vatRate", cells[3],
                 "line.amount", cells[4]));
         }
-        return new Values(fields, lines, logo, page.seller.getLogoSize() == null ? LogoSize.MEDIUM : page.seller.getLogoSize());
+        return new Values(fields, lines, logo, page.seller.getLogoSize() == null ? LogoSize.MEDIUM : page.seller.getLogoSize(),
+            Map.of("vatExempt", page.vatExempt()));
     }
 
     /** {@code invoice.number} and {@code quote.number} as {@code document.number}. */
@@ -208,6 +213,42 @@ public final class DocxTemplate {
         }
         paragraph.appendTail(out);
         return EMPTY_TEXT.matcher(out.toString()).replaceAll("<w:t></w:t>");
+    }
+
+    /**
+     * Each part between {@code {{#case}}} and {@code {{/case}}} kept when the case holds and dropped otherwise, the part
+     * after {@code {{^case}}} the other way round; its markers go either way.
+     */
+    static String cases(String xml, Map<String, Boolean> cases) {
+        String result = xml;
+        for (String name : CASES) {
+            boolean holds = Boolean.TRUE.equals(cases.get(name));
+            result = section(result, "{{#" + name + "}}", "{{/" + name + "}}", holds);
+            result = section(result, "{{^" + name + "}}", "{{/" + name + "}}", !holds);
+        }
+        return result;
+    }
+
+    private static String section(String xml, String open, String close, boolean keep) {
+        String result = xml;
+        int start = result.indexOf(open);
+        while (start >= 0) {
+            int end = result.indexOf(close, start + open.length());
+            if (end < 0) {
+                return result.replace(open, "");
+            }
+            String inner = result.substring(start + open.length(), end);
+            String kept = keep ? inner : keepStructure(inner);
+            result = result.substring(0, start) + kept + result.substring(end + close.length());
+            start = result.indexOf(open, start + kept.length());
+        }
+        return result;
+    }
+
+    /** What a dropped part leaves: its tags without their words, so the paragraphs around it stay whole. */
+    private static String keepStructure(String inner) {
+        return inner.replaceAll("(<w:t(?: [^>]*)?>)[^<]*(</w:t>)", "$1$2").replaceAll("^[^<]*", "").replaceAll("[^>]*$", "")
+            .replaceAll("<w:drawing>.*?</w:drawing>", "");
     }
 
     /** The part between {@code {{#lines}}} and {@code {{/lines}}}, widened to its table rows or paragraphs, once per line. */

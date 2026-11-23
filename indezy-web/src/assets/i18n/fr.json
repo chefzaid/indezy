@@ -4810,6 +4810,10 @@
         "title": "Devis et factures",
         "summary": "Devis, factures, Factur-X, retards de paiement et export comptable."
       },
+      "document-templates": {
+        "title": "Modèles de documents",
+        "summary": "Vos propres modèles Word de factures et devis, et tous leurs champs."
+      },
       "documents": {
         "title": "Documents et conformité",
         "summary": "Vos documents, leurs échéances, les dossiers partagés et les modèles."
@@ -5259,6 +5263,7 @@
     "replace": "Remplacer",
     "remove": "Revenir à la mise en page intégrée",
     "preview": "Aperçu",
+    "guide": "Tous les champs, avec des exemples",
     "previewError": "L'aperçu n'a pas pu être créé.",
     "found": "{{count}} champs trouvés.",
     "unknown": "Inconnus, laissés tels quels : {{names}}",
@@ -5304,7 +5309,10 @@
       "mentions": "Les mentions qu'exige la loi (TVA, paiement, pénalités, indemnité de 40 €)",
       "notes": "Les notes",
       "acceptance": "Les mots d'un devis au-dessus de la signature",
-      "logo": "Votre logo"
+      "logo": "Votre logo",
+      "vatExempt": "Ouvre une partie montrée seulement en franchise de TVA",
+      "not_vatExempt": "Ouvre une partie montrée seulement avec la TVA",
+      "vatExemptEnd": "Ferme cette partie"
     }
   }
 }
