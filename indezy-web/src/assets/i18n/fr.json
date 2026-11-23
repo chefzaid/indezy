@@ -5341,6 +5341,7 @@
     "refused": "Ce fichier ne peut pas servir de modèle : envoyez un .docx ou un formulaire PDF de 5 Mo au plus.",
     "noPlaceholder": "Ce document ne contient aucun champ : ajoutez-les là où vont les valeurs, comme {{example}}.",
     "macros": "Ce document contient des macros : enregistrez-le en .docx sans elles.",
+    "starter": "Télécharger un modèle de départ",
     "noField": "Ce PDF n'a aucun champ de formulaire : nommez ses champs d'après les variables, comme invoice_number.",
     "pdfRefused": "Ce PDF est protégé ou contient des scripts : enregistrez-le sans.",
     "placeholders": "Champs à copier",

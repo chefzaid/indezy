@@ -1359,7 +1359,12 @@ are `{{document.title|number|issueDate|dueDate|period|validUntil|draft}}`, `{{se
 `{{#lines}}` and `{{/lines}}` (its table row, or its paragraphs) is repeated per line with `{{line.description|quantity|unitPrice|vatRate|amount}}`;
 a part between `{{#vatExempt}}` and `{{/vatExempt}}` shows only without VAT, after `{{^vatExempt}}` only with it. The help
 center's **Document templates** article (`/help/document-templates`) lists every placeholder with its meaning and an
-example, in both languages; `PlaceholderGuideTest` fails when it misses one the filler knows.
+example, in both languages; `PlaceholderGuideTest` fails when it misses one the filler knows. **Download a template to
+start from** (`GET /api/users/billing/templates/{INVOICE|QUOTE}/starter?language=FR|EN`, `StarterTemplate`) writes the
+built-in layout as a `.docx` in the documents' font, accent colour (the quotes' own for a quote) and footer, every
+placeholder in place (the logo, the seller and client, the number and dates, a lines table row between `{{#lines}}` and
+`{{/lines}}`, the totals with the VAT only `{{^vatExempt}}`, the mentions, notes and, on quotes, the acceptance and a
+signature box): uploaded back as it is, it leaves nothing unknown nor missing.
 
 A **fillable PDF form** goes in the same place instead of a `.docx` (`PdfFormTemplate`, read by its `%PDF` start): its
 fields are named after the placeholders, a field `number` inside a field `invoice` or a flat `invoice_number`, a line's

@@ -81,6 +81,17 @@ class DocumentTemplateIntegrationTest extends TwoAccountsIntegrationTest {
             .isEqualTo(MediaType.APPLICATION_PDF);
     }
 
+    @Test
+    void startsAWordTemplateFromTheBuiltInLayoutThatUploadsWithNothingMissing() throws IOException {
+        ResponseEntity<byte[]> starter = call(alice, HttpMethod.GET, "/users/billing/templates/INVOICE/starter?language=FR", null, byte[].class);
+        assertThat(starter.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(starter.getHeaders().getContentDisposition().getFilename()).isEqualTo("modele-facture.docx");
+        ResponseEntity<Map> uploaded = upload("INVOICE", "modele-facture.docx", starter.getBody());
+        assertThat(uploaded.getBody()).containsEntry("unknown", List.of()).containsEntry("missing", List.of());
+        assertThat(call(alice, HttpMethod.GET, "/users/billing/templates/QUOTE/starter?language=EN", null, byte[].class).getHeaders()
+            .getContentDisposition().getFilename()).isEqualTo("quote-template.docx");
+    }
+
     private ResponseEntity<Map> upload(String kind, String name, byte[] content) {
         LinkedMultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         form.add("file", new ByteArrayResource(content) {

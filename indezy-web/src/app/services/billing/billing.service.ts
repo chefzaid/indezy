@@ -73,6 +73,11 @@ export class BillingService {
   }
 
   /** The template filled with the latest invoice or quote, or a sample one before the first. */
+  /** A Word template to start from: the built-in layout with every placeholder in place, labels in the language given. */
+  starterTemplate(kind: DocumentTemplateKind, language: 'FR' | 'EN'): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/users/billing/templates/${kind}/starter`, { params: { language }, responseType: 'blob' });
+  }
+
   templatePreview(kind: DocumentTemplateKind): Observable<Blob> {
     return this.http.get(`${environment.apiUrl}/${kind === 'INVOICE' ? 'invoices' : 'quotes'}/template-preview`, { responseType: 'blob' });
   }

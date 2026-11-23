@@ -108,6 +108,17 @@ public class BillingController {
         return templates.upload(workspace(), kind, file.getOriginalFilename(), file.getBytes());
     }
 
+    @Operation(summary = "A Word template to start from: the built-in layout with every placeholder in place",
+        description = "In the documents' font, accent colour and footer; FR or EN labels")
+    @GetMapping("/templates/{kind}/starter")
+    public org.springframework.http.ResponseEntity<byte[]> starterTemplate(@PathVariable DocumentTemplateKind kind,
+                                                                          @RequestParam(defaultValue = "FR") dev.swirlit.indezy.model.enums.DocumentLanguage language) {
+        boolean english = language == dev.swirlit.indezy.model.enums.DocumentLanguage.EN;
+        String name = kind == DocumentTemplateKind.QUOTE ? (english ? "quote-template.docx" : "modele-devis.docx") :
+            (english ? "invoice-template.docx" : "modele-facture.docx");
+        return PdfResponses.attachment(name, PdfResponses.DOCX, billing.starterTemplate(workspace(), kind, language));
+    }
+
     @Operation(summary = "Go back to the built-in layout for the Word copies of the invoices or of the quotes")
     @DeleteMapping("/templates/{kind}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

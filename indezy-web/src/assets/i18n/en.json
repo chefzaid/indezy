@@ -5341,6 +5341,7 @@
     "refused": "This file cannot be a template: send a .docx or a PDF form of 5 MB at most.",
     "noPlaceholder": "This document holds no placeholder: add them where the values go, such as {{example}}.",
     "macros": "This document holds macros: save it as a .docx without them.",
+    "starter": "Download a template to start from",
     "noField": "This PDF has no form field: name its fields after the placeholders, such as invoice_number.",
     "pdfRefused": "This PDF is protected or holds scripts: save it without them.",
     "placeholders": "Placeholders to copy",

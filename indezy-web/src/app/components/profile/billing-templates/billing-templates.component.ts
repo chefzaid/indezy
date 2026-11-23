@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DocumentTemplate, DocumentTemplateKind } from '../../../models';
 import { BillingService } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -42,6 +42,9 @@ import { copyExtension, saveBlob } from '../../../shared/utils/download-file';
           <div class="actions">
             <button mat-stroked-button type="button" (click)="file.click()" [disabled]="busy" [attr.data-billing-template-upload]="kind">
               <mat-icon>upload_file</mat-icon>{{ (template(kind) ? 'billingTemplates.replace' : 'billingTemplates.upload') | translate }}
+            </button>
+            <button mat-button type="button" (click)="starter(kind)" [attr.data-billing-template-starter]="kind">
+              <mat-icon>download</mat-icon>{{ 'billingTemplates.starter' | translate }}
             </button>
             @if (template(kind)) {
               <button mat-button type="button" (click)="preview(kind)" [attr.data-billing-template-preview]="kind">
@@ -88,6 +91,7 @@ export class BillingTemplatesComponent implements OnInit {
   private readonly billing = inject(BillingService);
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
+  private readonly translate = inject(TranslateService);
 
   readonly kinds: DocumentTemplateKind[] = ['INVOICE', 'QUOTE'];
   /** Placeholders written in the texts, kept out of the translations' own braces. */
@@ -159,6 +163,16 @@ export class BillingTemplatesComponent implements OnInit {
         }
         this.changes.markForCheck();
       }
+    });
+  }
+
+  /** Downloads a Word template to start from, in the app's language: the built-in layout with its placeholders in place. */
+  starter(kind: DocumentTemplateKind): void {
+    const english = this.translate.getCurrentLang() === 'en';
+    this.billing.starterTemplate(kind, english ? 'EN' : 'FR').subscribe({
+      next: blob => saveBlob(blob, kind === 'INVOICE' ? (english ? 'invoice-template.docx' : 'modele-facture.docx') :
+        (english ? 'quote-template.docx' : 'modele-devis.docx')),
+      error: () => this.notifications.error('billingTemplates.previewError')
     });
   }
 

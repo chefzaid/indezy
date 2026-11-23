@@ -36,6 +36,16 @@ for (const language of ['en', 'fr']) {
       const preview = page.waitForEvent('download');
       await section.locator('[data-billing-template-preview="INVOICE"]').click();
       expect((await preview).suggestedFilename()).toBe('apercu-modele-facture.docx');
+      // A template to start from, labelled in the app's language.
+      let starterUrl = '';
+      await page.route('**/api/users/billing/templates/QUOTE/starter**', route => {
+        starterUrl = route.request().url();
+        return route.fulfill({ body: 'PK', contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      });
+      const starter = page.waitForEvent('download');
+      await section.locator('[data-billing-template-starter="QUOTE"]').click();
+      expect((await starter).suggestedFilename()).toBe(language === 'en' ? 'quote-template.docx' : 'modele-devis.docx');
+      expect(starterUrl).toContain(language === 'en' ? 'language=EN' : 'language=FR');
       await section.locator('[data-billing-placeholders] summary').click();
       await expect(section.locator('[data-billing-placeholders] li')).toHaveCount(PLACEHOLDERS.length);
       const audit = await new AxeBuilder({ page }).include('[data-billing-templates]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

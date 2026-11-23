@@ -2,7 +2,7 @@ A **Word template** lays out your invoices or your quotes as you like: you write
 
 ## Upload a template
 
-1. In Word, lay out an invoice (or a quote) and type the placeholders below where the values go, braces included, such as `{{invoice.number}}`.
+1. In Word, lay out an invoice (or a quote) and type the placeholders below where the values go, braces included, such as `{{invoice.number}}`. Or start from **Download a template to start from**: the built-in layout in your style, every placeholder already in place.
 2. Save it as a `.docx` (5 MB at most, without macros).
 3. Open **Profile → Billing → Word templates** and click **Upload a template** under **Invoices and credit notes** or **Quotes**.
 4. Indezy shows the placeholders it found, those it does not know (left as written in the document), and the mentions French law requires that your template lacks: those are added at its end, so nothing required goes missing.

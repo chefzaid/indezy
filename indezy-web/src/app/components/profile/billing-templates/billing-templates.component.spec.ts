@@ -1,7 +1,7 @@
 import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { DocumentTemplate } from '../../../models';
 import { BillingService } from '../../../services/billing/billing.service';
@@ -15,7 +15,7 @@ describe('BillingTemplatesComponent', () => {
     found: ['invoice.number', '#lines'], unknown: ['iban.inconnu'], missing: ['mentions'] };
 
   function create(): { component: BillingTemplatesComponent; element: () => HTMLElement } {
-    billing = jasmine.createSpyObj('BillingService', ['templates', 'placeholders', 'uploadTemplate', 'removeTemplate', 'templatePreview']);
+    billing = jasmine.createSpyObj('BillingService', ['templates', 'placeholders', 'uploadTemplate', 'removeTemplate', 'templatePreview', 'starterTemplate']);
     billing.templates.and.returnValue(of([invoiceTemplate]));
     billing.placeholders.and.returnValue(of(['document.number', '#lines', '/lines', 'logo']));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -112,6 +112,18 @@ describe('BillingTemplatesComponent', () => {
     billing.templatePreview.and.returnValue(of(new Blob(['%PDF'], { type: 'application/pdf' })));
     component.preview('INVOICE');
     expect(link.download).toBe('apercu-modele-facture.pdf');
+    // A template to start from, in the app's language.
+    billing.starterTemplate.and.returnValue(of(new Blob(['PK'])));
+    component.starter('QUOTE');
+    expect(billing.starterTemplate).toHaveBeenCalledWith('QUOTE', 'FR');
+    expect(link.download).toBe('modele-devis.docx');
+    TestBed.inject(TranslateService).use('en');
+    component.starter('INVOICE');
+    expect(billing.starterTemplate).toHaveBeenCalledWith('INVOICE', 'EN');
+    expect(link.download).toBe('invoice-template.docx');
+    billing.starterTemplate.and.returnValue(throwError(() => new Error('down')));
+    component.starter('INVOICE');
+    expect(notifications.error).toHaveBeenCalledWith('billingTemplates.previewError');
     billing.templatePreview.and.returnValue(throwError(() => new Error('down')));
     component.preview('INVOICE');
     expect(notifications.error).toHaveBeenCalledWith('billingTemplates.previewError');

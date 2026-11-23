@@ -2,7 +2,7 @@ Un **modèle Word** met en page vos factures ou vos devis comme vous le souhaite
 
 ## Envoyer un modèle
 
-1. Dans Word, mettez en page une facture (ou un devis) et tapez les champs ci-dessous là où vont les valeurs, accolades comprises, comme `{{invoice.number}}`.
+1. Dans Word, mettez en page une facture (ou un devis) et tapez les champs ci-dessous là où vont les valeurs, accolades comprises, comme `{{invoice.number}}`. Ou partez de **Télécharger un modèle de départ** : la mise en page intégrée à votre style, chaque champ déjà en place.
 2. Enregistrez-le en `.docx` (5 Mo au plus, sans macros).
 3. Ouvrez **Profil → Facturation → Modèles Word** et cliquez sur **Envoyer un modèle** sous **Factures et avoirs** ou **Devis**.
 4. Indezy montre les champs trouvés, ceux qu'il ne connaît pas (laissés tels quels dans le document), et les mentions qu'exige la loi absentes de votre modèle : elles sont ajoutées à la fin, pour que rien d'obligatoire ne manque.

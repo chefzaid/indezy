@@ -99,6 +99,15 @@ public class BillingIdentityService {
         return billing;
     }
 
+    /** A Word template to start from, in the style the documents of that kind take today (see {@link dev.swirlit.indezy.pdf.StarterTemplate}). */
+    @Transactional(readOnly = true)
+    public byte[] starterTemplate(Long freelanceId, dev.swirlit.indezy.model.enums.DocumentTemplateKind kind,
+                                  dev.swirlit.indezy.model.enums.DocumentLanguage language) {
+        BillingIdentityDto identity = toDto(freelance(freelanceId));
+        return dev.swirlit.indezy.pdf.StarterTemplate.write(kind, language, kind == dev.swirlit.indezy.model.enums.DocumentTemplateKind.QUOTE ?
+            InvoiceService.quoteSeller(identity) : InvoiceService.seller(identity));
+    }
+
     /** The identity as invoices use it, the defaults filled in. */
     public static BillingIdentityDto toDto(Freelance freelance) {
         return toDto(freelance, freelance.getBilling());
