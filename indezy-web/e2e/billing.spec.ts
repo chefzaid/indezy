@@ -92,13 +92,16 @@ for (const width of [1280, 390]) {
     await card.locator('[data-body-block-up="NOTES"]').click();
     await expect(card.locator('[data-body-block]').nth(1)).toHaveAttribute('data-body-block', 'NOTES');
     await card.locator('[data-body-block-signature] input').uncheck();
+    // The pages' zones, the footer's right one numbering them.
+    await card.locator('[data-billing-footer-right]').fill('Page {{page}}/{{pages}}');
+    await card.locator('[data-billing-page-header-right]').fill('{{document.title}} {{document.number}}');
     await card.locator('[data-billing-save]').click();
 
     await expect(card.locator('[data-billing-status]')).toContainText('Ready to issue invoices');
     expect(saved).toEqual([expect.objectContaining({ legalForm: 'MICRO_ENTREPRISE', siret: '55210055400012', letterheadTop: 45, letterheadBottom: 20,
       iban: 'FR7630006000011234567890189', vatExempt: true, quoteTerms: 'Article 1 — Objet', accentColor: '#1F4E79',
       footer: 'alice.dev · 06 12 34 56 78', font: 'CUSTOM', theme: 'MODERN', quoteTheme: 'CLASSIC',
-      bodyBlocks: ['LINES', 'NOTES', 'MENTIONS'] })]);
+      bodyBlocks: ['LINES', 'NOTES', 'MENTIONS'], footerRight: 'Page {{page}}/{{pages}}', pageHeaderRight: '{{document.title}} {{document.number}}' })]);
     const audit = await new AxeBuilder({ page }).include('[data-billing]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

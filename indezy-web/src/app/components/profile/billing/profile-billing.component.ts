@@ -61,6 +61,10 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     letterheadTop: [null as number | null, [Validators.min(0), Validators.max(120)]],
     letterheadBottom: [null as number | null, [Validators.min(0), Validators.max(120)]],
     footer: ['', Validators.maxLength(200)],
+    footerCenter: ['', Validators.maxLength(200)],
+    footerRight: ['', Validators.maxLength(200)],
+    pageHeaderLeft: ['', Validators.maxLength(200)],
+    pageHeaderRight: ['', Validators.maxLength(200)],
     logoPlacement: ['LEFT' as 'LEFT' | 'CENTER' | 'RIGHT'],
     logoSize: ['MEDIUM' as 'SMALL' | 'MEDIUM' | 'LARGE'],
     invoiceNotes: ['', Validators.maxLength(2000)],
@@ -318,6 +322,10 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     this.form.markAsDirty();
   }
 
+  /** The placeholders the page zones take, shown in their hint. */
+  readonly zonePlaceholders = ['{{page}}', '{{pages}}', '{{document.title}}', '{{document.number}}', '{{document.issueDate}}',
+    '{{document.dueDate}}', '{{seller.name}}', '{{seller.siret}}', '{{seller.vatNumber}}'].join(' ');
+
   /** The body's blocks in the order the documents print them, the signature box always listed (printed when {@link signature}). */
   blocks: BodyBlock[] = [...USUAL_BODY_BLOCKS];
 
@@ -418,6 +426,10 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       quoteAccentColor: this.ownQuoteStyle ? value.quoteAccentColor || null : null,
       bodyBlocks: this.blocks.filter(block => block !== 'SIGNATURE' || this.signature),
       footer: value.footer?.trim() || null,
+      footerCenter: value.footerCenter?.trim() || null,
+      footerRight: value.footerRight?.trim() || null,
+      pageHeaderLeft: value.pageHeaderLeft?.trim() || null,
+      pageHeaderRight: value.pageHeaderRight?.trim() || null,
       logoPlacement: value.logoPlacement ?? 'LEFT',
       logoSize: value.logoSize ?? 'MEDIUM',
       invoiceNotes: value.invoiceNotes?.trim() || null,
@@ -450,6 +462,10 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       quoteTheme: identity.quoteTheme ?? null,
       quoteAccentColor: identity.quoteAccentColor ?? '',
       footer: identity.footer ?? '',
+      footerCenter: identity.footerCenter ?? '',
+      footerRight: identity.footerRight ?? '',
+      pageHeaderLeft: identity.pageHeaderLeft ?? '',
+      pageHeaderRight: identity.pageHeaderRight ?? '',
       logoPlacement: identity.logoPlacement ?? 'LEFT',
       logoSize: identity.logoSize ?? 'MEDIUM',
       invoiceNotes: identity.invoiceNotes ?? '',

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les zones d'en-tête et de pied de vos documents
+
+Vos factures et devis peuvent porter un pied de page en trois zones et un en-tête sur les pages suivantes, avec des champs comme le nombre de pages ou votre SIRET. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Les modèles Word en trois mises en page, et un exemple rempli
 
 **Télécharger un modèle de départ** propose désormais les mises en page Simple, Moderne et Classique, et un exemple rempli pour voir le résultat avant de le modifier. Voir [Modèles de documents](/help/document-templates).

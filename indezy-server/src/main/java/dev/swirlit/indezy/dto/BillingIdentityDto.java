@@ -39,6 +39,11 @@ public record BillingIdentityDto(
     @Pattern(regexp = "#[0-9A-Fa-f]{6}", message = "A colour as #RRGGBB") String accentColor,
     Long logoId,
     @Size(max = 200) String footer,
+    /** The footer's centre and right zones and the header of the pages after the first, with placeholders; null for none. */
+    @Size(max = 200) String footerCenter,
+    @Size(max = 200) String footerRight,
+    @Size(max = 200) String pageHeaderLeft,
+    @Size(max = 200) String pageHeaderRight,
     @Size(max = 2000) String invoiceNotes,
     @Size(max = 2000) String quoteNotes,
     Long quoteTermsFileId,
@@ -76,6 +81,10 @@ public record BillingIdentityDto(
         invoicePrefix = blankToNull(invoicePrefix);
         quoteTerms = blankToNull(quoteTerms);
         footer = blankToNull(footer);
+        footerCenter = blankToNull(footerCenter);
+        footerRight = blankToNull(footerRight);
+        pageHeaderLeft = blankToNull(pageHeaderLeft);
+        pageHeaderRight = blankToNull(pageHeaderRight);
         header = header == null || header.isBlank() ? null : header.strip().replaceAll("\\s+", " ");
         invoiceNotes = blankToNull(invoiceNotes);
         quoteNotes = blankToNull(quoteNotes);

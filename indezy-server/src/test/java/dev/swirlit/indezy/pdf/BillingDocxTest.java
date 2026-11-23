@@ -145,7 +145,7 @@ public class BillingDocxTest {
         assertThat(DocxDocument.escape("a\u0001b & <c> \"d\"")).isEqualTo("ab &amp; &lt;c&gt; &quot;d&quot;");
         assertThat(DocxDocument.escape(null)).isEmpty();
         // A picture that cannot be read is left out, the document still written.
-        DocxDocument docx = new DocxDocument("Liberation Sans", null);
+        DocxDocument docx = new DocxDocument("Liberation Sans", (String) null);
         docx.picture(new byte[] {1, 2, 3}, 100, 40, DocxDocument.Align.LEFT);
         docx.paragraph("Bonjour", false, DocxDocument.BODY, DocxDocument.Align.CENTER);
         assertThat(new String(docx.save("t", "a"), StandardCharsets.ISO_8859_1)).doesNotContain("media/logo");

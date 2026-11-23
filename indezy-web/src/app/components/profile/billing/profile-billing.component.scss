@@ -151,7 +151,8 @@
 .quote-style { margin: 8px 0 12px; }
 .quote-style-fields { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; margin-top: 8px; }
 
-.body-blocks {
+.body-blocks,
+.page-zones {
   border: 1px solid var(--mat-sys-outline-variant);
   border-radius: 8px;
   margin: 8px 0 16px;

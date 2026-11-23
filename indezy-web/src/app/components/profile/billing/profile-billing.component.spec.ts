@@ -126,6 +126,18 @@ describe('ProfileBillingComponent', () => {
     expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ bodyBlocks: ['LINES', 'MENTIONS', 'NOTES'] }));
   });
 
+  it('saves the page zones trimmed, an empty one as none, and lists the placeholders they take', () => {
+    const fixture = create(of({ ...defaults, footerRight: 'Page {{page}}/{{pages}}' }));
+    const component = fixture.componentInstance;
+    expect(component.form.value.footerRight).toBe('Page {{page}}/{{pages}}');
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-billing-page-zones] .hint')!.textContent).toContain('{{seller.siret}}');
+    component.form.patchValue({ footerCenter: ' SIRET {{seller.siret}} ', pageHeaderRight: '{{document.title}} {{document.number}}', footerRight: ' ' });
+    billing.saveIdentity.and.returnValue(of(defaults));
+    component.save();
+    expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ footerCenter: 'SIRET {{seller.siret}}', footerRight: null,
+      pageHeaderLeft: null, pageHeaderRight: '{{document.title}} {{document.number}}' }));
+  });
+
   it('takes an accent colour dark enough to read, refusing a pale one', () => {
     const component = create().componentInstance;
     component.setAccent({ target: { value: '#ffee88' } } as unknown as Event);

@@ -1428,7 +1428,7 @@
       "logoHint": "Un PNG ou un JPEG de 2 Mo au plus, imprimé au-dessus de votre nom sur les factures et devis ; un document émis garde le logo qu'il avait.",
       "logoSaved": "Logo enregistré.",
       "logoRefused": "Ce logo ne peut pas être utilisé : envoyez un PNG ou un JPEG de 2 Mo au plus.",
-      "footer": "Pied de page",
+      "footer": "Pied de page, gauche",
       "footerHint": "Une ligne au pied de chaque page de vos factures et devis, comme votre site et votre téléphone ; les pages sont numérotées dès qu'il y en a plusieurs.",
       "invoiceNotes": "Notes de départ d'une nouvelle facture",
       "quoteNotes": "Notes de départ d'un nouveau devis",
@@ -1504,7 +1504,16 @@
       },
       "signatureShown": "Imprimé",
       "moveUp": "Monter {{block}}",
-      "moveDown": "Descendre {{block}}"
+      "moveDown": "Descendre {{block}}",
+      "zones": {
+        "title": "En-tête et pied des pages",
+        "hint": "Du texte avec des champs, écrit en petit sur chaque page : {{placeholders}}. Le pied de page ci-dessus en est la zone de gauche ; l'en-tête apparaît dès la deuxième page, la première portant l'en-tête complet.",
+        "footerCenter": "Pied de page, centre",
+        "footerRight": "Pied de page, droite",
+        "footerRightHint": "Vide : le numéro de page dès que le document a plusieurs pages.",
+        "headerLeft": "En-tête des pages suivantes, gauche",
+        "headerRight": "En-tête des pages suivantes, droite"
+      }
     },
     "webhooks": {
       "title": "Webhooks",

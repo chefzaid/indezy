@@ -103,6 +103,10 @@ public class BillingIdentityService {
         billing.setQuoteTerms(request.quoteTerms());
         billing.setAccentColor(request.accentColor());
         billing.setFooter(request.footer());
+        billing.setFooterCenter(request.footerCenter());
+        billing.setFooterRight(request.footerRight());
+        billing.setPageHeaderLeft(request.pageHeaderLeft());
+        billing.setPageHeaderRight(request.pageHeaderRight());
         billing.setInvoiceNotes(request.invoiceNotes());
         billing.setLogoPlacement(request.logoPlacement());
         billing.setLogoSize(request.logoSize());
@@ -186,7 +190,8 @@ public class BillingIdentityService {
             Objects.requireNonNullElse(billing.getVatRate(), DEFAULT_VAT_RATE), billing.getShareCapital(), billing.getRegistration(),
             address, billing.getIban(), billing.getBic(), Objects.requireNonNullElse(billing.getPaymentTermDays(), DEFAULT_PAYMENT_TERM_DAYS),
             Objects.requireNonNullElse(billing.getInvoicePrefix(), DEFAULT_PREFIX), billing.getLatePaymentRate(), billing.getQuoteTerms(), billing.getAccentColor(),
-            billing.getLogoId(), billing.getFooter(), billing.getInvoiceNotes(), billing.getQuoteNotes(),
+            billing.getLogoId(), billing.getFooter(), billing.getFooterCenter(), billing.getFooterRight(), billing.getPageHeaderLeft(),
+            billing.getPageHeaderRight(), billing.getInvoiceNotes(), billing.getQuoteNotes(),
             billing.getQuoteTermsFileId(), Objects.requireNonNullElse(billing.getLogoPlacement(), LogoPlacement.LEFT),
             Objects.requireNonNullElse(billing.getLogoSize(), LogoSize.MEDIUM), billing.getHeader(),
             Objects.requireNonNullElse(billing.getFont(), DocumentFont.SANS), Objects.requireNonNullElse(billing.getTheme(), DocumentTheme.SIMPLE),

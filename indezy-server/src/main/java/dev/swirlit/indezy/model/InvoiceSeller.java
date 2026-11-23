@@ -61,6 +61,19 @@ public class InvoiceSeller {
     @Column(name = "seller_footer", length = 200)
     private String footer;
 
+    /** The footer's centre and right zones and the header of the following pages, kept at issue; see BillingIdentity. */
+    @Column(name = "seller_footer_center", length = 200)
+    private String footerCenter;
+
+    @Column(name = "seller_footer_right", length = 200)
+    private String footerRight;
+
+    @Column(name = "seller_page_header_left", length = 200)
+    private String pageHeaderLeft;
+
+    @Column(name = "seller_page_header_right", length = 200)
+    private String pageHeaderRight;
+
     /** Where the logo sits and how large, kept at issue; null for left and medium. */
     /** The font of the document; null for the sans-serif one. */
     @Enumerated(EnumType.STRING)

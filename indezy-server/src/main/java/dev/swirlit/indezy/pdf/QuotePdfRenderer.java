@@ -100,7 +100,7 @@ public final class QuotePdfRenderer {
             QuotePage page;
             try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold, margins(seller, letterhead != null))) {
                 page = new QuotePage(writer, quote, seller, buyer, paymentTermDays, terms, termsPdf != null);
-                writer.footer(seller.getFooter());
+                writer.zones(page.zones());
                 page.logo(logoOf(seller));
                 page.write();
             }

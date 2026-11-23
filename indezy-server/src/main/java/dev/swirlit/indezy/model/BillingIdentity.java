@@ -98,6 +98,23 @@ public class BillingIdentity {
     @Column(name = "billing_footer", length = 200)
     private String footer;
 
+    /**
+     * The footer's centre and right zones, and the header repeated on the pages after the first (left and right), each
+     * text with placeholders ({@code {{page}}}, {@code {{pages}}}, {@code {{document.number}}}…); null for none, the
+     * page number on the right of a document of several pages when the right zone is empty.
+     */
+    @Column(name = "billing_footer_center", length = 200)
+    private String footerCenter;
+
+    @Column(name = "billing_footer_right", length = 200)
+    private String footerRight;
+
+    @Column(name = "billing_page_header_left", length = 200)
+    private String pageHeaderLeft;
+
+    @Column(name = "billing_page_header_right", length = 200)
+    private String pageHeaderRight;
+
     /** The font of the document; null for the sans-serif one. */
     @Enumerated(EnumType.STRING)
     @Column(name = "billing_font", length = 10)

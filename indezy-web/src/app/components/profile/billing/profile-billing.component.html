@@ -212,6 +212,31 @@
         <input matInput formControlName="footer" maxlength="200" data-billing-footer>
         <mat-hint>{{ 'profile.billing.footerHint' | translate }}</mat-hint>
       </mat-form-field>
+      <fieldset class="page-zones" data-billing-page-zones>
+        <legend>{{ 'profile.billing.zones.title' | translate }}</legend>
+        <p class="hint">{{ 'profile.billing.zones.hint' | translate:{ placeholders: zonePlaceholders } }}</p>
+        <div class="row">
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>{{ 'profile.billing.zones.footerCenter' | translate }}</mat-label>
+            <input matInput formControlName="footerCenter" maxlength="200" data-billing-footer-center>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>{{ 'profile.billing.zones.footerRight' | translate }}</mat-label>
+            <input matInput formControlName="footerRight" maxlength="200" data-billing-footer-right>
+            <mat-hint>{{ 'profile.billing.zones.footerRightHint' | translate }}</mat-hint>
+          </mat-form-field>
+        </div>
+        <div class="row">
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>{{ 'profile.billing.zones.headerLeft' | translate }}</mat-label>
+            <input matInput formControlName="pageHeaderLeft" maxlength="200" data-billing-page-header-left>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>{{ 'profile.billing.zones.headerRight' | translate }}</mat-label>
+            <input matInput formControlName="pageHeaderRight" maxlength="200" data-billing-page-header-right>
+          </mat-form-field>
+        </div>
+      </fieldset>
       <div class="quote-style" data-billing-quote-style>
         <mat-checkbox [checked]="ownQuoteStyle" (change)="setOwnQuoteStyle($event.checked)" data-billing-quote-own>
           {{ 'profile.billing.quoteOwn' | translate }}

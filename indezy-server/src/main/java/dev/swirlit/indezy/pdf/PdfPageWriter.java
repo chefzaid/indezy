@@ -32,7 +32,9 @@ final class PdfPageWriter implements Closeable {
     private PDPageContentStream content;
     private float cursor;
     /** Written at the foot of every page once the document is done, beside its page number; null for none. */
-    private String footer;
+    private Zones zones = new Zones(null, null, null, null, null);
+    /** The size of the footer's and the header's zones. */
+    private static final float ZONE_SIZE = 7.5f;
 
     /** The room kept free at the top and the bottom of every page, in points (a letterhead's header and footer). */
     private final float keptTop;
@@ -248,19 +250,53 @@ final class PdfPageWriter implements Closeable {
         content.setStrokingColor(1f, 1f, 1f);
     }
 
-    /** Writes this text at the foot of every page, small, beside the page numbers. */
+    /** Writes this text at the foot of every page, small, on the left, the page numbers on the right. */
     void footer(String text) {
-        this.footer = text == null || text.isBlank() ? null : text.strip().replaceAll("\\s+", " ");
+        zones(new Zones(text, null, null, null, null));
     }
 
-    /** The footer text on the left and, on a document of several pages, "1/2" on the right, under the bottom margin. */
+    /**
+     * What is written small on every page: the footer's left, centre and right zones, and on the pages after the first
+     * a header's left and right zones; {@code {{page}}} and {@code {{pages}}} in them become the page's number and the
+     * count. Each is null for none; with no right footer, a document of several pages shows "1/2" there.
+     */
+    record Zones(String footerLeft, String footerCenter, String footerRight, String headerLeft, String headerRight) {
+
+        Zones {
+            footerLeft = clean(footerLeft);
+            footerCenter = clean(footerCenter);
+            footerRight = clean(footerRight);
+            headerLeft = clean(headerLeft);
+            headerRight = clean(headerRight);
+        }
+
+        private static String clean(String text) {
+            return text == null || text.isBlank() ? null : text.strip().replaceAll("\\s+", " ");
+        }
+
+        boolean empty() {
+            return footerLeft == null && footerCenter == null && footerRight == null && headerLeft == null && headerRight == null;
+        }
+
+        static String paged(String text, int page, int pages) {
+            return text == null ? null : text.replace("{{page}}", String.valueOf(page)).replace("{{pages}}", String.valueOf(pages));
+        }
+    }
+
+    void zones(Zones given) {
+        this.zones = given == null ? new Zones(null, null, null, null, null) : given;
+    }
+
+    /** The zones under the bottom margin of every page and above the top one of the following pages. */
     private void stampFooters() throws IOException {
         int pages = document.getNumberOfPages();
-        if (footer == null && pages < 2 && !footerRule) {
+        if (zones.empty() && pages < 2 && !footerRule) {
             return;
         }
-        float size = 7.5f;
+        float size = ZONE_SIZE;
         float baseline = keptBottom - MARGIN / 2;
+        float top = pageSize.getHeight() - keptTop + MARGIN / 2;
+        float third = (pageSize.getWidth() - 2 * MARGIN) / 3 - 6;
         for (int index = 0; index < pages; index++) {
             try (PDPageContentStream stamp = new PDPageContentStream(document, document.getPage(index),
                 PDPageContentStream.AppendMode.APPEND, true, true)) {
@@ -272,14 +308,33 @@ final class PdfPageWriter implements Closeable {
                     stamp.lineTo(pageSize.getWidth() - MARGIN, baseline + size + 4);
                     stamp.stroke();
                 }
-                if (footer != null) {
-                    writeAt(stamp, MARGIN, baseline, ellipsize(footer, false, size, pageSize.getWidth() - 2 * MARGIN - 40), size);
-                }
-                if (pages > 1) {
-                    String number = (index + 1) + "/" + pages;
-                    writeAt(stamp, pageSize.getWidth() - MARGIN - textWidth(number, false, size), baseline, number, size);
+                boolean thirds = zones.footerCenter() != null || zones.footerRight() != null;
+                String right = zones.footerRight() != null ? zones.footerRight() : pages > 1 ? "{{page}}/{{pages}}" : null;
+                float leftWidth = thirds ? third : pageSize.getWidth() - 2 * MARGIN - 40;
+                stampRow(stamp, baseline, Zones.paged(zones.footerLeft(), index + 1, pages), leftWidth,
+                    Zones.paged(zones.footerCenter(), index + 1, pages), Zones.paged(right, index + 1, pages), third);
+                if (index > 0) {
+                    stampRow(stamp, top, Zones.paged(zones.headerLeft(), index + 1, pages), pageSize.getWidth() / 2 - MARGIN - 6, null,
+                        Zones.paged(zones.headerRight(), index + 1, pages), pageSize.getWidth() / 2 - MARGIN - 6);
                 }
             }
+        }
+    }
+
+    /** A row of zones: on the left, centred and on the right, each cut to its width. */
+    private void stampRow(PDPageContentStream stamp, float baseline, String left, float leftWidth, String center, String right,
+                          float width) throws IOException {
+        float size = ZONE_SIZE;
+        if (left != null) {
+            writeAt(stamp, MARGIN, baseline, ellipsize(left, false, size, leftWidth), size);
+        }
+        if (center != null) {
+            String text = ellipsize(center, false, size, width);
+            writeAt(stamp, (pageSize.getWidth() - textWidth(text, false, size)) / 2, baseline, text, size);
+        }
+        if (right != null) {
+            String text = ellipsize(right, false, size, width);
+            writeAt(stamp, pageSize.getWidth() - MARGIN - textWidth(text, false, size), baseline, text, size);
         }
     }
 

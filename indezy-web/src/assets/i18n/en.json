@@ -1428,7 +1428,7 @@
       "logoHint": "A PNG or JPEG of 2 MB at most, printed above your name on invoices and quotes; an issued document keeps the logo it had.",
       "logoSaved": "Logo saved.",
       "logoRefused": "This logo cannot be used: send a PNG or a JPEG of 2 MB at most.",
-      "footer": "Footer",
+      "footer": "Footer, left",
       "footerHint": "A line at the foot of each page of your invoices and quotes, such as your website and phone; pages are numbered once there are several.",
       "invoiceNotes": "Notes a new invoice starts with",
       "quoteNotes": "Notes a new quote starts with",
@@ -1504,7 +1504,16 @@
       },
       "signatureShown": "Printed",
       "moveUp": "Move {{block}} up",
-      "moveDown": "Move {{block}} down"
+      "moveDown": "Move {{block}} down",
+      "zones": {
+        "title": "Header and footer of the pages",
+        "hint": "Text with placeholders, written small on every page: {{placeholders}}. The footer above is its left zone; the header shows from the second page, the first one carrying the full heading.",
+        "footerCenter": "Footer, centre",
+        "footerRight": "Footer, right",
+        "footerRightHint": "Empty: the page number once there are several pages.",
+        "headerLeft": "Header of the following pages, left",
+        "headerRight": "Header of the following pages, right"
+      }
     },
     "webhooks": {
       "title": "Webhooks",

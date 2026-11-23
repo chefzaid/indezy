@@ -114,7 +114,7 @@ public class DocxTemplateTest {
     @Test
     void refusesWhatIsNotATemplate() {
         assertThatThrownBy(() -> DocxTemplate.analyse("hello".getBytes(StandardCharsets.UTF_8))).hasMessageContaining("not a Word document");
-        assertThatThrownBy(() -> DocxTemplate.analyse(new DocxDocument("Liberation Sans", null).save("t", "a")))
+        assertThatThrownBy(() -> DocxTemplate.analyse(new DocxDocument("Liberation Sans", (String) null).save("t", "a")))
             .hasMessageContaining("no placeholder");
     }
 

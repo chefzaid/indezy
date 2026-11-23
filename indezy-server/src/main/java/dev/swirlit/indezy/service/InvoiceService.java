@@ -575,6 +575,10 @@ public class InvoiceService {
         seller.setFontFileId(identity.fontFileId());
         seller.setFontFamily(identity.fontFamily());
         seller.setFooter(identity.footer());
+        seller.setFooterCenter(identity.footerCenter());
+        seller.setFooterRight(identity.footerRight());
+        seller.setPageHeaderLeft(identity.pageHeaderLeft());
+        seller.setPageHeaderRight(identity.pageHeaderRight());
         return seller;
     }
 

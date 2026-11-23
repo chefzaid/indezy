@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Header and footer zones on your documents
+
+Your invoices and quotes can carry a footer in three zones and a header on the following pages, with placeholders such as the page count or your SIRET. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Word templates in three layouts, and a filled example
 
 **Download a template to start from** now offers the Simple, Modern and Classic layouts, and a filled example to see the result before editing. See [Document templates](/help/document-templates).

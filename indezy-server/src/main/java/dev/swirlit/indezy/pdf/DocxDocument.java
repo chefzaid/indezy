@@ -49,14 +49,63 @@ final class DocxDocument {
 
     private final StringBuilder body = new StringBuilder();
     private final String font;
-    private final String footer;
+    private final PdfPageWriter.Zones zones;
     private byte[] picture;
     private String pictureType;
 
     /** {@code font}: the family the document is written in; {@code footer}: the text at the bottom of each page, or none. */
     DocxDocument(String font, String footer) {
+        this(font, new PdfPageWriter.Zones(footer, null, null, null, null));
+    }
+
+    /**
+     * As above with the PDF's zones: the footer's left, centre and right on every page (the page number on the right
+     * without one), the header's left and right on the pages after the first; {@code {{page}}} and {@code {{pages}}}
+     * become Word's page fields.
+     */
+    DocxDocument(String font, PdfPageWriter.Zones zones) {
         this.font = font;
-        this.footer = footer == null || footer.isBlank() ? null : footer.strip();
+        this.zones = zones == null ? new PdfPageWriter.Zones(null, null, null, null, null) : zones;
+    }
+
+    private boolean header() {
+        return zones.headerLeft() != null || zones.headerRight() != null;
+    }
+
+    /** A footer or header paragraph: the zones at the left margin, the centre and the right margin. */
+    private static String zoneParagraph(String left, String center, String right) {
+        StringBuilder xml = new StringBuilder("<w:p><w:pPr><w:tabs><w:tab w:val=\"center\" w:pos=\"").append(CONTENT_WIDTH / 2)
+            .append("\"/><w:tab w:val=\"right\" w:pos=\"").append(CONTENT_WIDTH).append("\"/></w:tabs></w:pPr>");
+        xml.append(zoneRuns(left));
+        xml.append(tab()).append(zoneRuns(center));
+        xml.append(tab()).append(zoneRuns(right));
+        return xml.append("</w:p>").toString();
+    }
+
+    private static String tab() {
+        return "<w:r><w:rPr><w:sz w:val=\"" + (SMALL - 2) + "\"/></w:rPr><w:tab/></w:r>";
+    }
+
+    /** A zone's text, {@code {{page}}} and {@code {{pages}}} as Word's PAGE and NUMPAGES fields. */
+    private static String zoneRuns(String text) {
+        if (text == null) {
+            return "";
+        }
+        StringBuilder xml = new StringBuilder();
+        java.util.regex.Matcher field = java.util.regex.Pattern.compile("\\{\\{(page|pages)}}").matcher(text);
+        int at = 0;
+        while (field.find()) {
+            if (field.start() > at) {
+                xml.append(run(new Run(text.substring(at, field.start()), false, SMALL - 2, "666666")));
+            }
+            xml.append("<w:fldSimple w:instr=\"").append("page".equals(field.group(1)) ? "PAGE" : "NUMPAGES").append("\"><w:r><w:rPr><w:sz w:val=\"")
+                .append(SMALL - 2).append("\"/></w:rPr><w:t>1</w:t></w:r></w:fldSimple>");
+            at = field.end();
+        }
+        if (at < text.length()) {
+            xml.append(run(new Run(text.substring(at), false, SMALL - 2, "666666")));
+        }
+        return xml.toString();
     }
 
     void paragraph(List<Run> runs, Align align, int spaceAfter) {
@@ -167,6 +216,8 @@ final class DocxDocument {
             put(zip, "word/_rels/document.xml.rels", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"" +
                 RELATIONSHIPS + "\"><Relationship Id=\"rIdStyles\" Type=\"" + OFFICE + "/styles\" Target=\"styles.xml\"/>" +
                 "<Relationship Id=\"rIdFooter\" Type=\"" + OFFICE + "/footer\" Target=\"footer1.xml\"/>" +
+                (header() ? "<Relationship Id=\"rIdHeader\" Type=\"" + OFFICE + "/header\" Target=\"header1.xml\"/>" +
+                    "<Relationship Id=\"rIdFirstHeader\" Type=\"" + OFFICE + "/header\" Target=\"header2.xml\"/>" : "") +
                 (picture == null ? "" : "<Relationship Id=\"rIdLogo\" Type=\"" + OFFICE + "/image\" Target=\"media/logo." + extension() + "\"/>") +
                 "</Relationships>");
             put(zip, "word/styles.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:styles xmlns:w=\"" + WORD + "\">" +
@@ -174,16 +225,23 @@ final class DocxDocument {
                 escape(font) + "\"/><w:sz w:val=\"" + BODY + "\"/><w:lang w:val=\"fr-FR\"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr>" +
                 "<w:spacing w:after=\"40\" w:line=\"252\" w:lineRule=\"auto\"/></w:pPr></w:pPrDefault></w:docDefaults></w:styles>");
             put(zip, "word/footer1.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:ftr xmlns:w=\"" + WORD + "\">" +
-                "<w:p><w:pPr><w:tabs><w:tab w:val=\"right\" w:pos=\"" + CONTENT_WIDTH + "\"/></w:tabs></w:pPr>" +
-                (footer == null ? "" : run(new Run(footer, false, SMALL - 2, "666666"))) +
-                "<w:r><w:rPr><w:sz w:val=\"" + (SMALL - 2) + "\"/></w:rPr><w:tab/></w:r><w:fldSimple w:instr=\"PAGE\"><w:r><w:rPr>" +
-                "<w:sz w:val=\"" + (SMALL - 2) + "\"/></w:rPr><w:t>1</w:t></w:r></w:fldSimple></w:p></w:ftr>");
+                zoneParagraph(zones.footerLeft(), zones.footerCenter(), zones.footerRight() == null ? "{{page}}" : zones.footerRight()) +
+                "</w:ftr>");
+            if (header()) {
+                put(zip, "word/header1.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:hdr xmlns:w=\"" + WORD + "\">" +
+                    zoneParagraph(zones.headerLeft(), null, zones.headerRight()) + "</w:hdr>");
+                put(zip, "word/header2.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:hdr xmlns:w=\"" + WORD + "\"><w:p/></w:hdr>");
+            }
             put(zip, "word/document.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><w:document xmlns:w=\"" + WORD +
                 "\" xmlns:r=\"" + OFFICE + "\" xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing\" " +
                 "xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:pic=\"http://schemas.openxmlformats.org/drawingml/2006/picture\">" +
-                "<w:body>" + body + "<w:sectPr><w:footerReference w:type=\"default\" r:id=\"rIdFooter\"/><w:pgSz w:w=\"" + PAGE_WIDTH +
+                "<w:body>" + body + "<w:sectPr>" + (header() ? "<w:headerReference w:type=\"default\" r:id=\"rIdHeader\"/>" +
+                "<w:headerReference w:type=\"first\" r:id=\"rIdFirstHeader\"/>" : "") +
+                "<w:footerReference w:type=\"default\" r:id=\"rIdFooter\"/>" +
+                (header() ? "<w:footerReference w:type=\"first\" r:id=\"rIdFooter\"/>" : "") + "<w:pgSz w:w=\"" + PAGE_WIDTH +
                 "\" w:h=\"" + PAGE_HEIGHT + "\"/><w:pgMar w:top=\"" + MARGIN + "\" w:right=\"" + MARGIN + "\" w:bottom=\"" + MARGIN +
-                "\" w:left=\"" + MARGIN + "\" w:header=\"567\" w:footer=\"567\" w:gutter=\"0\"/></w:sectPr></w:body></w:document>");
+                "\" w:left=\"" + MARGIN + "\" w:header=\"567\" w:footer=\"567\" w:gutter=\"0\"/>" + (header() ? "<w:titlePg/>" : "") +
+                "</w:sectPr></w:body></w:document>");
             if (picture != null) {
                 zip.putNextEntry(new ZipEntry("word/media/logo." + extension()));
                 zip.write(picture);
@@ -207,6 +265,8 @@ final class DocxDocument {
             "<Override PartName=\"/word/document.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml\"/>" +
             "<Override PartName=\"/word/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml\"/>" +
             "<Override PartName=\"/word/footer1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml\"/>" +
+            (header() ? "<Override PartName=\"/word/header1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml\"/>" +
+                "<Override PartName=\"/word/header2.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml\"/>" : "") +
             "<Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/></Types>";
     }
 

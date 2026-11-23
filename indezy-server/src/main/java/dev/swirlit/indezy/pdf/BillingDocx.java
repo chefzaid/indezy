@@ -25,7 +25,7 @@ final class BillingDocx {
 
     static byte[] render(BillingPage page, byte[] logo, String title) {
         String accent = page.accent() == null ? null : page.accent().substring(1).toUpperCase(java.util.Locale.ROOT);
-        DocxDocument docx = new DocxDocument(BillingFonts.family(page.seller), page.seller.getFooter());
+        DocxDocument docx = new DocxDocument(BillingFonts.family(page.seller), page.zones());
         if (logo != null) {
             LogoSize size = page.seller.getLogoSize() == null ? LogoSize.MEDIUM : page.seller.getLogoSize();
             LogoPlacement placement = page.seller.getLogoPlacement() == null ? LogoPlacement.LEFT : page.seller.getLogoPlacement();

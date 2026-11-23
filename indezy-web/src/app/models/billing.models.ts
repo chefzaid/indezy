@@ -49,6 +49,11 @@ export interface BillingIdentity {
   header?: string | null;
   /** The free text at the foot of each page of the documents (website, phone); null for none. */
   footer?: string | null;
+  /** The footer's centre and right zones and the header of the pages after the first, with placeholders; null for none. */
+  footerCenter?: string | null;
+  footerRight?: string | null;
+  pageHeaderLeft?: string | null;
+  pageHeaderRight?: string | null;
   /** Read-only: the terms and conditions PDF appended after each quote; null for none. Set with its own upload. */
   quoteTermsFileId?: number | null;
   /** The documents' font: a bundled open-licence one, or the uploaded one (CUSTOM). */

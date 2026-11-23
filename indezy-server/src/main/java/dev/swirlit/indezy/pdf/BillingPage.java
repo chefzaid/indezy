@@ -174,6 +174,36 @@ abstract class BillingPage {
         }
     }
 
+    /**
+     * The footer's and the following pages' header zones, the document's and the seller's placeholders filled
+     * ({@code {{document.title}}}, {@code {{document.number}}}, {@code {{document.issueDate}}}, {@code {{document.dueDate}}},
+     * {@code {{seller.name}}}, {@code {{seller.siret}}}, {@code {{seller.vatNumber}}}), the page ones left for each page.
+     */
+    PdfPageWriter.Zones zones() {
+        return new PdfPageWriter.Zones(placed(seller.getFooter()), placed(seller.getFooterCenter()), placed(seller.getFooterRight()),
+            placed(seller.getPageHeaderLeft()), placed(seller.getPageHeaderRight()));
+    }
+
+    private String placed(String zone) {
+        if (zone == null || !zone.contains("{{")) {
+            return zone;
+        }
+        java.util.Map<String, String> fields = fields();
+        java.util.Map<String, String> values = new java.util.LinkedHashMap<>();
+        values.put("document.title", fields.get("title"));
+        values.put("document.number", fields.get("number"));
+        values.put("document.issueDate", fields.get("issueDate"));
+        values.put("document.dueDate", fields.get("dueDate"));
+        values.put("seller.name", seller.getName());
+        values.put("seller.siret", seller.getSiret());
+        values.put("seller.vatNumber", seller.getVatNumber());
+        String text = zone;
+        for (java.util.Map.Entry<String, String> value : values.entrySet()) {
+            text = text.replace("{{" + value.getKey() + "}}", value.getValue() == null ? "" : value.getValue());
+        }
+        return text;
+    }
+
     /** The body's blocks in the seller's order, a quote's signature box only when kept. */
     List<BodyBlock> blocks() {
         return BodyBlock.read(seller.getBodyBlocks());
