@@ -19,7 +19,7 @@ export type ProfileTab = 'preferences' | 'notifications' | 'offers' | 'publicPag
 
 /** A switch of the privacy tab: which setting, and how it is saved. */
 type Switch = 'contactSuggestions' | 'esnSuggestions' | 'privateCard' | 'privateViewing' | 'requests' | 'readReceipts' | 'typing' | 'presence' |
-  'weeklyReports' | 'messageEmails' | 'bookingEmails' | 'shareRates';
+  'weeklyReports' | 'messageEmails' | 'bookingEmails' | 'shareRates' | 'shareEsnRecords';
 
 /**
  * Profile → **Privacy**: every opt-in and opt-out in one place. The plain switches change here (the network's suggestions,
@@ -89,6 +89,8 @@ export class ProfilePrivacyComponent implements OnInit {
         return this.messaging?.[key] === true;
       case 'shareRates':
         return this.preferences?.shareRates === true;
+      case 'shareEsnRecords':
+        return this.preferences?.shareEsnRecords !== false;
       default:
         return this.emails?.[key] === true;
     }
@@ -130,6 +132,8 @@ export class ProfilePrivacyComponent implements OnInit {
         return this.messages.saveMessaging({ [key]: on }).pipe(tap(settings => this.messaging = settings));
       case 'shareRates':
         return this.users.updateUserPreferences({ shareRates: on }).pipe(tap(preferences => this.preferences = preferences));
+      case 'shareEsnRecords':
+        return this.users.updateUserPreferences({ shareEsnRecords: on }).pipe(tap(preferences => this.preferences = preferences));
       default:
         return this.users.updateNotificationSettings({ [key]: on }).pipe(tap(settings => this.emails = settings));
     }

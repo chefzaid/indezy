@@ -8,6 +8,8 @@ import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.ClientService;
 import dev.swirlit.indezy.service.CompanyHealthService;
 import dev.swirlit.indezy.service.CompanyScorecardService;
+import dev.swirlit.indezy.service.EsnScorecardService;
+import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -28,6 +30,7 @@ public class ClientController {
     private final AccessGuard accessGuard;
     private final CompanyHealthService companyHealthService;
     private final CompanyScorecardService companyScorecardService;
+    private final EsnScorecardService esnScorecardService;
 
     @Operation(summary = "List the clients of a workspace")
     @GetMapping("/by-freelance/{freelanceId}")
@@ -57,6 +60,14 @@ public class ClientController {
     public CompanyScorecardService.Scorecard getClientScorecard(@PathVariable Long id) {
         accessGuard.requireClient(id);
         return companyScorecardService.scorecard(id);
+    }
+
+    @Operation(summary = "How an ESN deals with freelancers across members",
+        description = "Matched by its name; each figure once five freelancers or more back it; for the network's members")
+    @GetMapping("/{id}/scorecard/members")
+    public EsnScorecardService.Figures getMembersScorecard(@PathVariable Long id) {
+        accessGuard.requireClient(id);
+        return esnScorecardService.company(SecurityUtils.getCurrentUserId(), id);
     }
 
     @Operation(summary = "Create a client")

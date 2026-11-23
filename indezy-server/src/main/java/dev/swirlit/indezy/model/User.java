@@ -226,6 +226,17 @@ public class User extends BaseEntity {
         return Boolean.TRUE.equals(shareRates);
     }
 
+    /**
+     * Whether the account's records of the ESNs it dealt with count in the ESN scorecards across members, anonymized and
+     * only in figures five freelancers or more back (docs/adr/0016-esn-scorecards-across-members.md); on until turned off.
+     */
+    @Column(name = "share_esn_records")
+    private Boolean shareEsnRecords;
+
+    public Boolean getShareEsnRecords() {
+        return !Boolean.FALSE.equals(shareEsnRecords);
+    }
+
     /** The member's own Anthropic key, encrypted (AiKeyCipher); null to use Indezy's within its limits. */
     @Column(name = "ai_api_key", length = 600)
     private String aiApiKey;

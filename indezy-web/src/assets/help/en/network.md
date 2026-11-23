@@ -87,6 +87,8 @@ Beside the feed, **Daily rates in the network** gives the median daily rate of a
 
 To share yours, turn on **Share my rates with the benchmark** in **Profile → Privacy**. Your name, your clients and your contacts are never shown, and turning it off takes your rates out at once.
 
+**ESN scorecards**, beside the feed, names the ESNs that 5 freelancers or more dealt with. For each, it shows the median offer rate, process length, answer time and payment delay, and the usual margin, from the members' own records. Your records count unless you turn off **Count my records in the ESN scorecards** in **Profile → Privacy**. The ESN is named, never you, your clients or your contacts.
+
 ## Ideas for Indezy
 
 ![The ideas board with the Suggest an idea button and ideas sorted by support](/assets/help/screens/ideas-en.jpg)

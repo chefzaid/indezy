@@ -34,6 +34,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /** The accounts that share their rates with the network's benchmark. */
     List<User> findByShareRatesTrue();
 
+    /** The accounts whose ESN records count in the scorecards across members: all but those that turned it off. */
+    List<User> findByShareEsnRecordsIsNullOrShareEsnRecordsTrue();
+
     /** The accounts holding one of these emails, compared lower-case. */
     @Query("select u from User u where lower(u.email) in :emails")
     List<User> findByEmailsIgnoringCase(@Param("emails") Collection<String> emails);

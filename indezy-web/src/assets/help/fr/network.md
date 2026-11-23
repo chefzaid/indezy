@@ -87,6 +87,8 @@ Dans **Profil → Notifications**, **Notifications sur cet appareil** envoie vos
 
 Pour partager les vôtres, activez **Partager mes tarifs avec le baromètre** dans **Profil → Confidentialité**. Votre nom, vos clients et vos contacts ne sont jamais montrés, et le désactiver retire aussitôt vos tarifs.
 
+**Fiches des ESN**, à côté du fil, nomme les ESN avec qui 5 freelances ou plus ont travaillé. Pour chacune, elle donne le taux d'offre, la durée du processus, le délai de réponse et le délai de paiement médians, et la marge habituelle, d'après l'historique des membres. Votre historique y compte, sauf si vous désactivez **Compter mon historique dans les fiches des ESN** dans **Profil → Confidentialité**. L'ESN est nommée ; jamais vous, vos clients ni vos contacts.
+
 ## Idées pour Indezy
 
 ![Le tableau des idées avec le bouton Proposer une idée et les idées triées par soutien](/assets/help/screens/ideas-fr.jpg)

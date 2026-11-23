@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### ESN scorecards across members
+
+The network now names the ESNs 5 freelancers or more dealt with, with their offer rate, process length, answer time, payment delay and margin, from the members' records. Yours count unless you turn it off in **Profile → Privacy**. See [The member network](/help/network).
+
 ### Your URSSAF declarations
 
 The Invoices page estimates your URSSAF contributions on the revenue received, and lists each month or quarter to declare with its deadline. See [Quotes and invoices](/help/invoices-quotes).

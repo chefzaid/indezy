@@ -17,7 +17,7 @@ La section **Facturation** du formulaire garde le SIREN et le numéro de TVA imp
 
 ## Votre historique avec une société
 
-La page d'un client ou d'une ESN résume, à partir de vos seules opportunités et échanges, **Votre historique avec eux** : les opportunités avec elle, gagnées et en cours, le **Taux d'offre** (la part de celles passées les entretiens qui ont abouti à une offre), le **Processus** (la médiane des jours entre la création d'une opportunité et son dernier entretien), **Leur marge** (la part du tarif client gardée par l'ESN, quand vous avez saisi le tarif client) et le délai habituel de leurs **Réponses**. Rien n'en est partagé.
+La page d'un client ou d'une ESN résume, à partir de vos seules opportunités et échanges, **Votre historique avec eux** : les opportunités avec elle, gagnées et en cours, le **Taux d'offre** (la part de celles passées les entretiens qui ont abouti à une offre), le **Processus** (la médiane des jours entre la création d'une opportunité et son dernier entretien), **Leur marge** (la part du tarif client gardée par l'ESN, quand vous avez saisi le tarif client) et le délai habituel de leurs **Réponses**. Rien n'en est partagé. Si vous êtes membre du réseau, la page d'une ESN montre aussi **Chez les membres d'Indezy** : les mêmes chiffres d'après l'historique de tous les membres qui ont travaillé avec elle, dès que 5 freelances les soutiennent.
 
 ## La santé de l'entreprise
 

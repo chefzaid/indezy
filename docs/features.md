@@ -1060,8 +1060,17 @@ interviews (an offer, won or turned down) that reached an offer or were won; the
 opportunity's creation to its last dated interview step, over those won or turned down; **Their margin**, the lowest and
 highest share of the client's daily rate the ESN kept over the freelancer's, over the opportunities through it with both
 rates; and how soon its contacts usually **Answer** (as on the follow-ups due). A figure shows once something backs it,
-the section not at all without an opportunity; how the company pays is the payment delay line above it. Nothing is
-shared: a scorecard across members waits on Needs Input **ESN scorecard across members**.
+the section not at all without an opportunity; how the company pays is the payment delay line above it. Nothing of
+this section is shared.
+
+An ESN's page also shows **Across Indezy members** (network members only;
+[ADR 0016](./adr/0016-esn-scorecards-across-members.md), `EsnScorecardService`, `GET /api/clients/{id}/scorecard/members`):
+the same figures from every member's private scorecard of that ESN (matched by its folded name), one per freelancer,
+the median offer rate, process, answer time and payment delay and the margin's middle half, each once 5 freelancers give
+it, else how many freelancers dealt with it so far. Beside the network's feed, **ESN scorecards**
+(`GET /api/network/esn-scorecards`) lists the ESNs 5 freelancers or more back, the most backed first (three, then
+**Show all**). A member's records count unless **Count my records in the ESN scorecards** is turned off in Profile →
+Privacy (`shareEsnRecords`), which takes them out at once; the ESN is named, never a freelancer, a client or a contact.
 
 ### Contact Interaction History
 

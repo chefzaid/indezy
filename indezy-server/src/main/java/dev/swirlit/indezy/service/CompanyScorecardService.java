@@ -20,8 +20,8 @@ import java.util.Objects;
 /**
  * How a company (an ESN or a client) dealt with the workspace, from its own records only (see
  * docs/features.md#company-scorecard): how many opportunities, how many reached an offer, how long a process took to its
- * outcome, the ESN's margin on the client's rate, and how soon its contacts answer. Nothing is shared with anyone: the
- * scorecard across freelancers waits on the owner (TODO.md, Needs Input **ESN scorecard across members**).
+ * outcome, the ESN's margin on the client's rate, and how soon its contacts answer. This scorecard is the workspace's own;
+ * the one across members ({@link EsnScorecardService}) is built from these, for the members who did not turn it off.
  */
 @Service
 @RequiredArgsConstructor

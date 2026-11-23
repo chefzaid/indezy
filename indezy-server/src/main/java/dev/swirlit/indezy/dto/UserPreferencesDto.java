@@ -32,6 +32,8 @@ public class UserPreferencesDto {
     private Boolean autoArchive;
     /** Let the won missions' rates count, anonymized, in the network's rate benchmark. */
     private Boolean shareRates;
+    /** Let the records of the ESNs dealt with count, anonymized, in the ESN scorecards across members; on by default. */
+    private Boolean shareEsnRecords;
     /** The dashboard's blocks in the account's order, shown or hidden; left as they are when absent. */
     @Size(max = 20)
     private List<@Valid DashboardWidgetDto> dashboardWidgets;

@@ -755,7 +755,7 @@
         "marginOne": "{{min}} % du tarif client (1 mission)",
         "answer": "Réponses",
         "answerValue": "en {{days}} jours d'habitude",
-        "private": "À partir de vos seules opportunités et échanges ; rien n'est partagé."
+        "private": "À partir de vos seules opportunités et échanges."
       }
     },
     "form": {
@@ -1872,6 +1872,10 @@
         "shareRates": {
           "label": "Partager mes tarifs avec le baromètre",
           "hint": "Les TJM de vos missions gagnées comptent, anonymisés, dans le baromètre des tarifs du réseau, affichés seulement dans des chiffres que cinq freelances ou plus soutiennent ; jamais votre nom, vos clients ni vos contacts."
+        },
+        "shareEsnRecords": {
+          "label": "Compter mon historique dans les fiches des ESN",
+          "hint": "Les délais de réponse des ESN avec qui vous avez travaillé, la durée de leurs processus, leur taux d'offre, leur marge et leurs délais de paiement comptent dans leur fiche commune aux membres, affichés seulement dans des chiffres que cinq freelances ou plus soutiennent. L'ESN est nommée ; jamais vous, vos clients ni vos contacts. Activé sauf si vous le désactivez."
         }
       },
       "elsewhere": {
@@ -3690,6 +3694,25 @@
         "failed": "L'appel n'a pas pu être réservé. Veuillez réessayer."
       }
     }
+  },
+  "esnScorecard": {
+    "title": "Fiches des ESN",
+    "membersTitle": "Chez les membres d'Indezy",
+    "backedBy": "D'après l'historique de {{count}} freelances",
+    "tooFew": "{{count}} freelance(s) ont travaillé avec eux jusqu'ici : les chiffres s'affichent à partir de {{threshold}}.",
+    "empty": "Aucune ESN n'est encore soutenue par {{threshold}} freelances.",
+    "offerRate": "Taux d'offre",
+    "process": "Processus",
+    "margin": "Marge",
+    "marginValue": "{{low}} à {{high}} %",
+    "answer": "Répond en",
+    "payment": "Paie en",
+    "days": "{{days}} jours",
+    "showAll": "Afficher les {{count}}",
+    "share": "Compter aussi votre historique",
+    "yoursCount": "Votre historique y compte.",
+    "yoursLeftOut": "Votre historique n'y compte pas.",
+    "privacy": "Profil → Confidentialité"
   },
   "home": {
     "brand": "Indezy, accueil",

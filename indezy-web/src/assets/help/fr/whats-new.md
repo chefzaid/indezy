@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les fiches des ESN, communes aux membres
+
+Le réseau nomme désormais les ESN avec qui 5 freelances ou plus ont travaillé, avec leur taux d'offre, la durée de leur processus, leur délai de réponse, leur délai de paiement et leur marge, d'après l'historique des membres. Le vôtre y compte, sauf si vous le désactivez dans **Profil → Confidentialité**. Voir [Le réseau des membres](/help/network).
+
 ### Vos déclarations URSSAF
 
 La page Factures estime vos cotisations URSSAF sur le chiffre d'affaires encaissé, et liste chaque mois ou trimestre à déclarer avec son échéance. Voir [Devis et factures](/help/invoices-quotes).

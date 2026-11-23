@@ -245,6 +245,9 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       threshold: 5, sharing: false } }));
     await page.route(/\/api\/network\/benchmark\?/, route => route.fulfill({ json: { skill: 'Java', seniority: null, region: null,
       freelancers: 7, threshold: 5, median: 650, low: 600, high: 720, sharing: false } }));
+    await page.route('**/api/network/esn-scorecards', route => route.fulfill({ json: { threshold: 5, sharing: true, companies: [
+      { company: 'Conseil Exemple', freelancers: 6, threshold: 5, offerRate: 40, processDays: 21, marginLow: 18, marginHigh: 25,
+        answerDays: 3, paymentDays: 45, sharing: true }] } }));
     await page.goto('/network');
     await expect(page.locator('[data-suggestion="ines_b"]')).toContainText(en ? 'Also on Kafka' : 'Aussi sur Kafka');
     await expect(page.locator('[data-benchmark-median]')).toContainText(en ? '650 € a day' : '650 € par jour');
@@ -252,6 +255,13 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       const benchmarkAudit = await new AxeBuilder({ page }).include('[data-rate-benchmark]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
         .analyze();
       expect(benchmarkAudit.violations.map(violation => violation.id)).toEqual([]);
+    }
+    // The ESN scorecards beside it: the ESN named, its figures from six freelancers' records.
+    if (await page.locator('[data-esn-scorecards]').isVisible()) {
+      await expect(page.locator('[data-esn-scorecard="Conseil Exemple"] [data-esn-margin]')).toContainText(en ? '18 to 25 %' : '18 à 25 %');
+      const esnAudit = await new AxeBuilder({ page }).include('[data-esn-scorecards]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze();
+      expect(esnAudit.violations.map(violation => violation.id)).toEqual([]);
     }
     await expect(page.locator('[data-post="1"]')).toContainText('Bonjour à tous');
     await page.route('**/api/network/posts/1/like**', route => route.fulfill({ json: { id: 1, text: 'Bonjour à tous', tags: [],

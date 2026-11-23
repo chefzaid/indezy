@@ -755,7 +755,7 @@
         "marginOne": "{{min}} % of the client's rate (1 mission)",
         "answer": "Answers",
         "answerValue": "in {{days}} days usually",
-        "private": "From your own opportunities and exchanges only; nothing is shared."
+        "private": "From your own opportunities and exchanges only."
       }
     },
     "form": {
@@ -1872,6 +1872,10 @@
         "shareRates": {
           "label": "Share my rates with the benchmark",
           "hint": "The daily rates of your won missions count, anonymized, in the network's rate benchmark, shown only in figures five freelancers or more back; never your name, your clients or your contacts."
+        },
+        "shareEsnRecords": {
+          "label": "Count my records in the ESN scorecards",
+          "hint": "How the ESNs you dealt with answered, how long their processes took, how often they made an offer, their margin and how they paid count in their scorecards across members, shown only in figures five freelancers or more back. The ESN is named; never you, your clients or your contacts. On unless you turn it off."
         }
       },
       "elsewhere": {
@@ -3690,6 +3694,25 @@
         "failed": "The call could not be booked. Please try again."
       }
     }
+  },
+  "esnScorecard": {
+    "title": "ESN scorecards",
+    "membersTitle": "Across Indezy members",
+    "backedBy": "From {{count}} freelancers' records",
+    "tooFew": "{{count}} freelancer(s) dealt with them so far: the figures show from {{threshold}}.",
+    "empty": "No ESN is backed by {{threshold}} freelancers yet.",
+    "offerRate": "Offer rate",
+    "process": "Process",
+    "margin": "Margin",
+    "marginValue": "{{low}} to {{high}} %",
+    "answer": "Answers in",
+    "payment": "Pays in",
+    "days": "{{days}} days",
+    "showAll": "Show all {{count}}",
+    "share": "Count your records too",
+    "yoursCount": "Your records count in it.",
+    "yoursLeftOut": "Your records are left out.",
+    "privacy": "Profile → Privacy"
   },
   "home": {
     "brand": "Indezy, home",

@@ -53,12 +53,14 @@ describe('ProfilePrivacyComponent', () => {
 
   it('gathers every switch, as each is saved, contact suggestions on by default', () => {
     const element: HTMLElement = create().nativeElement;
-    for (const key of ['contactSuggestions', 'esnSuggestions', 'privateCard', 'shareRates', 'privateViewing', 'requests', 'readReceipts', 'typing',
+    for (const key of ['contactSuggestions', 'esnSuggestions', 'privateCard', 'shareRates', 'shareEsnRecords', 'privateViewing', 'requests', 'readReceipts', 'typing',
       'presence', 'weeklyReports', 'messageEmails', 'bookingEmails']) {
       expect(element.querySelector(`[data-privacy-switch="${key}"]`)).withContext(key).not.toBeNull();
     }
     expect(toggle(element, 'contactSuggestions').getAttribute('aria-checked')).toBe('true');
     expect(toggle(element, 'esnSuggestions').getAttribute('aria-checked')).toBe('false');
+    // The ESN scorecards count the member's records unless turned off.
+    expect(toggle(element, 'shareEsnRecords').getAttribute('aria-checked')).toBe('true');
     expect(toggle(element, 'presence').getAttribute('aria-checked')).toBe('false');
     expect(toggle(element, 'bookingEmails').getAttribute('aria-checked')).toBe('false');
     expect(element.querySelector('[data-privacy-switch="contactSuggestions"]')?.textContent).toContain('Suggestions by my contacts');
@@ -81,6 +83,9 @@ describe('ProfilePrivacyComponent', () => {
     fixture.detectChanges();
     expect(users.updateUserPreferences).toHaveBeenCalledWith({ shareRates: true });
     expect(toggle(element, 'shareRates').getAttribute('aria-checked')).toBe('true');
+    users.updateUserPreferences.and.returnValue(of({ theme: 'auto', language: 'en', inactivityDays: 14, shareEsnRecords: false }));
+    toggle(element, 'shareEsnRecords').click();
+    expect(users.updateUserPreferences).toHaveBeenCalledWith({ shareEsnRecords: false });
     network.setPrivateViewing.and.returnValue(of({ privateViewing: true } as PageViews));
     toggle(element, 'privateViewing').click();
     expect(network.setPrivateViewing).toHaveBeenCalledWith(true);

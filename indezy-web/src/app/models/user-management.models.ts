@@ -89,6 +89,8 @@ export interface UserPreferences {
   contactRetentionYears?: number;
   /** Let the won missions' rates count, anonymized, in the network's rate benchmark. */
   shareRates?: boolean;
+  /** Whether the records of the ESNs dealt with count, anonymized, in the ESN scorecards across members; on unless turned off. */
+  shareEsnRecords?: boolean;
   /** The dashboard's blocks in the account's order, shown or hidden. */
   dashboardWidgets?: DashboardWidget[];
 }

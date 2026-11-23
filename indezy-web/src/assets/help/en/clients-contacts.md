@@ -17,7 +17,7 @@ The form's **Billing** section keeps the SIREN and VAT number printed on your in
 
 ## Your record with a company
 
-A client's or ESN's page sums up, from your own opportunities and exchanges only, **Your record with them**: the opportunities with it, won and open, the **Offer rate** (the share of those past the interviews that reached an offer), the **Process** (the median days from an opportunity's creation to its last interview step), **Their margin** (what share of the client's rate the ESN kept, when you entered the client's rate) and how soon its contacts usually **Answer**. Nothing of it is shared with anyone.
+A client's or ESN's page sums up, from your own opportunities and exchanges only, **Your record with them**: the opportunities with it, won and open, the **Offer rate** (the share of those past the interviews that reached an offer), the **Process** (the median days from an opportunity's creation to its last interview step), **Their margin** (what share of the client's rate the ESN kept, when you entered the client's rate) and how soon its contacts usually **Answer**. Nothing of it is shared with anyone. If you are a network member, an ESN's page also shows **Across Indezy members**: the same figures from the records of every member who dealt with it, once 5 freelancers back them.
 
 ## Company health check
 
