@@ -110,7 +110,7 @@ public class ContactEmailService {
      */
     public record Recipient(Long id, String firstName, String name, String company, String email, int answers, LocalDate lastContactedOn,
                             int postings, String mission, int silentCampaigns, int campaignOpportunities, Integer ratePaid,
-                            LocalDate missionEndsOn) {
+                            LocalDate missionEndsOn, boolean related) {
     }
 
     /** What a company posted for the profile lately: how many offers, and the newest one's title. */
@@ -145,10 +145,11 @@ public class ContactEmailService {
     }
 
     /**
-     * Whom to tell of an availability: the contacts with an address at the ESNs the workspace had an opportunity with
-     * (as the ESN or the client) or whose contacts answered it before, not blacklisted, leaving out anyone in touch in
-     * the last {@value #RECENT_DAYS} days; those at a company whose mission won ends within {@value #ENDING_DAYS} days first,
-     * then those who answered most, then by company and name.
+     * Whom to tell of an availability: the contacts with an address at the ESNs, not blacklisted, leaving out anyone in
+     * touch in the last {@value #RECENT_DAYS} days; those at a company whose mission won ends within {@value #ENDING_DAYS}
+     * days first, then those at an ESN the workspace had an opportunity with (as the ESN or the client), whose contacts
+     * answered it before or that posted missions for the profile ({@code related}), then the others; within each, those
+     * who answered most first, then by the campaigns' results, company and name.
      */
     @Transactional(readOnly = true)
     public List<Recipient> availabilityRecipients(Long freelanceId) {
@@ -195,16 +196,18 @@ public class ContactEmailService {
         Postings none = new Postings(0, null);
         Map<Long, Integer> silent = new HashMap<>();
         Map<Long, Integer> opportunities = campaignOpportunities(exchanges, pipeline, silent);
+        // Every ESN contact is a recruiter or an account manager: those at a company with no tie yet come last.
+        java.util.function.Predicate<Contact> related = contact -> workedWith.contains(contact.getClient().getId()) ||
+            answeringCompanies.contains(contact.getClient().getId()) || postings.containsKey(JobOffer.companyKeyOf(contact.getClient().getCompanyName()));
         return reachable.stream()
-            .filter(contact -> workedWith.contains(contact.getClient().getId()) || answeringCompanies.contains(contact.getClient().getId()) ||
-                postings.containsKey(JobOffer.companyKeyOf(contact.getClient().getCompanyName())))
             .map(contact -> new Recipient(contact.getId(), contact.getFirstName(), contact.getFullName(), contact.getClient().getCompanyName(),
                 contact.getEmail().strip(), answers.getOrDefault(contact.getId(), new int[1])[0], lastInTouch.get(contact.getId()),
                 postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).count(),
                 postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).latest(),
                 silent.getOrDefault(contact.getId(), 0), opportunities.getOrDefault(contact.getClient().getId(), 0),
-                ratePaid.get(contact.getClient().getId()), endsOn.get(contact.getClient().getId())))
+                ratePaid.get(contact.getClient().getId()), endsOn.get(contact.getClient().getId()), related.test(contact)))
             .sorted(Comparator.comparing((Recipient recipient) -> recipient.missionEndsOn() == null)
+                .thenComparing(Recipient::related, Comparator.reverseOrder())
                 .thenComparing(Comparator.comparingInt(Recipient::answers).reversed())
                 .thenComparing(Comparator.comparingInt(Recipient::campaignOpportunities).reversed())
                 .thenComparingInt(Recipient::silentCampaigns)

@@ -21,7 +21,7 @@ import { NotificationService } from '../../../services/notification/notification
 /**
  * Tells the ESN contacts of an availability (see docs/features.md#emails-sent-from-indezy): the contacts of the ESNs the
  * workspace had an opportunity with or heard from, or that posted missions for the profile in the feed in the last 60
- * days, not those in touch in the last six weeks nor those who asked not to be contacted, those who answered most first
+ * days, then those of the other ESNs (`related` false, listed last), not those in touch in the last six weeks nor those who asked not to be contacted, those who answered most first
  * then those posting most, none ticked at first; one email each from Indezy, `{{firstName}}`, `{{company}}` and `{{mission}}` replaced by theirs (or a message written for one contact), with the dossier de compétences attached unless unticked, each recorded in their exchanges.
  */
 /** Contacts this many campaigns wrote to without an answer are not ticked again by **Prospect again**. */
@@ -53,6 +53,9 @@ const MEMBER_MISSIONS = 5;
                   }
                   @if (recipient.postings) {
                     · <span data-recipient-postings>{{ 'availabilityEmails.postings' | translate:{ count: recipient.postings } }}</span>
+                  }
+                  @if (recipient.related === false) {
+                    · <span data-recipient-new>{{ 'availabilityEmails.noTieYet' | translate }}</span>
                   }
                   @if (recipient.missionEndsOn) {
                     · <span data-recipient-mission-ends>{{ 'availabilityEmails.missionEndsOn' | translate:{ date: (recipient.missionEndsOn | date:'d MMM') } }}</span>

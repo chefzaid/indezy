@@ -166,10 +166,15 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
             "clientId", ending), Map.class);
         call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Luc", "lastName", "Loin", "email", "luc@loin.example",
             "clientId", later), Map.class);
+        // An ESN with no tie yet: its contact is a recruiter all the same, listed last.
+        long cold = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Froide ESN", "city", "Lyon", "isFinal", false, "freelanceId", alice.freelanceId()), Map.class));
+        call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Yan", "lastName", "Froid", "email", "yan@froide.example",
+            "clientId", cold), Map.class);
 
         List<Map<String, Object>> recipients = call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody();
-        assertThat(recipients).extracting(recipient -> recipient.get("name") + " " + recipient.get("missionEndsOn"))
-            .containsExactly("Nora Proche " + today.minusMonths(5).plusMonths(6).minusDays(1), "Inès Répond null", "Luc Loin null");
+        assertThat(recipients).extracting(recipient -> recipient.get("name") + " " + recipient.get("missionEndsOn") + " " + recipient.get("related"))
+            .containsExactly("Nora Proche " + today.minusMonths(5).plusMonths(6).minusDays(1) + " true", "Inès Répond null true",
+                "Luc Loin null true", "Yan Froid null false");
     }
 
     @Test
@@ -242,8 +247,9 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
             offer("ESN Python", List.of("Python"), now.minus(java.time.Duration.ofDays(2)))));
         try {
             List<Map<String, Object>> recipients = call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody();
-            assertThat(recipients).extracting(recipient -> recipient.get("name") + " " + recipient.get("postings"))
-                .containsExactly("Sam Recrute 2");
+            // The ESN posting only Python missions has no tie: its recruiter is listed all the same, last.
+            assertThat(recipients).extracting(recipient -> recipient.get("name") + " " + recipient.get("postings") + " " + recipient.get("related"))
+                .containsExactly("Sam Recrute 2 true", "Ana Python 0 false");
             assertThat(recipients.getFirst()).containsEntry("mission", "Développeur Java");
             assertThat(call(alice, HttpMethod.GET, "/contacts/" + noe, null, Map.class).getBody()).containsEntry("doNotContact", true);
 
@@ -251,7 +257,7 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
             contact.put("doNotContact", false);
             call(alice, HttpMethod.PUT, "/contacts/" + noe, contact, Map.class);
             assertThat(call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody())
-                .extracting(recipient -> ((Map<String, Object>) recipient).get("name")).containsExactly("Noé Refuse", "Sam Recrute");
+                .extracting(recipient -> ((Map<String, Object>) recipient).get("name")).containsExactly("Noé Refuse", "Sam Recrute", "Ana Python");
             assertThat(sam).isPositive();
         } finally {
             offers.deleteAll(saved);

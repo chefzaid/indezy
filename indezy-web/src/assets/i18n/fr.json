@@ -5400,6 +5400,7 @@
     "writeEachError": "Les messages n'ont pas pu être écrits avec l'IA. Vérifiez que l'IA est configurée dans Préférences.",
     "ratePaid": "a payé jusqu'à {{rate}} €/jour",
     "missionEndsOn": "votre mission avec eux se termine le {{date}}",
+    "noTieYet": "aucun échange encore",
     "showAll": "Afficher les {{count}} contacts",
     "remind": "Relancer ceux qui ne répondent pas, 5 jours ouvrés plus tard",
     "reminderBody": "Relance",

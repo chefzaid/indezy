@@ -5400,6 +5400,7 @@
     "writeEachError": "The messages could not be written with AI. Check that AI is set up in Preferences.",
     "ratePaid": "paid up to €{{rate}}/day",
     "missionEndsOn": "your mission with them ends on {{date}}",
+    "noTieYet": "no exchange yet",
     "showAll": "Show all {{count}} contacts",
     "remind": "Remind those who do not answer, 5 working days later",
     "reminderBody": "Reminder",

@@ -148,6 +148,8 @@ export interface AvailabilityRecipient {
   ratePaid?: number | null;
   /** The last day of a mission won through their company ending within 12 weeks, which lists them first; null otherwise. */
   missionEndsOn?: string | null;
+  /** Whether their ESN was worked with, answered before or posted missions for the profile; the others are listed last. */
+  related?: boolean;
 }
 
 /** A contact's exchanges, newest first, and what they say about the relationship. */
