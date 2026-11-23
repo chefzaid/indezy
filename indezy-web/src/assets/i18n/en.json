@@ -5409,7 +5409,10 @@
     "remindersFailed": "The reminders could not be planned.",
     "copy": "Copy",
     "copyFor": "Copy the message to {{name}}",
-    "copied": "Message copied: paste it in LinkedIn or the ESN's portal."
+    "copied": "Message copied: paste it in LinkedIn or the ESN's portal.",
+    "memberMissions": "Members passing on missions for you",
+    "memberMissionReply": "Answer on the network",
+    "memberMissionOpen": "Open {{name}}'s mission on the network"
   },
   "marketReport": {
     "title": "IT freelance market report",

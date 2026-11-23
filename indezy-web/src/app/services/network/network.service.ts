@@ -218,7 +218,7 @@ export class NetworkService {
 
   /** For you: the recent posts of every member the reader can read, ranked by what they share with the reader. */
   /** The missions members pass on, from every member the reader can read but themselves, the newest first. */
-  missions(page = 0, filters: MissionFilters = {}): Observable<NetworkPosts> {
+  missions(page = 0, filters: MissionFilters = {}, silent = false): Observable<NetworkPosts> {
     let params = new HttpParams().set('page', page);
     for (const key of ['skill', 'city', 'remote', 'rate', 'before'] as const) {
       const value = filters[key];
@@ -232,7 +232,7 @@ export class NetworkService {
     if (filters.bestMatch) {
       params = params.set('bestMatch', true);
     }
-    return this.http.get<NetworkPosts>(`${this.API_URL}/feed/missions`, { params });
+    return this.http.get<NetworkPosts>(`${this.API_URL}/feed/missions`, { params, context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
   }
 
   /** How the missions of these ids fit the reader's profile, by post id; empty without profile skills. */

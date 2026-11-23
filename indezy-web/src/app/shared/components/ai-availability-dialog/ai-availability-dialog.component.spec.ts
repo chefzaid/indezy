@@ -19,7 +19,8 @@ describe('AiAvailabilityDialogComponent', () => {
 
   function create(): AiAvailabilityDialogComponent {
     ai = jasmine.createSpyObj('AiService', ['availability']);
-    network = jasmine.createSpyObj('NetworkService', ['createDraft']);
+    network = jasmine.createSpyObj('NetworkService', ['createDraft', 'missions']);
+    network.missions.and.returnValue(of({ posts: [], page: 0, more: false }));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
     clipboard.copy.and.returnValue(true);

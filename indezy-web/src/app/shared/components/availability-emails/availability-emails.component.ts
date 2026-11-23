@@ -11,9 +11,11 @@ import { DatePipe } from '@angular/common';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, concatMap, from, map, of, catchError, switchMap, toArray } from 'rxjs';
-import { AvailabilityRecipient, DocumentLanguage, ProspectionCampaign, ScheduledEmail } from '../../../models';
+import { AvailabilityRecipient, DocumentLanguage, NetworkPost, ProspectionCampaign, ScheduledEmail } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { ContactService } from '../../../services/contact/contact.service';
+import { NetworkService } from '../../../services/network/network.service';
+import { RouterLink } from '@angular/router';
 import { NotificationService } from '../../../services/notification/notification.service';
 
 /**
@@ -25,9 +27,12 @@ import { NotificationService } from '../../../services/notification/notification
 /** Contacts this many campaigns wrote to without an answer are not ticked again by **Prospect again**. */
 export const SILENT_LIMIT = 2;
 
+/** At most this many network members' missions are listed. */
+const MEMBER_MISSIONS = 5;
+
 @Component({
   selector: 'app-availability-emails',
-  imports: [FormsModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressSpinnerModule,
+  imports: [RouterLink, FormsModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressSpinnerModule,
     MatSelectModule, DatePipe, TranslateModule],
   template: `
     <details class="emails" [open]="open" (toggle)="opened($event)" data-availability-emails>
@@ -153,6 +158,19 @@ export const SILENT_LIMIT = 2;
           </button>
         </div>
       }
+      @if (memberMissions.length) {
+        <h4 class="waiting-title">{{ 'availabilityEmails.memberMissions' | translate }}</h4>
+        <ul class="waiting" data-availability-member-missions>
+          @for (post of memberMissions; track post.id) {
+            <li [attr.data-member-mission]="post.id">
+              <span>{{ post.author.firstName }} {{ post.author.lastName }} · {{ post.details?.role || post.text.slice(0, 80) }}</span>
+              <a mat-button [routerLink]="['/network/posts', post.id]" [attr.aria-label]="'availabilityEmails.memberMissionOpen' | translate:{ name: post.author.firstName }">
+                {{ 'availabilityEmails.memberMissionReply' | translate }}
+              </a>
+            </li>
+          }
+        </ul>
+      }
       @if (campaigns.length) {
         <h4 class="waiting-title">{{ 'availabilityEmails.campaigns' | translate }}</h4>
         <ul class="campaigns" data-availability-campaigns>
@@ -216,11 +234,15 @@ export class AvailabilityEmailsComponent implements OnInit {
   @Input() availableFrom: string | null = null;
   /** What the announcement says, put after the greeting when the section opens. */
   @Input() text = '';
+  /** The network members' missions that fit the profile best, to answer on the network. */
+  memberMissions: NetworkPost[] = [];
+
   /** Opened at once, its email written, as **Prospect** opens it. */
   @Input() open = false;
 
   private readonly contacts = inject(ContactService);
   private readonly ai = inject(AiService);
+  private readonly network = inject(NetworkService);
   private readonly clipboard = inject(Clipboard);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
@@ -248,6 +270,14 @@ export class AvailabilityEmailsComponent implements OnInit {
     if (this.open) {
       this.write();
     }
+    // The members passing on missions that fit the profile best: to answer on the network rather than by email.
+    this.network.missions(0, { bestMatch: true, hideTaken: true }, true).subscribe({
+      next: page => {
+        this.memberMissions = (page.posts ?? []).slice(0, MEMBER_MISSIONS);
+        this.changes.markForCheck();
+      },
+      error: () => this.memberMissions = []
+    });
     this.contacts.availabilityRecipients().subscribe({
       next: recipients => {
         this.recipients = recipients;

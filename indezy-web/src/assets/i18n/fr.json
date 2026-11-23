@@ -5409,7 +5409,10 @@
     "remindersFailed": "Les relances n'ont pas pu être prévues.",
     "copy": "Copier",
     "copyFor": "Copier le message à {{name}}",
-    "copied": "Message copié : collez-le dans LinkedIn ou le portail de l'ESN."
+    "copied": "Message copié : collez-le dans LinkedIn ou le portail de l'ESN.",
+    "memberMissions": "Des membres font passer des missions pour vous",
+    "memberMissionReply": "Répondre sur le réseau",
+    "memberMissionOpen": "Ouvrir la mission de {{name}} sur le réseau"
   },
   "marketReport": {
     "title": "Baromètre des TJM freelance IT",

@@ -3,10 +3,12 @@ import { TestBed } from '@angular/core/testing';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
-import { AvailabilityRecipient, ContactInteraction } from '../../../models';
+import { Observable, of, throwError } from 'rxjs';
+import { AvailabilityRecipient, ContactInteraction, NetworkPost, NetworkPosts } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { ContactService } from '../../../services/contact/contact.service';
+import { provideRouter } from '@angular/router';
+import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { AvailabilityEmailsComponent } from './availability-emails.component';
 
@@ -16,7 +18,7 @@ describe('AvailabilityEmailsComponent', () => {
   const marc: AvailabilityRecipient = { id: 2, firstName: null, name: 'Marc Durand', company: 'Autre', email: 'marc@autre.example', answers: 0,
     lastContactedOn: null, postings: 2, mission: 'Lead Java', silentCampaigns: 0, campaignOpportunities: 0 };
 
-  function create(recipients = of([lea, marc])) {
+  function create(recipients = of([lea, marc]), missions: Observable<NetworkPosts> = of({ posts: [], page: 0, more: false })) {
     const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail', 'scheduledEmails', 'scheduleEmails',
       'cancelScheduledEmail', 'startCampaign', 'campaigns', 'scheduleReminders']);
     contacts.startCampaign.and.returnValue(of({ id: 3, name: 'x', startedAt: '2026-11-23T08:00:00', sent: 0, waiting: 0, answered: 0,
@@ -26,10 +28,13 @@ describe('AvailabilityEmailsComponent', () => {
     contacts.scheduledEmails.and.returnValue(of([]));
     const notifications = jasmine.createSpyObj('NotificationService', ['success', 'error', 'info']);
     const ai = jasmine.createSpyObj('AiService', ['prospectionMessages']);
+    const network = jasmine.createSpyObj('NetworkService', ['missions']);
+    network.missions.and.returnValue(missions);
     TestBed.configureTestingModule({
       imports: [AvailabilityEmailsComponent, TranslateModule.forRoot()],
-      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ContactService, useValue: contacts },
-        { provide: NotificationService, useValue: notifications }, { provide: AiService, useValue: ai }]
+      providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ContactService, useValue: contacts },
+        { provide: NotificationService, useValue: notifications }, { provide: AiService, useValue: ai },
+        { provide: NetworkService, useValue: network }]
     });
     const fixture = TestBed.createComponent(AvailabilityEmailsComponent);
     fixture.componentRef.setInput('availableFrom', '2027-02-01');
@@ -63,9 +68,10 @@ describe('AvailabilityEmailsComponent', () => {
       contacts.campaigns.and.returnValue(of([]));
       TestBed.configureTestingModule({
         imports: [AvailabilityEmailsComponent, TranslateModule.forRoot()],
-        providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ContactService, useValue: contacts },
+        providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ContactService, useValue: contacts },
           { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['success', 'error', 'info']) },
-          { provide: AiService, useValue: jasmine.createSpyObj('AiService', ['prospectionMessages']) }]
+          { provide: AiService, useValue: jasmine.createSpyObj('AiService', ['prospectionMessages']) },
+          { provide: NetworkService, useValue: { missions: () => of({ posts: [], page: 0, more: false }) } }]
       });
       const created = TestBed.createComponent(AvailabilityEmailsComponent);
       created.componentRef.setInput('availableFrom', '2027-02-01');
@@ -76,6 +82,19 @@ describe('AvailabilityEmailsComponent', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('details')!.open).toBeTrue();
     expect(fixture.componentInstance.subject).toBe('Disponible à partir du 1 février 2027');
     expect(fixture.componentInstance.reminderBody).toBe('availabilityEmails.reminderText');
+  });
+
+  it('lists the network members passing on missions that fit, to answer on the network', () => {
+    const post = { id: 41, author: { handle: 'sam', firstName: 'Sam', lastName: 'Dev' }, text: 'Mission Java à Lyon',
+      details: { role: 'Lead Java' } } as unknown as NetworkPost;
+    const { fixture } = create(of([lea]), of({ posts: [post], page: 0, more: false }));
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck();
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('[data-member-mission="41"]')!.textContent).toContain('Sam Dev · Lead Java');
+    expect(element.querySelector('[data-member-mission="41"] a')!.getAttribute('href')).toBe('/network/posts/41');
+    TestBed.resetTestingModule();
+    expect(create(of([lea]), throwError(() => new Error('403'))).fixture.componentInstance.memberMissions).toEqual([]);
   });
 
   it('copies a contact\'s message as it would go, to send it on LinkedIn', () => {

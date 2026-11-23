@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Network members' missions in your prospection
+
+Below the contacts of **Email my ESN contacts**, **Members passing on missions for you** lists the network missions that fit you best, to answer their members on the network. See [Dashboard](/help/dashboard).
+
 ### An automatic reminder for prospection emails
 
 **Email my ESN contacts** can remind, 5 working days later, the contacts who did not answer, once, with its own message. See [Dashboard](/help/dashboard).

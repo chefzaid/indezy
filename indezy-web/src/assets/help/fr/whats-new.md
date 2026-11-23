@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les missions des membres du réseau dans votre prospection
+
+Sous les contacts d'**Écrire à mes contacts ESN**, **Des membres font passer des missions pour vous** liste les missions du réseau qui vous correspondent le mieux, pour répondre à leurs membres sur le réseau. Voir [Le tableau de bord](/help/dashboard).
+
 ### Une relance automatique des e-mails de prospection
 
 **Écrire à mes contacts ESN** peut relancer, 5 jours ouvrés plus tard, les contacts qui n'ont pas répondu, une fois, avec son propre message. Voir [Le tableau de bord](/help/dashboard).
