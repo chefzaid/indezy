@@ -273,6 +273,15 @@ school in larger letters, its degree and years on the next line) or the CV (10 a
 (the same employer and title, or the same school with no other degree, case aside) is marked as there. They are added
 off the public profile, and the profile's lists show them at once.
 
+Without AI (none set up, the allowance spent, the provider down), the CV goes to `POST /api/users/profile-import/cv`,
+read by `CvTextReader` from its text: the phone, links and town (after a postal code, or before ", France") by their
+patterns; the name and title from the first lines; the sections by their usual headings in French and English
+("Profil", "Compétences", "Expérience professionnelle", "Formation", "Langues", "Certifications"); each position by its
+date range ("janv. 2024 – aujourd'hui", "03/2019 à 06/2021", "depuis mars 2022"), its title and employer on that line or
+the one above, split at a dash, a comma, "chez" or "@"; each school by its years; and the skills of the skills section
+then the known skill names found elsewhere, with the years of the positions naming them. The dialog says the CV was read
+by its headings; a CV in columns or tables reads better with AI.
+
 **Keep this CV**, offered unticked on the review of a CV (never of LinkedIn's files), keeps the file read as the
 profile's CV, also kept from **My CV** under the personal information (`POST /api/users/cv`, a PDF, `.docx`, `.doc` or `.odt`
 of 10 MB at most, checked by the platform's ClamAV like the network's documents): one per workspace, a new one replacing

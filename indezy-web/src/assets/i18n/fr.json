@@ -1798,6 +1798,7 @@
       "readError": "L'archive n'a pas pu être lue : réessayez dans un instant.",
       "certifications": "Certifications",
       "certificationsHint": "Celles cochées rejoignent vos formations et certifications (page Documents) quand vous remplissez le formulaire, avec leur organisme et leurs dates.",
+      "readWithoutAi": "L'IA n'est pas disponible : votre CV a été lu d'après ses titres. Vérifiez ce qu'il a trouvé ; un CV en colonnes ou en tableaux se lit mieux avec l'IA.",
       "keepCv": "Garder {{name}} comme CV de mon profil, à télécharger et joindre aux candidatures",
       "cvKept": "Votre CV est gardé dans votre profil.",
       "alreadyInProfile": "Déjà dans votre profil",

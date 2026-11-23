@@ -46,6 +46,13 @@ export class UserManagementService {
   }
 
   /** LinkedIn's data archive (the ZIP of Get a copy of your data) read into the profile's fields, nothing saved. */
+  /** A CV read without AI, by its headings and patterns. */
+  cvImport(file: File): Observable<AiProfileImport> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<AiProfileImport>(`${this.API_URL}/profile-import/cv`, form);
+  }
+
   linkedInImport(file: File): Observable<AiProfileImport> {
     const form = new FormData();
     form.append('file', file);

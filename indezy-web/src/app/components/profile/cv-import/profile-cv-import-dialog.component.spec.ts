@@ -32,7 +32,7 @@ describe('ProfileCvImportDialogComponent', () => {
 
   function create(current: Partial<UserProfile>): ProfileCvImportDialogComponent {
     ai = jasmine.createSpyObj('AiService', ['profileImport']);
-    notifications = jasmine.createSpyObj('NotificationService', ['error', 'success']);
+    notifications = jasmine.createSpyObj('NotificationService', ['error', 'success', 'info']);
     trainings = jasmine.createSpyObj('TrainingService', ['list', 'create']);
     trainings.list.and.returnValue(of([]));
     career = Object.assign(jasmine.createSpyObj('CareerService', ['experiences', 'educations', 'createExperience', 'createEducation']),
@@ -41,7 +41,7 @@ describe('ProfileCvImportDialogComponent', () => {
     cvs = Object.assign(jasmine.createSpyObj('ProfileCvService', ['keep']), { changed: new Subject<void>() });
     career.educations.and.returnValue(of([]));
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
-    users = jasmine.createSpyObj('UserManagementService', ['linkedInImport']);
+    users = jasmine.createSpyObj('UserManagementService', ['linkedInImport', 'cvImport']);
     const data: CvImportData = { current, languages: ['Français', 'Anglais'] };
     TestBed.configureTestingModule({
       imports: [ProfileCvImportDialogComponent, TranslateModule.forRoot()],
@@ -119,14 +119,21 @@ describe('ProfileCvImportDialogComponent', () => {
     ai.profileImport.and.returnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'Not a CV' } })));
     pick(component);
     expect(notifications.error).toHaveBeenCalledWith('profile.cvImport.unreadable');
+    expect(users.cvImport).not.toHaveBeenCalled();
+    // Without AI, the CV is read by its headings, which says so; when that fails too, the error is told.
     ai.profileImport.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'AI is not available yet' } })));
+    users.cvImport.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
     pick(component);
-    expect(notifications.error).toHaveBeenCalledWith('ai.errors.unavailable');
+    expect(notifications.error).toHaveBeenCalledWith('profile.cvImport.readError');
     expect(component.loading).toBeFalse();
     expect(component.reading).toBeNull();
+    users.cvImport.and.returnValue(of(reading));
+    pick(component);
+    expect(notifications.info).toHaveBeenCalledWith('profile.cvImport.readWithoutAi');
+    expect(component.reading).toEqual(reading);
     // No file chosen: nothing is read.
     component.read({ target: document.createElement('input') } as unknown as Event);
-    expect(ai.profileImport).toHaveBeenCalledTimes(2);
+    expect(ai.profileImport).toHaveBeenCalledTimes(3);
   });
 
   it('reads LinkedIn\'s archive without AI, saying when the file is not one', () => {

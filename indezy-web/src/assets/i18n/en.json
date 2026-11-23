@@ -1798,6 +1798,7 @@
       "readError": "The archive could not be read: try again in a moment.",
       "certifications": "Certifications",
       "certificationsHint": "Ticked ones are added to your trainings and certifications (Documents page) when you fill in the form, with their issuer and dates.",
+      "readWithoutAi": "AI is not available: your CV was read by its headings. Check what it found; a CV in columns or tables reads better with AI.",
       "keepCv": "Keep {{name}} as my profile's CV, to download and attach to applications",
       "cvKept": "Your CV is kept in your profile.",
       "alreadyInProfile": "Already in your profile",

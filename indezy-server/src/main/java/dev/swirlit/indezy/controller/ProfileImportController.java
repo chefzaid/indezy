@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.ai.ProfileImportAiService;
+import dev.swirlit.indezy.service.CvTextReader;
 import dev.swirlit.indezy.service.LinkedInProfileImport;
 import dev.swirlit.indezy.service.LinkedInProfilePdf;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +24,15 @@ import java.time.LocalDate;
 public class ProfileImportController {
 
     private final Clock clock;
+
+    @Operation(summary = "Read a CV into the profile's fields without AI", description = "A PDF, docx, doc or odt of 10 MB at most")
+    @PostMapping(value = "/users/profile-import/cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ProfileImportAiService.Reading cv(@RequestParam("file") MultipartFile file) throws IOException {
+        if (file.getSize() > LinkedInProfileImport.MAX_BYTES) {
+            throw new IllegalArgumentException("A CV of 10 MB at most");
+        }
+        return CvTextReader.read(ProfileImportAiService.text(file.getOriginalFilename(), file.getBytes()), LocalDate.now(clock));
+    }
 
     @Operation(summary = "Read LinkedIn's data archive or profile PDF into the profile's fields",
         description = "The ZIP of Get a copy of your data, or the PDF of the profile's Save to PDF, 20 MB at most")

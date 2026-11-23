@@ -110,6 +110,14 @@ public class ProfileImportAiService {
     }
 
     public Reading read(Long userId, String fileName, byte[] content) {
+        String text = text(fileName, content);
+        Reading reading = ai.structured(userId, AiFeature.POSTING, SYSTEM, "<cv>\n" + text.substring(0, Math.min(text.length(), TEXT_MAX)) +
+            "\n</cv>", Reading.class, MAX_TOKENS, OutputConfig.Effort.LOW);
+        return clean(reading);
+    }
+
+    /** A CV's text: a PDF, Word ({@code .docx}, {@code .doc}) or OpenDocument file of 10 MB at most, with a text layer. */
+    public static String text(String fileName, byte[] content) {
         if (content.length == 0 || content.length > FILE_MAX_BYTES) {
             throw new FieldRejectedException("file", "A CV of 10 MB at most");
         }
@@ -131,9 +139,7 @@ public class ProfileImportAiService {
         if (text.isBlank()) {
             throw new FieldRejectedException("file", "This CV has no text to read: it may be a scanned page");
         }
-        Reading reading = ai.structured(userId, AiFeature.POSTING, SYSTEM, "<cv>\n" + text.substring(0, Math.min(text.length(), TEXT_MAX)) +
-            "\n</cv>", Reading.class, MAX_TOKENS, OutputConfig.Effort.LOW);
-        return clean(reading);
+        return text;
     }
 
     public static Reading clean(Reading reading) {

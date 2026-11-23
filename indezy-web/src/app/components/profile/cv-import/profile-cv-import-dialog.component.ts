@@ -8,10 +8,10 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, catchError, first, forkJoin, of } from 'rxjs';
+import { Observable, catchError, first, forkJoin, of, tap, throwError } from 'rxjs';
 import { AiImportedCertification, AiImportedPosition, AiImportedSchool, AiProfileImport, Education, Experience, SkillDetail, SkillLevel,
   Training, UserProfile } from '../../../models';
-import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
+import { AiService } from '../../../services/ai/ai.service';
 import { CareerService } from '../../../services/career/career.service';
 import { ProfileCvService } from '../../../services/profile-cv/profile-cv.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -335,16 +335,23 @@ export class ProfileCvImportDialogComponent {
     const names = this.skillNamesService.names$.pipe(first(), catchError(() => of(SkillNames.NONE)));
     const experiences: Observable<Experience[]> = this.career.experiences().pipe(catchError(() => of([])));
     const educations: Observable<Education[]> = this.career.educations().pipe(catchError(() => of([])));
-    forkJoin([linkedIn ? this.users.linkedInImport(file) : this.ai.profileImport(file), known, names, experiences, educations]).subscribe({
+    let withoutAi = false;
+    // Without AI (none set up, the allowance spent, the provider down), the CV is read by its headings instead.
+    const source = linkedIn ? this.users.linkedInImport(file) : this.ai.profileImport(file).pipe(catchError((error: HttpErrorResponse) =>
+      error.status === 400 ? throwError(() => error) : this.users.cvImport(file).pipe(tap(() => withoutAi = true))));
+    forkJoin([source, known, names, experiences, educations]).subscribe({
       next: ([reading, trainings, skillNames, held, studied]) => {
         this.loading = false;
+        if (withoutAi) {
+          this.notifications.info('profile.cvImport.readWithoutAi');
+        }
         this.show(reading, trainings, skillNames, held, studied);
         this.changes.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
         this.loading = false;
         this.notifications.error(error.status === 400 ? (linkedIn ? 'profile.cvImport.notLinkedIn' : 'profile.cvImport.unreadable') :
-          linkedIn ? 'profile.cvImport.readError' : aiErrorKey(error));
+          'profile.cvImport.readError');
         this.changes.markForCheck();
       }
     });

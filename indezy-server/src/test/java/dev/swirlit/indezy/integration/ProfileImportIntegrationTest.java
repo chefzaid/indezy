@@ -34,15 +34,26 @@ class ProfileImportIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(pdf.getBody()).containsEntry("lastName", "Martin").containsEntry("company", "Alice Conseil");
 
         assertThat(upload("hello".getBytes(StandardCharsets.UTF_8), alice.token()).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        // A CV read without AI.
+        ResponseEntity<Map> cv = upload("/users/profile-import/cv", "cv-alice.doc", dev.swirlit.indezy.media.WordDocTextTest.cv(), alice.token());
+        assertThat(cv.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(cv.getBody()).containsEntry("firstName", "Alice").containsEntry("lastName", "Martin").containsEntry("city", null);
+        assertThat(upload("/users/profile-import/cv", "notes.txt", "hello".getBytes(StandardCharsets.UTF_8), alice.token()).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(upload(LinkedInProfileImportTest.archive(), null).getStatusCode()).isIn(HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN);
     }
 
     private ResponseEntity<Map> upload(byte[] content, String token) {
+        return upload("/users/profile-import/linkedin", "Basic_LinkedInDataExport.zip", content, token);
+    }
+
+    private ResponseEntity<Map> upload(String path, String name, byte[] content, String token) {
         LinkedMultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         form.add("file", new ByteArrayResource(content) {
             @Override
             public String getFilename() {
-                return "Basic_LinkedInDataExport.zip";
+                return name;
             }
         });
         HttpHeaders headers = new HttpHeaders();
@@ -50,6 +61,6 @@ class ProfileImportIntegrationTest extends TwoAccountsIntegrationTest {
             headers.setBearerAuth(token);
         }
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        return exchange("/users/profile-import/linkedin", HttpMethod.POST, new HttpEntity<>(form, headers), Map.class);
+        return exchange(path, HttpMethod.POST, new HttpEntity<>(form, headers), Map.class);
     }
 }

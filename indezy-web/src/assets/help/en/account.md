@@ -85,7 +85,7 @@ Certifications go to **Trainings and certifications** on the [Documents](/help/d
 
 Tick **Keep … as my profile's CV** to keep the file read: it then waits under **My CV** in your personal information, to download and attach to your applications. **Keep a CV** there keeps one without importing it, and **Replace** or **Delete** changes it; it is checked for viruses first.
 
-A scanned CV without text cannot be read. Reading a CV uses your monthly AI allowance, or your own key; LinkedIn's archive does not.
+A scanned CV without text cannot be read. Reading a CV uses your monthly AI allowance, or your own key; LinkedIn's archive does not. When AI is not available, your CV is read by its headings (Profile, Skills, Experience, Education, Languages, Certifications) instead: check what it found, as a CV in columns or tables reads better with AI.
 
 ## Export and import your data
 

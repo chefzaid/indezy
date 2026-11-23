@@ -85,7 +85,7 @@ Les certifications rejoignent **Formations et certifications** sur la page [Docu
 
 Cochez **Garder … comme CV de mon profil** pour garder le fichier lu : il vous attend alors sous **Mon CV** dans vos informations personnelles, à télécharger et joindre à vos candidatures. **Garder un CV** y garde un CV sans l'importer, et **Remplacer** ou **Supprimer** le change ; il est d'abord vérifié contre les virus.
 
-Un CV scanné sans texte ne peut pas être lu. Lire un CV utilise votre quota mensuel d'IA, ou votre propre clé ; l'archive LinkedIn non.
+Un CV scanné sans texte ne peut pas être lu. Lire un CV utilise votre quota mensuel d'IA, ou votre propre clé ; l'archive LinkedIn non. Quand l'IA n'est pas disponible, votre CV est lu d'après ses titres (Profil, Compétences, Expérience, Formation, Langues, Certifications) : vérifiez ce qu'il a trouvé, un CV en colonnes ou en tableaux se lisant mieux avec l'IA.
 
 ## Exporter et importer vos données
 
