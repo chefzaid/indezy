@@ -38,6 +38,7 @@ The backend is a Spring Boot modular monolith organized by technical layer:
 - `dto`: API contracts
 - `validation`: custom Bean Validation constraints for the DTOs (such as `@PasswordMaxBytes`)
 - `mapper`: MapStruct conversions
+- `media`: the documents members send (type detection, text extraction, the ClamAV scan); the text of an old Word `.doc` CV is read with Apache POI's HWPF (`poi-scratchpad`)
 - `pdf`: PDF documents (activity reports) drawn with Apache PDFBox, see [ADR 0008](./adr/0008-pdf-documents-with-pdfbox.md)
 - `scraping`: the freelance offer collection (readers of the job boards in `scraping.reader`, the polite HTTP client, normalization, scheduler and retention), see [ADR 0009](./adr/0009-collecting-job-offers.md)
 - `config`: CORS, security, OpenAPI, data initialization

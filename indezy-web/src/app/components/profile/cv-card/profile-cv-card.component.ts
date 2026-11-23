@@ -20,7 +20,7 @@ import { saveBlob } from '../../../shared/utils/download-file';
   template: `
     <section class="cv" aria-labelledby="profile-cv-title" data-profile-cv>
       <h2 id="profile-cv-title">{{ 'profileCv.title' | translate }}</h2>
-      <input #file type="file" accept=".pdf,.docx,.odt" hidden (change)="keep($event)" data-profile-cv-file
+      <input #file type="file" accept=".pdf,.docx,.doc,.odt" hidden (change)="keep($event)" data-profile-cv-file
         [attr.aria-label]="'profileCv.keep' | translate">
       @if (cv) {
         <p class="kept" data-profile-cv-kept>

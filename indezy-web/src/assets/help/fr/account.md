@@ -73,7 +73,7 @@ Un webhook prévient vos outils (Zapier, Make, n8n, un script) des événements 
 
 ## Remplir votre profil depuis votre CV ou LinkedIn
 
-**Profil → Informations personnelles → Importer mon profil** lit votre CV (PDF, Word ou OpenDocument, 10 Mo au plus, lu par l'IA) ou l'archive de vos données LinkedIn (lue sans IA) dans les champs de votre profil : nom, téléphone, ville, poste, société, présentation, liens, langues, compétences avec leurs années (et le niveau qu'indique votre CV), et certifications. Le fichier n'est pas conservé.
+**Profil → Informations personnelles → Importer mon profil** lit votre CV (PDF, Word .docx ou .doc, ou OpenDocument, 10 Mo au plus, lu par l'IA) ou l'archive de vos données LinkedIn (lue sans IA) dans les champs de votre profil : nom, téléphone, ville, poste, société, présentation, liens, langues, compétences avec leurs années (et le niveau qu'indique votre CV), et certifications. Le fichier n'est pas conservé.
 
 Pour obtenir l'archive LinkedIn : sur LinkedIn, **Préférences et confidentialité → Confidentialité des données → Obtenir une copie de vos données** ; LinkedIn vous envoie un ZIP par e-mail, en général sous un jour. Plus rapide, le PDF de votre profil : sur votre propre profil LinkedIn, **Plus → Enregistrer au format PDF**. Il est lu sans IA lui aussi, mais ne cite que vos trois principales compétences et vos certifications sans leurs dates.
 

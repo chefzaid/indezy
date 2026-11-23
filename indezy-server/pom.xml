@@ -31,6 +31,7 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <jsoup.version>1.23.2</jsoup.version>
+        <poi.version>5.5.1</poi.version>
 
         <!-- Code Quality Plugin Versions -->
         <jacoco.version>0.8.16</jacoco.version>
@@ -160,6 +161,13 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>${pdfbox.version}</version>
+        </dependency>
+
+        <!-- The text of a CV in the old Word format (.doc), read into the profile -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>${poi.version}</version>
         </dependency>
 
         <!-- HTML parsing of collected job offers, see ADR 0009 -->

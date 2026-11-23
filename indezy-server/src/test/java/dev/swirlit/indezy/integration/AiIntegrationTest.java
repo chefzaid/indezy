@@ -419,6 +419,17 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat((List<Map<String, Object>>) read.get("education")).extracting(school -> school.get("school") + ":" + school.get("degree") +
             ":" + school.get("startYear") + ":" + school.get("endYear")).containsExactly("INSA Lyon:null:2010:0");
         assertThat(BODIES.getLast()).contains("<cv>", "Lead Java, 10 ans");
+        // A CV in Word's old format is read for its text too.
+        org.springframework.util.LinkedMultiValueMap<String, Object> doc = new org.springframework.util.LinkedMultiValueMap<>();
+        doc.add("file", new org.springframework.core.io.ByteArrayResource(dev.swirlit.indezy.media.WordDocTextTest.cv()) {
+            @Override
+            public String getFilename() {
+                return "cv-alice.doc";
+            }
+        });
+        assertThat(exchange("/ai/profile-import", HttpMethod.POST, new HttpEntity<>(doc, multipart), Map.class).getStatusCode())
+            .isEqualTo(HttpStatus.OK);
+        assertThat(BODIES.getLast()).contains("<cv>", "Lead Java freelance", "Compétences : Java, Kafka");
         assertThat(exchange("/ai/profile-import", HttpMethod.POST, new HttpEntity<>(notPdf, multipart), String.class).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);
 

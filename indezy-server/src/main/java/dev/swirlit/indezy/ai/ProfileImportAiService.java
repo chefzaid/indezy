@@ -4,6 +4,7 @@ import com.anthropic.models.messages.OutputConfig;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.media.NetworkDocuments;
+import dev.swirlit.indezy.media.WordDocText;
 import dev.swirlit.indezy.model.enums.SkillLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Reads a CV, as a PDF or a Word or OpenDocument text, into the profile's fields (see docs/features.md#ai-features): the
+ * Reads a CV, as a PDF or a Word ({@code .docx} or the old {@code .doc}) or OpenDocument text, into the profile's fields (see docs/features.md#ai-features): the
  * name, phone, city, current position and company, presentation, links, languages, skills with their years and
  * certifications, past positions and schools. Nothing is kept: the freelancer picks what to put in the profile.
  */
@@ -112,16 +113,21 @@ public class ProfileImportAiService {
         if (content.length == 0 || content.length > FILE_MAX_BYTES) {
             throw new FieldRejectedException("file", "A CV of 10 MB at most");
         }
-        NetworkDocuments.Type type;
-        try {
-            type = NetworkDocuments.detect(fileName, content);
-        } catch (IllegalArgumentException e) {
-            throw new FieldRejectedException("file", "Send the CV as a PDF or a Word document (docx)");
+        String text;
+        if (WordDocText.is(fileName, content)) {
+            text = WordDocText.text(content);
+        } else {
+            NetworkDocuments.Type type;
+            try {
+                type = NetworkDocuments.detect(fileName, content);
+            } catch (IllegalArgumentException e) {
+                throw new FieldRejectedException("file", "Send the CV as a PDF or a Word document (doc or docx)");
+            }
+            if (!TEXT_FORMATS.contains(type.extension())) {
+                throw new FieldRejectedException("file", "Send the CV as a PDF or a Word document (doc or docx)");
+            }
+            text = NetworkDocuments.text(type, content);
         }
-        if (!TEXT_FORMATS.contains(type.extension())) {
-            throw new FieldRejectedException("file", "Send the CV as a PDF or a Word document (docx)");
-        }
-        String text = NetworkDocuments.text(type, content);
         if (text.isBlank()) {
             throw new FieldRejectedException("file", "This CV has no text to read: it may be a scanned page");
         }

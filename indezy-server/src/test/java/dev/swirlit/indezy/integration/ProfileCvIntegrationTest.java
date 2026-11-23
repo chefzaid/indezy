@@ -37,6 +37,11 @@ class ProfileCvIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(download.getHeaders().getContentDisposition().getFilename()).isEqualTo("cv-2026.pdf");
 
         assertThat(upload("notes.txt", "hello".getBytes(StandardCharsets.UTF_8)).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        // A CV in Word's old format is kept as one; a file only named so is refused.
+        assertThat(upload("cv-alice.doc", dev.swirlit.indezy.media.WordDocTextTest.cv()).getBody()).containsEntry("contentType", "application/msword");
+        assertThat(upload("cv.doc", java.util.Arrays.copyOf(dev.swirlit.indezy.media.WordDocTextTest.cv(), 600)).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+        upload("cv-2026.pdf", second);
         assertThat(call(bob, HttpMethod.GET, "/users/cv", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.GET, "/users/export", null, String.class).getBody()).contains("cv-2026.pdf");
 

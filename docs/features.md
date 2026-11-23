@@ -274,7 +274,7 @@ school in larger letters, its degree and years on the next line) or the CV (10 a
 off the public profile, and the profile's lists show them at once.
 
 **Keep this CV**, offered unticked on the review of a CV (never of LinkedIn's files), keeps the file read as the
-profile's CV, also kept from **My CV** under the personal information (`POST /api/users/cv`, a PDF, `.docx` or `.odt`
+profile's CV, also kept from **My CV** under the personal information (`POST /api/users/cv`, a PDF, `.docx`, `.doc` or `.odt`
 of 10 MB at most, checked by the platform's ClamAV like the network's documents): one per workspace, a new one replacing
 it, downloaded with its name (`GET /api/users/cv`, `GET /api/users/cv/info` answering 204 without one) or removed. The
 account export names it (not its content), and deleting the account removes it.
@@ -759,7 +759,7 @@ never saved or sent on its own:
   dossier's language. The AI only rewords: a skill it names that the profile lacks is dropped, a mission without a
   description gets none, the summary is cut at 900 characters, and the name, contact details and clients are never sent
   to it. Nothing is kept.
-- **Import my profile → Choose my CV** on the profile's personal information (`POST /api/ai/profile-import`, a PDF, Word `.docx` or
+- **Import my profile → Choose my CV** on the profile's personal information (`POST /api/ai/profile-import`, a PDF, Word `.docx` or `.doc` (its text read with Apache POI) or
   OpenDocument `.odt` of 10 MB at most, its first 20,000 characters read): the name, phone, city, current position and
   company, presentation, links, languages and skills with their years, nothing it does not state. A review shows each
   field found beside the profile's value, ticked when the profile's field is empty and unticked when it differs, the

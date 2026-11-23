@@ -87,7 +87,7 @@ const FIELDS: { field: TextField; label: string }[] = [
     <mat-dialog-content>
       @if (!reading) {
         <p class="hint">{{ 'profile.cvImport.hint' | translate }}</p>
-        <input #file type="file" accept=".pdf,.docx,.odt" hidden (change)="read($event)" data-cv-import-file
+        <input #file type="file" accept=".pdf,.docx,.doc,.odt" hidden (change)="read($event)" data-cv-import-file
           [attr.aria-label]="'profile.cvImport.pick' | translate">
         <input #archive type="file" accept=".zip,application/zip,.pdf,application/pdf" hidden (change)="read($event, true)" data-cv-import-linkedin-file
           [attr.aria-label]="'profile.cvImport.pickLinkedIn' | translate">

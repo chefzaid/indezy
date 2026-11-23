@@ -5,6 +5,7 @@ import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.media.MalwareScanner;
 import dev.swirlit.indezy.media.NetworkDocuments;
+import dev.swirlit.indezy.media.WordDocText;
 import dev.swirlit.indezy.model.ProfileCv;
 import dev.swirlit.indezy.repository.ProfileCvRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * The CV kept in the profile (see docs/features.md#profile-import): a PDF, Word ({@code .docx}) or OpenDocument file of
+ * The CV kept in the profile (see docs/features.md#profile-import): a PDF, Word ({@code .docx} or {@code .doc}) or OpenDocument file of
  * 10 MB at most, checked for malware, one per workspace.
  */
 @Slf4j
@@ -36,13 +37,19 @@ public class ProfileCvService {
         }
         String name = fileName(originalName);
         NetworkDocuments.Type type;
-        try {
-            type = NetworkDocuments.detect(name, bytes);
-        } catch (IllegalArgumentException e) {
-            throw new FieldRejectedException("file", "Keep the CV as a PDF, Word (docx) or OpenDocument file");
-        }
-        if (!FORMATS.contains(type.extension())) {
-            throw new FieldRejectedException("file", "Keep the CV as a PDF, Word (docx) or OpenDocument file");
+        if (WordDocText.is(name, bytes)) {
+            // Read once, so a file that only looks like a Word document is refused.
+            WordDocText.text(bytes);
+            type = WordDocText.TYPE;
+        } else {
+            try {
+                type = NetworkDocuments.detect(name, bytes);
+            } catch (IllegalArgumentException e) {
+                throw new FieldRejectedException("file", "Keep the CV as a PDF, Word (doc or docx) or OpenDocument file");
+            }
+            if (!FORMATS.contains(type.extension())) {
+                throw new FieldRejectedException("file", "Keep the CV as a PDF, Word (doc or docx) or OpenDocument file");
+            }
         }
         scanner.scan(bytes).ifPresent(signature -> {
             log.warn("Workspace {} kept a CV holding {}: refused", freelanceId, signature);
