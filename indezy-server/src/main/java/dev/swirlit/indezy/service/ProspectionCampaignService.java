@@ -40,8 +40,13 @@ public class ProspectionCampaignService {
     private final ScheduledContactEmailRepository scheduled;
     private final ProjectRepository projects;
 
-    /** A campaign and its results. */
-    public record Campaign(Long id, String name, LocalDateTime startedAt, int sent, int waiting, int answered, int opportunities, int won) {
+    /** A campaign and its results, with the contacts it wrote or plans to write to (for **Prospect again**). */
+    public record Campaign(Long id, String name, LocalDateTime startedAt, int sent, int waiting, int answered, int opportunities, int won,
+                           List<Long> contactIds) {
+
+        public Campaign {
+            contactIds = contactIds == null ? List.of() : List.copyOf(contactIds);
+        }
     }
 
     @Transactional
@@ -51,7 +56,7 @@ public class ProspectionCampaignService {
         String stripped = name == null || name.isBlank() ? "Prospection" : name.strip();
         campaign.setName(stripped.length() > ProspectionCampaign.NAME_MAX ? stripped.substring(0, ProspectionCampaign.NAME_MAX) : stripped);
         ProspectionCampaign saved = campaigns.save(campaign);
-        return new Campaign(saved.getId(), saved.getName(), saved.getCreatedAt(), 0, 0, 0, 0, 0);
+        return new Campaign(saved.getId(), saved.getName(), saved.getCreatedAt(), 0, 0, 0, 0, 0, List.of());
     }
 
     /** The campaign, refused when it is another workspace's. */
@@ -71,18 +76,18 @@ public class ProspectionCampaignService {
         List<Long> ids = latest.stream().map(ProspectionCampaign::getId).toList();
         Map<Long, List<ContactInteraction>> sent = new HashMap<>();
         interactions.findByCampaignIdIn(ids).forEach(email -> sent.computeIfAbsent(email.getCampaignId(), key -> new java.util.ArrayList<>()).add(email));
-        Map<Long, Integer> waiting = new HashMap<>();
-        scheduled.findByCampaignIdIn(ids).stream().map(ScheduledContactEmail::getCampaignId).forEach(id -> waiting.merge(id, 1, Integer::sum));
+        Map<Long, List<ScheduledContactEmail>> waiting = new HashMap<>();
+        scheduled.findByCampaignIdIn(ids).forEach(email -> waiting.computeIfAbsent(email.getCampaignId(), key -> new java.util.ArrayList<>()).add(email));
         List<Project> pipeline = projects.findByFreelanceId(freelanceId);
         Map<Long, List<ContactInteraction>> exchanges = new HashMap<>();
         sent.values().stream().flatMap(List::stream).map(email -> email.getContact().getId()).distinct()
             .forEach(contactId -> exchanges.put(contactId, interactions.findByContactIdOrderByOccurredOnDescIdDesc(contactId)));
         return latest.stream().map(campaign -> results(campaign, sent.getOrDefault(campaign.getId(), List.of()),
-                waiting.getOrDefault(campaign.getId(), 0), exchanges, pipeline))
+                waiting.getOrDefault(campaign.getId(), List.of()), exchanges, pipeline))
             .filter(campaign -> campaign.sent() + campaign.waiting() > 0).toList();
     }
 
-    private static Campaign results(ProspectionCampaign campaign, List<ContactInteraction> sent, int waiting,
+    private static Campaign results(ProspectionCampaign campaign, List<ContactInteraction> sent, List<ScheduledContactEmail> waiting,
                                     Map<Long, List<ContactInteraction>> exchanges, List<Project> pipeline) {
         Set<Long> answered = new HashSet<>();
         Set<Long> companies = new HashSet<>();
@@ -105,6 +110,9 @@ public class ProspectionCampaignService {
                 .anyMatch(companies::contains))
             .toList();
         int won = (int) opened.stream().filter(project -> project.getStatus() == ProjectStatus.WON).count();
-        return new Campaign(campaign.getId(), campaign.getName(), started, sent.size(), waiting, answered.size(), opened.size(), won);
+        List<Long> contacts = Stream.concat(sent.stream().map(email -> email.getContact().getId()),
+            waiting.stream().map(email -> email.getContact().getId())).distinct().toList();
+        return new Campaign(campaign.getId(), campaign.getName(), started, sent.size(), waiting.size(), answered.size(), opened.size(), won,
+            contacts);
     }
 }

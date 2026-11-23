@@ -18,11 +18,11 @@ describe('AvailabilityEmailsComponent', () => {
     const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail', 'scheduledEmails', 'scheduleEmails',
       'cancelScheduledEmail', 'startCampaign', 'campaigns']);
     contacts.startCampaign.and.returnValue(of({ id: 3, name: 'x', startedAt: '2026-11-23T08:00:00', sent: 0, waiting: 0, answered: 0,
-      opportunities: 0, won: 0 }));
+      opportunities: 0, won: 0, contactIds: [] }));
     contacts.campaigns.and.returnValue(of([]));
     contacts.availabilityRecipients.and.returnValue(recipients);
     contacts.scheduledEmails.and.returnValue(of([]));
-    const notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
+    const notifications = jasmine.createSpyObj('NotificationService', ['success', 'error', 'info']);
     TestBed.configureTestingModule({
       imports: [AvailabilityEmailsComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ContactService, useValue: contacts },
@@ -143,9 +143,9 @@ describe('AvailabilityEmailsComponent', () => {
   });
 
   it('starts a campaign for each sending and lists what came of the latest, an email still going when none starts', () => {
-    const { fixture, component, contacts } = create();
+    const { fixture, component, contacts, notifications } = create();
     contacts.campaigns.and.returnValue(of([{ id: 3, name: 'Disponible', startedAt: '2026-11-02T08:00:00', sent: 4, waiting: 2, answered: 1,
-      opportunities: 1, won: 0 }]));
+      opportunities: 1, won: 0, contactIds: [1] }]));
     component.subject = 'Disponible';
     component.body = 'Bonjour';
     component.toggle(1);
@@ -160,6 +160,14 @@ describe('AvailabilityEmailsComponent', () => {
     expect(campaign.textContent).toContain('Disponible');
     expect(campaign.textContent).toContain('availabilityEmails.results');
     expect(campaign.textContent).toContain('availabilityEmails.stillWaiting');
+
+    // Prospect again: the contacts it did not reach ticked, its subject back.
+    expect(component.newTargets(component.campaigns[0]).map(recipient => recipient.id)).toEqual([2]);
+    component.subject = 'Autre';
+    (campaign.querySelector('[data-campaign-again="3"]') as HTMLButtonElement).click();
+    expect([...component.chosen]).toEqual([2]);
+    expect(component.subject).toBe('Disponible');
+    expect(notifications.info).toHaveBeenCalledWith('availabilityEmails.againReady', 6000, { count: 1 });
   });
 
   it('says when no ESN contact can be written to, or the list cannot be read', () => {

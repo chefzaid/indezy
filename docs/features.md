@@ -953,7 +953,8 @@ emails carry `campaignId`, an exchange keeping it). **Your campaigns** lists the
 something (`GET /api/contacts/emails/campaigns`): the emails sent and still to go, the contacts who answered since
 (an answer recorded on the email, or an exchange from them on or after its day), the opportunities opened since with
 their companies as the client or the ESN, and the missions won among them. A campaign that cannot be started leaves its
-emails going without one. The subject and message are written from the availability date and the network post when the section
+emails going without one. **Prospect again (N new)** on a campaign ticks every contact listed today that it did not
+write to or plan for (`contactIds`), its subject back, for a new sending. The subject and message are written from the availability date and the network post when the section
 opens, `{{firstName}}`, `{{company}}` and `{{mission}}` (the title of the newest offer naming a profile skill their company published in the last 60 days, `mission` on each recipient; a line holding it is left out for a contact without one) replaced by each contact's; **Edit** beside a ticked contact opens their own message, written from the shared one, sent in its place (**Back to the shared message** undoes it); **Send to N contacts** sends one email each, one after the other, with the dossier attached unless unticked,
 each recorded in the contact's exchanges and counted in the 50 a day; those that could not go are named and stay ticked.
 

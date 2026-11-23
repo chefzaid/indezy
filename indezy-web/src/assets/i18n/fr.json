@@ -5246,6 +5246,8 @@
     "attached": "Vous trouverez mon dossier de compétences en pièce jointe.",
     "answers": "a répondu {{count}} fois",
     "postings": "a publié {{count}} missions pour vous récemment",
+    "again": "Prospecter à nouveau ({{count}} nouveaux)",
+    "againReady": "{{count}} contacts que cette campagne n'a pas touchés sont cochés : relisez le message, puis envoyez.",
     "campaigns": "Vos campagnes",
     "results": "{{sent}} envoyés · {{answered}} réponses · {{opportunities}} opportunités · {{won}} gagnées",
     "stillWaiting": "{{count}} encore à partir",

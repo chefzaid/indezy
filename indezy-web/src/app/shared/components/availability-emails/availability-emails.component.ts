@@ -121,6 +121,11 @@ import { NotificationService } from '../../../services/notification/notification
                   · {{ 'availabilityEmails.stillWaiting' | translate:{ count: campaign.waiting } }}
                 }
               </span>
+              @if (newTargets(campaign).length) {
+                <button mat-button type="button" (click)="prospectAgain(campaign)" [attr.data-campaign-again]="campaign.id">
+                  <mat-icon>replay</mat-icon>{{ 'availabilityEmails.again' | translate:{ count: newTargets(campaign).length } }}
+                </button>
+              }
             </li>
           }
         </ul>
@@ -212,6 +217,20 @@ export class AvailabilityEmailsComponent implements OnInit {
       },
       error: () => undefined
     });
+  }
+
+  /** The contacts listed today that the campaign did not write to. */
+  newTargets(campaign: ProspectionCampaign): AvailabilityRecipient[] {
+    const reached = new Set(campaign.contactIds ?? []);
+    return (this.recipients ?? []).filter(recipient => !reached.has(recipient.id));
+  }
+
+  /** Starts again from a campaign: its subject, and every contact listed today that it did not write to ticked. */
+  prospectAgain(campaign: ProspectionCampaign): void {
+    this.chosen.clear();
+    this.newTargets(campaign).forEach(recipient => this.chosen.add(recipient.id));
+    this.subject = campaign.name;
+    this.notifications.info('availabilityEmails.againReady', 6000, { count: this.chosen.size });
   }
 
   /** A new campaign for this sending, named after its subject; none (the emails still go) when it cannot be started. */

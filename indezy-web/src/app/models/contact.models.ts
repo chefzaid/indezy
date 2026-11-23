@@ -96,6 +96,8 @@ export interface ProspectionCampaign {
   answered: number;
   opportunities: number;
   won: number;
+  /** The contacts it wrote or plans to write to. */
+  contactIds: number[];
 }
 
 /** Emails to send later from Indezy, spread over working days (9:00 to 17:00 in Paris, Monday to Friday). */
