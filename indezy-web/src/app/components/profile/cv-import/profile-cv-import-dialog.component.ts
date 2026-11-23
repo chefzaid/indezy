@@ -9,8 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, catchError, first, forkJoin, of } from 'rxjs';
-import { AiImportedCertification, AiImportedPosition, AiImportedSchool, AiProfileImport, Education, Experience, SkillDetail, Training,
-  UserProfile } from '../../../models';
+import { AiImportedCertification, AiImportedPosition, AiImportedSchool, AiProfileImport, Education, Experience, SkillDetail, SkillLevel,
+  Training, UserProfile } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { CareerService } from '../../../services/career/career.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -262,7 +262,7 @@ export class ProfileCvImportDialogComponent {
   rows: CvImportRow[] = [];
   readonly maxSkills = CV_IMPORT_SKILLS_MAX;
   /** Skills the profile lacks; past the limit, each is chosen on its own, at most {@link room}. */
-  skills: { name: string; years: number; chosen: boolean }[] = [];
+  skills: { name: string; years: number; level?: SkillLevel | null; chosen: boolean }[] = [];
   /** Skills found that the profile already names, under another spelling or alias too, as the profile writes them. */
   skillsHere: string[] = [];
   room = 0;
@@ -290,7 +290,7 @@ export class ProfileCvImportDialogComponent {
   }
 
   /** The skills to add: all when they fit and are ticked, else those chosen. */
-  get skillsTaken(): { name: string; years: number }[] {
+  get skillsTaken(): { name: string; years: number; level?: SkillLevel | null }[] {
     return this.overLimit ? this.skills.filter(skill => skill.chosen) : this.takeSkills ? this.skills : [];
   }
 
@@ -355,7 +355,7 @@ export class ProfileCvImportDialogComponent {
     const key = (skill: string): string => skillKey(names.canonical(skill));
     const listed = new Map((current.skills ?? []).map(skill => [key(skill), skill]));
     const seen = new Set<string>();
-    const found = (reading.skills ?? []).filter(skill => skill.name?.trim()).map(skill => ({ name: names.canonical(skill.name), years: skill.years }))
+    const found = (reading.skills ?? []).filter(skill => skill.name?.trim()).map(skill => ({ name: names.canonical(skill.name), years: skill.years, level: skill.level ?? null }))
       .filter(skill => !seen.has(key(skill.name)) && !!seen.add(key(skill.name)));
     this.skillsHere = found.filter(skill => listed.has(key(skill.name))).map(skill => listed.get(key(skill.name)) as string);
     this.room = Math.max(0, CV_IMPORT_SKILLS_MAX - listed.size);
@@ -395,7 +395,8 @@ export class ProfileCvImportDialogComponent {
     const skills = this.skillsTaken;
     if (skills.length) {
       const details: Record<string, SkillDetail> = { ...this.data.current.skillDetails };
-      skills.filter(skill => skill.years > 0).forEach(skill => details[skill.name] = { years: skill.years });
+      skills.filter(skill => skill.years > 0 || skill.level).forEach(skill => details[skill.name] = {
+        ...(skill.years > 0 ? { years: skill.years } : {}), ...(skill.level ? { level: skill.level } : {}) });
       patch.skills = [...(this.data.current.skills ?? []), ...skills.map(skill => skill.name)];
       patch.skillDetails = details;
     }

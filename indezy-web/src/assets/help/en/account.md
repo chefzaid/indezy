@@ -73,7 +73,7 @@ A webhook tells your tools (Zapier, Make, n8n, a script) about your workspace's 
 
 ## Fill in your profile from your CV or LinkedIn
 
-**Profile → Personal information → Import my profile** reads your CV (PDF, Word or OpenDocument, 10 MB at most, read by AI) or LinkedIn's archive of your data (read without AI) into your profile's fields: name, phone, city, position, company, presentation, links, languages, skills with their years, and certifications. The file is not kept.
+**Profile → Personal information → Import my profile** reads your CV (PDF, Word or OpenDocument, 10 MB at most, read by AI) or LinkedIn's archive of your data (read without AI) into your profile's fields: name, phone, city, position, company, presentation, links, languages, skills with their years (and the level your CV states), and certifications. The file is not kept.
 
 To get LinkedIn's archive: on LinkedIn, **Settings & Privacy → Data privacy → Get a copy of your data**; LinkedIn emails you a ZIP, usually within a day. Quicker, your profile's PDF: on your own LinkedIn profile, **More → Save to PDF**. It is read without AI too, but lists only your three top skills and your certifications without their dates.
 

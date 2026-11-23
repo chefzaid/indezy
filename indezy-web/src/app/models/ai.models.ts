@@ -1,5 +1,6 @@
 import { WorkMode } from './project.models';
 import { DocumentLanguage } from './activity-report.models';
+import { SkillLevel } from './user-management.models';
 
 /** Whether AI can be used, through whose key, and this month's allowance in US dollars. */
 export interface AiStatus {
@@ -82,7 +83,8 @@ export interface AiProfileImport {
   linkedin: string | null;
   github: string | null;
   languages: string[];
-  skills: { name: string; years: number }[];
+  /** Each with its years, and the level the CV states when it states one. */
+  skills: { name: string; years: number; level?: SkillLevel | null }[];
   /** Certifications named, their dates as YYYY-MM-DD. */
   certifications?: AiImportedCertification[];
   /** The positions listed, months as YYYY-MM-DD, the end empty while it runs. */

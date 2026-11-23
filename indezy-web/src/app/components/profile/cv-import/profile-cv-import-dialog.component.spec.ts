@@ -25,7 +25,7 @@ describe('ProfileCvImportDialogComponent', () => {
   const reading: AiProfileImport = {
     firstName: 'Alice', lastName: 'Martin', phone: null, city: 'Lyon', position: 'Lead Java', company: null, bio: 'b'.repeat(600),
     website: null, linkedin: null, github: null, languages: ['Anglais', 'Klingon', 'Français'],
-    skills: [{ name: 'Java', years: 10 }, { name: 'Kafka', years: 4 }, { name: 'Scrum', years: 0 }]
+    skills: [{ name: 'Java', years: 10 }, { name: 'Kafka', years: 4 }, { name: 'Scrum', years: 0, level: 'ADVANCED' }]
   };
 
   function create(current: Partial<UserProfile>): ProfileCvImportDialogComponent {
@@ -84,7 +84,7 @@ describe('ProfileCvImportDialogComponent', () => {
     component.apply();
     expect(dialogRef.close).toHaveBeenCalledWith({
       city: 'Lyon', bio: 'b'.repeat(500), skills: ['java', 'Kafka', 'Scrum'],
-      skillDetails: { java: { level: 'EXPERT' }, Kafka: { years: 4 } }, languages: ['Français', 'Anglais']
+      skillDetails: { java: { level: 'EXPERT' }, Kafka: { years: 4 }, Scrum: { level: 'ADVANCED' } }, languages: ['Français', 'Anglais']
     });
   });
 

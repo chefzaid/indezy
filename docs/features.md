@@ -259,7 +259,8 @@ becomes Anglais), and `Certifications.csv` the certifications (name, authority, 
 expiry). Columns are found by their names and notes above a header skipped; the archive's other files are not
 read, and an archive of over 2,000 files, a file of over 5 MB in it or a file that is not one is refused. All three end on
 the same review: each field found beside the profile's value, ticked when the profile's is empty, new skills and languages
-added under the skill names' usual spelling, and nothing saved until the profile is. Skills the profile already names
+added under the skill names' usual spelling (with the level a CV states, read by AI), and nothing saved until the profile
+is. Skills the profile already names
 (spellings and the known aliases folded together, as in the skills editor) are listed as there, languages the profile
 does not offer as left out, and when more new skills are found than the 50-skill limit leaves room for, the freelancer
 picks which, the first ones preselected. Certifications (also read from a CV by AI, 30 at most, dates as

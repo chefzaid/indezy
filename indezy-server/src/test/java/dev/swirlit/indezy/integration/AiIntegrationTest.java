@@ -74,7 +74,7 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
             } else if (body.contains("CV into their profile")) {
                 answer = message("{\"firstName\":\"Alice\",\"lastName\":\" Martin \",\"phone\":\"\",\"city\":\"Lyon\",\"position\":\"Lead Java\"," +
                     "\"company\":null,\"bio\":\"Dix ans de Java.\",\"website\":null,\"linkedin\":null,\"github\":null," +
-                    "\"languages\":[\"Anglais\",\" \"],\"skills\":[{\"name\":\"Java\",\"years\":10},{\"name\":\"java\",\"years\":3}," +
+                    "\"languages\":[\"Anglais\",\" \"],\"skills\":[{\"name\":\"Java\",\"years\":10,\"level\":\"EXPERT\"},{\"name\":\"java\",\"years\":3}," +
                     "{\"name\":\"Kafka\",\"years\":99}],\"certifications\":[{\"name\":\"AWS Solutions Architect\",\"authority\":\" \"," +
                     "\"obtainedOn\":\"2024-03\",\"expiresOn\":\"bientôt\"},{\"name\":\"aws solutions architect\"},{\"name\":\" \"}]," +
                     "\"positions\":[{\"employer\":\"Banque X\",\"title\":\"Dev Java\",\"startsOn\":\"2015-09\",\"endsOn\":\"\"},{\"employer\":\" \"," +
@@ -409,6 +409,7 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
             .containsEntry("position", "Lead Java").containsEntry("languages", List.of("Anglais"));
         assertThat((List<Map<String, Object>>) read.get("skills")).extracting(skill -> skill.get("name") + ":" + skill.get("years"))
             .containsExactly("Java:10", "Kafka:50");
+        assertThat((List<Map<String, Object>>) read.get("skills")).extracting(skill -> skill.get("level")).containsExactly("EXPERT", null);
         // Certifications named once, their dates read where they can be.
         assertThat((List<Map<String, Object>>) read.get("certifications")).extracting(certification -> certification.get("name") + ":" +
             certification.get("authority") + ":" + certification.get("obtainedOn") + ":" + certification.get("expiresOn"))

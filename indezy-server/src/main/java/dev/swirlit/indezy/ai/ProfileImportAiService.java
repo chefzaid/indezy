@@ -4,6 +4,7 @@ import com.anthropic.models.messages.OutputConfig;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.media.NetworkDocuments;
+import dev.swirlit.indezy.model.enums.SkillLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,9 @@ public class ProfileImportAiService {
         You read a French freelance IT consultant's CV into their profile's fields. Fill only what the CV states; leave the
         rest empty or 0. The presentation is the CV's profile or summary paragraph, as written. Skills are technologies,
         languages, frameworks and methods, each with the years of experience the dated positions mentioning it suggest
-        (0 when unclear). Spoken languages go in languages, not skills. Certifications are the ones the CV names, with
+        (0 when unclear) and the level the CV states for it (BEGINNER, INTERMEDIATE, ADVANCED or EXPERT, from words such as
+        "notions", "intermédiaire", "confirmé", "expert" or a rating), empty when it states none. Spoken languages go in
+        languages, not skills. Certifications are the ones the CV names, with
         their issuer and dates when given. Positions are every job or mission the CV lists, with its months and what was
         done; education is the schools and degrees with their years.""";
 
@@ -54,7 +57,13 @@ public class ProfileImportAiService {
 
     /** A skill and its years. */
     public record Skill(@JsonPropertyDescription("The skill as usually written") String name,
-                        @JsonPropertyDescription("Years of experience with it, or 0") int years) {
+                        @JsonPropertyDescription("Years of experience with it, or 0") int years,
+                        @JsonPropertyDescription("The level the CV states for it, else empty") SkillLevel level) {
+
+        /** A skill whose level nothing states. */
+        public Skill(String name, int years) {
+            this(name, years, null);
+        }
     }
 
     /** A certification and its dates, as {@code YYYY-MM-DD} or {@code YYYY-MM}. */
@@ -127,7 +136,7 @@ public class ProfileImportAiService {
             blank(reading.github()),
             reading.languages().stream().map(String::strip).filter(language -> !language.isEmpty()).distinct().toList(),
             reading.skills().stream().filter(skill -> skill.name() != null && !skill.name().isBlank())
-                .map(skill -> new Skill(skill.name().strip(), Math.clamp(skill.years(), 0, YEARS_MAX)))
+                .map(skill -> new Skill(skill.name().strip(), Math.clamp(skill.years(), 0, YEARS_MAX), skill.level()))
                 .filter(distinctByName()).limit(SKILLS_MAX).toList(),
             reading.certifications().stream().filter(certification -> certification.name() != null && !certification.name().isBlank())
                 .map(certification -> new Certification(clip(certification.name()), clip(blank(certification.authority())),
