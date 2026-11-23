@@ -1,5 +1,6 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -75,6 +76,20 @@ describe('AvailabilityEmailsComponent', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('details')!.open).toBeTrue();
     expect(fixture.componentInstance.subject).toBe('Disponible à partir du 1 février 2027');
     expect(fixture.componentInstance.reminderBody).toBe('availabilityEmails.reminderText');
+  });
+
+  it('copies a contact\'s message as it would go, to send it on LinkedIn', () => {
+    const { fixture, component, notifications } = create();
+    const clipboard = TestBed.inject(Clipboard);
+    const copy = spyOn(clipboard, 'copy').and.returnValue(true);
+    component.body = 'Bonjour {{firstName}},';
+    component.recipients = [lea, marc];
+    component.toggle(1);
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck();
+    fixture.detectChanges();
+    ((fixture.nativeElement as HTMLElement).querySelector('[data-recipient-copy="1"]') as HTMLButtonElement).click();
+    expect(copy).toHaveBeenCalledWith('Bonjour Léa,');
+    expect(notifications.success).toHaveBeenCalledWith('availabilityEmails.copied');
   });
 
   it('plans one reminder for each contact the emails went to, when asked', () => {

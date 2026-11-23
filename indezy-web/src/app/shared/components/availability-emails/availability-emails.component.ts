@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { DatePipe } from '@angular/common';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, concatMap, from, map, of, catchError, switchMap, toArray } from 'rxjs';
 import { AvailabilityRecipient, DocumentLanguage, ProspectionCampaign, ScheduledEmail } from '../../../models';
@@ -63,6 +64,10 @@ export const SILENT_LIMIT = 2;
                 <button mat-button type="button" (click)="edit(recipient)" [attr.data-recipient-edit]="recipient.id"
                   [attr.aria-expanded]="editing === recipient.id">
                   {{ (own.has(recipient.id) ? 'availabilityEmails.edited' : 'availabilityEmails.edit') | translate }}
+                </button>
+                <button mat-button type="button" (click)="copyFor(recipient)" [attr.data-recipient-copy]="recipient.id"
+                  [attr.aria-label]="'availabilityEmails.copyFor' | translate:{ name: recipient.name }">
+                  {{ 'availabilityEmails.copy' | translate }}
                 </button>
               }
               @if (editing === recipient.id) {
@@ -216,6 +221,7 @@ export class AvailabilityEmailsComponent implements OnInit {
 
   private readonly contacts = inject(ContactService);
   private readonly ai = inject(AiService);
+  private readonly clipboard = inject(Clipboard);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
   private readonly changes = inject(ChangeDetectorRef);
@@ -426,6 +432,13 @@ export class AvailabilityEmailsComponent implements OnInit {
       },
       error: () => this.notifications.error('availabilityEmails.remindersFailed')
     });
+  }
+
+  /** Copies a contact's message as it would go, to send it another way (a LinkedIn message, a candidate portal). */
+  copyFor(recipient: AvailabilityRecipient): void {
+    if (this.clipboard.copy(this.written(recipient).body)) {
+      this.notifications.success('availabilityEmails.copied');
+    }
   }
 
   /** Opens or closes the message of one contact, written from the shared one until changed. */

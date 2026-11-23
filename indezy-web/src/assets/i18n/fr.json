@@ -5406,7 +5406,10 @@
     "reminderText": "Bonjour {{firstName}},\n\nJe me permets de revenir vers vous au sujet de mon message de la semaine dernière : je serais ravi d'échanger sur vos missions en cours ou à venir.\n\nBien cordialement",
     "reminderTag": "relance",
     "remindersPlanned": "{{count}} relance(s) prévue(s), 5 jours ouvrés après chaque e-mail.",
-    "remindersFailed": "Les relances n'ont pas pu être prévues."
+    "remindersFailed": "Les relances n'ont pas pu être prévues.",
+    "copy": "Copier",
+    "copyFor": "Copier le message à {{name}}",
+    "copied": "Message copié : collez-le dans LinkedIn ou le portail de l'ESN."
   },
   "marketReport": {
     "title": "Baromètre des TJM freelance IT",

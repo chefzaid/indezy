@@ -5406,7 +5406,10 @@
     "reminderText": "Hello {{firstName}},\n\nI am following up on my message of last week: I would be glad to talk about your current or upcoming missions.\n\nBest regards",
     "reminderTag": "reminder",
     "remindersPlanned": "{{count}} reminder(s) planned, 5 working days after each email.",
-    "remindersFailed": "The reminders could not be planned."
+    "remindersFailed": "The reminders could not be planned.",
+    "copy": "Copy",
+    "copyFor": "Copy the message to {{name}}",
+    "copied": "Message copied: paste it in LinkedIn or the ESN's portal."
   },
   "marketReport": {
     "title": "IT freelance market report",
