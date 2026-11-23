@@ -7,10 +7,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DocumentTemplate, DocumentTemplateKind } from '../../../models';
 import { BillingService } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
-import { saveBlob } from '../../../shared/utils/download-file';
+import { copyExtension, saveBlob } from '../../../shared/utils/download-file';
 
 /**
- * The Word templates of the invoices and the quotes (see docs/features.md#invoices): each uploaded with its placeholders,
+ * The Word templates (or fillable PDF forms) of the invoices and the quotes (see docs/features.md#invoices): each uploaded with its placeholders,
  * shown with those it uses, those unknown and the mentions it lacks, which the filled documents add at their end.
  */
 @Component({
@@ -25,7 +25,7 @@ import { saveBlob } from '../../../shared/utils/download-file';
       @for (kind of kinds; track kind) {
         <div class="kind" [attr.data-billing-template]="kind">
           <h3>{{ 'billingTemplates.kinds.' + kind | translate }}</h3>
-          <input #file type="file" hidden accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          <input #file type="file" hidden accept=".docx,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
             (change)="upload(kind, $event)" [attr.data-billing-template-file]="kind" [attr.aria-label]="'billingTemplates.upload' | translate">
           @if (template(kind); as current) {
             <p class="file"><mat-icon aria-hidden="true">description</mat-icon>{{ current.fileName }}</p>
@@ -134,7 +134,7 @@ export class BillingTemplatesComponent implements OnInit {
     if (!file) {
       return;
     }
-    if (file.size > 5 * 1024 * 1024 || !/\.docx$/i.test(file.name)) {
+    if (file.size > 5 * 1024 * 1024 || !/\.(docx|pdf)$/i.test(file.name)) {
       this.notifications.error('billingTemplates.refused');
       return;
     }
@@ -150,6 +150,10 @@ export class BillingTemplatesComponent implements OnInit {
         const reason = error.status === 400 ? (error.error as { message?: string } | null)?.message ?? '' : '';
         if (/placeholder/.test(reason)) {
           this.notifications.error('billingTemplates.noPlaceholder', undefined, { example: this.example });
+        } else if (/no form field/.test(reason)) {
+          this.notifications.error('billingTemplates.noField');
+        } else if (/protected|scripts/.test(reason)) {
+          this.notifications.error('billingTemplates.pdfRefused');
         } else {
           this.notifications.error(/macro/.test(reason) ? 'billingTemplates.macros' : 'billingTemplates.refused');
         }
@@ -161,7 +165,7 @@ export class BillingTemplatesComponent implements OnInit {
   /** Downloads the template filled with the latest document, or a sample before the first. */
   preview(kind: DocumentTemplateKind): void {
     this.billing.templatePreview(kind).subscribe({
-      next: blob => saveBlob(blob, kind === 'INVOICE' ? 'apercu-modele-facture.docx' : 'apercu-modele-devis.docx'),
+      next: blob => saveBlob(blob, (kind === 'INVOICE' ? 'apercu-modele-facture.' : 'apercu-modele-devis.') + copyExtension(blob)),
       error: () => this.notifications.error('billingTemplates.previewError')
     });
   }

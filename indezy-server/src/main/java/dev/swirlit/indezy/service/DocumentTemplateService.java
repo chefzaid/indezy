@@ -6,6 +6,7 @@ import dev.swirlit.indezy.media.MalwareScanner;
 import dev.swirlit.indezy.model.DocumentTemplate;
 import dev.swirlit.indezy.model.enums.DocumentTemplateKind;
 import dev.swirlit.indezy.pdf.DocxTemplate;
+import dev.swirlit.indezy.pdf.PdfFormTemplate;
 import dev.swirlit.indezy.repository.DocumentTemplateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +32,11 @@ public class DocumentTemplateService {
     @Transactional
     public DocumentTemplateDto upload(Long freelanceId, DocumentTemplateKind kind, String originalName, byte[] bytes) {
         if (bytes.length == 0 || bytes.length > DocumentTemplate.MAX_BYTES) {
-            throw new FieldRejectedException("file", "A Word template holds 5 MB at most");
+            throw new FieldRejectedException("file", "A template holds 5 MB at most");
         }
         DocxTemplate.Analysis analysis;
         try {
-            analysis = DocxTemplate.analyse(bytes);
+            analysis = analyse(bytes);
         } catch (IllegalArgumentException e) {
             throw new FieldRejectedException("file", e.getMessage());
         }
@@ -57,7 +58,7 @@ public class DocumentTemplateService {
     @Transactional(readOnly = true)
     public List<DocumentTemplateDto> list(Long freelanceId) {
         return templates.findByFreelanceId(freelanceId).stream().sorted(Comparator.comparing(DocumentTemplate::getKind))
-            .map(template -> dto(template, DocxTemplate.analyse(template.getContent()))).toList();
+            .map(template -> dto(template, analyse(template.getContent()))).toList();
     }
 
     /** The template of a kind, as uploaded; none when there is none. */
@@ -69,6 +70,11 @@ public class DocumentTemplateService {
     @Transactional
     public void remove(Long freelanceId, DocumentTemplateKind kind) {
         templates.findByFreelanceIdAndKind(freelanceId, kind).ifPresent(templates::delete);
+    }
+
+    /** A Word template's placeholders, or a fillable PDF form's fields. */
+    private static DocxTemplate.Analysis analyse(byte[] bytes) {
+        return PdfFormTemplate.isPdf(bytes) ? PdfFormTemplate.analyse(bytes) : DocxTemplate.analyse(bytes);
     }
 
     private static DocumentTemplateDto dto(DocumentTemplate template, DocxTemplate.Analysis analysis) {

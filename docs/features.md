@@ -1360,6 +1360,15 @@ are `{{document.title|number|issueDate|dueDate|period|validUntil|draft}}`, `{{se
 a part between `{{#vatExempt}}` and `{{/vatExempt}}` shows only without VAT, after `{{^vatExempt}}` only with it. The help
 center's **Document templates** article (`/help/document-templates`) lists every placeholder with its meaning and an
 example, in both languages; `PlaceholderGuideTest` fails when it misses one the filler knows.
+
+A **fillable PDF form** goes in the same place instead of a `.docx` (`PdfFormTemplate`, read by its `%PDF` start): its
+fields are named after the placeholders, a field `number` inside a field `invoice` or a flat `invoice_number`, a line's
+`line_description_1`, `line_amount_1`… for the first row, `_2` for the second, and a check box `vatExempt`. Refused
+protected, with scripts or without any field; the analysis lists the fields known, those unknown and the mentions it
+lacks. **Download as Word** then fills it in Liberation Sans (the field's size kept), flattens the form and answers a
+PDF (`application/pdf`, the file name ending in `.pdf`): the lines past the form's rows and the mentions it has no field
+for go on a page added at the end. Like the Word copy it is a copy for the freelancer; the invoice sent stays the
+built-in Factur-X PDF.
 Word splits a typed placeholder across runs: a paragraph holding one is written as one run first, its breaks and tabs
 kept. On upload the page shows the placeholders found, those unknown (left as written) and the mentions the template
 lacks (number, date, seller, client, lines, totals, mentions), which the filled document adds at its end rather than

@@ -5316,8 +5316,8 @@
     "removeError": "Your CV could not be removed."
   },
   "billingTemplates": {
-    "title": "Word templates",
-    "hint": "Lay out your invoices or quotes in Word with placeholders such as {{example}}; Download as Word then fills your template. The PDF keeps the built-in layout and its style.",
+    "title": "Word templates and PDF forms",
+    "hint": "Lay out your invoices or quotes in Word with placeholders such as {{example}}, or send a fillable PDF form whose fields are named after them (invoice_number, or a field number inside a field invoice; line_description_1 for the first line's); Download as Word then fills your template. The PDF keeps the built-in layout and its style.",
     "kinds": {
       "INVOICE": "Invoices and credit notes",
       "QUOTE": "Quotes"
@@ -5333,9 +5333,11 @@
     "unknown": "Unknown, left as written: {{names}}",
     "missing": "Mentions it lacks, added at its end: {{mentions}}",
     "saved": "Template saved.",
-    "refused": "This file cannot be a template: send a .docx of 5 MB at most.",
+    "refused": "This file cannot be a template: send a .docx or a PDF form of 5 MB at most.",
     "noPlaceholder": "This document holds no placeholder: add them where the values go, such as {{example}}.",
     "macros": "This document holds macros: save it as a .docx without them.",
+    "noField": "This PDF has no form field: name its fields after the placeholders, such as invoice_number.",
+    "pdfRefused": "This PDF is protected or holds scripts: save it without them.",
     "placeholders": "Placeholders to copy",
     "placeholdersHint": "Click one to copy it; {{invoice}} and {{quote}} work as {{document}}.",
     "copy": "Copy {{name}}",

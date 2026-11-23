@@ -98,11 +98,12 @@ public class BillingController {
         return DocxTemplate.PLACEHOLDERS;
     }
 
-    @Operation(summary = "Set the Word template of the invoices or of the quotes", description = "A .docx of 5 MB at most, without macros")
+    @Operation(summary = "Set the Word template or fillable PDF form of the invoices or of the quotes",
+        description = "A .docx of 5 MB at most without macros, or a PDF form whose fields are named after the placeholders")
     @PostMapping(value = "/templates/{kind}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public DocumentTemplateDto uploadTemplate(@PathVariable DocumentTemplateKind kind, @RequestParam("file") MultipartFile file) throws IOException {
         if (file.getSize() > DocumentTemplate.MAX_BYTES) {
-            throw new IllegalArgumentException("A Word template holds 5 MB at most");
+            throw new IllegalArgumentException("A template holds 5 MB at most");
         }
         return templates.upload(workspace(), kind, file.getOriginalFilename(), file.getBytes());
     }

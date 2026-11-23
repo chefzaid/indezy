@@ -90,3 +90,9 @@ Put a part between `{{#vatExempt}}` and `{{/vatExempt}}` to show it only when VA
 - Values on several lines, such as an address, keep their line breaks.
 
 > **Tip:** Word splits a placeholder typed with mixed formatting (part bold, part not) into pieces. Indezy joins them back, but give a whole placeholder the same formatting: the filled value takes the formatting of its paragraph's first piece.
+
+## A fillable PDF form instead
+
+You can also upload a **fillable PDF form** (made in Acrobat, LibreOffice or any PDF editor) in place of a Word document. Name its fields after the placeholders, without braces: a field `number` inside a field `invoice` (written `invoice.number` by most editors), or simply `invoice_number`. A line's fields carry its row: `line_description_1` and `line_amount_1` for the first line, `_2` for the second. A check box named `vatExempt` is ticked when you charge no VAT.
+
+**Download as Word** then gives a PDF: your form filled in and flattened. Lines beyond the form's rows, and the mentions it has no field for, go on a page added at the end. A protected PDF, one with scripts or one without fields is refused. Like the Word copy, it is a copy for you: the invoice you send stays the built-in Factur-X PDF.

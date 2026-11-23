@@ -90,3 +90,9 @@ Placez une partie entre `{{#vatExempt}}` et `{{/vatExempt}}` pour ne la montrer 
 - Les valeurs sur plusieurs lignes, comme une adresse, gardent leurs retours à la ligne.
 
 > **Astuce :** Word découpe en morceaux un champ tapé avec une mise en forme mêlée (en partie en gras, en partie non). Indezy les recolle, mais donnez à tout le champ la même mise en forme : la valeur prend celle du premier morceau de son paragraphe.
+
+## Un formulaire PDF à la place
+
+Vous pouvez aussi envoyer un **formulaire PDF à remplir** (fait dans Acrobat, LibreOffice ou tout éditeur de PDF) à la place d'un document Word. Nommez ses champs d'après les variables, sans accolades : un champ `number` dans un champ `invoice` (écrit `invoice.number` par la plupart des éditeurs), ou simplement `invoice_number`. Les champs d'une ligne portent son rang : `line_description_1` et `line_amount_1` pour la première ligne, `_2` pour la deuxième. Une case à cocher nommée `vatExempt` est cochée quand vous ne facturez pas de TVA.
+
+**Télécharger en Word** donne alors un PDF : votre formulaire rempli et aplati. Les lignes au-delà des rangées du formulaire, et les mentions pour lesquelles il n'a pas de champ, vont sur une page ajoutée à la fin. Un PDF protégé, avec des scripts ou sans champ est refusé. Comme la copie Word, c'est une copie pour vous : la facture que vous envoyez reste le PDF Factur-X intégré.

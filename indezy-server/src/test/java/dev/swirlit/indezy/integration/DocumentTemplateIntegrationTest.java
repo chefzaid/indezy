@@ -58,6 +58,29 @@ class DocumentTemplateIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(builtIn).contains("Facturé à").doesNotContain("{{iban.inconnu}}");
     }
 
+    @Test
+    void fillsTheWorkspacesPdfFormForItsQuotes() throws IOException {
+        byte[] form = dev.swirlit.indezy.pdf.PdfFormTemplateTest.form(List.of("quote.number", "client_name", "line_description_1", "line_amount_1",
+            "totals_toPay", "Visa"));
+        ResponseEntity<Map> uploaded = upload("QUOTE", "formulaire.pdf", form);
+        assertThat(uploaded.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(uploaded.getBody()).containsEntry("fileName", "formulaire.pdf").containsEntry("unknown", List.of("Visa"))
+            .containsEntry("missing", List.of("date", "seller", "mentions"));
+        assertThat(upload("INVOICE", "vide.pdf", dev.swirlit.indezy.pdf.PdfFormTemplateTest.form(List.of())).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+
+        long quote = idOf(call(alice, HttpMethod.POST, "/quotes", Map.of("clientId", aliceClientId, "language", "FR",
+            "lines", List.of(Map.of("description", "Cadrage", "quantity", 3, "unitPrice", 700, "vatRate", 20))), Map.class));
+        ResponseEntity<byte[]> copy = call(alice, HttpMethod.GET, "/quotes/" + quote + "/docx", null, byte[].class);
+        assertThat(copy.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PDF);
+        assertThat(copy.getHeaders().getContentDisposition().getFilename()).endsWith(".pdf");
+        try (org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.Loader.loadPDF(copy.getBody())) {
+            assertThat(new org.apache.pdfbox.text.PDFTextStripper().getText(document)).contains("Cadrage", "2 100,00 €");
+        }
+        assertThat(call(alice, HttpMethod.GET, "/quotes/template-preview", null, byte[].class).getHeaders().getContentType())
+            .isEqualTo(MediaType.APPLICATION_PDF);
+    }
+
     private ResponseEntity<Map> upload(String kind, String name, byte[] content) {
         LinkedMultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         form.add("file", new ByteArrayResource(content) {

@@ -5316,8 +5316,8 @@
     "removeError": "Votre CV n'a pas pu être supprimé."
   },
   "billingTemplates": {
-    "title": "Modèles Word",
-    "hint": "Mettez en page vos factures ou devis dans Word avec des champs comme {{example}} ; Télécharger en Word remplit alors votre modèle. Le PDF garde la mise en page intégrée et son style.",
+    "title": "Modèles Word et formulaires PDF",
+    "hint": "Mettez en page vos factures ou devis dans Word avec des champs comme {{example}}, ou envoyez un formulaire PDF à remplir dont les champs portent leurs noms (invoice_number, ou un champ number dans un champ invoice ; line_description_1 pour celui de la première ligne) ; Télécharger en Word remplit alors votre modèle. Le PDF garde la mise en page intégrée et son style.",
     "kinds": {
       "INVOICE": "Factures et avoirs",
       "QUOTE": "Devis"
@@ -5333,9 +5333,11 @@
     "unknown": "Inconnus, laissés tels quels : {{names}}",
     "missing": "Mentions absentes, ajoutées à la fin : {{mentions}}",
     "saved": "Modèle enregistré.",
-    "refused": "Ce fichier ne peut pas servir de modèle : envoyez un .docx de 5 Mo au plus.",
+    "refused": "Ce fichier ne peut pas servir de modèle : envoyez un .docx ou un formulaire PDF de 5 Mo au plus.",
     "noPlaceholder": "Ce document ne contient aucun champ : ajoutez-les là où vont les valeurs, comme {{example}}.",
     "macros": "Ce document contient des macros : enregistrez-le en .docx sans elles.",
+    "noField": "Ce PDF n'a aucun champ de formulaire : nommez ses champs d'après les variables, comme invoice_number.",
+    "pdfRefused": "Ce PDF est protégé ou contient des scripts : enregistrez-le sans.",
     "placeholders": "Champs à copier",
     "placeholdersHint": "Cliquez sur l'un d'eux pour le copier ; {{invoice}} et {{quote}} valent {{document}}.",
     "copy": "Copier {{name}}",

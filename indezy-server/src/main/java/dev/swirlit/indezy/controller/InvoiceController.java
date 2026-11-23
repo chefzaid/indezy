@@ -134,14 +134,14 @@ public class InvoiceController {
     @GetMapping("/template-preview")
     public ResponseEntity<byte[]> templatePreview() {
         ActivityReportService.PdfFile file = invoices.previewTemplate(workspace());
-        return PdfResponses.attachment(file.fileName(), PdfResponses.DOCX, file.content());
+        return PdfResponses.copy(file);
     }
 
     @Operation(summary = "The invoice as a Word file laid out like its PDF")
     @GetMapping("/{id}/docx")
     public ResponseEntity<byte[]> docx(@PathVariable Long id) {
         ActivityReportService.PdfFile file = invoices.renderDocx(workspace(), id);
-        return PdfResponses.attachment(file.fileName(), PdfResponses.DOCX, file.content());
+        return PdfResponses.copy(file);
     }
 
     @Operation(summary = "A year of issued invoices for the accountant",

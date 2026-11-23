@@ -7,3 +7,8 @@ export function saveBlob(blob: Blob, fileName: string): void {
   link.click();
   globalThis.URL.revokeObjectURL(url);
 }
+
+/** The extension of a copy from the freelancer's template: pdf for a filled PDF form, docx for a Word one. */
+export function copyExtension(blob: Blob): 'pdf' | 'docx' {
+  return blob.type === 'application/pdf' ? 'pdf' : 'docx';
+}

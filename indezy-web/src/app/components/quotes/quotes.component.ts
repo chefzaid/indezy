@@ -21,7 +21,7 @@ import { ProjectService } from '../../services/project/project.service';
 import { QuoteService } from '../../services/quote/quote.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
-import { saveBlob } from '../../shared/utils/download-file';
+import { copyExtension, saveBlob } from '../../shared/utils/download-file';
 import { InvoiceDateDialogComponent, InvoiceDateDialogData } from '../invoices/date-dialog/invoice-date-dialog.component';
 import { InvoiceDraftDialogComponent, InvoiceDraftDialogData } from '../invoices/draft-dialog/invoice-draft-dialog.component';
 import { quoteErrorKey } from './quote-errors';
@@ -159,7 +159,7 @@ export class QuotesComponent implements OnInit {
   download(quote: Quote, word = false): void {
     const english = quote.language === 'EN';
     (word ? this.quoteService.downloadDocx(quote.id) : this.quoteService.downloadPdf(quote.id)).subscribe({
-      next: blob => saveBlob(blob, `${english ? 'quote' : 'devis'}-${quote.number ?? (english ? 'draft-' : 'brouillon-') + quote.id}.${word ? 'docx' : 'pdf'}`),
+      next: blob => saveBlob(blob, `${english ? 'quote' : 'devis'}-${quote.number ?? (english ? 'draft-' : 'brouillon-') + quote.id}.${word ? copyExtension(blob) : 'pdf'}`),
       error: () => this.notifications.error(word ? 'invoices.wordError' : 'quotes.pdfError')
     });
   }

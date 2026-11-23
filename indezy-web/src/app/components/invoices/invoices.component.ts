@@ -20,7 +20,7 @@ import { AccountingExportFormat, InvoiceService } from '../../services/invoice/i
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProjectService } from '../../services/project/project.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
-import { saveBlob } from '../../shared/utils/download-file';
+import { copyExtension, saveBlob } from '../../shared/utils/download-file';
 import { invoiceErrorKey } from './invoice-errors';
 import { ClientSharesComponent } from './client-shares/client-shares.component';
 import { InvoiceDateDialogComponent, InvoiceDateDialogData } from './date-dialog/invoice-date-dialog.component';
@@ -191,7 +191,7 @@ export class InvoicesComponent implements OnInit {
 
   download(invoice: Invoice, word = false): void {
     (word ? this.invoiceService.downloadDocx(invoice.id) : this.invoiceService.downloadPdf(invoice.id)).subscribe({
-      next: blob => saveBlob(blob, `${this.fileName(invoice)}-${invoice.number ?? 'draft-' + invoice.id}.${word ? 'docx' : 'pdf'}`),
+      next: blob => saveBlob(blob, `${this.fileName(invoice)}-${invoice.number ?? 'draft-' + invoice.id}.${word ? copyExtension(blob) : 'pdf'}`),
       error: () => this.notifications.error(word ? 'invoices.wordError' : 'invoices.pdfError')
     });
   }

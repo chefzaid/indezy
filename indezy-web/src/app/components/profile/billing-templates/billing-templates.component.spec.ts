@@ -64,8 +64,18 @@ describe('BillingTemplatesComponent', () => {
     expect(component.template('QUOTE')?.fileName).toBe('devis.docx');
     expect(notifications.success).toHaveBeenCalledWith('billingTemplates.saved');
 
-    component.upload('QUOTE', picked('devis.pdf'));
+    component.upload('QUOTE', picked('devis.odt'));
     expect(notifications.error).toHaveBeenCalledWith('billingTemplates.refused');
+    // A fillable PDF form goes up too, refused without fields or with scripts.
+    billing.uploadTemplate.and.returnValue(of({ ...invoiceTemplate, kind: 'QUOTE', fileName: 'formulaire.pdf' }));
+    component.upload('QUOTE', picked('formulaire.pdf'));
+    expect(component.template('QUOTE')?.fileName).toBe('formulaire.pdf');
+    billing.uploadTemplate.and.returnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'This PDF has no form field' } })));
+    component.upload('QUOTE', picked('plat.pdf'));
+    expect(notifications.error).toHaveBeenCalledWith('billingTemplates.noField');
+    billing.uploadTemplate.and.returnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'This PDF holds scripts' } })));
+    component.upload('QUOTE', picked('script.pdf'));
+    expect(notifications.error).toHaveBeenCalledWith('billingTemplates.pdfRefused');
     billing.uploadTemplate.and.returnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'holds no placeholder' } })));
     component.upload('INVOICE', picked('vide.docx'));
     expect(notifications.error).toHaveBeenCalledWith('billingTemplates.noPlaceholder', undefined, { example: '{{invoice.number}}' });
@@ -73,7 +83,7 @@ describe('BillingTemplatesComponent', () => {
     component.upload('INVOICE', picked('macro.docx'));
     expect(notifications.error).toHaveBeenCalledWith('billingTemplates.macros');
     component.upload('INVOICE', { target: document.createElement('input') } as unknown as Event);
-    expect(billing.uploadTemplate).toHaveBeenCalledTimes(3);
+    expect(billing.uploadTemplate).toHaveBeenCalledTimes(6);
 
     billing.removeTemplate.and.returnValue(of(undefined));
     component.remove('INVOICE');
@@ -99,6 +109,9 @@ describe('BillingTemplatesComponent', () => {
     component.preview('QUOTE');
     expect(billing.templatePreview).toHaveBeenCalledWith('QUOTE');
     expect(link.download).toBe('apercu-modele-devis.docx');
+    billing.templatePreview.and.returnValue(of(new Blob(['%PDF'], { type: 'application/pdf' })));
+    component.preview('INVOICE');
+    expect(link.download).toBe('apercu-modele-facture.pdf');
     billing.templatePreview.and.returnValue(throwError(() => new Error('down')));
     component.preview('INVOICE');
     expect(notifications.error).toHaveBeenCalledWith('billingTemplates.previewError');

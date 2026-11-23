@@ -15,6 +15,14 @@ public final class PdfResponses {
     /** The media type of a Word document. */
     public static final String DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
+    /** A copy from the freelancer's template: a Word document, or a PDF when the template is a fillable PDF form. */
+    public static ResponseEntity<byte[]> copy(PdfFile file) {
+        if (dev.swirlit.indezy.pdf.PdfFormTemplate.isPdf(file.content())) {
+            return attachment(file.fileName().replaceFirst("\\.docx$", ".pdf"), MediaType.APPLICATION_PDF_VALUE, file.content());
+        }
+        return attachment(file.fileName(), DOCX, file.content());
+    }
+
     public static ResponseEntity<byte[]> attachment(PdfFile file) {
         return attachment(file.fileName(), MediaType.APPLICATION_PDF_VALUE, file.content());
     }

@@ -78,7 +78,8 @@ public final class QuotePdfRenderer {
     }
 
     private byte[] renderDocx(QuotePage page, byte[] template) {
-        return template == null ? BillingDocx.render(page, logoOf(page.seller), page.title()) : DocxTemplate.fill(template, page, logoOf(page.seller));
+        return template == null ? BillingDocx.render(page, logoOf(page.seller), page.title()) :
+            PdfFormTemplate.isPdf(template) ? PdfFormTemplate.fill(template, page) : DocxTemplate.fill(template, page, logoOf(page.seller));
     }
 
     /**

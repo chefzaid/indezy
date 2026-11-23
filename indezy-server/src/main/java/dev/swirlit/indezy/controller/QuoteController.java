@@ -95,14 +95,14 @@ public class QuoteController {
     @GetMapping("/template-preview")
     public ResponseEntity<byte[]> templatePreview() {
         ActivityReportService.PdfFile file = quotes.previewTemplate(workspace());
-        return PdfResponses.attachment(file.fileName(), PdfResponses.DOCX, file.content());
+        return PdfResponses.copy(file);
     }
 
     @Operation(summary = "The quote as a Word file laid out like its PDF")
     @GetMapping("/{id}/docx")
     public ResponseEntity<byte[]> docx(@PathVariable Long id) {
         ActivityReportService.PdfFile file = quotes.renderDocx(workspace(), id);
-        return PdfResponses.attachment(file.fileName(), PdfResponses.DOCX, file.content());
+        return PdfResponses.copy(file);
     }
 
     private Long workspace() {

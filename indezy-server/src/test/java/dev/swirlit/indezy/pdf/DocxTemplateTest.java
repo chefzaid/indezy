@@ -29,7 +29,7 @@ public class DocxTemplateTest {
         }
     }
 
-    private static Invoice invoice() {
+    static Invoice invoice() {
         Invoice invoice = new Invoice();
         invoice.setStatus(InvoiceStatus.ISSUED);
         invoice.setLanguage(DocumentLanguage.FR);
@@ -41,7 +41,7 @@ public class DocxTemplateTest {
         return invoice;
     }
 
-    private static InvoiceSeller seller() {
+    static InvoiceSeller seller() {
         InvoiceSeller seller = new InvoiceSeller();
         seller.setName("Martin Conseil");
         seller.setSiret("55210055400012");
@@ -51,7 +51,7 @@ public class DocxTemplateTest {
         return seller;
     }
 
-    private static InvoiceBuyer buyer() {
+    static InvoiceBuyer buyer() {
         InvoiceBuyer buyer = new InvoiceBuyer();
         buyer.setName("Société Générale & Fils");
         buyer.setAddress("29 boulevard Haussmann\nParis");

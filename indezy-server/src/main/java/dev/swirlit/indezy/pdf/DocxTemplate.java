@@ -42,7 +42,7 @@ public final class DocxTemplate {
     /** The cases a part of the template can be shown in, between {@code {{#case}}} (or {@code {{^case}}} for its opposite) and {@code {{/case}}}. */
     static final List<String> CASES = List.of("vatExempt");
     /** The mentions a document must carry, each satisfied by any of its placeholders. */
-    private static final Map<String, List<String>> REQUIRED = requiredMentions();
+    static final Map<String, List<String>> REQUIRED = requiredMentions();
     private static final Pattern PLACEHOLDER = Pattern.compile("\\{\\{\\s*([#/^]?[A-Za-z]+(?:\\.[A-Za-z]+)?)\\s*}}");
     private static final Pattern PARAGRAPH = Pattern.compile("<w:p[ >].*?</w:p>", Pattern.DOTALL);
     private static final Pattern TEXT = Pattern.compile("(<w:t(?: [^>]*)?>)(.*?)(</w:t>)", Pattern.DOTALL);
