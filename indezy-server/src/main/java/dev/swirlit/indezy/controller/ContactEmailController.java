@@ -144,6 +144,38 @@ public class ContactEmailController {
         schedule.cancel(accessGuard.requireWorkspace(null), id);
     }
 
+    @Operation(summary = "The page of a prospecting email's objection link, asking to confirm", description = "Changes nothing by itself")
+    @GetMapping(value = "/public/emails/object/{token}", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> objectionPage(@PathVariable String token) {
+        java.util.Optional<ContactEmailService.Objection> objection = validToken(token) ? emails.objection(token) : java.util.Optional.empty();
+        if (objection.isEmpty()) {
+            return objectionAnswer(HttpStatus.NOT_FOUND, "Lien inconnu", "Ce lien n'existe pas ou plus. / This link does not exist.", null);
+        }
+        String sender = ContactEmailPages.escape(objection.get().senderName());
+        return objectionAnswer(HttpStatus.OK, "Ne plus être contacté", "Ne plus recevoir d'e-mail de " + sender + " ? / Stop receiving emails from " +
+            sender + "?", token);
+    }
+
+    @Operation(summary = "Object to being contacted again through a prospecting email's link",
+        description = "Marks the contact as asking not to be contacted; the same answer when objected already")
+    @org.springframework.web.bind.annotation.PostMapping(value = "/public/emails/object/{token}", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> object(@PathVariable String token) {
+        if (!validToken(token) || !emails.object(token)) {
+            return objectionAnswer(HttpStatus.NOT_FOUND, "Lien inconnu", "Ce lien n'existe pas ou plus. / This link does not exist.", null);
+        }
+        return objectionAnswer(HttpStatus.OK, "C'est noté", "Vous ne serez plus contacté. / You will not be contacted again.", null);
+    }
+
+    private static boolean validToken(String token) {
+        return token.length() == 43 && token.matches("[A-Za-z0-9_-]+");
+    }
+
+    private static ResponseEntity<String> objectionAnswer(HttpStatus status, String title, String message, String formToken) {
+        return ResponseEntity.status(status).cacheControl(CacheControl.noStore()).contentType(MediaType.TEXT_HTML)
+            .header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'")
+            .header("X-Robots-Tag", "noindex").body(ContactEmailPages.page(title, message, formToken));
+    }
+
     @Operation(summary = "The tracking image of an email sent through Indezy", description = "Counts an open; the same image for any token")
     @GetMapping(value = "/public/emails/{token}.gif", produces = MediaType.IMAGE_GIF_VALUE)
     public ResponseEntity<byte[]> pixel(@PathVariable String token) {

@@ -310,6 +310,52 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void letsTheContactOfACampaignObjectToBeingContactedAgain() throws Exception {
+        long esn = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Objection ESN", "city", "Lyon", "isFinal", false,
+            "freelanceId", alice.freelanceId()), Map.class));
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Java", "dailyRate", 600, "status", "WON", "clientId", esn), Map.class);
+        long tom = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Tom", "lastName", "Objecte", "email", "tom@objection.example",
+            "clientId", esn), Map.class));
+        when(mailer.configured()).thenReturn(true);
+        when(mailer.send(any())).thenReturn("e-30");
+        Object campaign = call(alice, HttpMethod.POST, "/contacts/emails/campaigns", Map.of("name", "Disponible"), Map.class).getBody().get("id");
+        call(alice, HttpMethod.POST, "/contacts/" + tom + "/emails", Map.of("subject", "Disponible", "body", "Bonjour Tom", "campaignId", campaign),
+            Map.class);
+        ArgumentCaptor<Email> sent = ArgumentCaptor.forClass(Email.class);
+        verify(mailer, org.mockito.Mockito.atLeastOnce()).send(sent.capture());
+        Email email = sent.getAllValues().getLast();
+        java.util.regex.Matcher link = java.util.regex.Pattern.compile("/api/public/emails/object/([A-Za-z0-9_-]{43})").matcher(email.text());
+        assertThat(link.find()).as(email.text()).isTrue();
+        assertThat(email.text()).contains("Pour ne plus être contacté par");
+        String token = link.group(1);
+
+        // The link's page asks first, changing nothing; confirming marks the contact, who leaves the list of recipients.
+        ResponseEntity<String> page = exchange("/public/emails/object/" + token, HttpMethod.GET, HttpEntity.EMPTY, String.class);
+        assertThat(page.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(page.getBody()).contains("<form method=\"post\"", "Ne plus recevoir");
+        assertThat(call(alice, HttpMethod.GET, "/contacts/" + tom, null, Map.class).getBody().get("doNotContact")).isNotEqualTo(true);
+        assertThat(exchange("/public/emails/object/" + token, HttpMethod.POST, HttpEntity.EMPTY, String.class).getBody())
+            .contains("Vous ne serez plus contacté");
+        assertThat(call(alice, HttpMethod.GET, "/contacts/" + tom, null, Map.class).getBody()).containsEntry("doNotContact", true);
+        assertThat(exchange("/public/emails/object/" + token, HttpMethod.POST, HttpEntity.EMPTY, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.OK);
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM contact_interactions WHERE contact_id = ? AND direction = 'INCOMING'",
+            Integer.class, tom)).isEqualTo(1);
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody())
+            .noneMatch(recipient -> Long.valueOf(tom).equals(((Number) recipient.get("id")).longValue()));
+        assertThat(exchange("/public/emails/object/" + "x".repeat(43), HttpMethod.GET, HttpEntity.EMPTY, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(exchange("/public/emails/object/nope", HttpMethod.POST, HttpEntity.EMPTY, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+
+        // An email outside a campaign carries no such link.
+        call(alice, HttpMethod.POST, "/contacts/" + tom + "/emails", Map.of("subject", "Point", "body", "Bonjour Tom"), Map.class);
+        verify(mailer, org.mockito.Mockito.atLeast(2)).send(sent.capture());
+        assertThat(sent.getAllValues().getLast().text()).doesNotContain("/object/");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void ranksTheNextProspectionByWhatTheEarlierCampaignsGot() throws Exception {
         long silentEsn = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Silence ESN", "city", "Lyon", "isFinal", false,
             "freelanceId", alice.freelanceId()), Map.class));

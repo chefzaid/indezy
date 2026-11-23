@@ -434,7 +434,7 @@ AI that does the repetitive part of finding and applying to missions, the freela
   - Review: one screen with every target and its message, each editable or removable, the send window (working hours, spread over a few days, a daily cap to stay under the mailbox's limits), then **Launch**
   - Follow-up: one reminder after 5 working days without an answer, stopped as soon as a reply comes; replies sorted (interested, not now, no need, do not contact) by the inbox watcher, an interested one becoming an opportunity in Contact with the exchange in its journal, a "not now" a reminder at the date it gave
   - Results: a campaign page (sent, answered, calls booked, opportunities, missions won) and, across campaigns, which targets and messages work best, used to rank and write the next one; **Prospect again** reuses a campaign a month later on the targets not yet contacted
-  - Rules: B2B prospecting on legitimate interest (GDPR): every email says how to object, an objection is honoured at once and kept, the targets' data stays in the workspace, and the account export carries the campaigns
+  - Rules (the objection link followed on 2026-11-23: every campaign email ends with a link of its own, confirmed on its page, that marks the contact **Asked not to be contacted** at once): B2B prospecting on legitimate interest (GDPR): every email says how to object, an objection is honoured at once and kept, the targets' data stays in the workspace, and the account export carries the campaigns
 - [ ] Daily autopilot run: triage, packs and drafted replies prepared overnight into one review queue ("12 offers triaged, 3 packs ready, 2 replies drafted"), approved in a few clicks from the dashboard or the phone
 
 ## Analytics & Reporting

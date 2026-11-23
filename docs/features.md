@@ -976,7 +976,7 @@ with **Cancel** (`GET` and `DELETE /api/contacts/emails/scheduled/{id}`); up to 
 contact or the account.
 
 Each sending, now or planned, is a **campaign** (`POST /api/contacts/emails/campaigns`, named after the subject; its
-emails carry `campaignId`, an exchange keeping it). **Your campaigns** lists the latest twenty that sent or plan
+emails carry `campaignId`, an exchange keeping it). Every campaign email says how to object to being contacted again (prospecting rests on legitimate interest): its last line gives a link of its own (`/api/public/emails/object/{token}`, a 256-bit secret per email, `objection_token`) whose page asks to confirm, so a mail scanner opening it changes nothing; confirming (`POST`) marks the contact **Asked not to be contacted**, which keeps them out of every list of recipients, and records the objection in their exchanges. **Your campaigns** lists the latest twenty that sent or plan
 something (`GET /api/contacts/emails/campaigns`): the emails sent and still to go, the contacts who answered since
 (an answer recorded on the email, or an exchange from them on or after its day), the opportunities opened since with
 their companies as the client or the ESN, and the missions won among them. A campaign that cannot be started leaves its

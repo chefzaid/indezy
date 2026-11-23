@@ -68,6 +68,13 @@ public class ContactInteraction extends BaseEntity {
     @Column(name = "email_token", length = 43, unique = true)
     private String emailToken;
 
+    /**
+     * The secret of the link a campaign's email gives to object to being contacted again (GDPR, prospecting on
+     * legitimate interest), unique; null for any other exchange.
+     */
+    @Column(name = "objection_token", length = 43, unique = true)
+    private String objectionToken;
+
     /** The campaign the email went in ({@link ProspectionCampaign}); null for any other exchange. */
     @Column(name = "campaign_id")
     private Long campaignId;

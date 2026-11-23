@@ -304,6 +304,7 @@ public class ContactEmailService {
         interaction.setEmailToken(message.track() ? token() : null);
         interaction.setEmailOpens(0);
         interaction.setCampaignId(message.campaignId());
+        interaction.setObjectionToken(message.campaignId() == null ? null : token());
         interactions.save(interaction);
 
         String sender = Stream.of(freelance.getFirstName(), freelance.getLastName()).filter(Objects::nonNull).map(String::strip)
@@ -312,7 +313,7 @@ public class ContactEmailService {
         DocumentLanguage language = message.language() == null ? DocumentLanguage.FR : message.language();
         String key = "contact-email-" + UUID.randomUUID();
         Email email = composer.compose(contact.getEmail().strip(), subject, message.body(), new ContactEmailComposer.Sender(name,
-            freelance.getEmail()), language, interaction.getEmailToken(), key);
+            freelance.getEmail()), language, new ContactEmailComposer.Delivery(interaction.getEmailToken(), key, interaction.getObjectionToken()));
         if (message.dossier() && userId != null) {
             ActivityReportService.PdfFile dossier = dossiers.pdf(userId, freelanceId, DossierLayout.NAMED, language);
             email = email.withAttachments(List.of(new Email.Attachment(dossier.fileName(), "application/pdf", dossier.content())));
@@ -346,6 +347,49 @@ public class ContactEmailService {
                     interaction.setEmailOpenedAt(now);
                 }
             });
+    }
+
+    /** The contact an objection link names, null for none: whose email it was, and who sent it. */
+    public record Objection(String contactName, String senderName) {
+    }
+
+    /** Who an objection link is about, without changing anything; empty for an unknown link. */
+    @Transactional(readOnly = true)
+    public java.util.Optional<Objection> objection(String token) {
+        return interactions.findByObjectionToken(token).map(interaction -> new Objection(interaction.getContact().getFullName(),
+            senderOf(interaction.getContact())));
+    }
+
+    /**
+     * The contact objects to being contacted again: marked **Asked not to be contacted**, which keeps them out of every
+     * list of recipients, and the objection recorded in their exchanges; false for an unknown link. Objecting twice
+     * changes nothing more.
+     */
+    @Transactional
+    public boolean object(String token) {
+        java.util.Optional<ContactInteraction> found = interactions.findByObjectionToken(token);
+        if (found.isEmpty()) {
+            return false;
+        }
+        Contact contact = found.get().getContact();
+        if (!Boolean.TRUE.equals(contact.getDoNotContact())) {
+            contact.setDoNotContact(true);
+            ContactInteraction objection = new ContactInteraction();
+            objection.setContact(contact);
+            objection.setOccurredOn(LocalDate.now(clock.withZone(PARIS)));
+            objection.setChannel(InteractionChannel.EMAIL);
+            objection.setDirection(InteractionDirection.INCOMING);
+            objection.setSummary("Asked not to be contacted again (link in a prospecting email)");
+            interactions.save(objection);
+        }
+        return true;
+    }
+
+    private String senderOf(Contact contact) {
+        Freelance freelance = contact.getFreelance();
+        String name = freelance == null ? "" : Stream.of(freelance.getFirstName(), freelance.getLastName()).filter(Objects::nonNull)
+            .map(String::strip).filter(part -> !part.isEmpty()).collect(Collectors.joining(" "));
+        return name.isEmpty() ? "Indezy" : name;
     }
 
     private void sendCopy(String to, String recipientName, String subject, String body, DocumentLanguage language, String key) {

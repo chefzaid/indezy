@@ -30,17 +30,43 @@ public class ContactEmailComposer {
 
     /** The email to {@code to}; {@code token} is null without open tracking. */
     public Email compose(String to, String subject, String body, Sender sender, DocumentLanguage language, String token, String key) {
-        String notice = notice(sender.name(), language, token != null);
+        return compose(to, subject, body, sender, language, new Delivery(token, key, null));
+    }
+
+    /**
+     * How an email goes: its tracking image's secret (null without tracking), its idempotency key, and for a campaign's
+     * email the secret of its objection link (null otherwise).
+     */
+    public record Delivery(String token, String key, String objectionToken) {
+    }
+
+    /** As above; a campaign's email also says, under it, how to object to being contacted again, with the link to do so. */
+    public Email compose(String to, String subject, String body, Sender sender, DocumentLanguage language, Delivery delivery) {
+        String token = delivery.token();
+        String key = delivery.key();
+        String objectionToken = delivery.objectionToken();
+        String objection = objectionToken == null ? null : properties.appUrl() + "/api/public/emails/object/" + objectionToken;
+        String notice = notice(sender.name(), language, token != null) + (objection == null ? "" : " " + objectionLine(sender.name(), language));
         StringBuilder html = new StringBuilder();
         for (String paragraph : body.strip().split("\\R\\s*\\R")) {
             html.append("<p>").append(escape(paragraph.strip()).replaceAll("\\R", "<br>")).append("</p>");
         }
-        html.append("<p style=\"color:#6b7280;font-size:12px\">").append(escape(notice)).append("</p>");
+        html.append("<p style=\"color:#6b7280;font-size:12px\">").append(escape(notice));
+        if (objection != null) {
+            html.append(" <a href=\"").append(escape(objection)).append("\">").append(escape(objection)).append("</a>");
+        }
+        html.append("</p>");
         if (token != null) {
             html.append("<img src=\"").append(escape(pixel(token))).append("\" width=\"1\" height=\"1\" alt=\"\" style=\"display:block;border:0\">");
         }
-        String text = body.strip() + "\n\n--\n" + notice + "\n";
+        String text = body.strip() + "\n\n--\n" + notice + (objection == null ? "" : " " + objection) + "\n";
         return new Email(to, subject.strip(), html.toString(), text, Map.of(), key, sender.name(), sender.replyTo(), List.of());
+    }
+
+    /** How to object to prospecting emails, the link following it. */
+    static String objectionLine(String senderName, DocumentLanguage language) {
+        return language == DocumentLanguage.EN ? "To not be contacted by " + senderName + " again:" :
+            "Pour ne plus être contacté par " + senderName + " :";
     }
 
     /** The copy the sender gets: the same message, without the tracking image, so reading it counts nothing. */
