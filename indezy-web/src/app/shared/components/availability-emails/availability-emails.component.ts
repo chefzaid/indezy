@@ -155,7 +155,7 @@ export const SILENT_LIMIT = 2;
             <li [attr.data-campaign]="campaign.id">
               <span class="name">{{ campaign.name }} · {{ campaign.startedAt | date:'d MMM y' }}</span>
               <span class="results">{{ 'availabilityEmails.results' | translate:{ sent: campaign.sent, answered: campaign.answered,
-                opportunities: campaign.opportunities, won: campaign.won } }}
+                opportunities: campaign.opportunities, interviews: campaign.interviews ?? 0, won: campaign.won } }}
                 @if (campaign.waiting) {
                   · {{ 'availabilityEmails.stillWaiting' | translate:{ count: campaign.waiting } }}
                 }

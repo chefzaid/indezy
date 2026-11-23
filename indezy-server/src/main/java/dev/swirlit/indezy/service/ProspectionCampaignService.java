@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 /**
  * The workspace's prospection campaigns and what came of each (see docs/features.md#emails-sent-from-indezy): the emails
  * sent and waiting, the contacts who answered since, the opportunities opened since with their companies (as the client
- * or the ESN), and the missions among them won.
+ * or the ESN), their interview steps (the calls booked), and the missions among them won.
  */
 @Service
 @RequiredArgsConstructor
@@ -41,8 +41,8 @@ public class ProspectionCampaignService {
     private final ProjectRepository projects;
 
     /** A campaign and its results, with the contacts it wrote or plans to write to (for **Prospect again**). */
-    public record Campaign(Long id, String name, LocalDateTime startedAt, int sent, int waiting, int answered, int opportunities, int won,
-                           List<Long> contactIds) {
+    public record Campaign(Long id, String name, LocalDateTime startedAt, int sent, int waiting, int answered, int opportunities, int interviews,
+                           int won, List<Long> contactIds) {
 
         public Campaign {
             contactIds = contactIds == null ? List.of() : List.copyOf(contactIds);
@@ -56,7 +56,7 @@ public class ProspectionCampaignService {
         String stripped = name == null || name.isBlank() ? "Prospection" : name.strip();
         campaign.setName(stripped.length() > ProspectionCampaign.NAME_MAX ? stripped.substring(0, ProspectionCampaign.NAME_MAX) : stripped);
         ProspectionCampaign saved = campaigns.save(campaign);
-        return new Campaign(saved.getId(), saved.getName(), saved.getCreatedAt(), 0, 0, 0, 0, 0, List.of());
+        return new Campaign(saved.getId(), saved.getName(), saved.getCreatedAt(), 0, 0, 0, 0, 0, 0, List.of());
     }
 
     /** The campaign, refused when it is another workspace's. */
@@ -116,9 +116,11 @@ public class ProspectionCampaignService {
                 .anyMatch(companies::contains))
             .toList();
         int won = (int) opened.stream().filter(project -> project.getStatus() == ProjectStatus.WON).count();
+        // The calls booked: the interview steps of those opportunities.
+        int interviews = opened.stream().mapToInt(project -> project.getSteps().size()).sum();
         List<Long> contacts = Stream.concat(sent.stream().map(email -> email.getContact().getId()),
             waiting.stream().map(email -> email.getContact().getId())).distinct().toList();
-        return new Campaign(campaign.getId(), campaign.getName(), started, sent.size(), waiting.size(), answered.size(), opened.size(), won,
-            contacts);
+        return new Campaign(campaign.getId(), campaign.getName(), started, sent.size(), waiting.size(), answered.size(), opened.size(), interviews,
+            won, contacts);
     }
 }

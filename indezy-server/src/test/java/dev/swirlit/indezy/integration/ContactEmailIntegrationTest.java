@@ -346,7 +346,12 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
             "clientId", aliceClientId), Map.class));
         List<Map<String, Object>> results = call(alice, HttpMethod.GET, "/contacts/emails/campaigns", null, List.class).getBody();
         assertThat(results).hasSize(1);
-        assertThat(results.getFirst()).containsEntry("sent", 1).containsEntry("answered", 1).containsEntry("opportunities", 1).containsEntry("won", 0);
+        assertThat(results.getFirst()).containsEntry("sent", 1).containsEntry("answered", 1).containsEntry("opportunities", 1).containsEntry("won", 0)
+            .containsEntry("interviews", 0);
+        // A call booked on that opportunity counts as an interview.
+        call(alice, HttpMethod.POST, "/interview-steps", Map.of("title", "Appel", "status", "PLANNED", "projectId", project), Map.class);
+        assertThat(((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/contacts/emails/campaigns", null, List.class).getBody()).getFirst())
+            .containsEntry("interviews", 1);
         assertThat(results.getFirst().get("contactIds")).isEqualTo(List.of((int) lea));
         Map<String, Object> opportunity = call(alice, HttpMethod.GET, "/projects/" + project, null, Map.class).getBody();
         opportunity.put("status", "WON");

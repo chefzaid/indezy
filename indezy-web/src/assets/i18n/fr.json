@@ -5374,7 +5374,7 @@
     "again": "Prospecter à nouveau ({{count}} nouveaux)",
     "againReady": "{{count}} contacts que cette campagne n'a pas touchés sont cochés : relisez le message, puis envoyez.",
     "campaigns": "Vos campagnes",
-    "results": "{{sent}} envoyés · {{answered}} réponses · {{opportunities}} opportunités · {{won}} gagnées",
+    "results": "{{sent}} envoyés · {{answered}} réponses · {{opportunities}} opportunités · {{interviews}} entretiens · {{won}} gagnées",
     "stillWaiting": "{{count}} encore à partir",
     "edit": "Modifier",
     "edited": "Modifié",

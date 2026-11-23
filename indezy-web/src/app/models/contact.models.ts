@@ -95,6 +95,8 @@ export interface ProspectionCampaign {
   waiting: number;
   answered: number;
   opportunities: number;
+  /** The interview steps of those opportunities: the calls booked. */
+  interviews?: number;
   won: number;
   /** The contacts it wrote or plans to write to. */
   contactIds: number[];

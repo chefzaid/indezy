@@ -38,13 +38,17 @@ public class ProspectionAiService {
         For each contact given, write that contact's own version of the base message: address them by first name, keep
         every fact of the base message (the availability date, what the consultant does, the dossier attached, the
         signature), and make it personal from what is given about them only: their company, the newest mission their
-        company posted for this profile, how often they answered and the last exchanges. 60 to 160 words, plain and
+        company posted for this profile, how often they answered and the last exchanges. When the consultant's rate is
+        given, state it as a band from it; name at most three of the references given, those closest to what the
+        contact's company hires for. 60 to 160 words, plain and
         warm, no subject line. Never invent missions, clients, figures or past exchanges. Answer one message per
         contact id given, in the language asked.""";
 
     private final AiService ai;
     private final ContactEmailService emails;
     private final ContactInteractionRepository interactions;
+    private final dev.swirlit.indezy.repository.UserRepository users;
+    private final dev.swirlit.indezy.repository.ProjectRepository projects;
 
     /** A contact's message as written. */
     public record Written(Long contactId, String body) {
@@ -71,8 +75,8 @@ public class ProspectionAiService {
         if (recipients.isEmpty()) {
             throw new IllegalArgumentException("None of these contacts can be written to");
         }
-        Answer answer = ai.structured(userId, AiFeature.MESSAGE, SYSTEM, context(subject, body, recipients, language), Answer.class, MAX_TOKENS,
-            OutputConfig.Effort.LOW);
+        Answer answer = ai.structured(userId, AiFeature.MESSAGE, SYSTEM, consultant(userId, freelanceId) + context(subject, body, recipients, language),
+            Answer.class, MAX_TOKENS, OutputConfig.Effort.LOW);
         Set<Long> written = recipients.stream().map(ContactEmailService.Recipient::id).collect(java.util.stream.Collectors.toSet());
         List<Written> messages = new ArrayList<>();
         Set<Long> seen = new HashSet<>();
@@ -83,6 +87,28 @@ public class ProspectionAiService {
             }
         }
         return messages;
+    }
+
+    /** At most this many missions won are given as references. */
+    static final int REFERENCES = 5;
+
+    /** The consultant's rate and the missions they won lately, the AI naming at most three. */
+    String consultant(Long userId, Long freelanceId) {
+        Integer rate = users.findById(userId).map(dev.swirlit.indezy.model.User::getTargetDailyRate).orElse(null);
+        StringBuilder text = new StringBuilder("<consultant>\n");
+        if (rate != null) {
+            text.append("Daily rate from: ").append(rate).append(" EUR\n");
+        }
+        projects.findByFreelanceId(freelanceId).stream()
+            .filter(project -> project.getStatus() == dev.swirlit.indezy.model.enums.ProjectStatus.WON && project.getRole() != null)
+            .sorted(java.util.Comparator.comparing((dev.swirlit.indezy.model.Project project) -> project.getStartDate() == null ? java.time.LocalDate.MIN :
+                project.getStartDate()).reversed())
+            .limit(REFERENCES)
+            .forEach(project -> text.append("Reference: ").append(project.getRole())
+                .append(project.getClient() == null ? "" : " for " + project.getClient().getCompanyName())
+                .append(project.getTechStack() == null || project.getTechStack().isBlank() ? "" : " (" + project.getTechStack().strip() + ")")
+                .append(project.getDurationInMonths() == null ? "" : ", " + project.getDurationInMonths() + " months").append("\n"));
+        return text.append("</consultant>\n").toString();
     }
 
     String context(String subject, String body, List<ContactEmailService.Recipient> recipients, DocumentLanguage language) {

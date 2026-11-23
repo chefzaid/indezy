@@ -5374,7 +5374,7 @@
     "again": "Prospect again ({{count}} new)",
     "againReady": "{{count}} contacts this campaign did not reach are ticked: check the message, then send.",
     "campaigns": "Your campaigns",
-    "results": "{{sent}} sent · {{answered}} answered · {{opportunities}} opportunities · {{won}} won",
+    "results": "{{sent}} sent · {{answered}} answered · {{opportunities}} opportunities · {{interviews}} interviews · {{won}} won",
     "stillWaiting": "{{count}} still to go",
     "edit": "Edit",
     "edited": "Edited",

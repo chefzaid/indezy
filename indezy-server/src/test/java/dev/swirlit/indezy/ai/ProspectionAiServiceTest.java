@@ -27,7 +27,9 @@ class ProspectionAiServiceTest {
     private final AiService ai = mock(AiService.class);
     private final ContactEmailService emails = mock(ContactEmailService.class);
     private final ContactInteractionRepository interactions = mock(ContactInteractionRepository.class);
-    private final ProspectionAiService service = new ProspectionAiService(ai, emails, interactions);
+    private final dev.swirlit.indezy.repository.UserRepository users = mock(dev.swirlit.indezy.repository.UserRepository.class);
+    private final dev.swirlit.indezy.repository.ProjectRepository projects = mock(dev.swirlit.indezy.repository.ProjectRepository.class);
+    private final ProspectionAiService service = new ProspectionAiService(ai, emails, interactions, users, projects);
 
     private static ContactEmailService.Recipient recipient(long id, String firstName, String company, String mission) {
         return new ContactEmailService.Recipient(id, firstName, firstName + " Martin", company, firstName.toLowerCase() + "@example.com", 2, null,
@@ -55,6 +57,7 @@ class ProspectionAiServiceTest {
             DocumentLanguage.FR);
 
         assertThat(written).containsExactly(new ProspectionAiService.Written(1L, "Bonjour Léa,"));
+
         ArgumentCaptor<String> context = ArgumentCaptor.forClass(String.class);
         verify(ai).structured(eq(7L), eq(AiFeature.MESSAGE), any(), context.capture(), eq(ProspectionAiService.Answer.class), anyLong(),
             eq(OutputConfig.Effort.LOW));
@@ -67,5 +70,27 @@ class ProspectionAiServiceTest {
     void refusesWhenNoneOfTheContactsCanBeWrittenTo() {
         when(emails.availabilityRecipients(5L)).thenReturn(List.of(recipient(1, "Léa", "Conseil X", null)));
         assertThatThrownBy(() -> service.write(7L, 5L, "s", "b", List.of(9L), DocumentLanguage.EN)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void givesTheConsultantsRateAndLatestMissionsWonAsReferences() {
+        dev.swirlit.indezy.model.User user = new dev.swirlit.indezy.model.User();
+        user.setTargetDailyRate(650);
+        when(users.findById(7L)).thenReturn(java.util.Optional.of(user));
+        dev.swirlit.indezy.model.Client bank = new dev.swirlit.indezy.model.Client();
+        bank.setCompanyName("Banque Exemple");
+        dev.swirlit.indezy.model.Project won = new dev.swirlit.indezy.model.Project();
+        won.setStatus(dev.swirlit.indezy.model.enums.ProjectStatus.WON);
+        won.setRole("Lead Java");
+        won.setClient(bank);
+        won.setTechStack("Java, Kafka");
+        won.setDurationInMonths(12);
+        won.setStartDate(LocalDate.of(2025, 1, 6));
+        dev.swirlit.indezy.model.Project lost = new dev.swirlit.indezy.model.Project();
+        lost.setStatus(dev.swirlit.indezy.model.enums.ProjectStatus.LOST);
+        lost.setRole("Architecte");
+        when(projects.findByFreelanceId(5L)).thenReturn(List.of(won, lost));
+        assertThat(service.consultant(7L, 5L)).contains("Daily rate from: 650 EUR", "Reference: Lead Java for Banque Exemple (Java, Kafka), 12 months")
+            .doesNotContain("Architecte");
     }
 }
