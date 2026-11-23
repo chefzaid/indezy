@@ -17,10 +17,11 @@ export function valuesOf(profile) {
 
 /**
  * Fills the page's empty fields from the values, by what each field says it is (its autocomplete, name, id, placeholder,
- * label), in French or English; never a password, a file, a hidden or a disabled field, nor one already typed in. Runs
- * in the page: self-contained, it returns how many fields it filled.
+ * label), in French or English; never a password, a hidden or a disabled field, nor one already typed in; the CV (its
+ * name, type and Base64 content), when given, in the empty file field asking for one. Runs in the page:
+ * self-contained, it returns how many fields it filled.
  */
-export function fillFields(values) {
+export function fillFields(values, cv) {
   const RULES = [
     ['email', /\b(e-?mail|courriel|mail)\b/],
     ['phone', /\b(phone|t[ée]l[ée]phone|tel|mobile|portable|gsm)\b/],
@@ -43,6 +44,20 @@ export function fillFields(values) {
       .toLowerCase().replace(/[_\-[\]]+/g, ' ');
   };
   let filled = 0;
+  // The CV goes to the first empty file field that asks for one ("CV", "résumé", "curriculum"), a single file.
+  if (cv?.base64) {
+    const cvField = [...document.querySelectorAll('input[type=file]')].find(field => !field.disabled && !field.files?.length &&
+      /\b(cv|r[ée]sum[ée]|resume|curriculum)\b/.test(describe(field)));
+    if (cvField) {
+      const bytes = Uint8Array.from(atob(cv.base64), character => character.charCodeAt(0));
+      const transfer = new DataTransfer();
+      transfer.items.add(new File([bytes], cv.name, { type: cv.type }));
+      cvField.files = transfer.files;
+      cvField.dispatchEvent(new Event('input', { bubbles: true }));
+      cvField.dispatchEvent(new Event('change', { bubbles: true }));
+      filled++;
+    }
+  }
   for (const field of document.querySelectorAll('input, textarea')) {
     const type = (field.getAttribute('type') || 'text').toLowerCase();
     if (field.disabled || field.readOnly || field.value || ['password', 'file', 'hidden', 'checkbox', 'radio', 'submit', 'button'].includes(type) ||

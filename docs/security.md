@@ -103,8 +103,8 @@ accepts a token while it is neither revoked nor expired and its account is activ
 authority; `ApiTokenScopeInterceptor` then refuses (`403`) any method but `GET` and `HEAD`, and every path under
 `/users`, `/admin`, `/auth` and `/network` (decoded as Spring MVC matches it), so a token can neither write nor manage
 the account, its sessions or other tokens, nor read the member network, whose members and posts are not the workspace's
-(the global search answers a token without them). `GET /application-profile`, the few profile values the browser
-extension fills application forms with, belongs to no part: an unscoped token reads it, a scoped one does not. A token created with scopes also gets one `API_SCOPE_<NAME>` authority each, and the
+(the global search answers a token without them). `GET /application-profile` and `/application-profile/cv`, the few profile values and the CV the
+browser extension fills application forms with, belong to no part: an unscoped token reads them, a scoped one does not. A token created with scopes also gets one `API_SCOPE_<NAME>` authority each, and the
 interceptor refuses (`403`) a path outside them (`ApiTokenScope` maps each path to its part, missions before
 opportunities) and every path of no part, so a token for an accountant's tool cannot read the pipeline or the global
 search. Workspace checks apply as for a session. An account holds 10 tokens at most.

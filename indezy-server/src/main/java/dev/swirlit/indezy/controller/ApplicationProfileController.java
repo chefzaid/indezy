@@ -22,6 +22,9 @@ import java.time.LocalDate;
 public class ApplicationProfileController {
 
     private final UserService users;
+    private final dev.swirlit.indezy.service.ProfileCvService cvs;
+    private final dev.swirlit.indezy.service.DossierService dossiers;
+    private final dev.swirlit.indezy.service.AccessGuard accessGuard;
 
     /** The profile values an application form asks for. */
     public record ApplicationProfile(String firstName, String lastName, String email, String phone, String city, String linkedin,
@@ -34,5 +37,18 @@ public class ApplicationProfileController {
         UserDto user = users.getUserProfile(SecurityUtils.getCurrentUserId());
         return new ApplicationProfile(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhone(), user.getCity(),
             user.getLinkedin(), user.getGithub(), user.getWebsite(), user.getPosition(), user.getTargetDailyRate(), user.getAvailabilityDate());
+    }
+
+    @Operation(summary = "The CV an application form takes: the one kept, else the dossier de compétences as a PDF",
+        description = "Readable by an API token with no part ticked")
+    @GetMapping("/application-profile/cv")
+    public org.springframework.http.ResponseEntity<byte[]> cv() {
+        Long workspace = accessGuard.requireWorkspace(null);
+        if (cvs.info(workspace).isPresent()) {
+            dev.swirlit.indezy.model.ProfileCv cv = cvs.file(workspace);
+            return DocumentResponses.of(cv.getFileName(), cv.getContentType(), cv.getContent(), false);
+        }
+        return PdfResponses.attachment(dossiers.pdf(SecurityUtils.getCurrentUserId(), workspace, dev.swirlit.indezy.model.enums.DossierLayout.NAMED,
+            dev.swirlit.indezy.model.enums.DocumentLanguage.FR));
     }
 }

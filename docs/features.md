@@ -1299,7 +1299,9 @@ options set the Indezy address, and optionally a personal API token (kept in the
 **Fill this form with my Indezy profile** (right-click on a page) is the form co-pilot: with that token (one with no
 part ticked) it reads `GET /api/application-profile` (name, email, phone, city, LinkedIn, GitHub, website, title, target
 daily rate, availability; nothing else of the profile), then fills the page's empty fields by what each says it is
-(`autocomplete`, name, id, placeholder, label, in French or English: `extension/fill.js`), never a password, a file, a
+(`autocomplete`, name, id, placeholder, label, in French or English: `extension/fill.js`), and puts the CV
+(`GET /api/application-profile/cv`: the one kept on the profile, else the named dossier de compétences in French) in the
+first empty file field asking for one ("CV", "résumé", "curriculum"); never a password, another file, a
 hidden, read-only or disabled field, a text area (a cover letter) or one already typed in, and never sends the form. A
 note in the page says how many fields it filled (or why it could not), and Indezy's new opportunity form for the page
 opens beside it, unfocused, to keep the application. Another Indezy than the usual one (or a local one) is reached once

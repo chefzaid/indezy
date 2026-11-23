@@ -53,13 +53,36 @@ async function fillForm(tab) {
     await say(chrome.i18n.getMessage('fillFailed'));
     return null;
   }
-  const [result] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: fillFields, args: [valuesOf(profile)] });
+  const cv = await readCv(token);
+  const [result] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: fillFields, args: [valuesOf(profile), cv] });
   const filled = result?.result ?? 0;
   await say(filled ? chrome.i18n.getMessage('fillDone', [String(filled)]) : chrome.i18n.getMessage('fillNothing'));
   if (filled) {
     await openInIndezy(tab.url, tab.index, false);
   }
   return filled;
+}
+
+/** The CV the form takes (the one kept in Indezy, else the dossier de compétences), Base64 for the page; null when it cannot be read. */
+async function readCv(token) {
+  try {
+    const response = await fetch(`${await base()}/api/application-profile/cv`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!response.ok) {
+      return null;
+    }
+    const disposition = response.headers.get('Content-Disposition') ?? '';
+    const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1];
+    const plain = /filename="([^"]+)"/i.exec(disposition)?.[1];
+    const name = encoded ? decodeURIComponent(encoded) : plain && !plain.startsWith('=?') ? plain : null;
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    let binary = '';
+    for (let index = 0; index < bytes.length; index += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+    }
+    return { name: name ?? 'cv.pdf', type: response.headers.get('Content-Type') ?? 'application/pdf', base64: btoa(binary) };
+  } catch {
+    return null;
+  }
 }
 
 // Exposed for the end-to-end test, which cannot click the toolbar or a menu.

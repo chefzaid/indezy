@@ -42,6 +42,11 @@ class ProfileCvIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(upload("cv.doc", java.util.Arrays.copyOf(dev.swirlit.indezy.media.WordDocTextTest.cv(), 600)).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);
         upload("cv-2026.pdf", second);
+        // What the browser extension attaches to an application form: the CV kept, else (Bob) the dossier de compétences.
+        assertThat(call(alice, HttpMethod.GET, "/application-profile/cv", null, byte[].class).getBody()).isEqualTo(second);
+        ResponseEntity<byte[]> dossier = call(bob, HttpMethod.GET, "/application-profile/cv", null, byte[].class);
+        assertThat(dossier.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PDF);
+        assertThat(new String(dossier.getBody(), 0, 4, StandardCharsets.ISO_8859_1)).isEqualTo("%PDF");
         assertThat(call(bob, HttpMethod.GET, "/users/cv", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.GET, "/users/export", null, String.class).getBody()).contains("cv-2026.pdf");
 

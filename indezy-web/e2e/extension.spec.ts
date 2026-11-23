@@ -65,8 +65,16 @@ test('fills an application form with the Indezy profile read with its token, the
     <label for="city">City</label><input id="city" name="city" value="Paris">
     <label for="pw">Password</label><input id="pw" type="password" name="password">
     <label for="cv">Cover letter</label><textarea id="cv" name="message"></textarea>
+    <label for="resume">Your CV (PDF)</label><input id="resume" type="file" name="resume">
+    <label for="other">Other documents</label><input id="other" type="file" name="attachments">
     <button>Send</button></form></html>`;
   const server = http.createServer((request, response) => {
+    if (request.url === '/api/application-profile/cv') {
+      response.writeHead(request.headers.authorization === 'Bearer idz_secret' ? 200 : 401,
+        { 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="CV Léa Martin.pdf"; filename*=UTF-8\'\'CV%20L%C3%A9a%20Martin.pdf' });
+      response.end('%PDF-1.7 CV');
+      return;
+    }
     if (request.url === '/api/application-profile') {
       const authorized = request.headers.authorization === 'Bearer idz_secret';
       response.writeHead(authorized ? 200 : 401, { 'Content-Type': 'application/json' });
@@ -94,7 +102,7 @@ test('fills an application form with the Indezy profile read with its token, the
 
     await worker.evaluate(() => chrome.storage.local.set({ token: 'idz_secret' }));
     const opened = context.waitForEvent('page');
-    expect(await worker.evaluate(given => (globalThis as unknown as Fill).fillForm(given), tab)).toBe(6);
+    expect(await worker.evaluate(given => (globalThis as unknown as Fill).fillForm(given), tab)).toBe(7);
     await expect(board.locator('#fn')).toHaveValue('Léa');
     await expect(board.locator('#ln')).toHaveValue('Martin');
     await expect(board.locator('[name=contact]')).toHaveValue('lea@example.test');
@@ -105,7 +113,11 @@ test('fills an application form with the Indezy profile read with its token, the
     await expect(board.locator('#city')).toHaveValue('Paris');
     await expect(board.locator('#pw')).toHaveValue('');
     await expect(board.locator('#cv')).toHaveValue('');
-    await expect(board.getByRole('status')).toContainText('6 fields filled');
+    // The CV kept in Indezy, in the file field asking for one only.
+    expect(await board.locator('#resume').evaluate((input: HTMLInputElement) => [input.files?.[0]?.name, input.files?.[0]?.size]))
+      .toEqual(['CV Léa Martin.pdf', 11]);
+    expect(await board.locator('#other').evaluate((input: HTMLInputElement) => input.files?.length)).toBe(0);
+    await expect(board.getByRole('status')).toContainText('7 fields filled');
     const indezy = await opened;
     await indezy.waitForURL(`${local}/projects/new?from=link&url=${encodeURIComponent(`${local}/apply`)}`);
 
