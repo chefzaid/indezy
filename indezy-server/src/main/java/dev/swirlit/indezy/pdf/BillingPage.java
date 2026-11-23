@@ -82,6 +82,9 @@ abstract class BillingPage {
     /** The seller's notes; null for none. */
     abstract String notes();
 
+    /** The document's own fields for a Word template, by name ("number", "issueDate"…), formatted; absent ones left out. */
+    abstract java.util.Map<String, String> fields();
+
     /** The words above the client's signature box; null without one. */
     String acceptance() {
         return null;

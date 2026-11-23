@@ -54,6 +54,28 @@ final class InvoicePage extends BillingPage {
     }
 
     @Override
+    java.util.Map<String, String> fields() {
+        java.util.Map<String, String> fields = new java.util.LinkedHashMap<>();
+        fields.put("title", heading());
+        if (invoice.getNumber() != null) {
+            fields.put("number", invoice.getNumber());
+        }
+        if (invoice.getIssueDate() != null) {
+            fields.put("issueDate", date(invoice.getIssueDate()));
+        }
+        if (invoice.getDueDate() != null) {
+            fields.put("dueDate", date(invoice.getDueDate()));
+        }
+        if (invoice.getPeriodStart() != null && invoice.getPeriodEnd() != null) {
+            fields.put("period", InvoiceLabel.PERIOD.format(language, date(invoice.getPeriodStart()), date(invoice.getPeriodEnd())));
+        }
+        if (draftMark() != null) {
+            fields.put("draft", draftMark());
+        }
+        return fields;
+    }
+
+    @Override
     String buyerLabel() {
         return InvoiceLabel.BILL_TO.in(language);
     }

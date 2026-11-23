@@ -48,8 +48,17 @@ public final class QuotePdfRenderer {
 
     /** The quote as a Word file laid out like its PDF, its terms and conditions text after it (not an attached PDF of them). */
     public byte[] renderDocx(Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays, String terms, boolean termsFile) {
-        QuotePage page = new QuotePage(null, quote, seller, buyer, paymentTermDays, terms, termsFile);
-        return BillingDocx.render(page, logoOf(seller), page.title());
+        return renderDocx(new QuotePage(null, quote, seller, buyer, paymentTermDays, terms, termsFile), null);
+    }
+
+    /** As above, filling the freelancer's Word template when given one instead of the built-in layout. */
+    public byte[] renderDocx(Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays, String terms, boolean termsFile,
+                             byte[] template) {
+        return renderDocx(new QuotePage(null, quote, seller, buyer, paymentTermDays, terms, termsFile), template);
+    }
+
+    private byte[] renderDocx(QuotePage page, byte[] template) {
+        return template == null ? BillingDocx.render(page, logoOf(page.seller), page.title()) : DocxTemplate.fill(template, page, logoOf(page.seller));
     }
 
     /**

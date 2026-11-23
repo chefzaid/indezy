@@ -61,6 +61,25 @@ final class QuotePage extends BillingPage {
     }
 
     @Override
+    java.util.Map<String, String> fields() {
+        java.util.Map<String, String> fields = new java.util.LinkedHashMap<>();
+        fields.put("title", heading());
+        if (quote.getNumber() != null) {
+            fields.put("number", quote.getNumber());
+        }
+        if (quote.getIssueDate() != null) {
+            fields.put("issueDate", date(quote.getIssueDate()));
+        }
+        if (quote.getValidUntil() != null) {
+            fields.put("validUntil", date(quote.getValidUntil()));
+        }
+        if (draftMark() != null) {
+            fields.put("draft", draftMark());
+        }
+        return fields;
+    }
+
+    @Override
     String buyerLabel() {
         return QuoteLabel.FOR.in(language);
     }

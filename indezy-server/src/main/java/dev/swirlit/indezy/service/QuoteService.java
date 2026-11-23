@@ -14,6 +14,7 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Quote;
 import dev.swirlit.indezy.model.QuoteCounter;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DocumentTemplateKind;
 import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import dev.swirlit.indezy.model.enums.QuoteStatus;
@@ -64,6 +65,13 @@ public class QuoteService {
     private final QuotePdfRenderer pdf;
     private final Clock clock;
     private DocumentTermsFileRepository termsFiles;
+    private DocumentTemplateService templates;
+
+    /** The Word templates; without them, as in unit tests, Word copies take the built-in layout. */
+    @Autowired(required = false)
+    void setTemplates(DocumentTemplateService templates) {
+        this.templates = templates;
+    }
 
     /** Where the terms and conditions PDFs are read; without it, as in tests, quotes append none. */
     @Autowired(required = false)
@@ -213,7 +221,9 @@ public class QuoteService {
         Long termsFile = draft ? identity.quoteTermsFileId() : quote.getTermsFileId();
         String terms = draft ? identity.quoteTerms() : quote.getTerms();
         if (word) {
-            return new ActivityReportService.PdfFile(fileName, pdf.renderDocx(quote, seller, buyer, paymentTermDays, terms, termsFile != null));
+            byte[] template = templates == null ? null : templates.content(freelanceId, DocumentTemplateKind.QUOTE).orElse(null);
+            return new ActivityReportService.PdfFile(fileName, pdf.renderDocx(quote, seller, buyer, paymentTermDays, terms, termsFile != null,
+                template));
         }
         byte[] termsPdf = termsFile == null || termsFiles == null ? null : termsFiles.findById(termsFile).map(DocumentTermsFile::getContent).orElse(null);
         return new ActivityReportService.PdfFile(fileName, pdf.render(quote, seller, buyer, paymentTermDays, terms, termsPdf));

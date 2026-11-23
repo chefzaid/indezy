@@ -1,24 +1,31 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.BillingIdentityDto;
+import dev.swirlit.indezy.dto.DocumentTemplateDto;
 import dev.swirlit.indezy.model.DocumentFontFile;
+import dev.swirlit.indezy.model.DocumentTemplate;
+import dev.swirlit.indezy.model.enums.DocumentTemplateKind;
+import dev.swirlit.indezy.pdf.DocxTemplate;
 import dev.swirlit.indezy.model.DocumentLogo;
 import dev.swirlit.indezy.model.DocumentTermsFile;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.BillingIdentityService;
 import dev.swirlit.indezy.service.DocumentFontService;
+import dev.swirlit.indezy.service.DocumentTemplateService;
 import dev.swirlit.indezy.service.DocumentLogoService;
 import dev.swirlit.indezy.service.DocumentTermsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 /** The seller's identity on the signed-in workspace's invoices. */
 @RestController
@@ -40,6 +48,7 @@ public class BillingController {
     private final DocumentLogoService logos;
     private final DocumentTermsService termsFiles;
     private final DocumentFontService fonts;
+    private final DocumentTemplateService templates;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "The seller's identity, its defaults drawn from the profile")
@@ -72,6 +81,34 @@ public class BillingController {
             throw new IllegalArgumentException("A font file holds 5 MB at most");
         }
         return fonts.upload(workspace(), file.getBytes(), bold == null || bold.isEmpty() ? null : bold.getBytes());
+    }
+
+    @Operation(summary = "The Word templates of the invoices and the quotes, with the placeholders each uses and the mentions it lacks")
+    @GetMapping("/templates")
+    public List<DocumentTemplateDto> templates() {
+        return templates.list(workspace());
+    }
+
+    @Operation(summary = "The placeholders a Word template can use")
+    @GetMapping("/templates/placeholders")
+    public List<String> placeholders() {
+        return DocxTemplate.PLACEHOLDERS;
+    }
+
+    @Operation(summary = "Set the Word template of the invoices or of the quotes", description = "A .docx of 5 MB at most, without macros")
+    @PostMapping(value = "/templates/{kind}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public DocumentTemplateDto uploadTemplate(@PathVariable DocumentTemplateKind kind, @RequestParam("file") MultipartFile file) throws IOException {
+        if (file.getSize() > DocumentTemplate.MAX_BYTES) {
+            throw new IllegalArgumentException("A Word template holds 5 MB at most");
+        }
+        return templates.upload(workspace(), kind, file.getOriginalFilename(), file.getBytes());
+    }
+
+    @Operation(summary = "Go back to the built-in layout for the Word copies of the invoices or of the quotes")
+    @DeleteMapping("/templates/{kind}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeTemplate(@PathVariable DocumentTemplateKind kind) {
+        templates.remove(workspace(), kind);
     }
 
     @Operation(summary = "Go back to a bundled font for the documents to come")

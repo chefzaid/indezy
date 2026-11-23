@@ -1,0 +1,65 @@
+package dev.swirlit.indezy.integration;
+
+import dev.swirlit.indezy.pdf.BillingDocxTest;
+import dev.swirlit.indezy.pdf.DocxTemplateTest;
+import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/** Alice lays out her invoices in her own Word template; the Word copy fills it; Bob's keep the built-in layout. */
+class DocumentTemplateIntegrationTest extends TwoAccountsIntegrationTest {
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void fillsTheWorkspacesWordTemplate() throws IOException {
+        assertThat(call(alice, HttpMethod.GET, "/users/billing/templates/placeholders", null, List.class).getBody())
+            .contains("document.number", "#lines", "logo");
+        ResponseEntity<Map> uploaded = upload("INVOICE", "Mon modèle.docx", DocxTemplateTest.template());
+        assertThat(uploaded.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(uploaded.getBody()).containsEntry("kind", "INVOICE").containsEntry("fileName", "Mon modèle.docx")
+            .containsEntry("unknown", List.of("iban.inconnu")).containsEntry("missing", List.of("mentions"));
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/billing/templates", null, List.class).getBody())
+            .extracting(template -> template.get("kind")).containsExactly("INVOICE");
+        assertThat(upload("QUOTE", "notes.txt", "hello".getBytes(StandardCharsets.UTF_8)).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        long invoice = idOf(call(alice, HttpMethod.POST, "/invoices", Map.of("clientId", aliceClientId, "language", "FR",
+            "lines", List.of(Map.of("description", "Audit", "quantity", 2, "unitPrice", 650, "vatRate", 20))), Map.class));
+        String filled = BillingDocxTest.text(BillingDocxTest.parts(call(alice, HttpMethod.GET, "/invoices/" + invoice + "/docx", null, byte[].class)
+            .getBody()));
+        assertThat(filled).contains("Audit", "1 560,00 €", "Pas d'escompte", "{{iban.inconnu}}").doesNotContain("{{line.description}}");
+        assertThat(call(bob, HttpMethod.GET, "/users/billing/templates", null, List.class).getBody()).isEmpty();
+
+        assertThat(call(alice, HttpMethod.DELETE, "/users/billing/templates/INVOICE", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+        String builtIn = BillingDocxTest.text(BillingDocxTest.parts(call(alice, HttpMethod.GET, "/invoices/" + invoice + "/docx", null, byte[].class)
+            .getBody()));
+        assertThat(builtIn).contains("Facturé à").doesNotContain("{{iban.inconnu}}");
+    }
+
+    private ResponseEntity<Map> upload(String kind, String name, byte[] content) {
+        LinkedMultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+        form.add("file", new ByteArrayResource(content) {
+            @Override
+            public String getFilename() {
+                return name;
+            }
+        });
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alice.token());
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        return exchange("/users/billing/templates/" + kind, HttpMethod.POST, new HttpEntity<>(form, headers), Map.class);
+    }
+}

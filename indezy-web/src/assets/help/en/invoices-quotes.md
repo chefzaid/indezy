@@ -73,6 +73,14 @@ Issued invoices and credit notes download with **Download PDF** as Factur-X: a P
 
 **Download as Word**, in an invoice's or a quote's menu, gives the same document as a Word file (.docx) with your style, to read, adapt or archive. The invoice you send stays the PDF: it is the one with its frozen number and contents.
 
+**Word templates**, in Profile → Billing, let **Download as Word** fill your own layout:
+
+1. In Word, lay out an invoice (or a quote) as you like and type placeholders where the values go, such as `{{invoice.number}}`, `{{client.name}}` or `{{totals.toPay}}`; **Placeholders to copy** lists them all.
+2. For the lines, put `{{#lines}}` at the start of a table row and `{{/lines}}` at its end, with `{{line.description}}`, `{{line.quantity}}`, `{{line.unitPrice}}` and `{{line.amount}}` in its cells: the row is repeated for each line.
+3. Click **Upload a template** under **Invoices and credit notes** or **Quotes**. Indezy shows the placeholders it found, those it does not know, and the mentions your template lacks: those are added at its end, so nothing French law requires goes missing.
+
+**Back to the built-in layout** removes the template. The PDF keeps the built-in layout.
+
 ## The export for your accountant
 
 1. On the **Invoices** page, click **Export for the accountant**.

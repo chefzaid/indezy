@@ -4,6 +4,19 @@ export type LegalForm = 'MICRO_ENTREPRISE' | 'EI' | 'EURL' | 'SASU' | 'SARL' | '
 export const LEGAL_FORMS: LegalForm[] = ['MICRO_ENTREPRISE', 'EI', 'EURL', 'SASU', 'SARL', 'SAS', 'PORTAGE', 'OTHER'];
 
 /** What the workspace's invoices say of the seller. */
+/** What a Word template lays out. */
+export type DocumentTemplateKind = 'INVOICE' | 'QUOTE';
+
+/** A Word template kept for the invoices or the quotes, with the placeholders it uses, those unknown and the mentions it lacks. */
+export interface DocumentTemplate {
+  kind: DocumentTemplateKind;
+  fileName: string;
+  uploadedAt: string;
+  found: string[];
+  unknown: string[];
+  missing: string[];
+}
+
 export interface BillingIdentity {
   legalName: string | null;
   legalForm: LegalForm | null;

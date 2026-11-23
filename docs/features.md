@@ -1330,6 +1330,19 @@ its terms and conditions text on a new page, in the style's font, with the foote
 its XML parts, without a library. For an issued invoice it is a copy to read or archive: the invoice sent stays the PDF
 (Factur-X), its number and contents frozen; a quote's terms PDF is not part of it.
 
+**Word templates** (Profile → Billing, `GET/POST/DELETE /api/users/billing/templates[/{INVOICE|QUOTE}]`) replace that layout
+with the freelancer's own: a `.docx` of 5 MB at most, without macros, checked by ClamAV, one for the invoices (credit
+notes and deposit invoices too) and one for the quotes. Its placeholders (`GET /api/users/billing/templates/placeholders`)
+are `{{document.title|number|issueDate|dueDate|period|validUntil|draft}}`, `{{seller.name|details|address|siret|vatNumber|iban|bic}}`,
+`{{client.name|details|address|siren|vatNumber}}`, `{{totals.excludingVat|vat|toPay}}`, `{{mentions}}`, `{{notes}}`,
+`{{acceptance}}` and `{{logo}}`, `{{invoice.…}}` and `{{quote.…}}` standing for `{{document.…}}`, and the part between
+`{{#lines}}` and `{{/lines}}` (its table row, or its paragraphs) is repeated per line with `{{line.description|quantity|unitPrice|vatRate|amount}}`.
+Word splits a typed placeholder across runs: a paragraph holding one is written as one run first, its breaks and tabs
+kept. On upload the page shows the placeholders found, those unknown (left as written) and the mentions the template
+lacks (number, date, seller, client, lines, totals, mentions), which the filled document adds at its end rather than
+leaving out. **Download as Word** then fills the template; the PDF keeps the built-in layout (a PDF of the template
+waits on the owner's choice of converter).
+
 **Create a credit note** on an issued invoice drafts one with the same lines, to reduce for a partial credit; it is
 issued in the same numbering and cannot credit more than what is left. Fully credited, the invoice reads **Credited**.
 

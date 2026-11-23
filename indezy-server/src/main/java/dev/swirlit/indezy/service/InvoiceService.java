@@ -16,6 +16,7 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Quote;
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DocumentTemplateKind;
 import dev.swirlit.indezy.model.enums.InvoiceCurrency;
 import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
@@ -78,6 +79,13 @@ public class InvoiceService {
     private final InvoicePdfRenderer pdf;
     private final Clock clock;
     private WebhookPublisher webhooks = WebhookPublisher.NONE;
+    private DocumentTemplateService templates;
+
+    /** The Word templates; without them, as in unit tests, Word copies take the built-in layout. */
+    @Autowired(required = false)
+    void setTemplates(DocumentTemplateService templates) {
+        this.templates = templates;
+    }
 
     /** Tells the workspace's webhooks of the changes; none until Spring sets it (unit tests build the service by hand). */
     @Autowired
@@ -387,7 +395,8 @@ public class InvoiceService {
         String name = invoice.isCreditNote() ? (english ? "credit-note" : "avoir") : (english ? "invoice" : "facture");
         String fileName = name + "-" + (draft ? (invoice.getLanguage() == DocumentLanguage.EN ? "draft-" : "brouillon-") + invoice.getId() :
             invoice.getNumber()) + (word ? ".docx" : ".pdf");
-        return new ActivityReportService.PdfFile(fileName, word ? pdf.renderDocx(invoice, seller, buyer) : pdf.render(invoice, seller, buyer));
+        byte[] template = word && templates != null ? templates.content(freelanceId, DocumentTemplateKind.INVOICE).orElse(null) : null;
+        return new ActivityReportService.PdfFile(fileName, word ? pdf.renderDocx(invoice, seller, buyer, template) : pdf.render(invoice, seller, buyer));
     }
 
     /** The invoice a credit note credits, refused when the note would credit more than what is left of it. */

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { BillingIdentity } from '../../models';
+import { BillingIdentity, DocumentTemplate, DocumentTemplateKind } from '../../models';
 
 /** The seller's identity on the signed-in workspace's invoices. */
 @Injectable({
@@ -55,6 +55,25 @@ export class BillingService {
 
   removeFont(): Observable<BillingIdentity> {
     return this.http.delete<BillingIdentity>(`${this.API_URL}/font`);
+  }
+
+  templates(): Observable<DocumentTemplate[]> {
+    return this.http.get<DocumentTemplate[]>(`${this.API_URL}/templates`);
+  }
+
+  placeholders(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.API_URL}/templates/placeholders`);
+  }
+
+  /** Sets the Word template of the invoices or of the quotes (a .docx of 5 MB at most, without macros). */
+  uploadTemplate(kind: DocumentTemplateKind, file: File): Observable<DocumentTemplate> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<DocumentTemplate>(`${this.API_URL}/templates/${kind}`, form);
+  }
+
+  removeTemplate(kind: DocumentTemplateKind): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/templates/${kind}`);
   }
 
   removeLogo(): Observable<BillingIdentity> {

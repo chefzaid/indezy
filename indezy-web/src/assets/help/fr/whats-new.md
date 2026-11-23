@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Votre modèle Word
+
+**Modèles Word**, dans Profil → Facturation, remplit une mise en page faite dans Word avec chaque facture ou devis, pour **Télécharger en Word**. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Votre police sur les factures et devis
 
 **Envoyer ma police**, dans Profil → Facturation, imprime vos documents dans la police TrueType de votre choix, quand sa licence permet de l'incorporer. Voir [Devis et factures](/help/invoices-quotes).

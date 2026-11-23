@@ -53,8 +53,13 @@ public final class InvoicePdfRenderer {
 
     /** The invoice as a Word file laid out like its PDF: a copy to read or archive, the PDF staying the invoice sent. */
     public byte[] renderDocx(Invoice invoice, InvoiceSeller seller, InvoiceBuyer buyer) {
+        return renderDocx(invoice, seller, buyer, null);
+    }
+
+    /** As above, filling the freelancer's Word template when given one instead of the built-in layout. */
+    public byte[] renderDocx(Invoice invoice, InvoiceSeller seller, InvoiceBuyer buyer, byte[] template) {
         InvoicePage page = new InvoicePage(null, invoice, seller, buyer);
-        return BillingDocx.render(page, logoOf(seller), page.title());
+        return template == null ? BillingDocx.render(page, logoOf(seller), page.title()) : DocxTemplate.fill(template, page, logoOf(seller));
     }
 
     /** The invoice as it states the seller and the buyer: frozen once issued, the live ones for a draft. */

@@ -73,6 +73,14 @@ Les factures et avoirs émis se téléchargent avec **Télécharger le PDF** au 
 
 **Télécharger en Word**, dans le menu d'une facture ou d'un devis, donne le même document en fichier Word (.docx) avec votre style, à relire, adapter ou archiver. La facture que vous envoyez reste le PDF : c'est elle qui porte son numéro et son contenu figés.
 
+Les **Modèles Word**, dans Profil → Facturation, permettent à **Télécharger en Word** de remplir votre propre mise en page :
+
+1. Dans Word, mettez en page une facture (ou un devis) comme vous le souhaitez et tapez des champs là où vont les valeurs, comme `{{invoice.number}}`, `{{client.name}}` ou `{{totals.toPay}}` ; **Champs à copier** les liste tous.
+2. Pour les lignes, mettez `{{#lines}}` au début d'une ligne de tableau et `{{/lines}}` à sa fin, avec `{{line.description}}`, `{{line.quantity}}`, `{{line.unitPrice}}` et `{{line.amount}}` dans ses cellules : la ligne est répétée pour chaque ligne de la facture.
+3. Cliquez sur **Envoyer un modèle** sous **Factures et avoirs** ou **Devis**. Indezy montre les champs trouvés, ceux qu'il ne connaît pas, et les mentions absentes de votre modèle : elles sont ajoutées à la fin, pour que rien de ce qu'exige la loi ne manque.
+
+**Revenir à la mise en page intégrée** retire le modèle. Le PDF garde la mise en page intégrée.
+
 ## L'export pour le comptable
 
 1. Sur la page **Factures**, cliquez sur **Exporter pour le comptable**.

@@ -17,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-info.component';
 import { ProfileCareerComponent } from './career/profile-career.component';
+import { BillingTemplatesComponent } from './billing-templates/billing-templates.component';
 import { ProfileCvCardComponent } from './cv-card/profile-cv-card.component';
 import { BlockedPublishersComponent } from './blocked-publishers/blocked-publishers.component';
 import { EmailTemplatesSettingsComponent } from './email-templates-settings/email-templates-settings.component';
@@ -48,7 +49,7 @@ const PROFILE_TABS_BEFORE_NETWORK = 7;
     imports: [AiSettingsComponent, DossierButtonComponent, PageHeaderComponent, 
     ProfileDataImportComponent, ProfilePublicPageComponent, ProfileNetworkComponent, ProfilePrivacyComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
     ProfileWebhooksComponent, ProfileAccountDeletionComponent,
-    ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent, ProfileCareerComponent, ProfileCvCardComponent,
+    ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent, ProfileCareerComponent, ProfileCvCardComponent, BillingTemplatesComponent,
     BlockedPublishersComponent, EmailTemplatesSettingsComponent, ReactiveFormsModule, FormsModule, TranslateModule,
     MatCardModule, MatButtonModule, MatIconModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatSlideToggleModule, MatProgressSpinnerModule
