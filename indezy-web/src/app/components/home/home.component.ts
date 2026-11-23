@@ -54,7 +54,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   /** The screenshots, taken from a demo workspace (scripts/screenshots), in the page's language and the visitor's theme. */
   readonly screens = ['kanban', 'offers', 'report', 'dashboard'];
   readonly steps = ['profile', 'network', 'opportunities', 'pipeline', 'reports'];
-  readonly trust = ['yours', 'export', 'links'];
+  readonly trust = ['yours', 'hosted', 'export', 'links'];
   /** The questions freelancers ask most, answered in the help center's FAQ. */
   readonly questions = ['who', 'sites', 'data', 'languages'];
 

@@ -51,6 +51,7 @@ describe('HomeComponent', () => {
 
     expect(element.querySelector('h1')!.textContent).toBe('Trouvez la mission, décrochez-la au bon TJM, puis menez-la.');
     expect(element.querySelectorAll('[data-feature]').length).toBe(6);
+    expect(element.querySelector('.trust')!.textContent).toContain('Hébergé en France');
     expect(element.querySelector('[data-screen="kanban"] img')!.getAttribute('src')).toBe('assets/screens/kanban-fr-light.jpg');
     expect(element.querySelector('[data-screen="kanban"] source')!.getAttribute('srcset')).toBe('assets/screens/kanban-fr-dark.jpg');
     expect(element.querySelector('[data-sign-in]')!.textContent).toContain('Se connecter');

@@ -3809,6 +3809,10 @@
         "title": "Vous seul voyez votre espace",
         "text": "Personne d'autre ne lit vos opportunités, vos clients ou vos tarifs, et rien n'est montré à des annonceurs."
       },
+      "hosted": {
+        "title": "Hébergé en France",
+        "text": "Sur des serveurs dédiés d'OVHcloud en France, dans l'Union européenne, sur une plateforme que l'éditeur d'Indezy exploite lui-même."
+      },
       "export": {
         "title": "Tout s'exporte",
         "text": "Téléchargez toutes vos données à tout moment, et reprenez vos opportunités et contacts depuis un fichier."

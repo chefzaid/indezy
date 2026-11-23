@@ -21,7 +21,7 @@ again; the browser remembers the choice. Below 1,024 pixels wide the menu is a d
 ## Presentation Page
 
 `/` presents Indezy in French and `/en` in English (a first visit from an English browser goes to `/en`): what it does,
-how it works, how the data is kept, and screens from a demo workspace whose people and offers are invented. Signed out,
+how it works, how the data is kept (only the member sees the workspace, hosted in France on OVHcloud's servers, all of it exportable, shared links chosen one by one), and screens from a demo workspace whose people and offers are invented. Signed out,
 **Sign in** opens Keycloak; **Create my account** shows outside production only, as sign-up in production waits on a
 decision (TODO.md, Needs Input). Signed in, **Open the dashboard**. The page never sends a visitor to sign in, and an old
 `/?project=<id>` link still opens its opportunity. Both languages are prerendered, so search engines and link previews

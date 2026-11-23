@@ -3809,6 +3809,10 @@
         "title": "Only you see your workspace",
         "text": "No one else reads your opportunities, clients or rates, and nothing is shown to advertisers."
       },
+      "hosted": {
+        "title": "Hosted in France",
+        "text": "On dedicated servers of OVHcloud in France, in the European Union, on a platform Indezy's publisher runs itself."
+      },
       "export": {
         "title": "Everything can be exported",
         "text": "Download all your data at any time, and take your opportunities and contacts back from a file."
