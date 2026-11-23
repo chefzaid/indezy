@@ -24,6 +24,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findByClientId(Long clientId);
 
+    /** The opportunities with a company, as their client or their ESN. */
+    @Query("select p from Project p where p.client.id = :companyId or p.middleman.id = :companyId")
+    List<Project> findByCompany(@Param("companyId") Long companyId);
+
     /** Archives a workspace's pipeline opportunities (contact, interviews, offer) last updated at or before {@code idleSince}. */
     @Modifying(clearAutomatically = true)
     @Query("update Project p set p.archivedAt = :now where p.freelance.id = :freelanceId and p.archivedAt is null " +

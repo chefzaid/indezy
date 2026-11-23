@@ -27,11 +27,12 @@ const TABS = ['details', 'projects', 'contacts'] as const;
 
 import { PaymentDelayComponent } from '../../../shared/components/payment-delay/payment-delay.component';
 import { CompanyHealthComponent } from '../../../shared/components/company-health/company-health.component';
+import { CompanyScorecardComponent } from '../../../shared/components/company-scorecard/company-scorecard.component';
 import { ClientReviewsComponent } from '../client-reviews/client-reviews.component';
 
 @Component({
     selector: 'app-client-detail',
-    imports: [ClientReviewsComponent, CompanyHealthComponent, PaymentDelayComponent,
+    imports: [ClientReviewsComponent, CompanyHealthComponent, CompanyScorecardComponent, PaymentDelayComponent,
     CommonModule,
     RouterModule,
     MatCardModule,

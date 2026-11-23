@@ -15,6 +15,10 @@ The form's **Billing** section keeps the SIREN and VAT number printed on your in
 
 > **Tip:** the list filters as you type, by words, type and city. A client still linked to missions cannot be deleted, and deleting a client deletes its contacts.
 
+## Your record with a company
+
+A client's or ESN's page sums up, from your own opportunities and exchanges only, **Your record with them**: the opportunities with it, won and open, the **Offer rate** (the share of those past the interviews that reached an offer), the **Process** (the median days from an opportunity's creation to its last interview step), **Their margin** (what share of the client's rate the ESN kept, when you entered the client's rate) and how soon its contacts usually **Answer**. Nothing of it is shared with anyone.
+
 ## Company health check
 
 For a client or ESN with a SIREN, Indezy checks, on its page and on its opportunities' pages:

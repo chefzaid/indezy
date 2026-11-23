@@ -740,7 +740,21 @@
       "projectsTab": "Projects",
       "projectsTitle": "Projects linked to this client",
       "noProjects": "No project is linked to this client yet.",
-      "forClient": "for {{name}}"
+      "forClient": "for {{name}}",
+      "scorecard": {
+        "title": "Your record with them",
+        "opportunities": "{{opportunities}} opportunities, {{won}} won, {{open}} open",
+        "offerRate": "Offer rate",
+        "offerRateValue": "{{rate}} % of those past the interviews",
+        "process": "Process",
+        "processValue": "{{days}} days to the outcome (median of {{count}})",
+        "margin": "Their margin",
+        "marginValue": "{{min}} to {{max}} % of the client's rate ({{count}} missions)",
+        "marginOne": "{{min}} % of the client's rate (1 mission)",
+        "answer": "Answers",
+        "answerValue": "in {{days}} days usually",
+        "private": "From your own opportunities and exchanges only; nothing is shared."
+      }
     },
     "form": {
       "editTitle": "Edit client",

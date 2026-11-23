@@ -740,7 +740,21 @@
       "projectsTab": "Missions",
       "projectsTitle": "Missions liées à ce client",
       "noProjects": "Aucune mission n'est encore liée à ce client.",
-      "forClient": "pour {{name}}"
+      "forClient": "pour {{name}}",
+      "scorecard": {
+        "title": "Votre historique avec eux",
+        "opportunities": "{{opportunities}} opportunité(s) : {{won}} gagnée(s), {{open}} en cours",
+        "offerRate": "Taux d'offre",
+        "offerRateValue": "{{rate}} % de celles passées les entretiens",
+        "process": "Processus",
+        "processValue": "{{days}} jours jusqu'à l'issue (médiane de {{count}})",
+        "margin": "Leur marge",
+        "marginValue": "{{min}} à {{max}} % du tarif client ({{count}} missions)",
+        "marginOne": "{{min}} % du tarif client (1 mission)",
+        "answer": "Réponses",
+        "answerValue": "en {{days}} jours d'habitude",
+        "private": "À partir de vos seules opportunités et échanges ; rien n'est partagé."
+      }
     },
     "form": {
       "editTitle": "Modifier le client",

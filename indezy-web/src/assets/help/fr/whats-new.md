@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Votre historique avec chaque ESN
+
+La page d'un client ou d'une ESN montre désormais votre taux d'offre avec elle, la durée de ses processus, sa marge sur le tarif client et son délai de réponse, à partir de vos seules données. Voir [Clients, ESN et contacts](/help/clients-contacts).
+
 ### L'ordre de vos factures et devis à votre main
 
 **Ordre du corps**, dans Profil → Facturation, monte ou descend les lignes, les mentions et les notes, et peut retirer le cadre de signature de vos devis. Voir [Devis et factures](/help/invoices-quotes).

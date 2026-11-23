@@ -106,3 +106,5 @@ Each waits on a word from you in TODO.md's **Needs Input**:
   answered and forwards the answer, or keep answers going straight to the member, marked by hand.
 - **Browser extension:** whether to publish it in the Chrome Web Store (a one-time developer fee, under your name or
   company).
+- **ESN scorecard across members:** whether shared figures may name an ESN (a company) when 5 freelancers or more back
+  them, which amends ADR 0014; or only market-wide figures; or the private scorecard each workspace already has.

@@ -1051,6 +1051,18 @@ announcement of the last three years (the DILA's open data, keyless), the page t
 answers are kept a day, and a company without a SIREN or that neither source answers for is not flagged
 (`GET /api/clients/{id}/health`).
 
+### Company Scorecard
+
+Each client's or ESN's page sums up how it dealt with the workspace, from the workspace's own records only
+(`GET /api/clients/{id}/scorecard`, `CompanyScorecardService`), under **Your record with them**: the opportunities with
+it (as the client or the ESN), how many were won and how many are open; the **Offer rate**, the share of those past the
+interviews (an offer, won or turned down) that reached an offer or were won; the **Process**, the median days from an
+opportunity's creation to its last dated interview step, over those won or turned down; **Their margin**, the lowest and
+highest share of the client's daily rate the ESN kept over the freelancer's, over the opportunities through it with both
+rates; and how soon its contacts usually **Answer** (as on the follow-ups due). A figure shows once something backs it,
+the section not at all without an opportunity; how the company pays is the payment delay line above it. Nothing is
+shared: a scorecard across members waits on Needs Input **ESN scorecard across members**.
+
 ### Contact Interaction History
 
 A contact's **Exchanges** record a day (today at the latest), a channel (email, phone, LinkedIn, meeting, other), who

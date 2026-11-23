@@ -75,3 +75,21 @@ export interface CompanyHealth {
   procedure?: 'SAUVEGARDE' | 'REDRESSEMENT' | 'LIQUIDATION' | 'OTHER' | null;
   procedureOn?: string | null;
 }
+
+/**
+ * How a company (an ESN or a client) dealt with the workspace, from its own records: the opportunities, the share past
+ * the interviews that reached an offer, the median days to an outcome, the ESN's margin on the client's rate, and how
+ * soon its contacts answer; a figure is null until something backs it.
+ */
+export interface CompanyScorecard {
+  opportunities: number;
+  open: number;
+  won: number;
+  offerRate: number | null;
+  processDays: number | null;
+  processes: number;
+  marginMin: number | null;
+  marginMax: number | null;
+  margins: number;
+  answerDays: number | null;
+}

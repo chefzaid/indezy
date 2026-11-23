@@ -345,6 +345,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/components/ai-negotiation-dialog/ai-negotiation-dialog.component',
   'shared/components/availability-emails/availability-emails.component',
   'shared/components/company-health/company-health.component',
+  'shared/components/company-scorecard/company-scorecard.component',
   'shared/components/confirm-dialog/confirm-dialog.component',
   'shared/components/list-selection-bar/list-selection-bar.component',
   'shared/components/loading/loading.component',

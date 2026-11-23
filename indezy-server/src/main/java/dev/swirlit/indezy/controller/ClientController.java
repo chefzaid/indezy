@@ -7,6 +7,7 @@ import dev.swirlit.indezy.dto.CompanyHealthDto;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.ClientService;
 import dev.swirlit.indezy.service.CompanyHealthService;
+import dev.swirlit.indezy.service.CompanyScorecardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,6 +27,7 @@ public class ClientController {
     private final ClientService clientService;
     private final AccessGuard accessGuard;
     private final CompanyHealthService companyHealthService;
+    private final CompanyScorecardService companyScorecardService;
 
     @Operation(summary = "List the clients of a workspace")
     @GetMapping("/by-freelance/{freelanceId}")
@@ -47,6 +49,14 @@ public class ClientController {
     public CompanyHealthDto getClientHealth(@PathVariable Long id) {
         accessGuard.requireClient(id);
         return companyHealthService.check(clientService.findById(id).getSiren());
+    }
+
+    @Operation(summary = "How a client or an ESN dealt with the workspace",
+        description = "From the workspace's own opportunities and exchanges: offer rate, process length, the ESN's margin, answer time")
+    @GetMapping("/{id}/scorecard")
+    public CompanyScorecardService.Scorecard getClientScorecard(@PathVariable Long id) {
+        accessGuard.requireClient(id);
+        return companyScorecardService.scorecard(id);
     }
 
     @Operation(summary = "Create a client")
