@@ -23,6 +23,7 @@ import { ConfirmDialogService } from '../../shared/services/confirm-dialog.servi
 import { copyExtension, saveBlob } from '../../shared/utils/download-file';
 import { invoiceErrorKey } from './invoice-errors';
 import { ClientSharesComponent } from './client-shares/client-shares.component';
+import { InvoiceBankDialogComponent } from './bank-dialog/invoice-bank-dialog.component';
 import { InvoiceDateDialogComponent, InvoiceDateDialogData } from './date-dialog/invoice-date-dialog.component';
 import { InvoiceDraftDialogComponent, InvoiceDraftDialogData } from './draft-dialog/invoice-draft-dialog.component';
 import { InvoiceReportDialogComponent } from './report-dialog/invoice-report-dialog.component';
@@ -142,6 +143,18 @@ export class InvoicesComponent implements OnInit {
         this.apply(this.invoiceService.issue(invoice.id, date), 'invoices.issued');
       }
     });
+  }
+
+  /** Matches a bank statement with the invoices awaiting payment, then shows those marked paid from it. */
+  matchStatement(): void {
+    this.dialog.open(InvoiceBankDialogComponent, { width: '680px', maxWidth: '96vw', autoFocus: false })
+      .afterClosed().subscribe((paid?: Invoice[]) => {
+        if (paid?.length) {
+          const byId = new Map(paid.map(invoice => [invoice.id, invoice]));
+          this.invoices = this.invoices.map(item => byId.get(item.id) ?? item);
+          this.notifications.success('invoices.bank.done', 4000, { count: paid.length });
+        }
+      });
   }
 
   markPaid(invoice: Invoice): void {

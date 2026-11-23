@@ -107,3 +107,17 @@ export interface PaymentDelay {
   averageDays: number;
   averageDaysLate: number;
 }
+
+/** Why a bank credit was matched to an invoice, the strongest first: its number in the label, its client's name, the amount alone. */
+export type BankMatchReason = 'NUMBER' | 'CLIENT' | 'AMOUNT';
+
+/** A credit of a bank statement, with the invoice awaiting payment it pays when one is found. */
+export interface BankMatch {
+  date: string;
+  label: string;
+  amount: number;
+  invoiceId: number | null;
+  invoiceNumber: string | null;
+  clientName: string | null;
+  reason: BankMatchReason | null;
+}

@@ -1452,6 +1452,20 @@ waits on the owner's choice of converter).
 **Create a credit note** on an issued invoice drafts one with the same lines, to reduce for a partial credit; it is
 issued in the same numbering and cannot credit more than what is left. Fully credited, the invoice reads **Credited**.
 
+### Bank Reconciliation
+
+**Match my bank statement** on the Invoices page reads the CSV a bank exports (`POST /api/invoices/reconciliation` with
+its text, 2 MB at most; `BankStatementCsv`, `BankReconciliationService`): the separator (`;`, `,` or tab) and the
+header are found past any lines before it, the date, label and amount columns by their names in French or English (or a
+credit column beside a debit one), amounts with a decimal comma or point, spaces and a currency sign, dates as
+`31/12/2026`, `31-12-2026`, `31.12.2026`, `31/12/26` or `2026-12-31`. Each credit is matched with one invoice awaiting
+payment at most (issued, not paid nor credited, not a credit note, issued on or before the credit's day, for its
+total, in euros for another currency), by the strongest reason first: its number in the label (spaces and dashes
+ignored), then its client's name in the label (each word of three letters or more), then the amount alone when no
+other invoice awaits it. Nothing is recorded: the dialog lists every credit, the matches ticked, and **Mark N invoices
+paid** records each kept one paid on its credit's day (`PUT /api/invoices/{id}/payment`, as by hand). A connection to
+the bank itself waits on Needs Input **Paid compliance providers**.
+
 ### Quotes
 
 **Quotes** (`/quotes`) prepares fixed-price work (an audit, a training, a development): a draft names a client,

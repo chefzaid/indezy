@@ -98,6 +98,10 @@ public final class InvoiceDtos {
     public record Payment(LocalDate paidOn) {
     }
 
+    /** A bank statement exported as CSV, to match its credits with the invoices awaiting payment. */
+    public record Statement(@NotBlank @Size(max = 2_000_000) String content) {
+    }
+
     /** How a client pays: over how many paid invoices, the average days from issue to payment and past the due date. */
     public record PaymentDelay(Long clientId, int paidInvoices, long averageDays, long averageDaysLate) {
     }

@@ -3359,7 +3359,26 @@
     "exchangeRate": "Value of 1 {{currency}} in euros",
     "exchangeRateHint": "The rate at the issue date, as your bank or the ECB gives it; needed to issue.",
     "exchangeRateError": "A rate above zero",
-    "inEuros": "In euros"
+    "inEuros": "In euros",
+    "bank": {
+      "open": "Match my bank statement",
+      "title": "Match my bank statement",
+      "intro": "Choose the CSV your bank exports (most French banks offer one under Download or Export). Its credits are matched with the invoices awaiting payment: by the invoice number in the label, by the client's name with the same amount, or by the amount alone when only one invoice awaits it. Nothing is recorded until you mark them paid.",
+      "file": "Bank statement (CSV)",
+      "none": "No credit found: check the file has a date, a label and an amount column.",
+      "summary": "{{credits}} credit(s) read, {{matched}} matched with an invoice.",
+      "unmatched": "No invoice found",
+      "reasons": {
+        "NUMBER": "Its number is in the label",
+        "CLIENT": "Its client and amount",
+        "AMOUNT": "Its amount, the only invoice awaiting it"
+      },
+      "markPaid": "Mark {{count}} invoice(s) paid",
+      "done": "{{count}} invoice(s) marked paid from the statement",
+      "tooLarge": "This file is over 2 MB: export a shorter period.",
+      "readError": "This statement could not be read.",
+      "saveError": "Some invoices could not be marked paid. Try again."
+    }
   },
   "purchaseOrders": {
     "title": "Purchase orders",

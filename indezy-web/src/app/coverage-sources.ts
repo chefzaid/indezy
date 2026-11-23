@@ -62,6 +62,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/help/help-search.service',
   'components/help/help-topics',
   'components/home/home.component',
+  'components/invoices/bank-dialog/invoice-bank-dialog.component',
   'components/invoices/client-shares/client-shares',
   'components/invoices/client-shares/client-shares.component',
   'components/invoices/date-dialog/invoice-date-dialog.component',

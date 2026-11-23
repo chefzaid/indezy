@@ -47,6 +47,7 @@ Une ligne à quantité négative retranche un montant (une remise, un acompte d�
 2. Ouvrez le menu de la facture et cliquez sur **Émettre**, puis choisissez la **Date d'émission** (jamais après aujourd'hui, jamais avant la dernière facture).
 3. La facture reçoit le numéro suivant de l'année, sans trou, et sa date d'échéance. Elle ne peut plus être modifiée ni supprimée.
 4. Quand le client paie, cliquez sur **Marquer payée** et indiquez **Payée le**. **Marquer non payée** corrige une erreur.
+5. Ou cliquez sur **Rapprocher mon relevé bancaire** et choisissez le CSV exporté par votre banque : chaque crédit est rapproché de la facture qu'il paie, par son numéro dans le libellé, par le nom du client avec le même montant, ou par le montant seul quand une seule facture l'attend. Décochez un rapprochement erroné, puis cliquez sur **Marquer N facture(s) payée(s)** : chacune est marquée payée le jour de son crédit. Rien n'est enregistré avant, et le relevé n'est pas conservé.
 
 Pour annuler tout ou partie d'une facture émise, cliquez sur **Créer un avoir** : Indezy prépare un avoir avec les mêmes lignes, à réduire pour un avoir partiel, puis à émettre. Entièrement créditée, la facture passe **Annulée par avoir**.
 

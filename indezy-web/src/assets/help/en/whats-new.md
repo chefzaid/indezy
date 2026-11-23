@@ -2,13 +2,17 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Mark invoices paid from your bank statement
+
+**Match my bank statement** on the Invoices page reads your bank's CSV export, matches its credits with the invoices awaiting payment, and marks those you keep paid on their day. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Your record with each ESN
 
 A client's or ESN's page now shows your offer rate with it, how long its processes take, its margin on the client's rate and how soon it answers, from your own data only. See [Clients, ESNs and contacts](/help/clients-contacts).
 
 ### Choose the order of your invoices and quotes
 
-**Order of the body** in Profile → Billing moves the lines, the mentions and the notes up or down, and can leave the signature box out of your quotes. See [Invoices and quotes](/help/invoices-quotes).
+**Order of the body** in Profile → Billing moves the lines, the mentions and the notes up or down, and can leave the signature box out of your quotes. See [Quotes and invoices](/help/invoices-quotes).
 
 ### Your next prospection ranked by the last ones
 

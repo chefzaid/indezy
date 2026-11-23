@@ -3359,7 +3359,26 @@
     "exchangeRate": "Valeur de 1 {{currency}} en euros",
     "exchangeRateHint": "Le taux à la date d'émission, celui de votre banque ou de la BCE ; nécessaire pour émettre.",
     "exchangeRateError": "Un taux supérieur à zéro",
-    "inEuros": "En euros"
+    "inEuros": "En euros",
+    "bank": {
+      "open": "Rapprocher mon relevé bancaire",
+      "title": "Rapprocher mon relevé bancaire",
+      "intro": "Choisissez le CSV exporté par votre banque (la plupart des banques françaises le proposent sous Télécharger ou Exporter). Ses crédits sont rapprochés des factures en attente de paiement : par le numéro de facture dans le libellé, par le nom du client avec le même montant, ou par le montant seul quand une seule facture l'attend. Rien n'est enregistré avant que vous les marquiez payées.",
+      "file": "Relevé bancaire (CSV)",
+      "none": "Aucun crédit trouvé : vérifiez que le fichier a une colonne date, libellé et montant.",
+      "summary": "{{credits}} crédit(s) lu(s), {{matched}} rapproché(s) d'une facture.",
+      "unmatched": "Aucune facture trouvée",
+      "reasons": {
+        "NUMBER": "Son numéro est dans le libellé",
+        "CLIENT": "Son client et son montant",
+        "AMOUNT": "Son montant, seule facture qui l'attend"
+      },
+      "markPaid": "Marquer {{count}} facture(s) payée(s)",
+      "done": "{{count}} facture(s) marquée(s) payée(s) depuis le relevé",
+      "tooLarge": "Ce fichier dépasse 2 Mo : exportez une période plus courte.",
+      "readError": "Ce relevé n'a pas pu être lu.",
+      "saveError": "Certaines factures n'ont pas pu être marquées payées. Réessayez."
+    }
   },
   "purchaseOrders": {
     "title": "Bons de commande",

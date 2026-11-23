@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Vos factures payées depuis votre relevé bancaire
+
+**Rapprocher mon relevé bancaire**, sur la page Factures, lit l'export CSV de votre banque, rapproche ses crédits des factures en attente et marque payées celles que vous gardez, le jour de leur crédit. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Votre historique avec chaque ESN
 
 La page d'un client ou d'une ESN montre désormais votre taux d'offre avec elle, la durée de ses processus, sa marge sur le tarif client et son délai de réponse, à partir de vos seules données. Voir [Clients, ESN et contacts](/help/clients-contacts).

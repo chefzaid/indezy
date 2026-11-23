@@ -6,6 +6,7 @@ import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.service.ActivityReportService;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.AccountingExportService;
+import dev.swirlit.indezy.service.BankReconciliationService;
 import dev.swirlit.indezy.service.BillingIdentityService;
 import dev.swirlit.indezy.service.InvoicePaymentDelays;
 import dev.swirlit.indezy.service.InvoiceService;
@@ -43,6 +44,7 @@ public class InvoiceController {
     private final InvoicePaymentDelays paymentDelays;
     private final AccessGuard accessGuard;
     private final BillingIdentityService billingIdentity;
+    private final BankReconciliationService reconciliation;
 
     @Operation(summary = "The workspace's invoices, newest first")
     @GetMapping("/by-freelance/{freelanceId}")
@@ -114,6 +116,13 @@ public class InvoiceController {
     @PutMapping("/{id}/payment")
     public InvoiceDtos.Invoice pay(@PathVariable Long id, @RequestBody InvoiceDtos.Payment payment) {
         return invoices.pay(workspace(), id, payment);
+    }
+
+    @Operation(summary = "Match a bank statement's credits with the invoices awaiting payment",
+        description = "The statement is the bank's CSV export; nothing is recorded, each match kept is then marked paid")
+    @PostMapping("/reconciliation")
+    public List<BankReconciliationService.Match> reconcile(@Valid @RequestBody InvoiceDtos.Statement statement) {
+        return reconciliation.match(workspace(), statement.content());
     }
 
     @Operation(summary = "The invoice as a PDF")

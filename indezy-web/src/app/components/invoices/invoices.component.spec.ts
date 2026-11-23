@@ -15,6 +15,7 @@ import { NotificationService } from '../../services/notification/notification.se
 import { ProjectService } from '../../services/project/project.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { InvoicesComponent } from './invoices.component';
+import { InvoiceBankDialogComponent } from './bank-dialog/invoice-bank-dialog.component';
 import { InvoiceReportDialogComponent } from './report-dialog/invoice-report-dialog.component';
 import en from '../../../assets/i18n/en.json';
 
@@ -150,6 +151,18 @@ describe('InvoicesComponent', () => {
     component.write(draft);
     expect(component.invoices.find(item => item.id === 1)?.total).toBe(1500);
     expect(notifications.success).toHaveBeenCalledWith('invoices.saved');
+  });
+
+  it('shows the invoices marked paid from a bank statement', () => {
+    const component = create().componentInstance;
+    closing(undefined);
+    component.matchStatement();
+    expect(dialog.open).toHaveBeenCalledWith(InvoiceBankDialogComponent, jasmine.any(Object));
+    expect(notifications.success).not.toHaveBeenCalled();
+    closing([{ ...issued, status: 'PAID', paidOn: '2026-11-20' }]);
+    component.matchStatement();
+    expect(component.invoices.find(item => item.id === issued.id)?.status).toBe('PAID');
+    expect(notifications.success).toHaveBeenCalledWith('invoices.bank.done', 4000, { count: 1 });
   });
 
   it('counts the months of activity reports to invoice and drafts the one picked', () => {

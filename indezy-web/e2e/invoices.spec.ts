@@ -151,3 +151,45 @@ for (const width of [1280, 390]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 }
+
+for (const width of [1280, 390]) {
+  test(`marks invoices paid from a bank statement (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, 'fr');
+    await mockWorkspaceData(page, 'fr');
+    let invoices: Record<string, unknown>[] = [{ ...base, id: 1, number: 'F2026-0001', status: 'ISSUED', issueDate: '2026-11-01',
+      dueDate: '2026-12-01', totalExcludingVat: 1234.56, total: 1234.56 }];
+    await page.route('**/api/invoices/by-freelance/1', route => route.fulfill({ json: invoices }));
+    let statement = '';
+    await page.route('**/api/invoices/reconciliation', route => {
+      statement = route.request().postDataJSON().content;
+      return route.fulfill({ json: [
+        { date: '2026-11-20', label: 'VIR SEPA FACT F2026 0001', amount: 1234.56, invoiceId: 1, invoiceNumber: 'F2026-0001', clientName: 'Acme',
+          reason: 'NUMBER' },
+        { date: '2026-11-21', label: 'REMISE CHEQUE', amount: 77.77, invoiceId: null, invoiceNumber: null, clientName: null, reason: null }] });
+    });
+    const payments: unknown[] = [];
+    await page.route('**/api/invoices/1/payment', route => {
+      payments.push(route.request().postDataJSON());
+      invoices = [{ ...invoices[0], status: 'PAID', paidOn: '2026-11-20' }];
+      return route.fulfill({ json: invoices[0] });
+    });
+
+    await page.goto('/invoices');
+    await page.locator('[data-invoice-bank]').click();
+    const dialog = page.getByRole('dialog');
+    await dialog.locator('[data-bank-file]').setInputFiles({ name: 'releve.csv', mimeType: 'text/csv',
+      buffer: Buffer.from('Date;Libellé;Montant\n20/11/2026;VIR SEPA FACT F2026 0001;1 234,56\n') });
+    await expect(dialog.locator('[data-bank-summary]')).toHaveText('2 crédit(s) lu(s), 1 rapproché(s) d\'une facture.');
+    expect(statement).toContain('VIR SEPA FACT F2026 0001');
+    await expect(dialog.locator('[data-bank-credit="0"]')).toContainText('Son numéro est dans le libellé');
+    await expect(dialog.locator('[data-bank-credit="1"]')).toContainText('Aucune facture trouvée');
+    const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    await dialog.locator('[data-bank-mark-paid]').click();
+    await expect(dialog).toBeHidden();
+    expect(payments).toEqual([{ paidOn: '2026-11-20' }]);
+    await expect(page.locator('[data-invoice="1"]')).toContainText('Payée');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}

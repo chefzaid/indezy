@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Invoice, InvoiceDraft, InvoiceableReport, PaymentDelay } from '../../models';
+import { BankMatch, Invoice, InvoiceDraft, InvoiceableReport, PaymentDelay } from '../../models';
 
 /** An accountant's export: the FEC journal entries, or the register of invoices and credit notes as CSV. */
 export type AccountingExportFormat = 'FEC' | 'REGISTER';
@@ -52,6 +52,11 @@ export class InvoiceService {
 
   issue(id: number, issueDate: string | null): Observable<Invoice> {
     return this.http.post<Invoice>(`${this.API_URL}/${id}/issue`, { issueDate });
+  }
+
+  /** Matches a bank statement's credits (its CSV export) with the invoices awaiting payment; nothing is recorded. */
+  reconcile(content: string): Observable<BankMatch[]> {
+    return this.http.post<BankMatch[]>(`${this.API_URL}/reconciliation`, { content });
   }
 
   setPaid(id: number, paidOn: string | null): Observable<Invoice> {

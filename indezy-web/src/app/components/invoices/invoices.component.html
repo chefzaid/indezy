@@ -25,6 +25,10 @@
         </ng-template>
       </mat-menu>
     }
+    <button mat-stroked-button type="button" (click)="matchStatement()" data-invoice-bank>
+      <mat-icon>account_balance</mat-icon>
+      {{ 'invoices.bank.open' | translate }}
+    </button>
     <button mat-stroked-button type="button" (click)="fromReport()" data-invoice-from-report>
       <mat-icon>event_note</mat-icon>
       {{ 'invoices.fromReport' | translate }}

@@ -47,6 +47,7 @@ A line with a negative quantity takes an amount off (a discount, a deposit alrea
 2. Open the invoice's menu, click **Issue**, then pick the **Issue date** (never later than today, never before the last invoice).
 3. The invoice gets the year's next number, with no gap, and its due date. It can no longer change or be deleted.
 4. When the client pays, click **Mark as paid** and enter **Paid on**. **Mark as unpaid** fixes a mistake.
+5. Or click **Match my bank statement** and choose the CSV your bank exports: each credit is matched with the invoice it pays, by its number in the label, by the client's name with the same amount, or by the amount alone when only one invoice awaits it. Untick any match that is wrong, then click **Mark N invoices paid**: each is marked paid on its credit's day. Nothing is recorded before that, and the statement is not kept.
 
 To cancel all or part of an issued invoice, click **Create a credit note**: Indezy drafts one with the same lines, to reduce for a partial credit, then to issue. Fully credited, the invoice reads **Credited**.
 
