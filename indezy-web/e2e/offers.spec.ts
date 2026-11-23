@@ -218,11 +218,18 @@ test('shows the best new offers on the dashboard (en)', async ({ page }) => {
   await page.route('**/api/projects/stats/dashboard/1*', route => route.fulfill({ json: emptyDashboardStats }));
   await page.route('**/api/projects/by-freelance/1', route => route.fulfill({ json: [] }));
   await page.route('**/api/seasons/by-freelance/1', route => route.fulfill({ json: [] }));
+  // A mission a member passes on, fitting the profile, joins the offers.
+  await page.route('**/api/network/feed/missions?**', route => route.fulfill({ json: { posts: [{ id: 9, kind: 'MISSION', text: 'Pour vous',
+    author: { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin' }, details: { role: 'Lead Kafka', rateMin: 650, rateMax: 700, city: 'Lyon',
+      remoteDays: 3, start: null, client: null, stack: ['Kafka'] } }], page: 0, more: false } }));
+  await page.route('**/api/network/feed/missions/matches?**', route => route.fulfill({ json: { 9: { score: 90, skills: ['Kafka'] } } }));
 
   await page.goto('/dashboard');
   const widget = page.locator('app-dashboard-offers');
-  await expect(widget.getByRole('heading', { name: 'Your best new offers' })).toBeVisible();
+  await expect(widget.getByRole('heading', { name: 'Recommended for you' })).toBeVisible();
   await expect(widget.locator('[data-dashboard-offer]')).toHaveCount(2);
+  await expect(widget.locator('li[data-dashboard-mission="9"]')).toContainText('Passed on by Léo Martin');
+  await expect(widget.locator('.offer-rows > li').first()).toHaveAttribute('data-dashboard-mission', '9');
   await expect(widget.locator('[data-dashboard-offer="1"]')).toContainText('80%');
   expect(api.searches.some(url => url.searchParams.get('sort') === 'MATCH' && url.searchParams.get('unseenOnly') === 'true')).toBe(true);
   await widget.getByRole('link', { name: 'Open the feed' }).click();

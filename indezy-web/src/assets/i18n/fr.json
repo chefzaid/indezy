@@ -243,11 +243,14 @@
     "showAll": "Tout afficher ({{count}})",
     "showLess": "Réduire",
     "offers": {
-      "bestMatches": "Vos meilleures nouvelles offres",
+      "bestMatches": "Recommandées pour vous",
       "newest": "Nouvelles offres",
       "openFeed": "Ouvrir le fil",
       "completeProfile": "Ajoutez vos compétences à votre profil pour voir les missions qui vous correspondent le mieux.",
-      "empty": "Aucune nouvelle offre depuis votre dernier passage dans le fil."
+      "empty": "Aucune nouvelle offre depuis votre dernier passage dans le fil.",
+      "mission": "Mission",
+      "fromNetwork": "Transmise par {{name}}",
+      "remoteDays": "{{days}} j de télétravail par semaine"
     },
     "widgets": {
       "customize": "Personnaliser",

@@ -1545,7 +1545,7 @@ mode. **Customize** shows, hides and orders its six blocks, saved with the accou
   availability date), editable, to copy, the network one kept as a network draft on request; nothing is posted. Below,
   **Email my ESN contacts** works without AI: see [Emails sent from Indezy](#emails-sent-from-indezy). A running
   open-ended mission shows none.
-- **New offers**: the five unseen offers matching the profile best (the five newest without skills).
+- **Recommended for you** (**New offers** without profile skills): the five unseen offers matching the profile best (the five newest without skills), with a matching profile ranked in one list with the missions members pass on that fit it best (35 or more, not in the pipeline, the network's **Best match first**): each by its score, an offer's moved by up to 5 points by its rate against the market median (a fifth of the gap), five at most; a mission opens its post.
 - **Analytics**: [trends](#trends), outcomes and refusal reasons, source ROI, conversion funnels (overall and by source,
   client type and ESN), asked against obtained rates by year, bench time with its cost, time to signature per client or
   ESN, skills in demand and the year's prospection activity.

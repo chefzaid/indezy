@@ -8,10 +8,15 @@ import { of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
 import { Offer, OfferPage } from '../../../models/offer.models';
 import { OfferService } from '../../../services/offer/offer.service';
+import { NetworkService } from '../../../services/network/network.service';
+import { NetworkPost } from '../../../models/network.models';
 import { DashboardOffersComponent } from './dashboard-offers.component';
 
 describe('DashboardOffersComponent', () => {
+  let missionsSet = false;
+  afterEach(() => missionsSet = false);
   let service: jasmine.SpyObj<OfferService>;
+  let network: jasmine.SpyObj<NetworkService>;
 
   function offer(id: number, overrides: Partial<Offer> = {}): Offer {
     return {
@@ -29,9 +34,15 @@ describe('DashboardOffersComponent', () => {
     service = jasmine.createSpyObj('OfferService', ['searchQuietly', 'updateState']);
     service.searchQuietly.and.returnValues(...answers);
     service.updateState.and.returnValue(of({ offerId: 1, saved: false, hidden: false, seen: true }));
+    if (!missionsSet) {
+      // Away from the network: no mission joins the offers.
+      network = jasmine.createSpyObj('NetworkService', ['missions', 'missionMatches']);
+      network.missions.and.returnValue(throwError(() => new Error('not a member')));
+    }
     TestBed.configureTestingModule({
       imports: [DashboardOffersComponent, TranslateModule.forRoot()],
-      providers: [provideRouter([]), { provide: LOCALE_ID, useValue: 'fr-FR' }, { provide: OfferService, useValue: service }]
+      providers: [provideRouter([]), { provide: LOCALE_ID, useValue: 'fr-FR' }, { provide: OfferService, useValue: service },
+        { provide: NetworkService, useValue: network }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('fr', fr);
@@ -53,7 +64,7 @@ describe('DashboardOffersComponent', () => {
       match: { score: 80, skills: ['Java'] } })], true)));
 
     expect(service.searchQuietly).toHaveBeenCalledWith(jasmine.objectContaining({ sort: 'MATCH', unseenOnly: true, size: 5 }));
-    expect(text(fixture)).toContain('Vos meilleures nouvelles offres');
+    expect(text(fixture)).toContain('Recommandées pour vous');
     expect(text(fixture)).toContain('Exemple Conseil');
     const row = fixture.nativeElement.querySelector('[data-dashboard-offer="1"]') as HTMLElement;
     expect(row.querySelector('[data-offer-rate]')!.textContent!.replace(/\s/g, ' ')).toContain('550 € – 650 €/jour');
@@ -90,5 +101,27 @@ describe('DashboardOffersComponent', () => {
 
     const failed = create(throwError(() => new Error('down')));
     expect(failed.nativeElement.querySelector('section')).toBeNull();
+  });
+
+  it('ranks the network missions fitting the profile with the offers, an offer moved by its rate against the market', () => {
+    network = jasmine.createSpyObj('NetworkService', ['missions', 'missionMatches']);
+    missionsSet = true;
+    const mission = (id: number) => ({ id, kind: 'MISSION', author: { firstName: 'Léo', lastName: 'Martin' },
+      details: { role: `Lead ${id}`, rateMin: 600, rateMax: 700, city: 'Lyon', remoteDays: 2, start: null, client: null, stack: ['Kafka'] } }) as unknown as NetworkPost;
+    network.missions.and.returnValue(of({ posts: [mission(7), mission(8)], page: 0, more: false }));
+    network.missionMatches.and.returnValue(of({ 7: { score: 80, skills: ['Kafka'] }, 8: { score: 20, skills: [] } }));
+    const fixture = create(of(page([offer(1, { match: { score: 78, skills: ['Java'] }, rateMarket: { percent: 20, median: 600, offers: 30, skill: 'Java' } }),
+      offer(2, { match: { score: 79, skills: ['Java'] } })], true)));
+    const component = fixture.componentInstance;
+
+    expect(network.missions).toHaveBeenCalledWith(0, { bestMatch: true, hideTaken: true });
+    expect(network.missionMatches).toHaveBeenCalledWith([7, 8]);
+    // 78 + 4 for a rate 20 % above the median, then the mission's 80, then 79; the mission at 20 is left out.
+    expect(component.items.map(item => item.kind === 'offer' ? `offer ${item.offer.id}` : `mission ${item.post.id}`))
+      .toEqual(['offer 1', 'mission 7', 'offer 2']);
+    const row = (fixture.nativeElement as HTMLElement).querySelector('[data-dashboard-mission="7"]')!;
+    expect(row.textContent).toContain('Lead 7');
+    expect(row.querySelector('[data-mission-from]')!.textContent).toContain('Léo Martin');
+    expect(component.missionRate(mission(7))).toContain('600');
   });
 });

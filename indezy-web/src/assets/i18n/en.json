@@ -243,11 +243,14 @@
     "showAll": "Show all ({{count}})",
     "showLess": "Show less",
     "offers": {
-      "bestMatches": "Your best new offers",
+      "bestMatches": "Recommended for you",
       "newest": "New offers",
       "openFeed": "Open the feed",
       "completeProfile": "Add your skills to your profile to see the missions that match you best.",
-      "empty": "No new offer since you last looked at the feed."
+      "empty": "No new offer since you last looked at the feed.",
+      "mission": "Mission",
+      "fromNetwork": "Passed on by {{name}}",
+      "remoteDays": "{{days}} remote days a week"
     },
     "widgets": {
       "customize": "Customize",
