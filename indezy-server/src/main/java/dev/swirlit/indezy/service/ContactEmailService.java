@@ -109,7 +109,7 @@ public class ContactEmailService {
      * them: how many wrote to them without an answer, and how many opportunities opened with their company after one did.
      */
     public record Recipient(Long id, String firstName, String name, String company, String email, int answers, LocalDate lastContactedOn,
-                            int postings, String mission, int silentCampaigns, int campaignOpportunities) {
+                            int postings, String mission, int silentCampaigns, int campaignOpportunities, Integer ratePaid) {
     }
 
     /** What a company posted for the profile lately: how many offers, and the newest one's title. */
@@ -151,6 +151,11 @@ public class ContactEmailService {
         List<Project> pipeline = projects.findByFreelanceId(freelanceId);
         pipeline.forEach(project -> Stream.of(project.getClient(), project.getMiddleman())
             .filter(Objects::nonNull).forEach(company -> workedWith.add(company.getId())));
+        // The best daily rate each company paid on a mission won through it, as the ESN or the client.
+        Map<Long, Integer> ratePaid = new HashMap<>();
+        pipeline.stream().filter(project -> project.getStatus() == dev.swirlit.indezy.model.enums.ProjectStatus.WON && project.getDailyRate() != null)
+            .forEach(project -> Stream.of(project.getClient(), project.getMiddleman()).filter(Objects::nonNull)
+                .forEach(company -> ratePaid.merge(company.getId(), project.getDailyRate(), Math::max)));
         Map<Long, int[]> answers = new HashMap<>();
         Map<Long, LocalDate> lastInTouch = new HashMap<>();
         Set<Long> answeringCompanies = new HashSet<>();
@@ -185,11 +190,13 @@ public class ContactEmailService {
                 contact.getEmail().strip(), answers.getOrDefault(contact.getId(), new int[1])[0], lastInTouch.get(contact.getId()),
                 postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).count(),
                 postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).latest(),
-                silent.getOrDefault(contact.getId(), 0), opportunities.getOrDefault(contact.getClient().getId(), 0)))
+                silent.getOrDefault(contact.getId(), 0), opportunities.getOrDefault(contact.getClient().getId(), 0),
+                ratePaid.get(contact.getClient().getId())))
             .sorted(Comparator.comparingInt(Recipient::answers).reversed()
                 .thenComparing(Comparator.comparingInt(Recipient::campaignOpportunities).reversed())
                 .thenComparingInt(Recipient::silentCampaigns)
                 .thenComparing(Comparator.comparingInt(Recipient::postings).reversed())
+                .thenComparing(Comparator.comparingInt((Recipient recipient) -> recipient.ratePaid() == null ? 0 : recipient.ratePaid()).reversed())
                 .thenComparing(Recipient::company, String.CASE_INSENSITIVE_ORDER).thenComparing(Recipient::name, String.CASE_INSENSITIVE_ORDER))
             .toList();
     }

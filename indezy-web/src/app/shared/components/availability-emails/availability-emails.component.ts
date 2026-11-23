@@ -38,7 +38,7 @@ export const SILENT_LIMIT = 2;
       } @else {
         <p class="hint">{{ 'availabilityEmails.hint' | translate }}</p>
         <ul class="recipients">
-          @for (recipient of recipients; track recipient.id) {
+          @for (recipient of shownRecipients(); track recipient.id) {
             <li>
               <mat-checkbox [checked]="chosen.has(recipient.id)" (change)="toggle(recipient.id)" [attr.data-availability-recipient]="recipient.id">
                 {{ recipient.name }} <span class="company">· {{ recipient.company }}
@@ -47,6 +47,9 @@ export const SILENT_LIMIT = 2;
                   }
                   @if (recipient.postings) {
                     · <span data-recipient-postings>{{ 'availabilityEmails.postings' | translate:{ count: recipient.postings } }}</span>
+                  }
+                  @if (recipient.ratePaid) {
+                    · <span data-recipient-rate-paid>{{ 'availabilityEmails.ratePaid' | translate:{ rate: recipient.ratePaid } }}</span>
                   }
                   @if (recipient.campaignOpportunities) {
                     · <span data-recipient-campaign-opportunities>{{ 'availabilityEmails.campaignOpportunities' | translate:{ count: recipient.campaignOpportunities } }}</span>
@@ -79,6 +82,11 @@ export const SILENT_LIMIT = 2;
             </li>
           }
         </ul>
+        @if (recipients.length > cap && !showAll) {
+          <button mat-button type="button" (click)="showAll = true" data-availability-emails-show-all>
+            {{ 'availabilityEmails.showAll' | translate:{ count: recipients.length } }}
+          </button>
+        }
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'availabilityEmails.subject' | translate }}</mat-label>
           <input matInput [(ngModel)]="subject" maxlength="200" data-availability-emails-subject>
@@ -376,6 +384,15 @@ export class AvailabilityEmailsComponent implements OnInit {
   /** Opens or closes the message of one contact, written from the shared one until changed. */
   edit(recipient: AvailabilityRecipient): void {
     this.editing = this.editing === recipient.id ? null : recipient.id;
+  }
+
+  /** The list shows the likeliest this many contacts first; **Show all** lists the others. */
+  readonly cap = 20;
+  showAll = false;
+
+  shownRecipients(): AvailabilityRecipient[] {
+    const all = this.recipients ?? [];
+    return this.showAll ? all : all.slice(0, this.cap);
   }
 
   /** At most this many contacts get their own message written by AI at once. */

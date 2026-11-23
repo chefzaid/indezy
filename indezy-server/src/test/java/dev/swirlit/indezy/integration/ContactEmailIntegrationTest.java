@@ -172,9 +172,11 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
 
         List<Map<String, Object>> recipients = call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody();
         assertThat(recipients).extracting(recipient -> recipient.get("name") + " <" + recipient.get("email") + "> " + recipient.get("company"))
-            .containsExactly("Inès Répond <ines@autre.example> Autre ESN", "Marc Autre <marc@autre.example> Autre ESN",
-                "Léa Martin <lea@conseil.example> Conseil Exemple");
+            .containsExactly("Inès Répond <ines@autre.example> Autre ESN", "Léa Martin <lea@conseil.example> Conseil Exemple",
+                "Marc Autre <marc@autre.example> Autre ESN");
         assertThat(recipients.getFirst()).containsEntry("answers", 1);
+        // Léa's ESN paid 650 a day on a mission won through it, which ranks her before Marc.
+        assertThat(recipients.get(1)).containsEntry("ratePaid", 650);
         assertThat(call(bob, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody()).isEmpty();
 
         when(mailer.configured()).thenReturn(true);
@@ -391,6 +393,10 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(recipients).filteredOn(recipient -> "Rangé".equals(String.valueOf(recipient.get("name")).split(" ")[1]))
             .extracting(recipient -> recipient.get("company") + " " + recipient.get("campaignOpportunities") + " " + recipient.get("silentCampaigns"))
             .containsExactly("Réponse ESN 1 1", "Neutre ESN 0 0", "Silence ESN 0 2");
+        // The best daily rate each company paid on a mission won through it.
+        assertThat(recipients).filteredOn(recipient -> "Rangé".equals(String.valueOf(recipient.get("name")).split(" ")[1]))
+            .extracting(recipient -> recipient.get("company") + " " + recipient.get("ratePaid"))
+            .containsExactly("Réponse ESN null", "Neutre ESN 600", "Silence ESN 600");
     }
 
     private static JobOffer offer(String company, List<String> skills, java.time.Instant publishedAt) {

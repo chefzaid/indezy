@@ -11,7 +11,7 @@ import { AvailabilityEmailsComponent } from './availability-emails.component';
 
 describe('AvailabilityEmailsComponent', () => {
   const lea: AvailabilityRecipient = { id: 1, firstName: 'Léa', name: 'Léa Martin', company: 'Conseil', email: 'lea@conseil.example', answers: 3,
-    lastContactedOn: '2026-08-01', postings: 0, mission: null, silentCampaigns: 0, campaignOpportunities: 1 };
+    lastContactedOn: '2026-08-01', postings: 0, mission: null, silentCampaigns: 0, campaignOpportunities: 1, ratePaid: null };
   const marc: AvailabilityRecipient = { id: 2, firstName: null, name: 'Marc Durand', company: 'Autre', email: 'marc@autre.example', answers: 0,
     lastContactedOn: null, postings: 2, mission: 'Lead Java', silentCampaigns: 0, campaignOpportunities: 0 };
 
@@ -36,6 +36,22 @@ describe('AvailabilityEmailsComponent', () => {
     fixture.detectChanges();
     return { fixture, component: fixture.componentInstance, contacts, notifications, ai };
   }
+
+  it('lists the likeliest 20 contacts first, the others on asking, with the rate each company paid', () => {
+    const many = Array.from({ length: 23 }, (_, index) => ({ ...marc, id: 100 + index, name: 'Contact ' + index, ratePaid: index ? null : 650 }));
+    const { fixture, component } = create(of(many));
+    const element = fixture.nativeElement as HTMLElement;
+    const details = element.querySelector('details')!;
+    details.open = true;
+    component.opened({ target: details } as unknown as Event);
+    fixture.detectChanges();
+    expect(element.querySelectorAll('[data-availability-recipient]').length).toBe(20);
+    expect(element.querySelector('[data-availability-recipient="100"] [data-recipient-rate-paid]')!.textContent).toContain('availabilityEmails.ratePaid');
+    (element.querySelector('[data-availability-emails-show-all]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(element.querySelectorAll('[data-availability-recipient]').length).toBe(23);
+    expect(element.querySelector('[data-availability-emails-show-all]')).toBeNull();
+  });
 
   it('writes each ticked contact\'s own message with AI, kept to read with Edit', () => {
     const { fixture, component, notifications, ai } = create();

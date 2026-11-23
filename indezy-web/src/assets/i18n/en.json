@@ -5395,7 +5395,9 @@
     "writeEach": "Write each one with AI ({{count}})",
     "writeEachMax": "{{max}} contacts at most at once.",
     "writtenEach": "{{count}} messages written, one per contact: check each with Edit before sending.",
-    "writeEachError": "The messages could not be written with AI. Check that AI is set up in Preferences."
+    "writeEachError": "The messages could not be written with AI. Check that AI is set up in Preferences.",
+    "ratePaid": "paid up to €{{rate}}/day",
+    "showAll": "Show all {{count}} contacts"
   },
   "marketReport": {
     "title": "IT freelance market report",

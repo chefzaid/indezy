@@ -140,6 +140,8 @@ export interface AvailabilityRecipient {
   silentCampaigns: number;
   /** How many opportunities opened with their company after a campaign wrote there. */
   campaignOpportunities: number;
+  /** The best daily rate their company paid on a mission won through it; null without one. */
+  ratePaid?: number | null;
 }
 
 /** A contact's exchanges, newest first, and what they say about the relationship. */

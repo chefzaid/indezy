@@ -31,7 +31,7 @@ class ProspectionAiServiceTest {
 
     private static ContactEmailService.Recipient recipient(long id, String firstName, String company, String mission) {
         return new ContactEmailService.Recipient(id, firstName, firstName + " Martin", company, firstName.toLowerCase() + "@example.com", 2, null,
-            mission == null ? 0 : 1, mission, 0, 0);
+            mission == null ? 0 : 1, mission, 0, 0, null);
     }
 
     @Test
