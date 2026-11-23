@@ -1520,7 +1520,7 @@ lines, or a sample's before the first, numbered and dated as if issued today; th
 used, the form setting the rest. **Quotes have their own colour and layout** gives the quotes a **Quotes' layout** and a
 **Quotes' accent colour** (`quoteTheme`, `quoteAccentColor`, refused too pale like the other; null for the invoices'
 ones), frozen with the quote's seller when it is sent, everything else shared; **Preview a quote** draws the preview in
-them (`?quote=true`). A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
+them (`?quote=true`). **Order of the body** lists the blocks under the seller, the heading and the client (`bodyBlocks`: `LINES` with the totals, `MENTIONS`, `NOTES`, `SIGNATURE`; `BodyBlock`), each moved up or down, printed in that order by the PDF, the preview and the Word copy of invoices and quotes; the lines, mentions and notes are always kept (a missing one goes back after the block that usually precedes it), only the quotes' signature box can be left out (**Printed** unticked); stored only when it differs from the usual order, and frozen with the seller at issue (`seller_body_blocks`). A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
 printed under the seller's name, frozen at issue too. A **Footer** (`footer`, 200 characters, such
 as the website and phone) is written small at the foot of every page, also frozen at issue; every document of several
 pages (invoices, quotes, activity reports, dossiers) numbers them "1/2" at the bottom right. The **Notes a new invoice

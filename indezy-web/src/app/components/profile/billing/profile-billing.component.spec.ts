@@ -103,6 +103,29 @@ describe('ProfileBillingComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('profile.billing.loadError');
   });
 
+  it('orders the body\'s blocks and leaves out the quotes\' signature box', () => {
+    const fixture = create(of({ ...defaults, bodyBlocks: ['LINES', 'NOTES', 'MENTIONS'] }));
+    const component = fixture.componentInstance;
+    expect(component.blocks).toEqual(['LINES', 'NOTES', 'MENTIONS', 'SIGNATURE']);
+    expect(component.signature).toBeFalse();
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('[data-body-block-up="LINES"]')!.hasAttribute('disabled')).toBeTrue();
+    expect(element.querySelector('[data-body-block-down="NOTES"]')!.getAttribute('aria-label')).toBe('Move Notes down');
+    (element.querySelector('[data-body-block-down="NOTES"]') as HTMLButtonElement).click();
+    expect(component.blocks).toEqual(['LINES', 'MENTIONS', 'NOTES', 'SIGNATURE']);
+    component.moveBlock(3, 1);
+    expect(component.blocks).toEqual(['LINES', 'MENTIONS', 'NOTES', 'SIGNATURE']);
+    component.moveBlock(3, -1);
+    component.setSignature(true);
+    expect(component.form.dirty).toBeTrue();
+    billing.saveIdentity.and.returnValue(of({ ...defaults, bodyBlocks: ['LINES', 'MENTIONS', 'SIGNATURE', 'NOTES'] }));
+    component.save();
+    expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ bodyBlocks: ['LINES', 'MENTIONS', 'SIGNATURE', 'NOTES'] }));
+    component.setSignature(false);
+    component.save();
+    expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ bodyBlocks: ['LINES', 'MENTIONS', 'NOTES'] }));
+  });
+
   it('takes an accent colour dark enough to read, refusing a pale one', () => {
     const component = create().componentInstance;
     component.setAccent({ target: { value: '#ffee88' } } as unknown as Event);

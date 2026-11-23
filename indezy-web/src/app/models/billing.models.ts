@@ -17,6 +17,12 @@ export interface DocumentTemplate {
   missing: string[];
 }
 
+/** A block of an invoice's or a quote's body, under the seller, the heading and the client. */
+export type BodyBlock = 'LINES' | 'MENTIONS' | 'NOTES' | 'SIGNATURE';
+
+/** The order the documents print in when none was chosen. */
+export const USUAL_BODY_BLOCKS: BodyBlock[] = ['LINES', 'MENTIONS', 'NOTES', 'SIGNATURE'];
+
 export interface BillingIdentity {
   legalName: string | null;
   legalForm: LegalForm | null;
@@ -59,6 +65,8 @@ export interface BillingIdentity {
   /** The quotes' own accent colour and layout; null for the invoices' ones. */
   quoteAccentColor?: string | null;
   quoteTheme?: 'SIMPLE' | 'MODERN' | 'CLASSIC' | null;
+  /** The order of the body's blocks; the lines, mentions and notes always print, the signature box (quotes) only when listed. */
+  bodyBlocks?: BodyBlock[];
   fontFamily?: string | null;
   /** Where the logo sits at the top of the documents, and how large. */
   logoPlacement?: 'LEFT' | 'CENTER' | 'RIGHT';

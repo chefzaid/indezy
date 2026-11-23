@@ -46,7 +46,6 @@ final class QuotePage extends BillingPage {
     @Override
     void write() throws IOException {
         super.write();
-        signatureBox();
         if (terms != null) {
             writer.startPage();
             writer.paragraph(QuoteLabel.TERMS_TITLE.in(language), true, TERMS_TITLE_SIZE, writer.width());
@@ -154,7 +153,8 @@ final class QuotePage extends BillingPage {
     }
 
     /** The box the client signs in, with the words it writes first. */
-    private void signatureBox() throws IOException {
+    @Override
+    void signature() throws IOException {
         writer.ensureSpace(LINE * 4 + SIGNATURE_BOX);
         writer.moveDown(LINE * 2);
         float left = writer.left() + writer.width() / 2;

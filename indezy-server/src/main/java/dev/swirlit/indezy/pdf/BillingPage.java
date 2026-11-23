@@ -3,6 +3,7 @@ package dev.swirlit.indezy.pdf;
 import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.InvoiceSeller;
+import dev.swirlit.indezy.model.enums.BodyBlock;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.DocumentTheme;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
@@ -158,9 +159,29 @@ abstract class BillingPage {
         if (theme() == DocumentTheme.CLASSIC) {
             writer.line(writer.left(), writer.cursor() + 4, writer.right(), writer.cursor() + 4);
         }
-        lines(documentLines());
-        totals();
-        mentions(documentMentions(), notes());
+        BodyBlock previous = null;
+        for (BodyBlock block : blocks()) {
+            switch (block) {
+                case LINES -> {
+                    lines(documentLines());
+                    totals();
+                }
+                case MENTIONS -> mentions(documentMentions());
+                case NOTES -> notes(notes(), previous == BodyBlock.MENTIONS);
+                default -> signature(); // SIGNATURE
+            }
+            previous = block;
+        }
+    }
+
+    /** The body's blocks in the seller's order, a quote's signature box only when kept. */
+    List<BodyBlock> blocks() {
+        return BodyBlock.read(seller.getBodyBlocks());
+    }
+
+    /** A quote's signature box; an invoice has none. */
+    void signature() throws IOException {
+        // Only a quote is signed.
     }
 
     /** A modern document's band across the top: the logo on its left and the title in white on its right. */
@@ -332,8 +353,8 @@ abstract class BillingPage {
         return Boolean.TRUE.equals(seller.getVatExempt());
     }
 
-    /** The mentions in small letters, then the notes. */
-    void mentions(List<String> mentions, String notes) throws IOException {
+    /** The mentions in small letters. */
+    void mentions(List<String> mentions) throws IOException {
         writer.moveDown(LINE * 2);
         String bank = seller.getIban() == null ? null : BillingText.groupIban(seller.getIban());
         for (String mention : mentions) {
@@ -350,9 +371,13 @@ abstract class BillingPage {
             }
             writer.moveDown(3);
         }
+    }
+
+    /** The notes under their title, right after the mentions or further down after another block. */
+    void notes(String notes, boolean afterMentions) throws IOException {
         if (notes != null) {
             writer.ensureSpace(LINE * 3);
-            writer.moveDown(LINE);
+            writer.moveDown(afterMentions ? LINE : LINE * 2);
             writer.text(writer.left(), writer.cursor(), InvoiceLabel.NOTES.in(language), true, SMALL);
             writer.moveDown(4);
             writer.paragraph(notes, false, SMALL, writer.width());

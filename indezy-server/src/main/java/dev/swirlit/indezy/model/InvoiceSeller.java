@@ -80,6 +80,10 @@ public class InvoiceSeller {
     @Column(name = "seller_theme", length = 10)
     private DocumentTheme theme;
 
+    /** The order of the document's body blocks, kept at issue ({@link dev.swirlit.indezy.model.enums.BodyBlock#store}); null for the usual one. */
+    @Column(name = "seller_body_blocks", length = 60)
+    private String bodyBlocks;
+
     /** The letterhead the document is drawn over ({@link DocumentLetterhead}), kept at issue; null for none. */
     @Column(name = "seller_letterhead_id")
     private Long letterheadId;

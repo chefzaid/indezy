@@ -78,6 +78,10 @@ public class BillingIdentity {
     @Column(name = "billing_quote_theme", length = 10)
     private DocumentTheme quoteTheme;
 
+    /** The order of the documents' body blocks ({@link dev.swirlit.indezy.model.enums.BodyBlock#store}); null for the usual one. */
+    @Column(name = "billing_body_blocks", length = 60)
+    private String bodyBlocks;
+
     /** The notes a new invoice starts with; null for none. */
     @Column(name = "billing_invoice_notes", length = 2000)
     private String invoiceNotes;

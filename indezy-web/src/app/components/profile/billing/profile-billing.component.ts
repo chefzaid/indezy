@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { BillingIdentity, LEGAL_FORMS, LegalForm } from '../../../models';
+import { BillingIdentity, BodyBlock, LEGAL_FORMS, LegalForm, USUAL_BODY_BLOCKS } from '../../../models';
 import { BillingService } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { billingId, compactId } from '../../../shared/utils/billing-validators';
@@ -318,6 +318,29 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     this.form.markAsDirty();
   }
 
+  /** The body's blocks in the order the documents print them, the signature box always listed (printed when {@link signature}). */
+  blocks: BodyBlock[] = [...USUAL_BODY_BLOCKS];
+
+  /** Whether the quotes print the box the client signs in. */
+  signature = true;
+
+  /** Moves a block of the body up (-1) or down (1). */
+  moveBlock(index: number, delta: number): void {
+    const to = index + delta;
+    if (to < 0 || to >= this.blocks.length) {
+      return;
+    }
+    const blocks = [...this.blocks];
+    [blocks[index], blocks[to]] = [blocks[to], blocks[index]];
+    this.blocks = blocks;
+    this.form.markAsDirty();
+  }
+
+  setSignature(shown: boolean): void {
+    this.signature = shown;
+    this.form.markAsDirty();
+  }
+
   save(): void {
     if (this.form.invalid || this.saving || this.accentTooPale || this.quoteAccentTooPale) {
       this.form.markAllAsTouched();
@@ -393,6 +416,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       letterheadBottom: value.letterheadBottom ?? null,
       quoteTheme: this.ownQuoteStyle ? value.quoteTheme ?? null : null,
       quoteAccentColor: this.ownQuoteStyle ? value.quoteAccentColor || null : null,
+      bodyBlocks: this.blocks.filter(block => block !== 'SIGNATURE' || this.signature),
       footer: value.footer?.trim() || null,
       logoPlacement: value.logoPlacement ?? 'LEFT',
       logoSize: value.logoSize ?? 'MEDIUM',
@@ -406,6 +430,9 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     this.fontFamily = identity.fontFamily ?? null;
     this.letterheadId = identity.letterheadId ?? null;
     this.ownQuoteStyle = !!(identity.quoteTheme || identity.quoteAccentColor);
+    const blocks = identity.bodyBlocks?.length ? identity.bodyBlocks : USUAL_BODY_BLOCKS;
+    this.signature = blocks.includes('SIGNATURE');
+    this.blocks = this.signature ? [...blocks] : [...blocks, 'SIGNATURE'];
     this.showLogo(identity.logoId ?? null);
     this.form.reset({
       legalName: identity.legalName ?? '', legalForm: identity.legalForm, siret: identity.siret ?? '', vatExempt: identity.vatExempt,

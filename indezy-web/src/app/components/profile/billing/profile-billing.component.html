@@ -238,6 +238,30 @@
           </div>
         }
       </div>
+      <fieldset class="body-blocks" data-billing-body-blocks>
+        <legend>{{ 'profile.billing.bodyBlocks' | translate }}</legend>
+        <p class="hint">{{ 'profile.billing.bodyBlocksHint' | translate }}</p>
+        <ol>
+          @for (block of blocks; track block; let index = $index, last = $last) {
+            <li [attr.data-body-block]="block">
+              <span class="block-name">{{ 'profile.billing.blocks.' + block | translate }}</span>
+              @if (block === 'SIGNATURE') {
+                <mat-checkbox [checked]="signature" (change)="setSignature($event.checked)" data-body-block-signature>
+                  {{ 'profile.billing.signatureShown' | translate }}
+                </mat-checkbox>
+              }
+              <span class="block-moves">
+                <button mat-icon-button type="button" [disabled]="index === 0" (click)="moveBlock(index, -1)"
+                  [attr.aria-label]="'profile.billing.moveUp' | translate:{ block: ('profile.billing.blocks.' + block | translate) }"
+                  [attr.data-body-block-up]="block"><mat-icon>arrow_upward</mat-icon></button>
+                <button mat-icon-button type="button" [disabled]="last" (click)="moveBlock(index, 1)"
+                  [attr.aria-label]="'profile.billing.moveDown' | translate:{ block: ('profile.billing.blocks.' + block | translate) }"
+                  [attr.data-body-block-down]="block"><mat-icon>arrow_downward</mat-icon></button>
+              </span>
+            </li>
+          }
+        </ol>
+      </fieldset>
       <div class="row">
         <mat-form-field appearance="outline" class="grow">
           <mat-label>{{ 'profile.billing.invoiceNotes' | translate }}</mat-label>

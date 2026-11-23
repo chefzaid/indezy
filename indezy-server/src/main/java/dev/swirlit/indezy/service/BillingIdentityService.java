@@ -6,6 +6,7 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.BillingIdentity;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.enums.DocumentFont;
+import dev.swirlit.indezy.model.enums.BodyBlock;
 import dev.swirlit.indezy.model.enums.DocumentTheme;
 import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
@@ -96,6 +97,7 @@ public class BillingIdentityService {
         billing.setLetterheadBottomMm(request.letterheadBottom());
         billing.setQuoteAccentColor(request.quoteAccentColor());
         billing.setQuoteTheme(request.quoteTheme());
+        billing.setBodyBlocks(BodyBlock.store(request.bodyBlocks()));
         return billing;
     }
 
@@ -132,7 +134,7 @@ public class BillingIdentityService {
             Objects.requireNonNullElse(billing.getFont(), DocumentFont.SANS), Objects.requireNonNullElse(billing.getTheme(), DocumentTheme.SIMPLE),
             billing.getFontFileId(), billing.getFontFamily(),
             billing.getLetterheadId(), billing.getLetterheadTopMm(), billing.getLetterheadBottomMm(),
-            billing.getQuoteAccentColor(), billing.getQuoteTheme(), complete);
+            billing.getQuoteAccentColor(), billing.getQuoteTheme(), BodyBlock.read(billing.getBodyBlocks()), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

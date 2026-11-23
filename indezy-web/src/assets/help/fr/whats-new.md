@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### L'ordre de vos factures et devis à votre main
+
+**Ordre du corps**, dans Profil → Facturation, monte ou descend les lignes, les mentions et les notes, et peut retirer le cadre de signature de vos devis. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Votre prochaine prospection classée par les précédentes
 
 Dans **Écrire à mes contacts ESN**, les contacts dont la société vous a donné des opportunités après une campagne passent d'abord et ceux qui ont laissé des campagnes sans réponse en dernier ; **Prospecter à nouveau** laisse décoché qui en a ignoré deux. Voir [Le tableau de bord](/help/dashboard).

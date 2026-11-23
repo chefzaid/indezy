@@ -88,12 +88,17 @@ for (const width of [1280, 390]) {
     await card.locator('[data-billing-preview-quote]').click();
     await expect.poll(() => quotePreview).toContain('quote=true');
     expect(previewed).toEqual(expect.objectContaining({ theme: 'MODERN', quoteTheme: 'CLASSIC' }));
+    // The notes moved above the mentions, the quotes' signature box left out.
+    await card.locator('[data-body-block-up="NOTES"]').click();
+    await expect(card.locator('[data-body-block]').nth(1)).toHaveAttribute('data-body-block', 'NOTES');
+    await card.locator('[data-body-block-signature] input').uncheck();
     await card.locator('[data-billing-save]').click();
 
     await expect(card.locator('[data-billing-status]')).toContainText('Ready to issue invoices');
     expect(saved).toEqual([expect.objectContaining({ legalForm: 'MICRO_ENTREPRISE', siret: '55210055400012', letterheadTop: 45, letterheadBottom: 20,
       iban: 'FR7630006000011234567890189', vatExempt: true, quoteTerms: 'Article 1 — Objet', accentColor: '#1F4E79',
-      footer: 'alice.dev · 06 12 34 56 78', font: 'CUSTOM', theme: 'MODERN', quoteTheme: 'CLASSIC' })]);
+      footer: 'alice.dev · 06 12 34 56 78', font: 'CUSTOM', theme: 'MODERN', quoteTheme: 'CLASSIC',
+      bodyBlocks: ['LINES', 'NOTES', 'MENTIONS'] })]);
     const audit = await new AxeBuilder({ page }).include('[data-billing]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

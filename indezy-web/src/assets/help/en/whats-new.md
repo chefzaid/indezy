@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Choose the order of your invoices and quotes
+
+**Order of the body** in Profile → Billing moves the lines, the mentions and the notes up or down, and can leave the signature box out of your quotes. See [Invoices and quotes](/help/invoices-quotes).
+
 ### Your next prospection ranked by the last ones
 
 In **Email my ESN contacts**, the contacts whose company gave you opportunities after a campaign come first and those who left campaigns unanswered come last; **Prospect again** leaves unticked anyone who ignored two. See [Dashboard](/help/dashboard).

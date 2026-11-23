@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.enums.DocumentFont;
+import dev.swirlit.indezy.model.enums.BodyBlock;
 import dev.swirlit.indezy.model.enums.DocumentTheme;
 import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
@@ -12,6 +13,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 /**
  * What the workspace's invoices say of the seller. Identifiers arrive as people type them and are kept compact. {@code
@@ -57,6 +59,8 @@ public record BillingIdentityDto(
     /** The quotes' own accent colour and layout; null for the invoices' ones. */
     @Pattern(regexp = "#[0-9A-Fa-f]{6}", message = "A colour as #RRGGBB") String quoteAccentColor,
     DocumentTheme quoteTheme,
+    /** The order of the body's blocks; the lines, mentions and notes always print, the signature box (quotes) only when listed. */
+    List<BodyBlock> bodyBlocks,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;
@@ -77,6 +81,7 @@ public record BillingIdentityDto(
         quoteNotes = blankToNull(quoteNotes);
         accentColor = accentColor == null || accentColor.isBlank() ? null : accentColor.strip().toUpperCase(java.util.Locale.ROOT);
         quoteAccentColor = quoteAccentColor == null || quoteAccentColor.isBlank() ? null : quoteAccentColor.strip().toUpperCase(java.util.Locale.ROOT);
+        bodyBlocks = List.copyOf(BodyBlock.normalize(bodyBlocks));
     }
 
     /** Whether the colour stands out enough from white paper to read the title and print the rules: a contrast of 3 to 1 at least. */

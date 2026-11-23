@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.pdf;
 
 import dev.swirlit.indezy.model.InvoiceLine;
+import dev.swirlit.indezy.model.enums.BodyBlock;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
 
@@ -51,6 +52,27 @@ final class BillingDocx {
         page.buyerLines().forEach(line -> docx.paragraph(List.of(plain(line)), DocxDocument.Align.LEFT, 20));
         docx.paragraph("", false, DocxDocument.BODY, DocxDocument.Align.LEFT);
 
+        for (BodyBlock block : page.blocks()) {
+            switch (block) {
+                case LINES -> lines(docx, page, accent);
+                case MENTIONS -> mentions(docx, page);
+                case NOTES -> notes(docx, page);
+                default -> signature(docx, page); // SIGNATURE
+            }
+        }
+        BillingPage.Terms terms = page.termsPage();
+        if (terms != null) {
+            docx.pageBreak();
+            docx.paragraph(List.of(new DocxDocument.Run(terms.title(), true, 24, null)), DocxDocument.Align.LEFT, 160);
+            for (String paragraph : terms.text().split("\\R\\s*\\R")) {
+                docx.paragraph(List.of(new DocxDocument.Run(paragraph.strip(), false, DocxDocument.SMALL, null)), DocxDocument.Align.LEFT, 100);
+            }
+        }
+        return docx.save(title, page.seller.getName() == null ? "" : page.seller.getName());
+    }
+
+    /** The lines, then the totals under them. */
+    private static void lines(DocxDocument docx, BillingPage page, String accent) {
         List<List<DocxDocument.Cell>> rows = new ArrayList<>();
         rows.add(row(page.columnHeadings(), true, accent));
         for (InvoiceLine line : page.documentLines()) {
@@ -68,16 +90,27 @@ final class BillingDocx {
                 new DocxDocument.Cell(List.of(List.of(new DocxDocument.Run(totalRows.get(index)[1], strong, size, null))), DocxDocument.Align.RIGHT)));
         }
         docx.table(TOTALS, totals, false, false, false, accent);
+    }
 
+    /** The mentions in small letters. */
+    private static void mentions(DocxDocument docx, BillingPage page) {
         docx.paragraph("", false, DocxDocument.BODY, DocxDocument.Align.LEFT);
         for (String mention : page.documentMentions()) {
             docx.paragraph(List.of(new DocxDocument.Run(mention, false, DocxDocument.SMALL, null)), DocxDocument.Align.LEFT, 60);
         }
+    }
+
+    /** The notes under their title. */
+    private static void notes(DocxDocument docx, BillingPage page) {
         if (page.notes() != null) {
             docx.paragraph("", false, DocxDocument.SMALL, DocxDocument.Align.LEFT);
             docx.paragraph(InvoiceLabel.NOTES.in(page.language), true, DocxDocument.SMALL, DocxDocument.Align.LEFT);
             docx.paragraph(List.of(new DocxDocument.Run(page.notes(), false, DocxDocument.SMALL, null)), DocxDocument.Align.LEFT, 60);
         }
+    }
+
+    /** A quote's box for the client's signature, with the words written first; none on an invoice. */
+    private static void signature(DocxDocument docx, BillingPage page) {
         if (page.acceptance() != null) {
             docx.paragraph("", false, DocxDocument.SMALL, DocxDocument.Align.LEFT);
             docx.paragraph(page.acceptance(), true, DocxDocument.SMALL, DocxDocument.Align.LEFT);
@@ -88,15 +121,6 @@ final class BillingDocx {
             docx.table(SIGNATURE, List.of(List.of(new DocxDocument.Cell(List.of(), DocxDocument.Align.LEFT),
                 new DocxDocument.Cell(box, DocxDocument.Align.LEFT))), false, false, true, null);
         }
-        BillingPage.Terms terms = page.termsPage();
-        if (terms != null) {
-            docx.pageBreak();
-            docx.paragraph(List.of(new DocxDocument.Run(terms.title(), true, 24, null)), DocxDocument.Align.LEFT, 160);
-            for (String paragraph : terms.text().split("\\R\\s*\\R")) {
-                docx.paragraph(List.of(new DocxDocument.Run(paragraph.strip(), false, DocxDocument.SMALL, null)), DocxDocument.Align.LEFT, 100);
-            }
-        }
-        return docx.save(title, page.seller.getName() == null ? "" : page.seller.getName());
     }
 
     private static DocxDocument.Run plain(String text) {

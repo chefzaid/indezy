@@ -1479,7 +1479,18 @@
         "SANS": "Sans-serif (Liberation Sans)",
         "SERIF": "Serif (Liberation Serif)",
         "CUSTOM": "{{family}} (my font)"
-      }
+      },
+      "bodyBlocks": "Order of the body",
+      "bodyBlocksHint": "Under the seller, the heading and the client, the blocks print in this order on invoices and quotes, in the PDF and the Word copy. The lines, mentions and notes always print; only the signature box can be left out of the quotes.",
+      "blocks": {
+        "LINES": "Lines and totals",
+        "MENTIONS": "Mentions (payment, bank details, penalties)",
+        "NOTES": "Notes",
+        "SIGNATURE": "Signature box (quotes)"
+      },
+      "signatureShown": "Printed",
+      "moveUp": "Move {{block}} up",
+      "moveDown": "Move {{block}} down"
     },
     "webhooks": {
       "title": "Webhooks",
