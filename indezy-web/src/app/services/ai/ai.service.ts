@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
+import { AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -41,6 +41,11 @@ export class AiService {
     const form = new FormData();
     form.append('file', file);
     return this.http.post<AiProfileImport>(`${this.API_URL}/profile-import`, form);
+  }
+
+  /** The opportunities and notes that answer a question by its meaning, ten at most, each with why. */
+  search(q: string): Observable<AiSearchHit[]> {
+    return this.http.post<AiSearchHit[]>(`${this.API_URL}/search`, { q });
   }
 
   offerBrief(text: string): Observable<AiOfferBrief> {

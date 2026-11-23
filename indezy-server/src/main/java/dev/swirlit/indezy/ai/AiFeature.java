@@ -19,5 +19,7 @@ public enum AiFeature {
     /** A rate negotiation prepared for an opportunity. */
     NEGOTIATION,
     /** An interview prepared for an opportunity. */
-    INTERVIEW
+    INTERVIEW,
+    /** The workspace's opportunities and notes searched by meaning. */
+    SEARCH
 }

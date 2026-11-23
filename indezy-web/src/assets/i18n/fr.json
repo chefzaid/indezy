@@ -2889,6 +2889,10 @@
     "empty": "Rien trouvé pour « {{query}} ».",
     "error": "La recherche a échoué. Réessayez.",
     "results": "Résultats de la recherche",
+    "aiSearch": "Chercher par le sens (IA)",
+    "aiTitle": "Par le sens",
+    "aiEmpty": "Rien dans vos opportunités et notes ne répond à cela.",
+    "aiError": "La recherche IA n'a pas pu répondre : réessayez, ou vérifiez l'IA dans votre profil.",
     "kinds": {
       "projects": "Opportunités",
       "clients": "Clients",
@@ -5060,7 +5064,8 @@
         "CHAT": "Conversation sur une opportunité",
         "RATE": "Suggestion d'un TJM",
         "NEGOTIATION": "Préparation d'une négociation",
-        "INTERVIEW": "Préparation d'un entretien"
+        "INTERVIEW": "Préparation d'un entretien",
+        "SEARCH": "Recherche par le sens"
       },
       "keepModel": "Par défaut ({{model}})",
       "taskModelSaved": "Modèle enregistré pour cette tâche."

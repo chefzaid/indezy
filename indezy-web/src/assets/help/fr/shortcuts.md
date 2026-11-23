@@ -12,7 +12,7 @@ Ils fonctionnent sur toutes les pages, une fois connecté. Sur Mac, `Alt` est la
 | --- | --- |
 | `Alt + Maj + N` | Créer une opportunité |
 | `Alt + Maj + F` | Ouvrir la liste des opportunités et placer le curseur dans sa recherche |
-| `Alt + Maj + S` | **Tout rechercher** : opportunités, clients, contacts et notes (et, si vous êtes membre du réseau, membres, publications et vos messages) |
+| `Alt + Maj + S` | **Tout rechercher** : opportunités, clients, contacts et notes (et, si vous êtes membre du réseau, membres, publications et vos messages) ; avec l'IA, **Chercher par le sens (IA)** trouve les opportunités et notes qui répondent à une question même dite autrement, chacune avec pourquoi |
 | `Alt + Maj + M` | Choisir l'étape de l'opportunité ouverte, ou de la carte Kanban sélectionnée |
 | `Alt + Maj + H` | Afficher les raccourcis clavier |
 

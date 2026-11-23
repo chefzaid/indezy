@@ -5,6 +5,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { GlobalSearchResult } from '../../models/search.models';
 import { GlobalSearchService } from '../../services/search/global-search.service';
+import { AiService } from '../../services/ai/ai.service';
+import { AiStatus } from '../../models/ai.models';
 import { GlobalSearchDialogComponent } from './global-search-dialog.component';
 
 describe('GlobalSearchDialogComponent', () => {
@@ -13,6 +15,7 @@ describe('GlobalSearchDialogComponent', () => {
   let search: jasmine.SpyObj<GlobalSearchService>;
   let close: jasmine.Spy;
   let navigate: jasmine.Spy;
+  let ai: jasmine.SpyObj<AiService>;
 
   const found: GlobalSearchResult = {
     projects: [{ id: 4, title: 'Développeur Kafka', subtitle: 'Société Générale', excerpt: 'Flux Kafka temps réel' }],
@@ -24,7 +27,9 @@ describe('GlobalSearchDialogComponent', () => {
     messages: []
   };
 
-  function create(): void {
+  function create(available = false): void {
+    ai = jasmine.createSpyObj('AiService', ['status', 'search']);
+    ai.status.and.returnValue(of({ available } as unknown as AiStatus));
     search = jasmine.createSpyObj('GlobalSearchService', ['search']);
     search.search.and.returnValue(of(found));
     close = jasmine.createSpy('close');
@@ -33,6 +38,7 @@ describe('GlobalSearchDialogComponent', () => {
       providers: [
         provideRouter([]),
         { provide: GlobalSearchService, useValue: search },
+        { provide: AiService, useValue: ai },
         { provide: MatDialogRef, useValue: { close } }
       ]
     });
@@ -143,4 +149,35 @@ describe('GlobalSearchDialogComponent', () => {
     const link = component.kinds.find(kind => kind.kind === 'notes')!.link({ id: 3, title: 'x' });
     expect(link).toEqual(['/projects', 3]);
   });
+
+  it('searches the opportunities and notes by meaning when the AI can answer, and opens what it found', fakeAsync(() => {
+    create(true);
+    expect(element().querySelector('[data-ai-search-button]')).toBeNull();
+    type('missions perdues sur le prix');
+    ai.search.and.returnValue(of([{ kind: 'NOTE', projectId: 4, noteId: 9, title: 'Développeur Kafka', excerpt: 'TJM trop élevé',
+      why: 'Le TJM a été jugé trop haut.' }]));
+    element().querySelector<HTMLButtonElement>('[data-ai-search-button]')!.click();
+    fixture.detectChanges();
+    expect(ai.search).toHaveBeenCalledWith('missions perdues sur le prix');
+    const hit = element().querySelector<HTMLButtonElement>('[data-ai-hit="NOTE-9"]')!;
+    expect(hit.textContent).toContain('Le TJM a été jugé trop haut.');
+    hit.click();
+    expect(close).toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(['/projects', 4]);
+
+    ai.search.and.returnValue(of([]));
+    component.searchByMeaning();
+    fixture.detectChanges();
+    expect(element().querySelector('[data-ai-search-empty]')).not.toBeNull();
+    ai.search.and.returnValue(throwError(() => new Error('down')));
+    component.searchByMeaning();
+    fixture.detectChanges();
+    expect(element().querySelector('[data-ai-search] [role=alert]')).not.toBeNull();
+  }));
+
+  it('does not offer the search by meaning without the AI', fakeAsync(() => {
+    create(false);
+    type('missions perdues');
+    expect(element().querySelector('[data-ai-search-button]')).toBeNull();
+  }));
 });

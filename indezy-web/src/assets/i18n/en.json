@@ -2889,6 +2889,10 @@
     "empty": "Nothing found for “{{query}}”.",
     "error": "The search failed. Try again.",
     "results": "Search results",
+    "aiSearch": "Search by meaning (AI)",
+    "aiTitle": "By meaning",
+    "aiEmpty": "Nothing in your opportunities and notes answers this.",
+    "aiError": "The AI search could not answer: try again, or check AI in your profile.",
     "kinds": {
       "projects": "Opportunities",
       "clients": "Clients",
@@ -5060,7 +5064,8 @@
         "CHAT": "Conversation about an opportunity",
         "RATE": "Suggesting a rate",
         "NEGOTIATION": "Preparing a negotiation",
-        "INTERVIEW": "Preparing an interview"
+        "INTERVIEW": "Preparing an interview",
+        "SEARCH": "Searching by meaning"
       },
       "keepModel": "Default ({{model}})",
       "taskModelSaved": "Model saved for this task."

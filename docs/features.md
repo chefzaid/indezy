@@ -779,6 +779,11 @@ never saved or sent on its own:
   skills the profile lacks (case aside, up to the 50-skill limit) and the languages it offers; **Fill in the form** puts
   only what is ticked in the form, adding skills and languages and never removing any, and nothing is saved until the
   profile is. The file is neither kept nor scanned, being only read; a scan without text or another format is refused.
+- **Search by meaning (AI)** in **Search everything**, offered while the AI is available and two characters or more are
+  typed (`POST /api/ai/search`, 300 characters at most): the latest 200 opportunities (role, client, status, stack,
+  description, notes and end reason) and 300 journal notes, each cut to 240 characters with an id, go to the AI, which
+  answers the ten at most that fit the question by its meaning, each with one sentence saying why; ids it was not given
+  are dropped, each kept once. A hit opens its opportunity. Nothing is asked of a workspace without records.
 - **Describe my search (AI)** above the offer feed (`POST /api/ai/offer-brief`, 2,000 characters at most): what the
   freelancer looks for in their own words set as the feed's filters (skills, minimum rate, remote days, work modes,
   regions by name, latest start, minimum duration, keywords, and what to avoid as words to leave out), every other filter

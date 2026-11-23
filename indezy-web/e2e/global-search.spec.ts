@@ -53,3 +53,32 @@ for (const language of ['en', 'fr']) {
     await expect(page.getByRole('dialog')).toBeHidden();
   });
 }
+
+test('searches the opportunities and notes by meaning with the AI, and opens what it found (en)', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language: 'en' } }));
+  await page.route('**/api/seasons/by-freelance/1', route => route.fulfill({ json: [] }));
+  await page.route('**/api/projects/by-freelance/1', route => route.fulfill({ json: [] }));
+  await page.route('**/api/projects/stats/dashboard/1*', route => route.fulfill({ json: emptyDashboardStats }));
+  await page.route('**/api/ai/status', route => route.fulfill({ json: { available: true, reason: null, ownKey: false, model: null, models: {},
+    spentUsd: 0, limitUsd: 10, taskModels: {} } }));
+  await page.route('**/api/search?*', route => route.fulfill({ json: { projects: [], clients: [], contacts: [], notes: [], members: [], posts: [] } }));
+  const asked: string[] = [];
+  await page.route('**/api/ai/search', route => {
+    asked.push(route.request().postDataJSON().q);
+    return route.fulfill({ json: [{ kind: 'NOTE', projectId: 4, noteId: 9, title: 'Lead Java · Banque Exemple', excerpt: 'Le client a trouvé notre TJM trop élevé',
+      why: 'The rate was found too high.' }] });
+  });
+  await page.route('**/api/projects/4', route => route.fulfill({ json: { id: 4, role: 'Lead Java', status: 'LOST', freelanceId: 1 } }));
+
+  await page.goto('/dashboard');
+  await page.locator('body').press('Alt+Shift+KeyS');
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('combobox').fill('missions lost on price');
+  await dialog.locator('[data-ai-search-button]').click();
+  await expect.poll(() => asked).toEqual(['missions lost on price']);
+  const hit = dialog.locator('[data-ai-hit="NOTE-9"]');
+  await expect(hit).toContainText('The rate was found too high.');
+  await hit.click();
+  await expect(page).toHaveURL(/\/projects\/4$/);
+});

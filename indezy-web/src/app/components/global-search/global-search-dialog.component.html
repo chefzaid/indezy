@@ -54,4 +54,38 @@
       }
     }
   </div>
+  @if (aiAvailable && query.value.trim().length >= 2) {
+    <div class="ai-search" data-ai-search>
+      <button type="button" class="ai-search-button" (click)="searchByMeaning()" [disabled]="aiLoading" data-ai-search-button>
+        <mat-icon aria-hidden="true">auto_awesome</mat-icon>{{ 'globalSearch.aiSearch' | translate }}
+      </button>
+      @if (aiLoading) {
+        <mat-progress-bar [attr.aria-label]="'common.loading' | translate" mode="indeterminate"></mat-progress-bar>
+      }
+      @if (aiFailed) {
+        <p class="search-message" role="alert">{{ 'globalSearch.aiError' | translate }}</p>
+      } @else if (aiHits) {
+        <h3>{{ 'globalSearch.aiTitle' | translate }} · {{ aiQuery }}</h3>
+        @if (!aiHits.length) {
+          <p class="search-message" data-ai-search-empty>{{ 'globalSearch.aiEmpty' | translate }}</p>
+        }
+        <ul class="ai-hits">
+          @for (hit of aiHits; track hit.kind + hit.projectId + ':' + hit.noteId) {
+            <li>
+              <button type="button" class="search-option" (click)="openHit(hit)" [attr.data-ai-hit]="hit.kind + '-' + (hit.noteId ?? hit.projectId)">
+                <mat-icon aria-hidden="true">{{ hit.kind === 'NOTE' ? 'sticky_note_2' : 'work' }}</mat-icon>
+                <span class="search-text">
+                  <span class="search-title">{{ hit.title }}</span>
+                  @if (hit.why) {
+                    <span class="search-subtitle">{{ hit.why }}</span>
+                  }
+                  <span class="search-excerpt">{{ hit.excerpt }}</span>
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
 </div>

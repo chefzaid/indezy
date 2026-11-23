@@ -51,6 +51,7 @@ public class AiController {
     private final InterviewAiService interviews;
     private final ApplicationPackAiService packs;
     private final OfferBriefAiService briefs;
+    private final SemanticSearchAiService semantic;
     private final ProfileImportAiService profileImports;
     private final AccessGuard accessGuard;
 
@@ -130,6 +131,24 @@ public class AiController {
     public OfferBriefAiService.Brief offerBrief(@Valid @RequestBody BriefRequest request) {
         accessGuard.requireWorkspace(null);
         return briefs.read(SecurityUtils.getCurrentUserId(), request.text());
+    }
+
+    /** A question to search the workspace's opportunities and notes by. */
+    public record SearchRequest(@jakarta.validation.constraints.NotBlank @Size(max = SemanticSearchAiService.QUERY_MAX) String q) {
+
+        // Spring MVC logs bodies through toString at DEBUG: never the question.
+        @Override
+        public String toString() {
+            return "SearchRequest[length=" + (q == null ? 0 : q.length()) + "]";
+        }
+    }
+
+    @Operation(summary = "Search the workspace's opportunities and journal notes by meaning",
+        description = "The latest 200 opportunities and 300 notes, shortened, read by the AI; ten at most, each with why it fits")
+    @PostMapping("/search")
+    public List<SemanticSearchAiService.Hit> search(@Valid @RequestBody SearchRequest request) {
+        Long workspace = accessGuard.requireWorkspace(null);
+        return semantic.search(SecurityUtils.getCurrentUserId(), workspace, request.q());
     }
 
     @Operation(summary = "Read a job posting into the fields of a new opportunity")

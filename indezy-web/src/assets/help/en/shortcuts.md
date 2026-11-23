@@ -12,7 +12,7 @@ They work on every page once you are signed in. On a Mac, `Alt` is the Option ke
 | --- | --- |
 | `Alt + Shift + N` | Create an opportunity |
 | `Alt + Shift + F` | Open the opportunities list and put the cursor in its search |
-| `Alt + Shift + S` | **Search everything**: opportunities, clients, contacts and notes (and, if you are a network member, members, posts and your messages) |
+| `Alt + Shift + S` | **Search everything**: opportunities, clients, contacts and notes (and, if you are a network member, members, posts and your messages); with AI on, **Search by meaning (AI)** finds the opportunities and notes that answer a question even in other words, each with why |
 | `Alt + Shift + M` | Choose the stage of the open opportunity, or of the focused Kanban card |
 | `Alt + Shift + H` | Show keyboard shortcuts |
 

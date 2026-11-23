@@ -81,3 +81,11 @@ mark {
   color: inherit;
   background: rgba(255, 193, 7, 0.45);
 }
+
+.ai-search { padding: 8px 0 4px; border-top: 1px solid var(--app-border, rgba(0, 0, 0, .12)); margin-top: 8px; }
+.ai-search h3 { margin: 8px 0 4px; font-size: .85rem; }
+.ai-search-button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 0; border-radius: 6px; cursor: pointer;
+  background: transparent; color: var(--mat-sys-primary, #4f46e5); font: inherit; }
+.ai-search-button:disabled { opacity: .6; cursor: default; }
+.ai-hits { list-style: none; margin: 0; padding: 0; }
+.ai-hits .search-option { width: 100%; text-align: left; background: transparent; border: 0; font: inherit; color: inherit; cursor: pointer; }

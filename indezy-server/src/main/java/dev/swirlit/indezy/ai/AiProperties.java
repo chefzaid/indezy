@@ -34,7 +34,7 @@ public record AiProperties(
     /** The model each task uses unless configured otherwise: the cheapest that does it well. */
     public static final Map<AiFeature, String> BY_TASK = Map.of(AiFeature.POSTING, HAIKU, AiFeature.TRIAGE, HAIKU,
         AiFeature.MESSAGE, SONNET, AiFeature.DOSSIER, SONNET, AiFeature.RATE, SONNET, AiFeature.FIT, OPUS, AiFeature.CHAT, OPUS,
-        AiFeature.NEGOTIATION, OPUS, AiFeature.INTERVIEW, OPUS);
+        AiFeature.NEGOTIATION, OPUS, AiFeature.INTERVIEW, OPUS, AiFeature.SEARCH, SONNET);
 
     @ConstructorBinding
     public AiProperties {

@@ -10,6 +10,8 @@ import { catchError, debounceTime, distinctUntilChanged, map, of, switchMap, tap
 
 import { GlobalSearchResult, SearchHit } from '../../models/search.models';
 import { GlobalSearchService } from '../../services/search/global-search.service';
+import { AiService } from '../../services/ai/ai.service';
+import { AiSearchHit } from '../../models/ai.models';
 import { TextPart, highlight } from '../../shared/utils/highlight';
 
 export const MIN_QUERY = 2;
@@ -46,6 +48,7 @@ const KINDS: { kind: Kind; icon: string; link: (hit: SearchHit) => (string | num
 })
 export class GlobalSearchDialogComponent implements OnInit {
   private readonly searchService = inject(GlobalSearchService);
+  private readonly ai = inject(AiService);
   private readonly router = inject(Router);
   private readonly dialogRef = inject(MatDialogRef<GlobalSearchDialogComponent>);
   private readonly destroyRef = inject(DestroyRef);
@@ -57,8 +60,17 @@ export class GlobalSearchDialogComponent implements OnInit {
   active = 0;
   loading = false;
   failed = false;
+  /** Whether the AI can answer, so the search by meaning is offered. */
+  aiAvailable = false;
+  /** What the search by meaning found for the question asked; null before it is asked. */
+  aiHits: AiSearchHit[] | null = null;
+  aiQuery = '';
+  aiLoading = false;
+  aiFailed = false;
 
   ngOnInit(): void {
+    this.ai.status().pipe(catchError(() => of(null)), takeUntilDestroyed(this.destroyRef))
+      .subscribe(status => this.aiAvailable = !!status?.available);
     this.query.valueChanges.pipe(
       map(value => value.trim()),
       debounceTime(200),
@@ -111,6 +123,32 @@ export class GlobalSearchDialogComponent implements OnInit {
       event.preventDefault();
       this.open(this.options[this.active]);
     }
+  }
+
+  /** Asks the AI which opportunities and notes answer the question typed, by its meaning. */
+  searchByMeaning(): void {
+    const question = this.query.value.trim();
+    if (question.length < MIN_QUERY || this.aiLoading) {
+      return;
+    }
+    this.aiLoading = true;
+    this.aiFailed = false;
+    this.ai.search(question).subscribe({
+      next: hits => {
+        this.aiHits = hits;
+        this.aiQuery = question;
+        this.aiLoading = false;
+      },
+      error: () => {
+        this.aiFailed = true;
+        this.aiLoading = false;
+      }
+    });
+  }
+
+  openHit(hit: AiSearchHit): void {
+    this.dialogRef.close();
+    void this.router.navigate(['/projects', hit.projectId]);
   }
 
   open(option: SearchOption): void {

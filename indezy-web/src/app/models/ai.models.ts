@@ -148,9 +148,19 @@ export type AiPolishTone = 'KEEP' | 'FORMAL' | 'FRIENDLY' | 'SHORTER';
 export const AI_POLISH_TONES: AiPolishTone[] = ['KEEP', 'FORMAL', 'FRIENDLY', 'SHORTER'];
 
 /** What an AI request is for, each on its own model unless one is chosen. */
-export type AiTask = 'POSTING' | 'MESSAGE' | 'FIT' | 'CHAT' | 'TRIAGE' | 'DOSSIER' | 'RATE' | 'NEGOTIATION' | 'INTERVIEW';
+export type AiTask = 'POSTING' | 'MESSAGE' | 'FIT' | 'CHAT' | 'TRIAGE' | 'DOSSIER' | 'RATE' | 'NEGOTIATION' | 'INTERVIEW' | 'SEARCH';
 
-export const AI_TASKS: AiTask[] = ['POSTING', 'TRIAGE', 'MESSAGE', 'DOSSIER', 'RATE', 'FIT', 'NEGOTIATION', 'INTERVIEW', 'CHAT'];
+/** A record the AI search found: an opportunity or a note, the opportunity it opens, and why it fits. */
+export interface AiSearchHit {
+  kind: 'OPPORTUNITY' | 'NOTE';
+  projectId: number;
+  noteId: number | null;
+  title: string;
+  excerpt: string;
+  why: string | null;
+}
+
+export const AI_TASKS: AiTask[] = ['POSTING', 'TRIAGE', 'MESSAGE', 'DOSSIER', 'RATE', 'FIT', 'NEGOTIATION', 'INTERVIEW', 'CHAT', 'SEARCH'];
 
 /** A job posting read into an opportunity's fields: null where it says nothing. */
 export interface AiPosting {
