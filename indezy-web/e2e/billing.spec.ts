@@ -98,7 +98,11 @@ for (const width of [1280, 390]) {
     await card.locator('[data-block-bold="NOTES"] input').check();
     // The pages' zones, the footer's right one numbering them.
     await card.locator('[data-billing-footer-right]').fill('Page {{page}}/{{pages}}');
-    await card.locator('[data-billing-page-header-right]').fill('{{document.title}} {{document.number}}');
+    await card.locator('[data-billing-page-header-right]').focus();
+    await card.locator('[data-billing-zone-insert="{{document.title}}"]').click();
+    await page.keyboard.type(' ');
+    await card.locator('[data-billing-zone-insert="{{document.number}}"]').click();
+    await expect(card.locator('[data-billing-page-header-right]')).toHaveValue('{{document.title}} {{document.number}}');
     await card.locator('[data-billing-save]').click();
 
     await expect(card.locator('[data-billing-status]')).toContainText('Ready to issue invoices');

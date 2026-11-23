@@ -1512,7 +1512,8 @@
         "footerRight": "Footer, right",
         "footerRightHint": "Empty: the page number once there are several pages.",
         "headerLeft": "Header of the following pages, left",
-        "headerRight": "Header of the following pages, right"
+        "headerRight": "Header of the following pages, right",
+        "insert": "Insert in the last field chosen:"
       },
       "blockStyle": {
         "size": "Size",
@@ -1539,7 +1540,8 @@
       },
       "previewPageAlt": "Page {{page}} of {{pages}} of the preview",
       "previewOfInvoice": "A sample invoice in these settings, {{pages}} page(s), drawn again as you change them.",
-      "previewOfQuote": "A sample quote in these settings, {{pages}} page(s), drawn again as you change them."
+      "previewOfQuote": "A sample quote in these settings, {{pages}} page(s), drawn again as you change them.",
+      "dragBlock": "Drag {{block}} to move it"
     },
     "webhooks": {
       "title": "Webhooks",

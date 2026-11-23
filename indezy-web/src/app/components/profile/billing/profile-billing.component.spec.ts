@@ -155,6 +155,32 @@ describe('ProfileBillingComponent', () => {
       MENTIONS: { size: 'SMALL', align: 'LEFT', framed: false, shaded: true, color: 'ACCENT', bold: true } } }));
   });
 
+  it('moves a dropped block and inserts a placeholder where the caret was in the last zone focused', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    component.dropBlock({ previousIndex: 2, currentIndex: 0 } as never);
+    expect(component.blocks).toEqual(['NOTES', 'LINES', 'MENTIONS', 'SIGNATURE']);
+    expect(component.form.dirty).toBeTrue();
+    component.dropBlock({ previousIndex: 1, currentIndex: 1 } as never);
+    expect(component.blocks).toEqual(['NOTES', 'LINES', 'MENTIONS', 'SIGNATURE']);
+
+    // Without a zone focused, the footer's left one, at its end.
+    component.form.patchValue({ footer: 'alice.dev' });
+    component.insertPlaceholder('{{page}}');
+    expect(component.form.value.footer).toBe('alice.dev{{page}}');
+    const element = fixture.nativeElement as HTMLElement;
+    const right = element.querySelector('[data-billing-footer-right]') as HTMLInputElement;
+    component.form.patchValue({ footerRight: 'Page  of ' });
+    right.dispatchEvent(new Event('focus'));
+    right.setSelectionRange(5, 5);
+    (element.querySelector('[data-billing-zone-insert="{{page}}"]') as HTMLButtonElement).click();
+    expect(component.form.value.footerRight).toBe('Page {{page}} of ');
+    expect(right.selectionStart).toBe(13);
+    right.setSelectionRange(17, 17);
+    component.insertPlaceholder('{{pages}}');
+    expect(component.form.value.footerRight).toBe('Page {{page}} of {{pages}}');
+  });
+
   it('takes an accent colour dark enough to read, refusing a pale one', () => {
     const component = create().componentInstance;
     component.setAccent({ target: { value: '#ffee88' } } as unknown as Event);

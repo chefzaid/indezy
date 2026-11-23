@@ -209,31 +209,38 @@
       </mat-form-field>
       <mat-form-field appearance="outline" class="full">
         <mat-label>{{ 'profile.billing.footer' | translate }}</mat-label>
-        <input matInput formControlName="footer" maxlength="200" data-billing-footer>
+        <input matInput formControlName="footer" maxlength="200" data-billing-footer #footerZone (focus)="zoneFocused('footer', footerZone)">
         <mat-hint>{{ 'profile.billing.footerHint' | translate }}</mat-hint>
       </mat-form-field>
       <fieldset class="page-zones" data-billing-page-zones>
         <legend>{{ 'profile.billing.zones.title' | translate }}</legend>
         <p class="hint">{{ 'profile.billing.zones.hint' | translate:{ placeholders: zonePlaceholders } }}</p>
+        <div class="zone-picker" role="group" [attr.aria-label]="'profile.billing.zones.insert' | translate" data-billing-zone-picker>
+          <span class="hint">{{ 'profile.billing.zones.insert' | translate }}</span>
+          @for (placeholder of zonePlaceholderList; track placeholder) {
+            <button mat-stroked-button type="button" class="placeholder" (mousedown)="$event.preventDefault()" (click)="insertPlaceholder(placeholder)"
+              [attr.data-billing-zone-insert]="placeholder">{{ placeholder }}</button>
+          }
+        </div>
         <div class="row">
           <mat-form-field appearance="outline" class="grow">
             <mat-label>{{ 'profile.billing.zones.footerCenter' | translate }}</mat-label>
-            <input matInput formControlName="footerCenter" maxlength="200" data-billing-footer-center>
+            <input matInput formControlName="footerCenter" maxlength="200" data-billing-footer-center #footerCenterZone (focus)="zoneFocused('footerCenter', footerCenterZone)">
           </mat-form-field>
           <mat-form-field appearance="outline" class="grow">
             <mat-label>{{ 'profile.billing.zones.footerRight' | translate }}</mat-label>
-            <input matInput formControlName="footerRight" maxlength="200" data-billing-footer-right>
+            <input matInput formControlName="footerRight" maxlength="200" data-billing-footer-right #footerRightZone (focus)="zoneFocused('footerRight', footerRightZone)">
             <mat-hint>{{ 'profile.billing.zones.footerRightHint' | translate }}</mat-hint>
           </mat-form-field>
         </div>
         <div class="row">
           <mat-form-field appearance="outline" class="grow">
             <mat-label>{{ 'profile.billing.zones.headerLeft' | translate }}</mat-label>
-            <input matInput formControlName="pageHeaderLeft" maxlength="200" data-billing-page-header-left>
+            <input matInput formControlName="pageHeaderLeft" maxlength="200" data-billing-page-header-left #pageHeaderLeftZone (focus)="zoneFocused('pageHeaderLeft', pageHeaderLeftZone)">
           </mat-form-field>
           <mat-form-field appearance="outline" class="grow">
             <mat-label>{{ 'profile.billing.zones.headerRight' | translate }}</mat-label>
-            <input matInput formControlName="pageHeaderRight" maxlength="200" data-billing-page-header-right>
+            <input matInput formControlName="pageHeaderRight" maxlength="200" data-billing-page-header-right #pageHeaderRightZone (focus)="zoneFocused('pageHeaderRight', pageHeaderRightZone)">
           </mat-form-field>
         </div>
       </fieldset>
@@ -266,9 +273,12 @@
       <fieldset class="body-blocks" data-billing-body-blocks>
         <legend>{{ 'profile.billing.bodyBlocks' | translate }}</legend>
         <p class="hint">{{ 'profile.billing.bodyBlocksHint' | translate }}</p>
-        <ol>
+        <ol cdkDropList (cdkDropListDropped)="dropBlock($event)">
           @for (block of blocks; track block; let index = $index, last = $last) {
-            <li [attr.data-body-block]="block">
+            <li cdkDrag [attr.data-body-block]="block">
+              <span class="handle" cdkDragHandle role="img" [attr.aria-label]="'profile.billing.dragBlock' | translate:{ block: ('profile.billing.blocks.' + block | translate) }">
+                <mat-icon aria-hidden="true">drag_indicator</mat-icon>
+              </span>
               <span class="block-name">{{ 'profile.billing.blocks.' + block | translate }}</span>
               @if (block === 'SIGNATURE') {
                 <mat-checkbox [checked]="signature" (change)="setSignature($event.checked)" data-body-block-signature>

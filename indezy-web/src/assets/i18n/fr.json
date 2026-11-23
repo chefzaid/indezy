@@ -1512,7 +1512,8 @@
         "footerRight": "Pied de page, droite",
         "footerRightHint": "Vide : le numéro de page dès que le document a plusieurs pages.",
         "headerLeft": "En-tête des pages suivantes, gauche",
-        "headerRight": "En-tête des pages suivantes, droite"
+        "headerRight": "En-tête des pages suivantes, droite",
+        "insert": "Insérer dans le dernier champ choisi :"
       },
       "blockStyle": {
         "size": "Taille",
@@ -1539,7 +1540,8 @@
       },
       "previewPageAlt": "Page {{page}} sur {{pages}} de l'aperçu",
       "previewOfInvoice": "Une facture exemple avec ces réglages, {{pages}} page(s), redessinée à chaque changement.",
-      "previewOfQuote": "Un devis exemple avec ces réglages, {{pages}} page(s), redessiné à chaque changement."
+      "previewOfQuote": "Un devis exemple avec ces réglages, {{pages}} page(s), redessiné à chaque changement.",
+      "dragBlock": "Glisser {{block}} pour le déplacer"
     },
     "webhooks": {
       "title": "Webhooks",

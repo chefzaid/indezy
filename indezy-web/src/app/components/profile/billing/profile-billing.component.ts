@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,6 +23,9 @@ import { saveBlob } from '../../../shared/utils/download-file';
 
 const COMPANIES: LegalForm[] = ['EURL', 'SASU', 'SARL', 'SAS'];
 
+/** The fields of the header and footer zones, which take placeholders. */
+type ZoneControl = 'footer' | 'footerCenter' | 'footerRight' | 'pageHeaderLeft' | 'pageHeaderRight';
+
 /** A shown preview is drawn again this long after the last change to the form. */
 export const PREVIEW_DELAY_MS = 800;
 
@@ -31,7 +35,7 @@ export const PREVIEW_MAX_PAGES = 6;
 /** The seller's identity on the workspace's invoices: legal name and form, SIRET, VAT, address and bank details. */
 @Component({
   selector: 'app-profile-billing',
-  imports: [HelpLinkComponent, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatCheckboxModule, MatSelectModule,
+  imports: [DragDropModule, HelpLinkComponent, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatCheckboxModule, MatSelectModule,
     MatSlideToggleModule, TranslateModule],
   templateUrl: './profile-billing.component.html',
   styleUrls: ['./profile-billing.component.scss'],
@@ -344,8 +348,45 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   }
 
   /** The placeholders the page zones take, shown in their hint. */
-  readonly zonePlaceholders = ['{{logo}}', '{{page}}', '{{pages}}', '{{document.title}}', '{{document.number}}', '{{document.issueDate}}',
-    '{{document.dueDate}}', '{{seller.name}}', '{{seller.siret}}', '{{seller.vatNumber}}'].join(' ');
+  readonly zonePlaceholderList = ['{{logo}}', '{{page}}', '{{pages}}', '{{document.title}}', '{{document.number}}', '{{document.issueDate}}',
+    '{{document.dueDate}}', '{{seller.name}}', '{{seller.siret}}', '{{seller.vatNumber}}'];
+  readonly zonePlaceholders = this.zonePlaceholderList.join(' ');
+
+  /** The zone a placeholder goes into: the last one focused, the footer's left one at first. */
+  private zone: { name: ZoneControl; input: HTMLInputElement | null } = { name: 'footer', input: null };
+
+  zoneFocused(name: ZoneControl, input: HTMLInputElement): void {
+    this.zone = { name, input };
+  }
+
+  /** Inserts a placeholder in the last zone focused, where its caret was, then puts the caret after it. */
+  insertPlaceholder(placeholder: string): void {
+    const control = this.form.get(this.zone.name)!;
+    const value: string = control.value ?? '';
+    const input = this.zone.input;
+    const start = input?.selectionStart ?? value.length;
+    const end = input?.selectionEnd ?? value.length;
+    const next = (value.slice(0, start) + placeholder + value.slice(end)).slice(0, 200);
+    control.setValue(next);
+    control.markAsDirty();
+    if (input) {
+      const caret = Math.min(start + placeholder.length, next.length);
+      input.focus();
+      input.setSelectionRange(caret, caret);
+    }
+  }
+
+  /** Moves a block of the body where it was dropped. */
+  dropBlock(event: CdkDragDrop<unknown>): void {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+    const blocks = [...this.blocks];
+    moveItemInArray(blocks, event.previousIndex, event.currentIndex);
+    this.blocks = blocks;
+    this.form.markAsDirty();
+    this.designChanges.next();
+  }
 
   /** The body's blocks in the order the documents print them, the signature box always listed (printed when {@link signature}). */
   blocks: BodyBlock[] = [...USUAL_BODY_BLOCKS];
