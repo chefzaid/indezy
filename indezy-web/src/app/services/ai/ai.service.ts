@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
+import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
+import { AiAutopilotQueue, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -14,6 +15,11 @@ export class AiService {
 
   status(): Observable<AiStatus> {
     return this.http.get<AiStatus>(`${this.API_URL}/status`);
+  }
+
+  /** The offers the daily autopilot run triaged in the last day, worth applying to first, and whether it is on. */
+  autopilot(): Observable<AiAutopilotQueue> {
+    return this.http.get<AiAutopilotQueue>(`${this.API_URL}/autopilot`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
   }
 
   setKey(apiKey: string, model: AiModel | null): Observable<AiStatus> {

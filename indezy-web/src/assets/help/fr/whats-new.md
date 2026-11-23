@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les offres triées pendant la nuit
+
+Activez le pilote automatique dans Profil → Préférences → IA : chaque nuit, les nouvelles offres qui vous correspondent reçoivent un avis et leurs points bloquants, listés sur votre tableau de bord le matin. Voir [Le flux d'offres](/help/offers).
+
 ### Les fiches des ESN, communes aux membres
 
 Le réseau nomme désormais les ESN avec qui 5 freelances ou plus ont travaillé, avec leur taux d'offre, la durée de leur processus, leur délai de réponse, leur délai de paiement et leur marge, d'après l'historique des membres. Le vôtre y compte, sauf si vous le désactivez dans **Profil → Confidentialité**. Voir [Le réseau des membres](/help/network).

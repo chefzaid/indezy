@@ -9,6 +9,7 @@ import { NetworkService } from '../../../services/network/network.service';
 import { Offer, OfferMatch, OfferPage } from '../../../models/offer.models';
 import { OfferService } from '../../../services/offer/offer.service';
 import { defaultOfferQuery } from '../../../services/offer/offer-query';
+import { AutopilotQueueComponent } from '../autopilot-queue/autopilot-queue.component';
 import { isMatchedSkill, offerDurationKey, offerPlace, offerRate, offerRemoteKey, offerSkillsMatchedFirst } from '../../../shared/utils/offer-format';
 
 /** Offers the widget shows. */
@@ -33,7 +34,7 @@ export type Recommendation = { kind: 'offer'; offer: Offer; rank: number } | { k
  */
 @Component({
   selector: 'app-dashboard-offers',
-  imports: [DatePipe, MatIconModule, RouterLink, TranslateModule],
+  imports: [DatePipe, MatIconModule, RouterLink, TranslateModule, AutopilotQueueComponent],
   templateUrl: './dashboard-offers.component.html',
   styleUrls: ['./dashboard-offers.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

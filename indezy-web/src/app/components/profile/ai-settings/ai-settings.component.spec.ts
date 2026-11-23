@@ -7,12 +7,14 @@ import { of, throwError } from 'rxjs';
 import en from '../../../../assets/i18n/en.json';
 import { AiStatus } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
+import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { AiSettingsComponent } from './ai-settings.component';
 
 describe('AiSettingsComponent', () => {
   let ai: jasmine.SpyObj<AiService>;
   let notifications: jasmine.SpyObj<NotificationService>;
+  let users: jasmine.SpyObj<UserManagementService>;
   const indezy: AiStatus = { available: true, reason: null, ownKey: false, model: null, spentUsd: 0.5, limitUsd: 2,
     models: { POSTING: 'claude-haiku-5-5', FIT: 'claude-opus-5-5' } };
 
@@ -20,10 +22,12 @@ describe('AiSettingsComponent', () => {
     ai = jasmine.createSpyObj('AiService', ['status', 'setKey', 'removeKey', 'setTaskModels']);
     ai.status.and.returnValue(of(status));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
+    users = jasmine.createSpyObj('UserManagementService', ['getUserPreferences', 'updateUserPreferences']);
+    users.getUserPreferences.and.returnValue(of({ theme: 'auto', language: 'en', inactivityDays: 14 }));
     TestBed.configureTestingModule({
       imports: [AiSettingsComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
-        { provide: NotificationService, useValue: notifications }]
+        { provide: NotificationService, useValue: notifications }, { provide: UserManagementService, useValue: users }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
@@ -101,5 +105,18 @@ describe('AiSettingsComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('ai.errors.unavailable');
     expect(fixture.componentInstance.saving).toBeFalse();
   });
-});
 
+  it('turns the overnight triage on, off by default, and puts the switch back when it fails', () => {
+    const fixture = create();
+    const element = fixture.nativeElement as HTMLElement;
+    const toggle = () => element.querySelector('[data-ai-autopilot-toggle] button') as HTMLButtonElement;
+    expect(toggle().getAttribute('aria-checked')).toBe('false');
+    users.updateUserPreferences.and.returnValue(of({ theme: 'auto', language: 'en', inactivityDays: 14, autopilot: true }));
+    toggle().click();
+    expect(users.updateUserPreferences).toHaveBeenCalledWith({ autopilot: true });
+    expect(notifications.success).toHaveBeenCalledWith('ai.settings.autopilotOn');
+    users.updateUserPreferences.and.returnValue(throwError(() => new Error('down')));
+    toggle().click();
+    expect(notifications.error).toHaveBeenCalledWith('ai.settings.autopilotError');
+  });
+});

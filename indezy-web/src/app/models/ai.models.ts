@@ -204,6 +204,23 @@ export interface AiChatTurn {
 }
 
 /** What the AI made of a feed offer for the workspace. */
+/** An offer the daily autopilot run (or the member) triaged in the last day. */
+export interface AiPreparedOffer {
+  offerId: number;
+  title: string | null;
+  company: string | null;
+  goodFit: boolean;
+  verdict: string;
+  dealBreakers: string[];
+  at: string;
+}
+
+/** Whether the daily autopilot run is on, and the offers triaged in the last day, worth applying to first. */
+export interface AiAutopilotQueue {
+  on: boolean;
+  offers: AiPreparedOffer[];
+}
+
 export interface AiOfferVerdict {
   offerId: number;
   goodFit: boolean;

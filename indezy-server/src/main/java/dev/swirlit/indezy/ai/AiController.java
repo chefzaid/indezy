@@ -55,6 +55,7 @@ public class AiController {
     private final SemanticSearchAiService semantic;
     private final ProfileImportAiService profileImports;
     private final AccessGuard accessGuard;
+    private final AutopilotService autopilot;
 
     /** A job posting pasted as text. */
     public record PostingRequest(@NotBlank @Size(max = PostingAiService.TEXT_MAX) String text) {
@@ -91,6 +92,12 @@ public class AiController {
         public String toString() {
             return "Question[]";
         }
+    }
+
+    @Operation(summary = "The offers the daily autopilot run triaged in the last day, worth applying to first, and whether it is on")
+    @GetMapping("/autopilot")
+    public AutopilotService.Queue autopilot() {
+        return autopilot.queue(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null));
     }
 
     @Operation(summary = "Whether AI can be used, through whose key, and this month's allowance")

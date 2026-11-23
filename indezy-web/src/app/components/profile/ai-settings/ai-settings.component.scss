@@ -80,3 +80,13 @@ mat-card-title {
     margin: 0;
   }
 }
+
+.autopilot {
+  margin-top: 16px;
+
+  .hint {
+    margin: 4px 0 0;
+    color: var(--app-text-muted);
+    font-size: 0.875rem;
+  }
+}

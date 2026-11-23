@@ -75,6 +75,12 @@
           <button mat-flat-button color="primary" type="submit" [disabled]="saving" data-ai-save-key>{{ 'ai.settings.saveKey' | translate }}</button>
         </form>
       }
+      @if (autopilot !== null) {
+        <div class="autopilot" data-ai-autopilot>
+          <mat-slide-toggle [checked]="autopilot" (change)="setAutopilot($event)" data-ai-autopilot-toggle>{{ 'ai.settings.autopilot' | translate }}</mat-slide-toggle>
+          <p class="hint">{{ 'ai.settings.autopilotHint' | translate }}</p>
+        </div>
+      }
     </mat-card-content>
   </mat-card>
 }

@@ -37,6 +37,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/contacts/contact-list/contact-list.component',
   'components/contacts/contact-network/contact-network.component',
   'components/contacts/contacts.routes',
+  'components/dashboard/autopilot-queue/autopilot-queue.component',
   'components/dashboard/billed-days/billed-days.component',
   'components/dashboard/commute-stats/commute-stats',
   'components/dashboard/commute-stats/commute-stats.component',

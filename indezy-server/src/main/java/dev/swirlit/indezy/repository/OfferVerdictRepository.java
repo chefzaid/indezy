@@ -12,6 +12,9 @@ public interface OfferVerdictRepository extends JpaRepository<OfferVerdict, Long
 
     Optional<OfferVerdict> findByFreelanceIdAndOfferId(Long freelanceId, Long offerId);
 
+    /** The workspace's verdicts given since {@code since}, newest first. */
+    java.util.List<OfferVerdict> findByFreelanceIdAndCreatedAtAfterOrderByCreatedAtDesc(Long freelanceId, java.time.LocalDateTime since);
+
     /** The verdicts of offers the feed no longer keeps. */
     @Modifying
     @Transactional

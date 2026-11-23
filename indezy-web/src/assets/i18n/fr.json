@@ -242,6 +242,10 @@
     "outcomesTitle": "Bilan des opportunités",
     "showAll": "Tout afficher ({{count}})",
     "showLess": "Réduire",
+    "autopilot": {
+      "title": "Préparé cette nuit",
+      "summary": "{{count}} offres triées, dont {{fit}} qui valent une candidature"
+    },
     "offers": {
       "bestMatches": "Recommandées pour vous",
       "newest": "Nouvelles offres",
@@ -5237,6 +5241,11 @@
       "saveKey": "Utiliser ma clé",
       "removeKey": "Retirer ma clé et utiliser le forfait d'Indezy",
       "keySaved": "Votre clé est enregistrée",
+      "autopilot": "Trier les nouvelles offres pendant la nuit (pilote automatique)",
+      "autopilotHint": "Chaque nuit, les nouvelles offres qui correspondent à votre profil reçoivent leur avis et leurs points bloquants, 10 au plus, sur votre forfait IA ; il s'arrête quand le forfait est épuisé. Votre tableau de bord les liste le matin.",
+      "autopilotOn": "Le pilote automatique trie vos nouvelles offres chaque nuit",
+      "autopilotOff": "Le pilote automatique est désactivé",
+      "autopilotError": "Le pilote automatique n'a pas pu être modifié : réessayez",
       "keyRemoved": "Votre clé est retirée",
       "keyInvalid": "Une clé Anthropic commence par sk-ant-",
       "ownKeyAuto": "Les fonctions IA utilisent votre propre clé Anthropic, chaque tâche avec son modèle, sans les limites d'Indezy.",

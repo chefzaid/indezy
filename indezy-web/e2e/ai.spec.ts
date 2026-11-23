@@ -299,6 +299,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.getByRole('tab', { name: language === 'en' ? 'Preferences' : 'Préférences' }).click();
     const card = page.locator('[data-ai-settings]');
     await expect(card.locator('[data-ai-allowance]')).toContainText(language === 'en' ? '$0.40 of $2.00' : '0,40 $ sur 2,00 $');
+    // The overnight triage, off until turned on.
+    await expect(card.locator('[data-ai-autopilot]')).toContainText(language === 'en' ? 'Triage the new offers overnight' : 'Trier les nouvelles offres');
     await card.locator('[data-ai-models] summary').click();
     await expect(card.locator('[data-ai-models]')).toContainText(language === 'en' ? 'Reading a posting' : "Lecture d'une annonce");
     await expect(card.locator('[data-ai-models]')).toContainText('Claude Haiku 5.5');

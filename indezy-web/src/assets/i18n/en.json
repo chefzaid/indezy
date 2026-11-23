@@ -242,6 +242,10 @@
     "outcomesTitle": "Opportunity outcomes",
     "showAll": "Show all ({{count}})",
     "showLess": "Show less",
+    "autopilot": {
+      "title": "Prepared overnight",
+      "summary": "{{count}} offers triaged, {{fit}} worth applying to"
+    },
     "offers": {
       "bestMatches": "Recommended for you",
       "newest": "New offers",
@@ -5237,6 +5241,11 @@
       "saveKey": "Use my key",
       "removeKey": "Remove my key and use Indezy's allowance",
       "keySaved": "Your key is saved",
+      "autopilot": "Triage the new offers overnight (autopilot)",
+      "autopilotHint": "Every night, the new offers that fit your profile get their verdict and deal-breakers, 10 at most, from your AI allowance; it stops when the allowance is used up. Your dashboard lists them in the morning.",
+      "autopilotOn": "The autopilot triages your new offers every night",
+      "autopilotOff": "The autopilot is off",
+      "autopilotError": "The autopilot could not be changed: try again",
       "keyRemoved": "Your key is removed",
       "keyInvalid": "An Anthropic key starts with sk-ant-",
       "ownKeyAuto": "AI features use your own Anthropic key, each task on its own model, without Indezy's limits.",

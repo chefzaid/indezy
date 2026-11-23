@@ -263,6 +263,14 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.GET, "/ai/offers/" + offerId + "/verdict", null, Map.class).getBody()).containsEntry("goodFit", false);
         assertThat(call(bob, HttpMethod.GET, "/ai/offers/" + offerId + "/verdict", null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.NO_CONTENT);
+        // The morning's list: the offers triaged in the last day, the autopilot off until turned on.
+        Map<String, Object> queue = call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody();
+        assertThat(queue).containsEntry("on", false);
+        assertThat((List<Map<String, Object>>) queue.get("offers")).singleElement().satisfies(item ->
+            assertThat(item).containsEntry("offerId", (int) offerId).containsEntry("goodFit", false).containsEntry("title", "Lead Kotlin"));
+        assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("autopilot", true), Map.class).getBody()).containsEntry("autopilot", true);
+        assertThat(call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody()).containsEntry("on", true);
+        assertThat((List<?>) call(bob, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("offers")).isEmpty();
         jdbcTemplate.update("DELETE FROM job_offer_skills WHERE offer_id = ?", offerId);
         offers.deleteById(offerId);
         triageService.dropOrphans();

@@ -34,6 +34,8 @@ public class UserPreferencesDto {
     private Boolean shareRates;
     /** Let the records of the ESNs dealt with count, anonymized, in the ESN scorecards across members; on by default. */
     private Boolean shareEsnRecords;
+    /** Triage the new offers that fit overnight, from the AI allowance; off by default. */
+    private Boolean autopilot;
     /** The dashboard's blocks in the account's order, shown or hidden; left as they are when absent. */
     @Size(max = 20)
     private List<@Valid DashboardWidgetDto> dashboardWidgets;

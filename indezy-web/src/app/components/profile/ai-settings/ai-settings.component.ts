@@ -8,11 +8,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AI_MODELS, AI_TASKS, AiModel, AiStatus, AiTask } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { UserManagementService } from '../../../services/user-management/user-management.service';
 
 /**
  * Profile → Preferences → **AI**: whether the AI features can be used, this month's allowance on Indezy's key, and the
@@ -21,7 +23,7 @@ import { NotificationService } from '../../../services/notification/notification
 @Component({
   selector: 'app-ai-settings',
   imports: [DecimalPipe, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule,
-    TranslateModule],
+    MatSlideToggleModule, TranslateModule],
   templateUrl: './ai-settings.component.html',
   styleUrls: ['./ai-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -31,10 +33,13 @@ export class AiSettingsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
+  private readonly users = inject(UserManagementService);
 
   readonly models = AI_MODELS;
   readonly tasks = AI_TASKS;
   status: AiStatus | null = null;
+  /** Whether the daily autopilot run triages the new offers overnight; null until read. */
+  autopilot: boolean | null = null;
   saving = false;
   readonly form = this.fb.nonNullable.group({
     apiKey: ['', [Validators.required, Validators.pattern(/^sk-ant-[A-Za-z0-9_-]+$/), Validators.maxLength(300)]],
@@ -44,6 +49,30 @@ export class AiSettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.ai.status().subscribe({ next: status => this.show(status), error: () => undefined });
+    this.users.getUserPreferences().subscribe({
+      next: preferences => {
+        this.autopilot = preferences.autopilot === true;
+        this.changes.markForCheck();
+      },
+      error: () => undefined
+    });
+  }
+
+  /** Turns the daily autopilot run on or off; failing, the switch goes back. */
+  setAutopilot(event: MatSlideToggleChange): void {
+    const on = event.checked;
+    this.users.updateUserPreferences({ autopilot: on }).subscribe({
+      next: preferences => {
+        this.autopilot = preferences.autopilot === true;
+        this.notifications.success(on ? 'ai.settings.autopilotOn' : 'ai.settings.autopilotOff');
+        this.changes.markForCheck();
+      },
+      error: () => {
+        event.source.checked = !on;
+        this.notifications.error('ai.settings.autopilotError');
+        this.changes.markForCheck();
+      }
+    });
   }
 
   /** The share of the allowance used, for the bar. */

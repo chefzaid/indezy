@@ -866,6 +866,18 @@ starting this year as CSV.
 | `WITHDRAWN` | Désisté / Withdrawn (refused by the freelancer) |
 | `WON` | Accepté / Accepted |
 
+### Daily Autopilot
+
+**Triage the new offers overnight (autopilot)**, in Profile → Preferences → AI, off by default (`autopilot` in the
+preferences), runs every night at 04:10 Paris time (`AutopilotService`): the offers of the feed found in the last day that
+match the profile and were not opened yet, the best matches first, get the verdict and deal-breakers **Should I apply?
+(AI)** gives (`OfferTriageAiService`, kept per workspace), 10 at most a night, those already triaged skipped, from the
+account's AI allowance or its own key, stopping when the allowance is used up (the owner's answer of 2026-11-23: opt-in,
+within the allowance). In the morning, **Prepared overnight** at the top of the dashboard's offers lists the offers
+triaged in the last day (`GET /api/ai/autopilot`), those worth applying to first, five shown, each with its verdict and
+deal-breakers and opening its page; it stays away while the autopilot is off or found nothing. Application packs and
+replies drafted overnight are not prepared yet.
+
 ### Non-Solicitation Clauses
 
 An opportunity with an ESN takes the months of the ESN's non-solicitation clause (1 to 36, optional, often 12). Once

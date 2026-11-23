@@ -37,6 +37,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /** The accounts whose ESN records count in the scorecards across members: all but those that turned it off. */
     List<User> findByShareEsnRecordsIsNullOrShareEsnRecordsTrue();
 
+    /** The accounts that turned the daily autopilot run on. */
+    List<User> findByAutopilotTrue();
+
     /** The accounts holding one of these emails, compared lower-case. */
     @Query("select u from User u where lower(u.email) in :emails")
     List<User> findByEmailsIgnoringCase(@Param("emails") Collection<String> emails);

@@ -47,6 +47,7 @@ Le bouton **Marché** ouvre un **Aperçu du marché** des offres que trouvent vo
 - **Masquer toutes les offres de …** bloque un éditeur, quelle que soit l'orthographe de son nom. La liste se gère dans **Profil → Fil d'offres**.
 - Les cases à cocher agissent sur plusieurs offres à la fois : **Sauvegarder**, **Masquer**, **Marquer comme vues**, **Ajouter au pipeline**.
 - Sur la page d'une offre, **Postuler ? (IA)** dit en une ligne si l'offre vaut une candidature pour votre profil, et liste ses points bloquants (sur site tous les jours, un TJM sous votre objectif, un CDI publié comme mission freelance...). La réponse est conservée : **Demander à nouveau** après avoir modifié votre profil.
+- Activez **Trier les nouvelles offres pendant la nuit (pilote automatique)** dans Profil → Préférences → IA, et chaque nuit les nouvelles offres qui correspondent à votre profil reçoivent cette réponse, 10 au plus, sur votre forfait IA. Votre tableau de bord les liste le matin sous **Préparé cette nuit**, celles qui valent une candidature d'abord.
 
 ## Ajouter une offre au pipeline
 

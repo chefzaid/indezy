@@ -91,6 +91,8 @@ export interface UserPreferences {
   shareRates?: boolean;
   /** Whether the records of the ESNs dealt with count, anonymized, in the ESN scorecards across members; on unless turned off. */
   shareEsnRecords?: boolean;
+  /** Whether the daily autopilot run triages the new offers that fit overnight, from the AI allowance; off unless turned on. */
+  autopilot?: boolean;
   /** The dashboard's blocks in the account's order, shown or hidden. */
   dashboardWidgets?: DashboardWidget[];
 }

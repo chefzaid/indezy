@@ -7,6 +7,7 @@
       </h2>
       <a class="feed-link" routerLink="/offers" [queryParams]="feedQuery">{{ 'dashboard.offers.openFeed' | translate }}</a>
     </div>
+    <app-autopilot-queue></app-autopilot-queue>
     @if (!matched) {
       <p class="hint" data-profile-hint>
         {{ 'dashboard.offers.completeProfile' | translate }} <a routerLink="/profile">{{ 'offers.match.completeProfile' | translate }}</a>

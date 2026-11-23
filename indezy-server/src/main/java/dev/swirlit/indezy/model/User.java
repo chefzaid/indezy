@@ -237,6 +237,17 @@ public class User extends BaseEntity {
         return !Boolean.FALSE.equals(shareEsnRecords);
     }
 
+    /**
+     * Whether Indezy triages the new offers that fit overnight, from the account's AI allowance (the daily autopilot
+     * run, docs/features.md#daily-autopilot); off until turned on.
+     */
+    @Column(name = "autopilot")
+    private Boolean autopilot;
+
+    public Boolean getAutopilot() {
+        return Boolean.TRUE.equals(autopilot);
+    }
+
     /** The member's own Anthropic key, encrypted (AiKeyCipher); null to use Indezy's within its limits. */
     @Column(name = "ai_api_key", length = 600)
     private String aiApiKey;
