@@ -108,5 +108,8 @@ Each waits on a word from you in TODO.md's **Needs Input**:
   company).
 - **ESN scorecard across members:** whether shared figures may name an ESN (a company) when 5 freelancers or more back
   them, which amends ADR 0014; or only market-wide figures; or the private scorecard each workspace already has.
+- **AI spent unasked:** whether Indezy may spend the AI allowance overnight without being asked (offer verdicts,
+  packs and drafted replies ready in the morning, the **Daily autopilot run**), and within which monthly cap per plan;
+  part of **AI provider and costs**.
 - **Template designer canvas:** keep the header's and footer's three zones, or build a free canvas for the PDF only, or
   for both the PDF and the Word copy (floating text boxes).
