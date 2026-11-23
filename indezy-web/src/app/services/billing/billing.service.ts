@@ -96,6 +96,11 @@ export class BillingService {
     return this.http.get(`${this.API_URL}/letterheads/${id}`, { responseType: 'blob' });
   }
 
+  /** The first page of an invoice in the style of these settings, saved or not, as an image. */
+  stylePreview(identity: BillingIdentity): Observable<Blob> {
+    return this.http.post(`${environment.apiUrl}/invoices/style-preview`, identity, { responseType: 'blob' });
+  }
+
   removeLogo(): Observable<BillingIdentity> {
     return this.http.delete<BillingIdentity>(`${this.API_URL}/logo`);
   }

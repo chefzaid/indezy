@@ -64,6 +64,15 @@ for (const width of [1280, 390]) {
       input.dispatchEvent(new Event('input', { bubbles: true }));
     });
     await expect(card.locator('[data-billing-accent-row]')).toContainText('#1F4E79');
+    // The style previewed before it is saved.
+    let previewed: Record<string, unknown> | null = null;
+    await page.route('**/api/invoices/style-preview', route => {
+      previewed = route.request().postDataJSON();
+      return route.fulfill({ body: png, contentType: 'image/png' });
+    });
+    await card.locator('[data-billing-preview-button]').click();
+    await expect(card.locator('[data-billing-preview] img')).toBeVisible();
+    expect(previewed).toEqual(expect.objectContaining({ theme: 'MODERN', accentColor: '#1F4E79' }));
     await card.locator('[data-billing-save]').click();
 
     await expect(card.locator('[data-billing-status]')).toContainText('Ready to issue invoices');

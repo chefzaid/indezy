@@ -1459,6 +1459,9 @@
         "hint_MODERN": "Un bandeau de votre couleur d'accent en haut avec le titre en blanc ; l'en-tête du tableau et le montant à payer remplis de cette couleur.",
         "hint_CLASSIC": "Une police à empattements, le logo centré, de fins filets, des lignes ombrées et vos coordonnées bancaires encadrées."
       },
+      "preview": "Aperçu",
+      "previewAlt": "La première page d'une facture dans ce style",
+      "previewError": "L'aperçu n'a pas pu être dessiné : vérifiez le formulaire.",
       "fonts": {
         "SANS": "Sans empattement (Liberation Sans)",
         "SERIF": "À empattements (Liberation Serif)",

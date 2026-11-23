@@ -224,7 +224,15 @@
         }
         <span class="hint">{{ 'profile.billing.termsFileHint' | translate }}</span>
       </div>
+      @if (previewUrl) {
+        <figure class="style-preview" data-billing-preview>
+          <img [src]="previewUrl" [alt]="'profile.billing.previewAlt' | translate">
+        </figure>
+      }
       <div class="actions">
+        <button mat-stroked-button type="button" (click)="preview()" [disabled]="previewing" data-billing-preview-button>
+          <mat-icon>preview</mat-icon>{{ 'profile.billing.preview' | translate }}
+        </button>
         <button mat-flat-button color="primary" type="submit" [disabled]="saving" data-billing-save>{{ 'common.save' | translate }}</button>
       </div>
     </form>

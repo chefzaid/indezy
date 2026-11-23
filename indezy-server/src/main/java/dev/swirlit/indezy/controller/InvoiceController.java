@@ -1,10 +1,12 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.BillingIdentityDto;
 import dev.swirlit.indezy.dto.InvoiceDtos;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.service.ActivityReportService;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.AccountingExportService;
+import dev.swirlit.indezy.service.BillingIdentityService;
 import dev.swirlit.indezy.service.InvoicePaymentDelays;
 import dev.swirlit.indezy.service.InvoiceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +16,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +42,7 @@ public class InvoiceController {
     private final AccountingExportService accountingExport;
     private final InvoicePaymentDelays paymentDelays;
     private final AccessGuard accessGuard;
+    private final BillingIdentityService billingIdentity;
 
     @Operation(summary = "The workspace's invoices, newest first")
     @GetMapping("/by-freelance/{freelanceId}")
@@ -116,6 +120,14 @@ public class InvoiceController {
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> pdf(@PathVariable Long id) {
         return PdfResponses.attachment(invoices.renderPdf(workspace(), id));
+    }
+
+    @Operation(summary = "The first page of an invoice in the style the billing form sets, saved or not, as an image")
+    @PostMapping(value = "/style-preview", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> stylePreview(@Valid @RequestBody BillingIdentityDto identity) {
+        Long workspace = workspace();
+        return ResponseEntity.ok().header(org.springframework.http.HttpHeaders.CACHE_CONTROL, "no-store").contentType(MediaType.IMAGE_PNG)
+            .body(invoices.stylePreview(workspace, billingIdentity.previewed(workspace, identity)));
     }
 
     @Operation(summary = "The Word template filled with the latest document, or a sample before the first")

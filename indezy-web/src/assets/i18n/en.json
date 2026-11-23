@@ -1459,6 +1459,9 @@
         "hint_MODERN": "A band of your accent colour across the top with the title in white; the table header and the amount to pay filled with it.",
         "hint_CLASSIC": "A serif font, the logo centred, thin rules, shaded rows and your bank details framed."
       },
+      "preview": "Preview",
+      "previewAlt": "The first page of an invoice in this style",
+      "previewError": "The preview could not be drawn: check the form.",
       "fonts": {
         "SANS": "Sans-serif (Liberation Sans)",
         "SERIF": "Serif (Liberation Serif)",

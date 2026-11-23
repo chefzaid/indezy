@@ -42,6 +42,24 @@ public class BillingIdentityService {
             throw new FieldRejectedException("iban", "This IBAN is not valid");
         }
         Freelance freelance = freelance(freelanceId);
+        freelance.setBilling(apply(freelance.getBilling(), request));
+        return toDto(freelance);
+    }
+
+    /**
+     * The identity the form would save, not saved: for the style's preview, its files (logo, font, letterhead) as they
+     * are, the form setting the rest.
+     */
+    @Transactional(readOnly = true)
+    public BillingIdentityDto previewed(Long freelanceId, BillingIdentityDto request) {
+        Freelance freelance = freelance(freelanceId);
+        return toDto(freelance, apply(freelance.getBilling(), request));
+    }
+
+    /** The form's values over the stored identity, whose files only its own uploads set. */
+    private static BillingIdentity apply(BillingIdentity stored, BillingIdentityDto request) {
+        Freelance freelance = new Freelance();
+        freelance.setBilling(stored);
         BillingIdentity billing = new BillingIdentity();
         // The logo is set on its own (DocumentLogoService), never by the identity's form.
         billing.setLogoId(freelance.getBilling() == null ? null : freelance.getBilling().getLogoId());
@@ -74,13 +92,16 @@ public class BillingIdentityService {
         billing.setFont(request.font() == DocumentFont.CUSTOM && billing.getFontFileId() == null ? DocumentFont.SANS : request.font());
         billing.setQuoteNotes(request.quoteNotes());
         billing.setTheme(request.theme());
-        freelance.setBilling(billing);
-        return toDto(freelance);
+        return billing;
     }
 
     /** The identity as invoices use it, the defaults filled in. */
     public static BillingIdentityDto toDto(Freelance freelance) {
-        BillingIdentity billing = Objects.requireNonNullElseGet(freelance.getBilling(), BillingIdentity::new);
+        return toDto(freelance, freelance.getBilling());
+    }
+
+    private static BillingIdentityDto toDto(Freelance freelance, BillingIdentity stored) {
+        BillingIdentity billing = Objects.requireNonNullElseGet(stored, BillingIdentity::new);
         String legalName = Objects.requireNonNullElse(billing.getLegalName(), freelance.getFullName());
         String address = billing.getAddress() != null ? billing.getAddress() : Stream.of(freelance.getAddress(), freelance.getCity())
             .filter(part -> part != null && !part.isBlank()).collect(Collectors.collectingAndThen(Collectors.joining("\n"),

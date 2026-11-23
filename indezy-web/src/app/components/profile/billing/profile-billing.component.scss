@@ -131,3 +131,16 @@
   width: 240px;
   max-width: 100%;
 }
+
+.style-preview {
+  margin: 8px 0 16px;
+
+  img {
+    display: block;
+    width: 100%;
+    max-width: 520px;
+    height: auto;
+    border: 1px solid var(--app-border);
+    box-shadow: 0 6px 18px rgba(15, 12, 40, 0.08);
+  }
+}

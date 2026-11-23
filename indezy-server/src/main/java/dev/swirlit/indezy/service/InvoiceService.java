@@ -384,6 +384,27 @@ public class InvoiceService {
         return render(freelanceId, id, true);
     }
 
+    /**
+     * A page of an invoice in the style the identity's form sets, saved or not, as a PNG: the latest invoice's client and
+     * lines, or a sample's before the first, numbered and dated as if issued today.
+     */
+    @Transactional(readOnly = true)
+    public byte[] stylePreview(Long freelanceId, BillingIdentityDto identity) {
+        Invoice sample = new Invoice();
+        sample.setStatus(InvoiceStatus.ISSUED);
+        sample.setLanguage(DocumentLanguage.FR);
+        java.util.Optional<Invoice> latest = invoices.findByFreelanceIdOrderByCreatedAtDesc(freelanceId).stream().findFirst();
+        InvoiceBuyer buyer = latest.map(invoice -> invoice.getStatus() == InvoiceStatus.DRAFT ? clients.findById(invoice.getClientId())
+            .map(InvoiceService::buyer).orElseGet(InvoiceService::sampleBuyer) : invoice.getBuyer()).orElseGet(InvoiceService::sampleBuyer);
+        sample.setLines(latest.map(invoice -> List.copyOf(invoice.getLines())).filter(lines -> !lines.isEmpty())
+            .orElse(List.of(new InvoiceLine("Prestation de conseil (exemple)", BigDecimal.valueOf(5), BigDecimal.valueOf(600), BigDecimal.valueOf(20)))));
+        LocalDate today = LocalDate.now(clock);
+        sample.setNumber(Objects.requireNonNullElse(identity.invoicePrefix(), "F") + today.getYear() + "-0042");
+        sample.setIssueDate(today);
+        sample.setDueDate(today.plusDays(Objects.requireNonNullElse(identity.paymentTermDays(), 30)));
+        return pdf.previewImage(sample, seller(identity), buyer);
+    }
+
     /** The invoices' Word template filled with the latest invoice, or with a sample one before the first. */
     @Transactional(readOnly = true)
     public ActivityReportService.PdfFile previewTemplate(Long freelanceId) {

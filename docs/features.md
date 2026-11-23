@@ -1423,7 +1423,10 @@ The **Layout** (`theme`, frozen at issue) is **Simple** (black on white, the log
 the accent colour, or a dark slate without one, across the top with the logo and the title in white, the table header
 and the amount to pay filled with it) or **Classic** (Liberation Serif unless a font was uploaded, the logo centred, a
 thin rule under the header and above the footer, every other line shaded and the bank details framed). Word copies keep
-the built-in layout without the theme. A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
+the built-in layout without the theme. **Preview** draws the first page of an invoice in the style the form holds, saved
+or not, as an image (`POST /api/invoices/style-preview` with the form's identity, PNG): the latest invoice's client and
+lines, or a sample's before the first, numbered and dated as if issued today; the stored logo, font and letterhead are
+used, the form setting the rest. A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
 printed under the seller's name, frozen at issue too. A **Footer** (`footer`, 200 characters, such
 as the website and phone) is written small at the foot of every page, also frozen at issue; every document of several
 pages (invoices, quotes, activity reports, dossiers) numbers them "1/2" at the bottom right. The **Notes a new invoice

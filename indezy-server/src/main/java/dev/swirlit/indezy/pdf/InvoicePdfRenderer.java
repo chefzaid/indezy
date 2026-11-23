@@ -32,6 +32,7 @@ public final class InvoicePdfRenderer {
 
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
 
+    private static final float PREVIEW_DPI = 90;
     private final BillingFonts fonts = new BillingFonts();
     private DocumentFontFileRepository uploadedFonts;
     private DocumentLetterheadRepository letterheads;
@@ -74,6 +75,18 @@ public final class InvoicePdfRenderer {
     public byte[] renderDocx(Invoice invoice, InvoiceSeller seller, InvoiceBuyer buyer, byte[] template) {
         InvoicePage page = new InvoicePage(null, invoice, seller, buyer);
         return template == null ? BillingDocx.render(page, logoOf(seller), page.title()) : DocxTemplate.fill(template, page, logoOf(seller));
+    }
+
+    /** The first page of the invoice as a PNG, for a preview of the style. */
+    public byte[] previewImage(Invoice invoice, InvoiceSeller seller, InvoiceBuyer buyer) {
+        try (PDDocument document = org.apache.pdfbox.Loader.loadPDF(render(invoice, seller, buyer))) {
+            java.awt.image.BufferedImage page = new org.apache.pdfbox.rendering.PDFRenderer(document).renderImageWithDPI(0, PREVIEW_DPI);
+            ByteArrayOutputStream png = new ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(page, "png", png);
+            return png.toByteArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException("Could not draw the preview", e);
+        }
     }
 
     /** The invoice as it states the seller and the buyer: frozen once issued, the live ones for a draft. */

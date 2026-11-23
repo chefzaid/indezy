@@ -38,7 +38,7 @@ describe('ProfileBillingComponent', () => {
 
   beforeEach(() => {
     billing = jasmine.createSpyObj('BillingService', ['identity', 'saveIdentity', 'uploadLogo', 'removeLogo', 'logo', 'uploadTermsFile', 'removeTermsFile', 'termsFile',
-      'uploadFont', 'removeFont', 'uploadLetterhead', 'removeLetterhead', 'letterhead']);
+      'uploadFont', 'removeFont', 'uploadLetterhead', 'removeLetterhead', 'letterhead', 'stylePreview']);
     billing.logo.and.returnValue(of(new Blob(['png'], { type: 'image/png' })));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
   });
@@ -254,5 +254,24 @@ describe('ProfileBillingComponent', () => {
     expect(component.letterheadId).toBeNull();
     component.openLetterhead();
     expect(billing.letterhead).toHaveBeenCalledTimes(1);
+  });
+
+  it('previews the style the form sets, saying when it cannot', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    component.form.patchValue({ theme: 'MODERN', accentColor: '#1F4E79' });
+    billing.stylePreview.and.returnValue(of(new Blob(['png'], { type: 'image/png' })));
+    component.preview();
+    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'MODERN', accentColor: '#1F4E79' }));
+    expect(component.previewUrl).toContain('blob:');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-billing-preview] img')).not.toBeNull();
+    billing.stylePreview.and.returnValue(throwError(() => new Error('down')));
+    component.preview();
+    expect(notifications.error).toHaveBeenCalledWith('profile.billing.previewError');
+    component.form.patchValue({ iban: 'FR76 1234' });
+    component.preview();
+    expect(billing.stylePreview).toHaveBeenCalledTimes(2);
+    fixture.destroy();
   });
 });

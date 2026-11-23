@@ -81,10 +81,14 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   fontFamily: string | null = null;
   uploadingFont = false;
   letterheadId: number | null = null;
+  /** The style's preview, as an object URL; null until asked. */
+  previewUrl: string | null = null;
+  previewing = false;
   readonly themes = ['SIMPLE', 'MODERN', 'CLASSIC'] as const;
 
   ngOnDestroy(): void {
     this.revokeLogo();
+    this.revokePreview();
   }
 
   uploadLogo(event: Event): void {
@@ -293,8 +297,52 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       this.form.markAllAsTouched();
       return;
     }
+    const identity = this.formIdentity();
+    this.saving = true;
+    this.billing.saveIdentity(identity).subscribe({
+      next: saved => {
+        this.show(saved);
+        this.saving = false;
+        this.notifications.success('profile.billing.saved');
+      },
+      error: () => {
+        this.saving = false;
+        this.notifications.error('profile.billing.saveError');
+      }
+    });
+  }
+
+  /** Draws the first page of an invoice in the style the form sets, before it is saved. */
+  preview(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.previewing = true;
+    this.billing.stylePreview(this.formIdentity()).subscribe({
+      next: image => {
+        this.previewing = false;
+        this.revokePreview();
+        this.previewUrl = URL.createObjectURL(image);
+      },
+      error: () => {
+        this.previewing = false;
+        this.notifications.error('profile.billing.previewError');
+      }
+    });
+  }
+
+  private revokePreview(): void {
+    if (this.previewUrl) {
+      URL.revokeObjectURL(this.previewUrl);
+      this.previewUrl = null;
+    }
+  }
+
+  /** The identity the form holds, as saved. */
+  private formIdentity(): BillingIdentity {
     const value = this.form.getRawValue();
-    const identity: BillingIdentity = {
+    return {
       legalName: value.legalName?.trim() || null,
       legalForm: value.legalForm,
       siret: compactId(value.siret) || null,
@@ -320,18 +368,6 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       invoiceNotes: value.invoiceNotes?.trim() || null,
       quoteNotes: value.quoteNotes?.trim() || null
     };
-    this.saving = true;
-    this.billing.saveIdentity(identity).subscribe({
-      next: saved => {
-        this.show(saved);
-        this.saving = false;
-        this.notifications.success('profile.billing.saved');
-      },
-      error: () => {
-        this.saving = false;
-        this.notifications.error('profile.billing.saveError');
-      }
-    });
   }
 
   private show(identity: BillingIdentity): void {

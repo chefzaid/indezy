@@ -103,4 +103,21 @@ class LetterheadIntegrationTest extends TwoAccountsIntegrationTest {
         }
         assertThat(text(again)).isEqualTo(text(issued));
     }
+
+    @Test
+    void previewsTheStyleTheFormSetsBeforeSavingIt() throws IOException {
+        Map<String, Object> identity = new HashMap<>(call(alice, HttpMethod.GET, "/users/billing", null, Map.class).getBody());
+        identity.put("theme", "MODERN");
+        identity.put("accentColor", "#1F4E79");
+        ResponseEntity<byte[]> preview = call(alice, HttpMethod.POST, "/invoices/style-preview", identity, byte[].class);
+        assertThat(preview.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(preview.getHeaders().getContentType()).isEqualTo(MediaType.IMAGE_PNG);
+        java.awt.image.BufferedImage page = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(preview.getBody()));
+        // An A4 page whose top is the modern band in the accent colour, though nothing was saved.
+        assertThat(page.getHeight()).isGreaterThan(page.getWidth());
+        assertThat(new java.awt.Color(page.getRGB(page.getWidth() / 2, 4))).isEqualTo(new java.awt.Color(0x1F, 0x4E, 0x79));
+        assertThat(call(alice, HttpMethod.GET, "/users/billing", null, Map.class).getBody()).containsEntry("theme", "SIMPLE");
+        identity.put("accentColor", "nope");
+        assertThat(call(alice, HttpMethod.POST, "/invoices/style-preview", identity, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 }
