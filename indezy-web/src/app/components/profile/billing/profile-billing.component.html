@@ -285,7 +285,16 @@
                   {{ 'profile.billing.signatureShown' | translate }}
                 </mat-checkbox>
               }
-              @if (styledBlocks.includes(block)) {
+              @if (block === 'LINES') {
+                <span class="block-style" [attr.data-body-block-style]="block">
+                  <mat-checkbox [checked]="styleOf(block).framed" (change)="setStyle(block, { framed: $event.checked })" data-lines-filled-header>
+                    {{ 'profile.billing.blockStyle.filledHeader' | translate }}
+                  </mat-checkbox>
+                  <mat-checkbox [checked]="styleOf(block).shaded" (change)="setStyle(block, { shaded: $event.checked })" data-lines-shaded-rows>
+                    {{ 'profile.billing.blockStyle.shadedRows' | translate }}
+                  </mat-checkbox>
+                </span>
+              } @else if (styledBlocks.includes(block)) {
                 <span class="block-style" [attr.data-body-block-style]="block">
                   <mat-form-field appearance="outline" class="style-field" subscriptSizing="dynamic">
                     <mat-label>{{ 'profile.billing.blockStyle.size' | translate }}</mat-label>

@@ -77,10 +77,17 @@ final class BillingDocx {
 
     /** The lines, then the totals under them. */
     private static void lines(DocxDocument docx, BillingPage page, String accent) {
+        BlockStyle style = BlockStyle.of(page.blockStyles(), BodyBlock.LINES);
         List<List<DocxDocument.Cell>> rows = new ArrayList<>();
-        rows.add(row(page.columnHeadings(), true, accent));
-        for (InvoiceLine line : page.documentLines()) {
-            rows.add(row(page.cells(line), false, null));
+        if (style.framed()) {
+            String band = page.bandColor().substring(1).toUpperCase(java.util.Locale.ROOT);
+            rows.add(row(page.columnHeadings(), true, "FFFFFF", band));
+        } else {
+            rows.add(row(page.columnHeadings(), true, accent, null));
+        }
+        int line = 0;
+        for (InvoiceLine item : page.documentLines()) {
+            rows.add(row(page.cells(item), false, null, style.shaded() && line++ % 2 != 0 ? SHADE : null));
         }
         docx.table(LINES, rows, true, true, false, accent);
 
@@ -181,11 +188,11 @@ final class BillingDocx {
         return new DocxDocument.Run(text, false, DocxDocument.BODY, null);
     }
 
-    private static List<DocxDocument.Cell> row(String[] cells, boolean bold, String color) {
+    private static List<DocxDocument.Cell> row(String[] cells, boolean bold, String color, String fill) {
         List<DocxDocument.Cell> row = new ArrayList<>();
         for (int index = 0; index < cells.length; index++) {
             row.add(new DocxDocument.Cell(List.of(List.of(new DocxDocument.Run(cells[index], bold, DocxDocument.BODY, bold ? color : null))),
-                index == 0 ? DocxDocument.Align.LEFT : DocxDocument.Align.RIGHT));
+                index == 0 ? DocxDocument.Align.LEFT : DocxDocument.Align.RIGHT, fill));
         }
         return row;
     }

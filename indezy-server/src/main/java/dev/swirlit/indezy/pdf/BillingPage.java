@@ -145,7 +145,7 @@ abstract class BillingPage {
     }
 
     /** The colour of a modern band and of what it fills: the accent, or a dark slate without one. */
-    private String bandColor() {
+    String bandColor() {
         return accent() != null ? accent() : MODERN_DEFAULT;
     }
 
@@ -324,8 +324,9 @@ abstract class BillingPage {
 
     void lines(List<InvoiceLine> lines) throws IOException {
         float[] columns = {0, 0.56f, 0.66f, 0.8f, 0.88f};
+        dev.swirlit.indezy.model.BlockStyle style = dev.swirlit.indezy.model.BlockStyle.of(blockStyles(), BodyBlock.LINES);
         writer.moveDown(ROW);
-        if (theme() == DocumentTheme.MODERN) {
+        if (theme() == DocumentTheme.MODERN || style.framed()) {
             writer.fill(writer.left() - 4, writer.cursor() - 6, writer.width() + 8, ROW, bandColor());
             writer.white();
             row(columns, columnHeadings(), true);
@@ -340,7 +341,7 @@ abstract class BillingPage {
             List<String> description = writer.wrap(line.getDescription(), false, BODY, writer.width() * (columns[1] - 0.02f));
             writer.ensureSpace(ROW + LINE * (description.size() - 1));
             writer.moveDown(ROW);
-            if (theme() == DocumentTheme.CLASSIC && index++ % 2 != 0) {
+            if ((theme() == DocumentTheme.CLASSIC || style.shaded()) && index++ % 2 != 0) {
                 writer.shade(writer.left() - 4, writer.cursor() - 5 - LINE * (description.size() - 1), writer.width() + 8,
                     ROW + LINE * (description.size() - 1) - 1);
             }

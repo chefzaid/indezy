@@ -146,7 +146,8 @@ describe('ProfileBillingComponent', () => {
       family: 'DOCUMENT' });
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('[data-body-block-style="NOTES"]')).not.toBeNull();
-    expect(element.querySelector('[data-body-block-style="LINES"]')).toBeNull();
+    expect(element.querySelector('[data-body-block-style="LINES"] [data-lines-shaded-rows]')).not.toBeNull();
+    expect(element.querySelector('[data-body-block-style="SIGNATURE"]')).toBeNull();
     component.setStyle('MENTIONS', { shaded: true, color: 'ACCENT', bold: true, family: 'SERIF' });
     expect(component.form.dirty).toBeTrue();
     billing.saveIdentity.and.returnValue(of(defaults));

@@ -137,6 +137,7 @@ describe('ProfilePersonalInfoComponent', () => {
   });
 
   it('weighs the parts of the match score, the skills always counting', () => {
+    create();
     const weights = element().querySelector('[data-match-weights]')!;
     expect(weights.querySelectorAll('mat-select').length).toBe(4);
     expect(component.matchParts.filter(part => part.optional).map(part => part.label)).toEqual(['rate', 'place', 'start']);

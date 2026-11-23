@@ -29,8 +29,10 @@ class BlockStylesTest {
 
     @Test
     void storesOnlyTheStylesOfTheTextBlocksThatDifferFromTheUsual() {
-        Map<BodyBlock, BlockStyle> styles = Map.of(BodyBlock.NOTES, CENTRED, BodyBlock.LINES, CENTRED, BodyBlock.MENTIONS, BlockStyle.USUAL);
+        Map<BodyBlock, BlockStyle> styles = Map.of(BodyBlock.NOTES, CENTRED, BodyBlock.SIGNATURE, CENTRED, BodyBlock.MENTIONS, BlockStyle.USUAL);
         assertThat(BlockStyle.store(styles)).isEqualTo("NOTES=LARGE,CENTER,FRAMED,SHADED");
+        // Of the lines table, only its shaded rows and filled header are kept.
+        assertThat(BlockStyle.store(Map.of(BodyBlock.LINES, CENTRED))).isEqualTo("LINES=SMALL,LEFT,FRAMED,SHADED");
         assertThat(BlockStyle.read("NOTES=LARGE,CENTER,FRAMED,SHADED;MENTIONS=NORMAL,RIGHT;GONE=SMALL")).containsOnly(
             Map.entry(BodyBlock.NOTES, CENTRED), Map.entry(BodyBlock.MENTIONS, new BlockStyle(BlockStyle.Size.NORMAL, BlockStyle.Align.RIGHT, false, false, null, false, null)));
         assertThat(BlockStyle.store(null)).isNull();
@@ -144,5 +146,29 @@ class BlockStylesTest {
             .get("word/document.xml"), StandardCharsets.UTF_8);
         String run = document.substring(document.lastIndexOf("<w:r>", document.indexOf("Thanks for your trust")), document.indexOf("Thanks for your trust"));
         assertThat(run).contains("w:ascii=\"Liberation Serif\"");
+    }
+
+    @Test
+    void shadesTheLinesAndFillsTheirHeaderWhateverTheLayout() throws IOException {
+        Quote quote = quote();
+        quote.setLines(List.of(new InvoiceLine("Audit", BigDecimal.ONE, new BigDecimal("900.00"), new BigDecimal("20.00")),
+            new InvoiceLine("Training", BigDecimal.ONE, new BigDecimal("400.00"), new BigDecimal("20.00"))));
+        InvoiceSeller seller = new InvoiceSeller();
+        seller.setName("Alice Martin");
+        seller.setAccentColor("#1F4E79");
+        byte[] plain = new QuotePdfRenderer().render(quote, seller, new InvoiceBuyer(), 30, null);
+        seller.setBlockStyles(BlockStyle.store(Map.of(BodyBlock.LINES,
+            new BlockStyle(null, null, true, true, null, null, null))));
+        byte[] styled = new QuotePdfRenderer().render(quote, seller, new InvoiceBuyer(), 30, null);
+        try (PDDocument usual = Loader.loadPDF(plain); PDDocument document = Loader.loadPDF(styled)) {
+            String before = new String(usual.getPage(0).getContents().readAllBytes(), StandardCharsets.ISO_8859_1);
+            String after = new String(document.getPage(0).getContents().readAllBytes(), StandardCharsets.ISO_8859_1);
+            // The header's band and the second line's shading added.
+            assertThat(count(after, " re")).isEqualTo(count(before, " re") + 2);
+            assertThat(after).contains("1 1 1 rg");
+        }
+        String document = new String(BillingDocxTest.parts(new QuotePdfRenderer().renderDocx(quote, seller, new InvoiceBuyer(), 30, null, false))
+            .get("word/document.xml"), StandardCharsets.UTF_8);
+        assertThat(document).contains("w:fill=\"1F4E79\"", "w:fill=\"EDEDED\"");
     }
 }

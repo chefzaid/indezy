@@ -10,8 +10,9 @@ import java.util.stream.Collectors;
 
 /**
  * How a text block of an invoice's or a quote's body is drawn (see docs/features.md#billing-identity): its text size,
- * its alignment, a frame around it, a grey shading under it, its colour (the text's, the accent or grey) and bold. Only the mentions and the notes take one; the others
- * keep the layout's.
+ * its alignment, a frame around it, a grey shading under it, its colour (the text's, the accent or grey), bold and its
+ * font family. The mentions and the notes take one, the lines table its shaded rows and filled header; the others keep
+ * the layout's.
  */
 public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded, Color color, Boolean bold, Family family) {
 
@@ -26,8 +27,11 @@ public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded,
     /** The block's font family: the document's, or the bundled sans-serif or serif one whatever the document's. */
     public enum Family { DOCUMENT, SANS, SERIF }
 
-    /** The blocks a style applies to. */
-    public static final Set<BodyBlock> STYLED = Set.of(BodyBlock.MENTIONS, BodyBlock.NOTES);
+    /**
+     * The blocks a style applies to: the mentions and the notes wholly; of the lines table, only {@code shaded}
+     * (alternate rows shaded) and {@code framed} (its header row filled with the accent colour).
+     */
+    public static final Set<BodyBlock> STYLED = Set.of(BodyBlock.MENTIONS, BodyBlock.NOTES, BodyBlock.LINES);
 
     /** As the layout draws a text block. */
     public static final BlockStyle USUAL = new BlockStyle(Size.SMALL, Align.LEFT, false, false, Color.TEXT, false, Family.DOCUMENT);
@@ -48,8 +52,10 @@ public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded,
         Map<BodyBlock, BlockStyle> kept = new EnumMap<>(BodyBlock.class);
         if (styles != null) {
             styles.forEach((block, style) -> {
-                if (block != null && style != null && STYLED.contains(block) && !style.equals(USUAL)) {
-                    kept.put(block, style);
+                BlockStyle kept1 = block == BodyBlock.LINES && style != null ? new BlockStyle(null, null, style.framed(), style.shaded(), null, null, null) :
+                    style;
+                if (block != null && kept1 != null && STYLED.contains(block) && !kept1.equals(USUAL)) {
+                    kept.put(block, kept1);
                 }
             });
         }
