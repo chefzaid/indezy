@@ -94,6 +94,8 @@ public class BillingIdentityService {
         billing.setTheme(request.theme());
         billing.setLetterheadTopMm(request.letterheadTop());
         billing.setLetterheadBottomMm(request.letterheadBottom());
+        billing.setQuoteAccentColor(request.quoteAccentColor());
+        billing.setQuoteTheme(request.quoteTheme());
         return billing;
     }
 
@@ -120,7 +122,8 @@ public class BillingIdentityService {
             Objects.requireNonNullElse(billing.getLogoSize(), LogoSize.MEDIUM), billing.getHeader(),
             Objects.requireNonNullElse(billing.getFont(), DocumentFont.SANS), Objects.requireNonNullElse(billing.getTheme(), DocumentTheme.SIMPLE),
             billing.getFontFileId(), billing.getFontFamily(),
-            billing.getLetterheadId(), billing.getLetterheadTopMm(), billing.getLetterheadBottomMm(), complete);
+            billing.getLetterheadId(), billing.getLetterheadTopMm(), billing.getLetterheadBottomMm(),
+            billing.getQuoteAccentColor(), billing.getQuoteTheme(), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

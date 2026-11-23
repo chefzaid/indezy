@@ -97,8 +97,8 @@ export class BillingService {
   }
 
   /** The first page of an invoice in the style of these settings, saved or not, as an image. */
-  stylePreview(identity: BillingIdentity): Observable<Blob> {
-    return this.http.post(`${environment.apiUrl}/invoices/style-preview`, identity, { responseType: 'blob' });
+  stylePreview(identity: BillingIdentity, quote = false): Observable<Blob> {
+    return this.http.post(`${environment.apiUrl}/invoices/style-preview${quote ? '?quote=true' : ''}`, identity, { responseType: 'blob' });
   }
 
   removeLogo(): Observable<BillingIdentity> {

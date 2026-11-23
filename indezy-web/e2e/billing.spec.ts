@@ -75,12 +75,25 @@ for (const width of [1280, 390]) {
     await card.locator('[data-billing-preview-button]').click();
     await expect(card.locator('[data-billing-preview] img')).toBeVisible();
     expect(previewed).toEqual(expect.objectContaining({ theme: 'MODERN', accentColor: '#1F4E79' }));
+    // Quotes in their own layout, previewed on a quote.
+    await card.locator('[data-billing-quote-own] input').check();
+    await card.locator('[data-billing-quote-theme]').click();
+    await page.getByRole('option', { name: 'Classic' }).click();
+    let quotePreview = '';
+    await page.route('**/api/invoices/style-preview?quote=true', route => {
+      quotePreview = route.request().url();
+      previewed = route.request().postDataJSON();
+      return route.fulfill({ body: png, contentType: 'image/png' });
+    });
+    await card.locator('[data-billing-preview-quote]').click();
+    await expect.poll(() => quotePreview).toContain('quote=true');
+    expect(previewed).toEqual(expect.objectContaining({ theme: 'MODERN', quoteTheme: 'CLASSIC' }));
     await card.locator('[data-billing-save]').click();
 
     await expect(card.locator('[data-billing-status]')).toContainText('Ready to issue invoices');
     expect(saved).toEqual([expect.objectContaining({ legalForm: 'MICRO_ENTREPRISE', siret: '55210055400012', letterheadTop: 45, letterheadBottom: 20,
       iban: 'FR7630006000011234567890189', vatExempt: true, quoteTerms: 'Article 1 — Objet', accentColor: '#1F4E79',
-      footer: 'alice.dev · 06 12 34 56 78', font: 'CUSTOM', theme: 'MODERN' })]);
+      footer: 'alice.dev · 06 12 34 56 78', font: 'CUSTOM', theme: 'MODERN', quoteTheme: 'CLASSIC' })]);
     const audit = await new AxeBuilder({ page }).include('[data-billing]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

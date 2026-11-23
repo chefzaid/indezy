@@ -1457,7 +1457,10 @@ thin rule under the header and above the footer, every other line shaded and the
 the built-in layout without the theme. **Preview** draws the first page of an invoice in the style the form holds, saved
 or not, as an image (`POST /api/invoices/style-preview` with the form's identity, PNG): the latest invoice's client and
 lines, or a sample's before the first, numbered and dated as if issued today; the stored logo, font and letterhead are
-used, the form setting the rest. A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
+used, the form setting the rest. **Quotes have their own colour and layout** gives the quotes a **Quotes' layout** and a
+**Quotes' accent colour** (`quoteTheme`, `quoteAccentColor`, refused too pale like the other; null for the invoices'
+ones), frozen with the quote's seller when it is sent, everything else shared; **Preview a quote** draws the preview in
+them (`?quote=true`). A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
 printed under the seller's name, frozen at issue too. A **Footer** (`footer`, 200 characters, such
 as the website and phone) is written small at the foot of every page, also frozen at issue; every document of several
 pages (invoices, quotes, activity reports, dossiers) numbers them "1/2" at the bottom right. The **Notes a new invoice

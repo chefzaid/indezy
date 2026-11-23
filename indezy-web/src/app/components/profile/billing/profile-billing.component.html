@@ -212,6 +212,32 @@
         <input matInput formControlName="footer" maxlength="200" data-billing-footer>
         <mat-hint>{{ 'profile.billing.footerHint' | translate }}</mat-hint>
       </mat-form-field>
+      <div class="quote-style" data-billing-quote-style>
+        <mat-checkbox [checked]="ownQuoteStyle" (change)="setOwnQuoteStyle($event.checked)" data-billing-quote-own>
+          {{ 'profile.billing.quoteOwn' | translate }}
+        </mat-checkbox>
+        @if (ownQuoteStyle) {
+          <div class="quote-style-fields">
+            <mat-form-field appearance="outline" class="font">
+              <mat-label>{{ 'profile.billing.quoteTheme' | translate }}</mat-label>
+              <mat-select formControlName="quoteTheme" data-billing-quote-theme>
+                @for (theme of themes; track theme) {
+                  <mat-option [value]="theme">{{ 'profile.billing.themes.' + theme | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <div class="accent">
+              <label for="billing-quote-accent">{{ 'profile.billing.quoteAccent' | translate }}</label>
+              <input id="billing-quote-accent" type="color" [value]="form.value.quoteAccentColor || form.value.accentColor || '#000000'"
+                (input)="setQuoteAccent($event)" data-billing-quote-accent>
+              <span class="accent-value">{{ form.value.quoteAccentColor || ('profile.billing.quoteAccentSame' | translate) }}</span>
+              @if (quoteAccentTooPale) {
+                <span class="accent-error" role="alert" data-billing-quote-accent-pale>{{ 'profile.billing.accentPale' | translate }}</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
       <div class="row">
         <mat-form-field appearance="outline" class="grow">
           <mat-label>{{ 'profile.billing.invoiceNotes' | translate }}</mat-label>
@@ -248,6 +274,11 @@
         <button mat-stroked-button type="button" (click)="preview()" [disabled]="previewing" data-billing-preview-button>
           <mat-icon>preview</mat-icon>{{ 'profile.billing.preview' | translate }}
         </button>
+        @if (ownQuoteStyle) {
+          <button mat-stroked-button type="button" (click)="preview(true)" [disabled]="previewing" data-billing-preview-quote>
+            <mat-icon>preview</mat-icon>{{ 'profile.billing.previewQuote' | translate }}
+          </button>
+        }
         <button mat-flat-button color="primary" type="submit" [disabled]="saving" data-billing-save>{{ 'common.save' | translate }}</button>
       </div>
     </form>

@@ -53,8 +53,8 @@ class QuoteIntegrationTest extends TwoAccountsIntegrationTest {
         // Sent only with a complete billing identity and the client's address, then frozen.
         assertThat(call(alice, HttpMethod.POST, quote + "/send", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         call(alice, HttpMethod.PUT, "/users/billing", Map.of("legalName", "Alice Martin", "legalForm", "MICRO_ENTREPRISE",
-            "siret", "55210055400012", "vatExempt", true, "address", "18 rue du Sentier\n75002 Paris", "iban", "FR7630006000011234567890189"),
-            Map.class);
+            "siret", "55210055400012", "vatExempt", true, "address", "18 rue du Sentier\n75002 Paris", "iban", "FR7630006000011234567890189",
+            "accentColor", "#1F4E79", "quoteAccentColor", "#7A1F1F", "quoteTheme", "CLASSIC"), Map.class);
         assertThat(call(alice, HttpMethod.POST, quote + "/send", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         Map<String, Object> client = call(alice, HttpMethod.GET, "/clients/" + aliceClientId, null, Map.class).getBody();
         client.put("address", "29 boulevard Haussmann");
@@ -66,6 +66,11 @@ class QuoteIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(sent).containsEntry("status", "SENT").containsEntry("number", number).containsEntry("expired", false)
             .containsEntry("issueDate", today().toString()).containsEntry("validUntil", today().plusDays(15).toString());
         assertThat(call(alice, HttpMethod.PUT, quote, draft, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        // The quotes' own colour and layout, frozen with the seller; the invoices keep theirs.
+        assertThat(jdbcTemplate.queryForMap("SELECT seller_accent_color, seller_theme FROM quotes WHERE id = ?", created.get("id")))
+            .containsEntry("seller_accent_color", "#7A1F1F").containsEntry("seller_theme", "CLASSIC");
+        assertThat(call(alice, HttpMethod.GET, "/users/billing", null, Map.class).getBody()).containsEntry("accentColor", "#1F4E79")
+            .containsEntry("quoteTheme", "CLASSIC");
         assertThat(call(alice, HttpMethod.DELETE, quote, null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(pdf(alice, quote)).contains("Devis").contains("N° " + number).contains("Bon pour accord")
             .contains("TVA non applicable, art. 293 B du CGI").contains("Paiement à 30 jours à réception de la facture").contains("Devis gratuit.");

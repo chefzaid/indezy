@@ -122,12 +122,14 @@ public class InvoiceController {
         return PdfResponses.attachment(invoices.renderPdf(workspace(), id));
     }
 
-    @Operation(summary = "The first page of an invoice in the style the billing form sets, saved or not, as an image")
+    @Operation(summary = "The first page of an invoice in the style the billing form sets, saved or not, as an image",
+        description = "With quote=true, in the quotes' own accent colour and layout when the form sets them")
     @PostMapping(value = "/style-preview", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> stylePreview(@Valid @RequestBody BillingIdentityDto identity) {
+    public ResponseEntity<byte[]> stylePreview(@Valid @RequestBody BillingIdentityDto identity,
+                                               @RequestParam(defaultValue = "false") boolean quote) {
         Long workspace = workspace();
         return ResponseEntity.ok().header(org.springframework.http.HttpHeaders.CACHE_CONTROL, "no-store").contentType(MediaType.IMAGE_PNG)
-            .body(invoices.stylePreview(workspace, billingIdentity.previewed(workspace, identity)));
+            .body(invoices.stylePreview(workspace, billingIdentity.previewed(workspace, identity), quote));
     }
 
     @Operation(summary = "The Word template filled with the latest document, or a sample before the first")

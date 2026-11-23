@@ -390,6 +390,12 @@ public class InvoiceService {
      */
     @Transactional(readOnly = true)
     public byte[] stylePreview(Long freelanceId, BillingIdentityDto identity) {
+        return stylePreview(freelanceId, identity, false);
+    }
+
+    /** As above, in the quotes' own accent colour and layout when {@code quote}. */
+    @Transactional(readOnly = true)
+    public byte[] stylePreview(Long freelanceId, BillingIdentityDto identity, boolean quote) {
         Invoice sample = new Invoice();
         sample.setStatus(InvoiceStatus.ISSUED);
         sample.setLanguage(DocumentLanguage.FR);
@@ -402,7 +408,7 @@ public class InvoiceService {
         sample.setNumber(Objects.requireNonNullElse(identity.invoicePrefix(), "F") + today.getYear() + "-0042");
         sample.setIssueDate(today);
         sample.setDueDate(today.plusDays(Objects.requireNonNullElse(identity.paymentTermDays(), 30)));
-        return pdf.previewImage(sample, seller(identity), buyer);
+        return pdf.previewImage(sample, quote ? quoteSeller(identity) : seller(identity), buyer);
     }
 
     /** The invoices' Word template filled with the latest invoice, or with a sample one before the first. */
@@ -528,6 +534,18 @@ public class InvoiceService {
             throw new InvalidStateException("An issued invoice can no longer change");
         }
         return invoice;
+    }
+
+    /** The seller as a quote states it: the invoices' style, but the quotes' own accent colour and layout when set. */
+    static InvoiceSeller quoteSeller(BillingIdentityDto identity) {
+        InvoiceSeller seller = seller(identity);
+        if (identity.quoteAccentColor() != null) {
+            seller.setAccentColor(identity.quoteAccentColor());
+        }
+        if (identity.quoteTheme() != null) {
+            seller.setTheme(identity.quoteTheme());
+        }
+        return seller;
     }
 
     static InvoiceSeller seller(BillingIdentityDto identity) {

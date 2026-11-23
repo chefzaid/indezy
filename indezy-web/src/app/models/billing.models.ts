@@ -56,6 +56,9 @@ export interface BillingIdentity {
   /** The room the letterhead's header and footer take, in millimetres, kept free of the document; null for the usual margins. */
   letterheadTop?: number | null;
   letterheadBottom?: number | null;
+  /** The quotes' own accent colour and layout; null for the invoices' ones. */
+  quoteAccentColor?: string | null;
+  quoteTheme?: 'SIMPLE' | 'MODERN' | 'CLASSIC' | null;
   fontFamily?: string | null;
   /** Where the logo sits at the top of the documents, and how large. */
   logoPlacement?: 'LEFT' | 'CENTER' | 'RIGHT';

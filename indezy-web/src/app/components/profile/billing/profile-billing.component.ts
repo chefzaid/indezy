@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,7 +24,7 @@ const COMPANIES: LegalForm[] = ['EURL', 'SASU', 'SARL', 'SAS'];
 /** The seller's identity on the workspace's invoices: legal name and form, SIRET, VAT, address and bank details. */
 @Component({
   selector: 'app-profile-billing',
-  imports: [HelpLinkComponent, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule,
+  imports: [HelpLinkComponent, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatCheckboxModule, MatSelectModule,
     MatSlideToggleModule, TranslateModule],
   templateUrl: './profile-billing.component.html',
   styleUrls: ['./profile-billing.component.scss'],
@@ -55,6 +56,8 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     header: ['', Validators.maxLength(150)],
     font: ['SANS' as 'SANS' | 'SERIF' | 'CUSTOM'],
     theme: ['SIMPLE' as 'SIMPLE' | 'MODERN' | 'CLASSIC'],
+    quoteTheme: [null as 'SIMPLE' | 'MODERN' | 'CLASSIC' | null],
+    quoteAccentColor: [''],
     letterheadTop: [null as number | null, [Validators.min(0), Validators.max(120)]],
     letterheadBottom: [null as number | null, [Validators.min(0), Validators.max(120)]],
     footer: ['', Validators.maxLength(200)],
@@ -284,6 +287,27 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     return !!color && contrastOnWhite(color) < 3;
   }
 
+  /** Whether the quotes have their own colour and layout, the rest shared with the invoices. */
+  ownQuoteStyle = false;
+
+  get quoteAccentTooPale(): boolean {
+    const color = this.ownQuoteStyle ? this.form.value.quoteAccentColor : null;
+    return !!color && contrastOnWhite(color) < 3;
+  }
+
+  /** Gives the quotes their own style, starting from the invoices', or takes it back. */
+  setOwnQuoteStyle(own: boolean): void {
+    this.ownQuoteStyle = own;
+    this.form.patchValue(own ? { quoteTheme: this.form.value.theme ?? 'SIMPLE', quoteAccentColor: this.form.value.accentColor ?? '' }
+      : { quoteTheme: null, quoteAccentColor: '' });
+    this.form.markAsDirty();
+  }
+
+  setQuoteAccent(event: Event): void {
+    this.form.patchValue({ quoteAccentColor: (event.target as HTMLInputElement).value.toUpperCase() });
+    this.form.markAsDirty();
+  }
+
   setAccent(event: Event): void {
     this.form.patchValue({ accentColor: (event.target as HTMLInputElement).value.toUpperCase() });
     this.form.markAsDirty();
@@ -295,7 +319,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    if (this.form.invalid || this.saving || this.accentTooPale) {
+    if (this.form.invalid || this.saving || this.accentTooPale || this.quoteAccentTooPale) {
       this.form.markAllAsTouched();
       return;
     }
@@ -315,13 +339,14 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   }
 
   /** Draws the first page of an invoice in the style the form sets, before it is saved. */
-  preview(): void {
+  /** Draws the first page of an invoice, or of a quote in the quotes' own style, as the form holds it. */
+  preview(quote = false): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
     this.previewing = true;
-    this.billing.stylePreview(this.formIdentity()).subscribe({
+    this.billing.stylePreview(this.formIdentity(), quote).subscribe({
       next: image => {
         this.previewing = false;
         this.revokePreview();
@@ -366,6 +391,8 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       theme: value.theme ?? 'SIMPLE',
       letterheadTop: value.letterheadTop ?? null,
       letterheadBottom: value.letterheadBottom ?? null,
+      quoteTheme: this.ownQuoteStyle ? value.quoteTheme ?? null : null,
+      quoteAccentColor: this.ownQuoteStyle ? value.quoteAccentColor || null : null,
       footer: value.footer?.trim() || null,
       logoPlacement: value.logoPlacement ?? 'LEFT',
       logoSize: value.logoSize ?? 'MEDIUM',
@@ -378,6 +405,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     this.complete = !!identity.complete;
     this.fontFamily = identity.fontFamily ?? null;
     this.letterheadId = identity.letterheadId ?? null;
+    this.ownQuoteStyle = !!(identity.quoteTheme || identity.quoteAccentColor);
     this.showLogo(identity.logoId ?? null);
     this.form.reset({
       legalName: identity.legalName ?? '', legalForm: identity.legalForm, siret: identity.siret ?? '', vatExempt: identity.vatExempt,
@@ -392,6 +420,8 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       theme: identity.theme ?? 'SIMPLE',
       letterheadTop: identity.letterheadTop ?? null,
       letterheadBottom: identity.letterheadBottom ?? null,
+      quoteTheme: identity.quoteTheme ?? null,
+      quoteAccentColor: identity.quoteAccentColor ?? '',
       footer: identity.footer ?? '',
       logoPlacement: identity.logoPlacement ?? 'LEFT',
       logoSize: identity.logoSize ?? 'MEDIUM',

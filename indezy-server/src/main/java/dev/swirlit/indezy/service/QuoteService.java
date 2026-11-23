@@ -139,7 +139,7 @@ public class QuoteService {
         quote.setIssueDate(issued);
         quote.setValidUntil(issued.plusDays(quote.getValidityDays()));
         quote.setPaymentTermDays(seller.paymentTermDays());
-        quote.setSeller(InvoiceService.seller(seller));
+        quote.setSeller(InvoiceService.quoteSeller(seller));
         quote.setBuyer(InvoiceService.buyer(client));
         quote.setTerms(seller.quoteTerms());
         quote.setTermsFileId(seller.quoteTermsFileId());
@@ -222,7 +222,7 @@ public class QuoteService {
         sample.setLines(List.of(new InvoiceLine("Prestation de conseil (exemple)", java.math.BigDecimal.valueOf(5), java.math.BigDecimal.valueOf(600),
             java.math.BigDecimal.valueOf(20))));
         BillingIdentityDto identity = identity(freelanceId);
-        return new ActivityReportService.PdfFile("apercu-modele-devis.docx", pdf.renderDocx(sample, InvoiceService.seller(identity),
+        return new ActivityReportService.PdfFile("apercu-modele-devis.docx", pdf.renderDocx(sample, InvoiceService.quoteSeller(identity),
             InvoiceService.sampleBuyer(), identity.paymentTermDays(), identity.quoteTerms(), identity.quoteTermsFileId() != null, template));
     }
 
@@ -230,7 +230,7 @@ public class QuoteService {
         Quote quote = quote(freelanceId, id);
         boolean draft = quote.getStatus() == QuoteStatus.DRAFT;
         BillingIdentityDto identity = draft ? identity(freelanceId) : null;
-        InvoiceSeller seller = draft ? InvoiceService.seller(identity) : quote.getSeller();
+        InvoiceSeller seller = draft ? InvoiceService.quoteSeller(identity) : quote.getSeller();
         InvoiceBuyer buyer = draft ? clients.findById(quote.getClientId()).map(InvoiceService::buyer).orElseGet(InvoiceBuyer::new) :
             quote.getBuyer();
         Integer paymentTermDays = draft ? identity.paymentTermDays() : quote.getPaymentTermDays();

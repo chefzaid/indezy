@@ -239,7 +239,7 @@ describe('ProfileBillingComponent', () => {
     component.form.patchValue({ letterheadTop: 45, letterheadBottom: 20 });
     billing.stylePreview.and.returnValue(of(new Blob(['png'])));
     component.preview();
-    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ letterheadTop: 45, letterheadBottom: 20 }));
+    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ letterheadTop: 45, letterheadBottom: 20 }), false);
 
     pick('papier.png', 'image/png');
     expect(notifications.error).toHaveBeenCalledWith('profile.billing.letterheadRefused');
@@ -268,7 +268,22 @@ describe('ProfileBillingComponent', () => {
     component.form.patchValue({ theme: 'MODERN', accentColor: '#1F4E79' });
     billing.stylePreview.and.returnValue(of(new Blob(['png'], { type: 'image/png' })));
     component.preview();
-    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'MODERN', accentColor: '#1F4E79' }));
+    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'MODERN', accentColor: '#1F4E79' }), false);
+
+    // The quotes' own colour and layout, previewed on a quote, sent with the form, and taken back.
+    component.setOwnQuoteStyle(true);
+    expect(component.form.value.quoteTheme).toBe('MODERN');
+    component.setQuoteAccent({ target: { value: '#7a1f1f' } } as unknown as Event);
+    component.form.patchValue({ quoteTheme: 'CLASSIC' });
+    component.preview(true);
+    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'MODERN', quoteTheme: 'CLASSIC',
+      quoteAccentColor: '#7A1F1F' }), true);
+    component.setQuoteAccent({ target: { value: '#ffee88' } } as unknown as Event);
+    expect(component.quoteAccentTooPale).toBeTrue();
+    component.setOwnQuoteStyle(false);
+    expect(component.quoteAccentTooPale).toBeFalse();
+    component.preview();
+    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ quoteTheme: null, quoteAccentColor: null }), false);
     expect(component.previewUrl).toContain('blob:');
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-billing-preview] img')).not.toBeNull();
@@ -277,7 +292,7 @@ describe('ProfileBillingComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('profile.billing.previewError');
     component.form.patchValue({ iban: 'FR76 1234' });
     component.preview();
-    expect(billing.stylePreview).toHaveBeenCalledTimes(2);
+    expect(billing.stylePreview).toHaveBeenCalledTimes(4);
     fixture.destroy();
   });
 });

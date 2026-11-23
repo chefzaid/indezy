@@ -69,6 +69,15 @@ public class BillingIdentity {
     @Column(name = "billing_accent_color", length = 7)
     private String accentColor;
 
+    /** The quotes' own accent colour; null for the invoices' one. */
+    @Column(name = "billing_quote_accent_color", length = 7)
+    private String quoteAccentColor;
+
+    /** The quotes' own layout; null for the invoices' one. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "billing_quote_theme", length = 10)
+    private DocumentTheme quoteTheme;
+
     /** The notes a new invoice starts with; null for none. */
     @Column(name = "billing_invoice_notes", length = 2000)
     private String invoiceNotes;

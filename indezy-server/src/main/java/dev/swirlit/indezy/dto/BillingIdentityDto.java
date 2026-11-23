@@ -54,6 +54,9 @@ public record BillingIdentityDto(
     /** The room the letterhead's header and footer take, in millimetres; null for the usual margins. */
     @Min(0) @Max(120) Integer letterheadTop,
     @Min(0) @Max(120) Integer letterheadBottom,
+    /** The quotes' own accent colour and layout; null for the invoices' ones. */
+    @Pattern(regexp = "#[0-9A-Fa-f]{6}", message = "A colour as #RRGGBB") String quoteAccentColor,
+    DocumentTheme quoteTheme,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;
@@ -73,6 +76,7 @@ public record BillingIdentityDto(
         invoiceNotes = blankToNull(invoiceNotes);
         quoteNotes = blankToNull(quoteNotes);
         accentColor = accentColor == null || accentColor.isBlank() ? null : accentColor.strip().toUpperCase(java.util.Locale.ROOT);
+        quoteAccentColor = quoteAccentColor == null || quoteAccentColor.isBlank() ? null : quoteAccentColor.strip().toUpperCase(java.util.Locale.ROOT);
     }
 
     /** Whether the colour stands out enough from white paper to read the title and print the rules: a contrast of 3 to 1 at least. */
@@ -80,6 +84,13 @@ public record BillingIdentityDto(
     @jakarta.validation.constraints.AssertTrue(message = "This colour is too pale to read or print: pick a darker one")
     public boolean isAccentReadable() {
         return accentColor == null || !accentColor.matches("#[0-9A-F]{6}") || BillingText.contrastOnWhite(accentColor) >= 3.0;
+    }
+
+    /** The same check for the quotes' own colour. */
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @jakarta.validation.constraints.AssertTrue(message = "This colour is too pale to read or print: pick a darker one")
+    public boolean isQuoteAccentReadable() {
+        return quoteAccentColor == null || !quoteAccentColor.matches("#[0-9A-F]{6}") || BillingText.contrastOnWhite(quoteAccentColor) >= 3.0;
     }
 
     private static String blankToNull(String value) {
