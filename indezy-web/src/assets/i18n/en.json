@@ -335,7 +335,8 @@
       "quiet": "Nothing added for {{days}} days.",
       "offers": "Find offers",
       "add": "Add an opportunity",
-      "announce": "Announce my availability (AI)"
+      "announce": "Announce my availability (AI)",
+      "prospect": "Prospect"
     },
     "suggestions": {
       "title": "Stages to update",
@@ -703,7 +704,8 @@
       "noHome": "Add your address to see your home",
       "loadError": "The map could not be loaded.",
       "open": "Map"
-    }
+    },
+    "prospect": "Prospect for the next mission"
   },
   "clients": {
     "title": "Clients",

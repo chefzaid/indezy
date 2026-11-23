@@ -5,7 +5,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -20,7 +20,8 @@ import { AvailabilityEmailsComponent } from '../availability-emails/availability
 /**
  * Drafts the announcement of the next availability with AI (see docs/features.md#ai-features): a LinkedIn post to copy
  * and a network post to copy or keep as a network draft, both editable; nothing is posted from here. Below, the emails to
- * the ESN contacts worked with, which go only once they are ticked and sent.
+ * the ESN contacts worked with, which go only once they are ticked and sent; opened by **Prospect** (dashboard, an
+ * opportunity turned down), those emails open at once.
  */
 @Component({
   selector: 'app-ai-availability-dialog',
@@ -65,7 +66,7 @@ import { AvailabilityEmailsComponent } from '../availability-emails/availability
         </div>
         <p class="disclaimer">{{ 'ai.disclaimer' | translate }}</p>
       }
-      <app-availability-emails [language]="language.value" [availableFrom]="availableFrom" [text]="network.value" />
+      <app-availability-emails [language]="language.value" [availableFrom]="availableFrom" [text]="network.value" [open]="prospect" />
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button type="button" mat-dialog-close>{{ 'common.close' | translate }}</button>
@@ -87,6 +88,8 @@ export class AiAvailabilityDialogComponent {
   private readonly clipboard = inject(Clipboard);
   private readonly changes = inject(ChangeDetectorRef);
 
+  /** Opened by **Prospect**: the emails to the ESN contacts open at once. */
+  readonly prospect = !!inject<{ prospect?: boolean } | null>(MAT_DIALOG_DATA, { optional: true })?.prospect;
   readonly language = new FormControl<DocumentLanguage>(inject(TranslateService).currentLang === 'en' ? 'EN' : 'FR', { nonNullable: true });
   readonly linkedin = new FormControl('', { nonNullable: true });
   readonly network = new FormControl('', { nonNullable: true });

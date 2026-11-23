@@ -335,7 +335,8 @@
       "quiet": "Rien ajouté depuis {{days}} jours.",
       "offers": "Trouver des offres",
       "add": "Ajouter une opportunité",
-      "announce": "Annoncer ma disponibilité (IA)"
+      "announce": "Annoncer ma disponibilité (IA)",
+      "prospect": "Prospecter"
     },
     "suggestions": {
       "title": "Étapes à mettre à jour",
@@ -703,7 +704,8 @@
       "noHome": "Ajoutez votre adresse pour voir votre domicile",
       "loadError": "La carte n'a pas pu être chargée.",
       "open": "Carte"
-    }
+    },
+    "prospect": "Prospecter pour la prochaine mission"
   },
   "clients": {
     "title": "Clients",

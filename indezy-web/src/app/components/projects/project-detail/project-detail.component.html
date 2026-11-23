@@ -73,6 +73,11 @@
           }
           <app-non-solicitation-notice [projectId]="project.id!" [freelanceId]="project.freelanceId!"></app-non-solicitation-notice>
           <div class="ai-actions">
+            @if (refused(project.status)) {
+              <button mat-flat-button color="primary" type="button" (click)="prospect()" data-project-prospect>
+                <mat-icon>campaign</mat-icon>{{ 'projects.prospect' | translate }}
+              </button>
+            }
             <button mat-stroked-button type="button" (click)="weighFit()" data-ai-fit-open>
               <mat-icon>insights</mat-icon>{{ 'ai.fit.open' | translate }}
             </button>

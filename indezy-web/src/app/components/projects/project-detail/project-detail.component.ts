@@ -47,6 +47,7 @@ import { MissionEndActionComponent } from '../mission-end-action/mission-end-act
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MatDialog } from '@angular/material/dialog';
+import { AiAvailabilityDialogComponent } from '../../../shared/components/ai-availability-dialog/ai-availability-dialog.component';
 import { parseTechTags, skillMatchScore } from '../../../shared/utils/skill-match';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -441,6 +442,11 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   readonly refused = isRefusedStatus;
+
+  /** Turned down: the prospection emails to the ESN contacts open at once, to find the next mission. */
+  prospect(): void {
+    this.dialog.open(AiAvailabilityDialogComponent, { width: '720px', maxWidth: '96vw', autoFocus: false, data: { prospect: true } });
+  }
 
   getStatusColor(status?: ProjectStatus): string {
     return this.statusColors[status ?? ProjectStatus.CONTACT];

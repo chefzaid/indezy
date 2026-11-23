@@ -252,6 +252,8 @@ describe('DashboardRemindersComponent', () => {
     const open = spyOn(TestBed.inject(MatDialog), 'open');
     (card.querySelector('[data-bench-announce]') as HTMLButtonElement).click();
     expect(open).toHaveBeenCalledWith(AiAvailabilityDialogComponent, jasmine.objectContaining({ autoFocus: false }));
+    (card.querySelector('[data-bench-prospect]') as HTMLButtonElement).click();
+    expect(open).toHaveBeenCalledWith(AiAvailabilityDialogComponent, jasmine.objectContaining({ data: { prospect: true } }));
 
     const between = render({ benchPlan: { projectId: null, role: null, endDate: null, weeksLeft: 0, activeOpportunities: 0,
       advancedOpportunities: 0, addedThisWeek: 0, daysSinceLastAdded: 2, weeklyGoal: 8 } });

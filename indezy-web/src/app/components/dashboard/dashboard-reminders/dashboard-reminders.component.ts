@@ -57,6 +57,11 @@ export class DashboardRemindersComponent {
     this.dialog.open(AiAvailabilityDialogComponent, { width: '720px', maxWidth: '96vw', autoFocus: false });
   }
 
+  /** Opens the prospection emails to the ESN contacts at once, to find the next mission. */
+  prospect(): void {
+    this.dialog.open(AiAvailabilityDialogComponent, { width: '720px', maxWidth: '96vw', autoFocus: false, data: { prospect: true } });
+  }
+
   /** Drafts the follow-up of a message waiting for an answer, from the opportunity it was about. */
   draftFollowUp(due: FollowUpDue): void {
     if (!due.projectId) {

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
+import { AiAvailabilityDialogComponent } from '../../../shared/components/ai-availability-dialog/ai-availability-dialog.component';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject, EMPTY, of, throwError } from 'rxjs';
@@ -159,6 +160,13 @@ describe('ProjectDetailComponent', () => {
     expect(text(fixture)).toContain('projects.lostReason.RATE_TOO_LOW');
     expect(fixture.nativeElement.querySelector('[data-refused-by]')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-share-to-network')).not.toBeNull();
+    // Turned down: prospecting for the next mission opens the emails to the ESN contacts at once.
+    (fixture.nativeElement.querySelector('[data-project-prospect]') as HTMLButtonElement).click();
+    expect(dialog.open).toHaveBeenCalledWith(AiAvailabilityDialogComponent, jasmine.objectContaining({ data: { prospect: true } }));
+  });
+
+  it('offers no prospecting on an opportunity still open', () => {
+    expect(create().nativeElement.querySelector('[data-project-prospect]')).toBeNull();
   });
 
   it('goes back to the list of a project that does not exist', () => {

@@ -53,6 +53,30 @@ describe('AvailabilityEmailsComponent', () => {
     expect(element.querySelector('[data-availability-emails-show-all]')).toBeNull();
   });
 
+  it('opens at once with its email written when asked to, as Prospect does', () => {
+    TestBed.resetTestingModule();
+    const { fixture } = (() => {
+      const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'scheduledEmails', 'campaigns']);
+      contacts.availabilityRecipients.and.returnValue(of([lea]));
+      contacts.scheduledEmails.and.returnValue(of([]));
+      contacts.campaigns.and.returnValue(of([]));
+      TestBed.configureTestingModule({
+        imports: [AvailabilityEmailsComponent, TranslateModule.forRoot()],
+        providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ContactService, useValue: contacts },
+          { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['success', 'error', 'info']) },
+          { provide: AiService, useValue: jasmine.createSpyObj('AiService', ['prospectionMessages']) }]
+      });
+      const created = TestBed.createComponent(AvailabilityEmailsComponent);
+      created.componentRef.setInput('availableFrom', '2027-02-01');
+      created.componentRef.setInput('open', true);
+      created.detectChanges();
+      return { fixture: created };
+    })();
+    expect((fixture.nativeElement as HTMLElement).querySelector('details')!.open).toBeTrue();
+    expect(fixture.componentInstance.subject).toBe('Disponible à partir du 1 février 2027');
+    expect(fixture.componentInstance.reminderBody).toBe('availabilityEmails.reminderText');
+  });
+
   it('plans one reminder for each contact the emails went to, when asked', () => {
     const { component, contacts, notifications } = create();
     component.subject = 'Disponible';

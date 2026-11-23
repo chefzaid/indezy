@@ -29,7 +29,7 @@ export const SILENT_LIMIT = 2;
   imports: [FormsModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressSpinnerModule,
     MatSelectModule, DatePipe, TranslateModule],
   template: `
-    <details class="emails" (toggle)="opened($event)" data-availability-emails>
+    <details class="emails" [open]="open" (toggle)="opened($event)" data-availability-emails>
       <summary>{{ 'availabilityEmails.title' | translate }}</summary>
       @if (recipients === null) {
         <mat-spinner diameter="24" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
@@ -211,6 +211,8 @@ export class AvailabilityEmailsComponent implements OnInit {
   @Input() availableFrom: string | null = null;
   /** What the announcement says, put after the greeting when the section opens. */
   @Input() text = '';
+  /** Opened at once, its email written, as **Prospect** opens it. */
+  @Input() open = false;
 
   private readonly contacts = inject(ContactService);
   private readonly ai = inject(AiService);
@@ -237,6 +239,9 @@ export class AvailabilityEmailsComponent implements OnInit {
   editing: number | null = null;
 
   ngOnInit(): void {
+    if (this.open) {
+      this.write();
+    }
     this.contacts.availabilityRecipients().subscribe({
       next: recipients => {
         this.recipients = recipients;
@@ -312,6 +317,11 @@ export class AvailabilityEmailsComponent implements OnInit {
     if (!(event.target as HTMLDetailsElement).open || this.body) {
       return;
     }
+    this.write();
+  }
+
+  /** Writes the subject, the message and the reminder from the availability date and the network post. */
+  private write(): void {
     const english = this.language === 'EN';
     const from = this.availableFrom ? new Date(this.availableFrom + 'T00:00:00').toLocaleDateString(english ? 'en-GB' : 'fr-FR',
       { day: 'numeric', month: 'long', year: 'numeric' }) : null;
