@@ -37,6 +37,11 @@ final class BillingFonts {
         return serif(seller) ? new Faces(serif, serifBold) : new Faces(sans, sansBold);
     }
 
+    /** The bundled faces of a family a block asks for. */
+    Faces family(dev.swirlit.indezy.model.BlockStyle.Family family) {
+        return family == dev.swirlit.indezy.model.BlockStyle.Family.SERIF ? new Faces(serif, serifBold) : new Faces(sans, sansBold);
+    }
+
     /** Serif when chosen, and for the classic theme unless an uploaded font is. */
     private static boolean serif(InvoiceSeller seller) {
         return seller.getFont() == DocumentFont.SERIF || seller.getTheme() == dev.swirlit.indezy.model.enums.DocumentTheme.CLASSIC &&

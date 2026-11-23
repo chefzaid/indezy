@@ -139,20 +139,21 @@ describe('ProfileBillingComponent', () => {
   });
 
   it('styles the mentions and the notes, the other blocks taking none', () => {
-    const fixture = create(of({ ...defaults, blockStyles: { NOTES: { size: 'LARGE', align: 'CENTER', framed: true, shaded: false, color: 'TEXT', bold: false } } }));
+    const fixture = create(of({ ...defaults, blockStyles: { NOTES: { size: 'LARGE', align: 'CENTER', framed: true, shaded: false, color: 'TEXT', bold: false, family: 'DOCUMENT' } } }));
     const component = fixture.componentInstance;
     expect(component.styleOf('NOTES').align).toBe('CENTER');
-    expect(component.styleOf('MENTIONS')).toEqual({ size: 'SMALL', align: 'LEFT', framed: false, shaded: false, color: 'TEXT', bold: false });
+    expect(component.styleOf('MENTIONS')).toEqual({ size: 'SMALL', align: 'LEFT', framed: false, shaded: false, color: 'TEXT', bold: false,
+      family: 'DOCUMENT' });
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('[data-body-block-style="NOTES"]')).not.toBeNull();
     expect(element.querySelector('[data-body-block-style="LINES"]')).toBeNull();
-    component.setStyle('MENTIONS', { shaded: true, color: 'ACCENT', bold: true });
+    component.setStyle('MENTIONS', { shaded: true, color: 'ACCENT', bold: true, family: 'SERIF' });
     expect(component.form.dirty).toBeTrue();
     billing.saveIdentity.and.returnValue(of(defaults));
     component.save();
     expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ blockStyles: {
-      NOTES: { size: 'LARGE', align: 'CENTER', framed: true, shaded: false, color: 'TEXT', bold: false },
-      MENTIONS: { size: 'SMALL', align: 'LEFT', framed: false, shaded: true, color: 'ACCENT', bold: true } } }));
+      NOTES: { size: 'LARGE', align: 'CENTER', framed: true, shaded: false, color: 'TEXT', bold: false, family: 'DOCUMENT' },
+      MENTIONS: { size: 'SMALL', align: 'LEFT', framed: false, shaded: true, color: 'ACCENT', bold: true, family: 'SERIF' } } }));
   });
 
   it('moves a dropped block and inserts a placeholder where the caret was in the last zone focused', () => {

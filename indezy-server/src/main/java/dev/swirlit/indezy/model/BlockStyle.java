@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * its alignment, a frame around it, a grey shading under it, its colour (the text's, the accent or grey) and bold. Only the mentions and the notes take one; the others
  * keep the layout's.
  */
-public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded, Color color, Boolean bold) {
+public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded, Color color, Boolean bold, Family family) {
 
     /** The text size: small (the usual), normal (the body's) or large. */
     public enum Size { SMALL, NORMAL, LARGE }
@@ -23,16 +23,20 @@ public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded,
     /** The colour of the block's words: the text's, the documents' accent colour (black without one), or grey. */
     public enum Color { TEXT, ACCENT, GREY }
 
+    /** The block's font family: the document's, or the bundled sans-serif or serif one whatever the document's. */
+    public enum Family { DOCUMENT, SANS, SERIF }
+
     /** The blocks a style applies to. */
     public static final Set<BodyBlock> STYLED = Set.of(BodyBlock.MENTIONS, BodyBlock.NOTES);
 
     /** As the layout draws a text block. */
-    public static final BlockStyle USUAL = new BlockStyle(Size.SMALL, Align.LEFT, false, false, Color.TEXT, false);
+    public static final BlockStyle USUAL = new BlockStyle(Size.SMALL, Align.LEFT, false, false, Color.TEXT, false, Family.DOCUMENT);
 
     public BlockStyle {
         size = size == null ? Size.SMALL : size;
         align = align == null ? Align.LEFT : align;
         color = color == null ? Color.TEXT : color;
+        family = family == null ? Family.DOCUMENT : family;
         framed = Boolean.TRUE.equals(framed);
         shaded = Boolean.TRUE.equals(shaded);
         bold = Boolean.TRUE.equals(bold);
@@ -60,7 +64,8 @@ public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded,
         }
         return kept.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(entry -> entry.getKey() + "=" + entry.getValue().size() + "," +
                 entry.getValue().align() + (entry.getValue().framed() ? ",FRAMED" : "") + (entry.getValue().shaded() ? ",SHADED" : "") +
-                (entry.getValue().color() == Color.TEXT ? "" : "," + entry.getValue().color()) + (entry.getValue().bold() ? ",BOLD" : ""))
+                (entry.getValue().color() == Color.TEXT ? "" : "," + entry.getValue().color()) + (entry.getValue().bold() ? ",BOLD" : "") +
+                (entry.getValue().family() == Family.DOCUMENT ? "" : "," + entry.getValue().family()))
             .collect(Collectors.joining(";"));
     }
 
@@ -81,12 +86,19 @@ public record BlockStyle(Size size, Align align, Boolean framed, Boolean shaded,
                 Set<String> flags = Set.of(values);
                 styles.put(block, new BlockStyle(Size.valueOf(values[0].strip()), values.length > 1 ? Align.valueOf(values[1].strip()) : null,
                     flags.contains("FRAMED"), flags.contains("SHADED"), flags.contains("ACCENT") ? Color.ACCENT : flags.contains("GREY") ? Color.GREY :
-                    Color.TEXT, flags.contains("BOLD")));
+                    Color.TEXT, flags.contains("BOLD"), flags.contains("SERIF") ? Family.SERIF : flags.contains("SANS") ? Family.SANS : Family.DOCUMENT));
             } catch (IllegalArgumentException unknown) {
                 // A block or a value no longer known is skipped.
             }
         }
         return normalize(styles);
+    }
+
+    /** The font families the stored styles ask for besides the document's. */
+    public static java.util.Set<Family> families(String stored) {
+        java.util.Set<Family> families = java.util.EnumSet.noneOf(Family.class);
+        read(stored).values().stream().map(BlockStyle::family).filter(family -> family != Family.DOCUMENT).forEach(families::add);
+        return families;
     }
 
     /** The style of a block, the usual one without its own. */

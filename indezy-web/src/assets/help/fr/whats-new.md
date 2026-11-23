@@ -8,7 +8,7 @@ Dans Profil → Facturation, l'aperçu montre désormais toutes les pages, d'une
 
 ### Le style de vos mentions et notes
 
-Dans **Ordre du corps**, les mentions et les notes de vos factures et devis prennent leur propre taille, alignement, couleur, gras, cadre et grisé. Voir [Devis et factures](/help/invoices-quotes).
+Dans **Ordre du corps**, les mentions et les notes de vos factures et devis prennent leur propre taille, alignement, police, couleur, gras, cadre et grisé. Voir [Devis et factures](/help/invoices-quotes).
 
 ### Les zones d'en-tête et de pied de vos documents
 

@@ -8,7 +8,7 @@ In Profile → Billing, the preview now shows every page, of an invoice or of a 
 
 ### Style your mentions and notes
 
-In **Order of the body**, the mentions and the notes of your invoices and quotes take their own size, alignment, colour, bold, frame and shading. See [Quotes and invoices](/help/invoices-quotes).
+In **Order of the body**, the mentions and the notes of your invoices and quotes take their own size, alignment, font, colour, bold, frame and shading. See [Quotes and invoices](/help/invoices-quotes).
 
 ### Header and footer zones on your documents
 

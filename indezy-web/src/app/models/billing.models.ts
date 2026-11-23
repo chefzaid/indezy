@@ -29,11 +29,14 @@ export interface BlockStyle {
   /** The words' colour: the text's, the accent colour, or grey. */
   color: 'TEXT' | 'ACCENT' | 'GREY';
   bold: boolean;
+  /** The font family: the document's, or the sans-serif or serif one whatever the document's. */
+  family: 'DOCUMENT' | 'SANS' | 'SERIF';
 }
 
 /** The blocks a style applies to, and the style they have without one. */
 export const STYLED_BLOCKS: BodyBlock[] = ['MENTIONS', 'NOTES'];
-export const USUAL_BLOCK_STYLE: BlockStyle = { size: 'SMALL', align: 'LEFT', framed: false, shaded: false, color: 'TEXT', bold: false };
+export const USUAL_BLOCK_STYLE: BlockStyle = { size: 'SMALL', align: 'LEFT', framed: false, shaded: false, color: 'TEXT', bold: false,
+  family: 'DOCUMENT' };
 
 /** The order the documents print in when none was chosen. */
 export const USUAL_BODY_BLOCKS: BodyBlock[] = ['LINES', 'MENTIONS', 'NOTES', 'SIGNATURE'];

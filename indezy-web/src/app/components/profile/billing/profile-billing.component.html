@@ -311,6 +311,14 @@
                       }
                     </mat-select>
                   </mat-form-field>
+                  <mat-form-field appearance="outline" class="style-field" subscriptSizing="dynamic">
+                    <mat-label>{{ 'profile.billing.blockStyle.family' | translate }}</mat-label>
+                    <mat-select [value]="styleOf(block).family" (selectionChange)="setStyle(block, { family: $event.value })" [attr.data-block-family]="block">
+                      @for (family of blockFamilies; track family) {
+                        <mat-option [value]="family">{{ 'profile.billing.blockStyle.families.' + family | translate }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
                   <mat-checkbox [checked]="styleOf(block).bold" (change)="setStyle(block, { bold: $event.checked })" [attr.data-block-bold]="block">
                     {{ 'profile.billing.blockStyle.bold' | translate }}
                   </mat-checkbox>

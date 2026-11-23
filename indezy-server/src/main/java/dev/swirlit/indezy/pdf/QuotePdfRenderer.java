@@ -101,6 +101,11 @@ public final class QuotePdfRenderer {
             try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold, margins(seller, letterhead != null))) {
                 page = new QuotePage(writer, quote, seller, buyer, paymentTermDays, terms, termsPdf != null);
                 writer.zones(page.zones());
+                for (dev.swirlit.indezy.model.BlockStyle.Family family : dev.swirlit.indezy.model.BlockStyle.families(seller.getBlockStyles())) {
+                    BillingFonts.Faces familyFaces = fonts.family(family);
+                    writer.family(family.name(), PDType0Font.load(document, new ByteArrayInputStream(familyFaces.regular())),
+                        PDType0Font.load(document, new ByteArrayInputStream(familyFaces.bold())));
+                }
                 writer.zoneLogo(logoOf(seller));
                 page.logo(logoOf(seller));
                 page.write();

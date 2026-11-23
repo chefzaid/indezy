@@ -159,11 +159,16 @@ final class BillingDocx {
             case ACCENT -> accent;
             case GREY -> "666666";
         };
+        String font = switch (style.family()) {
+            case DOCUMENT -> null;
+            case SANS -> "Liberation Sans";
+            case SERIF -> "Liberation Serif";
+        };
         List<List<DocxDocument.Run>> runs = new ArrayList<>();
         if (title != null) {
-            runs.add(List.of(new DocxDocument.Run(title, true, size, color)));
+            runs.add(List.of(new DocxDocument.Run(title, true, size, color, font)));
         }
-        paragraphs.forEach(paragraph -> runs.add(List.of(new DocxDocument.Run(paragraph, style.bold(), size, color))));
+        paragraphs.forEach(paragraph -> runs.add(List.of(new DocxDocument.Run(paragraph, style.bold(), size, color, font))));
         if (style.framed() || style.shaded()) {
             docx.table(new int[] {DocxDocument.CONTENT_WIDTH}, List.of(List.of(new DocxDocument.Cell(runs, align, style.shaded() ? SHADE : null))),
                 false, false, style.framed(), null);

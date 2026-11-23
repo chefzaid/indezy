@@ -404,6 +404,16 @@ abstract class BillingPage {
      * alignment, shaded under and framed around when asked (as one piece when it fits a page, line by line otherwise).
      */
     private void styled(String title, List<String> paragraphs, dev.swirlit.indezy.model.BlockStyle style) throws IOException {
+        writer.use(style.family() == dev.swirlit.indezy.model.BlockStyle.Family.DOCUMENT ? null : style.family().name());
+        try {
+            styledIn(title, paragraphs, style);
+        } finally {
+            writer.use(null);
+        }
+    }
+
+    /** {@link #styled} once the block's family is in use. */
+    private void styledIn(String title, List<String> paragraphs, dev.swirlit.indezy.model.BlockStyle style) throws IOException {
         float size = sizeOf(style);
         float leading = size * 1.35f;
         boolean boxed = style.framed() || style.shaded();

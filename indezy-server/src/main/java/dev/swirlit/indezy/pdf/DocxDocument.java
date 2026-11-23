@@ -32,7 +32,11 @@ final class DocxDocument {
     enum Align { LEFT, RIGHT, CENTER }
 
     /** A run of text: its words, bold or not, its size in half-points and its colour as {@code RRGGBB}, or none. */
-    record Run(String text, boolean bold, int size, String color) {
+    record Run(String text, boolean bold, int size, String color, String font) {
+
+        Run(String text, boolean bold, int size, String color) {
+            this(text, bold, size, color, null);
+        }
     }
 
     /** A table cell: its paragraphs' runs, one list per paragraph, aligned, filled with a colour as {@code RRGGBB} or not. */
@@ -336,6 +340,10 @@ final class DocxDocument {
     /** A run, its line breaks kept. */
     private static String run(Run run) {
         StringBuilder xml = new StringBuilder("<w:r><w:rPr>");
+        if (run.font() != null) {
+            xml.append("<w:rFonts w:ascii=\"").append(escape(run.font())).append("\" w:hAnsi=\"").append(escape(run.font()))
+                .append("\" w:cs=\"").append(escape(run.font())).append("\"/>");
+        }
         if (run.bold()) {
             xml.append("<w:b/>");
         }

@@ -403,7 +403,24 @@ final class PdfPageWriter implements Closeable {
     }
 
     private PDFont font(boolean useBold) {
+        if (family != null) {
+            return useBold ? family[1] : family[0];
+        }
         return useBold ? bold : regular;
+    }
+
+    /** Other families a block may be written in, by name: their regular and bold faces. */
+    private final java.util.Map<String, PDFont[]> families = new java.util.HashMap<>();
+    /** The family written in now; null for the document's. */
+    private PDFont[] family;
+
+    void family(String name, PDFont familyRegular, PDFont familyBold) {
+        families.put(name, new PDFont[] {familyRegular, familyBold});
+    }
+
+    /** Writes in this family from now on, null (or one not loaded) for the document's. */
+    void use(String name) {
+        this.family = name == null ? null : families.get(name);
     }
 
     /** How many leading characters of the text fit the width, at least one. */

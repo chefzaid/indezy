@@ -110,7 +110,7 @@ for (const width of [1280, 390]) {
       iban: 'FR7630006000011234567890189', vatExempt: true, quoteTerms: 'Article 1 — Objet', accentColor: '#1F4E79',
       footer: 'alice.dev · 06 12 34 56 78', font: 'CUSTOM', theme: 'MODERN', quoteTheme: 'CLASSIC',
       bodyBlocks: ['LINES', 'NOTES', 'MENTIONS'], footerRight: 'Page {{page}}/{{pages}}', pageHeaderRight: '{{document.title}} {{document.number}}',
-      blockStyles: { NOTES: { size: 'SMALL', align: 'LEFT', framed: true, shaded: false, color: 'TEXT', bold: true } } })]);
+      blockStyles: { NOTES: { size: 'SMALL', align: 'LEFT', framed: true, shaded: false, color: 'TEXT', bold: true, family: 'DOCUMENT' } } })]);
     const audit = await new AxeBuilder({ page }).include('[data-billing]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
