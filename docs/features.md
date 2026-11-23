@@ -234,10 +234,14 @@ your data**, 20 MB at most, nothing kept): `Profile.csv` gives the name, the pla
 headline) and the websites (GitHub apart), `PhoneNumbers.csv` the phone, `Positions.csv` the running position (else the
 latest) as title and company, `Skills.csv` the skills, each with the years of the dated positions whose title or
 description names it (overlaps counted once), and `Languages.csv` the languages under the profile's names (English
-becomes Anglais). Columns are found by their names and notes above a header skipped; the archive's other files are not
+becomes Anglais), and `Certifications.csv` the certifications (name, authority, started and finished on as obtained and
+expiry). Columns are found by their names and notes above a header skipped; the archive's other files are not
 read, and an archive of over 2,000 files, a file of over 5 MB in it or a file that is not one is refused. Both end on the
 same review: each field found beside the profile's value, ticked when the profile's is empty, new skills and languages
-added, and nothing saved until the profile is.
+added, and nothing saved until the profile is. Certifications (also read from a CV by AI, 30 at most, dates as
+`YYYY-MM-DD`) are listed apart: those the [training record](#training-record) already names as a certification or a
+title (case aside) are marked as there, the others ticked and created as trainings (title and certification the name,
+provider the issuer, obtained and expiry dates) when the form is filled.
 
 ### Public Profile
 

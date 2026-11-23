@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,9 +8,11 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
-import { AiProfileImport, SkillDetail, UserProfile } from '../../../models';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { AiImportedCertification, AiProfileImport, SkillDetail, Training, UserProfile } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { TrainingService } from '../../../services/training/training.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 
 /** At most this many skills on a profile, as the skills editor keeps. */
@@ -34,6 +37,12 @@ export interface CvImportRow {
   chosen: boolean;
 }
 
+/** A certification found, ticked to be added to the training record, or already there. */
+export interface CvImportCertification extends AiImportedCertification {
+  chosen: boolean;
+  here: boolean;
+}
+
 const FIELDS: { field: TextField; label: string }[] = [
   { field: 'firstName', label: 'contacts.firstName' }, { field: 'lastName', label: 'common.name' },
   { field: 'phone', label: 'contacts.phone' }, { field: 'city', label: 'clients.city' },
@@ -46,10 +55,12 @@ const FIELDS: { field: TextField; label: string }[] = [
  * Fills the profile from a CV with AI (see docs/features.md#ai-features), or from LinkedIn's data archive without AI
  * (docs/features.md#profile-import): the file is read on the server and nothing is kept there; what it says is shown beside what the profile holds, ticked where the profile is empty, and only what is
  * ticked goes into the form, to review and save as usual. Skills and languages the profile lacks are added, never removed.
+ * Certifications go to the training record (docs/features.md#training-record) when the form is filled, those it already
+ * names (case aside) marked as there.
  */
 @Component({
   selector: 'app-profile-cv-import-dialog',
-  imports: [FormsModule, MatButtonModule, MatCheckboxModule, MatDialogModule, MatIconModule, MatProgressSpinnerModule, TranslateModule],
+  imports: [DatePipe, FormsModule, MatButtonModule, MatCheckboxModule, MatDialogModule, MatIconModule, MatProgressSpinnerModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2 mat-dialog-title>{{ 'profile.cvImport.title' | translate }}</h2>
@@ -74,7 +85,7 @@ const FIELDS: { field: TextField; label: string }[] = [
             {{ 'profile.cvImport.reading' | translate }}</p>
         }
       } @else {
-        @if (!rows.length && !skills.length && !languages.length) {
+        @if (!rows.length && !skills.length && !languages.length && !newCertifications) {
           <p data-cv-import-nothing>{{ 'profile.cvImport.nothing' | translate }}</p>
         } @else {
           <p class="hint">{{ 'profile.cvImport.review' | translate }}</p>
@@ -105,13 +116,36 @@ const FIELDS: { field: TextField; label: string }[] = [
               </li>
             }
           </ul>
+          @if (certifications.length) {
+            <h3 class="section">{{ 'profile.cvImport.certifications' | translate }}</h3>
+            <p class="hint">{{ 'profile.cvImport.certificationsHint' | translate }}</p>
+            <ul class="rows">
+              @for (certification of certifications; track certification.name) {
+                <li>
+                  @if (certification.here) {
+                    <span data-cv-import-certification-here>
+                      <strong>{{ certification.name }}</strong>{{ certification.authority ? ' · ' + certification.authority : '' }}
+                      <span class="current">{{ 'profile.cvImport.alreadyHere' | translate }}</span>
+                    </span>
+                  } @else {
+                    <mat-checkbox [(ngModel)]="certification.chosen" [attr.data-cv-import-certification]="certification.name">
+                      <strong>{{ certification.name }}</strong>{{ certification.authority ? ' · ' + certification.authority : '' }}
+                      @if (certification.obtainedOn) {
+                        {{ 'profile.cvImport.obtained' | translate:{ date: (certification.obtainedOn | date:'MMMM y') } }}
+                      }
+                    </mat-checkbox>
+                  }
+                </li>
+              }
+            </ul>
+          }
         }
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
       @if (reading) {
-        <button mat-flat-button color="primary" type="button" (click)="apply()" [disabled]="!anyChosen" data-cv-import-apply>
+        <button mat-flat-button color="primary" type="button" (click)="apply()" [disabled]="!anyChosen || saving" data-cv-import-apply>
           {{ 'profile.cvImport.apply' | translate }}
         </button>
       }
@@ -123,6 +157,7 @@ const FIELDS: { field: TextField; label: string }[] = [
     .loading { display: flex; align-items: center; gap: 8px; }
     .rows { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
     .rows li { display: flex; flex-direction: column; }
+    .section { margin: 16px 0 0; font-size: 1em; }
     .current { margin-left: 40px; font-size: 0.85em; color: var(--mat-sys-on-surface-variant); }
     mat-spinner { display: inline-block; margin-right: 8px; }
   `]
@@ -130,6 +165,7 @@ const FIELDS: { field: TextField; label: string }[] = [
 export class ProfileCvImportDialogComponent {
   private readonly ai = inject(AiService);
   private readonly users = inject(UserManagementService);
+  private readonly trainings = inject(TrainingService);
   private readonly notifications = inject(NotificationService);
   private readonly dialogRef = inject<MatDialogRef<ProfileCvImportDialogComponent, Partial<UserProfile>>>(MatDialogRef);
   private readonly data = inject<CvImportData>(MAT_DIALOG_DATA);
@@ -140,6 +176,8 @@ export class ProfileCvImportDialogComponent {
   rows: CvImportRow[] = [];
   skills: { name: string; years: number }[] = [];
   languages: string[] = [];
+  certifications: CvImportCertification[] = [];
+  saving = false;
   takeSkills = true;
   takeLanguages = true;
 
@@ -149,7 +187,12 @@ export class ProfileCvImportDialogComponent {
 
   get anyChosen(): boolean {
     return this.rows.some(row => row.chosen) || (this.takeSkills && this.skills.length > 0) ||
-      (this.takeLanguages && this.languages.length > 0);
+      (this.takeLanguages && this.languages.length > 0) || this.certifications.some(certification => certification.chosen);
+  }
+
+  /** How many certifications the training record does not name yet. */
+  get newCertifications(): number {
+    return this.certifications.filter(certification => !certification.here).length;
   }
 
   /** Reads a CV with AI, or LinkedIn's data archive without it. */
@@ -161,10 +204,11 @@ export class ProfileCvImportDialogComponent {
       return;
     }
     this.loading = true;
-    (linkedIn ? this.users.linkedInImport(file) : this.ai.profileImport(file)).subscribe({
-      next: reading => {
+    const known: Observable<Training[]> = this.trainings.list().pipe(catchError(() => of([])));
+    forkJoin([linkedIn ? this.users.linkedInImport(file) : this.ai.profileImport(file), known]).subscribe({
+      next: ([reading, trainings]) => {
         this.loading = false;
-        this.show(reading);
+        this.show(reading, trainings);
         this.changes.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
@@ -177,7 +221,7 @@ export class ProfileCvImportDialogComponent {
   }
 
   /** Lays out what the CV says beside what the profile holds. */
-  show(reading: AiProfileImport): void {
+  show(reading: AiProfileImport, trainings: Training[] = []): void {
     const current = this.data.current;
     this.rows = FIELDS.flatMap(({ field, label }) => {
       let found = reading[field]?.trim() ?? '';
@@ -195,6 +239,13 @@ export class ProfileCvImportDialogComponent {
     const spoken = new Set(current.languages ?? []);
     this.languages = [...new Set((reading.languages ?? []).map(language => language.trim()))]
       .filter(language => this.data.languages.includes(language) && !spoken.has(language));
+    const named = new Set(trainings.flatMap(training => [training.certification, training.title])
+      .filter((name): name is string => !!name).map(name => name.trim().toLowerCase()));
+    this.certifications = (reading.certifications ?? []).filter(certification => certification.name?.trim())
+      .map(certification => {
+        const here = named.has(certification.name.trim().toLowerCase());
+        return { ...certification, name: certification.name.trim(), here, chosen: !here };
+      });
     this.reading = reading;
   }
 
@@ -213,6 +264,25 @@ export class ProfileCvImportDialogComponent {
     if (this.takeLanguages && this.languages.length) {
       patch.languages = [...(this.data.current.languages ?? []), ...this.languages];
     }
-    this.dialogRef.close(patch);
+    const chosen = this.certifications.filter(certification => certification.chosen && !certification.here);
+    if (!chosen.length) {
+      this.dialogRef.close(patch);
+      return;
+    }
+    this.saving = true;
+    forkJoin(chosen.map(certification => this.trainings.create({
+      title: certification.name, provider: certification.authority, certification: certification.name,
+      certifiedOn: certification.obtainedOn, certificationExpiresOn: certification.expiresOn
+    }))).subscribe({
+      next: () => {
+        this.notifications.success('profile.cvImport.certificationsAdded', undefined, { count: chosen.length });
+        this.dialogRef.close(patch);
+      },
+      error: () => {
+        this.saving = false;
+        this.notifications.error('profile.cvImport.certificationsError');
+        this.changes.markForCheck();
+      }
+    });
   }
 }

@@ -57,7 +57,7 @@ The anonymized version leaves out your contact details and shows clients by thei
 
 ## Import data
 
-Indezy does not import a CV or a LinkedIn profile: you fill in your profile yourself. You can, however, bring in an Indezy export, for example from another account.
+To fill in your profile from your CV or LinkedIn's archive, see [Fill in your profile from your CV or LinkedIn](/help/account). You can also bring in an Indezy export, for example from another account.
 
 1. Open **Profile → Account → Import data**.
 2. Click **Choose an export file** (50 MB at most).

@@ -75,7 +75,8 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = message("{\"firstName\":\"Alice\",\"lastName\":\" Martin \",\"phone\":\"\",\"city\":\"Lyon\",\"position\":\"Lead Java\"," +
                     "\"company\":null,\"bio\":\"Dix ans de Java.\",\"website\":null,\"linkedin\":null,\"github\":null," +
                     "\"languages\":[\"Anglais\",\" \"],\"skills\":[{\"name\":\"Java\",\"years\":10},{\"name\":\"java\",\"years\":3}," +
-                    "{\"name\":\"Kafka\",\"years\":99}]}", "end_turn");
+                    "{\"name\":\"Kafka\",\"years\":99}],\"certifications\":[{\"name\":\"AWS Solutions Architect\",\"authority\":\" \"," +
+                    "\"obtainedOn\":\"2024-03\",\"expiresOn\":\"bientôt\"},{\"name\":\"aws solutions architect\"},{\"name\":\" \"}]}", "end_turn");
             } else if (body.contains("You turn what a French freelance")) {
                 answer = message("{\"skills\":[\"Java\",\" Kafka \",\"Java\"],\"rateMin\":650,\"minRemoteDays\":2,\"workModes\":[\"HYBRID\"]," +
                     "\"regions\":[\"Île-de-France\",\"Atlantide\"],\"startBefore\":\"2027-03-01\",\"durationMin\":0,\"keywords\":\"\"," +
@@ -406,6 +407,10 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
             .containsEntry("position", "Lead Java").containsEntry("languages", List.of("Anglais"));
         assertThat((List<Map<String, Object>>) read.get("skills")).extracting(skill -> skill.get("name") + ":" + skill.get("years"))
             .containsExactly("Java:10", "Kafka:50");
+        // Certifications named once, their dates read where they can be.
+        assertThat((List<Map<String, Object>>) read.get("certifications")).extracting(certification -> certification.get("name") + ":" +
+            certification.get("authority") + ":" + certification.get("obtainedOn") + ":" + certification.get("expiresOn"))
+            .containsExactly("AWS Solutions Architect:null:2024-03-01:null");
         assertThat(BODIES.getLast()).contains("<cv>", "Lead Java, 10 ans");
         assertThat(exchange("/ai/profile-import", HttpMethod.POST, new HttpEntity<>(notPdf, multipart), String.class).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);

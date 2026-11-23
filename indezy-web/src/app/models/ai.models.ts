@@ -83,6 +83,16 @@ export interface AiProfileImport {
   github: string | null;
   languages: string[];
   skills: { name: string; years: number }[];
+  /** Certifications named, their dates as YYYY-MM-DD. */
+  certifications?: AiImportedCertification[];
+}
+
+/** A certification read from a CV or LinkedIn's archive. */
+export interface AiImportedCertification {
+  name: string;
+  authority: string | null;
+  obtainedOn: string | null;
+  expiresOn: string | null;
 }
 
 export interface AiOfferBrief {

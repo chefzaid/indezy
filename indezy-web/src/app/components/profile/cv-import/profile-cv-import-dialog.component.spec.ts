@@ -4,9 +4,10 @@ import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
-import { AiProfileImport, UserProfile } from '../../../models';
+import { AiProfileImport, Training, UserProfile } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { TrainingService } from '../../../services/training/training.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { CV_IMPORT_SKILLS_MAX, CvImportData, ProfileCvImportDialogComponent } from './profile-cv-import-dialog.component';
 
@@ -15,6 +16,7 @@ describe('ProfileCvImportDialogComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let dialogRef: jasmine.SpyObj<MatDialogRef<ProfileCvImportDialogComponent>>;
   let users: jasmine.SpyObj<UserManagementService>;
+  let trainings: jasmine.SpyObj<TrainingService>;
 
   const reading: AiProfileImport = {
     firstName: 'Alice', lastName: 'Martin', phone: null, city: 'Lyon', position: 'Lead Java', company: null, bio: 'b'.repeat(600),
@@ -24,7 +26,9 @@ describe('ProfileCvImportDialogComponent', () => {
 
   function create(current: Partial<UserProfile>): ProfileCvImportDialogComponent {
     ai = jasmine.createSpyObj('AiService', ['profileImport']);
-    notifications = jasmine.createSpyObj('NotificationService', ['error']);
+    notifications = jasmine.createSpyObj('NotificationService', ['error', 'success']);
+    trainings = jasmine.createSpyObj('TrainingService', ['list', 'create']);
+    trainings.list.and.returnValue(of([]));
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     users = jasmine.createSpyObj('UserManagementService', ['linkedInImport']);
     const data: CvImportData = { current, languages: ['Français', 'Anglais'] };
@@ -32,7 +36,8 @@ describe('ProfileCvImportDialogComponent', () => {
       imports: [ProfileCvImportDialogComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: NotificationService, useValue: notifications }, { provide: MatDialogRef, useValue: dialogRef },
-        { provide: MAT_DIALOG_DATA, useValue: data }, { provide: UserManagementService, useValue: users }]
+        { provide: MAT_DIALOG_DATA, useValue: data }, { provide: UserManagementService, useValue: users },
+        { provide: TrainingService, useValue: trainings }]
     });
     const fixture = TestBed.createComponent(ProfileCvImportDialogComponent);
     fixture.detectChanges();
@@ -114,5 +119,42 @@ describe('ProfileCvImportDialogComponent', () => {
     users.linkedInImport.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
     pick(component, true);
     expect(notifications.error).toHaveBeenCalledWith('profile.cvImport.readError');
+  });
+
+  it('adds the certifications ticked to the training record, marking those it already names', () => {
+    const component = create({ firstName: 'Alice' });
+    trainings.list.and.returnValue(of([{ id: 1, title: 'AWS course', certification: 'aws solutions architect', fundingDue: false } as Training]));
+    trainings.create.and.returnValue(of({ id: 2, title: 'PSM I', fundingDue: false } as Training));
+    users.linkedInImport.and.returnValue(of({ ...reading, certifications: [
+      { name: 'AWS Solutions Architect', authority: 'Amazon', obtainedOn: '2024-03-01', expiresOn: null },
+      { name: ' PSM I ', authority: 'Scrum.org', obtainedOn: '2019-01-01', expiresOn: '2029-01-01' }, { name: ' ', authority: null, obtainedOn: null, expiresOn: null }
+    ] }));
+    pick(component, true);
+    expect(component.certifications.map(certification => [certification.name, certification.here, certification.chosen]))
+      .toEqual([['AWS Solutions Architect', true, false], ['PSM I', false, true]]);
+    expect(component.newCertifications).toBe(1);
+
+    component.rows.forEach(row => row.chosen = false);
+    component.takeSkills = false;
+    component.takeLanguages = false;
+    expect(component.anyChosen).toBeTrue();
+    component.apply();
+    expect(trainings.create).toHaveBeenCalledOnceWith({ title: 'PSM I', provider: 'Scrum.org', certification: 'PSM I',
+      certifiedOn: '2019-01-01', certificationExpiresOn: '2029-01-01' });
+    expect(notifications.success).toHaveBeenCalledWith('profile.cvImport.certificationsAdded', undefined, { count: 1 });
+    expect(dialogRef.close).toHaveBeenCalledWith({});
+  });
+
+  it('keeps the dialog open when the certifications cannot be added, and reads on when the trainings cannot be listed', () => {
+    const component = create({});
+    trainings.list.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    trainings.create.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    ai.profileImport.and.returnValue(of({ ...reading, certifications: [{ name: 'PSM I', authority: null, obtainedOn: null, expiresOn: null }] }));
+    pick(component);
+    expect(component.certifications[0].chosen).toBeTrue();
+    component.apply();
+    expect(notifications.error).toHaveBeenCalledWith('profile.cvImport.certificationsError');
+    expect(component.saving).toBeFalse();
+    expect(dialogRef.close).not.toHaveBeenCalled();
   });
 });

@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Certifications from your CV or LinkedIn
+
+**Import my profile** now finds your certifications in your CV or LinkedIn's archive and adds the ones you tick to your trainings, with their dates. See [Account, security and data](/help/account).
+
 ### The quarterly market report
 
 The daily rates the feed's missions stated each quarter, by skill, seniority and region, open to anyone at **/market-report**. See [The offer feed](/help/offers).

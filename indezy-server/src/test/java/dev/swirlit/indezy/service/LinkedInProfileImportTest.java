@@ -43,6 +43,8 @@ public class LinkedInProfileImportTest {
                 "Banque Exemple,Développeuse Java,\"Java, Spring\",Paris,mars 2018,Dec 2023\n",
             "Basic_LinkedInDataExport_11-22-2026/Skills.csv", "Name\nJava\nKafka\nAngular\njava\n",
             "Basic_LinkedInDataExport_11-22-2026/Languages.csv", "Name,Proficiency\nEnglish,Full professional\nFrançais,Native\nBreton,\n",
+            "Basic_LinkedInDataExport_11-22-2026/Certifications.csv", "Name,Url,Authority,Started On,Finished On,License Number\n" +
+                "AWS Certified Solutions Architect,,Amazon Web Services,Mar 2024,Mar 2027,ABC\nProfessional Scrum Master I,,Scrum.org,2019,,\n",
             "Basic_LinkedInDataExport_11-22-2026/messages.csv", "never,read\n"));
     }
 
@@ -63,6 +65,18 @@ public class LinkedInProfileImportTest {
         assertThat(reading.languages()).containsExactly("Anglais", "Français", "Breton");
         // Java from March 2018 to now, the overlap counted once; Kafka since January 2024; Angular named nowhere.
         assertThat(reading.skills()).extracting(skill -> skill.name() + ":" + skill.years()).containsExactly("Java:8", "Kafka:2", "Angular:0");
+        assertThat(reading.certifications()).containsExactly(
+            new ProfileImportAiService.Certification("AWS Certified Solutions Architect", "Amazon Web Services", "2024-03-01", "2027-03-01"),
+            new ProfileImportAiService.Certification("Professional Scrum Master I", "Scrum.org", "2019-01-01", null));
+    }
+
+    @Test
+    void readsCertificationDates() {
+        assertThat(ProfileImportAiService.date("2024-03")).isEqualTo("2024-03-01");
+        assertThat(ProfileImportAiService.date(" 2024-3-9 ")).isEqualTo("2024-03-09");
+        assertThat(ProfileImportAiService.date("2024-02-31")).isNull();
+        assertThat(ProfileImportAiService.date("March 2024")).isNull();
+        assertThat(ProfileImportAiService.date(null)).isNull();
     }
 
     @Test

@@ -232,7 +232,17 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await mockWorkspaceData(page, language);
     await page.route('**/api/users/profile-import/linkedin', route => route.fulfill({ json: { firstName: 'Workspace', lastName: 'Test',
       phone: '+33 6 12 34 56 78', city: 'Lyon', position: null, company: 'Alice Conseil', bio: null, website: null, linkedin: null,
-      github: 'https://github.com/alice', languages: ['Anglais'], skills: [{ name: 'Kafka', years: 2 }] } }));
+      github: 'https://github.com/alice', languages: ['Anglais'], skills: [{ name: 'Kafka', years: 2 }], certifications: [
+        { name: 'AWS Solutions Architect', authority: 'Amazon Web Services', obtainedOn: '2024-03-01', expiresOn: '2027-03-01' },
+        { name: 'PSM I', authority: 'Scrum.org', obtainedOn: '2019-01-01', expiresOn: null }] } }));
+    const created: Record<string, unknown>[] = [];
+    await page.route(/\/api\/trainings$/, route => {
+      if (route.request().method() === 'POST') {
+        created.push(route.request().postDataJSON());
+        return route.fulfill({ json: { id: 9, fundingDue: false, ...route.request().postDataJSON() } });
+      }
+      return route.fulfill({ json: [{ id: 1, title: 'Scrum', certification: 'psm i', fundingDue: false }] });
+    });
     await page.goto('/profile');
     await page.locator('[data-cv-import]').click();
     const dialog = page.getByRole('dialog');
@@ -241,8 +251,17 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(dialog.locator('[data-cv-import-row="company"] input')).toBeChecked();
     await expect(dialog.locator('[data-cv-import-row="github"]')).toContainText('github.com/alice');
     await expect(dialog.locator('[data-cv-import-row="firstName"]')).toHaveCount(0);
+    // A certification the trainings already name is marked as there; the new one is ticked.
+    await expect(dialog.locator('[data-cv-import-certification="AWS Solutions Architect"] input')).toBeChecked();
+    await expect(dialog.locator('[data-cv-import-certification-here]')).toContainText(language === 'en' ? 'Already in your trainings' :
+      'Déjà dans vos formations');
+    await settleDialog(page);
+    const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
     await dialog.locator('[data-cv-import-apply]').click();
     await expect(dialog).toBeHidden();
+    expect(created).toEqual([{ title: 'AWS Solutions Architect', provider: 'Amazon Web Services', certification: 'AWS Solutions Architect',
+      certifiedOn: '2024-03-01', certificationExpiresOn: '2027-03-01' }]);
   });
 
   test(`shows the AI allowance and takes the member's own key (${language}, ${width}px)`, async ({ page }) => {

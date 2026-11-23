@@ -73,13 +73,15 @@ Un webhook prévient vos outils (Zapier, Make, n8n, un script) des événements 
 
 ## Remplir votre profil depuis votre CV ou LinkedIn
 
-**Profil → Informations personnelles → Importer mon profil** lit votre CV (PDF, Word ou OpenDocument, 10 Mo au plus, lu par l'IA) ou l'archive de vos données LinkedIn (lue sans IA) dans les champs de votre profil : nom, téléphone, ville, poste, société, présentation, liens, langues et compétences avec leurs années. Le fichier n'est pas conservé.
+**Profil → Informations personnelles → Importer mon profil** lit votre CV (PDF, Word ou OpenDocument, 10 Mo au plus, lu par l'IA) ou l'archive de vos données LinkedIn (lue sans IA) dans les champs de votre profil : nom, téléphone, ville, poste, société, présentation, liens, langues, compétences avec leurs années, et certifications. Le fichier n'est pas conservé.
 
 Pour obtenir l'archive LinkedIn : sur LinkedIn, **Préférences et confidentialité → Confidentialité des données → Obtenir une copie de vos données** ; LinkedIn vous envoie un ZIP par e-mail, en général sous un jour.
 
 1. Cliquez sur **Choisir mon CV** ou **Choisir mon archive LinkedIn**.
 2. Cochez ce que vous reprenez : chaque champ trouvé montre ce que contient votre profil ; les champs vides sont cochés. Les compétences et langues absentes de votre profil sont ajoutées, aucune retirée, jusqu'à 50 compétences.
-3. Cliquez sur **Remplir le formulaire**, vérifiez, puis **Sauvegarder** : rien n'est enregistré avant.
+3. Cliquez sur **Remplir le formulaire**, vérifiez, puis **Sauvegarder** : rien n'est enregistré avant, sauf les certifications cochées.
+
+Les certifications rejoignent **Formations et certifications** sur la page [Documents](/help/documents), avec leur organisme, leur date d'obtention et leur fin de validité ; celle que vos formations nomment déjà est marquée **Déjà dans vos formations** et n'est pas ajoutée une seconde fois.
 
 Un CV scanné sans texte ne peut pas être lu. Lire un CV utilise votre quota mensuel d'IA, ou votre propre clé ; l'archive LinkedIn non.
 

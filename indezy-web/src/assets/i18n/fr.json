@@ -1781,7 +1781,7 @@
     "cvImport": {
       "open": "Importer mon profil",
       "title": "Remplir mon profil",
-      "hint": "Depuis votre CV (PDF, Word ou OpenDocument, lu par l'IA) ou depuis l'archive de vos données LinkedIn (lue sans IA). Le fichier n'est pas conservé. Vous choisissez ce que vous reprenez avant tout changement, et rien n'est enregistré tant que vous n'enregistrez pas votre profil.",
+      "hint": "Depuis votre CV (PDF, Word ou OpenDocument, lu par l'IA) ou depuis l'archive de vos données LinkedIn (lue sans IA). Le fichier n'est pas conservé. Vous choisissez ce que vous reprenez avant tout changement, et rien n'est enregistré tant que vous n'enregistrez pas votre profil, sauf les certifications cochées, ajoutées à vos formations quand vous remplissez le formulaire.",
       "pick": "Choisir mon CV",
       "reading": "Lecture de votre CV…",
       "review": "Cochez ce que vous reprenez de votre CV. Les champs vides de votre profil sont cochés.",
@@ -1795,7 +1795,13 @@
       "pickLinkedIn": "Choisir mon archive LinkedIn",
       "linkedInHint": "Sur LinkedIn : Préférences et confidentialité → Confidentialité des données → Obtenir une copie de vos données ; LinkedIn vous envoie le ZIP par e-mail, en général sous un jour.",
       "notLinkedIn": "Ce fichier n'est pas l'archive de vos données LinkedIn : choisissez le ZIP que LinkedIn vous a envoyé.",
-      "readError": "L'archive n'a pas pu être lue : réessayez dans un instant."
+      "readError": "L'archive n'a pas pu être lue : réessayez dans un instant.",
+      "certifications": "Certifications",
+      "certificationsHint": "Celles cochées rejoignent vos formations et certifications (page Documents) quand vous remplissez le formulaire, avec leur organisme et leurs dates.",
+      "alreadyHere": "Déjà dans vos formations",
+      "obtained": "(obtenue en {{date}})",
+      "certificationsAdded": "{{count}} certifications ajoutées à vos formations et certifications (page Documents).",
+      "certificationsError": "Les certifications n'ont pas pu être ajoutées à vos formations : réessayez."
     }
   },
   "errors": {

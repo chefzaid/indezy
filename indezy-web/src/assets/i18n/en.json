@@ -1781,7 +1781,7 @@
     "cvImport": {
       "open": "Import my profile",
       "title": "Fill in my profile",
-      "hint": "From your CV (PDF, Word or OpenDocument, read by AI) or from LinkedIn's data archive (read without AI). The file is not kept. You review what to take before anything changes, and nothing is saved until you save your profile.",
+      "hint": "From your CV (PDF, Word or OpenDocument, read by AI) or from LinkedIn's data archive (read without AI). The file is not kept. You review what to take before anything changes, and nothing is saved until you save your profile, except the certifications you tick, added to your trainings when you fill in the form.",
       "pick": "Choose my CV",
       "reading": "Reading your CV…",
       "review": "Tick what to take from your CV. Fields your profile leaves empty are ticked.",
@@ -1795,7 +1795,13 @@
       "pickLinkedIn": "Choose my LinkedIn archive",
       "linkedInHint": "On LinkedIn: Settings & Privacy → Data privacy → Get a copy of your data; LinkedIn emails you the ZIP, usually within a day.",
       "notLinkedIn": "This file is not LinkedIn's data archive: choose the ZIP LinkedIn emailed you.",
-      "readError": "The archive could not be read: try again in a moment."
+      "readError": "The archive could not be read: try again in a moment.",
+      "certifications": "Certifications",
+      "certificationsHint": "Ticked ones are added to your trainings and certifications (Documents page) when you fill in the form, with their issuer and dates.",
+      "alreadyHere": "Already in your trainings",
+      "obtained": "(obtained in {{date}})",
+      "certificationsAdded": "{{count}} certifications added to your trainings and certifications (Documents page).",
+      "certificationsError": "The certifications could not be added to your trainings: try again."
     }
   },
   "errors": {

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Vos certifications depuis votre CV ou LinkedIn
+
+**Importer mon profil** trouve désormais vos certifications dans votre CV ou l'archive LinkedIn et ajoute celles que vous cochez à vos formations, avec leurs dates. Voir [Compte, sécurité et données](/help/account).
+
 ### Le baromètre trimestriel des TJM
 
 Les TJM qu'ont indiqués les missions du fil chaque trimestre, par compétence, séniorité et région, ouvert à tous sur **/market-report**. Voir [Le flux d'offres](/help/offers).

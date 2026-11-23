@@ -57,7 +57,7 @@ La version anonymisée retire vos coordonnées et remplace le nom des clients pa
 
 ## Importer des données
 
-Indezy n'importe pas de CV ni de profil LinkedIn : vous saisissez votre profil vous-même. Vous pouvez en revanche reprendre un export Indezy, par exemple depuis un autre compte.
+Pour remplir votre profil depuis votre CV ou l'archive LinkedIn, voyez [Remplir votre profil depuis votre CV ou LinkedIn](/help/account). Vous pouvez aussi reprendre un export Indezy, par exemple depuis un autre compte.
 
 1. Ouvrez **Profil → Compte → Importer des données**.
 2. Cliquez sur **Choisir un fichier d'export** (50 Mo au plus).

@@ -29,7 +29,8 @@ import java.util.zip.ZipInputStream;
  * Reads the archive LinkedIn's **Get a copy of your data** sends into the profile's fields (see
  * docs/features.md#profile-import), without AI: {@code Profile.csv} (name, headline, summary, place, websites),
  * {@code PhoneNumbers.csv}, {@code Positions.csv} (the current or latest title and company, and each skill's years from
- * the dated positions naming it), {@code Skills.csv} and {@code Languages.csv}. Columns are found by their names, which
+ * the dated positions naming it), {@code Skills.csv}, {@code Languages.csv} and {@code Certifications.csv} (name, issuer,
+ * when obtained and when it expires). Columns are found by their names, which
  * LinkedIn changes between exports; every other file of the archive is skipped unread.
  */
 public final class LinkedInProfileImport {
@@ -39,7 +40,8 @@ public final class LinkedInProfileImport {
     private static final int MAX_ENTRIES = 2_000;
     /** A file read from the archive, at most. */
     private static final int MAX_FILE = 5 * 1024 * 1024;
-    private static final Set<String> READ = Set.of("profile.csv", "phonenumbers.csv", "positions.csv", "skills.csv", "languages.csv");
+    private static final Set<String> READ = Set.of("profile.csv", "phonenumbers.csv", "positions.csv", "skills.csv", "languages.csv",
+        "certifications.csv");
     private static final Pattern URL = Pattern.compile("https?://[^\\s,\\]]+");
     private static final Map<String, String> LANGUAGES = Map.ofEntries(
         Map.entry("french", "Français"), Map.entry("français", "Français"), Map.entry("english", "Anglais"), Map.entry("anglais", "Anglais"),
@@ -89,10 +91,20 @@ public final class LinkedInProfileImport {
             .filter(Objects::nonNull).map(name -> LANGUAGES.getOrDefault(name.strip().toLowerCase(Locale.ROOT), name.strip())).toList();
         String phone = files.getOrDefault("phonenumbers.csv", List.of()).stream().map(row -> column(row, "number", "phone"))
             .filter(Objects::nonNull).findFirst().orElse(null);
+        List<ProfileImportAiService.Certification> certifications = files.getOrDefault("certifications.csv", List.of()).stream()
+            .map(row -> new ProfileImportAiService.Certification(column(row, "name"), column(row, "authority", "issuing organization"),
+                day(column(row, "started on", "issue date")), day(column(row, "finished on", "expiration date"))))
+            .toList();
         return ProfileImportAiService.clean(new ProfileImportAiService.Reading(column(profile, "first name"), column(profile, "last name"), phone,
             place == null ? null : place.split(",")[0], current.map(Position::title).orElse(column(profile, "headline")),
             current.map(Position::company).orElse(null), summary != null ? summary : column(profile, "headline"), website, linkedin, github,
-            languages, skills));
+            languages, skills, certifications));
+    }
+
+    /** A month as LinkedIn writes it, as its first day in {@code YYYY-MM-DD}. */
+    private static String day(String text) {
+        YearMonth month = month(text);
+        return month == null ? null : month.atDay(1).toString();
     }
 
     /** The years of the dated positions whose title or description names the skill, overlaps counted once; 0 when none. */
@@ -216,7 +228,7 @@ public final class LinkedInProfileImport {
         // LinkedIn puts notes above some files' headers: the header is the first line naming a column that is read.
         int header = 0;
         while (header < records.size() && records.get(header).stream().noneMatch(cell -> cell.strip().matches("(?i)(first name|name|number|" +
-            "company name|title|skill|language)"))) {
+            "company name|title|skill|language|authority)"))) {
             header++;
         }
         if (header >= records.size()) {
