@@ -146,6 +146,8 @@ export interface AvailabilityRecipient {
   campaignOpportunities: number;
   /** The best daily rate their company paid on a mission won through it; null without one. */
   ratePaid?: number | null;
+  /** The last day of a mission won through their company ending within 12 weeks, which lists them first; null otherwise. */
+  missionEndsOn?: string | null;
 }
 
 /** A contact's exchanges, newest first, and what they say about the relationship. */

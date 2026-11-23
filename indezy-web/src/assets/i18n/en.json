@@ -5399,6 +5399,7 @@
     "writtenEach": "{{count}} messages written, one per contact: check each with Edit before sending.",
     "writeEachError": "The messages could not be written with AI. Check that AI is set up in Preferences.",
     "ratePaid": "paid up to €{{rate}}/day",
+    "missionEndsOn": "your mission with them ends on {{date}}",
     "showAll": "Show all {{count}} contacts",
     "remind": "Remind those who do not answer, 5 working days later",
     "reminderBody": "Reminder",

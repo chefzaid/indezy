@@ -147,6 +147,33 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void ranksFirstTheCompaniesWhoseMissionEndsSoon() throws Exception {
+        long answering = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Répond ESN", "city", "Lyon", "isFinal", false, "freelanceId", alice.freelanceId()), Map.class));
+        long ending = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Fin Proche", "city", "Lyon", "isFinal", false, "freelanceId", alice.freelanceId()), Map.class));
+        long later = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Fin Lointaine", "city", "Lyon", "isFinal", false, "freelanceId", alice.freelanceId()), Map.class));
+        long bank = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Banque Fin", "city", "Lyon", "isFinal", true, "freelanceId", alice.freelanceId()), Map.class));
+        java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Paris"));
+        // A mission won through Fin Proche ends in about a month; the one through Fin Lointaine in about seven.
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 600, "status", "WON", "clientId", bank, "middlemanId", ending,
+            "startDate", today.minusMonths(5).toString(), "durationInMonths", 6), Map.class);
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 600, "status", "WON", "clientId", bank, "middlemanId", later,
+            "startDate", today.minusMonths(5).toString(), "durationInMonths", 12), Map.class);
+        long ines = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Inès", "lastName", "Répond", "email", "ines@repond.example",
+            "clientId", answering), Map.class));
+        call(alice, HttpMethod.POST, "/contacts/" + ines + "/interactions", Map.of("occurredOn", today.minusDays(60).toString(),
+            "channel", "EMAIL", "direction", "INCOMING", "summary", "Bonjour"), Map.class);
+        call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Nora", "lastName", "Proche", "email", "nora@proche.example",
+            "clientId", ending), Map.class);
+        call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Luc", "lastName", "Loin", "email", "luc@loin.example",
+            "clientId", later), Map.class);
+
+        List<Map<String, Object>> recipients = call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody();
+        assertThat(recipients).extracting(recipient -> recipient.get("name") + " " + recipient.get("missionEndsOn"))
+            .containsExactly("Nora Proche " + today.minusMonths(5).plusMonths(6).minusDays(1), "Inès Répond null", "Luc Loin null");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void listsTheEsnContactsWorkedWithAndAttachesTheDossier() throws Exception {
         long esn = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Conseil Exemple", "city", "Lyon", "isFinal", false, "freelanceId", alice.freelanceId()), Map.class));
         long endClient = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Banque Exemple", "city", "Lyon", "isFinal", true, "freelanceId", alice.freelanceId()), Map.class));

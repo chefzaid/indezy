@@ -54,6 +54,9 @@ const MEMBER_MISSIONS = 5;
                   @if (recipient.postings) {
                     · <span data-recipient-postings>{{ 'availabilityEmails.postings' | translate:{ count: recipient.postings } }}</span>
                   }
+                  @if (recipient.missionEndsOn) {
+                    · <span data-recipient-mission-ends>{{ 'availabilityEmails.missionEndsOn' | translate:{ date: (recipient.missionEndsOn | date:'d MMM') } }}</span>
+                  }
                   @if (recipient.ratePaid) {
                     · <span data-recipient-rate-paid>{{ 'availabilityEmails.ratePaid' | translate:{ rate: recipient.ratePaid } }}</span>
                   }

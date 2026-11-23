@@ -109,7 +109,8 @@ public class ContactEmailService {
      * them: how many wrote to them without an answer, and how many opportunities opened with their company after one did.
      */
     public record Recipient(Long id, String firstName, String name, String company, String email, int answers, LocalDate lastContactedOn,
-                            int postings, String mission, int silentCampaigns, int campaignOpportunities, Integer ratePaid) {
+                            int postings, String mission, int silentCampaigns, int campaignOpportunities, Integer ratePaid,
+                            LocalDate missionEndsOn) {
     }
 
     /** What a company posted for the profile lately: how many offers, and the newest one's title. */
@@ -118,6 +119,9 @@ public class ContactEmailService {
 
     /** Offers their company published this long ago at most count as missions it is hiring for. */
     static final int POSTINGS_DAYS = 60;
+
+    /** A mission won through a company and ending within this many days ranks its contacts first: it will want the next one. */
+    static final int ENDING_DAYS = 84;
 
     private JobOfferRepository offers;
 
@@ -143,7 +147,8 @@ public class ContactEmailService {
     /**
      * Whom to tell of an availability: the contacts with an address at the ESNs the workspace had an opportunity with
      * (as the ESN or the client) or whose contacts answered it before, not blacklisted, leaving out anyone in touch in
-     * the last {@value #RECENT_DAYS} days; those who answered most first, then by company and name.
+     * the last {@value #RECENT_DAYS} days; those at a company whose mission won ends within {@value #ENDING_DAYS} days first,
+     * then those who answered most, then by company and name.
      */
     @Transactional(readOnly = true)
     public List<Recipient> availabilityRecipients(Long freelanceId) {
@@ -156,6 +161,13 @@ public class ContactEmailService {
         pipeline.stream().filter(project -> project.getStatus() == dev.swirlit.indezy.model.enums.ProjectStatus.WON && project.getDailyRate() != null)
             .forEach(project -> Stream.of(project.getClient(), project.getMiddleman()).filter(Objects::nonNull)
                 .forEach(company -> ratePaid.merge(company.getId(), project.getDailyRate(), Math::max)));
+        // The nearest last day, within ENDING_DAYS, of a mission won through each company, as the ESN or the client.
+        LocalDate today = LocalDate.now(clock.withZone(PARIS));
+        Map<Long, LocalDate> endsOn = new HashMap<>();
+        pipeline.stream().filter(project -> project.getStatus() == dev.swirlit.indezy.model.enums.ProjectStatus.WON)
+            .filter(project -> project.lastDay() != null && !project.lastDay().isBefore(today) && !project.lastDay().isAfter(today.plusDays(ENDING_DAYS)))
+            .forEach(project -> Stream.of(project.getClient(), project.getMiddleman()).filter(Objects::nonNull)
+                .forEach(company -> endsOn.merge(company.getId(), project.lastDay(), (one, other) -> one.isBefore(other) ? one : other)));
         Map<Long, int[]> answers = new HashMap<>();
         Map<Long, LocalDate> lastInTouch = new HashMap<>();
         Set<Long> answeringCompanies = new HashSet<>();
@@ -171,7 +183,7 @@ public class ContactEmailService {
                 }
             }
         }
-        LocalDate recent = LocalDate.now(clock.withZone(PARIS)).minusDays(RECENT_DAYS);
+        LocalDate recent = today.minusDays(RECENT_DAYS);
         List<Contact> reachable = contacts.findByFreelanceId(freelanceId).stream()
             .filter(contact -> contact.getEmail() != null && !contact.getEmail().isBlank() && contact.getAnonymizedAt() == null)
             .filter(contact -> !Boolean.TRUE.equals(contact.getDoNotContact()))
@@ -191,8 +203,9 @@ public class ContactEmailService {
                 postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).count(),
                 postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).latest(),
                 silent.getOrDefault(contact.getId(), 0), opportunities.getOrDefault(contact.getClient().getId(), 0),
-                ratePaid.get(contact.getClient().getId())))
-            .sorted(Comparator.comparingInt(Recipient::answers).reversed()
+                ratePaid.get(contact.getClient().getId()), endsOn.get(contact.getClient().getId())))
+            .sorted(Comparator.comparing((Recipient recipient) -> recipient.missionEndsOn() == null)
+                .thenComparing(Comparator.comparingInt(Recipient::answers).reversed())
                 .thenComparing(Comparator.comparingInt(Recipient::campaignOpportunities).reversed())
                 .thenComparingInt(Recipient::silentCampaigns)
                 .thenComparing(Comparator.comparingInt(Recipient::postings).reversed())

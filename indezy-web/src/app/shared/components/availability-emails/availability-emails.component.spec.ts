@@ -44,7 +44,8 @@ describe('AvailabilityEmailsComponent', () => {
   }
 
   it('lists the likeliest 20 contacts first, the others on asking, with the rate each company paid', () => {
-    const many = Array.from({ length: 23 }, (_, index) => ({ ...marc, id: 100 + index, name: 'Contact ' + index, ratePaid: index ? null : 650 }));
+    const many = Array.from({ length: 23 }, (_, index) => ({ ...marc, id: 100 + index, name: 'Contact ' + index, ratePaid: index ? null : 650,
+      missionEndsOn: index ? null : '2027-01-15' }));
     const { fixture, component } = create(of(many));
     const element = fixture.nativeElement as HTMLElement;
     const details = element.querySelector('details')!;
@@ -53,6 +54,8 @@ describe('AvailabilityEmailsComponent', () => {
     fixture.detectChanges();
     expect(element.querySelectorAll('[data-availability-recipient]').length).toBe(20);
     expect(element.querySelector('[data-availability-recipient="100"] [data-recipient-rate-paid]')!.textContent).toContain('availabilityEmails.ratePaid');
+    expect(element.querySelector('[data-availability-recipient="100"] [data-recipient-mission-ends]')).not.toBeNull();
+    expect(element.querySelector('[data-availability-recipient="101"] [data-recipient-mission-ends]')).toBeNull();
     (element.querySelector('[data-availability-emails-show-all]') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(element.querySelectorAll('[data-availability-recipient]').length).toBe(23);
