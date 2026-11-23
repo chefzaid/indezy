@@ -469,4 +469,19 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
             .filter(offer -> offer.getExternalId().startsWith("fw-third")).findFirst().orElseThrow().getId(), null).getBody().get("history");
         assertThat(newer).containsEntry("publishedTimes", 2).doesNotContainKey("changes");
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void offersEachWorkspaceTheSectorWordsOfTheOffersItKeepsHiding() {
+        Instant now = Instant.now();
+        for (int index = 0; index < 5; index++) {
+            JobOffer bank = offers.save(offer("bank-" + index, "Développeur Java banque privée " + index, null, now, 48.8566, 2.3522));
+            call(alice, HttpMethod.PUT, "/offers/" + bank.getId() + "/state", Map.of("hidden", true));
+        }
+        call(alice, HttpMethod.PUT, "/offers/" + paris.getId() + "/state", Map.of("saved", true));
+
+        assertThat(call(alice, HttpMethod.GET, "/offers/hidden-words/suggestions", null, List.class).getBody())
+            .isEqualTo(List.of(Map.of("word", "banque", "sector", "banking", "hidden", 5)));
+        assertThat(call(bob, HttpMethod.GET, "/offers/hidden-words/suggestions", null, List.class).getBody()).isEmpty();
+    }
 }

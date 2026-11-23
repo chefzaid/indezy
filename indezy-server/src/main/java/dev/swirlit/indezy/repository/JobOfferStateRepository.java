@@ -31,6 +31,17 @@ public interface JobOfferStateRepository extends JpaRepository<JobOfferState, Lo
         "and s.updatedAt >= :since and s.offer.company is not null group by s.offer.company")
     List<Object[]> countHiddenByPublisher(@Param("freelanceId") Long freelanceId, @Param("since") java.time.LocalDateTime since);
 
+    /** The search text of the offers the workspace hid since {@code since}, the latest first. */
+    @Query("select s.offer.searchText from JobOfferState s where s.freelance.id = :freelanceId and s.hidden = true " +
+        "and s.updatedAt >= :since and s.offer.searchText is not null order by s.updatedAt desc")
+    List<String> findHiddenSearchTexts(@Param("freelanceId") Long freelanceId, @Param("since") java.time.LocalDateTime since,
+                                       org.springframework.data.domain.Pageable page);
+
+    /** The search text of the offers the workspace kept or applied to, the latest first. */
+    @Query("select s.offer.searchText from JobOfferState s where s.freelance.id = :freelanceId " +
+        "and (s.saved = true or s.application is not null) and s.offer.searchText is not null order by s.updatedAt desc")
+    List<String> findKeptSearchTexts(@Param("freelanceId") Long freelanceId, org.springframework.data.domain.Pageable page);
+
     /** The publishers of the offers the workspace kept or applied to, ever. */
     @Query("select distinct s.offer.company from JobOfferState s where s.freelance.id = :freelanceId " +
         "and (s.saved = true or s.application is not null) and s.offer.company is not null")

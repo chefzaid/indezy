@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Leave out a sector you keep hiding
+
+When many of the offers you hide mention the same sector (banking, defence…), the feed offers to leave out the offers mentioning it. See [Freelance offers](/help/offers).
+
 ### Three layouts for invoices and quotes
 
 Choose **Simple**, **Modern** or **Classic** in Profile → Billing. See [Quotes and invoices](/help/invoices-quotes).

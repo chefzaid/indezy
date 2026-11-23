@@ -38,7 +38,7 @@ describe('OfferFeedComponent', () => {
   function create(query: Record<string, string> = {}, result: OfferPage = page([offer(1), offer(2)]),
                   before: () => void = () => undefined): ComponentFixture<OfferFeedComponent> {
     registerLocaleData(localeFr);
-    service = jasmine.createSpyObj('OfferService', ['blockSuggestions', 'search', 'get', 'updateState', 'importOffer', 'sites', 'regions', 'skills',
+    service = jasmine.createSpyObj('OfferService', ['blockSuggestions', 'wordSuggestions', 'search', 'get', 'updateState', 'importOffer', 'sites', 'regions', 'skills',
       'savedSearches', 'alerts', 'market', 'blockPublisher', 'apply', 'withdrawApplication', 'searchSuggestions', 'marketTrends', 'skillsGap']);
     service.marketTrends.and.returnValue(of({ skills: [] }));
     service.skillsGap.and.returnValue(of({ matchingOffers: 0, gaps: [] }));
@@ -52,6 +52,7 @@ describe('OfferFeedComponent', () => {
     ]));
     service.regions.and.returnValue(of([]));
     service.blockSuggestions.and.returnValue(of([]));
+    service.wordSuggestions.and.returnValue(of([]));
     service.savedSearches.and.returnValue(of([]));
     service.alerts.and.returnValue(of({ newOffers: 0 }));
     service.market.and.returnValue(of({ offers: 2, rates: { stated: 0 }, rateBins: [], remote: { remote: 0, hybrid: 0, onsite: 0, unstated: 2 },
@@ -146,6 +147,13 @@ describe('OfferFeedComponent', () => {
     navigate.calls.reset();
     component.describeSearch();
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('adds a suggested word to the words the search leaves out', () => {
+    const component = create({ exclude: 'assurance' }).componentInstance;
+    component.leaveOut('banque');
+    expect(lastQueryParams()).toEqual(jasmine.objectContaining({ exclude: 'assurance banque' }));
+    expect(notifications.info).toHaveBeenCalledWith('offers.wordSuggestion.done', 6000, { word: 'banque' });
   });
 
   it('searches again when the address changes', () => {

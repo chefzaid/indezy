@@ -76,6 +76,7 @@
         <app-offer-market id="offer-market-panel" class="market-panel" [query]="query" (skillChosen)="filterOnSkill($event)" />
       }
       <app-offer-block-suggestions (blocked)="retry()" />
+      <app-offer-word-suggestions [exclude]="query.exclude" (leftOut)="leaveOut($event)" />
       @if (page && !page.matchAvailable && !loading) {
         <p class="match-hint" data-match-hint>
           <mat-icon aria-hidden="true">auto_awesome</mat-icon>

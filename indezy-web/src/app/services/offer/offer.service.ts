@@ -13,7 +13,7 @@ import {
   OfferMarket,
   OfferPage,
   OfferPublisher,
-  OfferPublisherBlock, OfferPublisherSuggestion,
+  OfferPublisherBlock, OfferPublisherSuggestion, OfferWordSuggestion,
   OfferQuery,
   OfferRegion,
   OfferSearchSuggestion,
@@ -141,6 +141,10 @@ export class OfferService {
   /** The publishers the workspace keeps hiding offers from, offered to block. */
   blockSuggestions(): Observable<OfferPublisherSuggestion[]> {
     return this.http.get<OfferPublisherSuggestion[]>(`${this.API_URL}/blocked-publishers/suggestions`);
+  }
+
+  wordSuggestions(): Observable<OfferWordSuggestion[]> {
+    return this.http.get<OfferWordSuggestion[]>(`${this.API_URL}/hidden-words/suggestions`);
   }
 
   blockPublisher(name: string): Observable<OfferPublisherBlock> {

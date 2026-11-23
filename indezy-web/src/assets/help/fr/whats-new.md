@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Écarter un secteur que vous masquez souvent
+
+Quand beaucoup des offres que vous masquez mentionnent le même secteur (banque, défense…), le fil propose d'écarter les offres qui le mentionnent. Voir [Offres freelance](/help/offers).
+
 ### Trois mises en page pour les factures et devis
 
 Choisissez **Simple**, **Moderne** ou **Classique** dans Profil → Facturation. Voir [Devis et factures](/help/invoices-quotes).

@@ -1114,6 +1114,12 @@ with the distance.
   to 200 per workspace. Above the results, a publisher of which the workspace hid five offers or more in 30 days (its
   spellings together), never kept nor applied to, is offered to block (**Hide all its offers**, three at most,
   `GET /api/offers/blocked-publishers/suggestions`); **Not now** leaves it, not offered again on that device.
+- Below it, a sector word that five or more of the offers hidden in 30 days mention, a quarter of them at least, and no
+  offer kept or applied to, is offered to leave out (two at most, one per sector, `GET /api/offers/hidden-words/suggestions`).
+  Only a fixed list of sector words is read (banque, bancaire, assurance, defense, energie, pharma, telecom,
+  aeronautique, casino, crypto, immobilier…), so a suggestion never names a skill or a client. **Leave them out** adds the
+  word to **Leave out offers mentioning** for this search (saving the search keeps it); a word the search leaves out
+  already is not offered, and **Not now** is remembered on that device.
 - **Market** opens a snapshot of what the filters find: offer count, median and middle half of the rates, share
   reaching the profile's target with a rate histogram, work modes, top skills and publishers and daily publications
   over 30 days, refreshed once a minute at most, ending with [trends](#market-trends).

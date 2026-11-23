@@ -2726,6 +2726,29 @@
       "decline": "Pas maintenant",
       "done": "Les offres de {{name}} sont masquées. Faites-les revenir dans Profil → Fil d'offres.",
       "error": "L'éditeur n'a pas pu être masqué : réessayez."
+    },
+    "wordSuggestion": {
+      "text": "{{count}} des offres masquées récemment mentionnent « {{word}} » ({{sector}}).",
+      "accept": "Les écarter",
+      "decline": "Pas maintenant",
+      "done": "Les offres qui mentionnent « {{word}} » sont écartées de cette recherche. Enregistrez la recherche pour le garder.",
+      "sectors": {
+        "banking": "banque",
+        "insurance": "assurance",
+        "defense": "défense",
+        "energy": "énergie",
+        "health": "santé",
+        "retail": "distribution",
+        "telecoms": "télécoms",
+        "publicSector": "secteur public",
+        "automotive": "automobile",
+        "aerospace": "aéronautique",
+        "rail": "ferroviaire",
+        "gaming": "jeux d'argent",
+        "crypto": "crypto",
+        "realEstate": "immobilier",
+        "food": "agroalimentaire"
+      }
     }
   },
   "emailsUnsubscribe": {

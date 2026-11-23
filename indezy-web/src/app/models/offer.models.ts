@@ -494,6 +494,16 @@ export interface OfferPublisherSuggestion {
   hidden: number;
 }
 
+/** A sector word the workspace's hidden offers keep mentioning, offered to leave out of the feed. */
+export interface OfferWordSuggestion {
+  /** The word as the feed's words to leave out take it, folded. */
+  word: string;
+  /** Its sector's key: banking, insurance, defense… */
+  sector: string;
+  /** How many of the offers hidden in the last 30 days mention it. */
+  hidden: number;
+}
+
 /** How publishers are told apart, as the server does: case, accents and punctuation aside. */
 export function publisherKey(name: string | undefined | null): string {
   return (name ?? '').normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase().replace(/[^\p{L}\p{N}+#.]+/gu, ' ').trim();

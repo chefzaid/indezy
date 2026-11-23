@@ -90,6 +90,7 @@ export async function mockFeed(page: Page, language: string, matchAvailable = tr
   await mockWorkspaceSession(page, language);
   await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language } }));
   await page.route('**/api/offers/sites', route => route.fulfill({ json: sites }));
+  await page.route('**/api/offers/hidden-words/suggestions', route => route.fulfill({ json: [] }));
   await page.route('**/api/offers/regions', route => route.fulfill({ json: regions }));
   await page.route('**/api/offers/skills**', route => route.fulfill({ json: [{ value: 'Kafka', offers: 120 }] }));
   await page.route('**/api/offers/sites/health', route => route.fulfill({ json: siteHealth() }));

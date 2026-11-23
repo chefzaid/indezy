@@ -2726,6 +2726,29 @@
       "decline": "Not now",
       "done": "{{name}}'s offers are hidden. Bring them back in Profile → Offer feed.",
       "error": "The publisher could not be hidden: try again."
+    },
+    "wordSuggestion": {
+      "text": "{{count}} of the offers you hid lately mention “{{word}}” ({{sector}}).",
+      "accept": "Leave them out",
+      "decline": "Not now",
+      "done": "Offers mentioning “{{word}}” are left out of this search. Save the search to keep it.",
+      "sectors": {
+        "banking": "banking",
+        "insurance": "insurance",
+        "defense": "defence",
+        "energy": "energy",
+        "health": "health",
+        "retail": "retail",
+        "telecoms": "telecoms",
+        "publicSector": "public sector",
+        "automotive": "automotive",
+        "aerospace": "aerospace",
+        "rail": "rail",
+        "gaming": "gambling",
+        "crypto": "crypto",
+        "realEstate": "real estate",
+        "food": "food industry"
+      }
     }
   },
   "emailsUnsubscribe": {

@@ -75,6 +75,25 @@ test('offers to hide a publisher whose offers keep being hidden (fr)', async ({ 
   await expect(page.locator('[data-block-suggestion="Conseil Y"]')).toHaveCount(0);
 });
 
+test('offers to leave out a sector the hidden offers keep mentioning (en)', async ({ page }) => {
+  const api = await mockFeed(page, 'en');
+  await page.route('**/api/offers/hidden-words/suggestions', route => route.fulfill({ json: [
+    { word: 'banque', sector: 'banking', hidden: 6 }, { word: 'casino', sector: 'gaming', hidden: 5 }] }));
+
+  await page.goto('/offers?exclude=assurance');
+  await expect(page.locator('[data-word-suggestion="banque"]')).toContainText('6 of the offers you hid lately mention “banque” (banking).');
+  await page.locator('[data-word-suggestion="banque"] [data-word-suggestion-accept]').click();
+  await expect.poll(() => api.searches.at(-1)?.searchParams.get('exclude')).toBe('assurance banque');
+  await expect(page.getByText('Offers mentioning “banque” are left out of this search.')).toBeVisible();
+  await expect(page.locator('[data-word-suggestion="banque"]')).toHaveCount(0);
+  await page.locator('[data-word-suggestion="casino"] [data-word-suggestion-decline]').click();
+  await expect(page.locator('[data-word-suggestion]')).toHaveCount(0);
+  // Declined, it is not offered again on this device; one the search leaves out is not offered either.
+  await page.reload();
+  await expect(page.locator('app-offer-card').first()).toBeVisible();
+  await expect(page.locator('[data-word-suggestion]')).toHaveCount(0);
+});
+
 test('moves through the feed and acts on offers with the keyboard (en)', async ({ page }) => {
   const api = await mockFeed(page, 'en');
 
