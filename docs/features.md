@@ -76,7 +76,10 @@ screen, and the previous and next article at its foot. Above them, **Was this he
 once per article on a device (remembered in the browser) and counted anonymously on the article's day
 (`POST /api/public/help/{slug}/feedback`, open without an account, nothing about who answered; a name that cannot be an
 article's, or past 100 articles a day, is not counted). `e2e/help.spec.ts` checks that every article exists in both
-languages, with its screenshots and the articles it links to.
+languages, with its screenshots and the articles it links to. The reference tables are kept in step with the code that
+uses them: `PlaceholderGuideTest` (the template placeholders), `JobBoardsGuideTest` (the offers article's **The job boards
+read**, every board with its site, and every board left out) and `scripts/test/help-shortcuts.test.mjs` (every
+`Alt + Shift` shortcut and every key of the offer feed) fail when an article misses one, in either language.
 
 For search engines, the help is also at **/aide** and **/aide/<slug>** in French and **/en/help** and **/en/help/<slug>**
 in English, written as static HTML after the build (`scripts/prerender-help.mjs`, served by nginx): each the built page

@@ -103,6 +103,41 @@ For an offer you found elsewhere, open **Opportunities** or the Kanban board and
 
 An offer from the feed fills the form as **Add to pipeline** would; **Unlink** keeps the filled form without tying it to the offer. A page on another site is read for its title and summary. An offer already in the pipeline links to its opportunity, and a salaried or expired offer is refused with the reason. Each workspace reads at most 20 links an hour.
 
+## The job boards read
+
+The feed reads these boards, their freelance missions only:
+
+| Board | Site |
+| --- | --- |
+| Free-Work | www.free-work.com |
+| Collective | www.collective.work |
+| Cherry Pick | www.cherry-pick.io |
+| LeHibou | www.lehibou.com |
+| Yeets | www.yeets.fr |
+| WorkDispo | www.workdispo.com |
+| Next Mondays | nextmondays.com |
+| Mindquest | mindquest.io |
+| Freelance Factory | freelance-factory.fr |
+| LittleBig Connection | www.littlebigconnection.com |
+| Silkhom | www.silkhom.com |
+| LeGratin | www.legratin.io |
+| Freelance-Informatique | www.freelance-informatique.fr |
+| Beyond Skills IT | www.beyondskillsit.com |
+| Koïno | www.koino.fr |
+| Sixième Homme | sixiemehomme.io |
+| FreelanceRepublik | www.freelancerepublik.com |
+| EasyPartner | easypartner.fr |
+| Castor Network | www.castor-network.com |
+| KatchMe | www.katchme.fr |
+| OuiDesk | ouidesk.com |
+| Kicklox | app.kicklox.com |
+
+The **Job boards** page lists the boards the feed leaves out, and why:
+
+- **Sites to visit yourself** (their missions need an account or a membership, or they keep crawlers out): HiTechPros, Opteamis, LookingForTechs, Capgemini TalentNet, LinkedIn, Mon Consultant Indépendant.
+- Left out because they match you with missions from your own profile there: Malt, Freelance.com, WheelOfWork, Comet, Amazing.dev, Crème de la Crème.
+- Left out because they post permanent jobs only: HelloWork, Welcome to the Jungle, Urban Linker, Bluecoders, UNLCK, Konekt.
+
 ## The browser extension
 
 The **Indezy: add this offer** extension, for Chrome and Chromium browsers, sends the page open in your browser to Indezy. Indezy then opens the new opportunity form, filled in from that offer.

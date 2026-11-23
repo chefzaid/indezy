@@ -103,6 +103,41 @@ Pour une offre trouvée ailleurs, ouvrez **Opportunités** ou le tableau Kanban 
 
 Une offre du fil remplit le formulaire comme **Ajouter au pipeline** ; **Délier** garde le formulaire rempli sans lien avec l'offre. Une page d'un autre site est lue pour en tirer l'intitulé et le résumé. Une offre déjà dans le pipeline renvoie à son opportunité, et une offre salariée ou expirée est refusée avec la raison. Chaque espace lit au plus 20 liens par heure.
 
+## Les sites d'offres lus
+
+Le fil lit ces sites, leurs missions freelance seulement :
+
+| Site | Adresse |
+| --- | --- |
+| Free-Work | www.free-work.com |
+| Collective | www.collective.work |
+| Cherry Pick | www.cherry-pick.io |
+| LeHibou | www.lehibou.com |
+| Yeets | www.yeets.fr |
+| WorkDispo | www.workdispo.com |
+| Next Mondays | nextmondays.com |
+| Mindquest | mindquest.io |
+| Freelance Factory | freelance-factory.fr |
+| LittleBig Connection | www.littlebigconnection.com |
+| Silkhom | www.silkhom.com |
+| LeGratin | www.legratin.io |
+| Freelance-Informatique | www.freelance-informatique.fr |
+| Beyond Skills IT | www.beyondskillsit.com |
+| Koïno | www.koino.fr |
+| Sixième Homme | sixiemehomme.io |
+| FreelanceRepublik | www.freelancerepublik.com |
+| EasyPartner | easypartner.fr |
+| Castor Network | www.castor-network.com |
+| KatchMe | www.katchme.fr |
+| OuiDesk | ouidesk.com |
+| Kicklox | app.kicklox.com |
+
+La page **Sites d'offres** liste les sites que le fil écarte, et pourquoi :
+
+- **Sites à consulter vous-même** (leurs missions demandent un compte ou une adhésion, ou ils écartent les robots) : HiTechPros, Opteamis, LookingForTechs, Capgemini TalentNet, LinkedIn, Mon Consultant Indépendant.
+- Écartés parce qu'ils vous proposent des missions depuis votre propre profil chez eux : Malt, Freelance.com, WheelOfWork, Comet, Amazing.dev, Crème de la Crème.
+- Écartés parce qu'ils publient seulement des CDI : HelloWork, Welcome to the Jungle, Urban Linker, Bluecoders, UNLCK, Konekt.
+
 ## L'extension de navigateur
 
 L'extension **Indezy : ajouter cette offre**, pour Chrome et les navigateurs Chromium, envoie à Indezy la page ouverte dans votre navigateur. Indezy ouvre alors le formulaire de nouvelle opportunité, prérempli depuis cette offre.
