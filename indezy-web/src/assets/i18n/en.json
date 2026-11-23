@@ -5391,7 +5391,11 @@
     "cancelFailed": "The email could not be cancelled: try again.",
     "campaignOpportunities": "opportunities after a campaign: {{count}}",
     "silentCampaigns": "unanswered campaigns: {{count}}",
-    "againReadyLeftOut": "{{count}} contacts this campaign did not reach are ticked; {{left}} who did not answer two campaigns or more are left unticked: check the message, then send."
+    "againReadyLeftOut": "{{count}} contacts this campaign did not reach are ticked; {{left}} who did not answer two campaigns or more are left unticked: check the message, then send.",
+    "writeEach": "Write each one with AI ({{count}})",
+    "writeEachMax": "{{max}} contacts at most at once.",
+    "writtenEach": "{{count}} messages written, one per contact: check each with Edit before sending.",
+    "writeEachError": "The messages could not be written with AI. Check that AI is set up in Preferences."
   },
   "marketReport": {
     "title": "IT freelance market report",

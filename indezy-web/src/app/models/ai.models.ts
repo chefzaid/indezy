@@ -216,3 +216,9 @@ export interface AiMessageDraft {
   subject: string;
   body: string;
 }
+
+/** A contact's own prospection message, written by AI from the shared one. */
+export interface AiProspectionMessage {
+  contactId: number;
+  body: string;
+}

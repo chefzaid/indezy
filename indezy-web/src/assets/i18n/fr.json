@@ -5391,7 +5391,11 @@
     "cancelFailed": "L'e-mail n'a pas pu être annulé : réessayez.",
     "campaignOpportunities": "opportunités après une campagne : {{count}}",
     "silentCampaigns": "campagnes sans réponse : {{count}}",
-    "againReadyLeftOut": "{{count}} contacts que cette campagne n'a pas touchés sont cochés ; {{left}} qui n'ont pas répondu à deux campagnes ou plus restent décochés : relisez le message, puis envoyez."
+    "againReadyLeftOut": "{{count}} contacts que cette campagne n'a pas touchés sont cochés ; {{left}} qui n'ont pas répondu à deux campagnes ou plus restent décochés : relisez le message, puis envoyez.",
+    "writeEach": "Écrire chacun avec l'IA ({{count}})",
+    "writeEachMax": "{{max}} contacts au plus à la fois.",
+    "writtenEach": "{{count}} messages écrits, un par contact : relisez chacun avec Modifier avant d'envoyer.",
+    "writeEachError": "Les messages n'ont pas pu être écrits avec l'IA. Vérifiez que l'IA est configurée dans Préférences."
   },
   "marketReport": {
     "title": "Baromètre des TJM freelance IT",

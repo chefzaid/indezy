@@ -4,6 +4,7 @@ import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AvailabilityRecipient, ContactInteraction } from '../../../models';
+import { AiService } from '../../../services/ai/ai.service';
 import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { AvailabilityEmailsComponent } from './availability-emails.component';
@@ -23,17 +24,39 @@ describe('AvailabilityEmailsComponent', () => {
     contacts.availabilityRecipients.and.returnValue(recipients);
     contacts.scheduledEmails.and.returnValue(of([]));
     const notifications = jasmine.createSpyObj('NotificationService', ['success', 'error', 'info']);
+    const ai = jasmine.createSpyObj('AiService', ['prospectionMessages']);
     TestBed.configureTestingModule({
       imports: [AvailabilityEmailsComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ContactService, useValue: contacts },
-        { provide: NotificationService, useValue: notifications }]
+        { provide: NotificationService, useValue: notifications }, { provide: AiService, useValue: ai }]
     });
     const fixture = TestBed.createComponent(AvailabilityEmailsComponent);
     fixture.componentRef.setInput('availableFrom', '2027-02-01');
     fixture.componentRef.setInput('text', 'Dispo en février pour du Java.');
     fixture.detectChanges();
-    return { fixture, component: fixture.componentInstance, contacts, notifications };
+    return { fixture, component: fixture.componentInstance, contacts, notifications, ai };
   }
+
+  it('writes each ticked contact\'s own message with AI, kept to read with Edit', () => {
+    const { fixture, component, notifications, ai } = create();
+    component.subject = 'Disponible';
+    component.body = 'Bonjour {{firstName}},';
+    component.toggle(1);
+    component.toggle(2);
+    ai.prospectionMessages.and.returnValue(of([{ contactId: 1, body: 'Bonjour Léa, ravi de vous recroiser.' }]));
+    component.writeEach();
+    expect(ai.prospectionMessages).toHaveBeenCalledWith('Disponible', 'Bonjour {{firstName}},', [1, 2], 'FR');
+    expect(component.own.get(1)).toBe('Bonjour Léa, ravi de vous recroiser.');
+    expect(component.own.has(2)).toBeFalse();
+    expect(notifications.success).toHaveBeenCalledWith('availabilityEmails.writtenEach', 6000, { count: 1 });
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-recipient-edit="1"]')!.textContent).toContain('availabilityEmails.edited');
+
+    ai.prospectionMessages.and.returnValue(throwError(() => new Error('503')));
+    component.writeEach();
+    expect(notifications.error).toHaveBeenCalledWith('availabilityEmails.writeEachError');
+    expect(component.writing).toBeFalse();
+  });
 
   it('writes the email as it opens and sends one to each contact ticked, with the dossier', () => {
     const { fixture, component, contacts, notifications } = create();

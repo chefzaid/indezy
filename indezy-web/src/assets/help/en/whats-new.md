@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Each prospection email written with AI
+
+In **Email my ESN contacts**, **Write each one with AI** writes every ticked contact their own message from yours, from their company, the missions it posted and your last exchanges. See [Dashboard](/help/dashboard).
+
 ### A live preview of your documents
 
 In Profile → Billing, the preview now shows every page, of an invoice or of a quote, and draws itself again as you change the settings. See [Quotes and invoices](/help/invoices-quotes).

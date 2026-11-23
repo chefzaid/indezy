@@ -90,7 +90,14 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(dialog.locator('[data-availability-recipient="7"] [data-recipient-silent]'))
       .toHaveText(en ? 'unanswered campaigns: 1' : 'campagnes sans réponse : 1');
     await dialog.locator('[data-availability-recipient="7"] input').check();
-    // Her own message, written from the shared one, then a word added.
+    // Her own message written with AI, then a word added.
+    let asked: Record<string, unknown> | null = null;
+    await page.route('**/api/ai/prospection/messages', route => {
+      asked = route.request().postDataJSON();
+      return route.fulfill({ json: [{ contactId: 7, body: en ? 'Hello Léa, still hiring Java leads?' : 'Bonjour Léa, toujours à la recherche de leads Java ?' }] });
+    });
+    await dialog.locator('[data-availability-emails-ai]').click();
+    await expect.poll(() => asked).toEqual(expect.objectContaining({ contactIds: [7] }));
     await dialog.locator('[data-recipient-edit="7"]').click();
     const own = dialog.locator('[data-recipient-own="7"] textarea');
     await expect(own).toHaveValue(en ? /^Hello Léa,/ : /^Bonjour Léa,/);

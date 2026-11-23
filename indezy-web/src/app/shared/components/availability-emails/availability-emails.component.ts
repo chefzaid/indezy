@@ -11,6 +11,7 @@ import { DatePipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, concatMap, from, map, of, catchError, switchMap, toArray } from 'rxjs';
 import { AvailabilityRecipient, DocumentLanguage, ProspectionCampaign, ScheduledEmail } from '../../../models';
+import { AiService } from '../../../services/ai/ai.service';
 import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 
@@ -107,6 +108,19 @@ export const SILENT_LIMIT = 2;
           }
         </div>
         <div class="row">
+          <button mat-stroked-button type="button" (click)="writeEach()" data-availability-emails-ai
+            [disabled]="writing || sending || !chosen.size || chosen.size > maxWritten || !body.trim()"
+            [attr.aria-describedby]="chosen.size > maxWritten ? 'availability-emails-ai-max' : null">
+            @if (writing) {
+              <mat-spinner diameter="18" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+            } @else {
+              <mat-icon>auto_awesome</mat-icon>
+            }
+            {{ 'availabilityEmails.writeEach' | translate:{ count: chosen.size } }}
+          </button>
+          @if (chosen.size > maxWritten) {
+            <span class="hint" id="availability-emails-ai-max">{{ 'availabilityEmails.writeEachMax' | translate:{ max: maxWritten } }}</span>
+          }
           <button mat-flat-button color="primary" type="button" (click)="send()" data-availability-emails-send
             [disabled]="sending || !chosen.size || !subject.trim() || !body.trim()">
             @if (sending) {
@@ -181,6 +195,7 @@ export class AvailabilityEmailsComponent implements OnInit {
   @Input() text = '';
 
   private readonly contacts = inject(ContactService);
+  private readonly ai = inject(AiService);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
   private readonly changes = inject(ChangeDetectorRef);
@@ -361,6 +376,32 @@ export class AvailabilityEmailsComponent implements OnInit {
   /** Opens or closes the message of one contact, written from the shared one until changed. */
   edit(recipient: AvailabilityRecipient): void {
     this.editing = this.editing === recipient.id ? null : recipient.id;
+  }
+
+  /** At most this many contacts get their own message written by AI at once. */
+  readonly maxWritten = 20;
+  writing = false;
+
+  /**
+   * Writes each ticked contact's own message with AI from the shared one: kept as their own message, to read with
+   * **Edit** before sending; nothing is sent.
+   */
+  writeEach(): void {
+    const ids = [...this.chosen];
+    this.writing = true;
+    this.ai.prospectionMessages(this.subject.trim(), this.body, ids, this.language).subscribe({
+      next: messages => {
+        this.writing = false;
+        messages.forEach(message => this.own.set(message.contactId, message.body));
+        this.notifications.success('availabilityEmails.writtenEach', 6000, { count: messages.length });
+        this.changes.markForCheck();
+      },
+      error: () => {
+        this.writing = false;
+        this.notifications.error('availabilityEmails.writeEachError');
+        this.changes.markForCheck();
+      }
+    });
   }
 
   ownBody(recipient: AvailabilityRecipient): string {

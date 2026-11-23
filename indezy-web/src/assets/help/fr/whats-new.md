@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Chaque e-mail de prospection écrit avec l'IA
+
+Dans **Écrire à mes contacts ESN**, **Écrire chacun avec l'IA** écrit à chaque contact coché son propre message à partir du vôtre, de sa société, des missions qu'elle a publiées et de vos derniers échanges. Voir [Le tableau de bord](/help/dashboard).
+
 ### Un aperçu en direct de vos documents
 
 Dans Profil → Facturation, l'aperçu montre désormais toutes les pages, d'une facture ou d'un devis, et se redessine à mesure que vous changez les réglages. Voir [Devis et factures](/help/invoices-quotes).

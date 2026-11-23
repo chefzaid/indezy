@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
+import { AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -94,6 +94,11 @@ export class AiService {
   }
 
   /** The announcement of the next availability, drafted: nothing is posted. */
+  /** Each contact's own prospection message from the shared one, 20 contacts at most; nothing sent. */
+  prospectionMessages(subject: string, body: string, contactIds: number[], language: DocumentLanguage): Observable<AiProspectionMessage[]> {
+    return this.http.post<AiProspectionMessage[]>(`${this.API_URL}/prospection/messages`, { subject, body, contactIds, language });
+  }
+
   availability(language: DocumentLanguage): Observable<AiAvailability> {
     return this.http.post<AiAvailability>(`${this.API_URL}/availability`, null, { params: { language } });
   }

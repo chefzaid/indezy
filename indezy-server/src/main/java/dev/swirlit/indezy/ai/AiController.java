@@ -47,6 +47,7 @@ public class AiController {
     private final DossierAiService dossiers;
     private final RateAiService rates;
     private final AvailabilityAiService availability;
+    private final ProspectionAiService prospection;
     private final NegotiationAiService negotiations;
     private final InterviewAiService interviews;
     private final ApplicationPackAiService packs;
@@ -279,6 +280,26 @@ public class AiController {
     public AvailabilityAiService.Announcement availability(@RequestParam(required = false) DocumentLanguage language) {
         return availability.draft(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null),
             language == null ? DocumentLanguage.FR : language);
+    }
+
+    /** The shared prospection message and the contacts to write each one for. */
+    public record ProspectionRequest(@jakarta.validation.constraints.Size(max = 200) String subject,
+                                     @jakarta.validation.constraints.NotBlank @jakarta.validation.constraints.Size(max = 20_000) String body,
+                                     @jakarta.validation.constraints.NotEmpty
+                                     @jakarta.validation.constraints.Size(max = ProspectionAiService.MAX_CONTACTS) List<Long> contactIds,
+                                     DocumentLanguage language) {
+
+        public ProspectionRequest {
+            contactIds = contactIds == null ? null : List.copyOf(contactIds);
+        }
+    }
+
+    @Operation(summary = "Write each ticked contact's own prospection email from the shared one; nothing sent",
+        description = "20 contacts at most, among those the workspace may write to")
+    @PostMapping("/prospection/messages")
+    public List<ProspectionAiService.Written> prospection(@Valid @RequestBody ProspectionRequest request) {
+        return prospection.write(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), request.subject(), request.body(),
+            request.contactIds(), request.language() == null ? DocumentLanguage.FR : request.language());
     }
 
     @Operation(summary = "Prepare the application to a feed offer: the channel's message, screening answers and a rate to propose")
