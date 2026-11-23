@@ -3622,21 +3622,18 @@
     "faq": {
       "title": "Questions",
       "who": {
-        "q": "À qui s'adresse Indezy ?",
-        "a": "Aux freelances de la tech en France, développeurs, architectes, data, DevOps, chefs de projet et produit, qu'ils passent par des ESN, des plateformes ou directement par leurs clients."
+        "q": "À qui s'adresse Indezy ?"
       },
       "sites": {
-        "q": "Quels sites le flux lit-il ?",
-        "a": "Free-Work, Collective.work, Cherry Pick, LeHibou, Yeets, WorkDispo, Next Mondays, Mindquest, Freelance-Informatique et une dizaine d'autres sites français, missions freelance seulement. Toute autre annonce s'ajoute depuis son lien."
+        "q": "Quels sites le flux lit-il ?"
       },
       "data": {
-        "q": "À qui appartiennent mes données ?",
-        "a": "À vous. Votre espace n'appartient qu'à vous, et vous pouvez tout exporter à tout moment, dans un fichier que vous pouvez réimporter."
+        "q": "À qui appartiennent mes données ?"
       },
       "languages": {
-        "q": "Quelles langues ?",
-        "a": "Indezy est en français et en anglais, tout comme ses CRA, ses factures et ses e-mails."
-      }
+        "q": "Quelles langues ?"
+      },
+      "more": "Lire toute la FAQ"
     },
     "footer": "L'espace de travail des freelances IT en France.",
     "screens": {

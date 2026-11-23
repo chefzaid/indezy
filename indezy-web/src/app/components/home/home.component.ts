@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, DOCUMENT, OnDestroy, OnInit, inject
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -28,7 +27,7 @@ export const HOME_PATHS: Record<AppLanguage, string> = { fr: '/', en: '/en' };
  */
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, MatButtonModule, MatExpansionModule, MatIconModule, TranslateModule, LogoComponent],
+  imports: [RouterLink, MatButtonModule, MatIconModule, TranslateModule, LogoComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -56,7 +55,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   readonly screens = ['kanban', 'offers', 'report', 'dashboard'];
   readonly steps = ['profile', 'network', 'opportunities', 'pipeline', 'reports'];
   readonly trust = ['yours', 'export', 'links'];
+  /** The questions freelancers ask most, answered in the help center's FAQ. */
   readonly questions = ['who', 'sites', 'data', 'languages'];
+
+  /** The FAQ in the page's language, as search engines find it. */
+  get faqPath(): string {
+    return this.language === 'en' ? '/en/help/faq' : '/aide/faq';
+  }
   /** The Kanban scene of the hero: five of its columns, a card or two each. */
   readonly board = [
     { column: 'CONTACT', cards: [{ role: 'Lead Java', client: 'ESN · Lyon', rate: 650 }, { role: 'DevOps AWS', client: 'Remote', rate: 600 }] },

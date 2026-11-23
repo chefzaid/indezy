@@ -28,8 +28,9 @@ for (const theme of ['light', 'dark'] as const) {
       await screen.scrollIntoViewIfNeeded();
       await expect.poll(() => screen.evaluate(image => (image as HTMLImageElement).currentSrc)).toContain(`kanban-fr-${theme}.jpg`);
       await expect(page.getByRole('button', { name: 'Se connecter' }).first()).toBeVisible();
-      await page.locator('[data-question="sites"]').click();
-      await expect(page.locator('[data-question="sites"]')).toContainText('Free-Work');
+      // The questions lead to the help center's FAQ, which answers them.
+      await expect(page.locator('[data-question]')).toHaveCount(4);
+      await expect(page.locator('[data-home-faq]')).toHaveAttribute('href', '/aide/faq');
       const audit = await new AxeBuilder({ page }).withTags(WCAG).analyze();
       expect(audit.violations.map(violation => violation.id)).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

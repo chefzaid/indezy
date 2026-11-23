@@ -38,7 +38,7 @@ export function head(home, language, site = SITE) {
 }
 
 /** The page's text, in the order the app shows it. */
-export function body(home) {
+export function body(home, language = 'fr') {
   const section = (title, items) => `<section><h2>${escape(title)}</h2>${items}</section>`;
   const features = ['feed', 'pipeline', 'network', 'reports', 'invoices', 'dashboard']
     .map(key => `<article><h3>${escape(home.features[key].title)}</h3><p>${escape(home.features[key].text)}</p></article>`).join('');
@@ -46,8 +46,9 @@ export function body(home) {
     .map(key => `<li><h3>${escape(home.steps[key].title)}</h3><p>${escape(home.steps[key].text)}</p></li>`).join('');
   const trust = ['yours', 'export', 'links']
     .map(key => `<li><h3>${escape(home.trust[key].title)}</h3><p>${escape(home.trust[key].text)}</p></li>`).join('');
-  const faq = ['who', 'sites', 'data', 'languages']
-    .map(key => `<h3>${escape(home.faq[key].q)}</h3><p>${escape(home.faq[key].a)}</p>`).join('');
+  const faqPath = language === 'en' ? '/en/help/faq' : '/aide/faq';
+  const faq = `<ul>${['who', 'sites', 'data', 'languages'].map(key => `<li><h3><a href="${faqPath}">${escape(home.faq[key].q)}</a></h3></li>`)
+    .join('')}</ul><p><a href="${faqPath}">${escape(home.faq.more)}</a></p>`;
   return `<main class="prerendered-home"><p>${escape(home.hero.eyebrow)}</p><h1>${escape(home.hero.title)}</h1>` +
     `<p>${escape(home.hero.lead)}</p>` +
     section(home.features.title, features) + section(home.steps.title, `<ol>${steps}</ol>`) +
@@ -61,7 +62,7 @@ export function page(index, home, language, site = SITE) {
     .replace(/<title>[^<]*<\/title>/, `<title>${escape(home.meta.title)}</title>`)
     .replace(/\s*<meta name="description"[^>]*>/, '')
     .replace('</head>', `  ${head(home, language, site)}\n</head>`)
-    .replace(/<app-root>\s*<\/app-root>/, `<app-root>${body(home)}</app-root>`);
+    .replace(/<app-root>\s*<\/app-root>/, `<app-root>${body(home, language)}</app-root>`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -108,16 +108,14 @@
 
     <section class="faq" aria-labelledby="faq-title">
       <h2 id="faq-title">{{ 'home.faq.title' | translate }}</h2>
-      <mat-accordion>
+      <ul class="questions">
         @for (question of questions; track question) {
-          <mat-expansion-panel [attr.data-question]="question">
-            <mat-expansion-panel-header>
-              <mat-panel-title>{{ 'home.faq.' + question + '.q' | translate }}</mat-panel-title>
-            </mat-expansion-panel-header>
-            <p>{{ 'home.faq.' + question + '.a' | translate }}</p>
-          </mat-expansion-panel>
+          <li [attr.data-question]="question">
+            <a [routerLink]="faqPath">{{ 'home.faq.' + question + '.q' | translate }}</a>
+          </li>
         }
-      </mat-accordion>
+      </ul>
+      <a mat-stroked-button [routerLink]="faqPath" data-home-faq>{{ 'home.faq.more' | translate }}</a>
     </section>
   </main>
 

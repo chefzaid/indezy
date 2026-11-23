@@ -12,7 +12,7 @@ test('writes the French page with its text, title, description, card and languag
   assert.match(html, /<title>Indezy · Trouvez la mission/);
   assert.equal(html.match(/<meta name="description"/g).length, 1);
   assert.match(html, /<h1>Trouvez la mission, décrochez-la au bon TJM, puis menez-la.<\/h1>/);
-  assert.match(html, /<h3>À qui s'adresse Indezy \?<\/h3>/);
+  assert.match(html, /<h3><a href="\/aide\/faq">À qui s'adresse Indezy \?<\/a><\/h3>/);
   assert.match(html, /<link rel="canonical" href="https:\/\/indezy.example\/" data-prerendered>/);
   assert.match(html, /hreflang="en" href="https:\/\/indezy.example\/en"/);
   assert.match(html, /property="og:image" content="https:\/\/indezy.example\/assets\/brand\/og-image.png"/);

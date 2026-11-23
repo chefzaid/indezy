@@ -3622,21 +3622,18 @@
     "faq": {
       "title": "Questions",
       "who": {
-        "q": "Who is Indezy for?",
-        "a": "Freelancers in French tech, developers, architects, data, DevOps, project and product people, whether they work through ESNs, platforms or directly with clients."
+        "q": "Who is Indezy for?"
       },
       "sites": {
-        "q": "Which sites does the feed read?",
-        "a": "Free-Work, Collective.work, Cherry Pick, LeHibou, Yeets, WorkDispo, Next Mondays, Mindquest, Freelance-Informatique and about ten more French boards, freelance missions only. Any other posting can be added from its link."
+        "q": "Which sites does the feed read?"
       },
       "data": {
-        "q": "Who owns my data?",
-        "a": "You do. Your workspace is yours alone, and you can export all of it at any time, as a file you can bring back."
+        "q": "Who owns my data?"
       },
       "languages": {
-        "q": "Which languages?",
-        "a": "Indezy is in French and English, and so are its activity reports, invoices and emails."
-      }
+        "q": "Which languages?"
+      },
+      "more": "Read the whole FAQ"
     },
     "footer": "The workspace of IT freelancers in France.",
     "screens": {

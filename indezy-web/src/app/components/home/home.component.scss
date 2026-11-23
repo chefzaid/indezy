@@ -225,9 +225,17 @@ h2 {
   }
 }
 
-.faq p {
-  margin: 0;
-  line-height: 1.55;
+.faq .questions {
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.faq .questions a {
+  color: inherit;
+  font-weight: 500;
 }
 
 .bottom {

@@ -25,7 +25,9 @@ how it works, how the data is kept, and screens from a demo workspace whose peop
 **Sign in** opens Keycloak; **Create my account** shows outside production only, as sign-up in production waits on a
 decision (TODO.md, Needs Input). Signed in, **Open the dashboard**. The page never sends a visitor to sign in, and an old
 `/?project=<id>` link still opens its opportunity. Both languages are prerendered, so search engines and link previews
-read them without JavaScript.
+read them without JavaScript. **Questions** lists the four asked most (who it is for, the sites read, the data, the
+languages), each leading, like **Read the whole FAQ**, to the help center's FAQ in the page's language (`/aide/faq`,
+`/en/help/faq`), which answers them: the answers live there only.
 
 The screens come from `scripts/screenshots` (`npx playwright test -c pw.screenshots.config.ts`) and the card link
 previews show (`src/assets/brand/og-image.png`, 1200 × 630) from `scripts/og-image` (`node scripts/og-image/render.mjs`):
