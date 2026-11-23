@@ -18,7 +18,7 @@
     "message": "Votre adresse Indezy"
   },
   "optionsHint": {
-    "message": "L'adresse où vous ouvrez Indezy, comme https://indezy.swirlit.dev. L'extension ne lit rien des pages que vous visitez : elle transmet à Indezy l'adresse de la page ou du lien que vous choisissez."
+    "message": "L'adresse où vous ouvrez Indezy, comme https://indezy.swirlit.dev. L'extension ne lit rien des pages que vous visitez : elle transmet à Indezy l'adresse de la page ou du lien que vous choisissez, et ne remplit un formulaire que si vous le demandez."
   },
   "optionsSave": {
     "message": "Enregistrer"
@@ -28,5 +28,31 @@
   },
   "optionsInvalid": {
     "message": "Saisissez une adresse https:// sans chemin."
+  },
+  "menuFill": {
+    "message": "Remplir ce formulaire avec mon profil Indezy"
+  },
+  "optionsToken": {
+    "message": "Jeton d'API, pour remplir les formulaires de candidature (facultatif)"
+  },
+  "optionsTokenHint": {
+    "message": "Un jeton en lecture de Profil → Sécurité → Jetons d'API dans Indezy, sans rien cocher sous Il lit. Avec lui, Remplir ce formulaire avec mon profil Indezy (clic droit sur une page) remplit les champs vides du formulaire : nom, e-mail, téléphone, ville, liens, TJM et disponibilité ; vous vérifiez et envoyez vous-même. Gardé sur cet ordinateur seulement."
+  },
+  "fillNoToken": {
+    "message": "Ajoutez un jeton d'API dans les options de l'extension pour remplir les formulaires."
+  },
+  "fillFailed": {
+    "message": "Indezy n'a pas répondu avec ce jeton : vérifiez-le dans les options."
+  },
+  "fillDone": {
+    "message": "$COUNT$ champs remplis : vérifiez-les, envoyez le formulaire, puis enregistrez l'opportunité dans Indezy.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "fillNothing": {
+    "message": "Aucun champ de cette page n'a pu être rempli."
   }
 }

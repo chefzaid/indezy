@@ -111,6 +111,8 @@ The **Indezy: add this offer** extension, for Chrome and Chromium browsers, send
 2. On an offer's page, click the **Add this offer to Indezy** button, or right-click a link and choose **Add this link to Indezy**.
 3. Check the filled-in form, then save.
 
-The extension uses your browser's Indezy session, so sign in first. It holds no password or token and reads nothing on the pages you visit. It is not published in the Chrome Web Store yet.
+**Fill an application form**: create a token in **Profile → Security → API tokens** with nothing ticked under **It reads**, paste it in the extension's options, then on a job board's application form right-click and choose **Fill this form with my Indezy profile**. It fills the empty name, email, phone, city, links, title, daily rate and availability fields, never a password, a file, a cover letter or a field you already typed in, and never sends the form: check it and send it yourself. Indezy's new opportunity form for the posting then opens beside it, to keep the application in your pipeline.
+
+The extension uses your browser's Indezy session, so sign in first. It holds no password; the token, only if you add one, stays on that computer and only reads. It reads nothing on the pages you visit unless you ask it to fill a form. It is not published in the Chrome Web Store yet.
 
 > **Tip:** the **Job boards** page, linked from the feed, shows the state of each board read, lets you leave one out with **Show in my feed**, and lists the **Sites to visit yourself**. The feed also works from the keyboard: see [Keyboard shortcuts](/help/shortcuts).

@@ -1293,8 +1293,17 @@ Each workspace reads at most 20 links an hour.
 
 The **Indezy: add this offer** extension for Chrome and Chromium browsers (`indezy-web/extension`) opens the new
 opportunity form with the current page, or a right-clicked link (**Add this link to Indezy**), in the **Offer link**
-field. It uses the browser's Indezy session, holds no password or token and reads nothing on the pages visited; its
-options set the Indezy address. Publishing it in the Chrome Web Store waits on a decision (TODO.md, Needs Input).
+field. It uses the browser's Indezy session, holds no password and reads nothing on the pages visited unless asked; its
+options set the Indezy address, and optionally a personal API token (kept in the browser's local storage, never synced).
+
+**Fill this form with my Indezy profile** (right-click on a page) is the form co-pilot: with that token (one with no
+part ticked) it reads `GET /api/application-profile` (name, email, phone, city, LinkedIn, GitHub, website, title, target
+daily rate, availability; nothing else of the profile), then fills the page's empty fields by what each says it is
+(`autocomplete`, name, id, placeholder, label, in French or English: `extension/fill.js`), never a password, a file, a
+hidden, read-only or disabled field, a text area (a cover letter) or one already typed in, and never sends the form. A
+note in the page says how many fields it filled (or why it could not), and Indezy's new opportunity form for the page
+opens beside it, unfocused, to keep the application. Another Indezy than the usual one (or a local one) is reached once
+the browser allows its address, asked when the options are saved. Publishing it in the Chrome Web Store waits on a decision (TODO.md, Needs Input).
 
 ## Monthly Activity Reports (CRA)
 

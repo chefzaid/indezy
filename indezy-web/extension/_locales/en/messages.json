@@ -18,7 +18,7 @@
     "message": "Your Indezy address"
   },
   "optionsHint": {
-    "message": "The address you open Indezy at, such as https://indezy.swirlit.dev. The extension reads nothing on the pages you visit: it hands Indezy the address of the page or link you choose."
+    "message": "The address you open Indezy at, such as https://indezy.swirlit.dev. The extension reads nothing on the pages you visit: it hands Indezy the address of the page or link you choose, and fills a form only when you ask it to."
   },
   "optionsSave": {
     "message": "Save"
@@ -28,5 +28,31 @@
   },
   "optionsInvalid": {
     "message": "Enter an https:// address without a path."
+  },
+  "menuFill": {
+    "message": "Fill this form with my Indezy profile"
+  },
+  "optionsToken": {
+    "message": "API token, to fill application forms (optional)"
+  },
+  "optionsTokenHint": {
+    "message": "A read-only token from Profile → Security → API tokens in Indezy, with nothing ticked under It reads. With it, Fill this form with my Indezy profile (right-click on a page) fills the form's empty name, email, phone, city, links, rate and availability fields; you check and send it yourself. Kept on this computer only."
+  },
+  "fillNoToken": {
+    "message": "Add an API token in the extension's options to fill forms."
+  },
+  "fillFailed": {
+    "message": "Indezy could not be reached with this token: check it in the options."
+  },
+  "fillDone": {
+    "message": "$COUNT$ fields filled: check them, send the form, then save the opportunity in Indezy.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "fillNothing": {
+    "message": "No field of this page could be filled."
   }
 }

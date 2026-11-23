@@ -111,6 +111,8 @@ L'extension **Indezy : ajouter cette offre**, pour Chrome et les navigateurs Chr
 2. Sur la page d'une offre, cliquez sur le bouton **Ajouter cette offre à Indezy**, ou faites un clic droit sur un lien et choisissez **Ajouter ce lien à Indezy**.
 3. Vérifiez le formulaire prérempli, puis enregistrez.
 
-L'extension utilise votre session Indezy du navigateur : connectez-vous d'abord. Elle ne garde ni mot de passe ni jeton et ne lit rien des pages que vous visitez. Elle n'est pas encore publiée sur le Chrome Web Store.
+**Remplir un formulaire de candidature** : créez un jeton dans **Profil → Sécurité → Jetons d'API** sans rien cocher sous **Il lit**, collez-le dans les options de l'extension, puis sur le formulaire de candidature d'un site d'offres, faites un clic droit et choisissez **Remplir ce formulaire avec mon profil Indezy**. Elle remplit les champs vides de nom, e-mail, téléphone, ville, liens, titre, TJM et disponibilité, jamais un mot de passe, un fichier, une lettre de motivation ni un champ déjà saisi, et n'envoie jamais le formulaire : vérifiez-le et envoyez-le vous-même. Le formulaire de nouvelle opportunité d'Indezy pour l'offre s'ouvre alors à côté, pour garder la candidature dans votre pipeline.
+
+L'extension utilise votre session Indezy du navigateur : connectez-vous d'abord. Elle ne garde aucun mot de passe ; le jeton, seulement si vous en ajoutez un, reste sur cet ordinateur et ne fait que lire. Elle ne lit rien des pages que vous visitez, sauf si vous lui demandez de remplir un formulaire. Elle n'est pas encore publiée sur le Chrome Web Store.
 
 > **Astuce :** la page **Sites d'offres**, liée depuis le fil, montre l'état de chaque site lu, vous permet d'en écarter un avec **Afficher dans mon fil**, et liste les **Sites à consulter vous-même**. Le fil se pilote aussi au clavier : voir [Raccourcis clavier](/help/shortcuts).

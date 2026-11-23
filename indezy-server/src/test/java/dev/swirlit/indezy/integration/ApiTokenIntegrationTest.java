@@ -87,6 +87,15 @@ class ApiTokenIntegrationTest extends TwoAccountsIntegrationTest {
         String full = (String) call(alice, HttpMethod.POST, "/users/api-tokens", Map.of("name", "Everything"), Map.class).getBody().get("secret");
         assertThat(withToken(full, HttpMethod.GET, "/search?q=arch").getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(withToken(full, HttpMethod.GET, "/projects/" + project).getStatusCode()).isEqualTo(HttpStatus.OK);
+        // The values an application form asks for, for the browser extension: an unscoped token reads them, a scoped one not.
+        Map<String, Object> profile = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        profile.put("phone", "0612345678");
+        profile.put("targetDailyRate", 650);
+        call(alice, HttpMethod.PUT, "/users/profile", profile, Map.class);
+        ResponseEntity<String> application = withToken(full, HttpMethod.GET, "/application-profile");
+        assertThat(application.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(application.getBody()).contains("\"phone\":\"0612345678\"", "\"targetDailyRate\":650").doesNotContain("bio", "skills");
+        assertThat(withToken(secret, HttpMethod.GET, "/application-profile").getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(call(alice, HttpMethod.POST, "/users/api-tokens", Map.of("name", "Odd", "scopes", List.of("NOT_A_SCOPE")), String.class)
             .getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
