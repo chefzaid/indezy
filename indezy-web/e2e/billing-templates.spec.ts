@@ -44,8 +44,17 @@ for (const language of ['en', 'fr']) {
       });
       const starter = page.waitForEvent('download');
       await section.locator('[data-billing-template-starter="QUOTE"]').click();
+      await page.locator('[data-billing-starter-layout="QUOTE-MODERN"]').click();
       expect((await starter).suggestedFilename()).toBe(language === 'en' ? 'quote-template.docx' : 'modele-devis.docx');
       expect(starterUrl).toContain(language === 'en' ? 'language=EN' : 'language=FR');
+      expect(starterUrl).toContain('theme=MODERN');
+      // The same, filled with a sample.
+      await page.route('**/api/users/billing/templates/QUOTE/example**', route =>
+        route.fulfill({ body: 'PK', contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
+      const example = page.waitForEvent('download');
+      await section.locator('[data-billing-template-starter="QUOTE"]').click();
+      await page.locator('[data-billing-starter-example="QUOTE"]').click();
+      expect((await example).suggestedFilename()).toBe(language === 'en' ? 'quote-example.docx' : 'exemple-devis.docx');
       await section.locator('[data-billing-placeholders] summary').click();
       await expect(section.locator('[data-billing-placeholders] li')).toHaveCount(PLACEHOLDERS.length);
       const audit = await new AxeBuilder({ page }).include('[data-billing-templates]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

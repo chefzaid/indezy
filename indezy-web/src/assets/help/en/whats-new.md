@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Word templates in three layouts, and a filled example
+
+**Download a template to start from** now offers the Simple, Modern and Classic layouts, and a filled example to see the result before editing. See [Document templates](/help/document-templates).
+
 ### Deal-breakers on every offer
 
 The feed's cards flag in red what can rule an offer out: on site every day, a rate under your target, beyond your commute, a start before you are free, portage required or a permanent job. See [The offer feed](/help/offers).

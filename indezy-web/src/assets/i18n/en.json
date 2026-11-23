@@ -5485,6 +5485,9 @@
       "vatExempt": "Starts a part shown only when VAT does not apply",
       "not_vatExempt": "Starts a part shown only when VAT applies",
       "vatExemptEnd": "Ends that part"
-    }
+    },
+    "starterOwn": "In my documents' layout",
+    "starterLayout": "{{layout}} layout",
+    "starterExample": "A filled example"
   }
 }

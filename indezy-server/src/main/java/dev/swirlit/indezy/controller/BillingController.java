@@ -108,15 +108,27 @@ public class BillingController {
         return templates.upload(workspace(), kind, file.getOriginalFilename(), file.getBytes());
     }
 
-    @Operation(summary = "A Word template to start from: the built-in layout with every placeholder in place",
-        description = "In the documents' font, accent colour and footer; FR or EN labels")
+    @Operation(summary = "A Word template to start from: a built-in layout with every placeholder in place",
+        description = "In the documents' font, accent colour and footer, in their layout or the one given (SIMPLE, MODERN, CLASSIC); FR or EN labels")
     @GetMapping("/templates/{kind}/starter")
     public org.springframework.http.ResponseEntity<byte[]> starterTemplate(@PathVariable DocumentTemplateKind kind,
-                                                                          @RequestParam(defaultValue = "FR") dev.swirlit.indezy.model.enums.DocumentLanguage language) {
+                                                                          @RequestParam(defaultValue = "FR") dev.swirlit.indezy.model.enums.DocumentLanguage language,
+                                                                          @RequestParam(required = false) dev.swirlit.indezy.model.enums.DocumentTheme theme) {
         boolean english = language == dev.swirlit.indezy.model.enums.DocumentLanguage.EN;
         String name = kind == DocumentTemplateKind.QUOTE ? (english ? "quote-template.docx" : "modele-devis.docx") :
             (english ? "invoice-template.docx" : "modele-facture.docx");
-        return PdfResponses.attachment(name, PdfResponses.DOCX, billing.starterTemplate(workspace(), kind, language));
+        return PdfResponses.attachment(name, PdfResponses.DOCX, billing.starterTemplate(workspace(), kind, language, theme));
+    }
+
+    @Operation(summary = "The template to start from, filled with a sample document numbered and dated today")
+    @GetMapping("/templates/{kind}/example")
+    public org.springframework.http.ResponseEntity<byte[]> starterExample(@PathVariable DocumentTemplateKind kind,
+                                                                         @RequestParam(defaultValue = "FR") dev.swirlit.indezy.model.enums.DocumentLanguage language,
+                                                                         @RequestParam(required = false) dev.swirlit.indezy.model.enums.DocumentTheme theme) {
+        boolean english = language == dev.swirlit.indezy.model.enums.DocumentLanguage.EN;
+        String name = kind == DocumentTemplateKind.QUOTE ? (english ? "quote-example.docx" : "exemple-devis.docx") :
+            (english ? "invoice-example.docx" : "exemple-facture.docx");
+        return PdfResponses.attachment(name, PdfResponses.DOCX, billing.starterExample(workspace(), kind, language, theme));
     }
 
     @Operation(summary = "Go back to the built-in layout for the Word copies of the invoices or of the quotes")

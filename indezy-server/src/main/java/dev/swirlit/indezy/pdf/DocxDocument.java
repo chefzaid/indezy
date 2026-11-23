@@ -35,11 +35,15 @@ final class DocxDocument {
     record Run(String text, boolean bold, int size, String color) {
     }
 
-    /** A table cell: its paragraphs' runs, one list per paragraph, aligned. */
-    record Cell(List<List<Run>> paragraphs, Align align) {
+    /** A table cell: its paragraphs' runs, one list per paragraph, aligned, filled with a colour as {@code RRGGBB} or not. */
+    record Cell(List<List<Run>> paragraphs, Align align, String fill) {
 
         Cell {
             paragraphs = List.copyOf(paragraphs.stream().map(List::copyOf).toList());
+        }
+
+        Cell(List<List<Run>> paragraphs, Align align) {
+            this(paragraphs, align, null);
         }
     }
 
@@ -61,6 +65,12 @@ final class DocxDocument {
 
     void paragraph(String text, boolean bold, int size, Align align) {
         paragraph(List.of(new Run(text, bold, size, null)), align, 60);
+    }
+
+    /** A thin line across the page, in the colour given as {@code RRGGBB} or grey. */
+    void rule(String color) {
+        body.append("<w:p><w:pPr><w:pBdr><w:bottom w:val=\"single\" w:sz=\"6\" w:space=\"1\" w:color=\"")
+            .append(color == null ? "808080" : color).append("\"/></w:pBdr><w:spacing w:after=\"120\"/></w:pPr></w:p>");
     }
 
     /** A page break: what follows starts a new page. */
@@ -98,8 +108,11 @@ final class DocxDocument {
                 if (first || last) {
                     body.append("<w:tcBorders><w:bottom w:val=\"single\" w:sz=\"8\" w:space=\"0\" w:color=\"").append(line).append("\"/></w:tcBorders>");
                 }
-                body.append("</w:tcPr>");
                 Cell cell = cells.get(column);
+                if (cell.fill() != null) {
+                    body.append("<w:shd w:val=\"clear\" w:color=\"auto\" w:fill=\"").append(cell.fill()).append("\"/>");
+                }
+                body.append("</w:tcPr>");
                 if (cell.paragraphs().isEmpty()) {
                     body.append("<w:p/>");
                 }

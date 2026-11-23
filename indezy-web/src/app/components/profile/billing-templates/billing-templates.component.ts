@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject }
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DocumentTemplate, DocumentTemplateKind } from '../../../models';
-import { BillingService } from '../../../services/billing/billing.service';
+import { BillingService, DocumentLayout } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { copyExtension, saveBlob } from '../../../shared/utils/download-file';
 
@@ -15,7 +16,7 @@ import { copyExtension, saveBlob } from '../../../shared/utils/download-file';
  */
 @Component({
   selector: 'app-billing-templates',
-  imports: [MatButtonModule, MatIconModule, RouterLink, TranslateModule],
+  imports: [MatButtonModule, MatIconModule, MatMenuModule, RouterLink, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="templates" aria-labelledby="billing-templates-title" data-billing-templates>
@@ -43,9 +44,22 @@ import { copyExtension, saveBlob } from '../../../shared/utils/download-file';
             <button mat-stroked-button type="button" (click)="file.click()" [disabled]="busy" [attr.data-billing-template-upload]="kind">
               <mat-icon>upload_file</mat-icon>{{ (template(kind) ? 'billingTemplates.replace' : 'billingTemplates.upload') | translate }}
             </button>
-            <button mat-button type="button" (click)="starter(kind)" [attr.data-billing-template-starter]="kind">
+            <button mat-button type="button" [matMenuTriggerFor]="starterMenu" [attr.data-billing-template-starter]="kind">
               <mat-icon>download</mat-icon>{{ 'billingTemplates.starter' | translate }}
             </button>
+            <mat-menu #starterMenu="matMenu">
+              <button mat-menu-item type="button" (click)="starter(kind)" [attr.data-billing-starter-layout]="kind + '-OWN'">
+                {{ 'billingTemplates.starterOwn' | translate }}
+              </button>
+              @for (layout of layouts; track layout) {
+                <button mat-menu-item type="button" (click)="starter(kind, layout)" [attr.data-billing-starter-layout]="kind + '-' + layout">
+                  {{ 'billingTemplates.starterLayout' | translate:{ layout: ('profile.billing.themes.' + layout | translate) } }}
+                </button>
+              }
+              <button mat-menu-item type="button" (click)="starterExample(kind)" [attr.data-billing-starter-example]="kind">
+                <mat-icon>description</mat-icon>{{ 'billingTemplates.starterExample' | translate }}
+              </button>
+            </mat-menu>
             @if (template(kind)) {
               <button mat-button type="button" (click)="preview(kind)" [attr.data-billing-template-preview]="kind">
                 <mat-icon>visibility</mat-icon>{{ 'billingTemplates.preview' | translate }}
@@ -166,12 +180,24 @@ export class BillingTemplatesComponent implements OnInit {
     });
   }
 
-  /** Downloads a Word template to start from, in the app's language: the built-in layout with its placeholders in place. */
-  starter(kind: DocumentTemplateKind): void {
+  readonly layouts: DocumentLayout[] = ['SIMPLE', 'MODERN', 'CLASSIC'];
+
+  /** Downloads a Word template to start from, in the app's language: a built-in layout with its placeholders in place. */
+  starter(kind: DocumentTemplateKind, layout?: DocumentLayout): void {
     const english = this.translate.getCurrentLang() === 'en';
-    this.billing.starterTemplate(kind, english ? 'EN' : 'FR').subscribe({
+    this.billing.starterTemplate(kind, english ? 'EN' : 'FR', layout).subscribe({
       next: blob => saveBlob(blob, kind === 'INVOICE' ? (english ? 'invoice-template.docx' : 'modele-facture.docx') :
         (english ? 'quote-template.docx' : 'modele-devis.docx')),
+      error: () => this.notifications.error('billingTemplates.previewError')
+    });
+  }
+
+  /** Downloads the template to start from filled with a sample document, to see what it becomes once uploaded. */
+  starterExample(kind: DocumentTemplateKind): void {
+    const english = this.translate.getCurrentLang() === 'en';
+    this.billing.starterExample(kind, english ? 'EN' : 'FR').subscribe({
+      next: blob => saveBlob(blob, kind === 'INVOICE' ? (english ? 'invoice-example.docx' : 'exemple-facture.docx') :
+        (english ? 'quote-example.docx' : 'exemple-devis.docx')),
       error: () => this.notifications.error('billingTemplates.previewError')
     });
   }

@@ -1441,7 +1441,7 @@ start from** (`GET /api/users/billing/templates/{INVOICE|QUOTE}/starter?language
 built-in layout as a `.docx` in the documents' font, accent colour (the quotes' own for a quote) and footer, every
 placeholder in place (the logo, the seller and client, the number and dates, a lines table row between `{{#lines}}` and
 `{{/lines}}`, the totals with the VAT only `{{^vatExempt}}`, the mentions, notes and, on quotes, the acceptance and a
-signature box), in the **Order of the body** set (the signature box left out when it is): uploaded back as it is, it leaves nothing unknown nor missing.
+signature box), in the **Order of the body** set (the signature box left out when it is): uploaded back as it is, it leaves nothing unknown nor missing. Its menu offers the documents' own layout or one of the three (`&theme=SIMPLE|MODERN|CLASSIC`: the modern one with a band of the accent colour across the top holding the logo and the title in white, the table header and the amount due filled with it; the classic one in a serif font, the logo centred, a rule under the heading and the mentions framed), and **A filled example** (`GET /api/users/billing/templates/{kind}/example`), the template filled with a sample numbered and dated today.
 
 A **fillable PDF form** goes in the same place instead of a `.docx` (`PdfFormTemplate`, read by its `%PDF` start): its
 fields are named after the placeholders, a field `number` inside a field `invoice` or a flat `invoice_number`, a line's

@@ -8,6 +8,17 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.enums.DocumentFont;
 import dev.swirlit.indezy.model.enums.BodyBlock;
 import dev.swirlit.indezy.model.enums.DocumentTheme;
+import dev.swirlit.indezy.model.Invoice;
+import dev.swirlit.indezy.model.InvoiceLine;
+import dev.swirlit.indezy.model.InvoiceSeller;
+import dev.swirlit.indezy.model.Quote;
+import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DocumentTemplateKind;
+import dev.swirlit.indezy.model.enums.InvoiceStatus;
+import dev.swirlit.indezy.model.enums.QuoteStatus;
+import dev.swirlit.indezy.pdf.InvoicePdfRenderer;
+import dev.swirlit.indezy.pdf.QuotePdfRenderer;
+import dev.swirlit.indezy.pdf.StarterTemplate;
 import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
@@ -17,6 +28,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.time.LocalDate;
+import java.time.Clock;
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,6 +46,9 @@ public class BillingIdentityService {
     static final String DEFAULT_PREFIX = "F";
 
     private final FreelanceRepository freelances;
+    private final InvoicePdfRenderer invoicePdf;
+    private final QuotePdfRenderer quotePdf;
+    private final Clock clock;
 
     @Transactional(readOnly = true)
     public BillingIdentityDto get(Long freelanceId) {
@@ -103,11 +121,51 @@ public class BillingIdentityService {
 
     /** A Word template to start from, in the style the documents of that kind take today (see {@link dev.swirlit.indezy.pdf.StarterTemplate}). */
     @Transactional(readOnly = true)
-    public byte[] starterTemplate(Long freelanceId, dev.swirlit.indezy.model.enums.DocumentTemplateKind kind,
-                                  dev.swirlit.indezy.model.enums.DocumentLanguage language) {
+    public byte[] starterTemplate(Long freelanceId, DocumentTemplateKind kind, DocumentLanguage language) {
+        return starterTemplate(freelanceId, kind, language, null);
+    }
+
+    /** The starter template in one of the built-in layouts; null for the documents' own. */
+    @Transactional(readOnly = true)
+    public byte[] starterTemplate(Long freelanceId, DocumentTemplateKind kind, DocumentLanguage language, DocumentTheme theme) {
+        return StarterTemplate.write(kind, language, sellerOf(freelanceId, kind), theme);
+    }
+
+    /**
+     * The starter template filled with a sample document numbered and dated today, in the language given: what the
+     * template becomes once uploaded, to see before editing it.
+     */
+    @Transactional(readOnly = true)
+    public byte[] starterExample(Long freelanceId, DocumentTemplateKind kind, DocumentLanguage language, DocumentTheme theme) {
+        InvoiceSeller seller = sellerOf(freelanceId, kind);
+        byte[] starter = StarterTemplate.write(kind, language, seller, theme);
+        boolean english = language == DocumentLanguage.EN;
+        List<InvoiceLine> lines = List.of(new InvoiceLine(english ? "Consulting (example)" : "Prestation de conseil (exemple)",
+            BigDecimal.valueOf(5), BigDecimal.valueOf(600), BigDecimal.valueOf(20)));
+        LocalDate today = LocalDate.now(clock);
+        if (kind == DocumentTemplateKind.QUOTE) {
+            Quote quote = new Quote();
+            quote.setLanguage(language);
+            quote.setStatus(QuoteStatus.SENT);
+            quote.setNumber("D" + today.getYear() + "-0001");
+            quote.setIssueDate(today);
+            quote.setLines(lines);
+            BillingIdentityDto identity = toDto(freelance(freelanceId));
+            return quotePdf.renderDocx(quote, seller, InvoiceService.sampleBuyer(), identity.paymentTermDays(), null, false, starter);
+        }
+        Invoice invoice = new Invoice();
+        invoice.setLanguage(language);
+        invoice.setStatus(InvoiceStatus.ISSUED);
+        invoice.setNumber(DEFAULT_PREFIX + today.getYear() + "-0001");
+        invoice.setIssueDate(today);
+        invoice.setDueDate(today.plusDays(DEFAULT_PAYMENT_TERM_DAYS));
+        invoice.setLines(lines);
+        return invoicePdf.renderDocx(invoice, seller, InvoiceService.sampleBuyer(), starter);
+    }
+
+    private InvoiceSeller sellerOf(Long freelanceId, DocumentTemplateKind kind) {
         BillingIdentityDto identity = toDto(freelance(freelanceId));
-        return dev.swirlit.indezy.pdf.StarterTemplate.write(kind, language, kind == dev.swirlit.indezy.model.enums.DocumentTemplateKind.QUOTE ?
-            InvoiceService.quoteSeller(identity) : InvoiceService.seller(identity));
+        return kind == DocumentTemplateKind.QUOTE ? InvoiceService.quoteSeller(identity) : InvoiceService.seller(identity);
     }
 
     /** The identity as invoices use it, the defaults filled in. */

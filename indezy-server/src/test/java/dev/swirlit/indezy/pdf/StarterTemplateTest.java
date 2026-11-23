@@ -58,4 +58,31 @@ class StarterTemplateTest {
         assertThat(document.indexOf("{{notes}}")).isNotNegative().isLessThan(document.indexOf("{{#lines}}"));
         assertThat(document.indexOf("{{totals.toPay}}")).isLessThan(document.indexOf("{{mentions}}"));
     }
+
+    @Test
+    void writesEachBuiltInLayoutWithItsPlaceholdersFound() throws IOException {
+        for (dev.swirlit.indezy.model.enums.DocumentTheme theme : dev.swirlit.indezy.model.enums.DocumentTheme.values()) {
+            InvoiceSeller seller = DocxTemplateTest.seller();
+            seller.setAccentColor("#1F4E79");
+            byte[] starter = StarterTemplate.write(DocumentTemplateKind.INVOICE, DocumentLanguage.FR, seller, theme);
+            DocxTemplate.Analysis analysis = DocxTemplate.analyse(starter);
+            assertThat(analysis.unknown()).as(theme.name()).isEmpty();
+            assertThat(analysis.missing()).as(theme.name()).isEmpty();
+            String document = new String(BillingDocxTest.parts(starter).get("word/document.xml"), java.nio.charset.StandardCharsets.UTF_8);
+            String styles = new String(BillingDocxTest.parts(starter).get("word/styles.xml"), java.nio.charset.StandardCharsets.UTF_8);
+            switch (theme) {
+                // The band, the table header and the amount due filled with the accent colour, the words on it in white.
+                case MODERN -> assertThat(document).contains("w:fill=\"1F4E79\"", "<w:color w:val=\"FFFFFF\"/>");
+                // A serif font, a rule under the heading and the mentions framed.
+                case CLASSIC -> {
+                    assertThat(styles).contains("Liberation Serif");
+                    assertThat(document).contains("<w:pBdr>", "<w:tblBorders>").doesNotContain("w:fill=");
+                }
+                default -> assertThat(document).doesNotContain("w:fill=", "<w:pBdr>");
+            }
+            String filled = BillingDocxTest.text(BillingDocxTest.parts(DocxTemplate.fill(starter,
+                new InvoicePage(null, DocxTemplateTest.invoice(), seller, DocxTemplateTest.buyer()), null)));
+            assertThat(filled).as(theme.name()).contains("Facture", "N° F2026-0007", "Net à payer : 14 574,00 €").doesNotContain("{{");
+        }
+    }
 }

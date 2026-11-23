@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les modèles Word en trois mises en page, et un exemple rempli
+
+**Télécharger un modèle de départ** propose désormais les mises en page Simple, Moderne et Classique, et un exemple rempli pour voir le résultat avant de le modifier. Voir [Modèles de documents](/help/document-templates).
+
 ### Les points rédhibitoires sur chaque offre
 
 Les cartes du fil signalent en rouge ce qui peut écarter une offre : sur site tous les jours, un TJM sous votre objectif, au-delà de votre trajet, un démarrage avant votre disponibilité, le portage obligatoire ou un poste en CDI. Voir [Le flux d'offres](/help/offers).

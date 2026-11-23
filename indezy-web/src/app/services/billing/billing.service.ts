@@ -5,6 +5,9 @@ import { environment } from '../../../environments/environment';
 import { BillingIdentity, DocumentTemplate, DocumentTemplateKind } from '../../models';
 
 /** The seller's identity on the signed-in workspace's invoices. */
+/** A built-in layout of the documents. */
+export type DocumentLayout = 'SIMPLE' | 'MODERN' | 'CLASSIC';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -72,12 +75,21 @@ export class BillingService {
     return this.http.post<DocumentTemplate>(`${this.API_URL}/templates/${kind}`, form);
   }
 
-  /** The template filled with the latest invoice or quote, or a sample one before the first. */
-  /** A Word template to start from: the built-in layout with every placeholder in place, labels in the language given. */
-  starterTemplate(kind: DocumentTemplateKind, language: 'FR' | 'EN'): Observable<Blob> {
-    return this.http.get(`${environment.apiUrl}/users/billing/templates/${kind}/starter`, { params: { language }, responseType: 'blob' });
+  /**
+   * A Word template to start from: a built-in layout (the documents' own without one) with every placeholder in place,
+   * labels in the language given.
+   */
+  starterTemplate(kind: DocumentTemplateKind, language: 'FR' | 'EN', theme?: DocumentLayout): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/users/billing/templates/${kind}/starter`,
+      { params: theme ? { language, theme } : { language }, responseType: 'blob' });
   }
 
+  /** The template to start from, filled with a sample document numbered and dated today. */
+  starterExample(kind: DocumentTemplateKind, language: 'FR' | 'EN'): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/users/billing/templates/${kind}/example`, { params: { language }, responseType: 'blob' });
+  }
+
+  /** The template filled with the latest invoice or quote, or a sample one before the first. */
   templatePreview(kind: DocumentTemplateKind): Observable<Blob> {
     return this.http.get(`${environment.apiUrl}/${kind === 'INVOICE' ? 'invoices' : 'quotes'}/template-preview`, { responseType: 'blob' });
   }

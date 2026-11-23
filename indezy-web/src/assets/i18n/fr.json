@@ -5485,6 +5485,9 @@
       "vatExempt": "Ouvre une partie montrée seulement en franchise de TVA",
       "not_vatExempt": "Ouvre une partie montrée seulement avec la TVA",
       "vatExemptEnd": "Ferme cette partie"
-    }
+    },
+    "starterOwn": "Dans la mise en page de mes documents",
+    "starterLayout": "Mise en page {{layout}}",
+    "starterExample": "Un exemple rempli"
   }
 }

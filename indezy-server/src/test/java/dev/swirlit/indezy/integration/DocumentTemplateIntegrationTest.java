@@ -90,6 +90,21 @@ class DocumentTemplateIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(uploaded.getBody()).containsEntry("unknown", List.of()).containsEntry("missing", List.of());
         assertThat(call(alice, HttpMethod.GET, "/users/billing/templates/QUOTE/starter?language=EN", null, byte[].class).getHeaders()
             .getContentDisposition().getFilename()).isEqualTo("quote-template.docx");
+        ResponseEntity<byte[]> modern = call(alice, HttpMethod.GET, "/users/billing/templates/INVOICE/starter?language=FR&theme=MODERN", null,
+            byte[].class);
+        assertThat(new String(dev.swirlit.indezy.pdf.BillingDocxTest.parts(modern.getBody()).get("word/document.xml"),
+            java.nio.charset.StandardCharsets.UTF_8)).contains("w:fill=");
+
+        // The filled example: a sample numbered and dated today, nothing left to fill.
+        ResponseEntity<byte[]> example = call(alice, HttpMethod.GET, "/users/billing/templates/QUOTE/example?language=EN&theme=CLASSIC", null,
+            byte[].class);
+        assertThat(example.getHeaders().getContentDisposition().getFilename()).isEqualTo("quote-example.docx");
+        assertThat(dev.swirlit.indezy.pdf.BillingDocxTest.text(dev.swirlit.indezy.pdf.BillingDocxTest.parts(example.getBody())))
+            .contains("Quote", "No. D" + java.time.LocalDate.now().getYear() + "-0001", "Consulting (example)", "Client exemple", "Amount due: ")
+            .doesNotContain("{{");
+        assertThat(dev.swirlit.indezy.pdf.BillingDocxTest.text(dev.swirlit.indezy.pdf.BillingDocxTest.parts(call(alice, HttpMethod.GET,
+            "/users/billing/templates/INVOICE/example?language=FR", null, byte[].class).getBody()))).contains("Facture", "Prestation de conseil (exemple)")
+            .doesNotContain("{{");
     }
 
     private ResponseEntity<Map> upload(String kind, String name, byte[] content) {
