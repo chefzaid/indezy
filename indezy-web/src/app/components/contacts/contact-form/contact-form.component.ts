@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -32,6 +33,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatCheckboxModule,
     MatProgressSpinnerModule,
     TranslateModule
 ],
@@ -106,7 +108,8 @@ export class ContactFormComponent implements OnInit, OnDestroy {
       clientId: [null, [Validators.required]],
       managerId: [null],
       notes: [''],
-      legalBasis: ['LEGITIMATE_INTEREST']
+      legalBasis: ['LEGITIMATE_INTEREST'],
+      doNotContact: [false]
     });
   }
 
@@ -159,7 +162,8 @@ export class ContactFormComponent implements OnInit, OnDestroy {
               clientId: contact.clientId,
               managerId: contact.managerId ?? null,
               notes: contact.notes,
-              legalBasis: contact.legalBasis ?? 'LEGITIMATE_INTEREST'
+              legalBasis: contact.legalBasis ?? 'LEGITIMATE_INTEREST',
+              doNotContact: contact.doNotContact ?? false
             });
           } else {
             this.notificationService.error('errors.contactNotFound');
@@ -190,6 +194,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
         phone: formValue.phone?.trim() || null,
         notes: formValue.notes?.trim() || null,
         legalBasis: formValue.legalBasis,
+        doNotContact: !!formValue.doNotContact,
         clientId: formValue.clientId,
         managerId: formValue.managerId ?? null,
         freelanceId: this.loadedContact?.freelanceId ?? this.authService.getUser()?.id

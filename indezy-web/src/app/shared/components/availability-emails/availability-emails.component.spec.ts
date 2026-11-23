@@ -9,9 +9,9 @@ import { AvailabilityEmailsComponent } from './availability-emails.component';
 
 describe('AvailabilityEmailsComponent', () => {
   const lea: AvailabilityRecipient = { id: 1, firstName: 'Léa', name: 'Léa Martin', company: 'Conseil', email: 'lea@conseil.example', answers: 3,
-    lastContactedOn: '2026-08-01' };
+    lastContactedOn: '2026-08-01', postings: 0 };
   const marc: AvailabilityRecipient = { id: 2, firstName: null, name: 'Marc Durand', company: 'Autre', email: 'marc@autre.example', answers: 0,
-    lastContactedOn: null };
+    lastContactedOn: null, postings: 2 };
 
   function create(recipients = of([lea, marc])) {
     const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail']);
@@ -44,6 +44,9 @@ describe('AvailabilityEmailsComponent', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-availability-recipient="1"]')!.textContent)
       .toContain('availabilityEmails.answers');
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-availability-recipient="2"] [data-recipient-postings]')!.textContent)
+      .toContain('availabilityEmails.postings');
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-availability-recipient="1"] [data-recipient-postings]')).toBeNull();
 
     component.send();
     expect(contacts.sendEmail).not.toHaveBeenCalled();

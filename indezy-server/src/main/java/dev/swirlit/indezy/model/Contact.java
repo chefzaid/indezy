@@ -43,6 +43,10 @@ public class Contact extends BaseEntity {
     @Column(name = "legal_basis", length = 30)
     private ContactLegalBasis legalBasis = ContactLegalBasis.LEGITIMATE_INTEREST;
 
+    /** The contact asked not to be prospected: never offered in an announcement again. Null reads as false. */
+    @Column(name = "do_not_contact")
+    private Boolean doNotContact;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;

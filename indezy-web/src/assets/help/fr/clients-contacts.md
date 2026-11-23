@@ -76,6 +76,7 @@ Ces liens vont dans les deux sens, souvent entre un client et son ESN. L'onglet 
 Vous êtes responsable des données de vos contacts ; Indezy les garde pour vous. La carte **Ses données** d'un contact propose :
 
 - **Pourquoi vous gardez ses coordonnées** : **Intérêt légitime** (par défaut), **Consentement** ou **Contrat** ;
+- **A demandé à ne pas être contacté**, à cocher sur sa fiche quand la personne s'oppose à la prospection : elle n'est plus jamais proposée dans **Écrire à mes contacts ESN** ;
 - **Télécharger ses données** : un fichier JSON de ce que votre espace garde sur lui ;
 - **Effacer à sa demande** : le contact disparaît avec ses échanges et ses liens.
 

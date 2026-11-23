@@ -110,6 +110,9 @@
               <div class="info-label">{{ 'contacts.privacy.legalBasis' | translate }}</div>
               <div class="info-value" data-legal-basis>{{ 'contacts.privacy.bases.' + (contact.legalBasis ?? 'LEGITIMATE_INTEREST') | translate }}</div>
             </div>
+            @if (contact.doNotContact) {
+              <p class="privacy-hint" data-do-not-contact>{{ 'contacts.privacy.doNotContactShown' | translate }}</p>
+            }
             @if (contact.anonymizedAt) {
               <p class="privacy-hint" data-anonymized>{{ 'contacts.privacy.anonymizedOn' | translate:{ date: (contact.anonymizedAt | date:'longDate') } }}</p>
             }

@@ -153,6 +153,7 @@ describe('ContactDetailComponent', () => {
     it('shows why their data is kept and downloads it', () => {
       const fixture = create(of({ ...alice, legalBasis: 'CONSENT' }));
       expect(fixture.nativeElement.querySelector('[data-legal-basis]').textContent).toContain('contacts.privacy.bases.CONSENT');
+      expect(fixture.nativeElement.querySelector('[data-do-not-contact]')).toBeNull();
       const link = document.createElement('a');
       spyOn(document, 'createElement').and.returnValue(link);
       spyOn(link, 'click');
@@ -175,6 +176,11 @@ describe('ContactDetailComponent', () => {
 
     it('reads legitimate interest when no basis is given', () => {
       expect(create().nativeElement.querySelector('[data-legal-basis]').textContent).toContain('contacts.privacy.bases.LEGITIMATE_INTEREST');
+    });
+
+    it('says when the contact asked not to be contacted', () => {
+      expect(create(of({ ...alice, doNotContact: true })).nativeElement.querySelector('[data-do-not-contact]').textContent)
+        .toContain('contacts.privacy.doNotContactShown');
     });
 
     it('erases the contact once confirmed, and says when it cannot', () => {

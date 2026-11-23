@@ -31,7 +31,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       network: en ? 'Free on 1 February.' : 'Dispo le 1er février.', availableFrom: '2027-02-01' } }));
     await page.route('**/api/contacts/emails/availability-recipients', route => route.fulfill({ json: [
       { id: 7, firstName: 'Léa', name: 'Léa Martin', company: 'Conseil Exemple', email: 'lea@conseil.example', answers: 2,
-        lastContactedOn: '2026-08-01' }] }));
+        lastContactedOn: '2026-08-01', postings: 3 }] }));
     const emails: Record<string, unknown>[] = [];
     await page.route('**/api/contacts/7/emails', route => {
       emails.push(route.request().postDataJSON());
@@ -60,6 +60,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const emailsAudit = await new AxeBuilder({ page }).include('[data-availability-emails]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(emailsAudit.violations.map(violation => violation.id)).toEqual([]);
     await expect(dialog.locator('[data-availability-emails-send]')).toBeDisabled();
+    await expect(dialog.locator('[data-availability-recipient="7"] [data-recipient-postings]'))
+      .toHaveText(en ? 'posted 3 matching missions lately' : 'a publié 3 missions pour vous récemment');
     await dialog.locator('[data-availability-recipient="7"] input').check();
     await dialog.locator('[data-availability-emails-send]').click();
     await expect.poll(() => emails.length).toBe(1);

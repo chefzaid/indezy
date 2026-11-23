@@ -927,10 +927,12 @@ Resend refuses it. **Send me a copy** (on by default) sends the freelancer the s
 `dossier: true` the [dossier de compétences](#dossier-de-competences) (named, in the email's language) goes attached.
 
 **Email my ESN contacts**, in **Announce my availability (AI)** on the week's goal, lists the contacts with an address at
-the ESNs the workspace had an opportunity with, as the ESN or the client, or whose contacts answered it before
-(`GET /api/contacts/emails/availability-recipients`, end clients and blacklisted companies left out, and anyone in touch
-in the last six weeks), those who answered or wrote most first with how many times, then by company and name, none
-ticked at first. The subject and message are written from the availability date and the network post when the section
+the ESNs the workspace had an opportunity with, as the ESN or the client, whose contacts answered it before, or that
+published offers in the feed in the last 60 days naming one of the profile's skills (their name matched whatever its
+spelling, `postings` the count) (`GET /api/contacts/emails/availability-recipients`, end clients and blacklisted
+companies left out, anyone in touch in the last six weeks, and anyone marked **Asked not to be contacted**), those who
+answered or wrote most first with how many times, then those posting most ("posted 3 matching missions lately"), then
+by company and name, none ticked at first. The subject and message are written from the availability date and the network post when the section
 opens, `{{firstName}}` and `{{company}}` replaced by each contact's; **Send to N contacts** sends one email each, one after the other, with the dossier attached unless unticked,
 each recorded in the contact's exchanges and counted in the 50 a day; those that could not go are named and stay ticked.
 
@@ -1026,7 +1028,9 @@ The client's **Contacts** tab draws the **Org chart**, with each person's links 
 ### Contact Privacy
 
 The freelancer is the controller of their contacts' personal data; Indezy keeps it on their behalf. A contact's **Their
-data** card shows the legal basis (legitimate interest by default, consent or contract), **Download their data** (a
+data** card shows the legal basis (legitimate interest by default, consent or contract), **Asked not to be contacted**
+(`doNotContact`, ticked on the contact's form when they object to prospecting, in their data download; such a contact is
+never offered in **Email my ESN contacts**), **Download their data** (a
 JSON file of what the workspace holds about them, without other people's names) and **Erase on their request** (the
 contact goes with their exchanges and links). Both requests are recorded in the account's activity by the contact's
 number only. The `{{privacyNotice}}` email variable tells a recipient who keeps their details, why, and how to see,

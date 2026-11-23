@@ -13,7 +13,7 @@ import java.util.List;
  * since when they are kept, the exchanges with them and the notes on whom they work with. Others' names are left out.
  */
 public record ContactPersonalDataDto(String keptBy, LocalDate exportedOn, String firstName, String lastName, String email, String phone,
-                                     String company, String notes, ContactLegalBasis legalBasis, LocalDateTime keptSince,
+                                     String company, String notes, ContactLegalBasis legalBasis, boolean doNotContact, LocalDateTime keptSince,
                                      LocalDateTime lastChanged, List<Exchange> exchanges, List<Link> worksWith) {
 
     public ContactPersonalDataDto {

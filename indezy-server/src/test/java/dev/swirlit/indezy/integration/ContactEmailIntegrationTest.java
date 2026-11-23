@@ -3,7 +3,12 @@ package dev.swirlit.indezy.integration;
 import dev.swirlit.indezy.mail.Email;
 import dev.swirlit.indezy.mail.MailException;
 import dev.swirlit.indezy.mail.ResendMailer;
+import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.enums.OfferDatePrecision;
+import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.repository.JobOfferRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +37,9 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
 
     @MockitoBean
     private ResendMailer mailer;
+
+    @Autowired
+    private JobOfferRepository offers;
 
     private ResponseEntity<byte[]> pixel(String token) {
         return exchange("/public/emails/" + token + ".gif", HttpMethod.GET, HttpEntity.EMPTY, byte[].class);
@@ -177,5 +185,59 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
             assertThat(file.fileName()).endsWith(".pdf");
             assertThat(new String(file.content(), 0, 5, java.nio.charset.StandardCharsets.US_ASCII)).isEqualTo("%PDF-");
         });
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void addsTheEsnsPostingMissionsForTheProfileAndLeavesOutWhoeverAskedNotToBeContacted() {
+        Map<String, Object> profile = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        profile.put("skills", List.of("Java", "Kafka"));
+        call(alice, HttpMethod.PUT, "/users/profile", profile, Map.class);
+        long hiring = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Nouvelle ESN", "city", "Lyon", "isFinal", false,
+            "freelanceId", alice.freelanceId()), Map.class));
+        long other = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "ESN Python", "city", "Lyon", "isFinal", false,
+            "freelanceId", alice.freelanceId()), Map.class));
+        long sam = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Sam", "lastName", "Recrute", "email", "sam@nouvelle.example",
+            "clientId", hiring), Map.class));
+        long noe = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Noé", "lastName", "Refuse", "email", "noe@nouvelle.example",
+            "clientId", hiring, "doNotContact", true), Map.class));
+        call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Ana", "lastName", "Python", "email", "ana@python.example",
+            "clientId", other), Map.class);
+        java.time.Instant now = java.time.Instant.now();
+        List<JobOffer> saved = offers.saveAll(List.of(offer("NOUVELLE-esn", List.of("Java"), now.minus(java.time.Duration.ofDays(3))),
+            offer("Nouvelle ESN", List.of("Kafka", "Java"), now.minus(java.time.Duration.ofDays(20))),
+            offer("Nouvelle ESN", List.of("Java"), now.minus(java.time.Duration.ofDays(80))),
+            offer("ESN Python", List.of("Python"), now.minus(java.time.Duration.ofDays(2)))));
+        try {
+            List<Map<String, Object>> recipients = call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody();
+            assertThat(recipients).extracting(recipient -> recipient.get("name") + " " + recipient.get("postings"))
+                .containsExactly("Sam Recrute 2");
+            assertThat(call(alice, HttpMethod.GET, "/contacts/" + noe, null, Map.class).getBody()).containsEntry("doNotContact", true);
+
+            Map<String, Object> contact = call(alice, HttpMethod.GET, "/contacts/" + noe, null, Map.class).getBody();
+            contact.put("doNotContact", false);
+            call(alice, HttpMethod.PUT, "/contacts/" + noe, contact, Map.class);
+            assertThat(call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody())
+                .extracting(recipient -> ((Map<String, Object>) recipient).get("name")).containsExactly("Noé Refuse", "Sam Recrute");
+            assertThat(sam).isPositive();
+        } finally {
+            offers.deleteAll(saved);
+        }
+    }
+
+    private static JobOffer offer(String company, List<String> skills, java.time.Instant publishedAt) {
+        JobOffer offer = new JobOffer();
+        offer.setSite(OfferSite.FREE_WORK);
+        offer.setExternalId("prospect-" + java.util.UUID.randomUUID());
+        offer.setUrl("https://www.free-work.com/fr/tech-it/job-mission/" + offer.getExternalId());
+        offer.setTitle("Développeur " + skills.getFirst());
+        offer.setCompany(company);
+        offer.setSkills(skills);
+        offer.setSearchText("developpeur");
+        offer.setPublishedAt(publishedAt);
+        offer.setDatePrecision(OfferDatePrecision.EXACT);
+        offer.setFirstSeenAt(publishedAt);
+        offer.setLastSeenAt(publishedAt);
+        return offer;
     }
 }

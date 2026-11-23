@@ -26,6 +26,8 @@ export interface ContactDto {
   notes?: string | null;
   /** Why the freelancer keeps the contact's data; omitted, legitimate interest (or unchanged). */
   legalBasis?: ContactLegalBasis;
+  /** The contact asked not to be prospected: never offered in an announcement. */
+  doNotContact?: boolean;
   /** When the contact was anonymized after the retention period; read-only. */
   anonymizedAt?: string | null;
   /** The day (yyyy-MM-dd) of the latest recorded exchange; read-only. */
@@ -92,6 +94,8 @@ export interface AvailabilityRecipient {
   /** How many times they answered or wrote. */
   answers: number;
   lastContactedOn: string | null;
+  /** How many missions naming a profile skill their company posted in the feed in the last 60 days. */
+  postings: number;
 }
 
 /** A contact's exchanges, newest first, and what they say about the relationship. */

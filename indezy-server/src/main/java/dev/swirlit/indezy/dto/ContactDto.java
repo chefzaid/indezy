@@ -28,6 +28,8 @@ public class ContactDto {
     private String notes;
     /** Why the freelancer keeps the contact's data; omitted, legitimate interest (or unchanged). */
     private ContactLegalBasis legalBasis;
+    /** The contact asked not to be prospected; omitted, unchanged (false for a new contact). */
+    private Boolean doNotContact;
 
     // Related entities
     private Long clientId;

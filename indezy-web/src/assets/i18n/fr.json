@@ -956,6 +956,8 @@
     "privacy": {
       "title": "Ses données",
       "legalBasis": "Pourquoi vous gardez ses coordonnées",
+      "doNotContact": "A demandé à ne pas être contacté (jamais proposé dans vos annonces)",
+      "doNotContactShown": "A demandé à ne pas être contacté : laissé de côté dans vos annonces.",
       "legalBasisHint": "Vous conservez les données des personnes avec qui vous travaillez : indiquez sur quelle base (RGPD). L'intérêt légitime convient aux contacts professionnels.",
       "bases": {
         "LEGITIMATE_INTEREST": "Intérêt légitime",
@@ -5208,7 +5210,7 @@
   "availabilityEmails": {
     "title": "Écrire à mes contacts ESN",
     "none": "Aucune des ESN avec qui vous avez eu une opportunité n'a de contact avec une adresse e-mail.",
-    "hint": "Les contacts des ESN avec qui vous avez eu une opportunité ou qui vous ont répondu, ceux qui ont le plus répondu d'abord ; ceux avec qui vous avez échangé ces six dernières semaines sont laissés de côté. Un e-mail chacun part d'Indezy, à votre nom avec les réponses vers vous, noté dans leurs échanges.",
+    "hint": "Les contacts des ESN avec qui vous avez eu une opportunité, qui vous ont répondu ou qui ont publié des missions pour votre profil dans le fil ces 60 derniers jours, ceux qui ont le plus répondu d'abord ; ceux avec qui vous avez échangé ces six dernières semaines, ou qui ont demandé à ne pas être contactés, sont laissés de côté. Un e-mail chacun part d'Indezy, à votre nom avec les réponses vers vous, noté dans leurs échanges.",
     "subject": "Objet",
     "body": "Message",
     "variable": "{{firstName}} et {{company}} deviennent le prénom et la société de chaque contact.",
@@ -5218,7 +5220,8 @@
     "failed": "Non envoyé à {{names}} : réessayez, ou écrivez-leur depuis votre messagerie.",
     "defaultText": "Je serai bientôt disponible pour une nouvelle mission. Avez-vous des besoins qui correspondent à mon profil ?",
     "attached": "Vous trouverez mon dossier de compétences en pièce jointe.",
-    "answers": "a répondu {{count}} fois"
+    "answers": "a répondu {{count}} fois",
+    "postings": "a publié {{count}} missions pour vous récemment"
   },
   "marketReport": {
     "title": "Baromètre des TJM freelance IT",

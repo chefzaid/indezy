@@ -8,7 +8,8 @@ for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, 'en');
     await mockWorkspaceData(page, 'en');
-    const contact = { id: 3, firstName: 'Claire', lastName: 'Martin', clientId: 1, clientName: 'Acme', freelanceId: 1, legalBasis: 'CONSENT' };
+    const contact = { id: 3, firstName: 'Claire', lastName: 'Martin', clientId: 1, clientName: 'Acme', freelanceId: 1, legalBasis: 'CONSENT',
+      doNotContact: true };
     let erased = false;
     await page.route('**/api/contacts/3', route => route.fulfill({ json: contact }));
     await page.route('**/api/contacts/3/interactions', route => route.fulfill({ json: { interactions: [], asked: 0, answered: 0 } }));
@@ -23,6 +24,7 @@ for (const width of [1280, 390]) {
     await page.goto('/contacts/3');
     const card = page.locator('[data-contact-privacy]');
     await expect(card.locator('[data-legal-basis]')).toHaveText('Consent');
+    await expect(card.locator('[data-do-not-contact]')).toHaveText('Asked not to be contacted: left out of your announcements.');
     const audit = await new AxeBuilder({ page }).include('[data-contact-privacy]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     const download = page.waitForEvent('download');

@@ -956,6 +956,8 @@
     "privacy": {
       "title": "Their data",
       "legalBasis": "Why you keep their details",
+      "doNotContact": "Asked not to be contacted (never offered in your announcements)",
+      "doNotContactShown": "Asked not to be contacted: left out of your announcements.",
       "legalBasisHint": "You keep the data of the people you work with: say on what ground (GDPR). Legitimate interest fits business contacts.",
       "bases": {
         "LEGITIMATE_INTEREST": "Legitimate interest",
@@ -5208,7 +5210,7 @@
   "availabilityEmails": {
     "title": "Email my ESN contacts",
     "none": "None of the ESNs you had an opportunity with has a contact with an email address.",
-    "hint": "The contacts of the ESNs you had an opportunity with or that answered you, those who answered most first; anyone you were in touch with in the last six weeks is left out. One email each goes from Indezy, in your name with answers to you, recorded in their exchanges.",
+    "hint": "The contacts of the ESNs you had an opportunity with, that answered you or that posted missions for your profile in the feed in the last 60 days, those who answered most first; anyone you were in touch with in the last six weeks, or who asked not to be contacted, is left out. One email each goes from Indezy, in your name with answers to you, recorded in their exchanges.",
     "subject": "Subject",
     "body": "Message",
     "variable": "{{firstName}} and {{company}} become each contact's first name and company.",
@@ -5218,7 +5220,8 @@
     "failed": "Not sent to {{names}}: try again, or write to them from your mail app.",
     "defaultText": "I will be available for a new mission soon. Do you have needs that match my profile?",
     "attached": "You will find my dossier de compétences attached.",
-    "answers": "answered {{count}}×"
+    "answers": "answered {{count}}×",
+    "postings": "posted {{count}} matching missions lately"
   },
   "marketReport": {
     "title": "IT freelance market report",

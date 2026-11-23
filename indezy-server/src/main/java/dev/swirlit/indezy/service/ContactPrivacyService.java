@@ -53,7 +53,7 @@ public class ContactPrivacyService {
         accountEvents.record(userId, AccountEventType.CONTACT_DATA_EXPORTED, "contact " + contactId);
         return new ContactPersonalDataDto(keeper(contact.getFreelance()), LocalDate.now(clock), contact.getFirstName(), contact.getLastName(),
             contact.getEmail(), contact.getPhone(), contact.getClient() == null ? null : contact.getClient().getCompanyName(),
-            contact.getNotes(), contact.getLegalBasis(), contact.getCreatedAt(), contact.getUpdatedAt(), exchanges, links);
+            contact.getNotes(), contact.getLegalBasis(), Boolean.TRUE.equals(contact.getDoNotContact()), contact.getCreatedAt(), contact.getUpdatedAt(), exchanges, links);
     }
 
     /** Erases the contact on their request: the contact, its exchanges and links go, and the request is recorded. */

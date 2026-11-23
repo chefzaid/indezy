@@ -20,6 +20,10 @@ import dev.swirlit.indezy.model.enums.InteractionDirection;
 import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.JobOfferRepository;
+import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.util.SkillNames;
+import org.springframework.beans.factory.annotation.Autowired;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -96,7 +100,19 @@ public class ContactEmailService {
      * A contact of an ESN the workspace worked with or heard from, who can be emailed: how many times they answered or
      * wrote, and when they were last in touch.
      */
-    public record Recipient(Long id, String firstName, String name, String company, String email, int answers, LocalDate lastContactedOn) {
+    public record Recipient(Long id, String firstName, String name, String company, String email, int answers, LocalDate lastContactedOn,
+                            int postings) {
+    }
+
+    /** Offers their company published this long ago at most count as missions it is hiring for. */
+    static final int POSTINGS_DAYS = 60;
+
+    private JobOfferRepository offers;
+
+    /** The feed's offers, to find the companies posting missions for the profile; without them, none is. */
+    @Autowired(required = false)
+    void setOffers(JobOfferRepository repository) {
+        this.offers = repository;
     }
 
     /** Whoever was in touch more recently than this is left out of an announcement, to not write again so soon. */
@@ -136,17 +152,52 @@ public class ContactEmailService {
             }
         }
         LocalDate recent = LocalDate.now(clock.withZone(PARIS)).minusDays(RECENT_DAYS);
-        return contacts.findByFreelanceId(freelanceId).stream()
+        List<Contact> reachable = contacts.findByFreelanceId(freelanceId).stream()
             .filter(contact -> contact.getEmail() != null && !contact.getEmail().isBlank() && contact.getAnonymizedAt() == null)
-            .filter(contact -> contact.getClient() != null && (workedWith.contains(contact.getClient().getId()) ||
-                answeringCompanies.contains(contact.getClient().getId())) &&
-                !Boolean.TRUE.equals(contact.getClient().getIsFinal()) && !Boolean.TRUE.equals(contact.getClient().getIsBlacklisted()))
+            .filter(contact -> !Boolean.TRUE.equals(contact.getDoNotContact()))
+            .filter(contact -> contact.getClient() != null && !Boolean.TRUE.equals(contact.getClient().getIsFinal()) &&
+                !Boolean.TRUE.equals(contact.getClient().getIsBlacklisted()))
             .filter(contact -> lastInTouch.get(contact.getId()) == null || lastInTouch.get(contact.getId()).isBefore(recent))
-            .map(contact -> new Recipient(contact.getId(), contact.getFirstName(), contact.getFullName(), contact.getClient().getCompanyName(),
-                contact.getEmail().strip(), answers.getOrDefault(contact.getId(), new int[1])[0], lastInTouch.get(contact.getId())))
-            .sorted(Comparator.comparingInt(Recipient::answers).reversed().thenComparing(Recipient::company, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(Recipient::name, String.CASE_INSENSITIVE_ORDER))
             .toList();
+        Map<String, Integer> postings = postings(freelanceId, reachable);
+        return reachable.stream()
+            .filter(contact -> workedWith.contains(contact.getClient().getId()) || answeringCompanies.contains(contact.getClient().getId()) ||
+                postings.containsKey(JobOffer.companyKeyOf(contact.getClient().getCompanyName())))
+            .map(contact -> new Recipient(contact.getId(), contact.getFirstName(), contact.getFullName(), contact.getClient().getCompanyName(),
+                contact.getEmail().strip(), answers.getOrDefault(contact.getId(), new int[1])[0], lastInTouch.get(contact.getId()),
+                postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), 0)))
+            .sorted(Comparator.comparingInt(Recipient::answers).reversed().thenComparing(Comparator.comparingInt(Recipient::postings).reversed())
+                .thenComparing(Recipient::company, String.CASE_INSENSITIVE_ORDER).thenComparing(Recipient::name, String.CASE_INSENSITIVE_ORDER))
+            .toList();
+    }
+
+    /**
+     * How many offers each of these contacts' companies published in the feed in the last {@value #POSTINGS_DAYS} days
+     * naming one of the profile's skills, by {@link JobOffer#companyKeyOf} name; companies with none are absent.
+     */
+    private Map<String, Integer> postings(Long freelanceId, List<Contact> reachable) {
+        Set<String> keys = new HashSet<>();
+        reachable.forEach(contact -> {
+            String key = JobOffer.companyKeyOf(contact.getClient().getCompanyName());
+            if (key != null) {
+                keys.add(key);
+            }
+        });
+        Set<String> skills = new HashSet<>();
+        freelances.findProfileSkills(freelanceId).forEach(skill -> skills.add(SkillNames.key(SkillNames.canonical(skill))));
+        skills.remove("");
+        if (offers == null || keys.isEmpty() || skills.isEmpty()) {
+            return Map.of();
+        }
+        Map<String, Set<Long>> matching = new HashMap<>();
+        for (Object[] row : offers.findPublishersSkills(keys, clock.instant().minus(Duration.ofDays(POSTINGS_DAYS)))) {
+            if (row[2] instanceof String skill && skills.contains(SkillNames.key(SkillNames.canonical(skill)))) {
+                matching.computeIfAbsent((String) row[1], key -> new HashSet<>()).add((Long) row[0]);
+            }
+        }
+        Map<String, Integer> counts = new HashMap<>();
+        matching.forEach((key, ids) -> counts.put(key, ids.size()));
+        return counts;
     }
 
     @Transactional

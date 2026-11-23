@@ -14,8 +14,9 @@ import { NotificationService } from '../../../services/notification/notification
 
 /**
  * Tells the ESN contacts of an availability (see docs/features.md#emails-sent-from-indezy): the contacts of the ESNs the
- * workspace had an opportunity with or heard from, not those in touch in the last six weeks, those who answered most
- * first and none ticked at first; one email each from Indezy, `{{firstName}}` and `{{company}}` replaced by theirs, with the dossier de compétences attached unless unticked, each recorded in their exchanges.
+ * workspace had an opportunity with or heard from, or that posted missions for the profile in the feed in the last 60
+ * days, not those in touch in the last six weeks nor those who asked not to be contacted, those who answered most first
+ * then those posting most, none ticked at first; one email each from Indezy, `{{firstName}}` and `{{company}}` replaced by theirs, with the dossier de compétences attached unless unticked, each recorded in their exchanges.
  */
 @Component({
   selector: 'app-availability-emails',
@@ -37,6 +38,9 @@ import { NotificationService } from '../../../services/notification/notification
                 {{ recipient.name }} <span class="company">· {{ recipient.company }}
                   @if (recipient.answers) {
                     · {{ 'availabilityEmails.answers' | translate:{ count: recipient.answers } }}
+                  }
+                  @if (recipient.postings) {
+                    · <span data-recipient-postings>{{ 'availabilityEmails.postings' | translate:{ count: recipient.postings } }}</span>
                   }
                 </span>
               </mat-checkbox>

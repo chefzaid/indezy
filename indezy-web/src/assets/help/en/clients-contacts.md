@@ -76,6 +76,7 @@ These links go both ways, often across a client and its ESN. The **Contacts** ta
 You are responsible for your contacts' data; Indezy keeps it on your behalf. A contact's **Their data** card offers:
 
 - **Why you keep their details**: **Legitimate interest** (the default), **Consent** or **Contract**;
+- **Asked not to be contacted**, ticked on their form when they object to prospecting: they are never offered in **Email my ESN contacts** again;
 - **Download their data**: a JSON file of what your workspace holds about them;
 - **Erase on their request**: the contact goes, with their exchanges and links.
 
