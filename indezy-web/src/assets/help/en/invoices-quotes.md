@@ -66,6 +66,7 @@ For an international client, choose **Currency** in the draft: euro, US dollar, 
 - The PDF carries the late payment penalties French law asks for, at your rate when you set one.
 - In the list, an overdue invoice says what it is owed on top of its amount: the interest at the rate it states, per day late, and the €40 recovery indemnity, for instance "12 day(s) late: interest 2.00 € and recovery indemnity 40.00 €".
 - Each client's page, and its opportunities' pages, says how it pays from its paid invoices, for example "Pays in 52 days on average, 12 days late".
+- **Ceilings** compares the revenue you received this year (excluding VAT, on the day each invoice was paid) with the micro-entreprise ceiling (83,600 € in 2026, for services) and the VAT franchise thresholds (37,500 €, and 41,250 € within the year). It warns from 80 % and says on which day the regime or the franchise ends once you pass them. It shows for a micro-entreprise, and while you are exempt from VAT.
 - **Revenue by client, last 12 months** splits your revenue and warns when one client makes up half of it or more, a risk of your contract being reclassified as employment.
 
 ## Factur-X

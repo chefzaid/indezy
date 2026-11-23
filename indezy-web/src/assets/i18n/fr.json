@@ -3395,6 +3395,20 @@
     "fromReportCreate": "Créer la facture",
     "fromReportCreated": "Brouillon créé depuis le CRA",
     "toInvoice": "{{count}} mois de CRA à facturer",
+    "ceilings": {
+      "title": "Plafonds {{year}}",
+      "micro": "Plafond de la micro-entreprise",
+      "vat": "Franchise en base de TVA",
+      "microNear": "Proche du plafond de la micro-entreprise : dépassé deux années de suite, le régime prend fin le 1er janvier suivant.",
+      "microOver": "Plafond de la micro-entreprise dépassé cette année : vous gardez le régime, mais une deuxième année au-delà y met fin le 1er janvier suivant.",
+      "microEnds": "Plafond de la micro-entreprise dépassé deux années de suite : le régime prend fin le {{date}} (bénéfice et cotisations au réel ensuite).",
+      "vatNear": "Proche du seuil de la franchise en base de TVA ({{limit}} €) : au-delà, vous facturez la TVA dès le 1er janvier suivant ; au-delà de {{tolerance}} €, dès le jour même.",
+      "vatEnded": "Le chiffre d'affaires de l'an dernier a dépassé {{limit}} € : la franchise en base a pris fin le {{date}}. Vos factures doivent appliquer la TVA (Profil → Facturation).",
+      "vatEndsOnDay": "{{tolerance}} € dépassés le {{date}} : la TVA est due dès ce jour et vos factures doivent l'appliquer (Profil → Facturation).",
+      "vatEndsNextYear": "{{limit}} € dépassés : la franchise en base prend fin le {{date}}, vos factures appliquant la TVA ensuite.",
+      "outstanding": "S'y ajoutent {{amount}} € facturés et pas encore encaissés, comptés le jour du paiement.",
+      "basis": "Chiffre d'affaires encaissé cette année, hors TVA, au jour du paiement, comparé aux chiffres {{year}} des prestations de services (BIC et BNC)."
+    },
     "shares": {
       "title": "Chiffre d'affaires par client, 12 derniers mois",
       "dependence": "{{client}} représente {{percent}} % de votre chiffre d'affaires des 12 derniers mois. Travailler surtout pour un seul client affaiblit l'indépendance que l'URSSAF et les tribunaux examinent avant de requalifier une prestation en salariat : un second client réduit ce risque."

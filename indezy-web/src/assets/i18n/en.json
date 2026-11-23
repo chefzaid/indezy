@@ -3395,6 +3395,20 @@
     "fromReportCreate": "Create the invoice",
     "fromReportCreated": "Draft created from the activity report",
     "toInvoice": "{{count}} months of activity reports to invoice",
+    "ceilings": {
+      "title": "Ceilings {{year}}",
+      "micro": "Micro-entreprise ceiling",
+      "vat": "VAT franchise",
+      "microNear": "Near the micro-entreprise ceiling: past it two years in a row, the regime ends on the next 1 January.",
+      "microOver": "Past the micro-entreprise ceiling this year: you keep the regime, but a second year past it ends it on the next 1 January.",
+      "microEnds": "Past the micro-entreprise ceiling two years in a row: the regime ends on {{date}} (taxable profit and contributions on the real profit from then on).",
+      "vatNear": "Near the VAT franchise threshold of €{{limit}}: past it, you charge VAT from the next 1 January; past €{{tolerance}}, from that very day.",
+      "vatEnded": "Last year's revenue passed €{{limit}}: the VAT franchise ended on {{date}}. Your invoices must charge VAT (Profile → Billing).",
+      "vatEndsOnDay": "Past €{{tolerance}} on {{date}}: VAT is due from that day, and your invoices from then on must charge it (Profile → Billing).",
+      "vatEndsNextYear": "Past €{{limit}}: the VAT franchise ends on {{date}}, and your invoices from then on must charge VAT.",
+      "outstanding": "Plus €{{amount}} invoiced and not received yet, which counts on the day it is paid.",
+      "basis": "Revenue received this year excluding VAT, on the day it was paid, against the {{year}} figures for services (BIC services and BNC)."
+    },
     "shares": {
       "title": "Revenue by client, last 12 months",
       "dependence": "{{client}} paid {{percent}} % of your revenue over the last 12 months. Working mostly for one client weakens the independence URSSAF and the courts look at before reclassifying a freelance contract as employment: a second client lowers the risk."

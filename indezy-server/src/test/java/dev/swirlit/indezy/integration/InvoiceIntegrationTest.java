@@ -152,6 +152,10 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/invoices/payment-delays", null, List.class).getBody())
             .singleElement().satisfies(delay -> assertThat(delay).containsEntry("paidInvoices", 1).containsKeys("averageDays", "averageDaysLate"));
         assertThat((List<?>) call(bob, HttpMethod.GET, "/invoices/payment-delays", null, List.class).getBody()).isEmpty();
+        // The year it was paid counts it against the ceilings; Bob's revenue is his own.
+        assertThat(new java.math.BigDecimal(call(alice, HttpMethod.GET, "/invoices/ceilings?year=2027", null, Map.class).getBody()
+            .get("received").toString())).isPositive();
+        assertThat(call(bob, HttpMethod.GET, "/invoices/ceilings?year=2027", null, Map.class).getBody()).containsEntry("received", 0.0);
         assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first + "/payment", new HashMap<>(), Map.class).getBody())
             .containsEntry("status", "ISSUED").containsEntry("paidOn", null);
 

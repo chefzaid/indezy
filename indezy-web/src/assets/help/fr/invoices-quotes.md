@@ -66,6 +66,7 @@ Pour un client à l'étranger, choisissez la **Devise** dans le brouillon : euro
 - Le PDF porte les pénalités de retard prévues par la loi, à votre taux si vous en indiquez un.
 - Dans la liste, une facture en retard dit ce qui lui est dû en plus de son montant : les pénalités au taux qu'elle indique, par jour de retard, et l'indemnité de recouvrement de 40 €, par exemple « 12 jour(s) de retard : pénalités 2,00 € et indemnité de recouvrement 40,00 € ».
 - La page de chaque client, et celle de ses opportunités, dit comment il paie d'après ses factures payées, par exemple « Paie en 52 jours en moyenne, avec 12 jours de retard ».
+- **Plafonds** compare le chiffre d'affaires encaissé cette année (hors TVA, au jour du paiement de chaque facture) au plafond de la micro-entreprise (83 600 € en 2026, pour les prestations de services) et aux seuils de la franchise en base de TVA (37 500 €, et 41 250 € en cours d'année). Il vous avertit dès 80 % et indique à quelle date le régime ou la franchise prend fin une fois dépassés. Il s'affiche pour une micro-entreprise, et tant que vous êtes en franchise de TVA.
 - **Chiffre d'affaires par client, 12 derniers mois** répartit votre chiffre d'affaires et vous avertit quand un client en représente la moitié ou plus, un risque de requalification en salariat.
 
 ## Factur-X

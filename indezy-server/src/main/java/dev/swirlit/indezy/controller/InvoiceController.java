@@ -10,6 +10,7 @@ import dev.swirlit.indezy.service.BankReconciliationService;
 import dev.swirlit.indezy.service.BillingIdentityService;
 import dev.swirlit.indezy.service.InvoicePaymentDelays;
 import dev.swirlit.indezy.service.InvoiceService;
+import dev.swirlit.indezy.service.RevenueCeilingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -45,6 +46,7 @@ public class InvoiceController {
     private final AccessGuard accessGuard;
     private final BillingIdentityService billingIdentity;
     private final BankReconciliationService reconciliation;
+    private final RevenueCeilingService ceilings;
 
     @Operation(summary = "The workspace's invoices, newest first")
     @GetMapping("/by-freelance/{freelanceId}")
@@ -64,6 +66,13 @@ public class InvoiceController {
     @ResponseStatus(HttpStatus.CREATED)
     public InvoiceDtos.Invoice create(@Valid @RequestBody InvoiceDtos.Draft draft) {
         return invoices.create(workspace(), draft);
+    }
+
+    /** The year's revenue received against the micro-entreprise ceiling and the VAT franchise thresholds. */
+    @Operation(summary = "The year's revenue received against the micro-entreprise ceiling and the VAT franchise thresholds")
+    @GetMapping("/ceilings")
+    public RevenueCeilingService.Ceilings ceilings(@RequestParam(required = false) Integer year) {
+        return ceilings.ceilings(workspace(), year);
     }
 
     @Operation(summary = "How each client pays: its paid invoices, average days to payment and past the due date")

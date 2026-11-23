@@ -1498,6 +1498,22 @@ for line ("Acompte facturé N° … du …", quantity −1); it waits until the 
 not taken off, and deleting the draft lets the quote be invoiced again. The page totals the sent quotes awaiting an answer and
 the share of answered quotes accepted. Quotes are part of the data export.
 
+### Revenue ceilings
+
+**Ceilings {year}** on the Invoices page measures the year's revenue received (excluding VAT, on the day each invoice was
+paid, less the credit notes issued on it by then, in euros) against the ceilings that change by law
+(`GET /api/invoices/ceilings?year=`, `RevenueCeilingService`): the micro-entreprise ceiling for services (a
+micro-entreprise only) and the VAT franchise thresholds (while exempt from VAT). From 80 % of a ceiling it says so; past
+the micro-entreprise ceiling once, that a second year past it ends the regime on the next 1 January, and past it two years
+in a row, the day it ends; past the franchise's base threshold, that the franchise ends on the next 1 January, past its
+higher threshold, the day it was passed, and when the year before passed the base threshold, that it ended on 1 January.
+What issued invoices still owe is given beside it, counted on the day it is paid. The card shows only when a ceiling
+applies. The figures are a table per year in the code (`FrenchFigures`, updated each January from
+service-public.gouv.fr; a year without its own figures uses the latest known): for 2026, 83 600 € for the
+micro-entreprise and 37 500 € (41 250 € in the year) for the franchise, both for services (BIC services and BNC); for
+2025, 77 700 €, 37 500 € and 41 250 €. The same table gives the micro-entrepreneur's 2026 contribution rates (BNC under
+the SSI 25.6 %, under the CIPAV 23.2 %, BIC services 21.2 %).
+
 ### Expenses
 
 **Expenses** (`/expenses`, in the menu after **Quotes**) records the business expenses of a year: the date, what for,

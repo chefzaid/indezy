@@ -43,8 +43,10 @@ describe('InvoicesComponent', () => {
 
   function create(list = of([draft, issued, late, paid])): ComponentFixture<InvoicesComponent> {
     invoiceService = jasmine.createSpyObj('InvoiceService', ['list', 'create', 'update', 'delete', 'issue', 'setPaid', 'downloadPdf', 'downloadDocx',
-      'creditNote', 'exportYear', 'invoiceableReports', 'fromReport']);
+      'creditNote', 'exportYear', 'invoiceableReports', 'fromReport', 'ceilings']);
     invoiceService.list.and.returnValue(list);
+    invoiceService.ceilings.and.returnValue(of({ year: 2026, figuresYear: 2026, legalForm: null, vatExempt: false, received: 0,
+      receivedLastYear: 0, outstanding: 0, micro: null, vat: null }));
     invoiceService.invoiceableReports.and.returnValue(of(reports));
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);

@@ -56,6 +56,10 @@ for (const width of [1280, 390]) {
     const calls: unknown[] = [];
     await page.route('**/api/users/billing', route => route.fulfill({ json: { vatExempt: true, vatRate: 20, complete: true } }));
     await page.route('**/api/invoices/by-freelance/1', route => route.fulfill({ json: invoices }));
+    await page.route('**/api/invoices/ceilings', route => route.fulfill({ json: { year: 2026, figuresYear: 2026,
+      legalForm: 'MICRO_ENTREPRISE', vatExempt: true, received: 34000, receivedLastYear: 0, outstanding: 600,
+      micro: { limit: 83600, tolerance: null, revenue: 34000, percent: 40, level: 'UNDER', endsOn: null },
+      vat: { limit: 37500, tolerance: 41250, revenue: 34000, percent: 90, level: 'NEAR', endsOn: null } } }));
     await page.route('**/api/invoices', route => {
       calls.push(route.request().postDataJSON());
       const created = { ...base, id: 2, number: null, ...route.request().postDataJSON(), totalExcludingVat: 1300, total: 1300 };
@@ -77,6 +81,10 @@ for (const width of [1280, 390]) {
     // One client paid all of the last 12 months' revenue: the page says what that means.
     await expect(page.locator('[data-client-shares]')).toContainText('100 % · 600 €');
     await expect(page.locator('[data-client-dependence]')).toContainText('paid 100 % of your revenue');
+    // The year's revenue received against the ceilings: near the VAT franchise threshold, it says what follows.
+    await expect(page.locator('[data-ceiling="micro"]')).toContainText('34,000 € / 83,600 € · 40 %');
+    await expect(page.locator('[data-ceiling="vat"] [data-ceiling-warning]')).toContainText('Near the VAT franchise threshold of €37,500');
+    await expect(page.locator('[data-ceiling-outstanding]')).toContainText('€600');
 
     await page.locator('[data-new-invoice]').click();
     const dialog = page.getByRole('dialog');

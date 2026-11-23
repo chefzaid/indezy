@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { BankMatch, Invoice, InvoiceDraft, InvoiceableReport, PaymentDelay } from '../../models';
+import { BankMatch, Invoice, InvoiceDraft, InvoiceableReport, PaymentDelay, RevenueCeilings } from '../../models';
 
 /** An accountant's export: the FEC journal entries, or the register of invoices and credit notes as CSV. */
 export type AccountingExportFormat = 'FEC' | 'REGISTER';
@@ -28,6 +28,11 @@ export class InvoiceService {
   /** How each client pays: its paid invoices, average days to payment and past the due date. */
   paymentDelays(): Observable<PaymentDelay[]> {
     return this.http.get<PaymentDelay[]>(`${this.API_URL}/payment-delays`);
+  }
+
+  /** The year's revenue received against the micro-entreprise ceiling and the VAT franchise thresholds. */
+  ceilings(): Observable<RevenueCeilings> {
+    return this.http.get<RevenueCeilings>(`${this.API_URL}/ceilings`);
   }
 
   invoiceableReports(): Observable<InvoiceableReport[]> {

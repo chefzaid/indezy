@@ -1,0 +1,48 @@
+@if (ceilings; as figures) {
+  <mat-card class="ceilings" data-revenue-ceilings>
+    <mat-card-header>
+      <mat-card-title>{{ 'invoices.ceilings.title' | translate:{ year: figures.year } }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (figures.micro; as micro) {
+        <section data-ceiling="micro" [class.alert]="micro.level !== 'UNDER'">
+          <div class="row">
+            <span class="name">{{ 'invoices.ceilings.micro' | translate }}</span>
+            <span class="bar" aria-hidden="true"><span [style.width.%]="width(micro)"></span></span>
+            <span class="figure">{{ micro.revenue | number:'1.0-0' }} € / {{ micro.limit | number:'1.0-0' }} € · {{ micro.percent }} %</span>
+          </div>
+          @switch (micro.level) {
+            @case ('NEAR') { <p class="warning" role="note" data-ceiling-warning><mat-icon aria-hidden="true">warning</mat-icon><span>{{ 'invoices.ceilings.microNear' | translate }}</span></p> }
+            @case ('OVER') { <p class="warning" role="note" data-ceiling-warning><mat-icon aria-hidden="true">warning</mat-icon><span>{{ 'invoices.ceilings.microOver' | translate }}</span></p> }
+            @case ('ENDS') { <p class="warning" role="note" data-ceiling-warning><mat-icon aria-hidden="true">warning</mat-icon><span>{{ 'invoices.ceilings.microEnds' | translate:{ date: (micro.endsOn | date:'longDate') } }}</span></p> }
+          }
+        </section>
+      }
+      @if (figures.vat; as vat) {
+        <section data-ceiling="vat" [class.alert]="vat.level !== 'UNDER'">
+          <div class="row">
+            <span class="name">{{ 'invoices.ceilings.vat' | translate }}</span>
+            <span class="bar" aria-hidden="true"><span [style.width.%]="width(vat)"></span></span>
+            <span class="figure">{{ vat.revenue | number:'1.0-0' }} € / {{ vat.limit | number:'1.0-0' }} € · {{ vat.percent }} %</span>
+          </div>
+          @if (vat.level === 'NEAR') {
+            <p class="warning" role="note" data-ceiling-warning><mat-icon aria-hidden="true">warning</mat-icon><span>{{ 'invoices.ceilings.vatNear' | translate:{ limit: (vat.limit | number:'1.0-0'), tolerance: (vat.tolerance | number:'1.0-0') } }}</span></p>
+          } @else if (vat.level === 'ENDS') {
+            <p class="warning" role="note" data-ceiling-warning>
+              <mat-icon aria-hidden="true">warning</mat-icon>
+              @switch (endKind(vat, figures.year)) {
+                @case ('past') { <span>{{ 'invoices.ceilings.vatEnded' | translate:{ limit: (vat.limit | number:'1.0-0'), date: (vat.endsOn | date:'longDate') } }}</span> }
+                @case ('day') { <span>{{ 'invoices.ceilings.vatEndsOnDay' | translate:{ tolerance: (vat.tolerance | number:'1.0-0'), date: (vat.endsOn | date:'longDate') } }}</span> }
+                @default { <span>{{ 'invoices.ceilings.vatEndsNextYear' | translate:{ limit: (vat.limit | number:'1.0-0'), date: (vat.endsOn | date:'longDate') } }}</span> }
+              }
+            </p>
+          }
+        </section>
+      }
+      @if (figures.outstanding > 0) {
+        <p class="note" data-ceiling-outstanding>{{ 'invoices.ceilings.outstanding' | translate:{ amount: (figures.outstanding | number:'1.0-0') } }}</p>
+      }
+      <p class="note">{{ 'invoices.ceilings.basis' | translate:{ year: figures.figuresYear } }}</p>
+    </mat-card-content>
+  </mat-card>
+}

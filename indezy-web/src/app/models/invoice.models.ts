@@ -108,6 +108,32 @@ export interface PaymentDelay {
   averageDaysLate: number;
 }
 
+/** Where the revenue stands against a ceiling: under it, from 80 % of it, past it once (micro-entreprise), or ending on a day. */
+export type CeilingLevel = 'UNDER' | 'NEAR' | 'OVER' | 'ENDS';
+
+/** One ceiling: its amount (and the VAT franchise's higher threshold), the revenue measured, its share, and when the regime or franchise ends. */
+export interface Ceiling {
+  limit: number;
+  tolerance: number | null;
+  revenue: number;
+  percent: number;
+  level: CeilingLevel;
+  endsOn: string | null;
+}
+
+/** The year's revenue received (excluding VAT) against the micro-entreprise ceiling and the VAT franchise, each null when it does not apply. */
+export interface RevenueCeilings {
+  year: number;
+  figuresYear: number;
+  legalForm: string | null;
+  vatExempt: boolean;
+  received: number;
+  receivedLastYear: number;
+  outstanding: number;
+  micro: Ceiling | null;
+  vat: Ceiling | null;
+}
+
 /** Why a bank credit was matched to an invoice, the strongest first: its number in the label, its client's name, the amount alone. */
 export type BankMatchReason = 'NUMBER' | 'CLIENT' | 'AMOUNT';
 

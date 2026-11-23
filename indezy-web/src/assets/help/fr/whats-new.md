@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les plafonds de la micro-entreprise et de la franchise de TVA
+
+La page Factures mesure désormais le chiffre d'affaires encaissé cette année par rapport au plafond de la micro-entreprise et aux seuils de la franchise en base de TVA, et vous prévient quand vous vous en approchez ou les dépassez. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Un dossier adapté à chaque société
 
 Le dossier de compétences joint à un e-mail de prospection place désormais en tête les compétences et missions correspondant à ce que la société du contact a publié récemment. Voir [Le tableau de bord](/help/dashboard).

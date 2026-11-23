@@ -70,6 +70,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/invoices/invoice-errors',
   'components/invoices/invoices.component',
   'components/invoices/report-dialog/invoice-report-dialog.component',
+  'components/invoices/revenue-ceilings/revenue-ceilings.component',
   'components/kanban-board/kanban-board.component',
   'components/kanban-quick-add-dialog/kanban-quick-add-dialog.component',
   'components/kanban-refusal-dialog/kanban-refusal-dialog.component',
