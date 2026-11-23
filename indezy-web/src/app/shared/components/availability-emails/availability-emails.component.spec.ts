@@ -17,7 +17,7 @@ describe('AvailabilityEmailsComponent', () => {
 
   function create(recipients = of([lea, marc])) {
     const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail', 'scheduledEmails', 'scheduleEmails',
-      'cancelScheduledEmail', 'startCampaign', 'campaigns']);
+      'cancelScheduledEmail', 'startCampaign', 'campaigns', 'scheduleReminders']);
     contacts.startCampaign.and.returnValue(of({ id: 3, name: 'x', startedAt: '2026-11-23T08:00:00', sent: 0, waiting: 0, answered: 0,
       opportunities: 0, won: 0, contactIds: [] }));
     contacts.campaigns.and.returnValue(of([]));
@@ -51,6 +51,31 @@ describe('AvailabilityEmailsComponent', () => {
     fixture.detectChanges();
     expect(element.querySelectorAll('[data-availability-recipient]').length).toBe(23);
     expect(element.querySelector('[data-availability-emails-show-all]')).toBeNull();
+  });
+
+  it('plans one reminder for each contact the emails went to, when asked', () => {
+    const { component, contacts, notifications } = create();
+    component.subject = 'Disponible';
+    component.body = 'Bonjour {{firstName}},';
+    component.remind = true;
+    component.reminderBody = 'Bonjour {{firstName}}, je reviens vers vous.';
+    component.recipients = [lea, marc];
+    component.toggle(1);
+    component.toggle(2);
+    contacts.sendEmail.and.callFake((id: number) => id === 1 ? of({} as ContactInteraction) : throwError(() => new Error('503')));
+    contacts.scheduleReminders.and.returnValue(of([{ id: 9, contactId: 1, name: 'Léa Martin', company: 'Conseil', subject: 'Re : Disponible',
+      sendAt: '2026-12-01T09:00:00Z', reminder: true }]));
+    component.send();
+    // Only Léa's email went: only she is reminded, her name in place.
+    expect(contacts.scheduleReminders).toHaveBeenCalledWith(3, [{ contactId: 1, subject: 'Re : Disponible',
+      body: 'Bonjour Léa, je reviens vers vous.' }], 'FR');
+    expect(notifications.info).toHaveBeenCalledWith('availabilityEmails.remindersPlanned', 6000, { count: 1 });
+
+    contacts.scheduleReminders.calls.reset();
+    component.remind = false;
+    component.toggle(1);
+    component.send();
+    expect(contacts.scheduleReminders).not.toHaveBeenCalled();
   });
 
   it('writes each ticked contact\'s own message with AI, kept to read with Edit', () => {

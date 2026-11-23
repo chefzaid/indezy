@@ -131,6 +131,27 @@ public class ContactEmailController {
             Boolean.TRUE.equals(request.dossier()), request.language(), request.days(), request.dailyMax(), campaign));
     }
 
+    /** A campaign's reminders, one per contact, written for each. */
+    public record ReminderRequest(@NotNull Long campaignId, @NotEmpty @Size(max = 100) List<@Valid @NotNull ScheduledDraft> emails,
+                                  DocumentLanguage language) {
+
+        public ReminderRequest {
+            emails = emails == null ? null : java.util.Collections.unmodifiableList(new java.util.ArrayList<>(emails));
+        }
+    }
+
+    @Operation(summary = "Remind a campaign's contacts who did not answer, 5 working days after its first email to each",
+        description = "Each goes only if the first email went and the contact was not in touch otherwise since; cancelled like any waiting email")
+    @PostMapping("/contacts/emails/reminders")
+    public List<ContactEmailScheduleService.Waiting> remind(@Valid @RequestBody ReminderRequest request) {
+        request.emails().forEach(email -> accessGuard.requireContact(email.contactId()));
+        Long workspace = accessGuard.requireWorkspace(null);
+        Long campaign = campaigns.require(workspace, request.campaignId());
+        return schedule.remind(SecurityUtils.getCurrentUserId(), workspace, campaign,
+            request.emails().stream().map(email -> new ContactEmailScheduleService.Draft(email.contactId(), email.subject(), email.body())).toList(),
+            request.language() == null ? DocumentLanguage.FR : request.language());
+    }
+
     @Operation(summary = "The workspace's emails waiting to go, the soonest first")
     @GetMapping("/contacts/emails/scheduled")
     public List<ContactEmailScheduleService.Waiting> waiting() {

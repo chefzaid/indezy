@@ -120,6 +120,8 @@ export interface ScheduledEmail {
   company: string | null;
   subject: string;
   sendAt: string;
+  /** A campaign's reminder, sent only to those who did not answer. */
+  reminder?: boolean;
 }
 
 /** A contact of an ESN the workspace worked with or heard from, who has an address; those who answered most first. */

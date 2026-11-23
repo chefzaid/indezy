@@ -24,4 +24,15 @@ class ContactEmailScheduleServiceTest {
         assertThat(times).containsExactly(Instant.parse("2026-12-28T08:00:00Z"), Instant.parse("2026-12-28T12:00:00Z"),
             Instant.parse("2026-12-29T08:00:00Z"));
     }
+
+    @Test
+    void remindsFiveWorkingDaysLaterWithinWorkingHoursPastWeekendsAndHolidays() {
+        java.time.ZoneId paris = java.time.ZoneId.of("Europe/Paris");
+        // A Friday at 10:00: the next Friday at 10:00.
+        assertThat(ContactEmailScheduleService.afterWorkingDays(java.time.LocalDateTime.of(2026, 11, 27, 10, 0).atZone(paris).toInstant(), 5))
+            .isEqualTo(java.time.LocalDateTime.of(2026, 12, 4, 10, 0).atZone(paris).toInstant());
+        // Christmas and New Year's Day skipped; an evening time brought within working hours.
+        assertThat(ContactEmailScheduleService.afterWorkingDays(java.time.LocalDateTime.of(2026, 12, 24, 18, 30).atZone(paris).toInstant(), 5))
+            .isEqualTo(java.time.LocalDateTime.of(2027, 1, 4, 16, 0).atZone(paris).toInstant());
+    }
 }

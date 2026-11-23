@@ -77,7 +77,9 @@ public class ProspectionCampaignService {
         Map<Long, List<ContactInteraction>> sent = new HashMap<>();
         interactions.findByCampaignIdIn(ids).forEach(email -> sent.computeIfAbsent(email.getCampaignId(), key -> new java.util.ArrayList<>()).add(email));
         Map<Long, List<ScheduledContactEmail>> waiting = new HashMap<>();
-        scheduled.findByCampaignIdIn(ids).forEach(email -> waiting.computeIfAbsent(email.getCampaignId(), key -> new java.util.ArrayList<>()).add(email));
+        // A reminder is not one of the campaign's emails still to go: it goes only to those who did not answer.
+        scheduled.findByCampaignIdIn(ids).stream().filter(email -> !Boolean.TRUE.equals(email.getReminder()))
+            .forEach(email -> waiting.computeIfAbsent(email.getCampaignId(), key -> new java.util.ArrayList<>()).add(email));
         List<Project> pipeline = projects.findByFreelanceId(freelanceId);
         Map<Long, List<ContactInteraction>> exchanges = new HashMap<>();
         sent.values().stream().flatMap(List::stream).map(email -> email.getContact().getId()).distinct()

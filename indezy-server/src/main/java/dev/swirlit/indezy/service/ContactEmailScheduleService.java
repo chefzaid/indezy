@@ -83,7 +83,7 @@ public class ContactEmailScheduleService {
     }
 
     /** An email waiting to go: to whom, about what, and when. */
-    public record Waiting(Long id, Long contactId, String name, String company, String subject, Instant sendAt) {
+    public record Waiting(Long id, Long contactId, String name, String company, String subject, Instant sendAt, boolean reminder) {
     }
 
     /** Plans the emails, the first soonest; the times they go, in order. */
@@ -151,13 +151,74 @@ public class ContactEmailScheduleService {
             return;
         }
         Contact contact = email.getContact();
-        boolean inTouch = interactions.findByContactIdOrderByOccurredOnDescIdDesc(contact.getId()).stream()
+        List<ContactInteraction> exchanges = interactions.findByContactIdOrderByOccurredOnDescIdDesc(contact.getId());
+        boolean reminder = Boolean.TRUE.equals(email.getReminder());
+        // A reminder follows its campaign's first email: that email does not count as being in touch, and without it nothing goes.
+        boolean inTouch = exchanges.stream().filter(exchange -> !reminder || !ofCampaign(exchange, email.getCampaignId()))
             .map(ContactInteraction::getCreatedAt).anyMatch(created -> created != null && created.isAfter(email.getCreatedAt()));
-        if (!Boolean.TRUE.equals(contact.getDoNotContact()) && !inTouch && contact.getAnonymizedAt() == null) {
+        boolean first = !reminder || exchanges.stream().anyMatch(exchange -> ofCampaign(exchange, email.getCampaignId()));
+        if (!Boolean.TRUE.equals(contact.getDoNotContact()) && !inTouch && first && contact.getAnonymizedAt() == null) {
             emails.send(email.getUserId(), email.getFreelanceId(), contact.getId(), new ContactEmailService.Message(null, email.getSubject(),
                 email.getBody(), false, false, email.getLanguage(), email.isDossier(), email.getCampaignId()));
         }
         scheduled.delete(email);
+    }
+
+    private static boolean ofCampaign(ContactInteraction exchange, Long campaignId) {
+        return campaignId != null && campaignId.equals(exchange.getCampaignId()) && exchange.getEmailSentAt() != null;
+    }
+
+    /** A campaign's reminders go this many working days after its first email. */
+    static final int REMINDER_DAYS = 5;
+
+    /**
+     * Plans one reminder per draft, {@value #REMINDER_DAYS} working days after the campaign's first email to that
+     * contact (when it waits to go, its time; else now), within working hours; it goes only if that email went and the
+     * contact was not in touch otherwise since.
+     */
+    @Transactional
+    public List<Waiting> remind(Long userId, Long freelanceId, Long campaignId, List<Draft> reminders, DocumentLanguage language) {
+        if (scheduled.countByFreelanceId(freelanceId) + reminders.size() > WAITING_MAX) {
+            throw new InvalidStateException("Up to " + WAITING_MAX + " emails wait to go at a time");
+        }
+        Instant now = clock.instant();
+        java.util.Map<Long, Instant> firstAt = new java.util.HashMap<>();
+        scheduled.findByCampaignIdIn(List.of(campaignId)).stream().filter(waiting -> !Boolean.TRUE.equals(waiting.getReminder()))
+            .forEach(waiting -> firstAt.merge(waiting.getContact().getId(), waiting.getSendAt(), (one, other) -> one.isBefore(other) ? one : other));
+        List<ScheduledContactEmail> saved = new ArrayList<>();
+        for (Draft draft : reminders) {
+            Contact contact = contacts.findById(draft.contactId()).filter(found -> found.getFreelance().getId().equals(freelanceId))
+                .orElseThrow(() -> new ResourceNotFoundException("Contact not found with id: " + draft.contactId()));
+            ScheduledContactEmail email = new ScheduledContactEmail();
+            email.setFreelanceId(freelanceId);
+            email.setUserId(userId);
+            email.setContact(contact);
+            email.setSubject(draft.subject().strip());
+            email.setBody(draft.body());
+            email.setDossier(false);
+            email.setLanguage(language);
+            email.setCampaignId(campaignId);
+            email.setReminder(true);
+            email.setSendAt(afterWorkingDays(firstAt.getOrDefault(contact.getId(), now), REMINDER_DAYS));
+            saved.add(scheduled.save(email));
+        }
+        return saved.stream().map(ContactEmailScheduleService::toWaiting).toList();
+    }
+
+    /** The same time of day {@code days} working days later, kept within working hours. */
+    static Instant afterWorkingDays(Instant from, int days) {
+        ZonedDateTime at = from.atZone(PARIS);
+        LocalDate day = at.toLocalDate();
+        int left = days;
+        while (left > 0) {
+            day = day.plusDays(1);
+            if (working(day)) {
+                left--;
+            }
+        }
+        LocalTime time = at.toLocalTime();
+        LocalTime kept = time.isBefore(OPENS) ? OPENS : time.isAfter(CLOSES) ? CLOSES.minusHours(1) : time;
+        return day.atTime(kept).atZone(PARIS).withNano(0).toInstant();
     }
 
     /** Tries again later: the next working morning when Indezy refused it (the day's emails all gone), in an hour otherwise. */
@@ -217,6 +278,7 @@ public class ContactEmailScheduleService {
     private static Waiting toWaiting(ScheduledContactEmail email) {
         Contact contact = email.getContact();
         return new Waiting(email.getId(), contact.getId(), contact.getFullName(),
-            contact.getClient() == null ? null : contact.getClient().getCompanyName(), email.getSubject(), email.getSendAt());
+            contact.getClient() == null ? null : contact.getClient().getCompanyName(), email.getSubject(), email.getSendAt(),
+            Boolean.TRUE.equals(email.getReminder()));
     }
 }

@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### An automatic reminder for prospection emails
+
+**Email my ESN contacts** can remind, 5 working days later, the contacts who did not answer, once, with its own message. See [Dashboard](/help/dashboard).
+
 ### Each prospection email written with AI
 
 In **Email my ESN contacts**, **Write each one with AI** writes every ticked contact their own message from yours, from their company, the missions it posted and your last exchanges. See [Dashboard](/help/dashboard).

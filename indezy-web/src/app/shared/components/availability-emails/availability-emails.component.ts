@@ -115,6 +115,14 @@ export const SILENT_LIMIT = 2;
             </mat-form-field>
           }
         </div>
+        <mat-checkbox [(ngModel)]="remind" data-availability-emails-remind>{{ 'availabilityEmails.remind' | translate }}</mat-checkbox>
+        @if (remind) {
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'availabilityEmails.reminderBody' | translate }}</mat-label>
+            <textarea matInput rows="4" maxlength="20000" [(ngModel)]="reminderBody" data-availability-emails-reminder-body></textarea>
+            <mat-hint>{{ 'availabilityEmails.reminderHint' | translate }}</mat-hint>
+          </mat-form-field>
+        }
         <div class="row">
           <button mat-stroked-button type="button" (click)="writeEach()" data-availability-emails-ai
             [disabled]="writing || sending || !chosen.size || chosen.size > maxWritten || !body.trim()"
@@ -166,7 +174,9 @@ export const SILENT_LIMIT = 2;
         <ul class="waiting" data-availability-emails-waiting>
           @for (email of waiting; track email.id) {
             <li [attr.data-scheduled-email]="email.id">
-              <span>{{ email.name }}@if (email.company) { · {{ email.company }} } · {{ email.sendAt | date:'EEE d MMM, HH:mm' }}</span>
+              <span>{{ email.name }}@if (email.company) { · {{ email.company }} } · {{ email.sendAt | date:'EEE d MMM, HH:mm' }}@if (email.reminder) {
+                · {{ 'availabilityEmails.reminderTag' | translate }}
+              }</span>
               <button mat-button type="button" (click)="cancel(email)" data-scheduled-email-cancel>{{ 'common.cancel' | translate }}</button>
             </li>
           }
@@ -306,6 +316,7 @@ export class AvailabilityEmailsComponent implements OnInit {
     const from = this.availableFrom ? new Date(this.availableFrom + 'T00:00:00').toLocaleDateString(english ? 'en-GB' : 'fr-FR',
       { day: 'numeric', month: 'long', year: 'numeric' }) : null;
     this.subject = from ? (english ? `Available from ${from}` : `Disponible à partir du ${from}`) : (english ? 'My availability' : 'Ma disponibilité');
+    this.reminderBody = this.translate.instant('availabilityEmails.reminderText');
     this.body = (english ? 'Hello {{firstName}},\n\n' : 'Bonjour {{firstName}},\n\n') + (this.text.trim() ||
       this.translate.instant('availabilityEmails.defaultText')) + (this.dossier ? '\n\n' + this.translate.instant('availabilityEmails.attached') : '');
     this.changes.markForCheck();
@@ -330,15 +341,20 @@ export class AvailabilityEmailsComponent implements OnInit {
       this.campaign().subscribe(campaignId => this.schedule(recipients, campaignId));
       return;
     }
+    let campaign: number | null = null;
     this.campaign().pipe(
-      switchMap(campaignId => from(recipients).pipe(
-      concatMap(recipient => this.contacts.sendEmail(recipient.id, {
-        ...this.written(recipient), track: false, copy: false, language: this.language, dossier: this.dossier, campaignId
-      }).pipe(map(() => ({ recipient, sent: true })), catchError(() => of({ recipient, sent: false })))),
-      toArray()))
+      switchMap(campaignId => {
+        campaign = campaignId;
+        return from(recipients).pipe(
+          concatMap(recipient => this.contacts.sendEmail(recipient.id, {
+            ...this.written(recipient), track: false, copy: false, language: this.language, dossier: this.dossier, campaignId
+          }).pipe(map(() => ({ recipient, sent: true })), catchError(() => of({ recipient, sent: false })))),
+          toArray());
+      })
     ).subscribe(results => {
       this.sending = false;
       const sent = results.filter(result => result.sent);
+      this.planReminders(campaign, sent.map(result => result.recipient));
       sent.forEach(result => {
         this.chosen.delete(result.recipient.id);
         this.own.delete(result.recipient.id);
@@ -369,6 +385,7 @@ export class AvailabilityEmailsComponent implements OnInit {
           this.own.delete(recipient.id);
         });
         this.notifications.success('availabilityEmails.scheduled', 6000, { count: planned.length });
+        this.planReminders(campaignId, recipients);
         this.loadWaiting();
         this.loadCampaigns();
         this.changes.markForCheck();
@@ -378,6 +395,26 @@ export class AvailabilityEmailsComponent implements OnInit {
         this.notifications.error('availabilityEmails.scheduleFailed');
         this.changes.markForCheck();
       }
+    });
+  }
+
+  /** Whether the contacts who do not answer get one reminder 5 working days after their email, and its message. */
+  remind = false;
+  reminderBody = '';
+
+  /** Plans the campaign's reminders for these contacts, when asked; said when they cannot be. */
+  private planReminders(campaignId: number | null, recipients: AvailabilityRecipient[]): void {
+    if (!this.remind || campaignId === null || !recipients.length || !this.reminderBody.trim()) {
+      return;
+    }
+    const subject = (this.language === 'EN' ? 'Re: ' : 'Re : ') + this.subject.trim();
+    this.contacts.scheduleReminders(campaignId, recipients.map(recipient => ({ contactId: recipient.id, subject,
+      body: this.personalise(this.reminderBody, recipient) })), this.language).subscribe({
+      next: planned => {
+        this.notifications.info('availabilityEmails.remindersPlanned', 6000, { count: planned.length });
+        this.loadWaiting();
+      },
+      error: () => this.notifications.error('availabilityEmails.remindersFailed')
     });
   }
 

@@ -100,6 +100,12 @@ export class ContactService {
     return this.http.post<ScheduledEmail[]>(`${this.API_URL}/emails/scheduled`, plan);
   }
 
+  /** A campaign's reminders, 5 working days after its first email to each, sent only to those who did not answer. */
+  scheduleReminders(campaignId: number, emails: { contactId: number; subject: string; body: string }[], language: 'FR' | 'EN'):
+    Observable<ScheduledEmail[]> {
+    return this.http.post<ScheduledEmail[]>(`${this.API_URL}/emails/reminders`, { campaignId, emails, language });
+  }
+
   scheduledEmails(): Observable<ScheduledEmail[]> {
     return this.http.get<ScheduledEmail[]>(`${this.API_URL}/emails/scheduled`);
   }

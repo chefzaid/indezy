@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Une relance automatique des e-mails de prospection
+
+**Écrire à mes contacts ESN** peut relancer, 5 jours ouvrés plus tard, les contacts qui n'ont pas répondu, une fois, avec son propre message. Voir [Le tableau de bord](/help/dashboard).
+
 ### Chaque e-mail de prospection écrit avec l'IA
 
 Dans **Écrire à mes contacts ESN**, **Écrire chacun avec l'IA** écrit à chaque contact coché son propre message à partir du vôtre, de sa société, des missions qu'elle a publiées et de vos derniers échanges. Voir [Le tableau de bord](/help/dashboard).

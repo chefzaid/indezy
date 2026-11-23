@@ -51,6 +51,13 @@ public class ScheduledContactEmail extends BaseEntity {
     @Column(name = "dossier", nullable = false)
     private boolean dossier;
 
+    /**
+     * A campaign's reminder: sent only when the campaign's first email to the contact went and nothing but the
+     * campaign's own emails was recorded with them since it was planned; null or false for any other email.
+     */
+    @Column(name = "is_reminder")
+    private Boolean reminder;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "language", length = 2)
     private DocumentLanguage language;

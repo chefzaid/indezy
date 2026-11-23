@@ -279,6 +279,51 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void remindsTheContactsOfACampaignWhoDidNotAnswer() throws Exception {
+        long lea = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Léa", "lastName", "Relance", "email", "lea@relance.example",
+            "clientId", aliceClientId), Map.class));
+        long tom = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Tom", "lastName", "Relance", "email", "tom@relance.example",
+            "clientId", aliceClientId), Map.class));
+        long ana = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Ana", "lastName", "Relance", "email", "ana@relance.example",
+            "clientId", aliceClientId), Map.class));
+        when(mailer.configured()).thenReturn(true);
+        when(mailer.send(any())).thenReturn("e-40");
+        Object campaign = call(alice, HttpMethod.POST, "/contacts/emails/campaigns", Map.of("name", "Relances"), Map.class).getBody().get("id");
+        for (long contact : List.of(lea, tom)) {
+            call(alice, HttpMethod.POST, "/contacts/" + contact + "/emails", Map.of("subject", "Disponible", "body", "Bonjour", "campaignId", campaign),
+                Map.class);
+        }
+        List<Map<String, Object>> reminders = call(alice, HttpMethod.POST, "/contacts/emails/reminders", Map.of("campaignId", campaign,
+            "emails", List.of(Map.of("contactId", lea, "subject", "Re: Disponible", "body", "Je me permets de revenir vers vous"),
+                Map.of("contactId", tom, "subject", "Re: Disponible", "body", "Relance"), Map.of("contactId", ana, "subject", "Re: Disponible",
+                    "body", "Relance")), "language", "FR"), List.class).getBody();
+        assertThat(reminders).hasSize(3).allSatisfy(reminder -> {
+            assertThat(reminder).containsEntry("reminder", true);
+            assertThat(java.time.Instant.parse((String) reminder.get("sendAt"))).isAfter(java.time.Instant.now().plus(java.time.Duration.ofDays(4)));
+        });
+        // Reminders are not the campaign's emails still to go.
+        assertThat(((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/contacts/emails/campaigns", null, List.class).getBody()).stream()
+            .filter(item -> campaign.equals(item.get("id"))).findFirst().orElseThrow()).containsEntry("sent", 2).containsEntry("waiting", 0);
+        assertThat(call(bob, HttpMethod.POST, "/contacts/emails/reminders", Map.of("campaignId", campaign, "emails",
+            List.of(Map.of("contactId", lea, "subject", "x", "body", "x"))), String.class).getStatusCode()).isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
+
+        // Tom answered; Ana never got the first email: only Léa is reminded.
+        call(alice, HttpMethod.POST, "/contacts/" + tom + "/interactions", Map.of("occurredOn", java.time.LocalDate.now().toString(),
+            "channel", "EMAIL", "direction", "INCOMING", "summary", "Intéressé"), Map.class);
+        jdbcTemplate.update("UPDATE scheduled_contact_emails SET send_at = ? WHERE contact_id IN (?, ?, ?)",
+            java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(60)), lea, tom, ana);
+        schedule.sendDue();
+        ArgumentCaptor<Email> sent = ArgumentCaptor.forClass(Email.class);
+        verify(mailer, org.mockito.Mockito.atLeast(3)).send(sent.capture());
+        assertThat(sent.getAllValues().getLast().to()).isEqualTo("lea@relance.example");
+        assertThat(sent.getAllValues().stream().filter(email -> email.to().endsWith("@relance.example")).map(Email::to))
+            .containsExactly("lea@relance.example", "tom@relance.example", "lea@relance.example");
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM scheduled_contact_emails WHERE contact_id IN (?, ?, ?)", Integer.class,
+            lea, tom, ana)).isZero();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void countsWhatCameOfACampaign() throws Exception {
         long lea = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Léa", "lastName", "Campagne", "email", "lea@campagne.example",
             "clientId", aliceClientId), Map.class));
