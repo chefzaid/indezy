@@ -275,6 +275,32 @@
                   {{ 'profile.billing.signatureShown' | translate }}
                 </mat-checkbox>
               }
+              @if (styledBlocks.includes(block)) {
+                <span class="block-style" [attr.data-body-block-style]="block">
+                  <mat-form-field appearance="outline" class="style-field" subscriptSizing="dynamic">
+                    <mat-label>{{ 'profile.billing.blockStyle.size' | translate }}</mat-label>
+                    <mat-select [value]="styleOf(block).size" (selectionChange)="setStyle(block, { size: $event.value })" [attr.data-block-size]="block">
+                      @for (size of blockSizes; track size) {
+                        <mat-option [value]="size">{{ 'profile.billing.blockStyle.sizes.' + size | translate }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="style-field" subscriptSizing="dynamic">
+                    <mat-label>{{ 'profile.billing.blockStyle.align' | translate }}</mat-label>
+                    <mat-select [value]="styleOf(block).align" (selectionChange)="setStyle(block, { align: $event.value })" [attr.data-block-align]="block">
+                      @for (align of blockAligns; track align) {
+                        <mat-option [value]="align">{{ 'profile.billing.blockStyle.aligns.' + align | translate }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-checkbox [checked]="styleOf(block).framed" (change)="setStyle(block, { framed: $event.checked })" [attr.data-block-framed]="block">
+                    {{ 'profile.billing.blockStyle.framed' | translate }}
+                  </mat-checkbox>
+                  <mat-checkbox [checked]="styleOf(block).shaded" (change)="setStyle(block, { shaded: $event.checked })" [attr.data-block-shaded]="block">
+                    {{ 'profile.billing.blockStyle.shaded' | translate }}
+                  </mat-checkbox>
+                </span>
+              }
               <span class="block-moves">
                 <button mat-icon-button type="button" [disabled]="index === 0" (click)="moveBlock(index, -1)"
                   [attr.aria-label]="'profile.billing.moveUp' | translate:{ block: ('profile.billing.blocks.' + block | translate) }"

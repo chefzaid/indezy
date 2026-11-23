@@ -1495,7 +1495,7 @@
         "CUSTOM": "{{family}} (ma police)"
       },
       "bodyBlocks": "Ordre du corps",
-      "bodyBlocksHint": "Sous le vendeur, l'en-tête et le client, les blocs s'impriment dans cet ordre sur les factures et les devis, en PDF comme en Word. Les lignes, les mentions et les notes s'impriment toujours ; seul le cadre de signature peut être retiré des devis.",
+      "bodyBlocksHint": "Sous le vendeur, l'en-tête et le client, les blocs s'impriment dans cet ordre sur les factures et les devis, en PDF comme en Word. Les lignes, les mentions et les notes s'impriment toujours ; seul le cadre de signature peut être retiré des devis. Les mentions et les notes prennent leur propre taille, alignement, cadre et grisé.",
       "blocks": {
         "LINES": "Lignes et totaux",
         "MENTIONS": "Mentions (paiement, coordonnées bancaires, pénalités)",
@@ -1513,6 +1513,22 @@
         "footerRightHint": "Vide : le numéro de page dès que le document a plusieurs pages.",
         "headerLeft": "En-tête des pages suivantes, gauche",
         "headerRight": "En-tête des pages suivantes, droite"
+      },
+      "blockStyle": {
+        "size": "Taille",
+        "align": "Alignement",
+        "framed": "Encadré",
+        "shaded": "Grisé",
+        "sizes": {
+          "SMALL": "Petite",
+          "NORMAL": "Normale",
+          "LARGE": "Grande"
+        },
+        "aligns": {
+          "LEFT": "À gauche",
+          "CENTER": "Centré",
+          "RIGHT": "À droite"
+        }
       }
     },
     "webhooks": {

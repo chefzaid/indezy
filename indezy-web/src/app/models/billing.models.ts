@@ -20,6 +20,18 @@ export interface DocumentTemplate {
 /** A block of an invoice's or a quote's body, under the seller, the heading and the client. */
 export type BodyBlock = 'LINES' | 'MENTIONS' | 'NOTES' | 'SIGNATURE';
 
+/** How a text block is drawn: its size, its alignment, a frame around it and a grey shading under it. */
+export interface BlockStyle {
+  size: 'SMALL' | 'NORMAL' | 'LARGE';
+  align: 'LEFT' | 'CENTER' | 'RIGHT';
+  framed: boolean;
+  shaded: boolean;
+}
+
+/** The blocks a style applies to, and the style they have without one. */
+export const STYLED_BLOCKS: BodyBlock[] = ['MENTIONS', 'NOTES'];
+export const USUAL_BLOCK_STYLE: BlockStyle = { size: 'SMALL', align: 'LEFT', framed: false, shaded: false };
+
 /** The order the documents print in when none was chosen. */
 export const USUAL_BODY_BLOCKS: BodyBlock[] = ['LINES', 'MENTIONS', 'NOTES', 'SIGNATURE'];
 
@@ -72,6 +84,8 @@ export interface BillingIdentity {
   quoteTheme?: 'SIMPLE' | 'MODERN' | 'CLASSIC' | null;
   /** The order of the body's blocks; the lines, mentions and notes always print, the signature box (quotes) only when listed. */
   bodyBlocks?: BodyBlock[];
+  /** The mentions' and the notes' own styles; the others keep the layout's. */
+  blockStyles?: Partial<Record<BodyBlock, BlockStyle>>;
   fontFamily?: string | null;
   /** Where the logo sits at the top of the documents, and how large. */
   logoPlacement?: 'LEFT' | 'CENTER' | 'RIGHT';

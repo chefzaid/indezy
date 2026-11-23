@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Le style de vos mentions et notes
+
+Dans **Ordre du corps**, les mentions et les notes de vos factures et devis prennent leur propre taille, alignement, cadre et grisé. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Les zones d'en-tête et de pied de vos documents
 
 Vos factures et devis peuvent porter un pied de page en trois zones et un en-tête sur les pages suivantes, avec des champs comme le nombre de pages ou votre SIRET. Voir [Devis et factures](/help/invoices-quotes).

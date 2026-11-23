@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.pdf;
 
+import dev.swirlit.indezy.model.BlockStyle;
 import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.enums.BodyBlock;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
@@ -13,6 +14,9 @@ import java.util.List;
  * beside the heading, the client, the lines, the totals, the mentions and notes, a quote's signature box and its terms.
  */
 final class BillingDocx {
+
+    /** The grey of a shaded block. */
+    private static final String SHADE = "EDEDED";
 
     private static final int[] HEADER = {DocxDocument.CONTENT_WIDTH / 2, DocxDocument.CONTENT_WIDTH - DocxDocument.CONTENT_WIDTH / 2};
     private static final int[] LINES = columns(0.56, 0.10, 0.14, 0.08, 0.12);
@@ -92,9 +96,14 @@ final class BillingDocx {
         docx.table(TOTALS, totals, false, false, false, accent);
     }
 
-    /** The mentions in small letters. */
+    /** The mentions in small letters, or in their own style. */
     private static void mentions(DocxDocument docx, BillingPage page) {
         docx.paragraph("", false, DocxDocument.BODY, DocxDocument.Align.LEFT);
+        BlockStyle style = BlockStyle.of(page.blockStyles(), BodyBlock.MENTIONS);
+        if (!style.equals(BlockStyle.USUAL)) {
+            styled(docx, null, page.documentMentions(), style);
+            return;
+        }
         for (String mention : page.documentMentions()) {
             docx.paragraph(List.of(new DocxDocument.Run(mention, false, DocxDocument.SMALL, null)), DocxDocument.Align.LEFT, 60);
         }
@@ -104,6 +113,11 @@ final class BillingDocx {
     private static void notes(DocxDocument docx, BillingPage page) {
         if (page.notes() != null) {
             docx.paragraph("", false, DocxDocument.SMALL, DocxDocument.Align.LEFT);
+            BlockStyle style = BlockStyle.of(page.blockStyles(), BodyBlock.NOTES);
+            if (!style.equals(BlockStyle.USUAL)) {
+                styled(docx, InvoiceLabel.NOTES.in(page.language), List.of(page.notes()), style);
+                return;
+            }
             docx.paragraph(InvoiceLabel.NOTES.in(page.language), true, DocxDocument.SMALL, DocxDocument.Align.LEFT);
             docx.paragraph(List.of(new DocxDocument.Run(page.notes(), false, DocxDocument.SMALL, null)), DocxDocument.Align.LEFT, 60);
         }
@@ -120,6 +134,31 @@ final class BillingDocx {
             }
             docx.table(SIGNATURE, List.of(List.of(new DocxDocument.Cell(List.of(), DocxDocument.Align.LEFT),
                 new DocxDocument.Cell(box, DocxDocument.Align.LEFT))), false, false, true, null);
+        }
+    }
+
+    /** A text block in its own style: its size and alignment, in a one-cell table when framed or shaded. */
+    private static void styled(DocxDocument docx, String title, List<String> paragraphs, BlockStyle style) {
+        int size = switch (style.size()) {
+            case SMALL -> DocxDocument.SMALL;
+            case NORMAL -> DocxDocument.BODY;
+            case LARGE -> DocxDocument.NAME;
+        };
+        DocxDocument.Align align = switch (style.align()) {
+            case LEFT -> DocxDocument.Align.LEFT;
+            case CENTER -> DocxDocument.Align.CENTER;
+            case RIGHT -> DocxDocument.Align.RIGHT;
+        };
+        List<List<DocxDocument.Run>> runs = new ArrayList<>();
+        if (title != null) {
+            runs.add(List.of(new DocxDocument.Run(title, true, size, null)));
+        }
+        paragraphs.forEach(paragraph -> runs.add(List.of(new DocxDocument.Run(paragraph, false, size, null))));
+        if (style.framed() || style.shaded()) {
+            docx.table(new int[] {DocxDocument.CONTENT_WIDTH}, List.of(List.of(new DocxDocument.Cell(runs, align, style.shaded() ? SHADE : null))),
+                false, false, style.framed(), null);
+        } else {
+            runs.forEach(paragraph -> docx.paragraph(paragraph, align, 60));
         }
     }
 

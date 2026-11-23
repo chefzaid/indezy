@@ -97,6 +97,10 @@ public class InvoiceSeller {
     @Column(name = "seller_body_blocks", length = 60)
     private String bodyBlocks;
 
+    /** The mentions' and the notes' own styles, kept at issue ({@link dev.swirlit.indezy.model.BlockStyle#store}); null for the layout's. */
+    @Column(name = "seller_block_styles", length = 120)
+    private String blockStyles;
+
     /** The letterhead the document is drawn over ({@link DocumentLetterhead}), kept at issue; null for none. */
     @Column(name = "seller_letterhead_id")
     private Long letterheadId;

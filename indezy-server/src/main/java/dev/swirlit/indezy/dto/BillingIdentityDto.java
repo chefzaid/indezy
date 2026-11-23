@@ -66,6 +66,8 @@ public record BillingIdentityDto(
     DocumentTheme quoteTheme,
     /** The order of the body's blocks; the lines, mentions and notes always print, the signature box (quotes) only when listed. */
     List<BodyBlock> bodyBlocks,
+    /** The mentions' and the notes' own styles (size, alignment, frame, shading); the others keep the layout's. */
+    java.util.Map<BodyBlock, dev.swirlit.indezy.model.BlockStyle> blockStyles,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;
@@ -91,6 +93,7 @@ public record BillingIdentityDto(
         accentColor = accentColor == null || accentColor.isBlank() ? null : accentColor.strip().toUpperCase(java.util.Locale.ROOT);
         quoteAccentColor = quoteAccentColor == null || quoteAccentColor.isBlank() ? null : quoteAccentColor.strip().toUpperCase(java.util.Locale.ROOT);
         bodyBlocks = List.copyOf(BodyBlock.normalize(bodyBlocks));
+        blockStyles = java.util.Map.copyOf(dev.swirlit.indezy.model.BlockStyle.normalize(blockStyles));
     }
 
     /** Whether the colour stands out enough from white paper to read the title and print the rules: a contrast of 3 to 1 at least. */

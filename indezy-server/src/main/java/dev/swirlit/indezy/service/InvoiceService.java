@@ -568,6 +568,7 @@ public class InvoiceService {
         seller.setLetterheadBottomMm(identity.letterheadBottom());
         seller.setTheme(identity.theme());
         seller.setBodyBlocks(dev.swirlit.indezy.model.enums.BodyBlock.store(identity.bodyBlocks()));
+        seller.setBlockStyles(dev.swirlit.indezy.model.BlockStyle.store(identity.blockStyles()));
         seller.setLogoPlacement(identity.logoPlacement());
         seller.setLogoSize(identity.logoSize());
         seller.setHeader(identity.header());

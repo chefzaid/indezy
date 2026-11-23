@@ -120,6 +120,7 @@ public class BillingIdentityService {
         billing.setQuoteAccentColor(request.quoteAccentColor());
         billing.setQuoteTheme(request.quoteTheme());
         billing.setBodyBlocks(BodyBlock.store(request.bodyBlocks()));
+        billing.setBlockStyles(dev.swirlit.indezy.model.BlockStyle.store(request.blockStyles()));
         return billing;
     }
 
@@ -197,7 +198,8 @@ public class BillingIdentityService {
             Objects.requireNonNullElse(billing.getFont(), DocumentFont.SANS), Objects.requireNonNullElse(billing.getTheme(), DocumentTheme.SIMPLE),
             billing.getFontFileId(), billing.getFontFamily(),
             billing.getLetterheadId(), billing.getLetterheadTopMm(), billing.getLetterheadBottomMm(),
-            billing.getQuoteAccentColor(), billing.getQuoteTheme(), BodyBlock.read(billing.getBodyBlocks()), complete);
+            billing.getQuoteAccentColor(), billing.getQuoteTheme(), BodyBlock.read(billing.getBodyBlocks()),
+            dev.swirlit.indezy.model.BlockStyle.read(billing.getBlockStyles()), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

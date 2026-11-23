@@ -184,3 +184,16 @@
     display: inline-flex;
   }
 }
+
+.body-blocks .block-style {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  flex-basis: 100%;
+  order: 3;
+
+  .style-field {
+    width: 130px;
+  }
+}

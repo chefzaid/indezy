@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Style your mentions and notes
+
+In **Order of the body**, the mentions and the notes of your invoices and quotes take their own size, alignment, frame and shading. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Header and footer zones on your documents
 
 Your invoices and quotes can carry a footer in three zones and a header on the following pages, with placeholders such as the page count or your SIRET. See [Quotes and invoices](/help/invoices-quotes).

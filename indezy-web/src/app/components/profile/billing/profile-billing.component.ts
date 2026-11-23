@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { BillingIdentity, BodyBlock, LEGAL_FORMS, LegalForm, USUAL_BODY_BLOCKS } from '../../../models';
+import { BillingIdentity, BlockStyle, BodyBlock, LEGAL_FORMS, LegalForm, STYLED_BLOCKS, USUAL_BLOCK_STYLE, USUAL_BODY_BLOCKS } from '../../../models';
 import { BillingService } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { billingId, compactId } from '../../../shared/utils/billing-validators';
@@ -332,6 +332,22 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   /** Whether the quotes print the box the client signs in. */
   signature = true;
 
+  /** The mentions' and the notes' own styles. */
+  blockStyles: Partial<Record<BodyBlock, BlockStyle>> = {};
+  readonly styledBlocks = STYLED_BLOCKS;
+  readonly blockSizes: BlockStyle['size'][] = ['SMALL', 'NORMAL', 'LARGE'];
+  readonly blockAligns: BlockStyle['align'][] = ['LEFT', 'CENTER', 'RIGHT'];
+
+  styleOf(block: BodyBlock): BlockStyle {
+    return this.blockStyles[block] ?? USUAL_BLOCK_STYLE;
+  }
+
+  /** Changes one part of a block's style. */
+  setStyle(block: BodyBlock, change: Partial<BlockStyle>): void {
+    this.blockStyles = { ...this.blockStyles, [block]: { ...this.styleOf(block), ...change } };
+    this.form.markAsDirty();
+  }
+
   /** Moves a block of the body up (-1) or down (1). */
   moveBlock(index: number, delta: number): void {
     const to = index + delta;
@@ -425,6 +441,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       quoteTheme: this.ownQuoteStyle ? value.quoteTheme ?? null : null,
       quoteAccentColor: this.ownQuoteStyle ? value.quoteAccentColor || null : null,
       bodyBlocks: this.blocks.filter(block => block !== 'SIGNATURE' || this.signature),
+      blockStyles: this.blockStyles,
       footer: value.footer?.trim() || null,
       footerCenter: value.footerCenter?.trim() || null,
       footerRight: value.footerRight?.trim() || null,
@@ -445,6 +462,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     const blocks = identity.bodyBlocks?.length ? identity.bodyBlocks : USUAL_BODY_BLOCKS;
     this.signature = blocks.includes('SIGNATURE');
     this.blocks = this.signature ? [...blocks] : [...blocks, 'SIGNATURE'];
+    this.blockStyles = { ...(identity.blockStyles ?? {}) };
     this.showLogo(identity.logoId ?? null);
     this.form.reset({
       legalName: identity.legalName ?? '', legalForm: identity.legalForm, siret: identity.siret ?? '', vatExempt: identity.vatExempt,

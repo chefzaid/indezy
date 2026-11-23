@@ -51,8 +51,11 @@ class LetterheadIntegrationTest extends TwoAccountsIntegrationTest {
         identity.put("letterheadBottom", 25);
         identity.put("footerRight", " Page {{page}}/{{pages}} ");
         identity.put("pageHeaderLeft", "  ");
+        identity.put("blockStyles", Map.of("NOTES", Map.of("size", "LARGE", "align", "CENTER", "framed", true, "shaded", false),
+            "LINES", Map.of("size", "LARGE", "align", "RIGHT", "framed", false, "shaded", false)));
         assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("letterheadTop", 60)
-            .containsEntry("letterheadBottom", 25).containsEntry("footerRight", "Page {{page}}/{{pages}}").containsEntry("pageHeaderLeft", null);
+            .containsEntry("letterheadBottom", 25).containsEntry("footerRight", "Page {{page}}/{{pages}}").containsEntry("pageHeaderLeft", null)
+            .containsEntry("blockStyles", Map.of("NOTES", Map.of("size", "LARGE", "align", "CENTER", "framed", true, "shaded", false)));
         byte[] kept = call(alice, HttpMethod.GET, "/invoices/" + invoice + "/pdf", null, byte[].class).getBody();
         assertThat(topOf(usual) - topOf(kept)).isBetween(125f, 135f);
         identity.put("letterheadTop", 200);

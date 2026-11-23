@@ -86,6 +86,11 @@ final class PdfPageWriter implements Closeable {
         cursor -= height;
     }
 
+    /** Whether a block of this height fits between the cursor and the bottom margin. */
+    boolean fits(float height) {
+        return cursor - height >= keptBottom;
+    }
+
     /** Starts a new page when a block of this height does not fit above the bottom margin; true when it did. */
     boolean ensureSpace(float height) throws IOException {
         if (cursor - height < keptBottom) {

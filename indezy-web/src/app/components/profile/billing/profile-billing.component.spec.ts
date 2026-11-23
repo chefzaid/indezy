@@ -138,6 +138,23 @@ describe('ProfileBillingComponent', () => {
       pageHeaderLeft: null, pageHeaderRight: '{{document.title}} {{document.number}}' }));
   });
 
+  it('styles the mentions and the notes, the other blocks taking none', () => {
+    const fixture = create(of({ ...defaults, blockStyles: { NOTES: { size: 'LARGE', align: 'CENTER', framed: true, shaded: false } } }));
+    const component = fixture.componentInstance;
+    expect(component.styleOf('NOTES').align).toBe('CENTER');
+    expect(component.styleOf('MENTIONS')).toEqual({ size: 'SMALL', align: 'LEFT', framed: false, shaded: false });
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('[data-body-block-style="NOTES"]')).not.toBeNull();
+    expect(element.querySelector('[data-body-block-style="LINES"]')).toBeNull();
+    component.setStyle('MENTIONS', { shaded: true });
+    expect(component.form.dirty).toBeTrue();
+    billing.saveIdentity.and.returnValue(of(defaults));
+    component.save();
+    expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ blockStyles: {
+      NOTES: { size: 'LARGE', align: 'CENTER', framed: true, shaded: false },
+      MENTIONS: { size: 'SMALL', align: 'LEFT', framed: false, shaded: true } } }));
+  });
+
   it('takes an accent colour dark enough to read, refusing a pale one', () => {
     const component = create().componentInstance;
     component.setAccent({ target: { value: '#ffee88' } } as unknown as Event);

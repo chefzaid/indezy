@@ -383,9 +383,72 @@ abstract class BillingPage {
         return Boolean.TRUE.equals(seller.getVatExempt());
     }
 
-    /** The mentions in small letters. */
+    /** The mentions' and the notes' own styles, frozen with the seller. */
+    java.util.Map<BodyBlock, dev.swirlit.indezy.model.BlockStyle> blockStyles() {
+        return dev.swirlit.indezy.model.BlockStyle.read(seller.getBlockStyles());
+    }
+
+    /** The size a block's text is written in. */
+    static float sizeOf(dev.swirlit.indezy.model.BlockStyle style) {
+        return switch (style.size()) {
+            case SMALL -> SMALL;
+            case NORMAL -> BODY;
+            case LARGE -> 11;
+        };
+    }
+
+    /**
+     * A text block in its own style: an optional bold title, then the paragraphs, each wrapped, at the style's size and
+     * alignment, shaded under and framed around when asked (as one piece when it fits a page, line by line otherwise).
+     */
+    private void styled(String title, List<String> paragraphs, dev.swirlit.indezy.model.BlockStyle style) throws IOException {
+        float size = sizeOf(style);
+        float leading = size * 1.35f;
+        boolean boxed = style.framed() || style.shaded();
+        float pad = boxed ? 6 : 0;
+        float width = writer.width() - 2 * pad;
+        List<String[]> lines = new ArrayList<>();
+        if (title != null) {
+            lines.add(new String[] {title, "bold"});
+        }
+        for (String paragraph : paragraphs) {
+            for (String line : writer.wrap(paragraph, false, size, width)) {
+                lines.add(new String[] {line, null});
+            }
+        }
+        float height = lines.size() * leading + 2 * pad + (boxed ? 3 : 0);
+        writer.ensureSpace(height);
+        boolean whole = writer.fits(height);
+        float top = writer.cursor();
+        if (whole && style.shaded()) {
+            writer.shade(writer.left(), top - height, writer.width(), height);
+        }
+        writer.moveDown(pad);
+        for (String[] line : lines) {
+            writer.ensureSpace(leading);
+            writer.moveDown(leading);
+            boolean bold = line[1] != null;
+            float x = switch (style.align()) {
+                case LEFT -> writer.left() + pad;
+                case CENTER -> writer.left() + (writer.width() - writer.textWidth(line[0], bold, size)) / 2;
+                case RIGHT -> writer.right() - pad - writer.textWidth(line[0], bold, size);
+            };
+            writer.text(x, writer.cursor(), line[0], bold, size);
+        }
+        writer.moveDown(pad + (boxed ? 3 : 0));
+        if (whole && style.framed()) {
+            writer.box(writer.left(), writer.cursor(), writer.width(), top - writer.cursor());
+        }
+    }
+
+    /** The mentions in small letters, or in their own style. */
     void mentions(List<String> mentions) throws IOException {
         writer.moveDown(LINE * 2);
+        dev.swirlit.indezy.model.BlockStyle style = dev.swirlit.indezy.model.BlockStyle.of(blockStyles(), BodyBlock.MENTIONS);
+        if (!style.equals(dev.swirlit.indezy.model.BlockStyle.USUAL)) {
+            styled(null, mentions, style);
+            return;
+        }
         String bank = seller.getIban() == null ? null : BillingText.groupIban(seller.getIban());
         for (String mention : mentions) {
             writer.ensureSpace(LINE * 2);
@@ -408,6 +471,11 @@ abstract class BillingPage {
         if (notes != null) {
             writer.ensureSpace(LINE * 3);
             writer.moveDown(afterMentions ? LINE : LINE * 2);
+            dev.swirlit.indezy.model.BlockStyle style = dev.swirlit.indezy.model.BlockStyle.of(blockStyles(), BodyBlock.NOTES);
+            if (!style.equals(dev.swirlit.indezy.model.BlockStyle.USUAL)) {
+                styled(InvoiceLabel.NOTES.in(language), List.of(notes), style);
+                return;
+            }
             writer.text(writer.left(), writer.cursor(), InvoiceLabel.NOTES.in(language), true, SMALL);
             writer.moveDown(4);
             writer.paragraph(notes, false, SMALL, writer.width());

@@ -82,6 +82,10 @@ public class BillingIdentity {
     @Column(name = "billing_body_blocks", length = 60)
     private String bodyBlocks;
 
+    /** The mentions' and the notes' own styles ({@link dev.swirlit.indezy.model.BlockStyle#store}); null for the layout's. */
+    @Column(name = "billing_block_styles", length = 120)
+    private String blockStyles;
+
     /** The notes a new invoice starts with; null for none. */
     @Column(name = "billing_invoice_notes", length = 2000)
     private String invoiceNotes;
