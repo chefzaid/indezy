@@ -100,6 +100,41 @@
           <mat-error>{{ error('latePaymentRate') }}</mat-error>
         </mat-form-field>
       </div>
+      <fieldset class="contributions" data-billing-contributions>
+        <legend>{{ 'profile.billing.contributions.title' | translate }}</legend>
+        @if (micro) {
+          <div class="row">
+            <mat-form-field appearance="outline" class="grow">
+              <mat-label>{{ 'profile.billing.contributions.activity' | translate }}</mat-label>
+              <mat-select formControlName="microActivity" data-billing-micro-activity>
+                @for (activity of microActivities; track activity) {
+                  <mat-option [value]="activity">{{ 'profile.billing.contributions.activities.' + activity | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="grow">
+              <mat-label>{{ 'profile.billing.contributions.frequency' | translate }}</mat-label>
+              <mat-select formControlName="declarationFrequency" data-billing-declaration-frequency>
+                <mat-option value="MONTHLY">{{ 'profile.billing.contributions.monthly' | translate }}</mat-option>
+                <mat-option value="QUARTERLY">{{ 'profile.billing.contributions.quarterly' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <mat-checkbox formControlName="incomeTaxDischarge" data-billing-income-tax-discharge>{{ 'profile.billing.contributions.discharge' | translate }}</mat-checkbox>
+        }
+        <div class="row">
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>{{ 'profile.billing.contributions.ownRate' | translate }}</mat-label>
+            <input matInput type="number" min="0" max="100" step="0.1" formControlName="ownContributionRate" data-billing-own-rate>
+            <span matTextSuffix>%</span>
+            <mat-hint>{{ (micro ? 'profile.billing.contributions.ownRateMicroHint' : 'profile.billing.contributions.ownRateHint') | translate }}</mat-hint>
+            <mat-error>{{ error('ownContributionRate') }}</mat-error>
+          </mat-form-field>
+        </div>
+        @if (!micro) {
+          <p class="hint"><a href="https://mon-entreprise.urssaf.fr" target="_blank" rel="noopener">{{ 'profile.billing.contributions.simulator' | translate }}</a></p>
+        }
+      </fieldset>
       <div class="logo" data-billing-logo>
         <span class="logo-label">{{ 'profile.billing.logo' | translate }}</span>
         @if (logoUrl) {

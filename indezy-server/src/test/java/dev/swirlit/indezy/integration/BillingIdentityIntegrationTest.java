@@ -140,4 +140,22 @@ class BillingIdentityIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.PUT, "/clients/" + aliceClientId, client, String.class).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void keepsTheUrssafSettingsAndEstimatesTheContributionsFromThem() {
+        Map<String, Object> identity = new HashMap<>(Map.of("legalName", "Alice Martin", "legalForm", "MICRO_ENTREPRISE"));
+        // Read with their defaults, saved, and followed by the estimate.
+        assertThat(call(alice, HttpMethod.GET, "/users/billing", null, Map.class).getBody()).containsEntry("microActivity", "BNC_SSI")
+            .containsEntry("incomeTaxDischarge", false).containsEntry("declarationFrequency", "MONTHLY").containsEntry("ownContributionRate", null);
+        identity.put("microActivity", "BIC_SERVICES");
+        identity.put("incomeTaxDischarge", true);
+        identity.put("declarationFrequency", "QUARTERLY");
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("microActivity", "BIC_SERVICES")
+            .containsEntry("incomeTaxDischarge", true).containsEntry("declarationFrequency", "QUARTERLY");
+        assertThat(call(alice, HttpMethod.GET, "/invoices/contributions?year=2026", null, Map.class).getBody()).containsEntry("rate", 22.9)
+            .containsEntry("officialRate", true).containsEntry("frequency", "QUARTERLY");
+        identity.put("ownContributionRate", 101);
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 }

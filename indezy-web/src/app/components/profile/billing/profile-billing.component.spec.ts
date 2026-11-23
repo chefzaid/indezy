@@ -84,6 +84,26 @@ describe('ProfileBillingComponent', () => {
     expect(component.form.controls.latePaymentRate.invalid).toBeTrue();
   });
 
+  it('asks a micro-entrepreneur for the activity, the declarations and the versement libératoire, and saves them', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    billing.saveIdentity.and.returnValue(of({ ...defaults }));
+    component.form.patchValue({ legalForm: 'SASU' });
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('[data-billing-micro-activity]')).toBeNull();
+    expect(element.querySelector('[data-billing-own-rate]')).not.toBeNull();
+    component.form.patchValue({ legalForm: 'MICRO_ENTREPRISE', microActivity: 'BIC_SERVICES', declarationFrequency: 'QUARTERLY',
+      incomeTaxDischarge: true });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-billing-micro-activity]')).not.toBeNull();
+    component.save();
+    expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ microActivity: 'BIC_SERVICES', declarationFrequency: 'QUARTERLY',
+      incomeTaxDischarge: true, ownContributionRate: null }));
+    component.form.patchValue({ ownContributionRate: 120 });
+    expect(component.form.controls.ownContributionRate.invalid).toBeTrue();
+  });
+
   it('refuses a malformed IBAN, and says when it cannot save or read', () => {
     const fixture = create();
     const component = fixture.componentInstance;

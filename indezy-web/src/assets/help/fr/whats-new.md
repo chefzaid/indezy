@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Vos déclarations URSSAF
+
+La page Factures estime vos cotisations URSSAF sur le chiffre d'affaires encaissé, et liste chaque mois ou trimestre à déclarer avec son échéance. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Les plafonds de la micro-entreprise et de la franchise de TVA
 
 La page Factures mesure désormais le chiffre d'affaires encaissé cette année par rapport au plafond de la micro-entreprise et aux seuils de la franchise en base de TVA, et vous prévient quand vous vous en approchez ou les dépassez. Voir [Devis et factures](/help/invoices-quotes).

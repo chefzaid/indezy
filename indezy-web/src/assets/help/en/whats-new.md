@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Your URSSAF declarations
+
+The Invoices page estimates your URSSAF contributions on the revenue received, and lists each month or quarter to declare with its deadline. See [Quotes and invoices](/help/invoices-quotes).
+
 ### The micro-entreprise and VAT franchise ceilings
 
 The Invoices page now measures the revenue you received this year against the micro-entreprise ceiling and the VAT franchise thresholds, and says when you get close or pass them. See [Quotes and invoices](/help/invoices-quotes).

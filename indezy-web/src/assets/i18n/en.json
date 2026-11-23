@@ -1411,6 +1411,23 @@
       "invoicePrefix": "Invoice number prefix",
       "invoicePrefixHint": "Numbers read F2026-0001, F2026-0002…",
       "latePaymentRate": "Late-payment interest rate (per year)",
+      "contributions": {
+        "title": "URSSAF contributions",
+        "activity": "Activity",
+        "activities": {
+          "BNC_SSI": "Liberal, non-regulated (BNC, SSI)",
+          "BNC_CIPAV": "Liberal, regulated (BNC, CIPAV)",
+          "BIC_SERVICES": "Commercial services (BIC)"
+        },
+        "frequency": "Declaration",
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "discharge": "I pay my income tax with my contributions (versement libératoire)",
+        "ownRate": "My own rate",
+        "ownRateMicroHint": "Leave empty to use the official rate of your activity.",
+        "ownRateHint": "Your contributions in percent of your revenue, which the URSSAF simulator gives; Indezy knows the official rates of the micro-entreprise only.",
+        "simulator": "URSSAF simulator (mon-entreprise.urssaf.fr)"
+      },
       "latePaymentRateHint": "The rate your terms state, at least three times the legal interest rate. Left empty, invoices state the ECB rate plus 10 points.",
       "saved": "Billing identity saved",
       "saveError": "The billing identity could not be saved",
@@ -3395,6 +3412,18 @@
     "fromReportCreate": "Create the invoice",
     "fromReportCreated": "Draft created from the activity report",
     "toInvoice": "{{count}} months of activity reports to invoice",
+    "contributions": {
+      "title": "URSSAF declarations {{year}}",
+      "summary": "€{{revenue}} received this year: about €{{contributions}} of contributions at {{rate}} %",
+      "official": "(official rate of {{year}})",
+      "own": "(your own rate)",
+      "noRate": "Indezy does not know the official rates of {{year}} yet.",
+      "setRate": "Set your own rate in Profile → Billing",
+      "running": "In progress",
+      "toDeclare": "To declare by {{date}}",
+      "past": "Was due by {{date}}",
+      "basis": "Revenue received excluding VAT, on the day it was paid; the amounts are estimates, URSSAF's declaration is what counts. The activity, the frequency and the versement libératoire are set in Profile → Billing."
+    },
     "ceilings": {
       "title": "Ceilings {{year}}",
       "micro": "Micro-entreprise ceiling",

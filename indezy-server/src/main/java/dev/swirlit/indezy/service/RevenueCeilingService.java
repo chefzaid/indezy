@@ -76,13 +76,8 @@ public class RevenueCeilingService {
         LegalForm form = billing == null ? null : billing.getLegalForm();
         boolean exempt = billing == null || !Boolean.FALSE.equals(billing.getVatExempt());
         List<Invoice> all = invoices.findByFreelanceIdOrderByCreatedAtDesc(freelanceId);
-        Map<Long, List<Invoice>> notes = all.stream().filter(invoice -> invoice.isCreditNote() && invoice.getNumber() != null &&
-                invoice.getCreditedInvoiceId() != null)
-            .collect(Collectors.groupingBy(Invoice::getCreditedInvoiceId));
-        List<Payment> payments = all.stream().filter(invoice -> !invoice.isCreditNote() && invoice.getStatus() == InvoiceStatus.PAID &&
-                invoice.getPaidOn() != null)
-            .map(invoice -> new Payment(invoice.getPaidOn(), net(invoice, notes, invoice.getPaidOn())))
-            .sorted(Comparator.comparing(Payment::on)).toList();
+        Map<Long, List<Invoice>> notes = notes(all);
+        List<Payment> payments = payments(all, notes);
         BigDecimal received = sum(payments, year);
         BigDecimal lastYear = sum(payments, year - 1);
         BigDecimal outstanding = all.stream().filter(invoice -> !invoice.isCreditNote() && invoice.getStatus() == InvoiceStatus.ISSUED)
@@ -93,7 +88,26 @@ public class RevenueCeilingService {
             exempt ? vat(year, payments, received, lastYear) : null);
     }
 
-    private record Payment(LocalDate on, BigDecimal amount) {
+    /** A paid invoice's amount received, excluding VAT, in euros, on the day it was paid. */
+    public record Payment(LocalDate on, BigDecimal amount) {
+    }
+
+    /** The workspace's payments received, earliest first. */
+    @Transactional(readOnly = true)
+    public List<Payment> payments(Long freelanceId) {
+        List<Invoice> all = invoices.findByFreelanceIdOrderByCreatedAtDesc(freelanceId);
+        return payments(all, notes(all));
+    }
+
+    private static Map<Long, List<Invoice>> notes(List<Invoice> all) {
+        return all.stream().filter(invoice -> invoice.isCreditNote() && invoice.getNumber() != null && invoice.getCreditedInvoiceId() != null)
+            .collect(Collectors.groupingBy(Invoice::getCreditedInvoiceId));
+    }
+
+    private static List<Payment> payments(List<Invoice> all, Map<Long, List<Invoice>> notes) {
+        return all.stream().filter(invoice -> !invoice.isCreditNote() && invoice.getStatus() == InvoiceStatus.PAID && invoice.getPaidOn() != null)
+            .map(invoice -> new Payment(invoice.getPaidOn(), net(invoice, notes, invoice.getPaidOn())))
+            .sorted(Comparator.comparing(Payment::on)).toList();
     }
 
     /** Past the ceiling two years in a row, the micro-entreprise regime ends on the next 1 January. */

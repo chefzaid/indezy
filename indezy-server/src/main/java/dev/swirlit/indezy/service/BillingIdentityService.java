@@ -19,7 +19,9 @@ import dev.swirlit.indezy.model.enums.QuoteStatus;
 import dev.swirlit.indezy.pdf.InvoicePdfRenderer;
 import dev.swirlit.indezy.pdf.QuotePdfRenderer;
 import dev.swirlit.indezy.pdf.StarterTemplate;
+import dev.swirlit.indezy.model.enums.DeclarationFrequency;
 import dev.swirlit.indezy.model.enums.LegalForm;
+import dev.swirlit.indezy.model.enums.MicroActivity;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
 import dev.swirlit.indezy.repository.FreelanceRepository;
@@ -121,6 +123,10 @@ public class BillingIdentityService {
         billing.setQuoteTheme(request.quoteTheme());
         billing.setBodyBlocks(BodyBlock.store(request.bodyBlocks()));
         billing.setBlockStyles(dev.swirlit.indezy.model.BlockStyle.store(request.blockStyles()));
+        billing.setMicroActivity(request.microActivity());
+        billing.setIncomeTaxDischarge(request.incomeTaxDischarge());
+        billing.setDeclarationFrequency(request.declarationFrequency());
+        billing.setOwnContributionRate(request.ownContributionRate());
         return billing;
     }
 
@@ -199,7 +205,9 @@ public class BillingIdentityService {
             billing.getFontFileId(), billing.getFontFamily(),
             billing.getLetterheadId(), billing.getLetterheadTopMm(), billing.getLetterheadBottomMm(),
             billing.getQuoteAccentColor(), billing.getQuoteTheme(), BodyBlock.read(billing.getBodyBlocks()),
-            dev.swirlit.indezy.model.BlockStyle.read(billing.getBlockStyles()), complete);
+            dev.swirlit.indezy.model.BlockStyle.read(billing.getBlockStyles()),
+            Objects.requireNonNullElse(billing.getMicroActivity(), MicroActivity.BNC_SSI), Boolean.TRUE.equals(billing.getIncomeTaxDischarge()),
+            Objects.requireNonNullElse(billing.getDeclarationFrequency(), DeclarationFrequency.MONTHLY), billing.getOwnContributionRate(), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { BankMatch, Invoice, InvoiceDraft, InvoiceableReport, PaymentDelay, RevenueCeilings } from '../../models';
+import { BankMatch, ContributionEstimate, Invoice, InvoiceDraft, InvoiceableReport, PaymentDelay, RevenueCeilings } from '../../models';
 
 /** An accountant's export: the FEC journal entries, or the register of invoices and credit notes as CSV. */
 export type AccountingExportFormat = 'FEC' | 'REGISTER';
@@ -33,6 +33,11 @@ export class InvoiceService {
   /** The year's revenue received against the micro-entreprise ceiling and the VAT franchise thresholds. */
   ceilings(): Observable<RevenueCeilings> {
     return this.http.get<RevenueCeilings>(`${this.API_URL}/ceilings`);
+  }
+
+  /** The year's URSSAF contributions on the revenue received, with each declaration's deadline for a micro-entreprise. */
+  contributions(): Observable<ContributionEstimate> {
+    return this.http.get<ContributionEstimate>(`${this.API_URL}/contributions`);
   }
 
   invoiceableReports(): Observable<InvoiceableReport[]> {

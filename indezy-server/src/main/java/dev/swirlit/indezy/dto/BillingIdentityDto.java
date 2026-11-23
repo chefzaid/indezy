@@ -68,6 +68,12 @@ public record BillingIdentityDto(
     List<BodyBlock> bodyBlocks,
     /** The mentions' and the notes' own styles (size, alignment, frame, shading); the others keep the layout's. */
     java.util.Map<BodyBlock, dev.swirlit.indezy.model.BlockStyle> blockStyles,
+    /** For the URSSAF contributions (docs/features.md#urssaf-contributions): a micro-entrepreneur's activity, the versement
+     * libératoire, how often the revenue is declared, and the member's own rate in percent of the revenue (null for the official one). */
+    dev.swirlit.indezy.model.enums.MicroActivity microActivity,
+    Boolean incomeTaxDischarge,
+    dev.swirlit.indezy.model.enums.DeclarationFrequency declarationFrequency,
+    @DecimalMin("0") @DecimalMax("100") Double ownContributionRate,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;

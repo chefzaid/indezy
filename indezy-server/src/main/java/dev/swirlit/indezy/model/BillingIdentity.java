@@ -2,7 +2,9 @@ package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.DocumentFont;
 import dev.swirlit.indezy.model.enums.DocumentTheme;
+import dev.swirlit.indezy.model.enums.DeclarationFrequency;
 import dev.swirlit.indezy.model.enums.LegalForm;
+import dev.swirlit.indezy.model.enums.MicroActivity;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
 import jakarta.persistence.Column;
@@ -170,4 +172,23 @@ public class BillingIdentity {
 
     @Column(name = "billing_late_payment_rate")
     private Double latePaymentRate;
+
+    /** A micro-entrepreneur's activity, for the contribution rate; null reads as a non-regulated liberal one (BNC, SSI). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "billing_micro_activity", length = 20)
+    private MicroActivity microActivity;
+
+    /** Whether the income tax is paid with the contributions (versement libératoire); null reads as no. */
+    @Column(name = "billing_income_tax_discharge")
+    private Boolean incomeTaxDischarge;
+
+    /** How often the revenue is declared to URSSAF; null reads as monthly. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "billing_declaration_frequency", length = 10)
+    private DeclarationFrequency declarationFrequency;
+
+    /** The member's own contribution rate, in percent of the revenue, in place of the official one; null for none. */
+    @Column(name = "billing_own_contribution_rate")
+    private Double ownContributionRate;
 }
+

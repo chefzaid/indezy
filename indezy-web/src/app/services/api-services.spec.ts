@@ -234,6 +234,7 @@ describe('API services', () => {
     { name: 'invoice paid', call: () => invoices().setPaid(5, '2026-11-02'), method: 'PUT', url: `${api}/invoices/5/payment`, body: { paidOn: '2026-11-02' } },
     { name: 'payment delays', call: () => invoices().paymentDelays(), method: 'GET', url: `${api}/invoices/payment-delays` },
     { name: 'revenue ceilings', call: () => invoices().ceilings(), method: 'GET', url: `${api}/invoices/ceilings` },
+    { name: 'contributions', call: () => invoices().contributions(), method: 'GET', url: `${api}/invoices/contributions` },
     { name: 'invoice PDF', call: () => invoices().downloadPdf(5), method: 'GET', url: `${api}/invoices/5/pdf`, response: new Blob(['%PDF']) },
     { name: 'billing identity', call: () => billing().identity(), method: 'GET', url: `${api}/users/billing` },
     { name: 'save billing identity', call: () => billing().saveIdentity({ legalName: 'Alice' } as never), method: 'PUT', url: `${api}/users/billing`, body: { legalName: 'Alice' } },

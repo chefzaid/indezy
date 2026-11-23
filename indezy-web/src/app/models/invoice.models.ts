@@ -134,6 +134,34 @@ export interface RevenueCeilings {
   vat: Ceiling | null;
 }
 
+/** Where a declaration stands: its period still running, ended and to declare, or past its deadline. */
+export type DeclarationState = 'RUNNING' | 'TO_DECLARE' | 'PAST';
+
+/** One month or quarter to declare: its days, the revenue received in it, the contributions on it (null without a rate) and their deadline. */
+export interface ContributionPeriod {
+  from: string;
+  to: string;
+  revenue: number;
+  contributions: number | null;
+  dueOn: string;
+  state: DeclarationState;
+}
+
+/** The year's URSSAF contributions: the rate applied (null when none is known) and whether it is the official one, and the declarations of a micro-entreprise. */
+export interface ContributionEstimate {
+  year: number;
+  figuresYear: number;
+  legalForm: string | null;
+  activity: 'BNC_SSI' | 'BNC_CIPAV' | 'BIC_SERVICES';
+  incomeTaxDischarge: boolean;
+  frequency: 'MONTHLY' | 'QUARTERLY';
+  rate: number | null;
+  officialRate: boolean;
+  revenue: number;
+  contributions: number | null;
+  periods: ContributionPeriod[];
+}
+
 /** Why a bank credit was matched to an invoice, the strongest first: its number in the label, its client's name, the amount alone. */
 export type BankMatchReason = 'NUMBER' | 'CLIENT' | 'AMOUNT';
 

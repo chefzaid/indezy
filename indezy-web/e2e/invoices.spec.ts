@@ -60,6 +60,11 @@ for (const width of [1280, 390]) {
       legalForm: 'MICRO_ENTREPRISE', vatExempt: true, received: 34000, receivedLastYear: 0, outstanding: 600,
       micro: { limit: 83600, tolerance: null, revenue: 34000, percent: 40, level: 'UNDER', endsOn: null },
       vat: { limit: 37500, tolerance: 41250, revenue: 34000, percent: 90, level: 'NEAR', endsOn: null } } }));
+    await page.route('**/api/invoices/contributions', route => route.fulfill({ json: { year: 2026, figuresYear: 2026,
+      legalForm: 'MICRO_ENTREPRISE', activity: 'BNC_SSI', incomeTaxDischarge: false, frequency: 'QUARTERLY', rate: 25.6, officialRate: true,
+      revenue: 34000, contributions: 8704, periods: [
+        { from: '2026-07-01', to: '2026-09-30', revenue: 9000, contributions: 2304, dueOn: '2026-10-31', state: 'PAST' },
+        { from: '2026-10-01', to: '2026-12-31', revenue: 5000, contributions: 1280, dueOn: '2027-01-31', state: 'TO_DECLARE' }] } }));
     await page.route('**/api/invoices', route => {
       calls.push(route.request().postDataJSON());
       const created = { ...base, id: 2, number: null, ...route.request().postDataJSON(), totalExcludingVat: 1300, total: 1300 };
@@ -85,6 +90,9 @@ for (const width of [1280, 390]) {
     await expect(page.locator('[data-ceiling="micro"]')).toContainText('34,000 € / 83,600 € · 40 %');
     await expect(page.locator('[data-ceiling="vat"] [data-ceiling-warning]')).toContainText('Near the VAT franchise threshold of €37,500');
     await expect(page.locator('[data-ceiling-outstanding]')).toContainText('€600');
+    // The URSSAF declarations: the one to make now first, at the official rate.
+    await expect(page.locator('[data-contributions-summary]')).toContainText('about €8,704 of contributions at 25.6 %');
+    await expect(page.locator('[data-contribution-period="2026-10-01"]')).toContainText('To declare by 31 January');
 
     await page.locator('[data-new-invoice]').click();
     const dialog = page.getByRole('dialog');

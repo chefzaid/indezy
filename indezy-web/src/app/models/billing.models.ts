@@ -3,6 +3,13 @@ export type LegalForm = 'MICRO_ENTREPRISE' | 'EI' | 'EURL' | 'SASU' | 'SARL' | '
 
 export const LEGAL_FORMS: LegalForm[] = ['MICRO_ENTREPRISE', 'EI', 'EURL', 'SASU', 'SARL', 'SAS', 'PORTAGE', 'OTHER'];
 
+/** A micro-entrepreneur's activity, which sets the contribution rate: liberal (BNC) under the SSI or the CIPAV, or commercial services (BIC). */
+export type MicroActivity = 'BNC_SSI' | 'BNC_CIPAV' | 'BIC_SERVICES';
+export const MICRO_ACTIVITIES: MicroActivity[] = ['BNC_SSI', 'BNC_CIPAV', 'BIC_SERVICES'];
+
+/** How often the revenue is declared to URSSAF. */
+export type DeclarationFrequency = 'MONTHLY' | 'QUARTERLY';
+
 /** What the workspace's invoices say of the seller. */
 /** What a Word template lays out. */
 export type DocumentTemplateKind = 'INVOICE' | 'QUOTE';
@@ -102,6 +109,11 @@ export interface BillingIdentity {
   accentColor?: string | null;
   /** The terms and conditions of sale printed after each quote; null for none. */
   quoteTerms?: string | null;
+  /** For the URSSAF contributions: the micro-entrepreneur's activity, the versement libératoire, how often the revenue is declared, and the member's own rate in percent of the revenue (null for the official one). */
+  microActivity?: MicroActivity;
+  incomeTaxDischarge?: boolean;
+  declarationFrequency?: DeclarationFrequency;
+  ownContributionRate?: number | null;
   /** Read-only: whether invoices can be issued. */
   complete?: boolean;
 }

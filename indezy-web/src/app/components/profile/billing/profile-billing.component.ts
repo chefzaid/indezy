@@ -13,7 +13,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, debounceTime, forkJoin, map, merge, of, switchMap } from 'rxjs';
 
-import { BillingIdentity, BlockStyle, BodyBlock, LEGAL_FORMS, LegalForm, STYLED_BLOCKS, USUAL_BLOCK_STYLE, USUAL_BODY_BLOCKS } from '../../../models';
+import { BillingIdentity, BlockStyle, BodyBlock, DeclarationFrequency, LEGAL_FORMS, LegalForm, MICRO_ACTIVITIES, MicroActivity, STYLED_BLOCKS, USUAL_BLOCK_STYLE,
+  USUAL_BODY_BLOCKS } from '../../../models';
 import { BillingService, PreviewPage } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { billingId, compactId } from '../../../shared/utils/billing-validators';
@@ -47,6 +48,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   private readonly translate = inject(TranslateService);
 
   readonly legalForms = LEGAL_FORMS;
+  readonly microActivities = MICRO_ACTIVITIES;
   readonly form = inject(FormBuilder).group({
     legalName: ['', [Validators.maxLength(120)]],
     legalForm: [null as LegalForm | null],
@@ -62,6 +64,10 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     paymentTermDays: [30 as number | null, [Validators.min(0), Validators.max(60)]],
     invoicePrefix: ['F', [Validators.pattern(/^[A-Za-z0-9-]{0,10}$/)]],
     latePaymentRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
+    microActivity: ['BNC_SSI' as MicroActivity],
+    incomeTaxDischarge: [false],
+    declarationFrequency: ['MONTHLY' as DeclarationFrequency],
+    ownContributionRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
     quoteTerms: ['', Validators.maxLength(20000)],
     accentColor: [''],
     header: ['', Validators.maxLength(150)],
@@ -86,6 +92,10 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
 
   get company(): boolean {
     return COMPANIES.includes(this.form.controls.legalForm.value as LegalForm);
+  }
+
+  get micro(): boolean {
+    return this.form.controls.legalForm.value === 'MICRO_ENTREPRISE';
   }
 
   get portage(): boolean {
@@ -502,6 +512,10 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       paymentTermDays: value.paymentTermDays,
       invoicePrefix: value.invoicePrefix?.trim() || null,
       latePaymentRate: value.latePaymentRate ?? null,
+      microActivity: value.microActivity ?? 'BNC_SSI',
+      incomeTaxDischarge: !!value.incomeTaxDischarge,
+      declarationFrequency: value.declarationFrequency ?? 'MONTHLY',
+      ownContributionRate: value.ownContributionRate ?? null,
       quoteTerms: value.quoteTerms?.trim() || null,
       accentColor: value.accentColor || null,
       header: value.header?.trim() || null,
@@ -541,6 +555,10 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       registration: identity.registration ?? '', address: identity.address ?? '', iban: identity.iban ?? '', bic: identity.bic ?? '',
       paymentTermDays: identity.paymentTermDays, invoicePrefix: identity.invoicePrefix ?? '',
       latePaymentRate: identity.latePaymentRate ?? null,
+      microActivity: identity.microActivity ?? 'BNC_SSI',
+      incomeTaxDischarge: !!identity.incomeTaxDischarge,
+      declarationFrequency: identity.declarationFrequency ?? 'MONTHLY',
+      ownContributionRate: identity.ownContributionRate ?? null,
       quoteTerms: identity.quoteTerms ?? '',
       accentColor: identity.accentColor ?? '',
       header: identity.header ?? '',

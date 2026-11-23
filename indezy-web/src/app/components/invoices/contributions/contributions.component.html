@@ -1,0 +1,36 @@
+@if (estimate; as figures) {
+  <mat-card class="contributions" data-contributions>
+    <mat-card-header>
+      <mat-card-title>{{ 'invoices.contributions.title' | translate:{ year: figures.year } }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (figures.rate !== null) {
+        <p class="summary" data-contributions-summary>
+          {{ 'invoices.contributions.summary' | translate:{ revenue: (figures.revenue | number:'1.0-0'), contributions: (figures.contributions | number:'1.0-0'), rate: (figures.rate | number:'1.0-1') } }}
+          <span class="source">{{ (figures.officialRate ? 'invoices.contributions.official' : 'invoices.contributions.own') | translate:{ year: figures.figuresYear } }}</span>
+        </p>
+      } @else {
+        <p class="summary" data-contributions-no-rate>{{ 'invoices.contributions.noRate' | translate:{ year: figures.year } }}
+          <a routerLink="/profile" [queryParams]="{ tab: 'billing' }">{{ 'invoices.contributions.setRate' | translate }}</a></p>
+      }
+      @if (periods.length) {
+        <ul>
+          @for (period of periods; track period.from) {
+            <li [attr.data-contribution-period]="period.from" [class.due]="period.state === 'TO_DECLARE'">
+              <span class="name">{{ quarter(period) ?? (period.from | date:'MMMM') }}</span>
+              <span class="figure">{{ period.revenue | number:'1.0-0' }} €@if (period.contributions !== null) { → {{ period.contributions | number:'1.0-0' }} €}</span>
+              <span class="state">
+                @switch (period.state) {
+                  @case ('RUNNING') { {{ 'invoices.contributions.running' | translate }} }
+                  @case ('TO_DECLARE') { {{ 'invoices.contributions.toDeclare' | translate:{ date: (period.dueOn | date:'d MMMM') } }} }
+                  @default { {{ 'invoices.contributions.past' | translate:{ date: (period.dueOn | date:'d MMMM y') } }} }
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      }
+      <p class="note">{{ 'invoices.contributions.basis' | translate }}</p>
+    </mat-card-content>
+  </mat-card>
+}

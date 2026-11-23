@@ -1514,6 +1514,20 @@ micro-entreprise and 37 500 € (41 250 € in the year) for the franchise, both
 2025, 77 700 €, 37 500 € and 41 250 €. The same table gives the micro-entrepreneur's 2026 contribution rates (BNC under
 the SSI 25.6 %, under the CIPAV 23.2 %, BIC services 21.2 %).
 
+### URSSAF contributions
+
+**URSSAF declarations {year}** on the Invoices page estimates the contributions on the year's revenue received (as
+**Ceilings** counts it) (`GET /api/invoices/contributions?year=`, `ContributionService`). For a micro-entreprise it
+lists each month or quarter so far, the one to declare now first: the revenue received in it, the contributions at the
+official rate of its activity (2026: 25.6 % for a liberal activity under the SSI, 23.2 % under the CIPAV, 21.2 % for
+commercial services; plus 2.2 or 1.7 points of income tax with the versement libératoire) and the deadline: the end of
+the next month when declaring monthly; 30 April, 31 July, 31 October and 31 January when declaring quarterly. A period
+ended and not yet due reads **To declare by …**. Profile → Billing → **URSSAF contributions** sets the activity, the
+frequency (monthly by default), the versement libératoire and the member's own rate in percent of the revenue, which
+replaces the official one; for another legal form, whose contributions follow the profit, the own rate (from the URSSAF
+simulator, linked) gives the year's estimate, the card staying away without one. A year whose official rates are not in
+`FrenchFigures` yet says so and asks for an own rate. The amounts are estimates: URSSAF's declaration counts.
+
 ### Expenses
 
 **Expenses** (`/expenses`, in the menu after **Quotes**) records the business expenses of a year: the date, what for,
