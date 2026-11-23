@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Le PDF de votre profil LinkedIn
+
+**Importer mon profil** lit aussi le PDF d'**Enregistrer au format PDF** de LinkedIn, sans IA et sans attendre l'archive LinkedIn. Voir [Compte, sécurité et données](/help/account).
+
 ### Vos certifications depuis votre CV ou LinkedIn
 
 **Importer mon profil** trouve désormais vos certifications dans votre CV ou l'archive LinkedIn et ajoute celles que vous cochez à vos formations, avec leurs dates. Voir [Compte, sécurité et données](/help/account).

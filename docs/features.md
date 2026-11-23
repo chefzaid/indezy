@@ -228,16 +228,23 @@ the tech stack. Nothing in it is written by AI (`GET /api/users/dossier?layout=N
 
 ### Profile Import
 
-**Import my profile** on the personal information fills the form from a CV read by AI (see [AI Features](#ai-features))
-or from LinkedIn's data archive, read without AI (`POST /api/users/profile-import/linkedin`, the ZIP of **Get a copy of
-your data**, 20 MB at most, nothing kept): `Profile.csv` gives the name, the place's town, the summary (else the
+**Import my profile** on the personal information fills the form from a CV read by AI (see [AI Features](#ai-features)),
+from LinkedIn's profile PDF or from its data archive, both read without AI. The PDF of **Save to PDF** (same endpoint,
+told apart by its first bytes) has a fixed layout, read with PDFBox by where each line starts and how large it is: the
+left column's Contact (phone, the LinkedIn address joined when it runs onto a second line, the other links by the kind
+written after them), Top Skills, Languages (proficiency dropped) and Certifications (names only), then in the main column
+the name (the largest text), the headline and the place above Summary, Experience (each position found by its dates line,
+`January 2020 - Present (4 years 11 months)` or in French, its title above, a new company named in larger letters above
+that) and Education (not read yet); page footers are skipped, and a PDF with none of these headings is refused. The
+archive (`POST /api/users/profile-import/linkedin`, the ZIP of **Get a copy of your data**, 20 MB at most, nothing
+kept): `Profile.csv` gives the name, the place's town, the summary (else the
 headline) and the websites (GitHub apart), `PhoneNumbers.csv` the phone, `Positions.csv` the running position (else the
 latest) as title and company, `Skills.csv` the skills, each with the years of the dated positions whose title or
 description names it (overlaps counted once), and `Languages.csv` the languages under the profile's names (English
 becomes Anglais), and `Certifications.csv` the certifications (name, authority, started and finished on as obtained and
 expiry). Columns are found by their names and notes above a header skipped; the archive's other files are not
-read, and an archive of over 2,000 files, a file of over 5 MB in it or a file that is not one is refused. Both end on the
-same review: each field found beside the profile's value, ticked when the profile's is empty, new skills and languages
+read, and an archive of over 2,000 files, a file of over 5 MB in it or a file that is not one is refused. All three end on
+the same review: each field found beside the profile's value, ticked when the profile's is empty, new skills and languages
 added under the skill names' usual spelling, and nothing saved until the profile is. Skills the profile already names
 (spellings and the known aliases folded together, as in the skills editor) are listed as there, languages the profile
 does not offer as left out, and when more new skills are found than the 50-skill limit leaves room for, the freelancer

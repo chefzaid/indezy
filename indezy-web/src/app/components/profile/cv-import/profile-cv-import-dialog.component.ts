@@ -54,7 +54,7 @@ const FIELDS: { field: TextField; label: string }[] = [
 ];
 
 /**
- * Fills the profile from a CV with AI (see docs/features.md#ai-features), or from LinkedIn's data archive without AI
+ * Fills the profile from a CV with AI (see docs/features.md#ai-features), or from LinkedIn's data archive or profile PDF without AI
  * (docs/features.md#profile-import): the file is read on the server and nothing is kept there; what it says is shown beside what the profile holds, ticked where the profile is empty, and only what is
  * ticked goes into the form, to review and save as usual. Skills and languages the profile lacks are added, never removed.
  * Certifications go to the training record (docs/features.md#training-record) when the form is filled, those it already
@@ -71,7 +71,7 @@ const FIELDS: { field: TextField; label: string }[] = [
         <p class="hint">{{ 'profile.cvImport.hint' | translate }}</p>
         <input #file type="file" accept=".pdf,.docx,.odt" hidden (change)="read($event)" data-cv-import-file
           [attr.aria-label]="'profile.cvImport.pick' | translate">
-        <input #archive type="file" accept=".zip,application/zip" hidden (change)="read($event, true)" data-cv-import-linkedin-file
+        <input #archive type="file" accept=".zip,application/zip,.pdf,application/pdf" hidden (change)="read($event, true)" data-cv-import-linkedin-file
           [attr.aria-label]="'profile.cvImport.pickLinkedIn' | translate">
         <div class="picks">
           <button mat-stroked-button type="button" (click)="file.click()" [disabled]="loading" data-cv-import-pick>

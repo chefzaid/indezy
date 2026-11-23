@@ -75,9 +75,9 @@ A webhook tells your tools (Zapier, Make, n8n, a script) about your workspace's 
 
 **Profile → Personal information → Import my profile** reads your CV (PDF, Word or OpenDocument, 10 MB at most, read by AI) or LinkedIn's archive of your data (read without AI) into your profile's fields: name, phone, city, position, company, presentation, links, languages, skills with their years, and certifications. The file is not kept.
 
-To get LinkedIn's archive: on LinkedIn, **Settings & Privacy → Data privacy → Get a copy of your data**; LinkedIn emails you a ZIP, usually within a day.
+To get LinkedIn's archive: on LinkedIn, **Settings & Privacy → Data privacy → Get a copy of your data**; LinkedIn emails you a ZIP, usually within a day. Quicker, your profile's PDF: on your own LinkedIn profile, **More → Save to PDF**. It is read without AI too, but lists only your three top skills and your certifications without their dates.
 
-1. Click **Choose my CV** or **Choose my LinkedIn archive**.
+1. Click **Choose my CV** or **Choose my LinkedIn archive or PDF**.
 2. Tick what to take: each field found shows what your profile holds now; the empty ones are ticked. Skills and languages your profile lacks are added, none removed. A skill your profile already names, under another spelling ("spring-boot" for "Spring Boot") or a known alias ("JS" for JavaScript), is listed as already there, and a language your profile does not offer as left out. A profile names 50 skills at most: when more are found than it has room for, choose which to add.
 3. Click **Fill in the form**, check it, then **Save**: nothing is saved before, except the certifications you ticked.
 

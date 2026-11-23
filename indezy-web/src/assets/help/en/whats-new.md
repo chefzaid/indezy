@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Your LinkedIn profile's PDF
+
+**Import my profile** also reads the PDF of LinkedIn's **Save to PDF**, without AI and without waiting for LinkedIn's archive. See [Account, security and data](/help/account).
+
 ### Certifications from your CV or LinkedIn
 
 **Import my profile** now finds your certifications in your CV or LinkedIn's archive and adds the ones you tick to your trainings, with their dates. See [Account, security and data](/help/account).

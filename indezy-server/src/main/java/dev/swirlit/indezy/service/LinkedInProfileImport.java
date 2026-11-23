@@ -88,7 +88,7 @@ public final class LinkedInProfileImport {
         List<ProfileImportAiService.Skill> skills = files.getOrDefault("skills.csv", List.of()).stream().map(row -> column(row, "name", "skill"))
             .filter(Objects::nonNull).map(name -> new ProfileImportAiService.Skill(name, years(name, positions, now))).toList();
         List<String> languages = files.getOrDefault("languages.csv", List.of()).stream().map(row -> column(row, "name", "language"))
-            .filter(Objects::nonNull).map(name -> LANGUAGES.getOrDefault(name.strip().toLowerCase(Locale.ROOT), name.strip())).toList();
+            .filter(Objects::nonNull).map(LinkedInProfileImport::language).toList();
         String phone = files.getOrDefault("phonenumbers.csv", List.of()).stream().map(row -> column(row, "number", "phone"))
             .filter(Objects::nonNull).findFirst().orElse(null);
         List<ProfileImportAiService.Certification> certifications = files.getOrDefault("certifications.csv", List.of()).stream()
@@ -105,6 +105,11 @@ public final class LinkedInProfileImport {
     private static String day(String text) {
         YearMonth month = month(text);
         return month == null ? null : month.atDay(1).toString();
+    }
+
+    /** A language under the profile's French name ("English" is Anglais), else as written. */
+    static String language(String name) {
+        return LANGUAGES.getOrDefault(name.strip().toLowerCase(Locale.ROOT), name.strip());
     }
 
     /** The years of the dated positions whose title or description names the skill, overlaps counted once; 0 when none. */
