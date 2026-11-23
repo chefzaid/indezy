@@ -63,6 +63,16 @@ describe('OfferCardComponent', () => {
     expect(element(fixture, '[data-fact="commute"]').title).toContain('heure de pointe');
   });
 
+  it('lists the deal-breakers read from the offer', () => {
+    const fixture = create(offer({ dealBreakers: ['ON_SITE_ONLY', 'PORTAGE_REQUIRED'] }));
+    const breakers = (fixture.nativeElement as HTMLElement).querySelectorAll('[data-offer-deal-breakers] [data-deal-breaker]');
+    expect([...breakers].map(breaker => breaker.textContent?.trim())).toEqual(['Sur site tous les jours', 'Portage obligatoire']);
+  });
+
+  it('lists no deal-breaker when nothing rules the offer out', () => {
+    expect(element(create(), '[data-offer-deal-breakers]')).toBeNull();
+  });
+
   it('shows no trip without an estimate', () => {
     expect(element(create(), '[data-fact="commute"]')).toBeNull();
   });

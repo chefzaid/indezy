@@ -4,6 +4,7 @@ import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.OfferCommuteDto;
 import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
+import dev.swirlit.indezy.dto.OfferMatchDto;
 import dev.swirlit.indezy.dto.OfferHistoryDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
@@ -398,6 +399,7 @@ public class OfferSearchService {
         Integer distance = straightKm == null ? null : (int) Math.round(straightKm);
         OfferCommuteDto commute = straightKm == null || offer.getWorkMode() == WorkMode.REMOTE ? null :
             CommuteService.offerCommute(straightKm, offer.getDepartmentCode());
+        OfferMatchDto match = OfferMatch.score(offer, skills, profile);
         return new OfferDto(
             offer.getId(), offer.getSite(), offer.getSite().getDisplayName(), offer.getUrl(), offer.getTitle(),
             offer.getCompany(), excerpt(offer.getDescription()), full ? offer.getDescription() : null,
@@ -408,9 +410,10 @@ public class OfferSearchService {
             offer.getStartDate(), offer.getStartAsap(), offer.getSeniority(), skills, offer.getPublishedAt(),
             offer.getDatePrecision(), offer.getExpiresAt(), offer.getExpiresAt() != null && !offer.getExpiresAt().isAfter(now),
             state != null && state.saved(), state != null && state.hidden(), state != null && state.seen(),
-            state == null ? null : state.importedProjectId(), related.alsoOn(), OfferMatch.score(offer, skills, profile),
+            state == null ? null : state.importedProjectId(), related.alsoOn(), match,
             state == null ? null : state.note(), state == null ? null : state.application(), benchmarks.compare(offer, skills),
-            OfferSuspicion.of(offer.getSuspicion()), related.spread(), related.history(), commute, related.relation());
+            OfferSuspicion.of(offer.getSuspicion()), related.spread(), related.history(), commute, related.relation(),
+            dev.swirlit.indezy.model.enums.OfferDealBreaker.of(offer, match));
     }
 
     /** The description's beginning on one line, cut at a word and ended with an ellipsis. */

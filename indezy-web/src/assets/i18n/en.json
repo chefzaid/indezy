@@ -2806,6 +2806,15 @@
         "realEstate": "real estate",
         "food": "food industry"
       }
+    },
+    "dealBreakers": {
+      "label": "Deal-breakers:",
+      "ON_SITE_ONLY": "On site every day",
+      "RATE_UNDER_TARGET": "Rate under your target",
+      "TOO_FAR": "Beyond your commute",
+      "STARTS_TOO_EARLY": "Starts before you are free",
+      "PORTAGE_REQUIRED": "Portage required",
+      "PERMANENT_JOB": "Permanent job"
     }
   },
   "emailsUnsubscribe": {

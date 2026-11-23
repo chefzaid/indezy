@@ -141,6 +141,7 @@ class OfferControllerTest {
             .andExpect(jsonPath("$.content[0].match.place").value("NEAR"))
             .andExpect(jsonPath("$.content[0].siteName").value("Free-Work"))
             .andExpect(jsonPath("$.content[0].commute.carRushMinutes").value(26))
+            .andExpect(jsonPath("$.content[0].dealBreakers[0]").value("PORTAGE_REQUIRED"))
             .andExpect(jsonPath("$.content[0].publishedAt").value("2026-10-19T08:47:42Z"))
             .andExpect(jsonPath("$.content[0].description").doesNotExist())
             .andExpect(jsonPath("$.content[0].alsoOn[0].siteName").value("Collective"))
@@ -454,6 +455,7 @@ class OfferControllerTest {
             new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL), new OfferRateMarketDto(9, 550, 34, "Java", "Île-de-France"),
             List.of(OfferSuspicion.SAME_TEXT_MANY_PUBLISHERS), new OfferPublisherSpreadDto(3, 520, 600),
             new OfferHistoryDto(3, List.of(new OfferHistoryDto.Change(OfferChangeField.RATE, "|500", "|550", Instant.parse("2026-10-20T08:00:00Z")))),
-            new OfferCommuteDto(18, 26, 42, 48), new OfferRelationDto(true, null, null));
+            new OfferCommuteDto(18, 26, 42, 48), new OfferRelationDto(true, null, null),
+            List.of(dev.swirlit.indezy.model.enums.OfferDealBreaker.PORTAGE_REQUIRED));
     }
 }

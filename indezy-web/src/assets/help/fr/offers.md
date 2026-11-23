@@ -27,6 +27,10 @@ Dès que votre profil nomme des compétences, chaque offre reçoit un score sur 
 
 > **Astuce :** un profil sans ville, TJM cible ou date de disponibilité est noté sur le reste. Complétez-le depuis [Prise en main](/help/getting-started) pour des scores plus justes.
 
+## Les points rédhibitoires
+
+Sous le titre d'une offre, en rouge, Indezy signale ce qui peut l'écarter, lu dans l'offre et votre profil sans IA : **Sur site tous les jours**, **TJM sous votre objectif** (de 10 % ou plus), **Au-delà de votre trajet**, **Démarre avant votre disponibilité**, **Portage obligatoire** et **Poste en CDI** (un CDI proposé plutôt qu'une mission). Renseignez votre TJM cible, votre ville avec votre trajet le plus long et votre disponibilité dans le profil pour que les premiers apparaissent.
+
 ## Le TJM face au marché
 
 Une carte qui indique un TJM le compare au TJM médian des offres ouvertes sur la même première compétence, dans sa région ou à défaut en France (par exemple « +12 % vs Java en Île-de-France »). Les médianes sont recalculées chaque nuit.

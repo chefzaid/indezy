@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les points rédhibitoires sur chaque offre
+
+Les cartes du fil signalent en rouge ce qui peut écarter une offre : sur site tous les jours, un TJM sous votre objectif, au-delà de votre trajet, un démarrage avant votre disponibilité, le portage obligatoire ou un poste en CDI. Voir [Le flux d'offres](/help/offers).
+
 ### Vos factures payées depuis votre relevé bancaire
 
 **Rapprocher mon relevé bancaire**, sur la page Factures, lit l'export CSV de votre banque, rapproche ses crédits des factures en attente et marque payées celles que vous gardez, le jour de leur crédit. Voir [Devis et factures](/help/invoices-quotes).

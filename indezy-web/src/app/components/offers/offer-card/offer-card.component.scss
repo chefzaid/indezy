@@ -405,3 +405,25 @@
   background: var(--app-chip-positive-bg);
   color: var(--app-chip-positive-text);
 }
+
+.deal-breakers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin: 4px 0;
+  color: var(--app-chip-danger-text);
+  font-size: 0.8125rem;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+
+  .deal-breaker {
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: var(--app-chip-danger-bg);
+  }
+}

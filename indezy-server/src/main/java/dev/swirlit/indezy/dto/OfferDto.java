@@ -69,11 +69,14 @@ public record OfferDto(
     /** The estimated trip from the profile's city; absent without both places or for a fully remote mission. */
     OfferCommuteDto commute,
     /** The workspace's relation to the publisher: worked with, or covered by a non-solicitation clause; absent otherwise. */
-    OfferRelationDto relation) {
+    OfferRelationDto relation,
+    /** What can rule the offer out, read from it and its match without AI; empty when nothing does. */
+    List<dev.swirlit.indezy.model.enums.OfferDealBreaker> dealBreakers) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);
         alsoOn = alsoOn == null ? List.of() : List.copyOf(alsoOn);
         suspicion = suspicion == null ? null : List.copyOf(suspicion);
+        dealBreakers = dealBreakers == null ? List.of() : List.copyOf(dealBreakers);
     }
 }

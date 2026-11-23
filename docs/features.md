@@ -1242,6 +1242,16 @@ amber from 35, with a tooltip explaining it. **Matches my profile** keeps scores
 the skills once or twice, never not at all. A part's points and its maximum are both multiplied, so the score stays out
 of 100 (`OfferMatch.Weights`), alike on the cards and in the SQL that sorts by match and keeps **Matches my profile**.
 
+### Deal-Breakers
+
+Each offer card of the feed carries what can rule the offer out before it is opened,
+read from the offer and its [profile match](#profile-match) without AI (`dealBreakers` on each offer,
+`OfferDealBreaker`), shown in red under its title: **On site every day** (the site marks it on site), **Rate under
+your target** (10 percent or more below the profile's target), **Beyond your commute** (farther than the profile's
+longest commute reaches), **Starts before you are free** (before the profile's availability), **Portage required**
+(its title or description asks for portage only, or no freelance) and **Permanent job** (a CDI offered rather than a
+mission: "poste en CDI", "CDI uniquement"). A verdict in words stays **Should I apply? (AI)** on the offer's page.
+
 ### Rate Versus Market
 
 A card stating a rate shows how it compares with the median of the open offers naming the same first skill (one per

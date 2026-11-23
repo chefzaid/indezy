@@ -27,6 +27,10 @@ Once your profile names skills, every offer gets a score out of 100: skills (60 
 
 > **Tip:** a profile without a city, target rate or availability date is scored on the other parts. Complete it from [Getting started](/help/getting-started) for fairer scores.
 
+## Deal-breakers
+
+Under an offer's title, in red, Indezy flags what can rule it out, read from the offer and your profile without AI: **On site every day**, **Rate under your target** (10 % or more below), **Beyond your commute**, **Starts before you are free**, **Portage required** and **Permanent job** (a CDI offered rather than a mission). Set your target rate, your city with your longest commute and your availability in the profile for the first ones to show.
+
 ## Rate versus market
 
 A card that states a rate compares it with the median rate of the open offers naming the same first skill, in its region or else in France (for example "+12% vs. Java in Île-de-France"). Medians are worked out every night.

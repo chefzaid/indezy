@@ -133,7 +133,12 @@ export interface Offer {
   /** The workspace's relation to the publisher: worked with, or covered by a non-solicitation clause. */
   /** What the workspace has to do with the publisher; {@code unanswered}: messages its contacts never answered, when they answered none; {@code endClient}: one of the workspace's end clients the offer names. */
   relation?: { workedWith: boolean; clauseEsn?: string; clauseUntil?: string; unanswered?: number; endClient?: string } | null;
+  /** What can rule the offer out, read from it and its match without AI; empty when nothing does. */
+  dealBreakers?: OfferDealBreaker[];
 }
+
+/** What can rule an offer out before it is opened. */
+export type OfferDealBreaker = 'ON_SITE_ONLY' | 'RATE_UNDER_TARGET' | 'TOO_FAR' | 'STARTS_TOO_EARLY' | 'PORTAGE_REQUIRED' | 'PERMANENT_JOB';
 
 /** What changed on an offer: rates as "min|max" (either side empty), starts as an ISO day or "ASAP", descriptions without values. */
 export interface OfferChange {

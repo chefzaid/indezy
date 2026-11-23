@@ -70,6 +70,15 @@
       }
     </p>
   }
+  @if (offer.dealBreakers?.length) {
+    <p class="deal-breakers" data-offer-deal-breakers>
+      <mat-icon aria-hidden="true">block</mat-icon>
+      <span class="cdk-visually-hidden">{{ 'offers.dealBreakers.label' | translate }}</span>
+      @for (breaker of offer.dealBreakers; track breaker) {
+        <span class="deal-breaker" [attr.data-deal-breaker]="breaker">{{ 'offers.dealBreakers.' + breaker | translate }}</span>
+      }
+    </p>
+  }
   @if (offer.alsoOn?.length) {
     <p class="also-on" data-also-on>
       <span>{{ 'offers.card.alsoOn' | translate }}</span>

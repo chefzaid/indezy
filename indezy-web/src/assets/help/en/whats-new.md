@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Deal-breakers on every offer
+
+The feed's cards flag in red what can rule an offer out: on site every day, a rate under your target, beyond your commute, a start before you are free, portage required or a permanent job. See [The offer feed](/help/offers).
+
 ### Mark invoices paid from your bank statement
 
 **Match my bank statement** on the Invoices page reads your bank's CSV export, matches its credits with the invoices awaiting payment, and marks those you keep paid on their day. See [Quotes and invoices](/help/invoices-quotes).

@@ -2806,6 +2806,15 @@
         "realEstate": "immobilier",
         "food": "agroalimentaire"
       }
+    },
+    "dealBreakers": {
+      "label": "Rédhibitoires :",
+      "ON_SITE_ONLY": "Sur site tous les jours",
+      "RATE_UNDER_TARGET": "TJM sous votre objectif",
+      "TOO_FAR": "Au-delà de votre trajet",
+      "STARTS_TOO_EARLY": "Démarre avant votre disponibilité",
+      "PORTAGE_REQUIRED": "Portage obligatoire",
+      "PERMANENT_JOB": "Poste en CDI"
     }
   },
   "emailsUnsubscribe": {
