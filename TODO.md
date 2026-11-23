@@ -762,7 +762,7 @@ Checked on 2026-11-17: invoices, credit notes, deposit invoices and quotes alrea
   - Word's pitfall: a placeholder typed with mixed formatting is split by Word into pieces; the filler joins them back, and the guide says to format a whole placeholder alike;
   - for a fillable PDF form, the field names are the placeholders without braces (`invoice.number`), the lines as `lines.1.description`, `lines.1.quantity` up to the form's last row;
   - the three built-in themes to download as Word templates, and one filled example, to start from.
-- [ ] Factur-X stays valid whatever the style or template: an issued invoice still passes the Mustang validator check the tests run today (PDF/A-3B, EN 16931), and its `factur-x.xml` is always written from the invoice's data, never read from the template.
+- [ ] Factur-X stays valid whatever the style or template: an issued invoice still passes the Mustang validator check the tests run today (PDF/A-3B, EN 16931), and its `factur-x.xml` is always written from the invoice's data, never read from the template. In part on 2026-11-23: `FacturXStyleTest` renders an issued invoice with a translucent logo, an accent colour, a header line, a footer, several pages and each font (the uploaded one too) and checks every font embedded, the PDF/A-3B identification and output intent, and `factur-x.xml` written from the invoice's data (Word templates never reach the PDF). The Mustang validator is not part of the build: the PDF/A and EN 16931 checks of 2026-10-27 were run by hand, and running it again on the styled samples is still to do.
 
 ### French Freelance Essentials (added 2026-10-31)
 
