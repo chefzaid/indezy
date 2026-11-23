@@ -70,7 +70,10 @@ own labels and screenshots of a demo workspace (`src/assets/help/screens`, retak
 `npx playwright test -c pw.screenshots.config.ts help`; invented people, clients and offers). The help center lists the
 articles by section as cards and searches their titles, summaries and text (the articles read once in the browser), each
 result quoting the words found; an article page lists the articles on the left, its own sections on the right on a wide
-screen, and the previous and next article at its foot. `e2e/help.spec.ts` checks that every article exists in both
+screen, and the previous and next article at its foot. Above them, **Was this helpful?** (**Yes** / **No**) is asked
+once per article on a device (remembered in the browser) and counted anonymously on the article's day
+(`POST /api/public/help/{slug}/feedback`, open without an account, nothing about who answered; a name that cannot be an
+article's, or past 100 articles a day, is not counted). `e2e/help.spec.ts` checks that every article exists in both
 languages, with its screenshots and the articles it links to.
 
 The legal texts (`/legal/notice`, `/legal/terms`, `/legal/privacy`: legal notice, terms of use, privacy policy) are
@@ -1686,7 +1689,9 @@ out forgets everything.
 
 **Admin** (`/admin`) opens for the accounts the deployment names (see [Deployment](./deployment.md)).
 
-- **Overview**: accounts, sign-ups of the last 30 days, disabled accounts and each feature's use.
+- **Overview**: accounts, sign-ups of the last 30 days, disabled accounts and each feature's use, then **Help articles**:
+  how each article's readers answered **Was this helpful?** over the last 90 days, with the share that found it helpful,
+  the most answered first (`GET /api/admin/help-feedback`).
 - **Accounts**: search by email or name; **Disable** signs an account out and refuses its sign-ins until **Enable**,
   keeping its data. An administrator cannot be disabled.
 - **Moderation**: the member network's reports, decided as [Member Network](#member-network) tells.

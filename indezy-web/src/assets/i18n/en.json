@@ -3191,7 +3191,13 @@
       "answered": "Answered: the member is told by email",
       "loadError": "The requests could not be loaded.",
       "answerError": "The answer could not be sent."
-    }
+    },
+    "helpFeedback": "Help articles",
+    "helpFeedbackHint": "How the help articles' readers answered Was this helpful? over the last 90 days, anonymously, the most answered first.",
+    "helpFeedbackNone": "No answer yet.",
+    "article": "Article",
+    "helpful": "Helpful",
+    "unhelpful": "Not helpful"
   },
   "invoices": {
     "title": "Invoices",
@@ -4918,6 +4924,13 @@
       "facturX": "Help: Factur-X invoices",
       "emailTemplates": "Help: templates and their variables",
       "offerFilters": "Help: filtering and sorting the feed"
+    },
+    "helpful": {
+      "question": "Was this helpful?",
+      "yes": "Yes",
+      "no": "No",
+      "thanks": "Thanks for telling us.",
+      "thanksNo": "Thanks: we will make it clearer. Write to us from Support if something is missing."
     }
   },
   "legal": {

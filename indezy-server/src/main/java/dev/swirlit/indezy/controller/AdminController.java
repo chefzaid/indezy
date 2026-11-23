@@ -25,12 +25,20 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService admin;
+    private final dev.swirlit.indezy.service.HelpFeedbackService helpFeedback;
 
     @Operation(summary = "Accounts, sign-ups and the workspaces using each feature")
     @GetMapping("/overview")
     public AdminDtos.Overview overview() {
         admin.requireAdmin(SecurityUtils.getCurrentUserId());
         return admin.overview();
+    }
+
+    @Operation(summary = "How the help articles' readers answered Was this helpful? in the last 90 days, the most answered first")
+    @GetMapping("/help-feedback")
+    public List<dev.swirlit.indezy.service.HelpFeedbackService.Totals> helpFeedback() {
+        admin.requireAdmin(SecurityUtils.getCurrentUserId());
+        return helpFeedback.totals();
     }
 
     @Operation(summary = "Accounts whose email or name holds the text, newest first, 20 a page")

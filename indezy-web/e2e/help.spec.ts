@@ -51,6 +51,15 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     expect(article.violations.map(violation => violation.id)).toEqual([]);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
+    // Was this helpful?, answered once.
+    const answers: unknown[] = [];
+    await page.route('**/api/public/help/network/feedback', route => {
+      answers.push(route.request().postDataJSON());
+      return route.fulfill({ status: 204 });
+    });
+    await page.locator('[data-help-helpful-yes]').click();
+    await expect.poll(() => answers).toEqual([{ helpful: true }]);
+    await expect(page.locator('[data-help-helpful] [role=status]')).toHaveText(en ? 'Thanks for telling us.' : 'Merci de nous le dire.');
 
     await page.goto('/help');
     await page.locator('[data-help-search]').fill(en ? 'invoice' : 'facture');

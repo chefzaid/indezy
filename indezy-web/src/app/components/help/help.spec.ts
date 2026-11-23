@@ -88,6 +88,32 @@ describe('HelpArticleComponent', () => {
     fixture.detectChanges();
     expect(element.querySelector('[data-help-not-found]')).not.toBeNull();
   });
+
+  it('asks once on this device whether the article helped, counting the answer', () => {
+    localStorage.removeItem('indezy.help.answered');
+    const params = new BehaviorSubject(convertToParamMap({ slug: 'offers' }));
+    configure(HelpArticleComponent, [{ provide: ActivatedRoute, useValue: { paramMap: params } }]);
+    const fixture = TestBed.createComponent(HelpArticleComponent);
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne('assets/help/en/offers.md').flush('Text');
+    element.querySelector<HTMLButtonElement>('[data-help-helpful-no]')!.click();
+    fixture.detectChanges();
+    const sent = http.expectOne(request => request.url.endsWith('/public/help/offers/feedback'));
+    expect(sent.request.body).toEqual({ helpful: false });
+    sent.flush(null);
+    expect(element.querySelector('[data-help-helpful] [role=status]')).not.toBeNull();
+    fixture.componentInstance.answer(true);
+    http.expectNone(request => request.url.endsWith('/feedback'));
+    // Back on the article later, it is not asked again.
+    params.next(convertToParamMap({ slug: 'pipeline' }));
+    http.match(() => true).forEach(request => request.flush('Text'));
+    params.next(convertToParamMap({ slug: 'offers' }));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.answered).toBeTrue();
+    localStorage.removeItem('indezy.help.answered');
+  });
 });
 
 describe('LegalPageComponent', () => {

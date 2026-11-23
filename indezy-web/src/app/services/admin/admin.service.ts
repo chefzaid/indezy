@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AdminAccount, AdminAccountPage, AdminOverview, FeatureFlag, FeatureState, ModerationQueue, ReportOutcome, ReportsDashboard } from '../../models';
+import { HelpFeedbackTotals, AdminAccount, AdminAccountPage, AdminOverview, FeatureFlag, FeatureState, ModerationQueue, ReportOutcome, ReportsDashboard } from '../../models';
 
 /** The admin console's calls, answered only to the administrators the deployment names. */
 @Injectable({
@@ -23,6 +23,11 @@ export class AdminService {
 
   setDisabled(id: number, disabled: boolean): Observable<AdminAccount> {
     return this.http.post<AdminAccount>(`${this.API_URL}/accounts/${id}/${disabled ? 'disable' : 'enable'}`, null);
+  }
+
+  /** How the help articles' readers answered Was this helpful? in the last 90 days, the most answered first. */
+  helpFeedback(): Observable<HelpFeedbackTotals[]> {
+    return this.http.get<HelpFeedbackTotals[]>(`${this.API_URL}/help-feedback`);
   }
 
   features(): Observable<FeatureState[]> {

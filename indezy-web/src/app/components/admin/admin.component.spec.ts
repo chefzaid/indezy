@@ -35,7 +35,8 @@ describe('AdminComponent', () => {
   }
 
   beforeEach(() => {
-    admin = jasmine.createSpyObj('AdminService', ['overview', 'accounts', 'setDisabled', 'features', 'setFeature']);
+    admin = jasmine.createSpyObj('AdminService', ['overview', 'accounts', 'setDisabled', 'features', 'setFeature', 'helpFeedback']);
+    admin.helpFeedback.and.returnValue(of([]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
   });
 
@@ -48,6 +49,15 @@ describe('AdminComponent', () => {
     const rows = Array.from(page.querySelectorAll('[data-admin-adoption] tbody tr')).map(row =>
       Array.from(row.querySelectorAll('td')).map(cell => cell.textContent?.trim()).join(' '));
     expect(rows).toEqual(['Opportunities 30 75 %', 'Attachments 10 25 %', 'Seasons 10 25 %']);
+  });
+
+  it('shows how each help article helped its readers', () => {
+    admin.overview.and.returnValue(of(overview));
+    admin.helpFeedback.and.returnValue(of([{ slug: 'offers', helpful: 3, unhelpful: 1 }]));
+    const fixture = create();
+    const row = (fixture.nativeElement as HTMLElement).querySelector('[data-admin-help-article="offers"]')!;
+    expect(Array.from(row.querySelectorAll('td')).map(cell => cell.textContent?.trim()).slice(1)).toEqual(['3', '1', '75 %']);
+    expect(fixture.componentInstance.helpfulShare({ slug: 'x', helpful: 0, unhelpful: 0 })).toBe(0);
   });
 
   it('counts no share without accounts', () => {

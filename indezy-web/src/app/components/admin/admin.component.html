@@ -43,6 +43,34 @@
             </tbody>
           </table>
         </mat-card>
+        <mat-card class="section">
+          <h2>{{ 'admin.helpFeedback' | translate }}</h2>
+          <p class="hint">{{ 'admin.helpFeedbackHint' | translate }}</p>
+          @if (helpFeedback.length) {
+            <table class="adoption" data-admin-help-feedback>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'admin.article' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'admin.helpful' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'admin.unhelpful' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'admin.share' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (totals of helpFeedback; track totals.slug) {
+                  <tr [attr.data-admin-help-article]="totals.slug">
+                    <td>{{ 'help.articles.' + totals.slug + '.title' | translate }}</td>
+                    <td class="numeric">{{ totals.helpful }}</td>
+                    <td class="numeric">{{ totals.unhelpful }}</td>
+                    <td class="numeric">{{ helpfulShare(totals) }} %</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <p class="hint" data-admin-help-feedback-none>{{ 'admin.helpFeedbackNone' | translate }}</p>
+          }
+        </mat-card>
       }
     </mat-tab>
     <mat-tab [label]="'admin.tabs.accounts' | translate">

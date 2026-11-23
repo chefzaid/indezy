@@ -3,6 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 import { AuthService } from '../../services/auth/auth.service';
 import { MarkdownHeading } from '../../shared/components/markdown/markdown';
@@ -26,6 +28,12 @@ export class HelpArticleComponent implements OnInit {
   private readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   readonly auth = inject(AuthService);
+  private readonly http = inject(HttpClient);
+
+  /** The articles answered on this device, so Was this helpful? is asked once each. */
+  private static readonly ANSWERED_KEY = 'indezy.help.answered';
+  /** Whether the article read was answered: true or false once it was, null before. */
+  answered: boolean | null = null;
 
   readonly articles = HELP_ARTICLES;
   article: HelpArticle | undefined;
@@ -40,6 +48,7 @@ export class HelpArticleComponent implements OnInit {
       this.previous = at > 0 ? HELP_ARTICLES[at - 1] : undefined;
       this.next = at >= 0 && at < HELP_ARTICLES.length - 1 ? HELP_ARTICLES[at + 1] : undefined;
       this.headings = [];
+      this.answered = this.article && answeredOnThisDevice().includes(this.article.slug) ? true : null;
       this.changes.markForCheck();
       window.scrollTo?.({ top: 0 });
     });
@@ -50,9 +59,33 @@ export class HelpArticleComponent implements OnInit {
     this.changes.markForCheck();
   }
 
+  /** Counts whether the article helped (nothing about who said it), once on this device. */
+  answer(helpful: boolean): void {
+    const slug = this.article?.slug;
+    if (!slug || this.answered !== null) {
+      return;
+    }
+    this.answered = helpful;
+    try {
+      localStorage.setItem(HelpArticleComponent.ANSWERED_KEY, JSON.stringify([...answeredOnThisDevice(), slug].slice(-100)));
+    } catch {
+      // Storage refused (private browsing): the question may come back.
+    }
+    this.http.post(`${environment.apiUrl}/public/help/${slug}/feedback`, { helpful }).subscribe({ error: () => undefined });
+  }
+
   /** Scrolls to a section of the article. */
   jump(event: Event, id: string): void {
     event.preventDefault();
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function answeredOnThisDevice(): string[] {
+  try {
+    const stored = JSON.parse(localStorage.getItem('indezy.help.answered') ?? '[]');
+    return Array.isArray(stored) ? stored.filter((slug): slug is string => typeof slug === 'string') : [];
+  } catch {
+    return [];
   }
 }

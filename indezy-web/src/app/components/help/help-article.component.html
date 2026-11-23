@@ -19,6 +19,15 @@
           <h1>{{ 'help.articles.' + current.slug + '.title' | translate }}</h1>
         </header>
         <app-markdown-view folder="help" [name]="current.slug" (headings)="showHeadings($event)"></app-markdown-view>
+        <aside class="helpful" data-help-helpful>
+          @if (answered === null) {
+            <span>{{ 'help.helpful.question' | translate }}</span>
+            <button type="button" (click)="answer(true)" data-help-helpful-yes>{{ 'help.helpful.yes' | translate }}</button>
+            <button type="button" (click)="answer(false)" data-help-helpful-no>{{ 'help.helpful.no' | translate }}</button>
+          } @else {
+            <span role="status">{{ (answered ? 'help.helpful.thanks' : 'help.helpful.thanksNo') | translate }}</span>
+          }
+        </aside>
         <footer class="pager">
           @if (previous; as before) {
             <a [routerLink]="['/help', before.slug]" class="previous" data-help-previous>

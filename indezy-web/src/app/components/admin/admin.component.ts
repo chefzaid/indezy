@@ -5,7 +5,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 
-import { AdminOverview } from '../../models';
+import { AdminOverview, HelpFeedbackTotals } from '../../models';
 import { AdminService } from '../../services/admin/admin.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { AdminAccountsComponent } from './admin-accounts.component';
@@ -30,6 +30,8 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   overview?: AdminOverview;
   features: { name: string; count: number }[] = [];
+  /** How each help article helped its readers lately; empty until read. */
+  helpFeedback: HelpFeedbackTotals[] = [];
 
   ngOnInit(): void {
     this.admin.overview().pipe(takeUntil(this.destroy$)).subscribe({
@@ -40,6 +42,16 @@ export class AdminComponent implements OnInit, OnDestroy {
       },
       error: () => this.notifications.error('admin.loadError')
     });
+    this.admin.helpFeedback().pipe(takeUntil(this.destroy$)).subscribe({
+      next: totals => this.helpFeedback = Array.isArray(totals) ? totals : [],
+      error: () => undefined
+    });
+  }
+
+  /** The share of an article's answers saying it helped, in whole percent. */
+  helpfulShare(totals: HelpFeedbackTotals): number {
+    const answers = totals.helpful + totals.unhelpful;
+    return answers ? Math.round(totals.helpful * 100 / answers) : 0;
   }
 
   ngOnDestroy(): void {

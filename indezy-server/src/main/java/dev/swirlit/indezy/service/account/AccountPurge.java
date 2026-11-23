@@ -49,7 +49,7 @@ public class AccountPurge {
     static final Set<String> SHARED = Set.of("job_offers", "job_offer_skills", "job_offer_changes", "offer_appearances",
         "offer_mentions", "offer_rate_benchmarks", "offer_rate_history", "offer_site_statuses", "offer_skips", "offer_terms",
         "geo_places", "feature_flags", "network_conversations", "network_messages", "network_communities", "network_ideas",
-        "network_invitation_opt_outs");
+        "network_invitation_opt_outs", "help_feedback_days");
 
     private static final String POSTS = "(SELECT id FROM network_posts WHERE author_id = ?)";
     private static final String COMMENTS = "(SELECT id FROM network_comments WHERE author_id = ? OR post_id IN " + POSTS + ")";

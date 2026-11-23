@@ -78,6 +78,20 @@ class AdminIntegrationTest extends TwoAccountsIntegrationTest {
     }
 
     /** The configured administrator, registered once for the whole database. */
+    @Test
+    @SuppressWarnings("unchecked")
+    void showsTheAdministratorsHowTheHelpArticlesHelped() {
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        for (boolean helpful : new boolean[] {true, true, false}) {
+            exchange("/public/help/invoices-quotes/feedback", HttpMethod.POST, new org.springframework.http.HttpEntity<>(Map.of("helpful", helpful),
+                headers), String.class);
+        }
+        assertThat(call(bob, HttpMethod.GET, "/admin/help-feedback", null, String.class).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        List<Map<String, Object>> totals = call(chief(), HttpMethod.GET, "/admin/help-feedback", null, List.class).getBody();
+        assertThat(totals).contains(Map.of("slug", "invoices-quotes", "helpful", 2, "unhelpful", 1));
+    }
+
     private Account chief() {
         ResponseEntity<Map> signedIn = login(CHIEF);
         if (signedIn.getStatusCode() != HttpStatus.OK) {

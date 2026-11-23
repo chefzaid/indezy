@@ -7,6 +7,13 @@ export interface Capabilities {
   features: Record<FeatureFlag, boolean>;
 }
 
+/** A help article's answers to Was this helpful? over the last 90 days. */
+export interface HelpFeedbackTotals {
+  slug: string;
+  helpful: number;
+  unhelpful: number;
+}
+
 export interface AdminOverview {
   accounts: number;
   disabledAccounts: number;

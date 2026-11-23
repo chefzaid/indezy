@@ -27,6 +27,7 @@ for (const width of [1280, 390]) {
       return route.fulfill({ json: { ...alice, disabledAt: '2026-10-27T09:00:00Z' } });
     });
     await page.route('**/api/admin/features', route => route.fulfill({ json: flags }));
+    await page.route('**/api/admin/help-feedback', route => route.fulfill({ json: [{ slug: 'offers', helpful: 9, unhelpful: 3 }] }));
     await page.route('**/api/admin/features/OFFER_FEED', route => {
       calls.push(`offers ${route.request().postDataJSON().enabled}`);
       flags = flags.map(state => state.flag === 'OFFER_FEED' ? { ...state, enabled: false } : state);
@@ -36,6 +37,7 @@ for (const width of [1280, 390]) {
     await page.goto('/admin');
     await expect(page.locator('[data-admin-figures]')).toContainText('40');
     await expect(page.locator('[data-admin-adoption]')).toContainText('Offer feed');
+    await expect(page.locator('[data-admin-help-article="offers"]')).toContainText('75 %');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
     await page.getByRole('tab', { name: 'Accounts' }).click();

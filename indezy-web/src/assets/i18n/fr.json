@@ -3191,7 +3191,13 @@
       "answered": "Répondu : le membre est prévenu par e-mail",
       "loadError": "Les demandes n'ont pas pu être chargées.",
       "answerError": "La réponse n'a pas pu partir."
-    }
+    },
+    "helpFeedback": "Articles d'aide",
+    "helpFeedbackHint": "Ce qu'ont répondu les lecteurs des articles d'aide à « Cet article vous a-t-il aidé ? » ces 90 derniers jours, anonymement, les plus répondus d'abord.",
+    "helpFeedbackNone": "Aucune réponse pour l'instant.",
+    "article": "Article",
+    "helpful": "Utile",
+    "unhelpful": "Pas utile"
   },
   "invoices": {
     "title": "Factures",
@@ -4918,6 +4924,13 @@
       "facturX": "Aide : les factures Factur-X",
       "emailTemplates": "Aide : les modèles et leurs variables",
       "offerFilters": "Aide : filtrer et trier le fil"
+    },
+    "helpful": {
+      "question": "Cet article vous a-t-il aidé ?",
+      "yes": "Oui",
+      "no": "Non",
+      "thanks": "Merci de nous le dire.",
+      "thanksNo": "Merci : nous allons le rendre plus clair. Écrivez-nous depuis le Support s'il manque quelque chose."
     }
   },
   "legal": {
