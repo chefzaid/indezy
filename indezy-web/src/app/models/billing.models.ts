@@ -53,6 +53,9 @@ export interface BillingIdentity {
   fontFileId?: number | null;
   /** Read-only: the letterhead PDF the documents are drawn over; null for none. Set with its own upload. */
   letterheadId?: number | null;
+  /** The room the letterhead's header and footer take, in millimetres, kept free of the document; null for the usual margins. */
+  letterheadTop?: number | null;
+  letterheadBottom?: number | null;
   fontFamily?: string | null;
   /** Where the logo sits at the top of the documents, and how large. */
   logoPlacement?: 'LEFT' | 'CENTER' | 'RIGHT';

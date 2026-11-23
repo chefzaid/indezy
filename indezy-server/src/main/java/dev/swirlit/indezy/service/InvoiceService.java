@@ -546,6 +546,8 @@ public class InvoiceService {
         seller.setAccentColor(identity.accentColor());
         seller.setLogoId(identity.logoId());
         seller.setLetterheadId(identity.letterheadId());
+        seller.setLetterheadTopMm(identity.letterheadTop());
+        seller.setLetterheadBottomMm(identity.letterheadBottom());
         seller.setTheme(identity.theme());
         seller.setLogoPlacement(identity.logoPlacement());
         seller.setLogoSize(identity.logoSize());

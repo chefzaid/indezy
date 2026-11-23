@@ -34,12 +34,33 @@ final class PdfPageWriter implements Closeable {
     /** Written at the foot of every page once the document is done, beside its page number; null for none. */
     private String footer;
 
+    /** The room kept free at the top and the bottom of every page, in points (a letterhead's header and footer). */
+    private final float keptTop;
+    private final float keptBottom;
+
     PdfPageWriter(PDDocument document, PDRectangle pageSize, PDFont regular, PDFont bold) throws IOException {
+        this(document, pageSize, regular, bold, new Margins(MARGIN, MARGIN));
+    }
+
+    PdfPageWriter(PDDocument document, PDRectangle pageSize, PDFont regular, PDFont bold, Margins margins) throws IOException {
         this.document = document;
         this.pageSize = pageSize;
         this.regular = regular;
         this.bold = bold;
+        this.keptTop = Math.max(MARGIN, margins.top());
+        this.keptBottom = Math.max(MARGIN, margins.bottom());
         newPage();
+    }
+
+    /** The room to keep free at the top and the bottom of the pages, in points; never less than {@link #MARGIN}. */
+    record Margins(float top, float bottom) {
+
+        private static final float POINTS_PER_MM = 72f / 25.4f;
+
+        /** The margins a letterhead asks for, in millimetres; the usual ones for those it does not set. */
+        static Margins ofMillimetres(Integer topMm, Integer bottomMm) {
+            return new Margins(topMm == null ? MARGIN : topMm * POINTS_PER_MM, bottomMm == null ? MARGIN : bottomMm * POINTS_PER_MM);
+        }
     }
 
     float left() {
@@ -65,7 +86,7 @@ final class PdfPageWriter implements Closeable {
 
     /** Starts a new page when a block of this height does not fit above the bottom margin; true when it did. */
     boolean ensureSpace(float height) throws IOException {
-        if (cursor - height < MARGIN) {
+        if (cursor - height < keptBottom) {
             newPage();
             return true;
         }
@@ -239,7 +260,7 @@ final class PdfPageWriter implements Closeable {
             return;
         }
         float size = 7.5f;
-        float baseline = MARGIN / 2;
+        float baseline = keptBottom - MARGIN / 2;
         for (int index = 0; index < pages; index++) {
             try (PDPageContentStream stamp = new PDPageContentStream(document, document.getPage(index),
                 PDPageContentStream.AppendMode.APPEND, true, true)) {
@@ -286,7 +307,7 @@ final class PdfPageWriter implements Closeable {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
         content = new PDPageContentStream(document, page);
-        cursor = pageSize.getHeight() - MARGIN;
+        cursor = pageSize.getHeight() - keptTop;
     }
 
     private PDFont font(boolean useBold) {

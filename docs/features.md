@@ -1438,7 +1438,9 @@ and quotes, its first page under a document's first page and its second (or the 
 under a quote's appended terms PDF; it is refused unless it has one or two upright A4 pages, no password, no script or
 action, and every font embedded (so that Factur-X stays PDF/A), and it is checked by ClamAV. Each upload is a new file
 (`GET /api/users/billing/letterheads/{id}`), frozen with the seller at issue (`letterheadId`); `DELETE` stops using it.
-The document is drawn in its usual place: a letterhead leaves the page's centre free.
+The document is drawn in its usual place, or within **Room for its header** and **Room for its footer** when set (0 to
+120 mm, `letterheadTop` and `letterheadBottom`, never less than the usual 14 mm, the footer line and page numbers just
+above the room kept at the bottom), frozen with the seller at issue: a letterhead leaves the rest of the page free.
 The **Layout** (`theme`, frozen at issue) is **Simple** (black on white, the logo above the seller), **Modern** (a band of
 the accent colour, or a dark slate without one, across the top with the logo and the title in white, the table header
 and the amount to pay filled with it) or **Classic** (Liberation Serif unless a font was uploaded, the logo centred, a

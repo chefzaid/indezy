@@ -234,6 +234,12 @@ describe('ProfileBillingComponent', () => {
     expect(component.letterheadId).toBe(6);
     expect(notifications.success).toHaveBeenCalledWith('profile.billing.letterheadSaved');
     expect(text(fixture)).toContain('Replace the letterhead');
+    // The room its header and footer take, sent with the form and read back.
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-billing-letterhead-margins]')).not.toBeNull();
+    component.form.patchValue({ letterheadTop: 45, letterheadBottom: 20 });
+    billing.stylePreview.and.returnValue(of(new Blob(['png'])));
+    component.preview();
+    expect(billing.stylePreview).toHaveBeenCalledWith(jasmine.objectContaining({ letterheadTop: 45, letterheadBottom: 20 }));
 
     pick('papier.png', 'image/png');
     expect(notifications.error).toHaveBeenCalledWith('profile.billing.letterheadRefused');

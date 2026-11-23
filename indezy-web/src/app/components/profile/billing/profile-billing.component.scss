@@ -144,3 +144,6 @@
     box-shadow: 0 6px 18px rgba(15, 12, 40, 0.08);
   }
 }
+
+.letterhead-margins { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 12px; }
+.letterhead-margins mat-form-field { flex: 0 1 220px; }

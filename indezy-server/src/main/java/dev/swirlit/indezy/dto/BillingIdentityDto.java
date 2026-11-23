@@ -51,6 +51,9 @@ public record BillingIdentityDto(
     String fontFamily,
     /** The letterhead PDF the documents are drawn over, set by its own upload, never by this form. */
     Long letterheadId,
+    /** The room the letterhead's header and footer take, in millimetres; null for the usual margins. */
+    @Min(0) @Max(120) Integer letterheadTop,
+    @Min(0) @Max(120) Integer letterheadBottom,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;

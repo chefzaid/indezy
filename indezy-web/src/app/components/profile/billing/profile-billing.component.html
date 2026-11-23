@@ -164,6 +164,21 @@
         }
         <span class="hint">{{ 'profile.billing.letterheadHint' | translate }}</span>
       </div>
+      @if (letterheadId) {
+        <div class="letterhead-margins" data-billing-letterhead-margins>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'profile.billing.letterheadTop' | translate }}</mat-label>
+            <input matInput type="number" min="0" max="120" formControlName="letterheadTop" data-billing-letterhead-top>
+            <span matTextSuffix>mm</span>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'profile.billing.letterheadBottom' | translate }}</mat-label>
+            <input matInput type="number" min="0" max="120" formControlName="letterheadBottom" data-billing-letterhead-bottom>
+            <span matTextSuffix>mm</span>
+          </mat-form-field>
+          <span class="hint">{{ 'profile.billing.letterheadMarginsHint' | translate }}</span>
+        </div>
+      }
       <div class="font-upload" data-billing-font-upload>
         <input #fontInput type="file" hidden multiple accept=".ttf,.otf,font/ttf,font/otf" (change)="uploadFont($event)" data-billing-font-file
           [attr.aria-label]="'profile.billing.fontUpload' | translate">

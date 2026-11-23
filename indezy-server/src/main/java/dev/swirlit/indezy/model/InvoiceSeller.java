@@ -84,6 +84,13 @@ public class InvoiceSeller {
     @Column(name = "seller_letterhead_id")
     private Long letterheadId;
 
+    /** The room kept free for the letterhead's header and footer, in millimetres, kept at issue; null for the usual margins. */
+    @Column(name = "seller_letterhead_top_mm")
+    private Integer letterheadTopMm;
+
+    @Column(name = "seller_letterhead_bottom_mm")
+    private Integer letterheadBottomMm;
+
     /** The uploaded font ({@link DocumentFontFile}) the document prints in when {@code font} is CUSTOM, kept at issue. */
     @Column(name = "seller_font_file_id")
     private Long fontFileId;

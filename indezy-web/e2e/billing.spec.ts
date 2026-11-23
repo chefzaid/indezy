@@ -51,6 +51,8 @@ for (const width of [1280, 390]) {
     await expect(card.locator('[data-billing-logo-preview]')).toBeVisible();
     await card.locator('[data-billing-letterhead-file]').setInputFiles({ name: 'papier.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF') });
     await expect(card.locator('[data-billing-letterhead-open]')).toBeVisible();
+    await card.locator('[data-billing-letterhead-top]').fill('45');
+    await card.locator('[data-billing-letterhead-bottom]').fill('20');
     // An uploaded font becomes the documents' one.
     await card.locator('[data-billing-font-file]').setInputFiles([{ name: 'MaPolice-Regular.ttf', mimeType: 'font/ttf', buffer: Buffer.from('ttf') },
       { name: 'MaPolice-Bold.ttf', mimeType: 'font/ttf', buffer: Buffer.from('ttf') }]);
@@ -76,7 +78,7 @@ for (const width of [1280, 390]) {
     await card.locator('[data-billing-save]').click();
 
     await expect(card.locator('[data-billing-status]')).toContainText('Ready to issue invoices');
-    expect(saved).toEqual([expect.objectContaining({ legalForm: 'MICRO_ENTREPRISE', siret: '55210055400012',
+    expect(saved).toEqual([expect.objectContaining({ legalForm: 'MICRO_ENTREPRISE', siret: '55210055400012', letterheadTop: 45, letterheadBottom: 20,
       iban: 'FR7630006000011234567890189', vatExempt: true, quoteTerms: 'Article 1 — Objet', accentColor: '#1F4E79',
       footer: 'alice.dev · 06 12 34 56 78', font: 'CUSTOM', theme: 'MODERN' })]);
     const audit = await new AxeBuilder({ page }).include('[data-billing]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();

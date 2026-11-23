@@ -111,6 +111,13 @@ public class BillingIdentity {
     @Column(name = "billing_letterhead_id")
     private Long letterheadId;
 
+    /** The room the letterhead's header and footer take, in millimetres, kept free of the document; null for the usual margins. */
+    @Column(name = "billing_letterhead_top_mm")
+    private Integer letterheadTopMm;
+
+    @Column(name = "billing_letterhead_bottom_mm")
+    private Integer letterheadBottomMm;
+
     /** The uploaded font ({@link DocumentFontFile}) the documents print in when {@code font} is CUSTOM; null for none. */
     @Column(name = "billing_font_file_id")
     private Long fontFileId;

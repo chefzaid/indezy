@@ -44,6 +44,12 @@ public final class QuotePdfRenderer {
         this.letterheads = repository;
     }
 
+    /** The room the letterhead asks to keep free; the usual margins without one. */
+    private static PdfPageWriter.Margins margins(InvoiceSeller seller, boolean letterhead) {
+        return letterhead ? PdfPageWriter.Margins.ofMillimetres(seller.getLetterheadTopMm(), seller.getLetterheadBottomMm()) :
+            new PdfPageWriter.Margins(PdfPageWriter.MARGIN, PdfPageWriter.MARGIN);
+    }
+
     private byte[] letterheadOf(InvoiceSeller seller) {
         return letterheads == null || seller.getLetterheadId() == null ? null :
             letterheads.findById(seller.getLetterheadId()).map(DocumentLetterhead::getContent).orElse(null);
@@ -91,7 +97,7 @@ public final class QuotePdfRenderer {
             PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(faces.regular()));
             PDFont bold = PDType0Font.load(document, new ByteArrayInputStream(faces.bold()));
             QuotePage page;
-            try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold)) {
+            try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold, margins(seller, letterhead != null))) {
                 page = new QuotePage(writer, quote, seller, buyer, paymentTermDays, terms, termsPdf != null);
                 writer.footer(seller.getFooter());
                 page.logo(logoOf(seller));

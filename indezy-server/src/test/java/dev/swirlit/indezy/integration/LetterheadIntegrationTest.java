@@ -42,10 +42,41 @@ class LetterheadIntegrationTest extends TwoAccountsIntegrationTest {
 
         long invoice = idOf(call(alice, HttpMethod.POST, "/invoices", Map.of("clientId", aliceClientId, "language", "FR",
             "lines", List.of(Map.of("description", "Audit", "quantity", 2, "unitPrice", 650, "vatRate", 20))), Map.class));
-        assertThat(text(call(alice, HttpMethod.GET, "/invoices/" + invoice + "/pdf", null, byte[].class).getBody())).contains("Papier Alice Conseil", "Audit");
+        byte[] usual = call(alice, HttpMethod.GET, "/invoices/" + invoice + "/pdf", null, byte[].class).getBody();
+        assertThat(text(usual)).contains("Papier Alice Conseil", "Audit");
+
+        // The room the letterhead asks for: the document starts 60 mm from the top, about 113 points lower than the usual 40.
+        identity = new HashMap<>(call(alice, HttpMethod.GET, "/users/billing", null, Map.class).getBody());
+        identity.put("letterheadTop", 60);
+        identity.put("letterheadBottom", 25);
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, Map.class).getBody()).containsEntry("letterheadTop", 60)
+            .containsEntry("letterheadBottom", 25);
+        byte[] kept = call(alice, HttpMethod.GET, "/invoices/" + invoice + "/pdf", null, byte[].class).getBody();
+        assertThat(topOf(usual) - topOf(kept)).isBetween(125f, 135f);
+        identity.put("letterheadTop", 200);
+        assertThat(call(alice, HttpMethod.PUT, "/users/billing", identity, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
         assertThat(call(alice, HttpMethod.DELETE, "/users/billing/letterhead", null, Map.class).getBody()).containsEntry("letterheadId", null);
         assertThat(text(call(alice, HttpMethod.GET, "/invoices/" + invoice + "/pdf", null, byte[].class).getBody())).doesNotContain("Papier");
+    }
+
+    /** How high the first page's highest text drawn by Indezy stands, in points from the bottom; the letterhead's left aside. */
+    private static float topOf(byte[] pdf) throws IOException {
+        try (PDDocument document = Loader.loadPDF(pdf)) {
+            float[] top = {0};
+            PDFTextStripper stripper = new PDFTextStripper() {
+                @Override
+                protected void writeString(String text, java.util.List<org.apache.pdfbox.text.TextPosition> positions) {
+                    if (!text.contains("Papier")) {
+                        positions.forEach(position -> top[0] = Math.max(top[0], position.getPageHeight() - position.getYDirAdj()));
+                    }
+                }
+            };
+            stripper.setStartPage(1);
+            stripper.setEndPage(1);
+            stripper.getText(document);
+            return top[0];
+        }
     }
 
     private static String text(byte[] pdf) throws IOException {
