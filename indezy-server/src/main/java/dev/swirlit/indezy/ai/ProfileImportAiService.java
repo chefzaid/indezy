@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Reads a CV, as a PDF or a Word or OpenDocument text, into the profile's fields (see docs/features.md#ai-features): the
  * name, phone, city, current position and company, presentation, links, languages, skills with their years and
- * certifications. Nothing is kept: the freelancer picks what to put in the profile.
+ * certifications, past positions and schools. Nothing is kept: the freelancer picks what to put in the profile.
  */
 @Service
 @RequiredArgsConstructor
@@ -33,16 +33,22 @@ public class ProfileImportAiService {
     private static final int SKILLS_MAX = 50;
     private static final int YEARS_MAX = 50;
     private static final int CERTIFICATIONS_MAX = 30;
+    private static final int POSITIONS_MAX = 30;
+    private static final int SCHOOLS_MAX = 10;
+    private static final int DESCRIPTION_MAX = 2000;
+    private static final int YEAR_MIN = 1950;
+    private static final int YEAR_MAX = 2100;
     private static final int NAME_MAX = 200;
     private static final Pattern DATE = Pattern.compile("(\\d{4})-(\\d{1,2})(?:-(\\d{1,2}))?");
     private static final Set<String> TEXT_FORMATS = Set.of("pdf", "docx", "odt");
-    private static final long MAX_TOKENS = 5_000;
+    private static final long MAX_TOKENS = 8_000;
     private static final String SYSTEM = """
         You read a French freelance IT consultant's CV into their profile's fields. Fill only what the CV states; leave the
         rest empty or 0. The presentation is the CV's profile or summary paragraph, as written. Skills are technologies,
         languages, frameworks and methods, each with the years of experience the dated positions mentioning it suggest
         (0 when unclear). Spoken languages go in languages, not skills. Certifications are the ones the CV names, with
-        their issuer and dates when given.""";
+        their issuer and dates when given. Positions are every job or mission the CV lists, with its months and what was
+        done; education is the schools and degrees with their years.""";
 
     private final AiService ai;
 
@@ -58,6 +64,18 @@ public class ProfileImportAiService {
                                 @JsonPropertyDescription("When it expires, as YYYY-MM-DD or YYYY-MM, or empty") String expiresOn) {
     }
 
+    /** A position held, its months as {@code YYYY-MM-DD} or {@code YYYY-MM}, the end empty while it runs. */
+    public record PastPosition(@JsonPropertyDescription("The client or employer") String employer, String title,
+                               @JsonPropertyDescription("When it started, as YYYY-MM, or empty") String startsOn,
+                               @JsonPropertyDescription("When it ended, as YYYY-MM, or empty while it runs") String endsOn,
+                               @JsonPropertyDescription("What was done, as the CV says it") String description) {
+    }
+
+    /** A school, its degree and years. */
+    public record School(String school, String degree, @JsonPropertyDescription("The year it started, or 0") int startYear,
+                         @JsonPropertyDescription("The year it ended, or 0") int endYear) {
+    }
+
     /** What the CV says. */
     public record Reading(
         String firstName, String lastName, String phone, String city,
@@ -68,12 +86,16 @@ public class ProfileImportAiService {
         @JsonPropertyDescription("Spoken languages, each named in French in one word: Français, Anglais, Espagnol, Allemand, Italien, Portugais, " +
             "Chinois, Japonais, Arabe, Russe, Néerlandais or another") List<String> languages,
         List<Skill> skills,
-        @JsonPropertyDescription("Certifications the CV names, not trainings without one") List<Certification> certifications) {
+        @JsonPropertyDescription("Certifications the CV names, not trainings without one") List<Certification> certifications,
+        @JsonPropertyDescription("Every position the CV lists, the latest first") List<PastPosition> positions,
+        @JsonPropertyDescription("The schools and degrees the CV lists, the latest first") List<School> education) {
 
         public Reading {
             languages = languages == null ? List.of() : List.copyOf(languages.stream().filter(Objects::nonNull).toList());
             skills = skills == null ? List.of() : List.copyOf(skills.stream().filter(Objects::nonNull).toList());
             certifications = certifications == null ? List.of() : List.copyOf(certifications.stream().filter(Objects::nonNull).toList());
+            positions = positions == null ? List.of() : List.copyOf(positions.stream().filter(Objects::nonNull).toList());
+            education = education == null ? List.of() : List.copyOf(education.stream().filter(Objects::nonNull).toList());
         }
     }
 
@@ -110,7 +132,25 @@ public class ProfileImportAiService {
             reading.certifications().stream().filter(certification -> certification.name() != null && !certification.name().isBlank())
                 .map(certification -> new Certification(clip(certification.name()), clip(blank(certification.authority())),
                     date(certification.obtainedOn()), date(certification.expiresOn())))
-                .filter(distinct(Certification::name)).limit(CERTIFICATIONS_MAX).toList());
+                .filter(distinct(Certification::name)).limit(CERTIFICATIONS_MAX).toList(),
+            reading.positions().stream().filter(position -> blank(position.employer()) != null && blank(position.title()) != null)
+                .map(position -> new PastPosition(clip(position.employer().strip()), clip(position.title().strip()), date(position.startsOn()),
+                    date(position.endsOn()), cut(blank(position.description()), DESCRIPTION_MAX)))
+                .filter(distinct(position -> position.employer() + "\n" + position.title() + "\n" + position.startsOn()))
+                .limit(POSITIONS_MAX).toList(),
+            reading.education().stream().filter(school -> blank(school.school()) != null)
+                .map(school -> new School(clip(school.school().strip()), clip(blank(school.degree())), year(school.startYear()),
+                    year(school.endYear())))
+                .filter(distinct(school -> school.school() + "\n" + school.degree())).limit(SCHOOLS_MAX).toList());
+    }
+
+    /** A plausible year, else 0. */
+    private static int year(int year) {
+        return year >= YEAR_MIN && year <= YEAR_MAX ? year : 0;
+    }
+
+    private static String cut(String value, int max) {
+        return value == null || value.length() <= max ? value : value.substring(0, max).strip();
     }
 
     /** A date as {@code YYYY-MM-DD}, a month taken as its first day; null when it cannot be read. */

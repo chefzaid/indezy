@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -112,12 +113,14 @@ export class ProfileCareerComponent implements OnInit {
   private readonly confirm = inject(ConfirmDialogService);
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   experiences: Experience[] = [];
   educations: Education[] = [];
 
   ngOnInit(): void {
     this.reload();
+    this.career.changed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.reload());
   }
 
   /** Reads both lists again, e.g. once the profile import added to them. */

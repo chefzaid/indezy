@@ -45,6 +45,8 @@ public class LinkedInProfileImportTest {
             "Basic_LinkedInDataExport_11-22-2026/Languages.csv", "Name,Proficiency\nEnglish,Full professional\nFrançais,Native\nBreton,\n",
             "Basic_LinkedInDataExport_11-22-2026/Certifications.csv", "Name,Url,Authority,Started On,Finished On,License Number\n" +
                 "AWS Certified Solutions Architect,,Amazon Web Services,Mar 2024,Mar 2027,ABC\nProfessional Scrum Master I,,Scrum.org,2019,,\n",
+            "Basic_LinkedInDataExport_11-22-2026/Education.csv", "School Name,Start Date,End Date,Notes,Degree Name,Activities\n" +
+                "INSA Lyon,2010,2015,,Diplôme d'ingénieur,\nLycée du Parc,,2010,,,\n",
             "Basic_LinkedInDataExport_11-22-2026/messages.csv", "never,read\n"));
     }
 
@@ -68,6 +70,15 @@ public class LinkedInProfileImportTest {
         assertThat(reading.certifications()).containsExactly(
             new ProfileImportAiService.Certification("AWS Certified Solutions Architect", "Amazon Web Services", "2024-03-01", "2027-03-01"),
             new ProfileImportAiService.Certification("Professional Scrum Master I", "Scrum.org", "2019-01-01", null));
+    }
+
+    @Test
+    void readsThePastPositionsAndSchools() throws IOException {
+        ProfileImportAiService.Reading reading = LinkedInProfileImport.read(archive(), LocalDate.of(2026, 11, 22));
+        assertThat(reading.positions()).extracting(position -> position.employer() + "/" + position.title() + "/" + position.startsOn() + "/" +
+            position.endsOn()).containsExactly("Alice Conseil/Lead Java/2024-01-01/null", "Banque Exemple/Développeuse Java/2018-03-01/2023-12-01");
+        assertThat(reading.education()).containsExactly(new ProfileImportAiService.School("INSA Lyon", "Diplôme d'ingénieur", 2010, 2015),
+            new ProfileImportAiService.School("Lycée du Parc", null, 0, 2010));
     }
 
     @Test

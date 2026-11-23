@@ -4,7 +4,7 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ### Past positions and education
 
-The profile keeps the positions you held before Indezy and your schools; the dossier de compétences prints them after your won missions, and your public profile shows the ones you choose. See [Getting started](/help/getting-started).
+The profile keeps the positions you held before Indezy and your schools, filled from your CV or LinkedIn if you like; the dossier de compétences prints them after your won missions, and your public profile shows the ones you choose. See [Getting started](/help/getting-started).
 
 ### Your LinkedIn profile's PDF
 

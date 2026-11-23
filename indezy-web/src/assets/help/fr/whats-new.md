@@ -4,7 +4,7 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ### Expériences antérieures et formation
 
-Le profil garde les postes tenus avant Indezy et vos formations ; le dossier de compétences les imprime après vos missions gagnées, et votre profil public montre ceux que vous choisissez. Voir [Prise en main](/help/getting-started).
+Le profil garde les postes tenus avant Indezy et vos formations, remplis depuis votre CV ou LinkedIn si vous le souhaitez ; le dossier de compétences les imprime après vos missions gagnées, et votre profil public montre ceux que vous choisissez. Voir [Prise en main](/help/getting-started).
 
 ### Le PDF de votre profil LinkedIn
 

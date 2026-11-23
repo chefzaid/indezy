@@ -85,6 +85,27 @@ export interface AiProfileImport {
   skills: { name: string; years: number }[];
   /** Certifications named, their dates as YYYY-MM-DD. */
   certifications?: AiImportedCertification[];
+  /** The positions listed, months as YYYY-MM-DD, the end empty while it runs. */
+  positions?: AiImportedPosition[];
+  /** The schools listed, a year 0 when unknown. */
+  education?: AiImportedSchool[];
+}
+
+/** A position read from a CV or LinkedIn. */
+export interface AiImportedPosition {
+  employer: string;
+  title: string;
+  startsOn: string | null;
+  endsOn: string | null;
+  description: string | null;
+}
+
+/** A school read from a CV or LinkedIn. */
+export interface AiImportedSchool {
+  school: string;
+  degree: string | null;
+  startYear: number;
+  endYear: number;
 }
 
 /** A certification read from a CV or LinkedIn's archive. */

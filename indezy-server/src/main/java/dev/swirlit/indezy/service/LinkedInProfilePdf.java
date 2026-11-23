@@ -41,6 +41,8 @@ public final class LinkedInProfilePdf {
     private static final Pattern DATES = Pattern.compile("^(.+?)\\s+[-–]\\s+(.+?)(\\s*\\(.*\\))?$");
     private static final Pattern DURATION = Pattern.compile("(?i)^(\\d+\\s+(years?|ans?|months?|mois)\\s*)+$");
     private static final Pattern PRESENT = Pattern.compile("(?i)^(present|présent|aujourd['’]hui|now|actuel(lement)?)$");
+    private static final Pattern SCHOOL_YEARS = Pattern.compile("\\(([^()]*\\d{4}[^()]*)\\)\\s*$");
+    private static final Pattern YEAR = Pattern.compile("\\b(19|20)\\d{2}\\b");
     private static final Pattern PROFICIENCY = Pattern.compile("\\s*\\(.*\\)$");
 
     private enum Section { CONTACT, SKILLS, LANGUAGES, CERTIFICATIONS, OTHER, SUMMARY, EXPERIENCE, EDUCATION }
@@ -67,6 +69,7 @@ public final class LinkedInProfilePdf {
         List<Line> main = lines.stream().filter(line -> !line.side()).toList();
         Map<Section, List<String>> sections = new EnumMap<>(Section.class);
         List<Line> experience = new ArrayList<>();
+        List<Line> schools = new ArrayList<>();
         List<String> top = new ArrayList<>();
         Line name = null;
         Section current = null;
@@ -88,6 +91,8 @@ public final class LinkedInProfilePdf {
                 sections.computeIfAbsent(current, section -> new ArrayList<>()).add(line.text());
                 if (current == Section.EXPERIENCE) {
                     experience.add(line);
+                } else if (current == Section.EDUCATION) {
+                    schools.add(line);
                 }
             } else if (name == null || line.size() > name.size()) {
                 name = line;
@@ -117,7 +122,8 @@ public final class LinkedInProfilePdf {
         return ProfileImportAiService.clean(new ProfileImportAiService.Reading(names[0], names.length > 1 ? names[1] : null, contact.phone(),
             place == null ? null : place.split(",")[0], latest.map(LinkedInProfileImport.Position::title).orElse(headline),
             latest.map(LinkedInProfileImport.Position::company).orElse(null), summary != null ? summary : headline, contact.website(),
-            contact.linkedin(), contact.github(), languages, skills, certifications));
+            contact.linkedin(), contact.github(), languages, skills, certifications, LinkedInProfileImport.pastPositions(positions),
+            education(schools)));
     }
 
     /** The left column's contact details, a link's kind written after it ("www.linkedin.com/in/alice (LinkedIn)"). */
@@ -198,6 +204,38 @@ public final class LinkedInProfilePdf {
                 period.end()));
         }
         return positions;
+    }
+
+    /**
+     * The Education section's schools: each named in larger letters, its degree on the next line with its years after
+     * it ("Master, Informatique · (2010 - 2015)").
+     */
+    static List<ProfileImportAiService.School> education(List<Line> lines) {
+        float largest = (float) lines.stream().mapToDouble(Line::size).max().orElse(0);
+        List<ProfileImportAiService.School> schools = new ArrayList<>();
+        for (int index = 0; index < lines.size(); index++) {
+            if (lines.get(index).size() < largest) {
+                continue;
+            }
+            String detail = index + 1 < lines.size() && lines.get(index + 1).size() < largest ? lines.get(index + 1).text() : null;
+            List<Integer> years = new ArrayList<>();
+            String degree = null;
+            if (detail != null) {
+                Matcher period = SCHOOL_YEARS.matcher(detail);
+                String text = detail;
+                if (period.find()) {
+                    Matcher year = YEAR.matcher(period.group());
+                    while (year.find()) {
+                        years.add(Integer.parseInt(year.group()));
+                    }
+                    text = detail.substring(0, period.start());
+                }
+                degree = text.replaceAll("[\\s·]+$", "").strip();
+            }
+            schools.add(new ProfileImportAiService.School(lines.get(index).text(), degree == null || degree.isEmpty() ? null : degree,
+                years.size() > 1 ? years.getFirst() : 0, years.isEmpty() ? 0 : years.getLast()));
+        }
+        return schools;
     }
 
     /** A position's start and end, the end null while it runs. */

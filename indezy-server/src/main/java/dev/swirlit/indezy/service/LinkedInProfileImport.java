@@ -29,8 +29,8 @@ import java.util.zip.ZipInputStream;
  * Reads the archive LinkedIn's **Get a copy of your data** sends into the profile's fields (see
  * docs/features.md#profile-import), without AI: {@code Profile.csv} (name, headline, summary, place, websites),
  * {@code PhoneNumbers.csv}, {@code Positions.csv} (the current or latest title and company, and each skill's years from
- * the dated positions naming it), {@code Skills.csv}, {@code Languages.csv} and {@code Certifications.csv} (name, issuer,
- * when obtained and when it expires). Columns are found by their names, which
+ * the dated positions naming it, and every position as a past one), {@code Skills.csv}, {@code Languages.csv},
+ * {@code Certifications.csv} (name, issuer, when obtained and when it expires) and {@code Education.csv}. Columns are found by their names, which
  * LinkedIn changes between exports; every other file of the archive is skipped unread.
  */
 public final class LinkedInProfileImport {
@@ -41,7 +41,7 @@ public final class LinkedInProfileImport {
     /** A file read from the archive, at most. */
     private static final int MAX_FILE = 5 * 1024 * 1024;
     private static final Set<String> READ = Set.of("profile.csv", "phonenumbers.csv", "positions.csv", "skills.csv", "languages.csv",
-        "certifications.csv");
+        "certifications.csv", "education.csv");
     private static final Pattern URL = Pattern.compile("https?://[^\\s,\\]]+");
     private static final Map<String, String> LANGUAGES = Map.ofEntries(
         Map.entry("french", "Français"), Map.entry("français", "Français"), Map.entry("english", "Anglais"), Map.entry("anglais", "Anglais"),
@@ -95,10 +95,27 @@ public final class LinkedInProfileImport {
             .map(row -> new ProfileImportAiService.Certification(column(row, "name"), column(row, "authority", "issuing organization"),
                 day(column(row, "started on", "issue date")), day(column(row, "finished on", "expiration date"))))
             .toList();
+        List<ProfileImportAiService.School> education = files.getOrDefault("education.csv", List.of()).stream()
+            .map(row -> new ProfileImportAiService.School(column(row, "school name", "school"), column(row, "degree name", "degree"),
+                yearOf(column(row, "start date", "started on")), yearOf(column(row, "end date", "finished on"))))
+            .toList();
         return ProfileImportAiService.clean(new ProfileImportAiService.Reading(column(profile, "first name"), column(profile, "last name"), phone,
             place == null ? null : place.split(",")[0], current.map(Position::title).orElse(column(profile, "headline")),
             current.map(Position::company).orElse(null), summary != null ? summary : column(profile, "headline"), website, linkedin, github,
-            languages, skills, certifications));
+            languages, skills, certifications, pastPositions(positions), education));
+    }
+
+    /** The positions as the profile's past ones, months as their first day. */
+    static List<ProfileImportAiService.PastPosition> pastPositions(List<Position> positions) {
+        return positions.stream().map(position -> new ProfileImportAiService.PastPosition(position.company(), position.title(),
+            position.start() == null ? null : position.start().atDay(1).toString(), position.end() == null ? null : position.end().atDay(1).toString(),
+            position.description())).toList();
+    }
+
+    /** The year of a date LinkedIn writes, 0 when it cannot be read. */
+    static int yearOf(String text) {
+        YearMonth month = month(text);
+        return month == null ? 0 : month.getYear();
     }
 
     /** A month as LinkedIn writes it, as its first day in {@code YYYY-MM-DD}. */
@@ -233,7 +250,7 @@ public final class LinkedInProfileImport {
         // LinkedIn puts notes above some files' headers: the header is the first line naming a column that is read.
         int header = 0;
         while (header < records.size() && records.get(header).stream().noneMatch(cell -> cell.strip().matches("(?i)(first name|name|number|" +
-            "company name|title|skill|language|authority)"))) {
+            "company name|title|skill|language|authority|school name)"))) {
             header++;
         }
         if (header >= records.size()) {

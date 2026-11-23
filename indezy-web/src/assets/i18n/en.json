@@ -1781,7 +1781,7 @@
     "cvImport": {
       "open": "Import my profile",
       "title": "Fill in my profile",
-      "hint": "From your CV (PDF, Word or OpenDocument, read by AI) or from LinkedIn, its data archive or your profile's PDF (read without AI). The file is not kept. You review what to take before anything changes, and nothing is saved until you save your profile, except the certifications you tick, added to your trainings when you fill in the form.",
+      "hint": "From your CV (PDF, Word or OpenDocument, read by AI) or from LinkedIn, its data archive or your profile's PDF (read without AI). The file is not kept. You review what to take before anything changes, and nothing is saved until you save your profile, except the certifications, positions and schools you tick, added when you fill in the form.",
       "pick": "Choose my CV",
       "reading": "Reading your CV…",
       "review": "Tick what to take from your CV. Fields your profile leaves empty are ticked.",
@@ -1798,10 +1798,11 @@
       "readError": "The archive could not be read: try again in a moment.",
       "certifications": "Certifications",
       "certificationsHint": "Ticked ones are added to your trainings and certifications (Documents page) when you fill in the form, with their issuer and dates.",
+      "alreadyInProfile": "Already in your profile",
+      "recordsAdded": "{{count}} added: certifications to your trainings, positions and schools under your personal information.",
+      "recordsError": "Some entries could not be added: check your trainings and past positions, then try again.",
       "alreadyHere": "Already in your trainings",
       "obtained": "(obtained in {{date}})",
-      "certificationsAdded": "{{count}} certifications added to your trainings and certifications (Documents page).",
-      "certificationsError": "The certifications could not be added to your trainings: try again.",
       "skillsOver": "Your profile holds {{max}} skills at most: choose {{room}} of these {{count}}.",
       "skillsHere": "Already in your profile: {{skills}}",
       "languagesLeftOut": "Left out, not among the profile's languages: {{languages}}"

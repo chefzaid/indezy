@@ -76,7 +76,9 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                     "\"company\":null,\"bio\":\"Dix ans de Java.\",\"website\":null,\"linkedin\":null,\"github\":null," +
                     "\"languages\":[\"Anglais\",\" \"],\"skills\":[{\"name\":\"Java\",\"years\":10},{\"name\":\"java\",\"years\":3}," +
                     "{\"name\":\"Kafka\",\"years\":99}],\"certifications\":[{\"name\":\"AWS Solutions Architect\",\"authority\":\" \"," +
-                    "\"obtainedOn\":\"2024-03\",\"expiresOn\":\"bientôt\"},{\"name\":\"aws solutions architect\"},{\"name\":\" \"}]}", "end_turn");
+                    "\"obtainedOn\":\"2024-03\",\"expiresOn\":\"bientôt\"},{\"name\":\"aws solutions architect\"},{\"name\":\" \"}]," +
+                    "\"positions\":[{\"employer\":\"Banque X\",\"title\":\"Dev Java\",\"startsOn\":\"2015-09\",\"endsOn\":\"\"},{\"employer\":\" \"," +
+                    "\"title\":\"Sans employeur\"}],\"education\":[{\"school\":\"INSA Lyon\",\"degree\":\"\",\"startYear\":2010,\"endYear\":3000}]}", "end_turn");
             } else if (body.contains("You turn what a French freelance")) {
                 answer = message("{\"skills\":[\"Java\",\" Kafka \",\"Java\"],\"rateMin\":650,\"minRemoteDays\":2,\"workModes\":[\"HYBRID\"]," +
                     "\"regions\":[\"Île-de-France\",\"Atlantide\"],\"startBefore\":\"2027-03-01\",\"durationMin\":0,\"keywords\":\"\"," +
@@ -411,6 +413,10 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat((List<Map<String, Object>>) read.get("certifications")).extracting(certification -> certification.get("name") + ":" +
             certification.get("authority") + ":" + certification.get("obtainedOn") + ":" + certification.get("expiresOn"))
             .containsExactly("AWS Solutions Architect:null:2024-03-01:null");
+        assertThat((List<Map<String, Object>>) read.get("positions")).extracting(position -> position.get("employer") + ":" +
+            position.get("startsOn") + ":" + position.get("endsOn")).containsExactly("Banque X:2015-09-01:null");
+        assertThat((List<Map<String, Object>>) read.get("education")).extracting(school -> school.get("school") + ":" + school.get("degree") +
+            ":" + school.get("startYear") + ":" + school.get("endYear")).containsExactly("INSA Lyon:null:2010:0");
         assertThat(BODIES.getLast()).contains("<cv>", "Lead Java, 10 ans");
         assertThat(exchange("/ai/profile-import", HttpMethod.POST, new HttpEntity<>(notPdf, multipart), String.class).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);

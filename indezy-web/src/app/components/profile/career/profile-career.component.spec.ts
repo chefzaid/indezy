@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { Education, Experience } from '../../../models';
 import { CareerService } from '../../../services/career/career.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -20,6 +20,7 @@ describe('ProfileCareerComponent', () => {
   function create(): { component: ProfileCareerComponent; element: HTMLElement } {
     career = jasmine.createSpyObj('CareerService', ['experiences', 'educations', 'createExperience', 'updateExperience', 'deleteExperience',
       'createEducation', 'updateEducation', 'deleteEducation']);
+    Object.assign(career, { changed: new Subject<void>() });
     career.experiences.and.returnValue(of([bank]));
     career.educations.and.returnValue(of([insa]));
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -92,7 +93,7 @@ describe('ProfileCareerComponent', () => {
     expect(component.educations).toEqual([]);
 
     career.experiences.and.returnValue(throwError(() => new Error('down')));
-    component.reload();
+    career.changed.next();
     expect(notifications.error).toHaveBeenCalledWith('career.loadError');
   });
 });

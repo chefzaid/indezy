@@ -9,8 +9,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, catchError, first, forkJoin, of } from 'rxjs';
-import { AiImportedCertification, AiProfileImport, SkillDetail, Training, UserProfile } from '../../../models';
+import { AiImportedCertification, AiImportedPosition, AiImportedSchool, AiProfileImport, Education, Experience, SkillDetail, Training,
+  UserProfile } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
+import { CareerService } from '../../../services/career/career.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { SkillNamesService } from '../../../services/skill/skill-names.service';
 import { SkillNames, skillKey } from '../../../shared/utils/skill-names';
@@ -45,6 +47,21 @@ export interface CvImportCertification extends AiImportedCertification {
   here: boolean;
 }
 
+/** A position found, ticked to be added to the profile's past positions, or already there. */
+export interface CvImportPosition extends AiImportedPosition {
+  chosen: boolean;
+  here: boolean;
+}
+
+/** A school found, ticked to be added to the profile's education, or already there. */
+export interface CvImportSchool extends AiImportedSchool {
+  chosen: boolean;
+  here: boolean;
+}
+
+const same = (one: string | null | undefined, other: string | null | undefined): boolean =>
+  (one ?? '').trim().toLowerCase() === (other ?? '').trim().toLowerCase();
+
 const FIELDS: { field: TextField; label: string }[] = [
   { field: 'firstName', label: 'contacts.firstName' }, { field: 'lastName', label: 'common.name' },
   { field: 'phone', label: 'contacts.phone' }, { field: 'city', label: 'clients.city' },
@@ -57,8 +74,8 @@ const FIELDS: { field: TextField; label: string }[] = [
  * Fills the profile from a CV with AI (see docs/features.md#ai-features), or from LinkedIn's data archive or profile PDF without AI
  * (docs/features.md#profile-import): the file is read on the server and nothing is kept there; what it says is shown beside what the profile holds, ticked where the profile is empty, and only what is
  * ticked goes into the form, to review and save as usual. Skills and languages the profile lacks are added, never removed.
- * Certifications go to the training record (docs/features.md#training-record) when the form is filled, those it already
- * names (case aside) marked as there.
+ * Certifications go to the training record (docs/features.md#training-record) and positions and schools to the profile's
+ * past ones (docs/features.md#experience-and-education) when the form is filled, those already there (case aside) marked.
  */
 @Component({
   selector: 'app-profile-cv-import-dialog',
@@ -87,7 +104,7 @@ const FIELDS: { field: TextField; label: string }[] = [
             {{ 'profile.cvImport.reading' | translate }}</p>
         }
       } @else {
-        @if (!rows.length && !skills.length && !languages.length && !newCertifications) {
+        @if (!rows.length && !skills.length && !languages.length && !newCertifications && !newPositions && !newSchools) {
           <p data-cv-import-nothing>{{ 'profile.cvImport.nothing' | translate }}</p>
           @if (skillsHere.length) {
             <p class="current" data-cv-import-skills-here>{{ 'profile.cvImport.skillsHere' | translate:{ skills: skillsHere.join(', ') } }}</p>
@@ -163,6 +180,48 @@ const FIELDS: { field: TextField; label: string }[] = [
               }
             </ul>
           }
+          @if (positions.length) {
+            <h3 class="section">{{ 'career.positions' | translate }}</h3>
+            <ul class="rows">
+              @for (position of positions; track $index) {
+                <li>
+                  @if (position.here) {
+                    <span data-cv-import-position-here>
+                      <strong>{{ position.title }}</strong> · {{ position.employer }}
+                      <span class="current">{{ 'profile.cvImport.alreadyInProfile' | translate }}</span>
+                    </span>
+                  } @else {
+                    <mat-checkbox [(ngModel)]="position.chosen" [attr.data-cv-import-position]="position.title + ' · ' + position.employer">
+                      <strong>{{ position.title }}</strong> · {{ position.employer }}
+                      @if (position.startsOn) {
+                        ({{ position.startsOn | date:'MMM y' }} – {{ position.endsOn ? (position.endsOn | date:'MMM y') : ('career.now' | translate) }})
+                      }
+                    </mat-checkbox>
+                  }
+                </li>
+              }
+            </ul>
+          }
+          @if (schools.length) {
+            <h3 class="section">{{ 'career.schools' | translate }}</h3>
+            <ul class="rows">
+              @for (school of schools; track $index) {
+                <li>
+                  @if (school.here) {
+                    <span data-cv-import-school-here>
+                      <strong>{{ school.school }}</strong>{{ school.degree ? ' · ' + school.degree : '' }}
+                      <span class="current">{{ 'profile.cvImport.alreadyInProfile' | translate }}</span>
+                    </span>
+                  } @else {
+                    <mat-checkbox [(ngModel)]="school.chosen" [attr.data-cv-import-school]="school.school">
+                      <strong>{{ school.school }}</strong>{{ school.degree ? ' · ' + school.degree : '' }}
+                      {{ school.endYear ? '(' + (school.startYear ? school.startYear + ' – ' : '') + school.endYear + ')' : '' }}
+                    </mat-checkbox>
+                  }
+                </li>
+              }
+            </ul>
+          }
         }
       }
     </mat-dialog-content>
@@ -191,6 +250,7 @@ export class ProfileCvImportDialogComponent {
   private readonly ai = inject(AiService);
   private readonly users = inject(UserManagementService);
   private readonly trainings = inject(TrainingService);
+  private readonly career = inject(CareerService);
   private readonly skillNamesService = inject(SkillNamesService);
   private readonly notifications = inject(NotificationService);
   private readonly dialogRef = inject<MatDialogRef<ProfileCvImportDialogComponent, Partial<UserProfile>>>(MatDialogRef);
@@ -210,6 +270,8 @@ export class ProfileCvImportDialogComponent {
   /** Languages found that the profile does not offer. */
   languagesLeftOut: string[] = [];
   certifications: CvImportCertification[] = [];
+  positions: CvImportPosition[] = [];
+  schools: CvImportSchool[] = [];
   saving = false;
   takeSkills = true;
   takeLanguages = true;
@@ -234,7 +296,15 @@ export class ProfileCvImportDialogComponent {
 
   get anyChosen(): boolean {
     return this.rows.some(row => row.chosen) || this.skillsTaken.length > 0 ||
-      (this.takeLanguages && this.languages.length > 0) || this.certifications.some(certification => certification.chosen);
+      (this.takeLanguages && this.languages.length > 0) || [...this.certifications, ...this.positions, ...this.schools].some(entry => entry.chosen);
+  }
+
+  get newPositions(): number {
+    return this.positions.filter(position => !position.here).length;
+  }
+
+  get newSchools(): number {
+    return this.schools.filter(school => !school.here).length;
   }
 
   /** How many certifications the training record does not name yet. */
@@ -253,10 +323,12 @@ export class ProfileCvImportDialogComponent {
     this.loading = true;
     const known: Observable<Training[]> = this.trainings.list().pipe(catchError(() => of([])));
     const names = this.skillNamesService.names$.pipe(first(), catchError(() => of(SkillNames.NONE)));
-    forkJoin([linkedIn ? this.users.linkedInImport(file) : this.ai.profileImport(file), known, names]).subscribe({
-      next: ([reading, trainings, skillNames]) => {
+    const experiences: Observable<Experience[]> = this.career.experiences().pipe(catchError(() => of([])));
+    const educations: Observable<Education[]> = this.career.educations().pipe(catchError(() => of([])));
+    forkJoin([linkedIn ? this.users.linkedInImport(file) : this.ai.profileImport(file), known, names, experiences, educations]).subscribe({
+      next: ([reading, trainings, skillNames, held, studied]) => {
         this.loading = false;
-        this.show(reading, trainings, skillNames);
+        this.show(reading, trainings, skillNames, held, studied);
         this.changes.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
@@ -269,7 +341,8 @@ export class ProfileCvImportDialogComponent {
   }
 
   /** Lays out what the CV says beside what the profile holds. */
-  show(reading: AiProfileImport, trainings: Training[] = [], names: SkillNames = SkillNames.NONE): void {
+  show(reading: AiProfileImport, trainings: Training[] = [], names: SkillNames = SkillNames.NONE, experiences: Experience[] = [],
+    educations: Education[] = []): void {
     const current = this.data.current;
     this.rows = FIELDS.flatMap(({ field, label }) => {
       let found = reading[field]?.trim() ?? '';
@@ -301,6 +374,15 @@ export class ProfileCvImportDialogComponent {
         const here = named.has(certification.name.trim().toLowerCase());
         return { ...certification, name: certification.name.trim(), here, chosen: !here };
       });
+    this.positions = (reading.positions ?? []).filter(position => position.employer?.trim() && position.title?.trim()).map(position => {
+      const here = experiences.some(held => same(held.employer, position.employer) && same(held.title, position.title));
+      return { ...position, here, chosen: !here };
+    });
+    this.schools = (reading.education ?? []).filter(school => school.school?.trim()).map(school => {
+      const here = educations.some(studied => same(studied.school, school.school) && (!studied.degree || !school.degree ||
+        same(studied.degree, school.degree)));
+      return { ...school, here, chosen: !here };
+    });
     this.reading = reading;
   }
 
@@ -320,23 +402,35 @@ export class ProfileCvImportDialogComponent {
     if (this.takeLanguages && this.languages.length) {
       patch.languages = [...(this.data.current.languages ?? []), ...this.languages];
     }
-    const chosen = this.certifications.filter(certification => certification.chosen && !certification.here);
-    if (!chosen.length) {
+    const additions: Observable<unknown>[] = [
+      ...this.certifications.filter(certification => certification.chosen && !certification.here).map(certification => this.trainings.create({
+        title: certification.name, provider: certification.authority, certification: certification.name,
+        certifiedOn: certification.obtainedOn, certificationExpiresOn: certification.expiresOn
+      })),
+      ...this.positions.filter(position => position.chosen && !position.here).map(position => this.career.createExperience({
+        employer: position.employer.trim(), title: position.title.trim(), startsOn: position.startsOn, endsOn: position.endsOn,
+        description: position.description?.slice(0, 2000) ?? null, stack: null, shownPublicly: false
+      })),
+      ...this.schools.filter(school => school.chosen && !school.here).map(school => this.career.createEducation({
+        school: school.school.trim(), degree: school.degree, startYear: school.startYear || null, endYear: school.endYear || null,
+        shownPublicly: false
+      }))
+    ];
+    if (!additions.length) {
       this.dialogRef.close(patch);
       return;
     }
     this.saving = true;
-    forkJoin(chosen.map(certification => this.trainings.create({
-      title: certification.name, provider: certification.authority, certification: certification.name,
-      certifiedOn: certification.obtainedOn, certificationExpiresOn: certification.expiresOn
-    }))).subscribe({
+    forkJoin(additions).subscribe({
       next: () => {
-        this.notifications.success('profile.cvImport.certificationsAdded', undefined, { count: chosen.length });
+        this.notifications.success('profile.cvImport.recordsAdded', undefined, { count: additions.length });
+        this.career.changed.next();
         this.dialogRef.close(patch);
       },
       error: () => {
         this.saving = false;
-        this.notifications.error('profile.cvImport.certificationsError');
+        this.notifications.error('profile.cvImport.recordsError');
+        this.career.changed.next();
         this.changes.markForCheck();
       }
     });

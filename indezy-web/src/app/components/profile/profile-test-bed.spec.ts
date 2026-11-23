@@ -5,7 +5,7 @@ import { NetworkService } from '../../services/network/network.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { Router, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, of } from 'rxjs';
+import { NEVER, Observable, of } from 'rxjs';
 
 import { SkillNamesService } from '../../services/skill/skill-names.service';
 import { SkillNames } from '../../shared/utils/skill-names';
@@ -70,7 +70,7 @@ export function profileTestBed(): ProfileTestBed {
           { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }),
           apiTokens: () => of([]) } },
           { provide: WebhookService, useValue: { list: () => of([]) } },
-          { provide: CareerService, useValue: { experiences: () => of([]), educations: () => of([]) } },
+          { provide: CareerService, useValue: { experiences: () => of([]), educations: () => of([]), changed: NEVER } },
           { provide: TestimonialService, useValue: { list: () => of([]) } },
           { provide: ContactService, useValue: { getForCurrentFreelance: () => of([]) } },
           { provide: NetworkService, useValue: { membership: () => of({ joined: false, handle: 'john', card: null, privateCard: false,

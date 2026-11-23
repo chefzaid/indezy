@@ -3,10 +3,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { AiProfileImport, Training, UserProfile } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { CareerService } from '../../../services/career/career.service';
 import { SkillNamesService } from '../../../services/skill/skill-names.service';
 import { TrainingService } from '../../../services/training/training.service';
 import { SkillNames } from '../../../shared/utils/skill-names';
@@ -19,6 +20,7 @@ describe('ProfileCvImportDialogComponent', () => {
   let dialogRef: jasmine.SpyObj<MatDialogRef<ProfileCvImportDialogComponent>>;
   let users: jasmine.SpyObj<UserManagementService>;
   let trainings: jasmine.SpyObj<TrainingService>;
+  let career: jasmine.SpyObj<CareerService> & { changed: Subject<void> };
 
   const reading: AiProfileImport = {
     firstName: 'Alice', lastName: 'Martin', phone: null, city: 'Lyon', position: 'Lead Java', company: null, bio: 'b'.repeat(600),
@@ -31,6 +33,10 @@ describe('ProfileCvImportDialogComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['error', 'success']);
     trainings = jasmine.createSpyObj('TrainingService', ['list', 'create']);
     trainings.list.and.returnValue(of([]));
+    career = Object.assign(jasmine.createSpyObj('CareerService', ['experiences', 'educations', 'createExperience', 'createEducation']),
+      { changed: new Subject<void>() });
+    career.experiences.and.returnValue(of([]));
+    career.educations.and.returnValue(of([]));
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     users = jasmine.createSpyObj('UserManagementService', ['linkedInImport']);
     const data: CvImportData = { current, languages: ['Français', 'Anglais'] };
@@ -39,7 +45,7 @@ describe('ProfileCvImportDialogComponent', () => {
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: NotificationService, useValue: notifications }, { provide: MatDialogRef, useValue: dialogRef },
         { provide: MAT_DIALOG_DATA, useValue: data }, { provide: UserManagementService, useValue: users },
-        { provide: TrainingService, useValue: trainings },
+        { provide: TrainingService, useValue: trainings }, { provide: CareerService, useValue: career },
         { provide: SkillNamesService, useValue: { names$: of(new SkillNames({ JavaScript: ['JS'], Java: [] })) } }]
     });
     const fixture = TestBed.createComponent(ProfileCvImportDialogComponent);
@@ -156,7 +162,7 @@ describe('ProfileCvImportDialogComponent', () => {
     component.apply();
     expect(trainings.create).toHaveBeenCalledOnceWith({ title: 'PSM I', provider: 'Scrum.org', certification: 'PSM I',
       certifiedOn: '2019-01-01', certificationExpiresOn: '2029-01-01' });
-    expect(notifications.success).toHaveBeenCalledWith('profile.cvImport.certificationsAdded', undefined, { count: 1 });
+    expect(notifications.success).toHaveBeenCalledWith('profile.cvImport.recordsAdded', undefined, { count: 1 });
     expect(dialogRef.close).toHaveBeenCalledWith({});
   });
 
@@ -168,7 +174,7 @@ describe('ProfileCvImportDialogComponent', () => {
     pick(component);
     expect(component.certifications[0].chosen).toBeTrue();
     component.apply();
-    expect(notifications.error).toHaveBeenCalledWith('profile.cvImport.certificationsError');
+    expect(notifications.error).toHaveBeenCalledWith('profile.cvImport.recordsError');
     expect(component.saving).toBeFalse();
     expect(dialogRef.close).not.toHaveBeenCalled();
   });
@@ -187,5 +193,38 @@ describe('ProfileCvImportDialogComponent', () => {
       { name: 'Java', years: 1 }] }, [], new SkillNames({ JavaScript: ['JS'], Java: [] }));
     expect(component.skillsHere).toEqual(['JavaScript', 'spring-boot']);
     expect(component.skills.map(skill => [skill.name, skill.years])).toEqual([['Java', 5]]);
+  });
+
+  it('adds the positions and schools ticked to the profile, marking those it holds', () => {
+    const component = create({ firstName: 'Alice' });
+    career.experiences.and.returnValue(of([{ id: 1, employer: 'banque exemple', title: 'Développeuse Java', shownPublicly: false }]));
+    career.educations.and.returnValue(of([{ id: 2, school: 'INSA Lyon', degree: null, shownPublicly: false }]));
+    career.createExperience.and.returnValue(of({ id: 3, employer: 'Alice Conseil', title: 'Lead Java', shownPublicly: false }));
+    career.createEducation.and.returnValue(of({ id: 4, school: 'Lycée du Parc', shownPublicly: false }));
+    const changed = jasmine.createSpy('changed');
+    career.changed.subscribe(changed);
+    users.linkedInImport.and.returnValue(of({ ...reading, positions: [
+      { employer: 'Alice Conseil', title: 'Lead Java', startsOn: '2024-01-01', endsOn: null, description: 'Kafka.' },
+      { employer: 'Banque Exemple', title: 'Développeuse Java', startsOn: '2018-03-01', endsOn: '2023-12-01', description: null },
+      { employer: ' ', title: 'Sans employeur', startsOn: null, endsOn: null, description: null }
+    ], education: [{ school: 'INSA Lyon', degree: 'Ingénieure', startYear: 2010, endYear: 2015 },
+      { school: 'Lycée du Parc', degree: null, startYear: 0, endYear: 2010 }] }));
+    pick(component, true);
+    expect(component.positions.map(position => [position.title, position.here])).toEqual([['Lead Java', false], ['Développeuse Java', true]]);
+    expect(component.schools.map(school => [school.school, school.here])).toEqual([['INSA Lyon', true], ['Lycée du Parc', false]]);
+    expect(component.newPositions).toBe(1);
+    expect(component.newSchools).toBe(1);
+
+    component.rows.forEach(row => row.chosen = false);
+    component.takeSkills = false;
+    component.takeLanguages = false;
+    component.apply();
+    expect(career.createExperience).toHaveBeenCalledOnceWith({ employer: 'Alice Conseil', title: 'Lead Java', startsOn: '2024-01-01',
+      endsOn: null, description: 'Kafka.', stack: null, shownPublicly: false });
+    expect(career.createEducation).toHaveBeenCalledOnceWith({ school: 'Lycée du Parc', degree: null, startYear: null, endYear: 2010,
+      shownPublicly: false });
+    expect(notifications.success).toHaveBeenCalledWith('profile.cvImport.recordsAdded', undefined, { count: 2 });
+    expect(changed).toHaveBeenCalled();
+    expect(dialogRef.close).toHaveBeenCalledWith({});
   });
 });

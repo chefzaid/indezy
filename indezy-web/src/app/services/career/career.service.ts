@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Education, EducationDetails, Experience, ExperienceDetails } from '../../models';
 
@@ -9,6 +9,8 @@ import { Education, EducationDetails, Experience, ExperienceDetails } from '../.
 export class CareerService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.apiUrl}/users`;
+  /** Emits once entries were added elsewhere, e.g. by the profile import, for the lists shown to read them again. */
+  readonly changed = new Subject<void>();
 
   experiences(): Observable<Experience[]> {
     return this.http.get<Experience[]>(`${this.url}/experiences`);

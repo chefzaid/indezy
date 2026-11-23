@@ -78,7 +78,9 @@ public class LinkedInProfilePdfTest {
                 main(10, "Lyon"), main(10, "Kafka et Java 21 pour une banque."), main(10, "Page 1 of 2")),
             List.of(main(12, "Banque Exemple"), main(10, "6 years 2 months"), main(11, "Développeuse Java"),
                 main(10, "mars 2018 - December 2023 (5 years 10 months)"), main(10, "Spring Boot et Kafka."), main(11, "Stagiaire"),
-                main(10, "2017 - 2018 (1 year)"), main(16, "Education"), main(12, "INSA Lyon"), main(10, "Page 2 of 2")));
+                main(10, "2017 - 2018 (1 year)"), main(16, "Education"), main(12, "INSA Lyon"),
+                main(10, "Diplôme d'ingénieur, Informatique · (2010 - 2015)"), main(12, "Lycée du Parc"), main(10, "(2010)"),
+                main(12, "Coursera"), main(10, "Page 2 of 2")));
     }
 
     @Test
@@ -99,6 +101,13 @@ public class LinkedInProfilePdfTest {
         // Kafka since March 2018 (both positions name it), Spring Boot in the bank's, Angular named nowhere.
         assertThat(reading.skills()).extracting(skill -> skill.name() + ":" + skill.years()).containsExactly("Kafka:8", "Spring Boot:5", "Angular:0");
         assertThat(reading.certifications()).extracting(ProfileImportAiService.Certification::name).containsExactly("AWS Certified Solutions Architect");
+        assertThat(reading.positions()).containsExactly(
+            new ProfileImportAiService.PastPosition("Alice Conseil", "Lead Java", "2024-01-01", null, "Lyon Kafka et Java 21 pour une banque."),
+            new ProfileImportAiService.PastPosition("Banque Exemple", "Développeuse Java", "2018-03-01", "2023-12-01", "Spring Boot et Kafka."),
+            new ProfileImportAiService.PastPosition("Banque Exemple", "Stagiaire", "2017-01-01", "2018-01-01", null));
+        assertThat(reading.education()).containsExactly(
+            new ProfileImportAiService.School("INSA Lyon", "Diplôme d'ingénieur, Informatique", 2010, 2015),
+            new ProfileImportAiService.School("Lycée du Parc", null, 0, 2010), new ProfileImportAiService.School("Coursera", null, 0, 0));
     }
 
     private static LinkedInProfilePdf.Line company(String text) {

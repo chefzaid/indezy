@@ -6,7 +6,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { NEVER, of, throwError } from 'rxjs';
 import { UserNotificationSettings, UserPreferences, UserProfile } from '../../models/user-management.models';
 import { NotificationService } from '../../services/notification/notification.service';
 import { CareerService } from '../../services/career/career.service';
@@ -58,7 +58,7 @@ describe('ProfileComponent security', () => {
         { provide: ThemeService, useValue: jasmine.createSpyObj('ThemeService', ['apply']) },
         // The public profile tab has its own spec; here it loads hidden settings.
         { provide: PublicProfileService, useValue: { settings: () => of({ enabled: false, slug: null }) } },
-        { provide: CareerService, useValue: { experiences: () => of([]), educations: () => of([]) } },
+        { provide: CareerService, useValue: { experiences: () => of([]), educations: () => of([]), changed: NEVER } },
         { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }),
           apiTokens: () => of([]) } },
         { provide: WebhookService, useValue: { list: () => of([]) } },

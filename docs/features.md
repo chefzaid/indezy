@@ -265,7 +265,12 @@ does not offer as left out, and when more new skills are found than the 50-skill
 picks which, the first ones preselected. Certifications (also read from a CV by AI, 30 at most, dates as
 `YYYY-MM-DD`) are listed apart: those the [training record](#training-record) already names as a certification or a
 title (case aside) are marked as there, the others ticked and created as trainings (title and certification the name,
-provider the issuer, obtained and expiry dates) when the form is filled.
+provider the issuer, obtained and expiry dates) when the form is filled. Past positions and schools go the same way into
+[Experience And Education](#experience-and-education): every position `Positions.csv`, the PDF's Experience or the CV
+(AI, 30 at most) lists, with its months and description, and every school of `Education.csv`, the PDF's Education (the
+school in larger letters, its degree and years on the next line) or the CV (10 at most); one the profile holds already
+(the same employer and title, or the same school with no other degree, case aside) is marked as there. They are added
+off the public profile, and the profile's lists show them at once.
 
 ### Public Profile
 

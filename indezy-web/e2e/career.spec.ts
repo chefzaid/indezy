@@ -35,13 +35,18 @@ for (const language of ['en', 'fr']) {
 
       await section.locator('[data-add-experience]').click();
       const dialog = page.getByRole('dialog');
+      // The dialog focuses its first field once its form is bound: filling before that would be overwritten.
+      await expect(dialog.locator('[data-experience-title]')).toBeFocused();
       await dialog.locator('[data-experience-title]').fill('Lead Java');
       await dialog.locator('[data-experience-employer]').fill('Alice Conseil');
       await dialog.locator('[data-experience-start]').fill('2024-01');
+      await expect(dialog.locator('[data-experience-start]')).toHaveValue('2024-01');
+      await expect(dialog.locator('[data-experience-employer]')).toHaveValue('Alice Conseil');
       const dialogAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
       expect(dialogAudit.violations.map(violation => violation.id)).toEqual([]);
       await dialog.locator('[data-experience-save]').click();
       await expect(dialog).toBeHidden();
+      await expect.poll(() => posted.length).toBe(1);
       expect(posted).toEqual([{ title: 'Lead Java', employer: 'Alice Conseil', startsOn: '2024-01-01', endsOn: null, description: null,
         stack: null, shownPublicly: false }]);
       await expect(section.locator('[data-experience="2"]')).toContainText(language === 'en' ? 'now' : "aujourd'hui");

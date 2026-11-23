@@ -1781,7 +1781,7 @@
     "cvImport": {
       "open": "Importer mon profil",
       "title": "Remplir mon profil",
-      "hint": "Depuis votre CV (PDF, Word ou OpenDocument, lu par l'IA) ou depuis LinkedIn, l'archive de vos données ou le PDF de votre profil (lus sans IA). Le fichier n'est pas conservé. Vous choisissez ce que vous reprenez avant tout changement, et rien n'est enregistré tant que vous n'enregistrez pas votre profil, sauf les certifications cochées, ajoutées à vos formations quand vous remplissez le formulaire.",
+      "hint": "Depuis votre CV (PDF, Word ou OpenDocument, lu par l'IA) ou depuis LinkedIn, l'archive de vos données ou le PDF de votre profil (lus sans IA). Le fichier n'est pas conservé. Vous choisissez ce que vous reprenez avant tout changement, et rien n'est enregistré tant que vous n'enregistrez pas votre profil, sauf les certifications, postes et formations cochés, ajoutés quand vous remplissez le formulaire.",
       "pick": "Choisir mon CV",
       "reading": "Lecture de votre CV…",
       "review": "Cochez ce que vous reprenez de votre CV. Les champs vides de votre profil sont cochés.",
@@ -1798,10 +1798,11 @@
       "readError": "L'archive n'a pas pu être lue : réessayez dans un instant.",
       "certifications": "Certifications",
       "certificationsHint": "Celles cochées rejoignent vos formations et certifications (page Documents) quand vous remplissez le formulaire, avec leur organisme et leurs dates.",
+      "alreadyInProfile": "Déjà dans votre profil",
+      "recordsAdded": "{{count}} ajout(s) : les certifications à vos formations, les postes et formations sous vos informations personnelles.",
+      "recordsError": "Certaines entrées n'ont pas pu être ajoutées : vérifiez vos formations et expériences, puis réessayez.",
       "alreadyHere": "Déjà dans vos formations",
       "obtained": "(obtenue en {{date}})",
-      "certificationsAdded": "{{count}} certifications ajoutées à vos formations et certifications (page Documents).",
-      "certificationsError": "Les certifications n'ont pas pu être ajoutées à vos formations : réessayez.",
       "skillsOver": "Votre profil compte {{max}} compétences au plus : choisissez-en {{room}} parmi ces {{count}}.",
       "skillsHere": "Déjà dans votre profil : {{skills}}",
       "languagesLeftOut": "Écartées, absentes des langues du profil : {{languages}}"

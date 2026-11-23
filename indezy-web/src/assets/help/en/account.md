@@ -81,7 +81,7 @@ To get LinkedIn's archive: on LinkedIn, **Settings & Privacy â†’ Data privacy â†
 2. Tick what to take: each field found shows what your profile holds now; the empty ones are ticked. Skills and languages your profile lacks are added, none removed. A skill your profile already names, under another spelling ("spring-boot" for "Spring Boot") or a known alias ("JS" for JavaScript), is listed as already there, and a language your profile does not offer as left out. A profile names 50 skills at most: when more are found than it has room for, choose which to add.
 3. Click **Fill in the form**, check it, then **Save**: nothing is saved before, except the certifications you ticked.
 
-Certifications go to **Trainings and certifications** on the [Documents](/help/documents) page, with their issuer, the date obtained and the expiry; one your trainings already name is marked **Already in your trainings** and not added again.
+Certifications go to **Trainings and certifications** on the [Documents](/help/documents) page, with their issuer, the date obtained and the expiry; one your trainings already name is marked **Already in your trainings** and not added again. Positions and schools go to **Past positions** and **Education** under your personal information, kept off your public profile until you show them; one your profile holds already is marked **Already in your profile**. Importing again months later so ticks only what is new.
 
 A scanned CV without text cannot be read. Reading a CV uses your monthly AI allowance, or your own key; LinkedIn's archive does not.
 

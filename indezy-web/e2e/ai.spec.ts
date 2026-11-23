@@ -237,7 +237,17 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       phone: '+33 6 12 34 56 78', city: 'Lyon', position: null, company: 'Alice Conseil', bio: null, website: null, linkedin: null,
       github: 'https://github.com/alice', languages: ['Anglais'], skills: [{ name: 'Kafka', years: 2 }], certifications: [
         { name: 'AWS Solutions Architect', authority: 'Amazon Web Services', obtainedOn: '2024-03-01', expiresOn: '2027-03-01' },
-        { name: 'PSM I', authority: 'Scrum.org', obtainedOn: '2019-01-01', expiresOn: null }] } }));
+        { name: 'PSM I', authority: 'Scrum.org', obtainedOn: '2019-01-01', expiresOn: null }],
+      positions: [{ employer: 'Alice Conseil', title: 'Lead Java', startsOn: '2024-01-01', endsOn: null, description: 'Kafka.' }],
+      education: [{ school: 'INSA Lyon', degree: 'Ingénieure', startYear: 2010, endYear: 2015 }] } }));
+    const careers: Record<string, unknown>[] = [];
+    await page.route(/\/api\/users\/(experiences|educations)$/, route => {
+      if (route.request().method() === 'POST') {
+        careers.push(route.request().postDataJSON());
+        return route.fulfill({ status: 201, json: { id: 7, ...route.request().postDataJSON() } });
+      }
+      return route.fulfill({ json: [] });
+    });
     const created: Record<string, unknown>[] = [];
     await page.route(/\/api\/trainings$/, route => {
       if (route.request().method() === 'POST') {
@@ -256,6 +266,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(dialog.locator('[data-cv-import-row="firstName"]')).toHaveCount(0);
     // A certification the trainings already name is marked as there; the new one is ticked.
     await expect(dialog.locator('[data-cv-import-certification="AWS Solutions Architect"] input')).toBeChecked();
+    await expect(dialog.locator('[data-cv-import-position="Lead Java · Alice Conseil"] input')).toBeChecked();
+    await expect(dialog.locator('[data-cv-import-school="INSA Lyon"] input')).toBeChecked();
     await expect(dialog.locator('[data-cv-import-certification-here]')).toContainText(language === 'en' ? 'Already in your trainings' :
       'Déjà dans vos formations');
     await settleDialog(page);
@@ -265,6 +277,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(dialog).toBeHidden();
     expect(created).toEqual([{ title: 'AWS Solutions Architect', provider: 'Amazon Web Services', certification: 'AWS Solutions Architect',
       certifiedOn: '2024-03-01', certificationExpiresOn: '2027-03-01' }]);
+    expect(careers).toEqual(expect.arrayContaining([expect.objectContaining({ employer: 'Alice Conseil', title: 'Lead Java' }),
+      expect.objectContaining({ school: 'INSA Lyon', degree: 'Ingénieure', startYear: 2010, endYear: 2015 })]));
   });
 
   test(`shows the AI allowance and takes the member's own key (${language}, ${width}px)`, async ({ page }) => {
