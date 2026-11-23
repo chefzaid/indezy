@@ -118,6 +118,13 @@ public class InvoiceController {
         return PdfResponses.attachment(invoices.renderPdf(workspace(), id));
     }
 
+    @Operation(summary = "The Word template filled with the latest document, or a sample before the first")
+    @GetMapping("/template-preview")
+    public ResponseEntity<byte[]> templatePreview() {
+        ActivityReportService.PdfFile file = invoices.previewTemplate(workspace());
+        return PdfResponses.attachment(file.fileName(), PdfResponses.DOCX, file.content());
+    }
+
     @Operation(summary = "The invoice as a Word file laid out like its PDF")
     @GetMapping("/{id}/docx")
     public ResponseEntity<byte[]> docx(@PathVariable Long id) {

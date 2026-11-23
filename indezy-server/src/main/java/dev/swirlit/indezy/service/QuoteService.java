@@ -9,6 +9,7 @@ import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.DocumentTermsFile;
 import dev.swirlit.indezy.model.Invoice;
 import dev.swirlit.indezy.model.InvoiceBuyer;
+import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Quote;
@@ -205,6 +206,24 @@ public class QuoteService {
     @Transactional(readOnly = true)
     public ActivityReportService.PdfFile renderDocx(Long freelanceId, Long id) {
         return render(freelanceId, id, true);
+    }
+
+    /** The quotes' Word template filled with the latest quote, or with a sample one before the first. */
+    @Transactional(readOnly = true)
+    public ActivityReportService.PdfFile previewTemplate(Long freelanceId) {
+        byte[] template = (templates == null ? java.util.Optional.<byte[]>empty() : templates.content(freelanceId, DocumentTemplateKind.QUOTE))
+            .orElseThrow(() -> new dev.swirlit.indezy.exception.ResourceNotFoundException("No Word template for the quotes"));
+        java.util.Optional<Quote> latest = quotes.findByFreelanceIdOrderByCreatedAtDesc(freelanceId).stream().findFirst();
+        if (latest.isPresent()) {
+            return new ActivityReportService.PdfFile("apercu-modele-devis.docx", render(freelanceId, latest.get().getId(), true).content());
+        }
+        Quote sample = new Quote();
+        sample.setLanguage(DocumentLanguage.FR);
+        sample.setLines(List.of(new InvoiceLine("Prestation de conseil (exemple)", java.math.BigDecimal.valueOf(5), java.math.BigDecimal.valueOf(600),
+            java.math.BigDecimal.valueOf(20))));
+        BillingIdentityDto identity = identity(freelanceId);
+        return new ActivityReportService.PdfFile("apercu-modele-devis.docx", pdf.renderDocx(sample, InvoiceService.seller(identity),
+            InvoiceService.sampleBuyer(), identity.paymentTermDays(), identity.quoteTerms(), identity.quoteTermsFileId() != null, template));
     }
 
     private ActivityReportService.PdfFile render(Long freelanceId, Long id, boolean word) {

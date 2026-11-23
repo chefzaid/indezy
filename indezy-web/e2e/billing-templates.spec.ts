@@ -31,6 +31,11 @@ for (const language of ['en', 'fr']) {
       await expect(section.locator('[data-billing-template="INVOICE"]')).toContainText('modele.docx');
       await expect(section.locator('[data-billing-template-unknown]')).toContainText('{{iban.inconnu}}');
       await expect(section.locator('[data-billing-template-missing]')).toContainText('mentions');
+      await page.route('**/api/invoices/template-preview', route => route.fulfill({ body: 'PK', contentType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
+      const preview = page.waitForEvent('download');
+      await section.locator('[data-billing-template-preview="INVOICE"]').click();
+      expect((await preview).suggestedFilename()).toBe('apercu-modele-facture.docx');
       await section.locator('[data-billing-placeholders] summary').click();
       await expect(section.locator('[data-billing-placeholders] li')).toHaveCount(PLACEHOLDERS.length);
       const audit = await new AxeBuilder({ page }).include('[data-billing-templates]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

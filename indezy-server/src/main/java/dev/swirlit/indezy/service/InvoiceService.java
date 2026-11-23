@@ -384,6 +384,32 @@ public class InvoiceService {
         return render(freelanceId, id, true);
     }
 
+    /** The invoices' Word template filled with the latest invoice, or with a sample one before the first. */
+    @Transactional(readOnly = true)
+    public ActivityReportService.PdfFile previewTemplate(Long freelanceId) {
+        byte[] template = (templates == null ? java.util.Optional.<byte[]>empty() : templates.content(freelanceId, DocumentTemplateKind.INVOICE))
+            .orElseThrow(() -> new ResourceNotFoundException("No Word template for the invoices"));
+        java.util.Optional<Invoice> latest = invoices.findByFreelanceIdOrderByCreatedAtDesc(freelanceId).stream().findFirst();
+        if (latest.isPresent()) {
+            return new ActivityReportService.PdfFile("apercu-modele-facture.docx", render(freelanceId, latest.get().getId(), true).content());
+        }
+        Invoice sample = new Invoice();
+        sample.setStatus(InvoiceStatus.DRAFT);
+        sample.setLanguage(DocumentLanguage.FR);
+        sample.setLines(List.of(new InvoiceLine("Prestation de conseil (exemple)", BigDecimal.valueOf(5), BigDecimal.valueOf(600), BigDecimal.valueOf(20))));
+        InvoiceSeller seller = seller(BillingIdentityService.toDto(freelances.findById(freelanceId)
+            .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"))));
+        return new ActivityReportService.PdfFile("apercu-modele-facture.docx", pdf.renderDocx(sample, seller, sampleBuyer(), template));
+    }
+
+    /** The client of a sample document. */
+    static InvoiceBuyer sampleBuyer() {
+        InvoiceBuyer buyer = new InvoiceBuyer();
+        buyer.setName("Client exemple");
+        buyer.setAddress("1 rue de l'Exemple\n75001 Paris");
+        return buyer;
+    }
+
     private ActivityReportService.PdfFile render(Long freelanceId, Long id, boolean word) {
         Invoice invoice = invoice(freelanceId, id);
         boolean draft = invoice.getStatus() == InvoiceStatus.DRAFT;

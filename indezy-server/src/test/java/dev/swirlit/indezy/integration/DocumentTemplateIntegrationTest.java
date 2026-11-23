@@ -35,11 +35,20 @@ class DocumentTemplateIntegrationTest extends TwoAccountsIntegrationTest {
             .extracting(template -> template.get("kind")).containsExactly("INVOICE");
         assertThat(upload("QUOTE", "notes.txt", "hello".getBytes(StandardCharsets.UTF_8)).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
+        // Before the first invoice, the preview fills the template with a sample one.
+        String sample = BillingDocxTest.text(BillingDocxTest.parts(call(alice, HttpMethod.GET, "/invoices/template-preview", null, byte[].class)
+            .getBody()));
+        assertThat(sample).contains("Prestation de conseil (exemple)", "Client exemple", "3 600,00 €");
+        assertThat(call(alice, HttpMethod.GET, "/quotes/template-preview", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
         long invoice = idOf(call(alice, HttpMethod.POST, "/invoices", Map.of("clientId", aliceClientId, "language", "FR",
             "lines", List.of(Map.of("description", "Audit", "quantity", 2, "unitPrice", 650, "vatRate", 20))), Map.class));
         String filled = BillingDocxTest.text(BillingDocxTest.parts(call(alice, HttpMethod.GET, "/invoices/" + invoice + "/docx", null, byte[].class)
             .getBody()));
         assertThat(filled).contains("Audit", "1 560,00 €", "Pas d'escompte", "{{iban.inconnu}}").doesNotContain("{{line.description}}");
+        // Then with the latest one.
+        assertThat(BillingDocxTest.text(BillingDocxTest.parts(call(alice, HttpMethod.GET, "/invoices/template-preview", null, byte[].class)
+            .getBody()))).contains("Audit").doesNotContain("exemple");
         assertThat(call(bob, HttpMethod.GET, "/users/billing/templates", null, List.class).getBody()).isEmpty();
 
         assertThat(call(alice, HttpMethod.DELETE, "/users/billing/templates/INVOICE", null, String.class).getStatusCode())

@@ -72,6 +72,11 @@ export class BillingService {
     return this.http.post<DocumentTemplate>(`${this.API_URL}/templates/${kind}`, form);
   }
 
+  /** The template filled with the latest invoice or quote, or a sample one before the first. */
+  templatePreview(kind: DocumentTemplateKind): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/${kind === 'INVOICE' ? 'invoices' : 'quotes'}/template-preview`, { responseType: 'blob' });
+  }
+
   removeTemplate(kind: DocumentTemplateKind): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/templates/${kind}`);
   }

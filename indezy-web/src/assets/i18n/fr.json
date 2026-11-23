@@ -5258,6 +5258,8 @@
     "upload": "Envoyer un modèle",
     "replace": "Remplacer",
     "remove": "Revenir à la mise en page intégrée",
+    "preview": "Aperçu",
+    "previewError": "L'aperçu n'a pas pu être créé.",
     "found": "{{count}} champs trouvés.",
     "unknown": "Inconnus, laissés tels quels : {{names}}",
     "missing": "Mentions absentes, ajoutées à la fin : {{mentions}}",

@@ -14,7 +14,7 @@ describe('BillingTemplatesComponent', () => {
     found: ['invoice.number', '#lines'], unknown: ['iban.inconnu'], missing: ['mentions'] };
 
   function create(): { component: BillingTemplatesComponent; element: () => HTMLElement } {
-    billing = jasmine.createSpyObj('BillingService', ['templates', 'placeholders', 'uploadTemplate', 'removeTemplate']);
+    billing = jasmine.createSpyObj('BillingService', ['templates', 'placeholders', 'uploadTemplate', 'removeTemplate', 'templatePreview']);
     billing.templates.and.returnValue(of([invoiceTemplate]));
     billing.placeholders.and.returnValue(of(['document.number', '#lines', '/lines', 'logo']));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -86,5 +86,18 @@ describe('BillingTemplatesComponent', () => {
     component.copy('client.name');
     await Promise.resolve();
     expect(write).toHaveBeenCalledWith('{{client.name}}');
+  });
+
+  it('downloads the template filled, saying when it cannot', () => {
+    const { component } = create();
+    const link = jasmine.createSpyObj('a', ['click']);
+    spyOn(document, 'createElement').and.callFake(() => link as never);
+    billing.templatePreview.and.returnValue(of(new Blob(['PK'])));
+    component.preview('QUOTE');
+    expect(billing.templatePreview).toHaveBeenCalledWith('QUOTE');
+    expect(link.download).toBe('apercu-modele-devis.docx');
+    billing.templatePreview.and.returnValue(throwError(() => new Error('down')));
+    component.preview('INVOICE');
+    expect(notifications.error).toHaveBeenCalledWith('billingTemplates.previewError');
   });
 });

@@ -91,6 +91,13 @@ public class QuoteController {
         return PdfResponses.attachment(quotes.renderPdf(workspace(), id));
     }
 
+    @Operation(summary = "The Word template filled with the latest document, or a sample before the first")
+    @GetMapping("/template-preview")
+    public ResponseEntity<byte[]> templatePreview() {
+        ActivityReportService.PdfFile file = quotes.previewTemplate(workspace());
+        return PdfResponses.attachment(file.fileName(), PdfResponses.DOCX, file.content());
+    }
+
     @Operation(summary = "The quote as a Word file laid out like its PDF")
     @GetMapping("/{id}/docx")
     public ResponseEntity<byte[]> docx(@PathVariable Long id) {

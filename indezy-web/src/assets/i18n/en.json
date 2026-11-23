@@ -5258,6 +5258,8 @@
     "upload": "Upload a template",
     "replace": "Replace",
     "remove": "Back to the built-in layout",
+    "preview": "Preview",
+    "previewError": "The preview could not be made.",
     "found": "{{count}} placeholders found.",
     "unknown": "Unknown, left as written: {{names}}",
     "missing": "Mentions it lacks, added at its end: {{mentions}}",

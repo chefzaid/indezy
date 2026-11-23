@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DocumentTemplate, DocumentTemplateKind } from '../../../models';
 import { BillingService } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { saveBlob } from '../../../shared/utils/download-file';
 
 /**
  * The Word templates of the invoices and the quotes (see docs/features.md#invoices): each uploaded with its placeholders,
@@ -41,6 +42,9 @@ import { NotificationService } from '../../../services/notification/notification
               <mat-icon>upload_file</mat-icon>{{ (template(kind) ? 'billingTemplates.replace' : 'billingTemplates.upload') | translate }}
             </button>
             @if (template(kind)) {
+              <button mat-button type="button" (click)="preview(kind)" [attr.data-billing-template-preview]="kind">
+                <mat-icon>visibility</mat-icon>{{ 'billingTemplates.preview' | translate }}
+              </button>
               <button mat-button type="button" (click)="remove(kind)" [attr.data-billing-template-remove]="kind">
                 {{ 'billingTemplates.remove' | translate }}
               </button>
@@ -147,6 +151,14 @@ export class BillingTemplatesComponent implements OnInit {
         }
         this.changes.markForCheck();
       }
+    });
+  }
+
+  /** Downloads the template filled with the latest document, or a sample before the first. */
+  preview(kind: DocumentTemplateKind): void {
+    this.billing.templatePreview(kind).subscribe({
+      next: blob => saveBlob(blob, kind === 'INVOICE' ? 'apercu-modele-facture.docx' : 'apercu-modele-devis.docx'),
+      error: () => this.notifications.error('billingTemplates.previewError')
     });
   }
 

@@ -1340,7 +1340,9 @@ are `{{document.title|number|issueDate|dueDate|period|validUntil|draft}}`, `{{se
 Word splits a typed placeholder across runs: a paragraph holding one is written as one run first, its breaks and tabs
 kept. On upload the page shows the placeholders found, those unknown (left as written) and the mentions the template
 lacks (number, date, seller, client, lines, totals, mentions), which the filled document adds at its end rather than
-leaving out. **Download as Word** then fills the template; the PDF keeps the built-in layout (a PDF of the template
+leaving out. **Preview** downloads it filled with the latest invoice or quote, or a sample one before the first
+(`GET /api/invoices/template-preview`, `GET /api/quotes/template-preview`, 404 without a template). **Download as Word**
+then fills the template; the PDF keeps the built-in layout (a PDF of the template
 waits on the owner's choice of converter).
 
 **Create a credit note** on an issued invoice drafts one with the same lines, to reduce for a partial credit; it is
