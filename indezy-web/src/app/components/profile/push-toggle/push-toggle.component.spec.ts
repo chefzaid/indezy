@@ -13,8 +13,10 @@ describe('PushToggleComponent', () => {
   let push: jasmine.SpyObj<WebPushService> & { supported: boolean };
   let notifications: jasmine.SpyObj<NotificationService>;
 
-  function create(supported = true, key: string | null = 'BKey'): ComponentFixture<PushToggleComponent> {
-    push = Object.assign(jasmine.createSpyObj('WebPushService', ['key', 'enable', 'disable']), { supported, subscribed$: of(false) });
+  function create(supported = true, key: string | null = 'BKey', subscribed = false): ComponentFixture<PushToggleComponent> {
+    push = Object.assign(jasmine.createSpyObj('WebPushService', ['key', 'enable', 'disable', 'events', 'setEvents']), { supported,
+      subscribed$: of(subscribed) });
+    push.events.and.returnValue(of({ NETWORK: true, MESSAGES: true, INTERVIEWS: true, FOLLOW_UPS: true }));
     push.key.and.returnValue(key === undefined ? throwError(() => new Error('down')) : of(key));
     push.enable.and.resolveTo();
     push.disable.and.resolveTo();
@@ -63,5 +65,26 @@ describe('PushToggleComponent', () => {
     const server = create(true, null);
     expect(server.nativeElement.querySelector('[data-push-unavailable="server"]')).not.toBeNull();
     expect(server.componentInstance.publicKey).toBeNull();
+  });
+
+  it('turns each pushed event on or off for the account once push is on, put back when it cannot be', () => {
+    const fixture = create(true, 'BKey', true);
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelectorAll('[data-push-event]').length).toBe(4);
+    expect(element.querySelector('[data-push-event="FOLLOW_UPS"]')!.textContent).toContain('follow-ups due');
+    push.setEvents.and.returnValue(of({ NETWORK: true, MESSAGES: false, INTERVIEWS: true, FOLLOW_UPS: true }));
+    const checkbox = { checked: false, source: { checked: false } } as unknown as import('@angular/material/checkbox').MatCheckboxChange;
+    fixture.componentInstance.setEvent('MESSAGES', checkbox);
+    expect(push.setEvents).toHaveBeenCalledWith({ MESSAGES: false });
+    expect(fixture.componentInstance.events?.MESSAGES).toBeFalse();
+    push.setEvents.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.setEvent('NETWORK', checkbox);
+    expect(checkbox.source.checked).toBeTrue();
+    expect(notifications.error).toHaveBeenCalledWith('profile.push.error');
+  });
+
+  it('hides the events while push is off in this browser', () => {
+    const fixture = create();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-push-events]')).toBeNull();
   });
 });

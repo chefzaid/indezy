@@ -1820,8 +1820,8 @@
     },
     "push": {
       "title": "Notifications on this device",
-      "label": "Push notifications and messages to this browser",
-      "hint": "Your network notifications and new messages appear on this device, even with Indezy closed. Turn it on in each browser you use.",
+      "label": "Push notifications to this browser",
+      "hint": "Your network notifications, new messages, interviews within the hour and follow-ups due appear on this device, even with Indezy closed. Turn it on in each browser you use.",
       "enabled": "Push notifications are on in this browser",
       "disabled": "Push notifications are off in this browser",
       "error": "Push notifications could not be changed in this browser",
@@ -1829,6 +1829,13 @@
         "browser": "This browser cannot receive push notifications from Indezy (or the app runs without its service worker).",
         "server": "Push notifications are not available yet.",
         "denied": "This browser blocks notifications from Indezy: allow them in its site settings, then try again."
+      },
+      "eventsLegend": "What is pushed (in every browser you turned this on in):",
+      "events": {
+        "NETWORK": "Network notifications: reactions, comments, mentions, followers",
+        "MESSAGES": "New messages",
+        "INTERVIEWS": "An interview within the hour",
+        "FOLLOW_UPS": "The follow-ups due, each weekday morning"
       }
     },
     "cvImport": {

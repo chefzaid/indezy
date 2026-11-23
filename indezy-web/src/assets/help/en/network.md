@@ -79,7 +79,7 @@ The **Notifications** tab tells you who followed you, reacted, commented, mentio
 
 In **Profile → Network**, each kind is set to **Off**, **In the app** or **Email too** (one grouped email, at most every three hours). Emails for messages unread for an hour are set in **Profile → Notifications** (see [Account](/help/account)).
 
-In **Profile → Notifications**, **Notifications on this device** pushes your notifications, new messages, an interview starting within the hour and, on weekday mornings, the follow-ups due to the browser you are in, even with Indezy closed, once the browser allows it. Turn it on in each browser you use; a muted conversation sends none.
+In **Profile → Notifications**, **Notifications on this device** pushes your notifications, new messages, an interview starting within the hour and, on weekday mornings, the follow-ups due to the browser you are in, even with Indezy closed, once the browser allows it. Turn it on in each browser you use; a muted conversation sends none. Below it, untick what you do not want pushed: network notifications, new messages, interviews or follow-ups.
 
 ## Daily rates in the network
 

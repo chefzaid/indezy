@@ -28,6 +28,18 @@ public class PushController {
         return push.key();
     }
 
+    @Operation(summary = "The events web push tells the account of, each on or off")
+    @GetMapping("/events")
+    public java.util.Map<PushEvent, Boolean> events() {
+        return push.events(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Turn web push events on or off", description = "Those not named stay as they are")
+    @org.springframework.web.bind.annotation.PutMapping("/events")
+    public java.util.Map<PushEvent, Boolean> setEvents(@RequestBody java.util.Map<PushEvent, Boolean> changes) {
+        return push.setEvents(SecurityUtils.getCurrentUserId(), changes);
+    }
+
     @Operation(summary = "Keep this browser's subscription")
     @PostMapping("/subscriptions")
     @ResponseStatus(HttpStatus.NO_CONTENT)

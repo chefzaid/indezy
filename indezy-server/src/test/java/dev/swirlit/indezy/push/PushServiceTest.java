@@ -28,4 +28,12 @@ class PushServiceTest {
         assertThat(new PushProperties("public", "private").configured()).isTrue();
         assertThat(new PushProperties("public", "private").toString()).doesNotContain("private");
     }
+
+    @Test
+    void readsTheEventsAnAccountTurnedOff() {
+        dev.swirlit.indezy.model.User user = new dev.swirlit.indezy.model.User();
+        org.assertj.core.api.Assertions.assertThat(PushService.eventsOff(user)).isEmpty();
+        user.setPushEventsOff("MESSAGES, GONE_EVENT,FOLLOW_UPS");
+        org.assertj.core.api.Assertions.assertThat(PushService.eventsOff(user)).containsExactlyInAnyOrder(PushEvent.MESSAGES, PushEvent.FOLLOW_UPS);
+    }
 }

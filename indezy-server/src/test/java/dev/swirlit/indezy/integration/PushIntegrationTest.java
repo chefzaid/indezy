@@ -57,4 +57,19 @@ class PushIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.POST, "/push/subscriptions", Map.of("endpoint", endpoint, "keys", Map.of("p256dh", "<script>",
             "auth", "x")), String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void turnsEachPushEventOffOrOnForItsAccount() {
+        assertThat(call(alice, HttpMethod.GET, "/push/events", null, Map.class).getBody())
+            .isEqualTo(Map.of("NETWORK", true, "MESSAGES", true, "INTERVIEWS", true, "FOLLOW_UPS", true));
+        assertThat(call(alice, HttpMethod.PUT, "/push/events", Map.of("MESSAGES", false, "FOLLOW_UPS", false), Map.class).getBody())
+            .containsEntry("MESSAGES", false).containsEntry("FOLLOW_UPS", false).containsEntry("NETWORK", true);
+        call(alice, HttpMethod.PUT, "/push/events", Map.of("MESSAGES", true), Map.class);
+        assertThat(call(alice, HttpMethod.GET, "/push/events", null, Map.class).getBody()).containsEntry("MESSAGES", true)
+            .containsEntry("FOLLOW_UPS", false);
+        assertThat(call(bob, HttpMethod.GET, "/push/events", null, Map.class).getBody()).containsEntry("FOLLOW_UPS", true);
+        assertThat(call(alice, HttpMethod.PUT, "/push/events", Map.of("NOT_AN_EVENT", false), String.class).getStatusCode())
+            .isEqualTo(org.springframework.http.HttpStatus.BAD_REQUEST);
+    }
 }

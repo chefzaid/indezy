@@ -11,4 +11,14 @@
       {{ 'profile.push.hint' | translate }}
     }
   </p>
+  @if (on && events) {
+    <fieldset class="push-events" data-push-events>
+      <legend>{{ 'profile.push.eventsLegend' | translate }}</legend>
+      @for (event of pushEvents; track event) {
+        <mat-checkbox [checked]="events[event]" (change)="setEvent(event, $event)" [attr.data-push-event]="event">
+          {{ 'profile.push.events.' + event | translate }}
+        </mat-checkbox>
+      }
+    </fieldset>
+  }
 </div>

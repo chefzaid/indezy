@@ -111,6 +111,10 @@ public class User extends BaseEntity {
     private Integer maxTransitMinutes;
 
     /** How much each part of the offers' match score counts: 0 not at all, 1 as usual (null), 2 double; skills 1 or 2. */
+    /** The web push events the account turned off, comma-separated ({@code PushEvent} names); null or empty for none. */
+    @Column(name = "push_events_off", length = 100)
+    private String pushEventsOff;
+
     @Column(name = "match_weight_skills")
     private Integer matchWeightSkills;
 

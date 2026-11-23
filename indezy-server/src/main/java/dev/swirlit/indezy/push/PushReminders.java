@@ -75,7 +75,7 @@ public class PushReminders {
             if (user.isEmpty() || subscriptions.findByUserId(user.get().getId()).isEmpty() || steps.claimReminder(step.getId(), clock.instant()) == 0) {
                 continue;
             }
-            push.notify(List.of(user.get().getId()), interviewText(step), "/projects/" + step.getProject().getId());
+            push.notify(PushEvent.INTERVIEWS, List.of(user.get().getId()), interviewText(step), "/projects/" + step.getProject().getId());
             pushed++;
         }
         if (pushed > 0) {
@@ -99,7 +99,7 @@ public class PushReminders {
             if (due == 0 || users.claimFollowUpsPush(userId, today) == 0) {
                 continue;
             }
-            push.notify(List.of(userId), followUpText(due), "/dashboard");
+            push.notify(PushEvent.FOLLOW_UPS, List.of(userId), followUpText(due), "/dashboard");
             pushed++;
         }
         return pushed;

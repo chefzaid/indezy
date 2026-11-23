@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -105,19 +106,69 @@ public class PushService {
         }
     }
 
-    /** Tells the accounts' browsers, in each account's language, with the page a click opens. */
-    public void notify(Collection<Long> userIds, Map<DocumentLanguage, String[]> texts, String url) {
+    /** Tells the accounts' browsers, in each account's language, with the page a click opens; none who turned the event off. */
+    public void notify(PushEvent event, Collection<Long> userIds, Map<DocumentLanguage, String[]> texts, String url) {
         if (!properties.configured() || userIds.isEmpty()) {
             return;
         }
         List<Long> recipients = List.copyOf(userIds);
         applicationTaskExecutor.execute(() -> recipients.forEach(userId -> {
-            DocumentLanguage language = users.findById(userId).map(User::getLanguagePreference)
+            Optional<User> user = users.findById(userId);
+            if (user.isEmpty() || eventsOff(user.get()).contains(event)) {
+                return;
+            }
+            DocumentLanguage language = user.map(User::getLanguagePreference)
                 .map(preference -> preference != null && preference.toLowerCase(Locale.ROOT).startsWith("en") ? DocumentLanguage.EN :
                     DocumentLanguage.FR).orElse(DocumentLanguage.FR);
             String[] text = texts.getOrDefault(language, texts.get(DocumentLanguage.FR));
             subscriptions.findByUserId(userId).forEach(subscription -> send(subscription, text[0], text[1], url));
         }));
+    }
+
+    /** The events the account turned off. */
+    public static java.util.Set<PushEvent> eventsOff(User user) {
+        java.util.Set<PushEvent> off = java.util.EnumSet.noneOf(PushEvent.class);
+        if (user.getPushEventsOff() != null) {
+            for (String name : user.getPushEventsOff().split(",")) {
+                try {
+                    off.add(PushEvent.valueOf(name.strip()));
+                } catch (IllegalArgumentException e) {
+                    // An event no longer known is ignored.
+                }
+            }
+        }
+        return off;
+    }
+
+    /** The events the account is told of, each on or off. */
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public Map<PushEvent, Boolean> events(Long userId) {
+        User user = users.findById(userId).orElseThrow();
+        java.util.Set<PushEvent> off = eventsOff(user);
+        Map<PushEvent, Boolean> events = new java.util.EnumMap<>(PushEvent.class);
+        for (PushEvent event : PushEvent.values()) {
+            events.put(event, !off.contains(event));
+        }
+        return events;
+    }
+
+    /** Turns events on or off, those not named left as they were. */
+    @org.springframework.transaction.annotation.Transactional
+    public Map<PushEvent, Boolean> setEvents(Long userId, Map<PushEvent, Boolean> changes) {
+        User user = users.findById(userId).orElseThrow();
+        java.util.Set<PushEvent> off = eventsOff(user);
+        changes.forEach((event, on) -> {
+            if (event != null && on != null) {
+                if (on) {
+                    off.remove(event);
+                } else {
+                    off.add(event);
+                }
+            }
+        });
+        user.setPushEventsOff(off.isEmpty() ? null : off.stream().map(Enum::name).sorted().collect(java.util.stream.Collectors.joining(",")));
+        users.save(user);
+        return events(userId);
     }
 
     void send(PushSubscription subscription, String title, String body, String url) {

@@ -89,8 +89,8 @@ class PushRemindersTest {
         when(steps.claimReminder(3L, NOW)).thenReturn(0);
 
         assertThat(reminders.interviews()).isEqualTo(1);
-        verify(push).notify(eq(List.of(7L)), anyMap(), eq("/projects/41"));
-        verify(push, never()).notify(eq(List.of(8L)), anyMap(), anyString());
+        verify(push).notify(eq(PushEvent.INTERVIEWS), eq(List.of(7L)), anyMap(), eq("/projects/41"));
+        verify(push, never()).notify(any(), eq(List.of(8L)), anyMap(), anyString());
         verify(steps, never()).claimReminder(eq(2L), any());
         assertThat(PushReminders.interviewText(step(1, "a")).get(DocumentLanguage.FR))
             .containsExactly("Entretien à 14:00", "Entretien technique · Lead Java (Acme)");
@@ -115,7 +115,7 @@ class PushRemindersTest {
         when(users.claimFollowUpsPush(7L, today)).thenReturn(1);
 
         assertThat(reminders.followUps()).isEqualTo(1);
-        verify(push).notify(eq(List.of(7L)), anyMap(), eq("/dashboard"));
+        verify(push).notify(eq(PushEvent.FOLLOW_UPS), eq(List.of(7L)), anyMap(), eq("/dashboard"));
         assertThat(PushReminders.followUpText(2).get(DocumentLanguage.FR)[1]).isEqualTo("2 contacts attendent votre relance.");
         verify(users, never()).claimFollowUpsPush(eq(8L), any());
         assertThat(PushReminders.followUpText(1).get(DocumentLanguage.EN)[1]).isEqualTo("1 contact waits for your follow-up.");

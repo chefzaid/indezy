@@ -4,15 +4,19 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { TranslateModule } from '@ngx-translate/core';
 
 import { NotificationService } from '../../../services/notification/notification.service';
-import { WebPushService } from '../../../services/push/web-push.service';
+import { PUSH_EVENTS, PushEvent, WebPushService } from '../../../services/push/web-push.service';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 
 /** Why web push cannot be turned on here: the browser, the server, or the browser's permission. */
 export type PushUnavailable = 'browser' | 'server' | 'denied';
 
-/** Profile → Notifications: the network's notifications and messages pushed to this browser, once it allows them. */
+/**
+ * Profile → Notifications: the network's notifications and messages, interviews within the hour and the follow-ups due
+ * pushed to this browser once it allows them, each event turned on or off for the account.
+ */
 @Component({
   selector: 'app-push-toggle',
-  imports: [MatIconModule, MatSlideToggleModule, TranslateModule],
+  imports: [MatIconModule, MatSlideToggleModule, MatCheckboxModule, TranslateModule],
   templateUrl: './push-toggle.component.html',
   styleUrls: ['./push-toggle.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -26,6 +30,9 @@ export class PushToggleComponent implements OnInit {
   unavailable: PushUnavailable | null = null;
   on = false;
   saving = false;
+  readonly pushEvents = PUSH_EVENTS;
+  /** What is pushed to the account, in every browser it turned push on in; null until read. */
+  events: Record<PushEvent, boolean> | null = null;
 
   ngOnInit(): void {
     if (!this.push.supported) {
@@ -39,6 +46,13 @@ export class PushToggleComponent implements OnInit {
       this.on = subscribed;
       this.changes.markForCheck();
     });
+    this.push.events().subscribe({
+      next: events => {
+        this.events = events;
+        this.changes.markForCheck();
+      },
+      error: () => undefined
+    });
     this.push.key().subscribe({
       next: key => {
         this.publicKey = key;
@@ -50,6 +64,20 @@ export class PushToggleComponent implements OnInit {
       error: () => {
         this.unavailable = 'server';
         this.changes.markForCheck();
+      }
+    });
+  }
+
+  /** Turns one event on or off for the account, saved at once; put back when it cannot be. */
+  setEvent(event: PushEvent, change: MatCheckboxChange): void {
+    this.push.setEvents({ [event]: change.checked }).subscribe({
+      next: events => {
+        this.events = events;
+        this.changes.markForCheck();
+      },
+      error: () => {
+        change.source.checked = !change.checked;
+        this.notifications.error('profile.push.error');
       }
     });
   }

@@ -47,13 +47,13 @@ public class NetworkEvents {
     /** A notification came. */
     public void notice(Long recipientId) {
         afterCommit(List.of(recipientId), new NetworkEvent(NetworkEvent.NOTICE, null, null));
-        afterCommit(() -> push.notify(List.of(recipientId), NOTICE, "/network/notifications"));
+        afterCommit(() -> push.notify(dev.swirlit.indezy.push.PushEvent.NETWORK, List.of(recipientId), NOTICE, "/network/notifications"));
     }
 
     /** A message came for these members, who did not mute its conversation: pushed to their browsers. */
     public void messaged(Collection<Long> recipients, Long conversationId) {
         List<Long> to = List.copyOf(recipients);
-        afterCommit(() -> push.notify(to, MESSAGE, "/network/messages/" + conversationId));
+        afterCommit(() -> push.notify(dev.swirlit.indezy.push.PushEvent.MESSAGES, to, MESSAGE, "/network/messages/" + conversationId));
     }
 
     private void afterCommit(Runnable action) {

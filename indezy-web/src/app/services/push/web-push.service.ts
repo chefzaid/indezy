@@ -5,6 +5,10 @@ import { Observable, firstValueFrom, map, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 /** Web push in this browser: whether it can, whether it is on, and turning it on or off with the server. */
+/** What web push tells: the network's notifications, new messages, interviews within the hour, the follow-ups due. */
+export type PushEvent = 'NETWORK' | 'MESSAGES' | 'INTERVIEWS' | 'FOLLOW_UPS';
+export const PUSH_EVENTS: readonly PushEvent[] = ['NETWORK', 'MESSAGES', 'INTERVIEWS', 'FOLLOW_UPS'];
+
 @Injectable({
   providedIn: 'root'
 })
@@ -22,6 +26,16 @@ export class WebPushService {
   /** Whether this browser is subscribed. */
   get subscribed$(): Observable<boolean> {
     return this.swPush ? this.swPush.subscription.pipe(map(subscription => subscription !== null)) : of(false);
+  }
+
+  /** The events pushed to the account, each on or off. */
+  events(): Observable<Record<PushEvent, boolean>> {
+    return this.http.get<Record<PushEvent, boolean>>(`${this.API_URL}/events`);
+  }
+
+  /** Turns events on or off, those not named left as they were. */
+  setEvents(changes: Partial<Record<PushEvent, boolean>>): Observable<Record<PushEvent, boolean>> {
+    return this.http.put<Record<PushEvent, boolean>>(`${this.API_URL}/events`, changes);
   }
 
   /** The server's VAPID public key; null while web push is not set up. */
