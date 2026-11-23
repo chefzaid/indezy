@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Expériences antérieures et formation
+
+Le profil garde les postes tenus avant Indezy et vos formations ; le dossier de compétences les imprime après vos missions gagnées, et votre profil public montre ceux que vous choisissez. Voir [Prise en main](/help/getting-started).
+
 ### Le PDF de votre profil LinkedIn
 
 **Importer mon profil** lit aussi le PDF d'**Enregistrer au format PDF** de LinkedIn, sans IA et sans attendre l'archive LinkedIn. Voir [Compte, sécurité et données](/help/account).

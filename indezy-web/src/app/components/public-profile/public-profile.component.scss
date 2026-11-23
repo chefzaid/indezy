@@ -127,6 +127,26 @@ section h2 {
   }
 }
 
+.career {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  .period {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--app-text-muted);
+  }
+
+  p {
+    margin: 4px 0 0;
+    white-space: pre-line;
+  }
+}
+
 .certifications {
   display: flex;
   flex-direction: column;

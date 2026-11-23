@@ -40,6 +40,7 @@ public class DossierService {
     private final UserService users;
     private final ProjectRepository projects;
     private final TrainingService trainings;
+    private final CareerService career;
     private final DossierPdfRenderer renderer;
     private final Clock clock;
 
@@ -63,7 +64,12 @@ public class DossierService {
             .toList();
         return new DossierDto(named ? fullName(profile) : initials(profile), blankToNull(profile.getPosition()), blankToNull(profile.getCity()),
             named ? contact(profile) : List.of(), blankToNull(profile.getBio()), skills,
-            profile.getLanguages() == null ? List.of() : profile.getLanguages(), trainings.validCertifications(freelanceId), missions);
+            profile.getLanguages() == null ? List.of() : profile.getLanguages(), trainings.validCertifications(freelanceId), missions,
+            career.experiences(freelanceId).stream().map(experience -> new DossierDto.Mission(experience.title(),
+                named ? experience.employer() : null, experience.startsOn(), experience.endsOn(), experience.stack(),
+                excerpt(experience.description()))).toList(),
+            career.educations(freelanceId).stream().map(school -> new DossierDto.Education(school.school(), school.degree(),
+                school.startYear(), school.endYear())).toList());
     }
 
     @Transactional(readOnly = true)

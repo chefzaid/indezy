@@ -46,9 +46,19 @@ A profile names at most 50 skills. Different spellings count as one skill ("Spri
 
 > **Tip:** the optional **Days to bill per year**, **Longest drive to a mission** and **Longest public transport trip to a mission** fields add a billed-days card to the [dashboard](/help/dashboard) and flag missions too far from home.
 
+## Past positions and education
+
+Under your personal information, **Past positions** and **Education** hold what you did before or outside Indezy.
+
+1. Click **Add a position**: the title, the client or employer, the months it started and ended (leave the end empty while it runs), what you did and the technical environment.
+2. Click **Add a school**: the school, the degree and its years.
+3. Tick **Show on my public profile** for those your public profile (below) should show.
+
+They are not opportunities: your revenue, seasons and dashboard leave them out.
+
 ## Download your skills dossier
 
-The **Dossier de compétences** button on the Profile page builds an A4 PDF of your profile: presentation, skills, languages, valid certifications and won missions.
+The **Dossier de compétences** button on the Profile page builds an A4 PDF of your profile: presentation, skills, languages, valid certifications, won missions, then your past positions and education.
 
 1. Click **Dossier de compétences**.
 2. Choose **In French, named**, **In English, named**, **In French, anonymized** or **In English, anonymized**.

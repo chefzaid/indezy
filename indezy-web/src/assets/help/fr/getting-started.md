@@ -46,9 +46,19 @@ Un profil nomme au plus 50 compétences. Les variantes d'écriture comptent pour
 
 > **Astuce :** les champs facultatifs **Jours à facturer par an**, **Trajet maximal en voiture vers une mission** et **Trajet maximal en transports vers une mission** ajoutent un suivi des jours facturés au [tableau de bord](/help/dashboard) et signalent les missions trop loin de chez vous.
 
+## Expériences antérieures et formation
+
+Sous vos informations personnelles, **Expériences antérieures** et **Formation** gardent ce que vous avez fait avant ou en dehors d'Indezy.
+
+1. Cliquez sur **Ajouter un poste** : l'intitulé, le client ou l'employeur, les mois de début et de fin (laissez la fin vide tant qu'il dure), ce que vous avez fait et l'environnement technique.
+2. Cliquez sur **Ajouter une formation** : l'école, le diplôme et ses années.
+3. Cochez **Afficher sur mon profil public** pour ceux que votre profil public (plus bas) doit montrer.
+
+Ce ne sont pas des opportunités : votre chiffre d'affaires, vos saisons et le tableau de bord les ignorent.
+
 ## Télécharger votre dossier de compétences
 
-Le bouton **Dossier de compétences** de la page Profil génère un PDF A4 de votre profil : présentation, compétences, langues, certifications valides et missions gagnées.
+Le bouton **Dossier de compétences** de la page Profil génère un PDF A4 de votre profil : présentation, compétences, langues, certifications valides, missions gagnées, puis vos expériences antérieures et votre formation.
 
 1. Cliquez sur **Dossier de compétences**.
 2. Choisissez **En français, nominatif**, **En anglais, nominatif**, **En français, anonymisé** ou **En anglais, anonymisé**.

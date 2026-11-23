@@ -13,6 +13,8 @@ enum DossierLabel {
     CERTIFICATIONS("Certifications", "Certifications"),
     MISSIONS("Expériences", "Experience"),
     NO_MISSIONS("Aucune mission signée enregistrée.", "No signed mission recorded."),
+    POSITIONS("Expériences antérieures", "Earlier experience"),
+    EDUCATION("Formation", "Education"),
     SINCE("depuis %s", "since %s"),
     CLIENT_HIDDEN("Client communiqué sur demande", "Client disclosed on request"),
     STACK("Environnement : %s", "Environment: %s"),

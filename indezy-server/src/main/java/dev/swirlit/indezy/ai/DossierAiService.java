@@ -135,7 +135,8 @@ public class DossierAiService {
         // A profile with nothing in it gets no summary made up for it.
         boolean empty = dossier.summary() == null && dossier.skills().isEmpty() && dossier.missions().isEmpty();
         return new DossierDto(dossier.name(), dossier.position(), dossier.city(), dossier.contact(),
-            summary == null || empty ? dossier.summary() : summary, skills, dossier.languages(), dossier.certifications(), missions);
+            summary == null || empty ? dossier.summary() : summary, skills, dossier.languages(), dossier.certifications(), missions,
+            dossier.positions(), dossier.education());
     }
 
     private static String clean(String text) {

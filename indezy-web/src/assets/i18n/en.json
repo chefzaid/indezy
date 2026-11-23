@@ -2943,6 +2943,8 @@
     "links": "Links",
     "website": "Website",
     "certifications": "Certifications",
+    "experiences": "Experience",
+    "educations": "Education",
     "testimonials": "Testimonials"
   },
   "admin": {
@@ -5180,5 +5182,39 @@
     "empty": "Not enough missions stated a rate this quarter: a figure needs {{threshold}} of them.",
     "method": "Rates are those the job boards' postings state (the top of a range), excluding taxes; members' own rates are not used. Seniority is the posting's when it says it.",
     "loadError": "The report could not be loaded: try again in a moment."
+  },
+  "career": {
+    "positions": "Past positions",
+    "schools": "Education",
+    "hint": "Positions held before or outside Indezy: the dossier de compétences prints them after your won missions, and your public profile shows the ones you choose.",
+    "addPosition": "Add a position",
+    "editPosition": "Change the position",
+    "addSchool": "Add a school",
+    "editSchool": "Change the school",
+    "noPosition": "No past position yet.",
+    "noSchool": "No school yet.",
+    "now": "now",
+    "public": "On the public profile",
+    "actions": "Actions for {{name}}",
+    "shownPublicly": "Show on my public profile",
+    "runningHint": "Leave empty while it runs",
+    "endsBeforeStart": "The end comes before the start.",
+    "deleteTitle": "Delete this entry?",
+    "deleteMessage": "{{name}} is removed from your profile and your dossier de compétences.",
+    "loadError": "Your past positions and schools could not be loaded.",
+    "saveError": "This entry could not be saved: try again.",
+    "deleteError": "This entry could not be deleted: try again.",
+    "fields": {
+      "title": "Title",
+      "employer": "Client or employer",
+      "startsOn": "From",
+      "endsOn": "To",
+      "description": "What you did",
+      "stack": "Technical environment",
+      "school": "School",
+      "degree": "Degree",
+      "startYear": "From (year)",
+      "endYear": "To (year)"
+    }
   }
 }

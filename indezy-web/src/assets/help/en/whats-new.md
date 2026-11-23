@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Past positions and education
+
+The profile keeps the positions you held before Indezy and your schools; the dossier de compétences prints them after your won missions, and your public profile shows the ones you choose. See [Getting started](/help/getting-started).
+
 ### Your LinkedIn profile's PDF
 
 **Import my profile** also reads the PDF of LinkedIn's **Save to PDF**, without AI and without waiting for LinkedIn's archive. See [Account, security and data](/help/account).

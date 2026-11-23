@@ -42,6 +42,8 @@ final class DossierPage {
         section(DossierLabel.LANGUAGES, String.join(", ", dossier.languages()));
         section(DossierLabel.CERTIFICATIONS, String.join(" · ", dossier.certifications()));
         missions();
+        positions();
+        education();
         writer.ensureSpace(GAP * 2);
         writer.moveDown(GAP * 2);
         writer.text(writer.left(), writer.cursor(), DossierLabel.FOOTER.format(language,
@@ -86,12 +88,42 @@ final class DossierPage {
     }
 
     private void missions() throws IOException {
+        if (dossier.missions().isEmpty() && !dossier.positions().isEmpty()) {
+            return;
+        }
         heading(DossierLabel.MISSIONS);
         if (dossier.missions().isEmpty()) {
             writer.paragraph(DossierLabel.NO_MISSIONS.in(language), false, BODY, writer.width());
             return;
         }
-        for (DossierDto.Mission mission : dossier.missions()) {
+        entries(dossier.missions());
+    }
+
+    /** The positions held before or outside Indezy, after the won missions. */
+    private void positions() throws IOException {
+        if (dossier.positions().isEmpty()) {
+            return;
+        }
+        heading(dossier.missions().isEmpty() ? DossierLabel.MISSIONS : DossierLabel.POSITIONS);
+        entries(dossier.positions());
+    }
+
+    private void education() throws IOException {
+        if (dossier.education().isEmpty()) {
+            return;
+        }
+        heading(DossierLabel.EDUCATION);
+        for (DossierDto.Education school : dossier.education()) {
+            writer.ensureSpace(BODY * 3);
+            String years = school.startYear() != null && school.endYear() != null ? school.startYear() + " – " + school.endYear() :
+                school.endYear() != null ? String.valueOf(school.endYear()) : school.startYear() != null ? String.valueOf(school.startYear()) : null;
+            String line = school.degree() != null ? school.degree() + " · " + school.school() : school.school();
+            writer.paragraph(years == null ? line : line + " (" + years + ")", false, BODY, writer.width());
+        }
+    }
+
+    private void entries(List<DossierDto.Mission> entries) throws IOException {
+        for (DossierDto.Mission mission : entries) {
             writer.ensureSpace(BODY * 6);
             writer.moveDown(6);
             writer.paragraph(mission.role() + " · " + (mission.client() != null ? mission.client() : DossierLabel.CLIENT_HIDDEN.in(language)),

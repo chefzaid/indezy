@@ -9,7 +9,7 @@ import { Title } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 
-import { PublicProfile } from '../../models';
+import { Education, PublicProfile } from '../../models';
 import { PublicProfileService } from '../../services/public-profile/public-profile.service';
 import { PublicPageHeaderComponent } from '../../shared/components/public-page-header/public-page-header.component';
 
@@ -30,6 +30,11 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
 
   profile?: PublicProfile;
   isLoading = true;
+
+  /** "2010 – 2015", or the one year known. */
+  years(education: Education): string {
+    return [education.startYear, education.endYear].filter(year => !!year).join(' – ');
+  }
   notFound = false;
 
   ngOnInit(): void {

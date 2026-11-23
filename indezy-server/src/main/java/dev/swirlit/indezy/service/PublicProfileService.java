@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.constants.ErrorMessages;
+import dev.swirlit.indezy.dto.CareerDtos;
 import dev.swirlit.indezy.dto.PublicProfileDto;
 import dev.swirlit.indezy.dto.PublicProfileSettingsDto;
 import dev.swirlit.indezy.dto.TestimonialDtos;
@@ -41,6 +42,13 @@ public class PublicProfileService {
     private final Clock clock;
     private TrainingService trainings;
     private TestimonialService testimonials;
+    private CareerService career;
+
+    /** Optional: without the profile's history, the page shows no past position or school. */
+    @Autowired(required = false)
+    void setCareer(CareerService career) {
+        this.career = career;
+    }
 
     /** Optional: without testimonials, the page shows none. */
     @Autowired(required = false)
@@ -92,7 +100,11 @@ public class PublicProfileService {
             }).toList(),
             user.getLanguages(), webLink(user.getWebsite()), webLink(user.getLinkedin()), webLink(user.getGithub()),
             available, available != null && !available.isAfter(LocalDate.now(clock.withZone(PARIS))),
-            certifications(freelance), testimonials(freelance));
+            certifications(freelance), testimonials(freelance),
+            career == null || freelance.isEmpty() ? List.of() : career.experiences(freelance.get().getId()).stream()
+                .filter(CareerDtos.Experience::shownPublicly).toList(),
+            career == null || freelance.isEmpty() ? List.of() : career.educations(freelance.get().getId()).stream()
+                .filter(CareerDtos.Education::shownPublicly).toList());
     }
 
     /** The training record's valid certifications; none without a workspace or a training record. */

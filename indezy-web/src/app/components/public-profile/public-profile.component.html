@@ -79,6 +79,41 @@
           </section>
         }
 
+        @if (profile.experiences?.length) {
+          <section data-public-experiences>
+            <h2>{{ 'publicProfile.experiences' | translate }}</h2>
+            <ul class="career">
+              @for (experience of profile.experiences; track experience.id) {
+                <li>
+                  <strong>{{ experience.title }}</strong> · {{ experience.employer }}
+                  @if (experience.startsOn) {
+                    <span class="period">{{ experience.startsOn | date:'MMM y' }} – {{ experience.endsOn ? (experience.endsOn | date:'MMM y') : ('career.now' | translate) }}</span>
+                  }
+                  @if (experience.description) {
+                    <p>{{ experience.description }}</p>
+                  }
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        @if (profile.educations?.length) {
+          <section data-public-educations>
+            <h2>{{ 'publicProfile.educations' | translate }}</h2>
+            <ul class="career">
+              @for (education of profile.educations; track education.id) {
+                <li>
+                  <strong>{{ education.degree ? education.degree + ' · ' : '' }}{{ education.school }}</strong>
+                  @if (education.startYear || education.endYear) {
+                    <span class="period">{{ years(education) }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
         @if (profile.testimonials?.length) {
           <section data-public-testimonials>
             <h2>{{ 'publicProfile.testimonials' | translate }}</h2>

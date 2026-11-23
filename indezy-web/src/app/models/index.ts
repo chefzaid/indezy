@@ -33,6 +33,7 @@ export * from './network-files.models';
 export * from './purchase-order.models';
 export * from './compliance.models';
 export * from './training.models';
+export * from './career.models';
 export * from './testimonial.models';
 export * from './webhook.models';
 export * from './booking.models';

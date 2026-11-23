@@ -2943,6 +2943,8 @@
     "links": "Liens",
     "website": "Site web",
     "certifications": "Certifications",
+    "experiences": "Expériences",
+    "educations": "Formation",
     "testimonials": "Recommandations"
   },
   "admin": {
@@ -5180,5 +5182,39 @@
     "empty": "Trop peu de missions ont indiqué un TJM ce trimestre : un chiffre en demande {{threshold}}.",
     "method": "Les TJM sont ceux qu'indiquent les annonces des plateformes (le haut d'une fourchette), hors taxes ; les TJM des membres ne sont pas utilisés. La séniorité est celle de l'annonce quand elle la donne.",
     "loadError": "Le baromètre n'a pas pu être chargé : réessayez dans un instant."
+  },
+  "career": {
+    "positions": "Expériences antérieures",
+    "schools": "Formation",
+    "hint": "Les postes tenus avant ou en dehors d'Indezy : le dossier de compétences les imprime après vos missions gagnées, et votre profil public montre ceux que vous choisissez.",
+    "addPosition": "Ajouter un poste",
+    "editPosition": "Modifier le poste",
+    "addSchool": "Ajouter une formation",
+    "editSchool": "Modifier la formation",
+    "noPosition": "Aucune expérience antérieure pour l'instant.",
+    "noSchool": "Aucune formation pour l'instant.",
+    "now": "aujourd'hui",
+    "public": "Sur le profil public",
+    "actions": "Actions pour {{name}}",
+    "shownPublicly": "Afficher sur mon profil public",
+    "runningHint": "Laissez vide tant qu'il dure",
+    "endsBeforeStart": "La fin précède le début.",
+    "deleteTitle": "Supprimer cette entrée ?",
+    "deleteMessage": "{{name}} est retiré de votre profil et de votre dossier de compétences.",
+    "loadError": "Vos expériences et formations n'ont pas pu être chargées.",
+    "saveError": "Cette entrée n'a pas pu être enregistrée : réessayez.",
+    "deleteError": "Cette entrée n'a pas pu être supprimée : réessayez.",
+    "fields": {
+      "title": "Intitulé",
+      "employer": "Client ou employeur",
+      "startsOn": "De",
+      "endsOn": "À",
+      "description": "Ce que vous avez fait",
+      "stack": "Environnement technique",
+      "school": "École",
+      "degree": "Diplôme",
+      "startYear": "De (année)",
+      "endYear": "À (année)"
+    }
   }
 }

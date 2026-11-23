@@ -223,8 +223,22 @@ anonymized: the name and title, the city and (named only) the email, phone, Link
 summary; the skills with their level and years; the languages; the training record's valid certifications; then the
 won missions, the latest first, with their period ("depuis mars 2026" while one runs), their client (in the anonymized
 dossier "Client communiqué sur demande", and initials instead of the name), the description cut at 600 characters and
-the tech stack. Nothing in it is written by AI (`GET /api/users/dossier?layout=NAMED|ANONYMOUS&language=FR|EN`); the
-**Tailored dossier (AI)** on an opportunity's page is the AI version (see [AI Features](#ai-features)).
+the tech stack; then the [past positions](#experience-and-education) under "Expériences antérieures" (the experience
+itself when no mission was won), their employer hidden the same way when anonymized, and the schools under "Formation".
+Nothing in it is written by AI (`GET /api/users/dossier?layout=NAMED|ANONYMOUS&language=FR|EN`); the **Tailored dossier
+(AI)** on an opportunity's page is the AI version (see [AI Features](#ai-features)).
+
+### Experience And Education
+
+The personal information tab of **Profile** lists, under the form, the positions held before or outside Indezy and the
+schools, each added, changed or deleted in a dialog (`/api/users/experiences` and `/api/users/educations`, 100 of each
+at most, each workspace's own): a position has a title and a client or employer, a start and an end month (none while
+it runs, and never before the start), what was done (2,000 characters) and the technical environment; a school has its
+name, a degree and the years it started and ended. The running and latest positions come first, then the latest schools.
+The [dossier de compétences](#dossier-de-competences) prints them all after the won missions, the pipeline staying what
+was tracked in Indezy (no revenue, season or dashboard figure counts them); the public profile shows those marked **Show
+on my public profile**. The account export carries them as `experiences` and `educations`, and deleting the account
+removes them.
 
 ### Profile Import
 
@@ -256,7 +270,8 @@ provider the issuer, obtained and expiry dates) when the form is filled.
 ### Public Profile
 
 **Profile → Public profile** publishes, once turned on, a page at `/p/<address>` that anyone with the link can read:
-name, title, city, presentation, skills with levels, languages, links, photo and availability. The email, phone,
+name, title, city, presentation, skills with levels, languages, links, photo and availability, and the past positions and
+schools chosen for it. The email, phone,
 address and workspace records stay private. The address has 3 to 40 lower-case letters, digits and single dashes, one
 per account. A hidden profile and an unknown address both answer "No profile here".
 

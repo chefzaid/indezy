@@ -26,7 +26,7 @@ class DossierPdfRendererTest {
             new DossierDto.Skill("Kafka", null, null)), List.of("Français", "Anglais"), List.of("CKA"),
             missions == null ? List.of(new DossierDto.Mission("Lead Java", client, LocalDate.of(2025, 3, 1), LocalDate.of(2026, 2, 28),
                 "Java 21, Kafka", "Refonte du SI de paiement."), new DossierDto.Mission("Architecte", client, LocalDate.of(2026, 3, 2), null,
-                null, null)) : missions);
+                null, null)) : missions, List.of(), List.of());
     }
 
     private static String text(byte[] pdf) throws IOException {
@@ -49,9 +49,28 @@ class DossierPdfRendererTest {
         String text = text(renderer.render(dossier(null, null), DocumentLanguage.EN, TODAY));
         assertThat(text).contains("Skills profile", "Client disclosed on request", "Environment: Java 21, Kafka");
 
-        DossierDto empty = new DossierDto("A. M.", null, null, List.of(), null, List.of(), List.of(), List.of(), List.of());
+        DossierDto empty = new DossierDto("A. M.", null, null, List.of(), null, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
         assertThat(text(renderer.render(empty, DocumentLanguage.EN, TODAY))).contains("No signed mission recorded.")
-            .doesNotContain("Summary", "Languages");
+            .doesNotContain("Summary", "Languages", "Education");
+    }
+
+    @Test
+    void printsThePastPositionsAndSchoolsAfterTheMissions() throws IOException {
+        DossierDto.Mission bank = new DossierDto.Mission("Développeuse Java", "Banque Exemple", LocalDate.of(2015, 9, 1),
+            LocalDate.of(2019, 6, 30), "Java 8", "Paie.");
+        DossierDto withHistory = new DossierDto("Alice Martin", null, null, List.of(), null, List.of(), List.of(), List.of(),
+            dossier("Banque", null).missions(), List.of(bank), List.of(new DossierDto.Education("INSA Lyon", "Ingénieure", 2010, 2015),
+            new DossierDto.Education("Lycée du Parc", null, null, 2010)));
+        String text = text(renderer.render(withHistory, DocumentLanguage.FR, TODAY));
+        assertThat(text).contains("Expériences antérieures", "Développeuse Java · Banque Exemple", "Septembre 2015 – juin 2019", "Formation",
+            "Ingénieure · INSA Lyon (2010 – 2015)", "Lycée du Parc (2010)");
+        assertThat(text.indexOf("Expériences antérieures")).isGreaterThan(text.indexOf("Lead Java · Banque"));
+
+        // Without a won mission, the past positions are the experience, with no word of missing missions.
+        DossierDto onlyHistory = new DossierDto("A. M.", null, null, List.of(), null, List.of(), List.of(), List.of(), List.of(),
+            List.of(bank), List.of());
+        assertThat(text(renderer.render(onlyHistory, DocumentLanguage.EN, TODAY))).contains("Experience", "Développeuse Java")
+            .doesNotContain("No signed mission", "Earlier experience");
     }
 
     @Test

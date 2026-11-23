@@ -60,6 +60,21 @@ describe('PublicProfileComponent', () => {
     expect([...items].map(item => item.textContent?.replace('verified', '').trim())).toEqual(['CKA', 'PSM I']);
   });
 
+  it('lists the past positions and schools shown', () => {
+    profiles.view.and.returnValue(of(profile({
+      experiences: [{ id: 1, employer: 'Banque Exemple', title: 'Développeuse Java', startsOn: '2015-09-01', endsOn: null,
+        description: 'Paie.', shownPublicly: true }],
+      educations: [{ id: 2, school: 'INSA Lyon', degree: 'Ingénieure', startYear: 2010, endYear: 2015, shownPublicly: true },
+        { id: 3, school: 'Lycée du Parc', endYear: 2010, shownPublicly: true }]
+    })));
+    create();
+    const page = fixture.nativeElement as HTMLElement;
+    expect(page.querySelector('[data-public-experiences]')?.textContent).toContain('Développeuse Java · Banque Exemple');
+    expect(page.querySelector('[data-public-experiences]')?.textContent).toContain('career.now');
+    const schools = [...page.querySelectorAll('[data-public-educations] li')].map(item => item.textContent?.replace(/\s+/g, ' ').trim());
+    expect(schools).toEqual(['Ingénieure · INSA Lyon2010 – 2015', 'Lycée du Parc2010']);
+  });
+
   it('says when the freelancer is available, or that it is to ask, with the photo when there is one', () => {
     profiles.view.and.returnValue(of(profile({ availableNow: false, availableFrom: '2026-11-02', avatar: 'data:image/png;base64,eA==',
       bio: undefined, skills: [], languages: [], website: undefined, linkedin: undefined })));

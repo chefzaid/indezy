@@ -26,13 +26,19 @@ public record PublicProfileDto(
     /** The certifications of the training record still valid, most recent first. */
     List<String> certifications,
     /** The testimonials the freelancer approved, the latest first. */
-    List<TestimonialDtos.Shown> testimonials) {
+    List<TestimonialDtos.Shown> testimonials,
+    /** The past positions the freelancer chose to show, the running and latest first. */
+    List<CareerDtos.Experience> experiences,
+    /** The schools the freelancer chose to show, the latest first. */
+    List<CareerDtos.Education> educations) {
 
     public PublicProfileDto {
         skills = List.copyOf(skills);
         languages = List.copyOf(languages);
         certifications = certifications == null ? List.of() : List.copyOf(certifications);
         testimonials = testimonials == null ? List.of() : List.copyOf(testimonials);
+        experiences = experiences == null ? List.of() : List.copyOf(experiences);
+        educations = educations == null ? List.of() : List.copyOf(educations);
     }
 
     public record Skill(String name, SkillLevel level, Integer years) {

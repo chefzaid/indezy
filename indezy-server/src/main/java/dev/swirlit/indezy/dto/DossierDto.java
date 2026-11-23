@@ -8,10 +8,12 @@ import java.util.List;
 /**
  * What a dossier de compétences shows (see docs/features.md#dossier-de-competences): its author (initials only when
  * anonymized, {@code contact} then empty), their summary, skills, languages and valid certifications, and the missions
- * they won, the latest first, each without its client when anonymized.
+ * they won, the latest first, each without its client when anonymized, then their past positions (as missions, the employer
+ * as the client) and their schools.
  */
 public record DossierDto(String name, String position, String city, List<String> contact, String summary, List<Skill> skills,
-                         List<String> languages, List<String> certifications, List<Mission> missions) {
+                         List<String> languages, List<String> certifications, List<Mission> missions, List<Mission> positions,
+                         List<Education> education) {
 
     public DossierDto {
         contact = List.copyOf(contact);
@@ -19,6 +21,12 @@ public record DossierDto(String name, String position, String city, List<String>
         languages = List.copyOf(languages);
         certifications = List.copyOf(certifications);
         missions = List.copyOf(missions);
+        positions = positions == null ? List.of() : List.copyOf(positions);
+        education = education == null ? List.of() : List.copyOf(education);
+    }
+
+    /** A school, its degree and years when known. */
+    public record Education(String school, String degree, Integer startYear, Integer endYear) {
     }
 
     /** A skill of the profile, with its level and years when set. */
@@ -32,6 +40,6 @@ public record DossierDto(String name, String position, String city, List<String>
     // Spring MVC logs bodies through toString at DEBUG: nothing about the person (see docs/security.md).
     @Override
     public String toString() {
-        return "DossierDto[missions=" + missions.size() + "]";
+        return "DossierDto[missions=" + missions.size() + ", positions=" + positions.size() + "]";
     }
 }

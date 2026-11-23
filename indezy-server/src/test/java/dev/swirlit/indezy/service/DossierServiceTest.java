@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.dto.CareerDtos;
 import dev.swirlit.indezy.dto.DossierDto;
 import dev.swirlit.indezy.dto.SkillDetailDto;
 import dev.swirlit.indezy.dto.UserDto;
@@ -33,7 +34,8 @@ class DossierServiceTest {
     private final ProjectRepository projects = mock(ProjectRepository.class);
     private final TrainingService trainings = mock(TrainingService.class);
     private final DossierPdfRenderer renderer = mock(DossierPdfRenderer.class);
-    private final DossierService service = new DossierService(users, projects, trainings, renderer,
+    private final CareerService career = mock(CareerService.class);
+    private final DossierService service = new DossierService(users, projects, trainings, career, renderer,
         Clock.fixed(Instant.parse("2026-11-14T10:00:00Z"), ZoneOffset.UTC));
     private final UserDto profile = new UserDto();
 
@@ -64,6 +66,9 @@ class DossierServiceTest {
         profile.setLanguages(List.of("Français"));
         when(users.getUserProfile(1L)).thenReturn(profile);
         when(trainings.validCertifications(5L)).thenReturn(List.of("CKA"));
+        when(career.experiences(5L)).thenReturn(List.of(new CareerDtos.Experience(1L, "Banque Exemple", "Développeuse Java",
+            LocalDate.of(2015, 9, 1), LocalDate.of(2019, 6, 30), "Paie.", "Java 8", false)));
+        when(career.educations(5L)).thenReturn(List.of(new CareerDtos.Education(2L, "INSA Lyon", "Ingénieure", 2010, 2015, false)));
         when(projects.findByFreelanceId(5L)).thenReturn(List.of(
             project("Audit", ProjectStatus.WON, LocalDate.of(2024, 1, 8), "Banque"),
             project("Contact", ProjectStatus.CONTACT, LocalDate.of(2026, 1, 1), "Autre"),
@@ -82,6 +87,9 @@ class DossierServiceTest {
         assertThat(dossier.missions()).extracting(DossierDto.Mission::role).containsExactly("Lead", "Audit", "Sans date");
         assertThat(dossier.missions().get(0).client()).isEqualTo("Assurances");
         assertThat(dossier.missions().get(0).stack()).isNull();
+        assertThat(dossier.positions()).containsExactly(new DossierDto.Mission("Développeuse Java", "Banque Exemple", LocalDate.of(2015, 9, 1),
+            LocalDate.of(2019, 6, 30), "Java 8", "Paie."));
+        assertThat(dossier.education()).containsExactly(new DossierDto.Education("INSA Lyon", "Ingénieure", 2010, 2015));
     }
 
     @Test
@@ -91,6 +99,7 @@ class DossierServiceTest {
         assertThat(dossier.name()).isEqualTo("É. M.");
         assertThat(dossier.contact()).isEmpty();
         assertThat(dossier.missions()).allSatisfy(mission -> assertThat(mission.client()).isNull());
+        assertThat(dossier.positions()).allSatisfy(position -> assertThat(position.client()).isNull());
     }
 
     @Test

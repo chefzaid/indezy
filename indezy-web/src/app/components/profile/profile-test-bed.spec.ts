@@ -13,6 +13,7 @@ import { UserNotificationSettings, UserPreferences, UserProfile } from '../../mo
 import { NotificationService } from '../../services/notification/notification.service';
 import { PublicProfileService } from '../../services/public-profile/public-profile.service';
 import { AccountSecurityService } from '../../services/account-security/account-security.service';
+import { CareerService } from '../../services/career/career.service';
 import { WebhookService } from '../../services/webhook/webhook.service';
 import { UserManagementService } from '../../services/user-management/user-management.service';
 import { LANGUAGE_STORAGE_KEY } from '../../shared/locale/app-locale';
@@ -69,6 +70,7 @@ export function profileTestBed(): ProfileTestBed {
           { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }),
           apiTokens: () => of([]) } },
           { provide: WebhookService, useValue: { list: () => of([]) } },
+          { provide: CareerService, useValue: { experiences: () => of([]), educations: () => of([]) } },
           { provide: TestimonialService, useValue: { list: () => of([]) } },
           { provide: ContactService, useValue: { getForCurrentFreelance: () => of([]) } },
           { provide: NetworkService, useValue: { membership: () => of({ joined: false, handle: 'john', card: null, privateCard: false,

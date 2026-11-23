@@ -15,7 +15,7 @@ class DossierAiServiceTest {
     private static DossierDto dossier(String summary, List<DossierDto.Mission> missions) {
         return new DossierDto("A. M.", "Développeuse Java", "Lyon", List.of(), summary,
             List.of(new DossierDto.Skill("Java", null, 8), new DossierDto.Skill("Kafka", null, 3), new DossierDto.Skill("Angular", null, null)),
-            List.of("Anglais"), List.of("AWS"), missions);
+            List.of("Anglais"), List.of("AWS"), missions, List.of(), List.of());
     }
 
     private static DossierDto.Mission mission(String role, String description) {
@@ -47,7 +47,7 @@ class DossierAiServiceTest {
         assertThat(blank.skills()).extracting(DossierDto.Skill::name).containsExactly("Java", "Kafka", "Angular");
         assertThat(blank.missions().getFirst().description()).isEqualTo("Paie.");
 
-        DossierDto empty = new DossierDto("A. M.", null, null, List.of(), null, List.of(), List.of(), List.of(), List.of());
+        DossierDto empty = new DossierDto("A. M.", null, null, List.of(), null, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
         assertThat(DossierAiService.apply(empty, new DossierAiService.Tailoring("Experte reconnue.", List.of("Java"), List.of())).summary())
             .isNull();
 

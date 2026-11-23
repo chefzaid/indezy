@@ -25,6 +25,10 @@ export interface PublicProfile {
   certifications?: string[];
   /** The testimonials the freelancer approved. */
   testimonials?: import('./testimonial.models').ShownTestimonial[];
+  /** The past positions the freelancer chose to show. */
+  experiences?: import('./career.models').Experience[];
+  /** The schools the freelancer chose to show. */
+  educations?: import('./career.models').Education[];
 }
 
 /** An address name built from a name: lower case, no accents, words joined by dashes, at most 40 characters. */
