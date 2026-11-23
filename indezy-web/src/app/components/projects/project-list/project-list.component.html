@@ -209,7 +209,10 @@
           </button>
         </div>
         <div class="reversion-info">
-          {{ 'projects.reversion.formula' | translate:{ rate: reversionRate } }}
+          {{ 'projects.reversion.formula' | translate:{ rate: reversionRate, charges: socialChargesRate } }}
+          @if (knownChargesRate) {
+            <span data-reversion-known-charges>{{ 'projects.reversion.knownCharges' | translate }}</span>
+          }
         </div>
       </mat-card-content>
     </mat-card>

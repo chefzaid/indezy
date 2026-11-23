@@ -27,6 +27,7 @@ import { CommuteService } from '../../../services/commute/commute.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { InvoiceService } from '../../../services/invoice/invoice.service';
 import { SeasonService } from '../../../services/season/season.service';
 import { Season } from '../../../models/season.models';
 import {
@@ -116,8 +117,13 @@ export class ProjectListComponent implements OnInit {
   incomeTaxRate = 5;
   useCustomRate = false;
   readonly DEFAULT_DAYS_PER_YEAR = DEFAULT_DAYS_PER_YEAR;
-  /** Social charges taken from the gross, with the income tax, when deriving the reversion rate. */
+  /** Social charges taken from the gross, with the income tax, when deriving the reversion rate, without an official rate. */
   static readonly SOCIAL_CHARGES_RATE = 40;
+
+  /** The social charges used: the micro-entreprise's official rate (or the member's own) when known, else 40 %. */
+  socialChargesRate = ProjectListComponent.SOCIAL_CHARGES_RATE;
+  /** Whether {@link socialChargesRate} is the official micro-entreprise rate or the member's own rather than the estimate. */
+  knownChargesRate = false;
 
   workModeOptions = [
     { value: 'REMOTE', labelKey: 'projects.workModes.REMOTE' },
@@ -151,6 +157,7 @@ export class ProjectListComponent implements OnInit {
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly seasonService = inject(SeasonService);
+  private readonly invoiceService = inject(InvoiceService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -428,6 +435,20 @@ export class ProjectListComponent implements OnInit {
       },
       error: (err) => console.error('Error loading freelance profile:', err)
     });
+    // The micro-entreprise's official contribution rate (or the member's own) replaces the 40 % estimate.
+    this.invoiceService.contributions().subscribe({
+      next: estimate => {
+        if (estimate.rate !== null && estimate.rate !== undefined) {
+          this.socialChargesRate = estimate.rate;
+          this.knownChargesRate = true;
+          // A rate the member never set follows it, as the income tax does.
+          if (!this.useCustomRate) {
+            this.reversionRate = Math.max(0, 100 - this.socialChargesRate - this.incomeTaxRate);
+          }
+        }
+      },
+      error: () => undefined
+    });
   }
 
   onReversionRateChange(value: string | number): void {
@@ -446,7 +467,7 @@ export class ProjectListComponent implements OnInit {
     }
     this.incomeTaxRate = tax;
     // What is left once the social charges and the income tax are taken: a higher tax lowers it.
-    this.reversionRate = Math.max(0, 100 - ProjectListComponent.SOCIAL_CHARGES_RATE - tax);
+    this.reversionRate = Math.max(0, 100 - this.socialChargesRate - tax);
   }
 
   /** Parses a percentage typed in a number input, rejecting values outside [0, max]. */

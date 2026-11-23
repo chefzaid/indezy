@@ -1,3 +1,4 @@
+import { InvoiceService } from '../../../services/invoice/invoice.service';
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -40,6 +41,10 @@ describe('ProjectListComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirmDialog: jasmine.SpyObj<ConfirmDialogService>;
   let shortcuts: { focusProjectSearch$: Subject<boolean>; acknowledgeSearchFocus: jasmine.Spy };
+  /** The URSSAF rate the contributions estimate gives; null for none known. */
+  let chargesRate: number | null = null;
+
+  afterEach(() => chargesRate = null);
 
   function create(projects: ProjectDto[] = missions, user: { id: number } | null = { id: 7 },
                   seasons: Season[] = [], before: () => void = () => undefined): ComponentFixture<ProjectListComponent> {
@@ -66,7 +71,8 @@ describe('ProjectListComponent', () => {
         { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirmDialog },
         { provide: KeyboardShortcutsService, useValue: shortcuts },
-        { provide: SourceService, useValue: { getByFreelanceId: () => of([]) } }
+        { provide: SourceService, useValue: { getByFreelanceId: () => of([]) } },
+        { provide: InvoiceService, useValue: { contributions: () => of({ rate: chargesRate }) } }
       ]
     });
     before();
@@ -411,5 +417,19 @@ describe('ProjectListComponent', () => {
     expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({
       queryParams: { q: 'kafka', min: '500' }, replaceUrl: true
     }));
+  });
+
+  it('derives the reversion rate from the official URSSAF rate when one is known, else from 40 %', () => {
+    const estimated = create().componentInstance;
+    estimated.onIncomeTaxRateChange(5);
+    expect(estimated.reversionRate).toBe(55);
+    TestBed.resetTestingModule();
+    chargesRate = 25.6;
+    const fixture = create();
+    // Never set by the member: it follows the official rate at once.
+    expect(fixture.componentInstance.reversionRate).toBeCloseTo(69.4, 5);
+    fixture.componentInstance.onIncomeTaxRateChange(10);
+    expect(fixture.componentInstance.reversionRate).toBeCloseTo(64.4, 5);
+    expect(fixture.componentInstance.knownChargesRate).toBeTrue();
   });
 });

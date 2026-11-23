@@ -1715,8 +1715,11 @@ added. **Download PDF** exports it on one A4 page.
 ## Reversion Rate Calculator
 
 The taux de réversion is the share of the gross daily rate the freelancer keeps. The opportunities list sets it, or
-derives it from the income tax (100 % less 40 % of social charges and the tax; 55 % with 5 % by default), saves both
-on the profile, and shows the net daily, monthly and yearly revenue and the workable days net of French public holidays.
+derives it from the income tax (100 % less the social charges and the tax; 55 % with 40 % of charges and 5 % of tax by
+default), saves both on the profile, and shows the net daily, monthly and yearly revenue and the workable days net of French public holidays. The social
+charges are the URSSAF rate when one is known (the micro-entreprise's official rate for its activity, the versement
+libératoire included, or the member's own rate, as **URSSAF declarations** gives it, see
+[URSSAF contributions](#urssaf-contributions)), else 40 %; a rate the member never set follows it.
 
 ## Commute-Time Sorting
 
