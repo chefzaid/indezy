@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.pdf;
 
 import dev.swirlit.indezy.model.InvoiceSeller;
+import dev.swirlit.indezy.model.enums.BodyBlock;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.DocumentTemplateKind;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
@@ -11,7 +12,7 @@ import java.util.Locale;
 
 /**
  * A Word template to start from (see docs/features.md#invoices): the built-in layout of an invoice or a quote, in the
- * seller's font, accent colour and footer, with every placeholder where its value goes, so it fills as the built-in
+ * seller's font, accent colour, footer and body order, with every placeholder where its value goes, so it fills as the built-in
  * documents read once uploaded, and is edited from there.
  */
 public final class StarterTemplate {
@@ -55,6 +56,27 @@ public final class StarterTemplate {
         docx.paragraph(List.of(plain("{{client.details}}")), DocxDocument.Align.LEFT, 20);
         docx.paragraph("", false, DocxDocument.BODY, DocxDocument.Align.LEFT);
 
+        for (BodyBlock block : BodyBlock.read(seller.getBodyBlocks())) {
+            switch (block) {
+                case LINES -> lines(docx, english, accent);
+                case MENTIONS -> docx.paragraph(List.of(new DocxDocument.Run("{{mentions}}", false, DocxDocument.SMALL, null)),
+                    DocxDocument.Align.LEFT, 120);
+                case NOTES -> docx.paragraph(List.of(new DocxDocument.Run("{{notes}}", false, DocxDocument.SMALL, null)),
+                    DocxDocument.Align.LEFT, 120);
+                default -> {
+                    // SIGNATURE: a quote's box only.
+                    if (quote) {
+                        signature(docx);
+                    }
+                }
+            }
+        }
+        String title = quote ? (english ? "Quote template" : "Modèle de devis") : (english ? "Invoice template" : "Modèle de facture");
+        return docx.save(title, seller.getName() == null ? "" : seller.getName());
+    }
+
+    /** The lines table, its row repeated for each line, then the totals. */
+    private static void lines(DocxDocument docx, boolean english, String accent) {
         String[] headings = english ? new String[] {"Description", "Qty", "Unit price", "VAT", "Amount"} :
             new String[] {"Désignation", "Qté", "Prix unitaire", "TVA", "Montant"};
         String[] line = {"{{#lines}}{{line.description}}", "{{line.quantity}}", "{{line.unitPrice}}", "{{line.vatRate}}", "{{line.amount}}{{/lines}}"};
@@ -65,20 +87,17 @@ public final class StarterTemplate {
         docx.paragraph(List.of(plain("{{^vatExempt}}" + (english ? "VAT: " : "TVA : ") + "{{totals.vat}}{{/vatExempt}}")), DocxDocument.Align.RIGHT, 40);
         docx.paragraph(List.of(new DocxDocument.Run((english ? "Amount due: " : "Net à payer : ") + "{{totals.toPay}}", true, DocxDocument.NAME,
             accent)), DocxDocument.Align.RIGHT, 120);
+    }
 
-        docx.paragraph(List.of(new DocxDocument.Run("{{mentions}}", false, DocxDocument.SMALL, null)), DocxDocument.Align.LEFT, 120);
-        docx.paragraph(List.of(new DocxDocument.Run("{{notes}}", false, DocxDocument.SMALL, null)), DocxDocument.Align.LEFT, 120);
-        if (quote) {
-            docx.paragraph(List.of(new DocxDocument.Run("{{acceptance}}", true, DocxDocument.SMALL, null)), DocxDocument.Align.LEFT, 60);
-            List<List<DocxDocument.Run>> box = new ArrayList<>();
-            for (int index = 0; index < SIGNATURE_LINES; index++) {
-                box.add(List.of(plain("")));
-            }
-            docx.table(SIGNATURE, List.of(List.of(new DocxDocument.Cell(List.of(), DocxDocument.Align.LEFT),
-                new DocxDocument.Cell(box, DocxDocument.Align.LEFT))), false, false, true, null);
+    /** The words the client writes, then the box they sign in. */
+    private static void signature(DocxDocument docx) {
+        docx.paragraph(List.of(new DocxDocument.Run("{{acceptance}}", true, DocxDocument.SMALL, null)), DocxDocument.Align.LEFT, 60);
+        List<List<DocxDocument.Run>> box = new ArrayList<>();
+        for (int index = 0; index < SIGNATURE_LINES; index++) {
+            box.add(List.of(plain("")));
         }
-        String title = quote ? (english ? "Quote template" : "Modèle de devis") : (english ? "Invoice template" : "Modèle de facture");
-        return docx.save(title, seller.getName() == null ? "" : seller.getName());
+        docx.table(SIGNATURE, List.of(List.of(new DocxDocument.Cell(List.of(), DocxDocument.Align.LEFT),
+            new DocxDocument.Cell(box, DocxDocument.Align.LEFT))), false, false, true, null);
     }
 
     private static DocxDocument.Run plain(String text) {

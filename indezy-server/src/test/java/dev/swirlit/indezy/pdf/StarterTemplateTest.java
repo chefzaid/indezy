@@ -45,4 +45,17 @@ class StarterTemplateTest {
             new QuotePage(null, quote, DocxTemplateTest.seller(), DocxTemplateTest.buyer(), 30, null, false), null)));
         assertThat(text).contains("Valid until: ", "Description", "Amount due: ", "Développement Java").doesNotContain("{{");
     }
+
+    @Test
+    void followsTheBodysOrderAndLeavesOutAnUnwantedSignatureBox() throws IOException {
+        InvoiceSeller seller = DocxTemplateTest.seller();
+        seller.setBodyBlocks("NOTES,LINES,MENTIONS");
+        byte[] starter = StarterTemplate.write(DocumentTemplateKind.QUOTE, DocumentLanguage.EN, seller);
+        DocxTemplate.Analysis analysis = DocxTemplate.analyse(starter);
+        assertThat(analysis.found()).doesNotContain("acceptance");
+        assertThat(analysis.missing()).isEmpty();
+        String document = new String(BillingDocxTest.parts(starter).get("word/document.xml"), java.nio.charset.StandardCharsets.UTF_8);
+        assertThat(document.indexOf("{{notes}}")).isNotNegative().isLessThan(document.indexOf("{{#lines}}"));
+        assertThat(document.indexOf("{{totals.toPay}}")).isLessThan(document.indexOf("{{mentions}}"));
+    }
 }
