@@ -101,7 +101,11 @@ public class ContactEmailService {
      * wrote, and when they were last in touch.
      */
     public record Recipient(Long id, String firstName, String name, String company, String email, int answers, LocalDate lastContactedOn,
-                            int postings) {
+                            int postings, String mission) {
+    }
+
+    /** What a company posted for the profile lately: how many offers, and the newest one's title. */
+    record Postings(int count, String latest) {
     }
 
     /** Offers their company published this long ago at most count as missions it is hiring for. */
@@ -159,13 +163,15 @@ public class ContactEmailService {
                 !Boolean.TRUE.equals(contact.getClient().getIsBlacklisted()))
             .filter(contact -> lastInTouch.get(contact.getId()) == null || lastInTouch.get(contact.getId()).isBefore(recent))
             .toList();
-        Map<String, Integer> postings = postings(freelanceId, reachable);
+        Map<String, Postings> postings = postings(freelanceId, reachable);
+        Postings none = new Postings(0, null);
         return reachable.stream()
             .filter(contact -> workedWith.contains(contact.getClient().getId()) || answeringCompanies.contains(contact.getClient().getId()) ||
                 postings.containsKey(JobOffer.companyKeyOf(contact.getClient().getCompanyName())))
             .map(contact -> new Recipient(contact.getId(), contact.getFirstName(), contact.getFullName(), contact.getClient().getCompanyName(),
                 contact.getEmail().strip(), answers.getOrDefault(contact.getId(), new int[1])[0], lastInTouch.get(contact.getId()),
-                postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), 0)))
+                postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).count(),
+                postings.getOrDefault(JobOffer.companyKeyOf(contact.getClient().getCompanyName()), none).latest()))
             .sorted(Comparator.comparingInt(Recipient::answers).reversed().thenComparing(Comparator.comparingInt(Recipient::postings).reversed())
                 .thenComparing(Recipient::company, String.CASE_INSENSITIVE_ORDER).thenComparing(Recipient::name, String.CASE_INSENSITIVE_ORDER))
             .toList();
@@ -175,7 +181,7 @@ public class ContactEmailService {
      * How many offers each of these contacts' companies published in the feed in the last {@value #POSTINGS_DAYS} days
      * naming one of the profile's skills, by {@link JobOffer#companyKeyOf} name; companies with none are absent.
      */
-    private Map<String, Integer> postings(Long freelanceId, List<Contact> reachable) {
+    private Map<String, Postings> postings(Long freelanceId, List<Contact> reachable) {
         Set<String> keys = new HashSet<>();
         reachable.forEach(contact -> {
             String key = JobOffer.companyKeyOf(contact.getClient().getCompanyName());
@@ -190,13 +196,16 @@ public class ContactEmailService {
             return Map.of();
         }
         Map<String, Set<Long>> matching = new HashMap<>();
+        Map<String, Object[]> newest = new HashMap<>();
         for (Object[] row : offers.findPublishersSkills(keys, clock.instant().minus(Duration.ofDays(POSTINGS_DAYS)))) {
             if (row[2] instanceof String skill && skills.contains(SkillNames.key(SkillNames.canonical(skill)))) {
-                matching.computeIfAbsent((String) row[1], key -> new HashSet<>()).add((Long) row[0]);
+                String key = (String) row[1];
+                matching.computeIfAbsent(key, ignored -> new HashSet<>()).add((Long) row[0]);
+                newest.merge(key, row, (kept, other) -> ((Instant) other[4]).isAfter((Instant) kept[4]) ? other : kept);
             }
         }
-        Map<String, Integer> counts = new HashMap<>();
-        matching.forEach((key, ids) -> counts.put(key, ids.size()));
+        Map<String, Postings> counts = new HashMap<>();
+        matching.forEach((key, ids) -> counts.put(key, new Postings(ids.size(), (String) newest.get(key)[3])));
         return counts;
     }
 

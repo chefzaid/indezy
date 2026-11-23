@@ -27,8 +27,8 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
 
     List<JobOffer> findBySiteAndExternalIdIn(OfferSite site, Collection<String> externalIds);
 
-    /** Each skill of the offers these publishers published since {@code since}: the offer, its publisher's key, the skill. */
-    @Query("select o.id, o.companyKey, s from JobOffer o join o.skills s where o.companyKey in :keys and o.publishedAt >= :since")
+    /** Each skill of the offers these publishers published since {@code since}: the offer, its publisher's key, the skill, its title and day. */
+    @Query("select o.id, o.companyKey, s, o.title, o.publishedAt from JobOffer o join o.skills s where o.companyKey in :keys and o.publishedAt >= :since")
     List<Object[]> findPublishersSkills(@Param("keys") Collection<String> keys, @Param("since") Instant since);
 
     /** The offers of a publisher (see {@code JobOffer#companyKeyOf}), the newest first. */

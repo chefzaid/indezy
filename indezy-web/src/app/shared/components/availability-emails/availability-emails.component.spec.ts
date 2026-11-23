@@ -10,9 +10,9 @@ import { AvailabilityEmailsComponent } from './availability-emails.component';
 
 describe('AvailabilityEmailsComponent', () => {
   const lea: AvailabilityRecipient = { id: 1, firstName: 'Léa', name: 'Léa Martin', company: 'Conseil', email: 'lea@conseil.example', answers: 3,
-    lastContactedOn: '2026-08-01', postings: 0 };
+    lastContactedOn: '2026-08-01', postings: 0, mission: null };
   const marc: AvailabilityRecipient = { id: 2, firstName: null, name: 'Marc Durand', company: 'Autre', email: 'marc@autre.example', answers: 0,
-    lastContactedOn: null, postings: 2 };
+    lastContactedOn: null, postings: 2, mission: 'Lead Java' };
 
   function create(recipients = of([lea, marc])) {
     const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail', 'scheduledEmails', 'scheduleEmails',
@@ -65,6 +65,33 @@ describe('AvailabilityEmailsComponent', () => {
     expect([...component.chosen]).toEqual([2]);
     component.toggle(2);
     expect(component.chosen.size).toBe(0);
+  });
+
+  it('writes the mission each contact posted and sends a message edited for one of them', () => {
+    const { fixture, component, contacts } = create();
+    component.subject = 'Disponible';
+    component.body = 'Bonjour {{firstName}},\nJ\'ai vu votre mission {{mission}}.\nÀ bientôt';
+    component.toggle(1);
+    component.toggle(2);
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck();
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    host.querySelector<HTMLButtonElement>('[data-recipient-edit="1"]')!.click();
+    fixture.detectChanges();
+    expect(component.ownBody(lea)).toBe('Bonjour Léa,\nÀ bientôt');
+    expect(host.querySelector('[data-recipient-own="1"]')).not.toBeNull();
+    component.setOwn(lea, 'Bonjour Léa, un mot pour vous.');
+    component.edit(lea);
+    expect(component.editing).toBeNull();
+    contacts.sendEmail.and.returnValue(of({} as ContactInteraction));
+    component.send();
+    expect(contacts.sendEmail.calls.allArgs().map((args: unknown[]) => (args[1] as { body: string }).body)).toEqual(['Bonjour Léa, un mot pour vous.',
+      'Bonjour Marc Durand,\nJ\'ai vu votre mission Lead Java.\nÀ bientôt']);
+    expect(component.own.size).toBe(0);
+
+    component.setOwn(marc, 'x');
+    component.resetOwn(marc);
+    expect(component.ownBody(marc)).toContain('Lead Java');
   });
 
   it('plans the emails over working days, lists those waiting and cancels one', () => {

@@ -943,7 +943,7 @@ contacted or was anonymized is dropped unsent. Refused for the day's 50 emails, 
 another failure tries again an hour later, five tries at most. **Waiting to go** lists them, the soonest first, each
 with **Cancel** (`GET` and `DELETE /api/contacts/emails/scheduled/{id}`); up to 200 wait per workspace, gone with the
 contact or the account. The subject and message are written from the availability date and the network post when the section
-opens, `{{firstName}}` and `{{company}}` replaced by each contact's; **Send to N contacts** sends one email each, one after the other, with the dossier attached unless unticked,
+opens, `{{firstName}}`, `{{company}}` and `{{mission}}` (the title of the newest offer naming a profile skill their company published in the last 60 days, `mission` on each recipient; a line holding it is left out for a contact without one) replaced by each contact's; **Edit** beside a ticked contact opens their own message, written from the shared one, sent in its place (**Back to the shared message** undoes it); **Send to N contacts** sends one email each, one after the other, with the dossier attached unless unticked,
 each recorded in the contact's exchanges and counted in the 50 a day; those that could not go are named and stay ticked.
 
 **Tell me when it is opened**, off by default and asked email by email (the owner's choice), adds a one-pixel image whose

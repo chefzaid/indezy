@@ -117,6 +117,8 @@ export interface AvailabilityRecipient {
   lastContactedOn: string | null;
   /** How many missions naming a profile skill their company posted in the feed in the last 60 days. */
   postings: number;
+  /** The title of the newest of those missions, for `{{mission}}`; null without any. */
+  mission: string | null;
 }
 
 /** A contact's exchanges, newest first, and what they say about the relationship. */

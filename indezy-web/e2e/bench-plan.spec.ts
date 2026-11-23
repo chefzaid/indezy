@@ -31,7 +31,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       network: en ? 'Free on 1 February.' : 'Dispo le 1er février.', availableFrom: '2027-02-01' } }));
     await page.route('**/api/contacts/emails/availability-recipients', route => route.fulfill({ json: [
       { id: 7, firstName: 'Léa', name: 'Léa Martin', company: 'Conseil Exemple', email: 'lea@conseil.example', answers: 2,
-        lastContactedOn: '2026-08-01', postings: 3 }] }));
+        lastContactedOn: '2026-08-01', postings: 3, mission: 'Lead Java' }] }));
     const emails: Record<string, unknown>[] = [];
     await page.route('**/api/contacts/7/emails', route => {
       emails.push(route.request().postDataJSON());
@@ -77,8 +77,15 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(dialog.locator('[data-availability-recipient="7"] [data-recipient-postings]'))
       .toHaveText(en ? 'posted 3 matching missions lately' : 'a publié 3 missions pour vous récemment');
     await dialog.locator('[data-availability-recipient="7"] input').check();
+    // Her own message, written from the shared one, then a word added.
+    await dialog.locator('[data-recipient-edit="7"]').click();
+    const own = dialog.locator('[data-recipient-own="7"] textarea');
+    await expect(own).toHaveValue(en ? /^Hello Léa,/ : /^Bonjour Léa,/);
+    await own.fill((await own.inputValue()) + '\nP.S. Lead Java');
+    await expect(dialog.locator('[data-recipient-edit="7"]')).toHaveText(en ? 'Edited' : 'Modifié');
     await dialog.locator('[data-availability-emails-send]').click();
     await expect.poll(() => emails.length).toBe(1);
+    expect(String(emails[0]['body'])).toContain('P.S. Lead Java');
     expect(emails[0]).toEqual(expect.objectContaining({ dossier: true, track: false }));
     expect(String(emails[0]['body'])).toMatch(en ? /^Hello Léa,/ : /^Bonjour Léa,/);
 

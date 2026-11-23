@@ -18,7 +18,7 @@ import { NotificationService } from '../../../services/notification/notification
  * Tells the ESN contacts of an availability (see docs/features.md#emails-sent-from-indezy): the contacts of the ESNs the
  * workspace had an opportunity with or heard from, or that posted missions for the profile in the feed in the last 60
  * days, not those in touch in the last six weeks nor those who asked not to be contacted, those who answered most first
- * then those posting most, none ticked at first; one email each from Indezy, `{{firstName}}` and `{{company}}` replaced by theirs, with the dossier de compétences attached unless unticked, each recorded in their exchanges.
+ * then those posting most, none ticked at first; one email each from Indezy, `{{firstName}}`, `{{company}}` and `{{mission}}` replaced by theirs (or a message written for one contact), with the dossier de compétences attached unless unticked, each recorded in their exchanges.
  */
 @Component({
   selector: 'app-availability-emails',
@@ -46,6 +46,26 @@ import { NotificationService } from '../../../services/notification/notification
                   }
                 </span>
               </mat-checkbox>
+              @if (chosen.has(recipient.id)) {
+                <button mat-button type="button" (click)="edit(recipient)" [attr.data-recipient-edit]="recipient.id"
+                  [attr.aria-expanded]="editing === recipient.id">
+                  {{ (own.has(recipient.id) ? 'availabilityEmails.edited' : 'availabilityEmails.edit') | translate }}
+                </button>
+              }
+              @if (editing === recipient.id) {
+                <div class="own" [attr.data-recipient-own]="recipient.id">
+                  <mat-form-field appearance="outline" class="full">
+                    <mat-label>{{ 'availabilityEmails.ownBody' | translate:{ name: recipient.name } }}</mat-label>
+                    <textarea matInput rows="6" maxlength="20000" [ngModel]="ownBody(recipient)" (ngModelChange)="setOwn(recipient, $event)"
+                      data-recipient-own-body></textarea>
+                  </mat-form-field>
+                  @if (own.has(recipient.id)) {
+                    <button mat-button type="button" (click)="resetOwn(recipient)" data-recipient-own-reset>
+                      {{ 'availabilityEmails.reset' | translate }}
+                    </button>
+                  }
+                </div>
+              }
             </li>
           }
         </ul>
@@ -109,6 +129,7 @@ import { NotificationService } from '../../../services/notification/notification
     .recipients { list-style: none; margin: 0 0 12px; padding: 0; }
     .company { color: var(--mat-sys-on-surface-variant); }
     .full { width: 100%; }
+    .own { margin: 4px 0 8px 32px; }
     .row { display: flex; justify-content: flex-end; margin-top: 8px; }
     .when { display: flex; flex-wrap: wrap; gap: 0 12px; margin-top: 12px; }
     .when mat-form-field { flex: 1 1 200px; }
@@ -142,6 +163,10 @@ export class AvailabilityEmailsComponent implements OnInit {
   dailyMax = 15;
   readonly spreads = [1, 2, 3, 5];
   waiting: ScheduledEmail[] = [];
+  /** Messages written for one contact, by contact, in place of the shared one. */
+  readonly own = new Map<number, string>();
+  /** The contact whose message is open for editing. */
+  editing: number | null = null;
 
   ngOnInit(): void {
     this.contacts.availabilityRecipients().subscribe({
@@ -219,7 +244,10 @@ export class AvailabilityEmailsComponent implements OnInit {
     ).subscribe(results => {
       this.sending = false;
       const sent = results.filter(result => result.sent);
-      sent.forEach(result => this.chosen.delete(result.recipient.id));
+      sent.forEach(result => {
+        this.chosen.delete(result.recipient.id);
+        this.own.delete(result.recipient.id);
+      });
       const failed = results.filter(result => !result.sent).map(result => result.recipient.name);
       if (sent.length) {
         this.notifications.success('availabilityEmails.sent', 4000, { count: sent.length });
@@ -240,7 +268,10 @@ export class AvailabilityEmailsComponent implements OnInit {
     }).subscribe({
       next: planned => {
         this.sending = false;
-        recipients.forEach(recipient => this.chosen.delete(recipient.id));
+        recipients.forEach(recipient => {
+          this.chosen.delete(recipient.id);
+          this.own.delete(recipient.id);
+        });
         this.notifications.success('availabilityEmails.scheduled', 6000, { count: planned.length });
         this.loadWaiting();
         this.changes.markForCheck();
@@ -253,11 +284,37 @@ export class AvailabilityEmailsComponent implements OnInit {
     });
   }
 
-  /** The subject and message for one contact, its first name and company in place. */
+  /** Opens or closes the message of one contact, written from the shared one until changed. */
+  edit(recipient: AvailabilityRecipient): void {
+    this.editing = this.editing === recipient.id ? null : recipient.id;
+  }
+
+  ownBody(recipient: AvailabilityRecipient): string {
+    return this.own.get(recipient.id) ?? this.personalise(this.body, recipient);
+  }
+
+  setOwn(recipient: AvailabilityRecipient, body: string): void {
+    this.own.set(recipient.id, body);
+  }
+
+  resetOwn(recipient: AvailabilityRecipient): void {
+    this.own.delete(recipient.id);
+  }
+
+  /** The subject and message for one contact: its own message if written, else the shared one with its details in place. */
   private written(recipient: AvailabilityRecipient): { subject: string; body: string } {
+    const own = this.own.get(recipient.id);
     return {
-      subject: this.subject.trim().replaceAll('{{company}}', recipient.company),
-      body: this.body.replaceAll('{{firstName}}', recipient.firstName?.trim() || recipient.name).replaceAll('{{company}}', recipient.company)
+      subject: this.personalise(this.subject.trim(), recipient),
+      body: own?.trim() ? own : this.personalise(this.body, recipient)
     };
+  }
+
+  /** `{{firstName}}`, `{{company}}` and `{{mission}}` replaced by the contact's (the mission's sentence left out without one). */
+  private personalise(text: string, recipient: AvailabilityRecipient): string {
+    const mission = recipient.mission?.trim();
+    const withMission = mission ? text.replaceAll('{{mission}}', mission)
+      : text.split('\n').filter(line => !line.includes('{{mission}}')).join('\n');
+    return withMission.replaceAll('{{firstName}}', recipient.firstName?.trim() || recipient.name).replaceAll('{{company}}', recipient.company);
   }
 }

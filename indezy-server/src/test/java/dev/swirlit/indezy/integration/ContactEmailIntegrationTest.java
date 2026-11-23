@@ -215,6 +215,7 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
             List<Map<String, Object>> recipients = call(alice, HttpMethod.GET, "/contacts/emails/availability-recipients", null, List.class).getBody();
             assertThat(recipients).extracting(recipient -> recipient.get("name") + " " + recipient.get("postings"))
                 .containsExactly("Sam Recrute 2");
+            assertThat(recipients.getFirst()).containsEntry("mission", "Développeur Java");
             assertThat(call(alice, HttpMethod.GET, "/contacts/" + noe, null, Map.class).getBody()).containsEntry("doNotContact", true);
 
             Map<String, Object> contact = call(alice, HttpMethod.GET, "/contacts/" + noe, null, Map.class).getBody();
