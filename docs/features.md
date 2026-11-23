@@ -1122,6 +1122,16 @@ A card stating a rate shows how it compares with the median of the open offers n
 mission): in the offer's region with ten offers or more, else in France, else nothing ("+12% vs. Java in
 Île-de-France"; green from 5 % above, amber from 5 % below). Medians are computed nightly at 04:45 Paris time.
 
+### Market Report
+
+**Quarterly market report** (`/market-report`, open without an account, linked from the Market panel;
+`GET /api/public/market-report?quarter=2026-Q3`, the last complete quarter by default, one of the last eight or the
+running one) gives the daily rates the feed's offers published in the quarter state (the top of a range): the median
+and middle half across skills, then for the 30 skills most missions name their median, middle half, change since the
+previous quarter and median by seniority (the posting's), and the median of each region. A mission posted on several
+sites counts once; every figure needs 10 missions or more, else it is left out. Members' own rates are never used:
+those stay the members' [benchmark](#rate-benchmark) (ADR 0014). A report is computed once an hour at most.
+
 ### Market Trends
 
 **Trends**, at the end of the **Market** panel, shows for a profile skill the median rate and open offers on the latest

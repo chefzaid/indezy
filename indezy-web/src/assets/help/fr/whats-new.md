@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Le baromètre trimestriel des TJM
+
+Les TJM qu'ont indiqués les missions du fil chaque trimestre, par compétence, séniorité et région, ouvert à tous sur **/market-report**. Voir [Le flux d'offres](/help/offers).
+
 ### Prévenir vos contacts ESN de votre disponibilité
 
 Depuis **Annoncer ma disponibilité (IA)**, écrivez aux contacts que vous cochez dans les ESN avec qui vous avez travaillé, votre dossier de compétences en pièce jointe. Voir [Le tableau de bord](/help/dashboard).

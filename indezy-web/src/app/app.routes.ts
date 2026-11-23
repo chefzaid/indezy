@@ -54,6 +54,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/help/help-article.component').then(m => m.HelpArticleComponent)
   },
   {
+    // The quarterly market report of the feed's rates, open without an account.
+    path: 'market-report',
+    loadComponent: () => import('./components/market-report/market-report.component').then(m => m.MarketReportComponent)
+  },
+  {
     // The legal notice, terms of use and privacy policy, open without an account.
     path: 'legal/:document',
     loadComponent: () => import('./components/legal/legal-page.component').then(m => m.LegalPageComponent)

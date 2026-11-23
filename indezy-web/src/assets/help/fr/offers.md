@@ -31,7 +31,7 @@ Dès que votre profil nomme des compétences, chaque offre reçoit un score sur 
 
 Une carte qui indique un TJM le compare au TJM médian des offres ouvertes sur la même première compétence, dans sa région ou à défaut en France (par exemple « +12 % vs Java en Île-de-France »). Les médianes sont recalculées chaque nuit.
 
-Le bouton **Marché** ouvre un **Aperçu du marché** des offres que trouvent vos filtres : nombre d'offres, **TJM médian**, **Moitié centrale des TJM**, part qui atteint votre TJM cible, télétravail, **Compétences les plus citées**, **Intermédiaires les plus actifs** et publications des 30 derniers jours. Il se termine par les **Tendances** d'une de vos compétences sur 30 jours, 90 jours et un an. Puis **Compétences demandées qui vous manquent** : parmi les offres ouvertes qui nomment une de vos compétences, la part qui demande aussi une compétence absente de votre profil, avec **Prévoir une formation**.
+Le bouton **Marché** ouvre un **Aperçu du marché** des offres que trouvent vos filtres : nombre d'offres, **TJM médian**, **Moitié centrale des TJM**, part qui atteint votre TJM cible, télétravail, **Compétences les plus citées**, **Intermédiaires les plus actifs** et publications des 30 derniers jours. Il se termine par les **Tendances** d'une de vos compétences sur 30 jours, 90 jours et un an. Le panneau mène au **Baromètre trimestriel des TJM**, ouvert à tous : les TJM qu'ont indiqués les missions du fil chaque trimestre, par compétence, séniorité et région. Puis **Compétences demandées qui vous manquent** : parmi les offres ouvertes qui nomment une de vos compétences, la part qui demande aussi une compétence absente de votre profil, avec **Prévoir une formation**.
 
 ## Agir sur une offre
 

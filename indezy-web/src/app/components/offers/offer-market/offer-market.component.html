@@ -5,6 +5,7 @@
       {{ 'offers.market.title' | translate }}
     </h2>
     <p class="muted">{{ 'offers.market.subtitle' | translate }}</p>
+    <a class="report-link" routerLink="/market-report" data-market-report-link>{{ 'offers.market.quarterlyReport' | translate }}</a>
     @if (loading && view) {
       <mat-spinner diameter="20" [attr.aria-label]="'offers.loading' | translate"></mat-spinner>
     }

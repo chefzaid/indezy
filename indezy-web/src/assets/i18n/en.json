@@ -2320,7 +2320,8 @@
       "filterSkill": "Filter on {{skill}} ({{count}} offers)",
       "intermediaries": "Most active intermediaries",
       "none": "Not stated",
-      "perDay": "Offers published per day, last 30 days"
+      "perDay": "Offers published per day, last 30 days",
+      "quarterlyReport": "Quarterly market report"
     },
     "sites": {
       "title": "Job boards",
@@ -5145,5 +5146,30 @@
     "defaultText": "I will be available for a new mission soon. Do you have needs that match my profile?",
     "attached": "You will find my dossier de compétences attached.",
     "answers": "answered {{count}}×"
+  },
+  "marketReport": {
+    "title": "IT freelance market report",
+    "intro": "The daily rates the freelance missions collected by Indezy's offer feed state, quarter by quarter. A mission posted on several sites counts once, and a figure needs {{threshold}} missions or more.",
+    "quarter": "Quarter",
+    "period": "From {{from}} to {{to}}: {{count}} missions stating a rate.",
+    "overall": "Median daily rate, all skills",
+    "range": "Half of the missions between {{low}} € and {{high}} €.",
+    "bySkill": "By skill",
+    "skill": "Skill",
+    "missions": "Missions",
+    "median": "Median",
+    "middleHalf": "Middle half",
+    "change": "Since last quarter",
+    "seniorities": {
+      "JUNIOR": "Junior",
+      "CONFIRMED": "Confirmed",
+      "SENIOR": "Senior",
+      "EXPERT": "Expert"
+    },
+    "byRegion": "By region",
+    "missionsCount": "{{count}} missions",
+    "empty": "Not enough missions stated a rate this quarter: a figure needs {{threshold}} of them.",
+    "method": "Rates are those the job boards' postings state (the top of a range), excluding taxes; members' own rates are not used. Seniority is the posting's when it says it.",
+    "loadError": "The report could not be loaded: try again in a moment."
   }
 }

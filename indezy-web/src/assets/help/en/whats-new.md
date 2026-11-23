@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### The quarterly market report
+
+The daily rates the feed's missions stated each quarter, by skill, seniority and region, open to anyone at **/market-report**. See [The offer feed](/help/offers).
+
 ### Tell your ESN contacts you are available
 
 From **Announce my availability (AI)**, email the contacts you tick at the ESNs you worked with, your dossier de compétences attached. See [The dashboard](/help/dashboard).

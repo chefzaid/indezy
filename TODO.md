@@ -792,7 +792,7 @@ Profile and reputation
 
 - [x] **ADR — aggregated data:** opt-in contribution, publication only of aggregates over a minimum number of freelancers, no client or contact identities, GDPR legal basis and withdrawal. Feeds the TJM benchmark and community reviews above. Written on 2026-11-21: `docs/adr/0014-aggregated-market-data.md`.
 - [ ] ESN scorecard: response time, process length, offer rate, payment delay and margin range per ESN from contributed data.
-- [ ] Quarterly public market report of rates by skill, region and seniority.
+- [x] Quarterly public market report of rates by skill, region and seniority. Done on 2026-11-23 from the feed's published rates, members' own figures kept to the benchmark (ADR 0014): `/market-report`, open without an account, 10 missions per figure (`docs/features.md#market-report`).
 
 ### Teams Tier (collectives, portage companies, boutique ESNs)
 

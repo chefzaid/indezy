@@ -2320,7 +2320,8 @@
       "filterSkill": "Filtrer sur {{skill}} ({{count}} offres)",
       "intermediaries": "Intermédiaires les plus actifs",
       "none": "Non renseigné",
-      "perDay": "Offres publiées par jour, 30 derniers jours"
+      "perDay": "Offres publiées par jour, 30 derniers jours",
+      "quarterlyReport": "Baromètre trimestriel des TJM"
     },
     "sites": {
       "title": "Sites d'offres",
@@ -5145,5 +5146,30 @@
     "defaultText": "Je serai bientôt disponible pour une nouvelle mission. Avez-vous des besoins qui correspondent à mon profil ?",
     "attached": "Vous trouverez mon dossier de compétences en pièce jointe.",
     "answers": "a répondu {{count}} fois"
+  },
+  "marketReport": {
+    "title": "Baromètre des TJM freelance IT",
+    "intro": "Les taux journaliers qu'indiquent les missions freelance collectées par le fil d'offres d'Indezy, trimestre par trimestre. Une mission publiée sur plusieurs sites compte une fois, et un chiffre demande {{threshold}} missions ou plus.",
+    "quarter": "Trimestre",
+    "period": "Du {{from}} au {{to}} : {{count}} missions indiquant un TJM.",
+    "overall": "TJM médian, toutes compétences",
+    "range": "La moitié des missions entre {{low}} € et {{high}} €.",
+    "bySkill": "Par compétence",
+    "skill": "Compétence",
+    "missions": "Missions",
+    "median": "Médiane",
+    "middleHalf": "Moitié centrale",
+    "change": "Depuis le trimestre précédent",
+    "seniorities": {
+      "JUNIOR": "Junior",
+      "CONFIRMED": "Confirmé",
+      "SENIOR": "Senior",
+      "EXPERT": "Expert"
+    },
+    "byRegion": "Par région",
+    "missionsCount": "{{count}} missions",
+    "empty": "Trop peu de missions ont indiqué un TJM ce trimestre : un chiffre en demande {{threshold}}.",
+    "method": "Les TJM sont ceux qu'indiquent les annonces des plateformes (le haut d'une fourchette), hors taxes ; les TJM des membres ne sont pas utilisés. La séniorité est celle de l'annonce quand elle la donne.",
+    "loadError": "Le baromètre n'a pas pu être chargé : réessayez dans un instant."
   }
 }
