@@ -103,3 +103,5 @@ and the opt-in daily autopilot are to be built; the Keycloak realm sends from `n
   signing secret in Vault (the steps will follow here).
 - **`contact@swirlit.dev`:** make sure it reaches a mailbox you read.
 - **Publisher's details** for the legal notice: to give in a few months (around 2027-03).
+- **Indezy's own sign-in:** an Indezy Keycloak realm with self-registration, or local accounts in Indezy with the platform's SSO beside them (TODO.md, Needs Input).
+- **Reply detection:** this coding environment cannot read Resend's documentation (resend.com is not reachable); allow that host for the coding sessions, or give the inbound webhook's event format, so the reply address can be built.
