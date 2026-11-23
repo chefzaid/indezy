@@ -88,8 +88,12 @@ public class RevenueCeilingService {
             exempt ? vat(year, payments, received, lastYear) : null);
     }
 
-    /** A paid invoice's amount received, excluding VAT, in euros, on the day it was paid. */
-    public record Payment(LocalDate on, BigDecimal amount) {
+    /** A paid invoice's amount received, excluding VAT, and the VAT on it, in euros, on the day it was paid. */
+    public record Payment(LocalDate on, BigDecimal amount, BigDecimal vat) {
+
+        public Payment(LocalDate on, BigDecimal amount) {
+            this(on, amount, BigDecimal.ZERO.setScale(2));
+        }
     }
 
     /** The workspace's payments received, earliest first. */
@@ -106,7 +110,8 @@ public class RevenueCeilingService {
 
     private static List<Payment> payments(List<Invoice> all, Map<Long, List<Invoice>> notes) {
         return all.stream().filter(invoice -> !invoice.isCreditNote() && invoice.getStatus() == InvoiceStatus.PAID && invoice.getPaidOn() != null)
-            .map(invoice -> new Payment(invoice.getPaidOn(), net(invoice, notes, invoice.getPaidOn())))
+            .map(invoice -> new Payment(invoice.getPaidOn(), net(invoice, notes, invoice.getPaidOn(), false),
+                net(invoice, notes, invoice.getPaidOn(), true)))
             .sorted(Comparator.comparing(Payment::on)).toList();
     }
 
@@ -155,18 +160,23 @@ public class RevenueCeilingService {
 
     /** The invoice's amount before VAT in euros, less its credit notes (those issued by {@code by} when given), never below zero. */
     private static BigDecimal net(Invoice invoice, Map<Long, List<Invoice>> notes, LocalDate by) {
-        BigDecimal amount = euros(invoice);
+        return net(invoice, notes, by, false);
+    }
+
+    /** As {@link #net(Invoice, Map, LocalDate)}, of the VAT when {@code vat}. */
+    private static BigDecimal net(Invoice invoice, Map<Long, List<Invoice>> notes, LocalDate by, boolean vat) {
+        BigDecimal amount = euros(invoice, vat);
         for (Invoice note : notes.getOrDefault(invoice.getId(), List.of())) {
             if (by == null || note.getIssueDate() == null || !note.getIssueDate().isAfter(by)) {
-                amount = amount.subtract(euros(note));
+                amount = amount.subtract(euros(note, vat));
             }
         }
         return amount.signum() < 0 ? BigDecimal.ZERO.setScale(2) : amount;
     }
 
-    private static BigDecimal euros(Invoice invoice) {
+    private static BigDecimal euros(Invoice invoice, boolean vat) {
         InvoiceTotals totals = Objects.requireNonNullElse(InvoiceTotals.inEuros(invoice), InvoiceTotals.of(invoice.getLines()));
-        return totals.excludingVat();
+        return vat ? totals.vat() : totals.excludingVat();
     }
 
     private static int percent(BigDecimal revenue, BigDecimal limit) {

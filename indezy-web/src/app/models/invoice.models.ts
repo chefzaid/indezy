@@ -162,6 +162,15 @@ export interface ContributionEstimate {
   periods: ContributionPeriod[];
 }
 
+/** A tax deadline of the next twelve months: the CFE, a VAT instalment (its month only known) or the annual VAT return. */
+export interface TaxDeadline {
+  kind: 'CFE' | 'VAT_INSTALMENT' | 'VAT_RETURN';
+  dueOn: string;
+  monthOnly: boolean;
+  /** Estimated from the VAT on the payments received; null when it cannot be (the CFE). */
+  amount: number | null;
+}
+
 /** Why a bank credit was matched to an invoice, the strongest first: its number in the label, its client's name, the amount alone. */
 export type BankMatchReason = 'NUMBER' | 'CLIENT' | 'AMOUNT';
 

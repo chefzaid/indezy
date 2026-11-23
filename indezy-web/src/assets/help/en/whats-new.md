@@ -10,6 +10,10 @@ Turn on the autopilot in Profile → Preferences → AI: every night, the new of
 
 The network now names the ESNs 5 freelancers or more dealt with, with their offer rate, process length, answer time, payment delay and margin, from the members' records. Yours count unless you turn it off in **Profile → Privacy**. See [The member network](/help/network).
 
+### Your tax calendar
+
+Beside the URSSAF declarations, the Invoices page lists the CFE and, if you charge VAT, its instalments and annual return. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Your URSSAF declarations
 
 The Invoices page estimates your URSSAF contributions on the revenue received, and lists each month or quarter to declare with its deadline. See [Quotes and invoices](/help/invoices-quotes).

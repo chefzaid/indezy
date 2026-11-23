@@ -1549,6 +1549,16 @@ replaces the official one; for another legal form, whose contributions follow th
 simulator, linked) gives the year's estimate, the card staying away without one. A year whose official rates are not in
 `FrenchFigures` yet says so and asks for an own rate. The amounts are estimates: URSSAF's declaration counts.
 
+### Tax Calendar
+
+**Tax calendar** on the Invoices page lists the deadlines of the next twelve months beside the URSSAF declarations
+(`GET /api/invoices/tax-calendar`, `TaxCalendarService`): the CFE, paid by 15 December (its amount is on the notice; none
+for portage); and, while charging VAT under the simplified regime with a year closed on 31 December, the two VAT
+instalments, in July (55 % of the year before's VAT) and December (40 %), by month as the notice gives the day, and the
+annual return (CA12) with the balance by the second working day after 1 May, each estimated from the VAT on the payments
+received, before the VAT on expenses. A day falling on a weekend or a public holiday moves to the next working day. The
+rules are service-public.gouv.fr's (checked on 2026-11-23); the income-tax instalments are not listed yet.
+
 ### Expenses
 
 **Expenses** (`/expenses`, in the menu after **Quotes**) records the business expenses of a year: the date, what for,

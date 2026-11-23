@@ -3433,6 +3433,15 @@
       "past": "Était à déclarer avant le {{date}}",
       "basis": "Chiffre d'affaires encaissé hors TVA, au jour du paiement ; les montants sont des estimations, la déclaration à l'URSSAF fait foi. L'activité, la fréquence et le versement libératoire se règlent dans Profil → Facturation."
     },
+    "taxCalendar": {
+      "title": "Calendrier fiscal",
+      "kinds": {
+        "CFE": "CFE (cotisation foncière des entreprises), à payer au plus tard ce jour",
+        "VAT_INSTALMENT": "Acompte de TVA (l'avis indique le jour)",
+        "VAT_RETURN": "Déclaration annuelle de TVA (CA12), avec le solde"
+      },
+      "basis": "Les douze prochains mois. La TVA est estimée d'après la TVA sur les paiements reçus, avant celle de vos dépenses ; le montant de la CFE figure sur votre avis. Au régime simplifié de TVA, exercice clos le 31 décembre."
+    },
     "ceilings": {
       "title": "Plafonds {{year}}",
       "micro": "Plafond de la micro-entreprise",

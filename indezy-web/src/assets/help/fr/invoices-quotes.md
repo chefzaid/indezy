@@ -68,6 +68,7 @@ Pour un client à l'étranger, choisissez la **Devise** dans le brouillon : euro
 - La page de chaque client, et celle de ses opportunités, dit comment il paie d'après ses factures payées, par exemple « Paie en 52 jours en moyenne, avec 12 jours de retard ».
 - **Plafonds** compare le chiffre d'affaires encaissé cette année (hors TVA, au jour du paiement de chaque facture) au plafond de la micro-entreprise (83 600 € en 2026, pour les prestations de services) et aux seuils de la franchise en base de TVA (37 500 €, et 41 250 € en cours d'année). Il vous avertit dès 80 % et indique à quelle date le régime ou la franchise prend fin une fois dépassés. Il s'affiche pour une micro-entreprise, et tant que vous êtes en franchise de TVA.
 - **Déclarations URSSAF** estime vos cotisations sur le chiffre d'affaires encaissé. Pour une micro-entreprise, il liste chaque mois ou trimestre avec son échéance, celui à déclarer maintenant en tête, au taux officiel de votre activité. Réglez votre activité, la déclaration mensuelle ou trimestrielle, le versement libératoire ou votre propre taux dans Profil → Facturation → **Cotisations URSSAF**.
+- **Calendrier fiscal** liste la CFE (15 décembre) et, si vous facturez la TVA, ses acomptes de juillet et de décembre et la déclaration annuelle de mai, la TVA estimée d'après vos paiements reçus.
 - **Chiffre d'affaires par client, 12 derniers mois** répartit votre chiffre d'affaires et vous avertit quand un client en représente la moitié ou plus, un risque de requalification en salariat.
 
 ## Factur-X

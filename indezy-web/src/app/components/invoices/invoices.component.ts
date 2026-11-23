@@ -25,6 +25,7 @@ import { invoiceErrorKey } from './invoice-errors';
 import { ClientSharesComponent } from './client-shares/client-shares.component';
 import { RevenueCeilingsComponent } from './revenue-ceilings/revenue-ceilings.component';
 import { ContributionsComponent } from './contributions/contributions.component';
+import { TaxCalendarComponent } from './tax-calendar/tax-calendar.component';
 import { InvoiceBankDialogComponent } from './bank-dialog/invoice-bank-dialog.component';
 import { InvoiceDateDialogComponent, InvoiceDateDialogData } from './date-dialog/invoice-date-dialog.component';
 import { InvoiceDraftDialogComponent, InvoiceDraftDialogData } from './draft-dialog/invoice-draft-dialog.component';
@@ -36,7 +37,7 @@ export type InvoiceFilter = 'ALL' | 'DRAFT' | 'ISSUED' | 'OVERDUE' | 'PAID';
 /** The workspace's invoices: drafts to write and issue, issued ones to settle, and what is still owed. */
 @Component({
   selector: 'app-invoices',
-  imports: [PageHeaderComponent, ClientSharesComponent, RevenueCeilingsComponent, ContributionsComponent, DatePipe, DecimalPipe, RouterLink, MatButtonModule, MatButtonToggleModule, MatCardModule, MatIconModule, MatMenuModule,
+  imports: [PageHeaderComponent, ClientSharesComponent, RevenueCeilingsComponent, ContributionsComponent, TaxCalendarComponent, DatePipe, DecimalPipe, RouterLink, MatButtonModule, MatButtonToggleModule, MatCardModule, MatIconModule, MatMenuModule,
     MatProgressSpinnerModule, TranslateModule],
   templateUrl: './invoices.component.html',
   styleUrls: ['./invoices.component.scss'],

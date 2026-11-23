@@ -10,6 +10,10 @@ Activez le pilote automatique dans Profil → Préférences → IA : chaque nuit
 
 Le réseau nomme désormais les ESN avec qui 5 freelances ou plus ont travaillé, avec leur taux d'offre, la durée de leur processus, leur délai de réponse, leur délai de paiement et leur marge, d'après l'historique des membres. Le vôtre y compte, sauf si vous le désactivez dans **Profil → Confidentialité**. Voir [Le réseau des membres](/help/network).
 
+### Votre calendrier fiscal
+
+À côté des déclarations URSSAF, la page Factures liste la CFE et, si vous facturez la TVA, ses acomptes et sa déclaration annuelle. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Vos déclarations URSSAF
 
 La page Factures estime vos cotisations URSSAF sur le chiffre d'affaires encaissé, et liste chaque mois ou trimestre à déclarer avec son échéance. Voir [Devis et factures](/help/invoices-quotes).

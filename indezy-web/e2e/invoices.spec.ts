@@ -60,6 +60,9 @@ for (const width of [1280, 390]) {
       legalForm: 'MICRO_ENTREPRISE', vatExempt: true, received: 34000, receivedLastYear: 0, outstanding: 600,
       micro: { limit: 83600, tolerance: null, revenue: 34000, percent: 40, level: 'UNDER', endsOn: null },
       vat: { limit: 37500, tolerance: 41250, revenue: 34000, percent: 90, level: 'NEAR', endsOn: null } } }));
+    await page.route('**/api/invoices/tax-calendar', route => route.fulfill({ json: [
+      { kind: 'CFE', dueOn: '2026-12-15', monthOnly: false, amount: null },
+      { kind: 'VAT_RETURN', dueOn: '2027-05-04', monthOnly: false, amount: 3000 }] }));
     await page.route('**/api/invoices/contributions', route => route.fulfill({ json: { year: 2026, figuresYear: 2026,
       legalForm: 'MICRO_ENTREPRISE', activity: 'BNC_SSI', incomeTaxDischarge: false, frequency: 'QUARTERLY', rate: 25.6, officialRate: true,
       revenue: 34000, contributions: 8704, periods: [
@@ -93,6 +96,8 @@ for (const width of [1280, 390]) {
     // The URSSAF declarations: the one to make now first, at the official rate.
     await expect(page.locator('[data-contributions-summary]')).toContainText('about €8,704 of contributions at 25.6 %');
     await expect(page.locator('[data-contribution-period="2026-10-01"]')).toContainText('To declare by 31 January');
+    await expect(page.locator('[data-tax-deadline="CFE"]')).toContainText('15 December 2026');
+    await expect(page.locator('[data-tax-deadline="VAT_RETURN"]')).toContainText('≈ 3,000 €');
 
     await page.locator('[data-new-invoice]').click();
     const dialog = page.getByRole('dialog');

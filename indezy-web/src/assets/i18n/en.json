@@ -3433,6 +3433,15 @@
       "past": "Was due by {{date}}",
       "basis": "Revenue received excluding VAT, on the day it was paid; the amounts are estimates, URSSAF's declaration is what counts. The activity, the frequency and the versement libératoire are set in Profile → Billing."
     },
+    "taxCalendar": {
+      "title": "Tax calendar",
+      "kinds": {
+        "CFE": "CFE (business property tax), paid by this day",
+        "VAT_INSTALMENT": "VAT instalment (the notice gives the day)",
+        "VAT_RETURN": "Annual VAT return (CA12), with the balance"
+      },
+      "basis": "The next twelve months. The VAT is estimated from the VAT on the payments received, before the VAT on your expenses; the CFE amount is on your notice. Under the simplified VAT regime, a year closed on 31 December."
+    },
     "ceilings": {
       "title": "Ceilings {{year}}",
       "micro": "Micro-entreprise ceiling",

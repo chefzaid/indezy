@@ -12,6 +12,7 @@ import dev.swirlit.indezy.service.InvoicePaymentDelays;
 import dev.swirlit.indezy.service.ContributionService;
 import dev.swirlit.indezy.service.InvoiceService;
 import dev.swirlit.indezy.service.RevenueCeilingService;
+import dev.swirlit.indezy.service.TaxCalendarService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -49,6 +50,7 @@ public class InvoiceController {
     private final BankReconciliationService reconciliation;
     private final RevenueCeilingService ceilings;
     private final ContributionService contributions;
+    private final TaxCalendarService taxCalendar;
 
     @Operation(summary = "The workspace's invoices, newest first")
     @GetMapping("/by-freelance/{freelanceId}")
@@ -82,6 +84,13 @@ public class InvoiceController {
     @GetMapping("/contributions")
     public ContributionService.Estimate contributions(@RequestParam(required = false) Integer year) {
         return contributions.estimate(workspace(), year);
+    }
+
+    /** The CFE and VAT deadlines of the next twelve months, with the VAT estimated from the payments received. */
+    @Operation(summary = "The CFE and VAT deadlines of the next twelve months, the VAT estimated from the payments received")
+    @GetMapping("/tax-calendar")
+    public List<TaxCalendarService.Deadline> taxCalendar() {
+        return taxCalendar.upcoming(workspace());
     }
 
     @Operation(summary = "How each client pays: its paid invoices, average days to payment and past the due date")

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { BankMatch, ContributionEstimate, Invoice, InvoiceDraft, InvoiceableReport, PaymentDelay, RevenueCeilings } from '../../models';
+import { BankMatch, ContributionEstimate, TaxDeadline, Invoice, InvoiceDraft, InvoiceableReport, PaymentDelay, RevenueCeilings } from '../../models';
 
 /** An accountant's export: the FEC journal entries, or the register of invoices and credit notes as CSV. */
 export type AccountingExportFormat = 'FEC' | 'REGISTER';
@@ -38,6 +38,11 @@ export class InvoiceService {
   /** The year's URSSAF contributions on the revenue received, with each declaration's deadline for a micro-entreprise. */
   contributions(): Observable<ContributionEstimate> {
     return this.http.get<ContributionEstimate>(`${this.API_URL}/contributions`);
+  }
+
+  /** The CFE and VAT deadlines of the next twelve months, the VAT estimated from the payments received. */
+  taxCalendar(): Observable<TaxDeadline[]> {
+    return this.http.get<TaxDeadline[]>(`${this.API_URL}/tax-calendar`);
   }
 
   invoiceableReports(): Observable<InvoiceableReport[]> {
