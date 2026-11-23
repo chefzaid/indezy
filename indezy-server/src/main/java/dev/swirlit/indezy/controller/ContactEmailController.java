@@ -42,12 +42,13 @@ public class ContactEmailController {
 
     private final ContactEmailService emails;
     private final ContactEmailScheduleService schedule;
+    private final dev.swirlit.indezy.service.ProspectionCampaignService campaigns;
     private final AccessGuard accessGuard;
 
     /** An email to a contact. */
     public record SendRequest(Long projectId, @NotBlank @Size(max = ContactEmailService.SUBJECT_MAX) String subject,
                               @NotBlank @Size(max = ContactEmailService.BODY_MAX) String body, Boolean track, Boolean copy,
-                              DocumentLanguage language, Boolean dossier) {
+                              DocumentLanguage language, Boolean dossier, Long campaignId) {
 
         // Spring MVC logs bodies through toString at DEBUG: never the subject or the message.
         @Override
@@ -67,9 +68,28 @@ public class ContactEmailController {
     public ContactInteractionDto send(@PathVariable Long contactId, @Valid @RequestBody SendRequest request) {
         accessGuard.requireContact(contactId);
         accessGuard.requireProjectIfPresent(request.projectId());
-        return emails.send(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), contactId, new ContactEmailService.Message(
+        Long workspace = accessGuard.requireWorkspace(null);
+        Long campaign = request.campaignId() == null ? null : campaigns.require(workspace, request.campaignId());
+        return emails.send(SecurityUtils.getCurrentUserId(), workspace, contactId, new ContactEmailService.Message(
             request.projectId(), request.subject(), request.body(), Boolean.TRUE.equals(request.track()), Boolean.TRUE.equals(request.copy()),
-            request.language(), Boolean.TRUE.equals(request.dossier())));
+            request.language(), Boolean.TRUE.equals(request.dossier()), campaign));
+    }
+
+    /** A campaign to start: what it is called (the emails' subject). */
+    public record CampaignRequest(@Size(max = dev.swirlit.indezy.model.ProspectionCampaign.NAME_MAX) String name) {
+    }
+
+    @Operation(summary = "Start a prospection campaign, its emails then sent or planned with its id")
+    @PostMapping("/contacts/emails/campaigns")
+    public dev.swirlit.indezy.service.ProspectionCampaignService.Campaign startCampaign(@Valid @RequestBody CampaignRequest request) {
+        return campaigns.start(accessGuard.requireWorkspace(null), request.name());
+    }
+
+    @Operation(summary = "The workspace's latest campaigns and what came of them",
+        description = "Emails sent and waiting, contacts who answered since, opportunities opened since with their companies, missions won")
+    @GetMapping("/contacts/emails/campaigns")
+    public List<dev.swirlit.indezy.service.ProspectionCampaignService.Campaign> campaigns() {
+        return campaigns.list(accessGuard.requireWorkspace(null));
     }
 
     @Operation(summary = "The contacts of the ESNs the workspace worked with, who have an address",
@@ -92,7 +112,7 @@ public class ContactEmailController {
 
     /** Emails to send later, spread over working days. */
     public record ScheduleRequest(@NotEmpty @Size(max = 100) List<@Valid @NotNull ScheduledDraft> emails, Boolean dossier, DocumentLanguage language,
-                                  @Min(1) @Max(10) int days, @Min(1) @Max(ContactEmailService.DAILY_MAX) int dailyMax) {
+                                  @Min(1) @Max(10) int days, @Min(1) @Max(ContactEmailService.DAILY_MAX) int dailyMax, Long campaignId) {
 
         public ScheduleRequest {
             emails = emails == null ? null : java.util.Collections.unmodifiableList(new java.util.ArrayList<>(emails));
@@ -104,9 +124,11 @@ public class ContactEmailController {
     @PostMapping("/contacts/emails/scheduled")
     public List<ContactEmailScheduleService.Waiting> schedule(@Valid @RequestBody ScheduleRequest request) {
         request.emails().forEach(email -> accessGuard.requireContact(email.contactId()));
-        return schedule.schedule(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), new ContactEmailScheduleService.Plan(
+        Long workspace = accessGuard.requireWorkspace(null);
+        Long campaign = request.campaignId() == null ? null : campaigns.require(workspace, request.campaignId());
+        return schedule.schedule(SecurityUtils.getCurrentUserId(), workspace, new ContactEmailScheduleService.Plan(
             request.emails().stream().map(email -> new ContactEmailScheduleService.Draft(email.contactId(), email.subject(), email.body())).toList(),
-            Boolean.TRUE.equals(request.dossier()), request.language(), request.days(), request.dailyMax()));
+            Boolean.TRUE.equals(request.dossier()), request.language(), request.days(), request.dailyMax(), campaign));
     }
 
     @Operation(summary = "The workspace's emails waiting to go, the soonest first")

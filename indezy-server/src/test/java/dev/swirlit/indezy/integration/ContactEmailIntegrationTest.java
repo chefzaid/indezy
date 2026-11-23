@@ -275,6 +275,38 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.GET, "/contacts/emails/scheduled", null, List.class).getBody()).isEmpty();
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    void countsWhatCameOfACampaign() throws Exception {
+        long lea = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Léa", "lastName", "Campagne", "email", "lea@campagne.example",
+            "clientId", aliceClientId), Map.class));
+        Map<String, Object> started = call(alice, HttpMethod.POST, "/contacts/emails/campaigns", Map.of("name", "Disponible en janvier"), Map.class)
+            .getBody();
+        Object campaign = started.get("id");
+        assertThat(started).containsEntry("name", "Disponible en janvier");
+        when(mailer.configured()).thenReturn(true);
+        when(mailer.send(any())).thenReturn("e-10");
+        Map<String, Object> message = new java.util.HashMap<>(Map.of("subject", "Disponible", "body", "Bonjour Léa", "campaignId", campaign));
+        assertThat(call(bob, HttpMethod.POST, "/contacts/emails/campaigns", Map.of("name", "x"), Map.class).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(alice, HttpMethod.POST, "/contacts/" + lea + "/emails", message, Map.class).getStatusCode()).isEqualTo(HttpStatus.OK);
+        // Waiting for nothing and sent nothing, Bob's campaign is not listed.
+        assertThat(call(bob, HttpMethod.GET, "/contacts/emails/campaigns", null, List.class).getBody()).isEmpty();
+
+        // Léa answers, then an opportunity opens with her company and is won.
+        call(alice, HttpMethod.POST, "/contacts/" + lea + "/interactions", Map.of("occurredOn", java.time.LocalDate.now().toString(),
+            "channel", "EMAIL", "direction", "INCOMING", "summary", "Intéressée"), Map.class);
+        long project = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "CONTACT",
+            "clientId", aliceClientId), Map.class));
+        List<Map<String, Object>> results = call(alice, HttpMethod.GET, "/contacts/emails/campaigns", null, List.class).getBody();
+        assertThat(results).hasSize(1);
+        assertThat(results.getFirst()).containsEntry("sent", 1).containsEntry("answered", 1).containsEntry("opportunities", 1).containsEntry("won", 0);
+        Map<String, Object> opportunity = call(alice, HttpMethod.GET, "/projects/" + project, null, Map.class).getBody();
+        opportunity.put("status", "WON");
+        call(alice, HttpMethod.PUT, "/projects/" + project, opportunity, Map.class);
+        assertThat(((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/contacts/emails/campaigns", null, List.class).getBody()).getFirst())
+            .containsEntry("won", 1);
+    }
+
     private static JobOffer offer(String company, List<String> skills, java.time.Instant publishedAt) {
         JobOffer offer = new JobOffer();
         offer.setSite(OfferSite.FREE_WORK);

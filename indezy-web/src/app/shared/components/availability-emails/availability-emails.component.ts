@@ -9,8 +9,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { DatePipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { concatMap, from, map, of, catchError, toArray } from 'rxjs';
-import { AvailabilityRecipient, DocumentLanguage, ScheduledEmail } from '../../../models';
+import { Observable, concatMap, from, map, of, catchError, switchMap, toArray } from 'rxjs';
+import { AvailabilityRecipient, DocumentLanguage, ProspectionCampaign, ScheduledEmail } from '../../../models';
 import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 
@@ -109,6 +109,22 @@ import { NotificationService } from '../../../services/notification/notification
           </button>
         </div>
       }
+      @if (campaigns.length) {
+        <h4 class="waiting-title">{{ 'availabilityEmails.campaigns' | translate }}</h4>
+        <ul class="campaigns" data-availability-campaigns>
+          @for (campaign of campaigns; track campaign.id) {
+            <li [attr.data-campaign]="campaign.id">
+              <span class="name">{{ campaign.name }} · {{ campaign.startedAt | date:'d MMM y' }}</span>
+              <span class="results">{{ 'availabilityEmails.results' | translate:{ sent: campaign.sent, answered: campaign.answered,
+                opportunities: campaign.opportunities, won: campaign.won } }}
+                @if (campaign.waiting) {
+                  · {{ 'availabilityEmails.stillWaiting' | translate:{ count: campaign.waiting } }}
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      }
       @if (waiting.length) {
         <h4 class="waiting-title">{{ 'availabilityEmails.waiting' | translate:{ count: waiting.length } }}</h4>
         <ul class="waiting" data-availability-emails-waiting>
@@ -135,6 +151,9 @@ import { NotificationService } from '../../../services/notification/notification
     .when mat-form-field { flex: 1 1 200px; }
     .waiting-title { margin: 16px 0 4px; font-weight: 500; }
     .waiting { list-style: none; margin: 0; padding: 0; }
+    .campaigns { list-style: none; margin: 0 0 8px; padding: 0; }
+    .campaigns li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; padding: 4px 0; }
+    .campaigns .results { color: var(--mat-sys-on-surface-variant); font-size: .875rem; }
     .waiting li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; }
     mat-spinner { display: inline-block; margin-right: 8px; }
   `],
@@ -163,6 +182,8 @@ export class AvailabilityEmailsComponent implements OnInit {
   dailyMax = 15;
   readonly spreads = [1, 2, 3, 5];
   waiting: ScheduledEmail[] = [];
+  /** The latest campaigns and what came of them. */
+  campaigns: ProspectionCampaign[] = [];
   /** Messages written for one contact, by contact, in place of the shared one. */
   readonly own = new Map<number, string>();
   /** The contact whose message is open for editing. */
@@ -180,6 +201,22 @@ export class AvailabilityEmailsComponent implements OnInit {
       }
     });
     this.loadWaiting();
+    this.loadCampaigns();
+  }
+
+  private loadCampaigns(): void {
+    this.contacts.campaigns().subscribe({
+      next: campaigns => {
+        this.campaigns = Array.isArray(campaigns) ? campaigns : [];
+        this.changes.markForCheck();
+      },
+      error: () => undefined
+    });
+  }
+
+  /** A new campaign for this sending, named after its subject; none (the emails still go) when it cannot be started. */
+  private campaign(): Observable<number | null> {
+    return this.contacts.startCampaign(this.subject.trim()).pipe(map(campaign => campaign.id), catchError(() => of(null)));
   }
 
   private loadWaiting(): void {
@@ -233,14 +270,15 @@ export class AvailabilityEmailsComponent implements OnInit {
     }
     this.sending = true;
     if (this.days) {
-      this.schedule(recipients);
+      this.campaign().subscribe(campaignId => this.schedule(recipients, campaignId));
       return;
     }
-    from(recipients).pipe(
+    this.campaign().pipe(
+      switchMap(campaignId => from(recipients).pipe(
       concatMap(recipient => this.contacts.sendEmail(recipient.id, {
-        ...this.written(recipient), track: false, copy: false, language: this.language, dossier: this.dossier
+        ...this.written(recipient), track: false, copy: false, language: this.language, dossier: this.dossier, campaignId
       }).pipe(map(() => ({ recipient, sent: true })), catchError(() => of({ recipient, sent: false })))),
-      toArray()
+      toArray()))
     ).subscribe(results => {
       this.sending = false;
       const sent = results.filter(result => result.sent);
@@ -255,16 +293,17 @@ export class AvailabilityEmailsComponent implements OnInit {
       if (failed.length) {
         this.notifications.error('availabilityEmails.failed', 8000, { names: failed.join(', ') });
       }
+      this.loadCampaigns();
       this.changes.markForCheck();
     });
   }
 
   /** Plans one email each over the working days chosen; nothing is planned when the server refuses. */
-  private schedule(recipients: AvailabilityRecipient[]): void {
+  private schedule(recipients: AvailabilityRecipient[], campaignId: number | null): void {
     const dailyMax = Math.min(50, Math.max(1, Math.round(Number(this.dailyMax) || 1)));
     this.contacts.scheduleEmails({
       emails: recipients.map(recipient => ({ contactId: recipient.id, ...this.written(recipient) })),
-      dossier: this.dossier, language: this.language, days: this.days, dailyMax
+      dossier: this.dossier, language: this.language, days: this.days, dailyMax, campaignId
     }).subscribe({
       next: planned => {
         this.sending = false;
@@ -274,6 +313,7 @@ export class AvailabilityEmailsComponent implements OnInit {
         });
         this.notifications.success('availabilityEmails.scheduled', 6000, { count: planned.length });
         this.loadWaiting();
+        this.loadCampaigns();
         this.changes.markForCheck();
       },
       error: () => {

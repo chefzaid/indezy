@@ -68,6 +68,10 @@ public class ContactInteraction extends BaseEntity {
     @Column(name = "email_token", length = 43, unique = true)
     private String emailToken;
 
+    /** The campaign the email went in ({@link ProspectionCampaign}); null for any other exchange. */
+    @Column(name = "campaign_id")
+    private Long campaignId;
+
     /** When the tracked email was first seen opened. */
     @Column(name = "email_opened_at")
     private Instant emailOpenedAt;

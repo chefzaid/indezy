@@ -82,6 +82,20 @@ export interface ContactEmailRequest {
   language: 'FR' | 'EN';
   /** Attaches the dossier de compétences. */
   dossier?: boolean;
+  /** The prospection campaign it goes in. */
+  campaignId?: number | null;
+}
+
+/** A prospection campaign and what came of it: emails sent and waiting, answers, opportunities opened since, missions won. */
+export interface ProspectionCampaign {
+  id: number;
+  name: string;
+  startedAt: string;
+  sent: number;
+  waiting: number;
+  answered: number;
+  opportunities: number;
+  won: number;
 }
 
 /** Emails to send later from Indezy, spread over working days (9:00 to 17:00 in Paris, Monday to Friday). */
@@ -93,6 +107,7 @@ export interface ScheduledEmailPlan {
   days: number;
   /** At most this many a day, 1 to 50. */
   dailyMax: number;
+  campaignId?: number | null;
 }
 
 /** An email waiting to go; dropped unsent if the contact gets in touch first. */

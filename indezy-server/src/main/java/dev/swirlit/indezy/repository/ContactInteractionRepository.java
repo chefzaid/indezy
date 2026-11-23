@@ -31,6 +31,9 @@ public interface ContactInteractionRepository extends JpaRepository<ContactInter
     @EntityGraph(attributePaths = "contact")
     List<ContactInteraction> findByProjectIdOrderByOccurredOnDescIdDesc(Long projectId);
 
+    /** The emails these campaigns sent. */
+    List<ContactInteraction> findByCampaignIdIn(java.util.Collection<Long> campaignIds);
+
     /** The exchanges about the opportunity are about none: run before deleting it. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE ContactInteraction i SET i.project = null WHERE i.project.id = :projectId")

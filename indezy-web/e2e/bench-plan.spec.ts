@@ -37,6 +37,17 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       emails.push(route.request().postDataJSON());
       return route.fulfill({ status: 201, json: { id: 30, channel: 'EMAIL', direction: 'OUTGOING' } });
     });
+    const campaigns: { id: number; name: string; startedAt: string; sent: number; waiting: number; answered: number; opportunities: number;
+      won: number }[] = [];
+    await page.route('**/api/contacts/emails/campaigns', route => {
+      if (route.request().method() === 'POST') {
+        const campaign = { id: 50 + campaigns.length, name: route.request().postDataJSON().name, startedAt: '2026-11-23T08:00:00', sent: 1,
+          waiting: 0, answered: 0, opportunities: 0, won: 0 };
+        campaigns.push(campaign);
+        return route.fulfill({ json: campaign });
+      }
+      return route.fulfill({ json: campaigns });
+    });
     const plans: Record<string, unknown>[] = [];
     const waiting: Record<string, unknown>[] = [];
     await page.route('**/api/contacts/emails/scheduled', route => {
@@ -86,6 +97,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await dialog.locator('[data-availability-emails-send]').click();
     await expect.poll(() => emails.length).toBe(1);
     expect(String(emails[0]['body'])).toContain('P.S. Lead Java');
+    expect(emails[0]).toEqual(expect.objectContaining({ campaignId: 50 }));
+    await expect(dialog.locator('[data-campaign="50"]')).toContainText(en ? '1 sent · 0 answered' : '1 envoyés · 0 réponses');
     expect(emails[0]).toEqual(expect.objectContaining({ dossier: true, track: false }));
     expect(String(emails[0]['body'])).toMatch(en ? /^Hello Léa,/ : /^Bonjour Léa,/);
 
@@ -96,7 +109,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await dialog.locator('[data-availability-emails-daily-max]').fill('5');
     await dialog.locator('[data-availability-emails-send]').click();
     await expect.poll(() => plans.length).toBe(1);
-    expect(plans[0]).toEqual(expect.objectContaining({ days: 3, dailyMax: 5, dossier: true }));
+    expect(plans[0]).toEqual(expect.objectContaining({ days: 3, dailyMax: 5, dossier: true, campaignId: 51 }));
     expect(emails).toHaveLength(1);
     const planned = dialog.locator('[data-scheduled-email="40"]');
     await expect(planned).toContainText('Léa Martin · Conseil Exemple');

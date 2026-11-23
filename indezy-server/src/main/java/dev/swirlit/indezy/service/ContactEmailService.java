@@ -83,10 +83,14 @@ public class ContactEmailService {
      * dossier de compétences attached or not.
      */
     public record Message(Long projectId, String subject, String body, boolean track, boolean copy, DocumentLanguage language,
-                          boolean dossier) {
+                          boolean dossier, Long campaignId) {
 
         public Message(Long projectId, String subject, String body, boolean track, boolean copy, DocumentLanguage language) {
-            this(projectId, subject, body, track, copy, language, false);
+            this(projectId, subject, body, track, copy, language, false, null);
+        }
+
+        public Message(Long projectId, String subject, String body, boolean track, boolean copy, DocumentLanguage language, boolean dossier) {
+            this(projectId, subject, body, track, copy, language, dossier, null);
         }
 
         // Spring MVC logs bodies through toString at DEBUG: never the subject or the message.
@@ -244,6 +248,7 @@ public class ContactEmailService {
         interaction.setEmailSentAt(now);
         interaction.setEmailToken(message.track() ? token() : null);
         interaction.setEmailOpens(0);
+        interaction.setCampaignId(message.campaignId());
         interactions.save(interaction);
 
         String sender = Stream.of(freelance.getFirstName(), freelance.getLastName()).filter(Objects::nonNull).map(String::strip)

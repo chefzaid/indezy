@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AvailabilityRecipient, ContactDto, ContactEmailRequest, ContactEmailStatus, ContactInteraction, ContactInteractions, ContactRelation,
-  ScheduledEmail, ScheduledEmailPlan } from '../../models/contact.models';
+  ProspectionCampaign, ScheduledEmail, ScheduledEmailPlan } from '../../models/contact.models';
 import { AuthService } from '../auth/auth.service';
 import { BulkDeleteResult } from '../../models/bulk.models';
 
@@ -83,6 +83,16 @@ export class ContactService {
   /** The contacts of the ESNs the workspace worked with who have an address: whom to tell of an availability. */
   availabilityRecipients(): Observable<AvailabilityRecipient[]> {
     return this.http.get<AvailabilityRecipient[]>(`${this.API_URL}/emails/availability-recipients`);
+  }
+
+  /** Starts a prospection campaign, named after its emails' subject. */
+  startCampaign(name: string): Observable<ProspectionCampaign> {
+    return this.http.post<ProspectionCampaign>(`${this.API_URL}/emails/campaigns`, { name });
+  }
+
+  /** The latest campaigns and what came of them, the newest first. */
+  campaigns(): Observable<ProspectionCampaign[]> {
+    return this.http.get<ProspectionCampaign[]>(`${this.API_URL}/emails/campaigns`);
   }
 
   /** Plans emails to go later, spread over working days; the times they go. */

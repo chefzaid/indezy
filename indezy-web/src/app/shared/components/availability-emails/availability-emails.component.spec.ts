@@ -16,7 +16,10 @@ describe('AvailabilityEmailsComponent', () => {
 
   function create(recipients = of([lea, marc])) {
     const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail', 'scheduledEmails', 'scheduleEmails',
-      'cancelScheduledEmail']);
+      'cancelScheduledEmail', 'startCampaign', 'campaigns']);
+    contacts.startCampaign.and.returnValue(of({ id: 3, name: 'x', startedAt: '2026-11-23T08:00:00', sent: 0, waiting: 0, answered: 0,
+      opportunities: 0, won: 0 }));
+    contacts.campaigns.and.returnValue(of([]));
     contacts.availabilityRecipients.and.returnValue(recipients);
     contacts.scheduledEmails.and.returnValue(of([]));
     const notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -58,7 +61,8 @@ describe('AvailabilityEmailsComponent', () => {
     contacts.sendEmail.and.callFake((id: number) => id === 2 ? throwError(() => new Error('down')) : of({} as ContactInteraction));
     component.send();
     expect(contacts.sendEmail.calls.allArgs()).toEqual([
-      [1, { subject: 'Disponible à partir du 1 février 2027', body: 'Mon texte Léa chez Conseil', track: false, copy: false, language: 'FR', dossier: true }],
+      [1, { subject: 'Disponible à partir du 1 février 2027', body: 'Mon texte Léa chez Conseil', track: false, copy: false, language: 'FR', dossier: true,
+        campaignId: 3 }],
       [2, jasmine.objectContaining({ body: 'Mon texte Marc Durand chez Autre' })]]);
     expect(notifications.success).toHaveBeenCalledWith('availabilityEmails.sent', 4000, { count: 1 });
     expect(notifications.error).toHaveBeenCalledWith('availabilityEmails.failed', 8000, { names: 'Marc Durand' });
@@ -113,7 +117,7 @@ describe('AvailabilityEmailsComponent', () => {
     expect(contacts.sendEmail).not.toHaveBeenCalled();
     expect(contacts.scheduleEmails).toHaveBeenCalledWith({
       emails: [{ contactId: 1, subject: 'Disponible chez Conseil', body: 'Bonjour Léa' }, { contactId: 2, subject: 'Disponible chez Autre', body: 'Bonjour Marc Durand' }],
-      dossier: true, language: 'FR', days: 3, dailyMax: 50
+      dossier: true, language: 'FR', days: 3, dailyMax: 50, campaignId: 3
     });
     expect(notifications.success).toHaveBeenCalledWith('availabilityEmails.scheduled', 6000, { count: 2 });
     expect(component.chosen.size).toBe(0);
@@ -136,6 +140,26 @@ describe('AvailabilityEmailsComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('availabilityEmails.scheduleFailed');
     expect(component.sending).toBeFalse();
     expect([...component.chosen]).toEqual([1]);
+  });
+
+  it('starts a campaign for each sending and lists what came of the latest, an email still going when none starts', () => {
+    const { fixture, component, contacts } = create();
+    contacts.campaigns.and.returnValue(of([{ id: 3, name: 'Disponible', startedAt: '2026-11-02T08:00:00', sent: 4, waiting: 2, answered: 1,
+      opportunities: 1, won: 0 }]));
+    component.subject = 'Disponible';
+    component.body = 'Bonjour';
+    component.toggle(1);
+    contacts.startCampaign.and.returnValue(throwError(() => new Error('down')));
+    contacts.sendEmail.and.returnValue(of({} as ContactInteraction));
+    component.send();
+    expect(contacts.sendEmail).toHaveBeenCalledWith(1, jasmine.objectContaining({ campaignId: null }));
+    expect(contacts.startCampaign).toHaveBeenCalledWith('Disponible');
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck();
+    fixture.detectChanges();
+    const campaign = (fixture.nativeElement as HTMLElement).querySelector('[data-campaign="3"]')!;
+    expect(campaign.textContent).toContain('Disponible');
+    expect(campaign.textContent).toContain('availabilityEmails.results');
+    expect(campaign.textContent).toContain('availabilityEmails.stillWaiting');
   });
 
   it('says when no ESN contact can be written to, or the list cannot be read', () => {

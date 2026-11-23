@@ -55,6 +55,10 @@ public class ScheduledContactEmail extends BaseEntity {
     @Column(name = "language", length = 2)
     private DocumentLanguage language;
 
+    /** The campaign it goes in; null for none. */
+    @Column(name = "campaign_id")
+    private Long campaignId;
+
     @Column(name = "send_at", nullable = false)
     private Instant sendAt;
 

@@ -19,6 +19,9 @@ public interface ScheduledContactEmailRepository extends JpaRepository<Scheduled
 
     long countByFreelanceId(Long freelanceId);
 
+    /** The emails of these campaigns still waiting to go. */
+    List<ScheduledContactEmail> findByCampaignIdIn(java.util.Collection<Long> campaignIds);
+
     Optional<ScheduledContactEmail> findByIdAndFreelanceId(Long id, Long freelanceId);
 
     /** The ids of the emails whose time came, not taken yet (or taken by a replica that stopped long ago). */
