@@ -3149,6 +3149,8 @@
     "markPaid": "Marquer payée",
     "markUnpaid": "Marquer non payée",
     "pdf": "Télécharger le PDF",
+    "word": "Télécharger en Word",
+    "wordError": "Le fichier Word n'a pas pu être téléchargé",
     "issueTitle": "Émettre cette facture ?",
     "issueMessage": "Elle reçoit le numéro suivant de l'année et ne pourra plus être modifiée ni supprimée.",
     "issueDate": "Date d'émission",

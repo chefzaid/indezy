@@ -47,6 +47,12 @@ public final class InvoicePdfRenderer {
             logos.findById(seller.getLogoId()).map(DocumentLogo::getContent).orElse(null);
     }
 
+    /** The invoice as a Word file laid out like its PDF: a copy to read or archive, the PDF staying the invoice sent. */
+    public byte[] renderDocx(Invoice invoice, InvoiceSeller seller, InvoiceBuyer buyer) {
+        InvoicePage page = new InvoicePage(null, invoice, seller, buyer);
+        return BillingDocx.render(page, logoOf(seller), page.title());
+    }
+
     /** The invoice as it states the seller and the buyer: frozen once issued, the live ones for a draft. */
     public byte[] render(Invoice invoice, InvoiceSeller seller, InvoiceBuyer buyer) {
         try (PDDocument document = new PDDocument()) {

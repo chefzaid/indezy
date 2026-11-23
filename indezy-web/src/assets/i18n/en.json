@@ -3149,6 +3149,8 @@
     "markPaid": "Mark as paid",
     "markUnpaid": "Mark as unpaid",
     "pdf": "Download PDF",
+    "word": "Download as Word",
+    "wordError": "The Word file could not be downloaded",
     "issueTitle": "Issue this invoice?",
     "issueMessage": "It gets the next number of the year and can no longer change or be deleted.",
     "issueDate": "Issue date",

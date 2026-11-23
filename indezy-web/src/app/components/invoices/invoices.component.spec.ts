@@ -41,7 +41,7 @@ describe('InvoicesComponent', () => {
   const closing = (result: unknown) => dialog.open.and.returnValue({ afterClosed: () => of(result) } as MatDialogRef<unknown>);
 
   function create(list = of([draft, issued, late, paid])): ComponentFixture<InvoicesComponent> {
-    invoiceService = jasmine.createSpyObj('InvoiceService', ['list', 'create', 'update', 'delete', 'issue', 'setPaid', 'downloadPdf',
+    invoiceService = jasmine.createSpyObj('InvoiceService', ['list', 'create', 'update', 'delete', 'issue', 'setPaid', 'downloadPdf', 'downloadDocx',
       'creditNote', 'exportYear', 'invoiceableReports', 'fromReport']);
     invoiceService.list.and.returnValue(list);
     invoiceService.invoiceableReports.and.returnValue(of(reports));
@@ -332,6 +332,15 @@ describe('InvoicesComponent', () => {
     invoiceService.downloadPdf.and.returnValue(throwError(() => new Error('500')));
     component.download(paid);
     expect(notifications.error).toHaveBeenCalledWith('invoices.pdfError');
+
+    // The Word copy under the same name.
+    invoiceService.downloadDocx.and.returnValue(of(new Blob(['PK'])));
+    component.download(paid, true);
+    expect(invoiceService.downloadDocx).toHaveBeenCalledWith(paid.id);
+    expect(link.download).toBe('invoice-F2026-0003.docx');
+    invoiceService.downloadDocx.and.returnValue(throwError(() => new Error('500')));
+    component.download(paid, true);
+    expect(notifications.error).toHaveBeenCalledWith('invoices.wordError');
   });
 
   it('says when the clients cannot be read for a draft', () => {

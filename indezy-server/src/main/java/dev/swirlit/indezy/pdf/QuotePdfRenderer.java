@@ -42,6 +42,12 @@ public final class QuotePdfRenderer {
             logos.findById(seller.getLogoId()).map(DocumentLogo::getContent).orElse(null);
     }
 
+    /** The quote as a Word file laid out like its PDF, its terms and conditions text after it (not an attached PDF of them). */
+    public byte[] renderDocx(Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays, String terms, boolean termsFile) {
+        QuotePage page = new QuotePage(null, quote, seller, buyer, paymentTermDays, terms, termsFile);
+        return BillingDocx.render(page, logoOf(seller), page.title());
+    }
+
     /**
      * The quote as it states the seller, the buyer, the payment term and the terms and conditions printed after it:
      * frozen once sent, the live ones for a draft.

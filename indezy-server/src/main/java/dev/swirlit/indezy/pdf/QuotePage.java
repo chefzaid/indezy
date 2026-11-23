@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.pdf;
 
 import dev.swirlit.indezy.model.InvoiceBuyer;
+import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.Quote;
 import dev.swirlit.indezy.model.enums.QuoteStatus;
@@ -42,13 +43,10 @@ final class QuotePage extends BillingPage {
         return QuoteLabel.TITLE.in(language) + (quote.getNumber() == null ? "" : " " + quote.getNumber());
     }
 
+    @Override
     void write() throws IOException {
-        header(this::quoteBlock, QuoteLabel.FOR.in(language));
-        lines(quote.getLines());
-        InvoiceTotals totals = InvoiceTotals.of(quote.getLines());
-        totals(totals, (vatExempt() ? InvoiceLabel.TOTAL_EXEMPT : InvoiceLabel.TOTAL).in(language));
-        mentions(mentions(totals.total()), quote.getNotes());
-        acceptance();
+        super.write();
+        signatureBox();
         if (terms != null) {
             writer.startPage();
             writer.paragraph(QuoteLabel.TERMS_TITLE.in(language), true, TERMS_TITLE_SIZE, writer.width());
@@ -57,7 +55,48 @@ final class QuotePage extends BillingPage {
         }
     }
 
-    private void quoteBlock() throws IOException {
+    @Override
+    String heading() {
+        return QuoteLabel.TITLE.in(language);
+    }
+
+    @Override
+    String buyerLabel() {
+        return QuoteLabel.FOR.in(language);
+    }
+
+    @Override
+    List<InvoiceLine> documentLines() {
+        return quote.getLines();
+    }
+
+    @Override
+    String totalLabel() {
+        return (vatExempt() ? InvoiceLabel.TOTAL_EXEMPT : InvoiceLabel.TOTAL).in(language);
+    }
+
+    @Override
+    String notes() {
+        return quote.getNotes();
+    }
+
+    @Override
+    String draftMark() {
+        return quote.getStatus() == QuoteStatus.DRAFT ? QuoteLabel.DRAFT.in(language) : null;
+    }
+
+    @Override
+    String acceptance() {
+        return QuoteLabel.ACCEPTANCE.in(language);
+    }
+
+    @Override
+    Terms termsPage() {
+        return terms == null ? null : new Terms(QuoteLabel.TERMS_TITLE.in(language), terms);
+    }
+
+    @Override
+    List<String> headingLines() {
         List<String> lines = new ArrayList<>();
         if (quote.getNumber() != null) {
             lines.add(InvoiceLabel.NUMBER.format(language, quote.getNumber()));
@@ -68,10 +107,12 @@ final class QuotePage extends BillingPage {
         if (quote.getValidUntil() != null) {
             lines.add(QuoteLabel.VALID_UNTIL.format(language, date(quote.getValidUntil())));
         }
-        headingBlock(QuoteLabel.TITLE.in(language), lines, quote.getStatus() == QuoteStatus.DRAFT ? QuoteLabel.DRAFT.in(language) : null);
+        return lines;
     }
 
-    private List<String> mentions(BigDecimal total) {
+    @Override
+    List<String> documentMentions() {
+        BigDecimal total = InvoiceTotals.of(quote.getLines()).total();
         List<String> mentions = new ArrayList<>();
         if (vatExempt()) {
             mentions.add(InvoiceLabel.VAT_EXEMPT.in(language));
@@ -94,11 +135,11 @@ final class QuotePage extends BillingPage {
     }
 
     /** The box the client signs in, with the words it writes first. */
-    private void acceptance() throws IOException {
+    private void signatureBox() throws IOException {
         writer.ensureSpace(LINE * 4 + SIGNATURE_BOX);
         writer.moveDown(LINE * 2);
         float left = writer.left() + writer.width() / 2;
-        writer.paragraph(QuoteLabel.ACCEPTANCE.in(language), true, SMALL, writer.width());
+        writer.paragraph(acceptance(), true, SMALL, writer.width());
         writer.moveDown(SIGNATURE_BOX + 6);
         writer.box(left, writer.cursor(), writer.right() - left, SIGNATURE_BOX);
     }

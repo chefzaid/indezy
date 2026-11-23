@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.InvoiceDtos;
 import dev.swirlit.indezy.dto.QuoteDtos;
+import dev.swirlit.indezy.service.ActivityReportService;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.QuoteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -88,6 +89,13 @@ public class QuoteController {
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> pdf(@PathVariable Long id) {
         return PdfResponses.attachment(quotes.renderPdf(workspace(), id));
+    }
+
+    @Operation(summary = "The quote as a Word file laid out like its PDF")
+    @GetMapping("/{id}/docx")
+    public ResponseEntity<byte[]> docx(@PathVariable Long id) {
+        ActivityReportService.PdfFile file = quotes.renderDocx(workspace(), id);
+        return PdfResponses.attachment(file.fileName(), PdfResponses.DOCX, file.content());
     }
 
     private Long workspace() {

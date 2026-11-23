@@ -89,6 +89,7 @@
               <a mat-menu-item routerLink="/invoices"><mat-icon>receipt_long</mat-icon>{{ 'quotes.openInvoices' | translate }}</a>
             }
             <button mat-menu-item type="button" (click)="download(quote)"><mat-icon>picture_as_pdf</mat-icon>{{ 'invoices.pdf' | translate }}</button>
+            <button mat-menu-item type="button" (click)="download(quote, true)" data-quote-word><mat-icon>description</mat-icon>{{ 'invoices.word' | translate }}</button>
             @if (quote.status === 'DRAFT') {
               <button mat-menu-item type="button" (click)="remove(quote)"><mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}</button>
             }

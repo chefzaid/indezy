@@ -156,11 +156,11 @@ export class QuotesComponent implements OnInit {
     });
   }
 
-  download(quote: Quote): void {
+  download(quote: Quote, word = false): void {
     const english = quote.language === 'EN';
-    this.quoteService.downloadPdf(quote.id).subscribe({
-      next: blob => saveBlob(blob, `${english ? 'quote' : 'devis'}-${quote.number ?? (english ? 'draft-' : 'brouillon-') + quote.id}.pdf`),
-      error: () => this.notifications.error('quotes.pdfError')
+    (word ? this.quoteService.downloadDocx(quote.id) : this.quoteService.downloadPdf(quote.id)).subscribe({
+      next: blob => saveBlob(blob, `${english ? 'quote' : 'devis'}-${quote.number ?? (english ? 'draft-' : 'brouillon-') + quote.id}.${word ? 'docx' : 'pdf'}`),
+      error: () => this.notifications.error(word ? 'invoices.wordError' : 'quotes.pdfError')
     });
   }
 

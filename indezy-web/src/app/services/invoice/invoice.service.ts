@@ -66,4 +66,9 @@ export class InvoiceService {
   downloadPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.API_URL}/${id}/pdf`, { responseType: 'blob' });
   }
+
+  /** A Word copy laid out like the PDF, to read or archive. */
+  downloadDocx(id: number): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/${id}/docx`, { responseType: 'blob' });
+  }
 }

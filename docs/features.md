@@ -1323,6 +1323,13 @@ currency (`Montantdevise`, `Idevise`), a payment at the invoice's rate (an excha
 to record), and the register gives the currency and the total in it. A credit note keeps its invoice's currency and
 rate. Quotes stay in euros.
 
+**Download as Word** gives an invoice, a credit note or a quote as a `.docx` laid out like its PDF from the same
+content (`GET /api/invoices/{id}/docx`, `GET /api/quotes/{id}/docx`): the logo where the style puts it, the seller beside
+the heading in the accent colour, the client, the lines, the totals, the mentions and notes, a quote's signature box and
+its terms and conditions text on a new page, in the style's font, with the footer and the page number. It is written as
+its XML parts, without a library. For an issued invoice it is a copy to read or archive: the invoice sent stays the PDF
+(Factur-X), its number and contents frozen; a quote's terms PDF is not part of it.
+
 **Create a credit note** on an issued invoice drafts one with the same lines, to reduce for a partial credit; it is
 issued in the same numbering and cannot credit more than what is left. Fully credited, the invoice reads **Credited**.
 

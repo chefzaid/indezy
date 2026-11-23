@@ -142,6 +142,7 @@
               <button mat-menu-item type="button" (click)="markUnpaid(invoice)"><mat-icon>money_off</mat-icon>{{ 'invoices.markUnpaid' | translate }}</button>
             }
             <button mat-menu-item type="button" (click)="download(invoice)"><mat-icon>picture_as_pdf</mat-icon>{{ 'invoices.pdf' | translate }}</button>
+            <button mat-menu-item type="button" (click)="download(invoice, true)" data-invoice-word><mat-icon>description</mat-icon>{{ 'invoices.word' | translate }}</button>
             @if (invoice.status === 'DRAFT') {
               <button mat-menu-item type="button" (click)="remove(invoice)"><mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}</button>
             }

@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.InvoiceDtos;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.service.ActivityReportService;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.AccountingExportService;
 import dev.swirlit.indezy.service.InvoicePaymentDelays;
@@ -115,6 +116,13 @@ public class InvoiceController {
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> pdf(@PathVariable Long id) {
         return PdfResponses.attachment(invoices.renderPdf(workspace(), id));
+    }
+
+    @Operation(summary = "The invoice as a Word file laid out like its PDF")
+    @GetMapping("/{id}/docx")
+    public ResponseEntity<byte[]> docx(@PathVariable Long id) {
+        ActivityReportService.PdfFile file = invoices.renderDocx(workspace(), id);
+        return PdfResponses.attachment(file.fileName(), PdfResponses.DOCX, file.content());
     }
 
     @Operation(summary = "A year of issued invoices for the accountant",

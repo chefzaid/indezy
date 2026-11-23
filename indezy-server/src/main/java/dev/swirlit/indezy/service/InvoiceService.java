@@ -367,6 +367,16 @@ public class InvoiceService {
     /** The invoice's PDF: as issued, or, for a draft, with the seller and the client as they are now. */
     @Transactional(readOnly = true)
     public ActivityReportService.PdfFile renderPdf(Long freelanceId, Long id) {
+        return render(freelanceId, id, false);
+    }
+
+    /** The invoice as a Word file, a copy laid out like the PDF: the invoice sent stays the PDF (Factur-X). */
+    @Transactional(readOnly = true)
+    public ActivityReportService.PdfFile renderDocx(Long freelanceId, Long id) {
+        return render(freelanceId, id, true);
+    }
+
+    private ActivityReportService.PdfFile render(Long freelanceId, Long id, boolean word) {
         Invoice invoice = invoice(freelanceId, id);
         boolean draft = invoice.getStatus() == InvoiceStatus.DRAFT;
         InvoiceSeller seller = draft ? seller(BillingIdentityService.toDto(freelances.findById(freelanceId)
@@ -376,8 +386,8 @@ public class InvoiceService {
         boolean english = invoice.getLanguage() == DocumentLanguage.EN;
         String name = invoice.isCreditNote() ? (english ? "credit-note" : "avoir") : (english ? "invoice" : "facture");
         String fileName = name + "-" + (draft ? (invoice.getLanguage() == DocumentLanguage.EN ? "draft-" : "brouillon-") + invoice.getId() :
-            invoice.getNumber()) + ".pdf";
-        return new ActivityReportService.PdfFile(fileName, pdf.render(invoice, seller, buyer));
+            invoice.getNumber()) + (word ? ".docx" : ".pdf");
+        return new ActivityReportService.PdfFile(fileName, word ? pdf.renderDocx(invoice, seller, buyer) : pdf.render(invoice, seller, buyer));
     }
 
     /** The invoice a credit note credits, refused when the note would credit more than what is left of it. */

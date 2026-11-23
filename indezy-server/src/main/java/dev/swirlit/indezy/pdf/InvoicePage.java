@@ -2,13 +2,13 @@ package dev.swirlit.indezy.pdf;
 
 import dev.swirlit.indezy.model.Invoice;
 import dev.swirlit.indezy.model.InvoiceBuyer;
+import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.enums.InvoiceCurrency;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import dev.swirlit.indezy.service.InvoiceTotals;
 import dev.swirlit.indezy.util.BillingText;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.temporal.ChronoUnit;
@@ -33,7 +33,8 @@ final class InvoicePage extends BillingPage {
         return heading() + (invoice.getNumber() == null ? "" : " " + invoice.getNumber());
     }
 
-    private String heading() {
+    @Override
+    String heading() {
         InvoiceLabel title = invoice.isCreditNote() ? InvoiceLabel.CREDIT_TITLE : invoice.isDeposit() ? InvoiceLabel.DEPOSIT_TITLE : InvoiceLabel.TITLE;
         return title.in(language);
     }
@@ -52,15 +53,33 @@ final class InvoicePage extends BillingPage {
         return euros(negative() ? amount.negate() : amount);
     }
 
-    void write() throws IOException {
-        header(this::invoiceBlock, InvoiceLabel.BILL_TO.in(language));
-        lines(invoice.getLines());
-        totals(InvoiceTotals.of(invoice.getLines()),
-            (vatExempt() && !invoice.isCreditNote() ? InvoiceLabel.TOTAL_EXEMPT : InvoiceLabel.TOTAL).in(language));
-        mentions(mentions(), invoice.getNotes());
+    @Override
+    String buyerLabel() {
+        return InvoiceLabel.BILL_TO.in(language);
     }
 
-    private void invoiceBlock() throws IOException {
+    @Override
+    List<InvoiceLine> documentLines() {
+        return invoice.getLines();
+    }
+
+    @Override
+    String totalLabel() {
+        return (vatExempt() && !invoice.isCreditNote() ? InvoiceLabel.TOTAL_EXEMPT : InvoiceLabel.TOTAL).in(language);
+    }
+
+    @Override
+    String notes() {
+        return invoice.getNotes();
+    }
+
+    @Override
+    String draftMark() {
+        return invoice.getStatus() != InvoiceStatus.DRAFT ? null : (invoice.isCreditNote() ? InvoiceLabel.CREDIT_DRAFT : InvoiceLabel.DRAFT).in(language);
+    }
+
+    @Override
+    List<String> headingLines() {
         List<String> lines = new ArrayList<>();
         if (invoice.getNumber() != null) {
             lines.add(InvoiceLabel.NUMBER.format(language, invoice.getNumber()));
@@ -80,12 +99,11 @@ final class InvoicePage extends BillingPage {
         if (invoice.getPeriodStart() != null && invoice.getPeriodEnd() != null) {
             lines.add(InvoiceLabel.PERIOD.format(language, date(invoice.getPeriodStart()), date(invoice.getPeriodEnd())));
         }
-        String draft = invoice.getStatus() != InvoiceStatus.DRAFT ? null :
-            (invoice.isCreditNote() ? InvoiceLabel.CREDIT_DRAFT : InvoiceLabel.DRAFT).in(language);
-        headingBlock(heading(), lines, draft);
+        return lines;
     }
 
-    private List<String> mentions() {
+    @Override
+    List<String> documentMentions() {
         List<String> mentions = new ArrayList<>();
         if (vatExempt()) {
             mentions.add(InvoiceLabel.VAT_EXEMPT.in(language));

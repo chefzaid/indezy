@@ -71,6 +71,8 @@ Pour un client à l'étranger, choisissez la **Devise** dans le brouillon : euro
 
 Les factures et avoirs émis se téléchargent avec **Télécharger le PDF** au format Factur-X : un PDF/A-3 qui embarque les mêmes données en XML (profil EN 16931). Les brouillons restent de simples PDF. L'envoi par une plateforme de dématérialisation agréée n'est pas encore disponible.
 
+**Télécharger en Word**, dans le menu d'une facture ou d'un devis, donne le même document en fichier Word (.docx) avec votre style, à relire, adapter ou archiver. La facture que vous envoyez reste le PDF : c'est elle qui porte son numéro et son contenu figés.
+
 ## L'export pour le comptable
 
 1. Sur la page **Factures**, cliquez sur **Exporter pour le comptable**.

@@ -71,6 +71,8 @@ For an international client, choose **Currency** in the draft: euro, US dollar, 
 
 Issued invoices and credit notes download with **Download PDF** as Factur-X: a PDF/A-3 carrying the same data as embedded XML (EN 16931 profile). Drafts stay plain PDFs. Sending through an approved e-invoicing platform is not available yet.
 
+**Download as Word**, in an invoice's or a quote's menu, gives the same document as a Word file (.docx) with your style, to read, adapt or archive. The invoice you send stays the PDF: it is the one with its frozen number and contents.
+
 ## The export for your accountant
 
 1. On the **Invoices** page, click **Export for the accountant**.

@@ -102,6 +102,14 @@ for (const width of [1280, 390]) {
     await page.locator('[data-invoice-date-confirm]').click();
     await expect(page.locator('[data-invoice="1"]')).toContainText('Paid');
 
+    // A Word copy, laid out like the PDF.
+    await page.route('**/api/invoices/1/docx', route => route.fulfill({ body: 'PK', contentType:
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
+    await page.locator('[data-invoice="1"]').getByRole('button', { name: /Actions for/ }).click();
+    const word = page.waitForEvent('download');
+    await page.locator('[data-invoice-word]').click();
+    expect((await word).suggestedFilename()).toMatch(/\.docx$/);
+
     await page.route('**/api/invoices/1/credit-note', route => {
       calls.push('credit');
       const note = { ...base, id: 3, kind: 'CREDIT_NOTE', number: null, creditedInvoiceId: 1, creditedNumber: 'F2026-0001',

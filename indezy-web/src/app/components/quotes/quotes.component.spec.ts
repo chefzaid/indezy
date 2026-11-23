@@ -42,7 +42,7 @@ describe('QuotesComponent', () => {
 
   function create(list = of([draft, sent, expired, accepted, refused])): ComponentFixture<QuotesComponent> {
     quoteService = jasmine.createSpyObj('QuoteService', ['list', 'create', 'update', 'delete', 'send', 'decide', 'deposit', 'invoice',
-      'downloadPdf']);
+      'downloadPdf', 'downloadDocx']);
     quoteService.list.and.returnValue(list);
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -204,6 +204,12 @@ describe('QuotesComponent', () => {
     quoteService.downloadPdf.and.returnValue(throwError(() => new Error('down')));
     component.download(sent);
     expect(notifications.error).toHaveBeenCalledWith('quotes.pdfError');
+    quoteService.downloadDocx.and.returnValue(of(new Blob(['PK'])));
+    component.download(accepted, true);
+    expect(link.download).toBe('quote-D2026-0003.docx');
+    quoteService.downloadDocx.and.returnValue(throwError(() => new Error('down')));
+    component.download(sent, true);
+    expect(notifications.error).toHaveBeenCalledWith('invoices.wordError');
   });
 
   it('tells each refusal the server explains, and falls back otherwise', () => {

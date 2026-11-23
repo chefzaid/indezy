@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Factures et devis en Word
+
+**Télécharger en Word** donne une facture ou un devis en .docx, mis en page comme son PDF. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Votre CV dans votre profil
 
 **Mon CV**, sous vos informations personnelles, garde votre CV à télécharger et joindre à vos candidatures ; l'import du profil peut garder le CV qu'il lit. Voir [Compte, sécurité et données](/help/account).

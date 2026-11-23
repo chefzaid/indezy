@@ -189,10 +189,10 @@ export class InvoicesComponent implements OnInit {
     });
   }
 
-  download(invoice: Invoice): void {
-    this.invoiceService.downloadPdf(invoice.id).subscribe({
-      next: blob => saveBlob(blob, `${this.fileName(invoice)}-${invoice.number ?? 'draft-' + invoice.id}.pdf`),
-      error: () => this.notifications.error('invoices.pdfError')
+  download(invoice: Invoice, word = false): void {
+    (word ? this.invoiceService.downloadDocx(invoice.id) : this.invoiceService.downloadPdf(invoice.id)).subscribe({
+      next: blob => saveBlob(blob, `${this.fileName(invoice)}-${invoice.number ?? 'draft-' + invoice.id}.${word ? 'docx' : 'pdf'}`),
+      error: () => this.notifications.error(word ? 'invoices.wordError' : 'invoices.pdfError')
     });
   }
 

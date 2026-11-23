@@ -134,6 +134,13 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
         // Issued once the rate was taken off: the statutory rate, without a figure.
         assertThat(pdf(alice, second)).contains("Facture", "Net à payer", "1 600,50 €", "TVA non applicable, art. 293 B du CGI",
             "Banque centrale européenne").doesNotContain("taux annuel");
+        // The Word copy says the same; Bob gets none of it.
+        ResponseEntity<byte[]> word = call(alice, HttpMethod.GET, "/invoices/" + second + "/docx", null, byte[].class);
+        assertThat(word.getHeaders().getContentType()).hasToString("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        assertThat(word.getHeaders().getContentDisposition().getFilename()).endsWith(".docx").startsWith("facture-F");
+        assertThat(dev.swirlit.indezy.pdf.BillingDocxTest.text(dev.swirlit.indezy.pdf.BillingDocxTest.parts(word.getBody())))
+            .contains("Net à payer", "TVA non applicable, art. 293 B du CGI");
+        assertThat(call(bob, HttpMethod.GET, "/invoices/" + second + "/docx", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
         // Paid, then not after all.
         assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first + "/payment", Map.of("paidOn", "2027-01-05"), Map.class).getBody())

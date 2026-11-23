@@ -27,6 +27,8 @@ describe('QuoteService', () => {
     http.expectOne(call => call.method === 'POST' && call.url.endsWith('/quotes/4/invoice'));
     service.downloadPdf(4).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/quotes/4/pdf')).request.responseType).toBe('blob');
+    service.downloadDocx(4).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/quotes/4/docx')).request.responseType).toBe('blob');
     http.verify();
   });
 });

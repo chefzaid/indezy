@@ -190,6 +190,16 @@ public class QuoteService {
     /** The quote's PDF: as sent, or, for a draft, with the seller, its payment term and the client as they are now. */
     @Transactional(readOnly = true)
     public ActivityReportService.PdfFile renderPdf(Long freelanceId, Long id) {
+        return render(freelanceId, id, false);
+    }
+
+    /** The quote as a Word file laid out like its PDF. */
+    @Transactional(readOnly = true)
+    public ActivityReportService.PdfFile renderDocx(Long freelanceId, Long id) {
+        return render(freelanceId, id, true);
+    }
+
+    private ActivityReportService.PdfFile render(Long freelanceId, Long id, boolean word) {
         Quote quote = quote(freelanceId, id);
         boolean draft = quote.getStatus() == QuoteStatus.DRAFT;
         BillingIdentityDto identity = draft ? identity(freelanceId) : null;
@@ -199,11 +209,14 @@ public class QuoteService {
         Integer paymentTermDays = draft ? identity.paymentTermDays() : quote.getPaymentTermDays();
         boolean english = quote.getLanguage() == DocumentLanguage.EN;
         String fileName = (english ? "quote-" : "devis-") + (draft ? (english ? "draft-" : "brouillon-") + quote.getId() : quote.getNumber()) +
-            ".pdf";
+            (word ? ".docx" : ".pdf");
         Long termsFile = draft ? identity.quoteTermsFileId() : quote.getTermsFileId();
+        String terms = draft ? identity.quoteTerms() : quote.getTerms();
+        if (word) {
+            return new ActivityReportService.PdfFile(fileName, pdf.renderDocx(quote, seller, buyer, paymentTermDays, terms, termsFile != null));
+        }
         byte[] termsPdf = termsFile == null || termsFiles == null ? null : termsFiles.findById(termsFile).map(DocumentTermsFile::getContent).orElse(null);
-        return new ActivityReportService.PdfFile(fileName, pdf.render(quote, seller, buyer, paymentTermDays,
-            draft ? identity.quoteTerms() : quote.getTerms(), termsPdf));
+        return new ActivityReportService.PdfFile(fileName, pdf.render(quote, seller, buyer, paymentTermDays, terms, termsPdf));
     }
 
     private String nextNumber(Long freelanceId, int year) {

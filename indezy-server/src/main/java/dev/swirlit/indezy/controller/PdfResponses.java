@@ -12,6 +12,9 @@ public final class PdfResponses {
     private PdfResponses() {
     }
 
+    /** The media type of a Word document. */
+    public static final String DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
     public static ResponseEntity<byte[]> attachment(PdfFile file) {
         return attachment(file.fileName(), MediaType.APPLICATION_PDF_VALUE, file.content());
     }

@@ -57,9 +57,88 @@ abstract class BillingPage {
         return false;
     }
 
+    // What the document says, the same in the PDF and the Word file.
+
+    /** The document's heading ("Facture", "Devis"…). */
+    abstract String heading();
+
+    /** The lines under the heading: number, dates, references. */
+    abstract List<String> headingLines();
+
+    /** What a draft says it is not; null once issued. */
+    abstract String draftMark();
+
+    /** The words before the client ("Facturé à", "Pour"). */
+    abstract String buyerLabel();
+
+    abstract List<InvoiceLine> documentLines();
+
+    /** The label of the amount to pay. */
+    abstract String totalLabel();
+
+    /** The legal mentions under the totals. */
+    abstract List<String> documentMentions();
+
+    /** The seller's notes; null for none. */
+    abstract String notes();
+
+    /** The words above the client's signature box; null without one. */
+    String acceptance() {
+        return null;
+    }
+
+    /** Terms and conditions printed after the document: their title and text. */
+    record Terms(String title, String text) {
+    }
+
+    /** The terms and conditions printed after the document; null for none. */
+    Terms termsPage() {
+        return null;
+    }
+
+    /** The seller's name as printed, "EI" after it for an individual business. */
+    String sellerName() {
+        return seller.getName() + (seller.getLegalForm() != null && seller.getLegalForm().isIndividual() ? InvoiceLabel.INDIVIDUAL.in(language) : "");
+    }
+
+    /** The column headings of the lines. */
+    String[] columnHeadings() {
+        return new String[] {InvoiceLabel.COLUMN_DESCRIPTION.in(language), InvoiceLabel.COLUMN_QUANTITY.in(language),
+            InvoiceLabel.COLUMN_PRICE.in(language), InvoiceLabel.COLUMN_VAT.in(language), InvoiceLabel.COLUMN_AMOUNT.in(language)};
+    }
+
+    /** A line's cells: description, quantity, unit price, VAT rate and amount. */
+    String[] cells(InvoiceLine line) {
+        return new String[] {line.getDescription(), number(line.getQuantity()), money(line.getUnitPrice()), number(line.getVatRate()) + " %",
+            money(InvoiceTotals.lineAmount(line))};
+    }
+
+    /** The totals as label and amount: before VAT, of VAT (unless exempt) and to pay, the last one strong. */
+    List<String[]> totalRows() {
+        InvoiceTotals totals = InvoiceTotals.of(documentLines());
+        List<String[]> rows = new ArrayList<>();
+        rows.add(new String[] {InvoiceLabel.TOTAL_EXCLUDING.in(language), signed(totals.excludingVat())});
+        if (!vatExempt()) {
+            rows.add(new String[] {InvoiceLabel.TOTAL_VAT.in(language), signed(totals.vat())});
+        }
+        rows.add(new String[] {totalLabel(), signed(totals.total())});
+        return rows;
+    }
+
+    /** Lays the document out on the PDF's pages. */
+    void write() throws IOException {
+        header(() -> headingBlock(heading(), headingLines(), draftMark()), buyerLabel());
+        lines(documentLines());
+        totals();
+        mentions(documentMentions(), notes());
+    }
+
     void sellerBlock() throws IOException {
-        String name = seller.getName() + (seller.getLegalForm() != null && seller.getLegalForm().isIndividual() ?
-            InvoiceLabel.INDIVIDUAL.in(language) : "");
+        block(sellerName(), sellerLines(), writer.width() / 2);
+    }
+
+    /** The seller's lines under its name: the header line, address, legal form and capital, SIRET and VAT number. */
+    List<String> sellerLines() {
         List<String> lines = new ArrayList<>();
         if (seller.getHeader() != null && !seller.getHeader().isBlank()) {
             lines.add(seller.getHeader().strip());
@@ -78,7 +157,7 @@ abstract class BillingPage {
         if (seller.getVatNumber() != null && !Boolean.TRUE.equals(seller.getVatExempt())) {
             lines.add(InvoiceLabel.VAT_NUMBER.format(language, seller.getVatNumber()));
         }
-        block(name, lines, writer.width() / 2);
+        return lines;
     }
 
     /** The document's title, right-aligned, then its lines below it. */
@@ -100,6 +179,11 @@ abstract class BillingPage {
 
     void buyerBlock(String label) throws IOException {
         writer.text(writer.left(), writer.cursor(), label, false, SMALL);
+        block(buyer.getName(), buyerLines(), writer.width() / 2);
+    }
+
+    /** The client's lines under its name: address, SIREN and VAT number. */
+    List<String> buyerLines() {
         List<String> lines = new ArrayList<>(splitLines(buyer.getAddress()));
         if (buyer.getSiren() != null) {
             lines.add(InvoiceLabel.SIREN.format(language, buyer.getSiren()));
@@ -107,7 +191,7 @@ abstract class BillingPage {
         if (buyer.getVatNumber() != null) {
             lines.add(InvoiceLabel.VAT_NUMBER.format(language, buyer.getVatNumber()));
         }
-        block(buyer.getName(), lines, writer.width() / 2);
+        return lines;
     }
 
     /** The seller beside the document's heading, then the client below both. */
@@ -142,16 +226,16 @@ abstract class BillingPage {
         float[] columns = {0, 0.56f, 0.66f, 0.8f, 0.88f};
         writer.moveDown(ROW);
         writer.color(accent());
-        row(columns, new String[] {InvoiceLabel.COLUMN_DESCRIPTION.in(language), InvoiceLabel.COLUMN_QUANTITY.in(language),
-            InvoiceLabel.COLUMN_PRICE.in(language), InvoiceLabel.COLUMN_VAT.in(language), InvoiceLabel.COLUMN_AMOUNT.in(language)}, true);
+        row(columns, columnHeadings(), true);
         writer.line(writer.left(), writer.cursor() - 5, writer.right(), writer.cursor() - 5);
         writer.color(null);
         for (InvoiceLine line : lines) {
             List<String> description = writer.wrap(line.getDescription(), false, BODY, writer.width() * (columns[1] - 0.02f));
             writer.ensureSpace(ROW + LINE * (description.size() - 1));
             writer.moveDown(ROW);
-            row(columns, new String[] {description.getFirst(), number(line.getQuantity()), money(line.getUnitPrice()),
-                number(line.getVatRate()) + " %", money(InvoiceTotals.lineAmount(line))}, false);
+            String[] cells = cells(line);
+            cells[0] = description.getFirst();
+            row(columns, cells, false);
             for (String more : description.subList(1, description.size())) {
                 writer.moveDown(LINE);
                 writer.text(writer.left(), writer.cursor(), more, false, BODY);
@@ -163,20 +247,19 @@ abstract class BillingPage {
     }
 
     /** The seller's accent colour, when a valid one. */
-    private String accent() {
+    String accent() {
         String color = seller.getAccentColor();
         return color != null && color.matches("#[0-9A-Fa-f]{6}") ? color : null;
     }
 
     /** The totals before VAT, of VAT (unless exempt) and to pay, under the lines. */
-    void totals(InvoiceTotals totals, String totalLabel) throws IOException {
+    void totals() throws IOException {
         writer.ensureSpace(ROW * 4);
         float labelX = writer.left() + writer.width() * 0.6f;
-        total(labelX, InvoiceLabel.TOTAL_EXCLUDING.in(language), signed(totals.excludingVat()), false);
-        if (!vatExempt()) {
-            total(labelX, InvoiceLabel.TOTAL_VAT.in(language), signed(totals.vat()), false);
+        List<String[]> rows = totalRows();
+        for (int index = 0; index < rows.size(); index++) {
+            total(labelX, rows.get(index)[0], rows.get(index)[1], index == rows.size() - 1);
         }
-        total(labelX, totalLabel, signed(totals.total()), true);
     }
 
     boolean vatExempt() {
@@ -263,7 +346,7 @@ abstract class BillingPage {
         return money(negative() ? amount.negate() : amount);
     }
 
-    private String number(BigDecimal value) {
+    String number(BigDecimal value) {
         NumberFormat format = NumberFormat.getNumberInstance(locale);
         format.setMinimumFractionDigits(0);
         format.setMaximumFractionDigits(2);

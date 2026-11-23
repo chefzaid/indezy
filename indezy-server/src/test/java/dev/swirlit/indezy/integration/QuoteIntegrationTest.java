@@ -69,6 +69,10 @@ class QuoteIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.DELETE, quote, null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(pdf(alice, quote)).contains("Devis").contains("N° " + number).contains("Bon pour accord")
             .contains("TVA non applicable, art. 293 B du CGI").contains("Paiement à 30 jours à réception de la facture").contains("Devis gratuit.");
+        ResponseEntity<byte[]> word = call(alice, HttpMethod.GET, quote + "/docx", null, byte[].class);
+        assertThat(word.getHeaders().getContentDisposition().getFilename()).isEqualTo("devis-" + number + ".docx");
+        assertThat(dev.swirlit.indezy.pdf.BillingDocxTest.text(dev.swirlit.indezy.pdf.BillingDocxTest.parts(word.getBody())))
+            .contains("Devis", "N° " + number, "Bon pour accord", "Devis gratuit.");
 
         // Accepted, then billed once by a draft invoice stating the quote.
         assertThat(call(bob, HttpMethod.PUT, quote + "/decision", Map.of("accepted", true), String.class).getStatusCode())
