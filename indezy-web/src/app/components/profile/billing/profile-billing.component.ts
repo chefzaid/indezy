@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -52,7 +53,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     quoteTerms: ['', Validators.maxLength(20000)],
     accentColor: [''],
     header: ['', Validators.maxLength(150)],
-    font: ['SANS' as 'SANS' | 'SERIF'],
+    font: ['SANS' as 'SANS' | 'SERIF' | 'CUSTOM'],
     footer: ['', Validators.maxLength(200)],
     logoPlacement: ['LEFT' as 'LEFT' | 'CENTER' | 'RIGHT'],
     logoSize: ['MEDIUM' as 'SMALL' | 'MEDIUM' | 'LARGE'],
@@ -75,6 +76,9 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   logoId: number | null = null;
   uploadingLogo = false;
   termsFileId: number | null = null;
+  /** The uploaded font's family; null for none. */
+  fontFamily: string | null = null;
+  uploadingFont = false;
 
   ngOnDestroy(): void {
     this.revokeLogo();
@@ -96,7 +100,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       next: identity => {
         this.uploadingLogo = false;
         this.showLogo(identity.logoId ?? null);
-    this.termsFileId = identity.quoteTermsFileId ?? null;
+        this.termsFileId = identity.quoteTermsFileId ?? null;
         this.notifications.success('profile.billing.logoSaved');
       },
       error: () => {
@@ -140,6 +144,47 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     this.billing.termsFile(this.termsFileId).subscribe({
       next: blob => saveBlob(blob, 'cgv.pdf'),
       error: () => this.notifications.error('profile.billing.loadError')
+    });
+  }
+
+  /** Uploads the font chosen: one TrueType file, or two when the bold face comes with it (the one named bold). */
+  uploadFont(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = [...(input.files ?? [])];
+    input.value = '';
+    if (!files.length) {
+      return;
+    }
+    if (files.length > 2 || files.some(file => file.size > 5 * 1024 * 1024 || !/\.(ttf|otf)$/i.test(file.name))) {
+      this.notifications.error('profile.billing.fontRefused');
+      return;
+    }
+    const bold = files.length === 2 ? files.find(file => /bold|gras/i.test(file.name)) ?? files[1] : null;
+    const regular = files.find(file => file !== bold) ?? files[0];
+    this.uploadingFont = true;
+    this.billing.uploadFont(regular, bold).subscribe({
+      next: identity => {
+        this.uploadingFont = false;
+        this.fontFamily = identity.fontFamily ?? null;
+        this.form.patchValue({ font: identity.font ?? 'CUSTOM' });
+        this.notifications.success('profile.billing.fontSaved', undefined, { family: this.fontFamily });
+      },
+      error: (error: HttpErrorResponse) => {
+        this.uploadingFont = false;
+        const reason = error.status === 400 ? (error.error as { message?: string } | null)?.message ?? '' : '';
+        this.notifications.error(/licen[cs]e/i.test(reason) ? 'profile.billing.fontLicence' : /CFF/.test(reason) ? 'profile.billing.fontCff' :
+          /lacks letters/.test(reason) ? 'profile.billing.fontLetters' : 'profile.billing.fontRefused');
+      }
+    });
+  }
+
+  removeFont(): void {
+    this.billing.removeFont().subscribe({
+      next: identity => {
+        this.fontFamily = null;
+        this.form.patchValue({ font: identity.font ?? 'SANS' });
+      },
+      error: () => this.notifications.error('profile.billing.saveError')
     });
   }
 
@@ -245,6 +290,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
 
   private show(identity: BillingIdentity): void {
     this.complete = !!identity.complete;
+    this.fontFamily = identity.fontFamily ?? null;
     this.showLogo(identity.logoId ?? null);
     this.form.reset({
       legalName: identity.legalName ?? '', legalForm: identity.legalForm, siret: identity.siret ?? '', vatExempt: identity.vatExempt,

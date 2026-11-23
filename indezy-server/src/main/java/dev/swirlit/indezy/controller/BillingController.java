@@ -1,10 +1,12 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.BillingIdentityDto;
+import dev.swirlit.indezy.model.DocumentFontFile;
 import dev.swirlit.indezy.model.DocumentLogo;
 import dev.swirlit.indezy.model.DocumentTermsFile;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.BillingIdentityService;
+import dev.swirlit.indezy.service.DocumentFontService;
 import dev.swirlit.indezy.service.DocumentLogoService;
 import dev.swirlit.indezy.service.DocumentTermsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +39,7 @@ public class BillingController {
     private final BillingIdentityService billing;
     private final DocumentLogoService logos;
     private final DocumentTermsService termsFiles;
+    private final DocumentFontService fonts;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "The seller's identity, its defaults drawn from the profile")
@@ -58,6 +61,23 @@ public class BillingController {
             throw new IllegalArgumentException("A logo holds 2 MB at most");
         }
         return logos.upload(workspace(), file.getBytes());
+    }
+
+    @Operation(summary = "Print the invoices and quotes to come in an uploaded font",
+        description = "A TrueType font of 5 MB at most whose licence allows embedding, and optionally its bold face")
+    @PostMapping(value = "/font", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BillingIdentityDto uploadFont(@RequestParam("file") MultipartFile file, @RequestParam(value = "bold", required = false) MultipartFile bold)
+        throws IOException {
+        if (file.getSize() > DocumentFontFile.MAX_BYTES || bold != null && bold.getSize() > DocumentFontFile.MAX_BYTES) {
+            throw new IllegalArgumentException("A font file holds 5 MB at most");
+        }
+        return fonts.upload(workspace(), file.getBytes(), bold == null || bold.isEmpty() ? null : bold.getBytes());
+    }
+
+    @Operation(summary = "Go back to a bundled font for the documents to come")
+    @DeleteMapping("/font")
+    public BillingIdentityDto removeFont() {
+        return fonts.remove(workspace());
     }
 
     @Operation(summary = "Take the logo off the invoices and quotes to come")

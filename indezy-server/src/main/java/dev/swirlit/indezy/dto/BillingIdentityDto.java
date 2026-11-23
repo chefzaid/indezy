@@ -43,6 +43,9 @@ public record BillingIdentityDto(
     LogoSize logoSize,
     @Size(max = 150) String header,
     DocumentFont font,
+    /** The uploaded font and its family, set by its own upload, never by this form. */
+    Long fontFileId,
+    String fontFamily,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;

@@ -101,6 +101,14 @@ public class BillingIdentity {
     @Column(name = "billing_logo_id")
     private Long logoId;
 
+    /** The uploaded font ({@link DocumentFontFile}) the documents print in when {@code font} is CUSTOM; null for none. */
+    @Column(name = "billing_font_file_id")
+    private Long fontFileId;
+
+    /** That font's family name. */
+    @Column(name = "billing_font_family", length = 100)
+    private String fontFamily;
+
     /** The terms and conditions of sale as a PDF appended after each quote ({@link DocumentTermsFile}); null for none. */
     @Column(name = "billing_quote_terms_file_id")
     private Long quoteTermsFileId;

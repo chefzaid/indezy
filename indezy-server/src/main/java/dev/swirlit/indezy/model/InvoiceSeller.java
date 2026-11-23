@@ -74,6 +74,13 @@ public class InvoiceSeller {
     @Column(name = "seller_logo_size", length = 10)
     private LogoSize logoSize;
 
+    /** The uploaded font ({@link DocumentFontFile}) the document prints in when {@code font} is CUSTOM, kept at issue. */
+    @Column(name = "seller_font_file_id")
+    private Long fontFileId;
+
+    @Column(name = "seller_font_family", length = 100)
+    private String fontFamily;
+
     /** The logo the document prints ({@link DocumentLogo}), kept at issue; null for none. */
     @Column(name = "seller_logo_id")
     private Long logoId;

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Votre police sur les factures et devis
+
+**Envoyer ma police**, dans Profil → Facturation, imprime vos documents dans la police TrueType de votre choix, quand sa licence permet de l'incorporer. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Factures et devis en Word
 
 **Télécharger en Word** donne une facture ou un devis en .docx, mis en page comme son PDF. Voir [Devis et factures](/help/invoices-quotes).

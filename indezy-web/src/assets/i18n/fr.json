@@ -1434,9 +1434,18 @@
       "header": "Ligne sous votre nom",
       "headerHint": "Une accroche ou des coordonnées imprimées sous votre nom sur les factures et devis.",
       "font": "Police des factures et devis",
+      "fontUpload": "Envoyer ma police",
+      "fontReplace": "Remplacer ma police",
+      "fontHint": "Une police TrueType (.ttf, ou un .otf aux contours TrueType) de 5 Mo au plus dont la licence permet l'incorporation ; sélectionnez avec elle son fichier gras si vous l'avez.",
+      "fontSaved": "Vos documents s'impriment désormais en {{family}}.",
+      "fontRefused": "Cette police ne peut pas être utilisée : envoyez un ou deux fichiers .ttf de 5 Mo au plus.",
+      "fontLicence": "La licence de cette police n'autorise pas son incorporation dans un document : choisissez-en une autre.",
+      "fontCff": "Cette police OpenType utilise des contours CFF, qui ne peuvent pas être incorporés : envoyez un .ttf.",
+      "fontLetters": "Il manque à cette police des caractères qu'imprime une facture (accents, €) : choisissez-en une autre.",
       "fonts": {
         "SANS": "Sans empattement (Liberation Sans)",
-        "SERIF": "À empattements (Liberation Serif)"
+        "SERIF": "À empattements (Liberation Serif)",
+        "CUSTOM": "{{family}} (ma police)"
       }
     },
     "webhooks": {

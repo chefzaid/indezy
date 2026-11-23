@@ -1388,7 +1388,13 @@ PNG or JPEG of 2 MB at most, drawn anew at most 600 pixels on its longest side) 
 or centred or on the right above both the seller and the title (`logoPlacement`), small, medium or large (`logoSize`:
 110 by 38, 160 by 56 or 220 by 80 points at most), both frozen at issue; each upload is a new logo (`GET /api/users/billing/logos/{id}`), so issued documents, which keep the id
 they were issued with, still print theirs. Logos go with the workspace. The **Font of invoices and quotes** (`font`) is Liberation Sans or Liberation Serif, both
-bundled under the SIL Open Font Licence and embedded as Factur-X needs, frozen at issue. A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
+bundled under the SIL Open Font Licence and embedded as Factur-X needs, frozen at issue, or the workspace's own:
+**Upload my font** takes a TrueType file of 5 MB at most and optionally its bold face (`POST /api/users/billing/font`,
+`file` and `bold`), refused when its OpenType outlines are CFF (PDFBox embeds TrueType ones), when its licence flags
+forbid embedding (OS/2 `fsType` restricted or bitmap-only) or when it lacks letters a French invoice prints (accents,
+€, guillemets); it becomes the documents' font (`font` CUSTOM, `fontFileId`, `fontFamily`), the regular face printing
+the bold text when no bold one was given. Each upload is a new file, frozen with the seller at issue; **Remove** (`DELETE
+/api/users/billing/font`) goes back to Liberation Sans, and issued documents keep theirs. Word copies name its family. A **Line under your name** (`header`, 150 characters: a tagline or contact details) is
 printed under the seller's name, frozen at issue too. A **Footer** (`footer`, 200 characters, such
 as the website and phone) is written small at the foot of every page, also frozen at issue; every document of several
 pages (invoices, quotes, activity reports, dossiers) numbers them "1/2" at the bottom right. The **Notes a new invoice

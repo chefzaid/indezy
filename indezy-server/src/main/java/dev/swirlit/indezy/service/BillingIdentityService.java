@@ -45,6 +45,8 @@ public class BillingIdentityService {
         // The logo is set on its own (DocumentLogoService), never by the identity's form.
         billing.setLogoId(freelance.getBilling() == null ? null : freelance.getBilling().getLogoId());
         billing.setQuoteTermsFileId(freelance.getBilling() == null ? null : freelance.getBilling().getQuoteTermsFileId());
+        billing.setFontFileId(freelance.getBilling() == null ? null : freelance.getBilling().getFontFileId());
+        billing.setFontFamily(freelance.getBilling() == null ? null : freelance.getBilling().getFontFamily());
         billing.setLegalName(request.legalName());
         billing.setLegalForm(request.legalForm());
         billing.setSiret(request.siret());
@@ -66,7 +68,8 @@ public class BillingIdentityService {
         billing.setLogoPlacement(request.logoPlacement());
         billing.setLogoSize(request.logoSize());
         billing.setHeader(request.header());
-        billing.setFont(request.font());
+        // The uploaded font is chosen only while there is one.
+        billing.setFont(request.font() == DocumentFont.CUSTOM && billing.getFontFileId() == null ? DocumentFont.SANS : request.font());
         billing.setQuoteNotes(request.quoteNotes());
         freelance.setBilling(billing);
         return toDto(freelance);
@@ -89,7 +92,7 @@ public class BillingIdentityService {
             billing.getLogoId(), billing.getFooter(), billing.getInvoiceNotes(), billing.getQuoteNotes(),
             billing.getQuoteTermsFileId(), Objects.requireNonNullElse(billing.getLogoPlacement(), LogoPlacement.LEFT),
             Objects.requireNonNullElse(billing.getLogoSize(), LogoSize.MEDIUM), billing.getHeader(),
-            Objects.requireNonNullElse(billing.getFont(), DocumentFont.SANS), complete);
+            Objects.requireNonNullElse(billing.getFont(), DocumentFont.SANS), billing.getFontFileId(), billing.getFontFamily(), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

@@ -1434,9 +1434,18 @@
       "header": "Line under your name",
       "headerHint": "A tagline or contact details printed under your name on invoices and quotes.",
       "font": "Font of invoices and quotes",
+      "fontUpload": "Upload my font",
+      "fontReplace": "Replace my font",
+      "fontHint": "A TrueType font (.ttf, or an .otf with TrueType outlines) of 5 MB at most whose licence allows embedding; select its bold file with it if you have one.",
+      "fontSaved": "Your documents now print in {{family}}.",
+      "fontRefused": "This font cannot be used: send one or two .ttf files of 5 MB at most.",
+      "fontLicence": "This font's licence does not allow embedding it in a document: choose another one.",
+      "fontCff": "This OpenType font uses CFF outlines, which cannot be embedded: send a .ttf.",
+      "fontLetters": "This font lacks letters a French invoice prints (accents, €): choose another one.",
       "fonts": {
         "SANS": "Sans-serif (Liberation Sans)",
-        "SERIF": "Serif (Liberation Serif)"
+        "SERIF": "Serif (Liberation Serif)",
+        "CUSTOM": "{{family}} (my font)"
       }
     },
     "webhooks": {

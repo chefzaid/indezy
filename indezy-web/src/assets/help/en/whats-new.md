@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Your own font on invoices and quotes
+
+**Upload my font**, in Profile → Billing, prints your documents in a TrueType font of your choice, when its licence allows embedding. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Invoices and quotes in Word
 
 **Download as Word** gives an invoice or a quote as a .docx laid out like its PDF. See [Quotes and invoices](/help/invoices-quotes).

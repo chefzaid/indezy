@@ -138,8 +138,22 @@
         <mat-select formControlName="font" data-billing-font>
           <mat-option value="SANS">{{ 'profile.billing.fonts.SANS' | translate }}</mat-option>
           <mat-option value="SERIF">{{ 'profile.billing.fonts.SERIF' | translate }}</mat-option>
+          @if (fontFamily) {
+            <mat-option value="CUSTOM" data-billing-font-custom>{{ 'profile.billing.fonts.CUSTOM' | translate:{ family: fontFamily } }}</mat-option>
+          }
         </mat-select>
       </mat-form-field>
+      <div class="font-upload" data-billing-font-upload>
+        <input #fontInput type="file" hidden multiple accept=".ttf,.otf,font/ttf,font/otf" (change)="uploadFont($event)" data-billing-font-file
+          [attr.aria-label]="'profile.billing.fontUpload' | translate">
+        <button mat-stroked-button type="button" (click)="fontInput.click()" [disabled]="uploadingFont" data-billing-font-pick>
+          <mat-icon>font_download</mat-icon>{{ (fontFamily ? 'profile.billing.fontReplace' : 'profile.billing.fontUpload') | translate }}
+        </button>
+        @if (fontFamily) {
+          <button mat-button type="button" (click)="removeFont()" data-billing-font-remove>{{ 'profile.billing.logoRemove' | translate }}</button>
+        }
+        <span class="hint">{{ 'profile.billing.fontHint' | translate }}</span>
+      </div>
       <div class="accent" data-billing-accent-row>
         <label for="billing-accent">{{ 'profile.billing.accentColor' | translate }}</label>
         <input id="billing-accent" type="color" [value]="form.value.accentColor || '#000000'" (input)="setAccent($event)" data-billing-accent>

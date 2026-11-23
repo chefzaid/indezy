@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -36,7 +37,8 @@ describe('ProfileBillingComponent', () => {
   }
 
   beforeEach(() => {
-    billing = jasmine.createSpyObj('BillingService', ['identity', 'saveIdentity', 'uploadLogo', 'removeLogo', 'logo', 'uploadTermsFile', 'removeTermsFile', 'termsFile']);
+    billing = jasmine.createSpyObj('BillingService', ['identity', 'saveIdentity', 'uploadLogo', 'removeLogo', 'logo', 'uploadTermsFile', 'removeTermsFile', 'termsFile',
+      'uploadFont', 'removeFont']);
     billing.logo.and.returnValue(of(new Blob(['png'], { type: 'image/png' })));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
   });
@@ -171,5 +173,48 @@ describe('ProfileBillingComponent', () => {
     component.removeTermsFile();
     expect(component.termsFileId).toBeNull();
   });
-});
 
+  it('uploads a font with its bold face, says why one is refused, and goes back to a bundled one', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const input = document.createElement('input');
+    input.type = 'file';
+    const pick = (...names: string[]): void => {
+      const files = new DataTransfer();
+      names.forEach(name => files.items.add(new File(['ttf'], name)));
+      input.files = files.files;
+      component.uploadFont({ target: input } as unknown as Event);
+    };
+    billing.uploadFont.and.returnValue(of({ ...defaults, font: 'CUSTOM', fontFileId: 7, fontFamily: 'Ma Police' }));
+    pick('MaPolice-Bold.ttf', 'MaPolice-Regular.ttf');
+    const [regular, bold] = billing.uploadFont.calls.mostRecent().args;
+    expect(regular.name).toBe('MaPolice-Regular.ttf');
+    expect(bold?.name).toBe('MaPolice-Bold.ttf');
+    expect(component.fontFamily).toBe('Ma Police');
+    expect(component.form.value.font).toBe('CUSTOM');
+    expect(notifications.success).toHaveBeenCalledWith('profile.billing.fontSaved', undefined, { family: 'Ma Police' });
+    expect(text(fixture)).toContain('Replace my font');
+
+    pick('police.woff');
+    expect(notifications.error).toHaveBeenCalledWith('profile.billing.fontRefused');
+    const refusal = (message: string): void => {
+      billing.uploadFont.and.returnValue(throwError(() => new HttpErrorResponse({ status: 400, error: { message } })));
+      pick('Police.ttf');
+    };
+    refusal('This font\'s licence does not allow embedding it in a document');
+    expect(notifications.error).toHaveBeenCalledWith('profile.billing.fontLicence');
+    refusal('This OpenType font draws its letters with CFF outlines');
+    expect(notifications.error).toHaveBeenCalledWith('profile.billing.fontCff');
+    refusal('This font lacks letters an invoice prints: €');
+    expect(notifications.error).toHaveBeenCalledWith('profile.billing.fontLetters');
+    expect(billing.uploadFont.calls.mostRecent().args[1]).toBeNull();
+
+    billing.removeFont.and.returnValue(of({ ...defaults, font: 'SANS' }));
+    component.removeFont();
+    expect(component.fontFamily).toBeNull();
+    expect(component.form.value.font).toBe('SANS');
+    billing.removeFont.and.returnValue(throwError(() => new Error('down')));
+    component.removeFont();
+    expect(notifications.error).toHaveBeenCalledWith('profile.billing.saveError');
+  });
+});

@@ -150,4 +150,41 @@ public class BillingDocxTest {
         docx.paragraph("Bonjour", false, DocxDocument.BODY, DocxDocument.Align.CENTER);
         assertThat(new String(docx.save("t", "a"), StandardCharsets.ISO_8859_1)).doesNotContain("media/logo");
     }
+
+    @Test
+    void printsInTheUploadedFontWhenChosen() throws IOException {
+        dev.swirlit.indezy.model.DocumentFontFile font = new dev.swirlit.indezy.model.DocumentFontFile();
+        font.setFamily("Liberation Serif");
+        font.setRegular(FontCheckTest.serif());
+        dev.swirlit.indezy.repository.DocumentFontFileRepository fonts = Mockito.mock(dev.swirlit.indezy.repository.DocumentFontFileRepository.class);
+        Mockito.when(fonts.findById(8L)).thenReturn(Optional.of(font));
+        InvoicePdfRenderer renderer = new InvoicePdfRenderer();
+        renderer.setFonts(fonts);
+        InvoiceSeller seller = seller();
+        seller.setFont(DocumentFont.CUSTOM);
+        seller.setFontFileId(8L);
+        seller.setFontFamily("Liberation Serif");
+        Invoice invoice = new Invoice();
+        invoice.setStatus(InvoiceStatus.DRAFT);
+        invoice.setLanguage(DocumentLanguage.FR);
+        invoice.setLines(List.of(new InvoiceLine("Audit", BigDecimal.ONE, new BigDecimal("900.00"), new BigDecimal("20.00"))));
+        try (org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.Loader.loadPDF(renderer.render(invoice, seller, buyer()))) {
+            java.util.Set<String> names = new java.util.HashSet<>();
+            org.apache.pdfbox.pdmodel.PDResources resources = document.getPage(0).getResources();
+            for (org.apache.pdfbox.cos.COSName name : resources.getFontNames()) {
+                names.add(resources.getFont(name).getName());
+            }
+            // The regular face prints the bold text too, the file having no bold one.
+            assertThat(names).isNotEmpty().allMatch(name -> name.contains("LiberationSerif"));
+        }
+        assertThat(new String(parts(renderer.renderDocx(invoice, seller, buyer())).get("word/styles.xml"), StandardCharsets.UTF_8))
+            .contains("Liberation Serif");
+
+        // The file gone, the document prints in the sans-serif font.
+        seller.setFontFileId(9L);
+        try (org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.Loader.loadPDF(renderer.render(invoice, seller, buyer()))) {
+            org.apache.pdfbox.pdmodel.PDResources resources = document.getPage(0).getResources();
+            assertThat(resources.getFont(resources.getFontNames().iterator().next()).getName()).contains("LiberationSans");
+        }
+    }
 }

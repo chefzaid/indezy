@@ -43,6 +43,20 @@ export class BillingService {
     return this.http.get(`${this.API_URL}/quote-terms-files/${id}`, { responseType: 'blob' });
   }
 
+  /** Prints the documents to come in an uploaded TrueType font, with its bold face when given. */
+  uploadFont(regular: File, bold: File | null): Observable<BillingIdentity> {
+    const form = new FormData();
+    form.append('file', regular);
+    if (bold) {
+      form.append('bold', bold);
+    }
+    return this.http.post<BillingIdentity>(`${this.API_URL}/font`, form);
+  }
+
+  removeFont(): Observable<BillingIdentity> {
+    return this.http.delete<BillingIdentity>(`${this.API_URL}/font`);
+  }
+
   removeLogo(): Observable<BillingIdentity> {
     return this.http.delete<BillingIdentity>(`${this.API_URL}/logo`);
   }

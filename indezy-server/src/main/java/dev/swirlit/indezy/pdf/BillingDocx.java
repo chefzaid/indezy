@@ -1,7 +1,6 @@
 package dev.swirlit.indezy.pdf;
 
 import dev.swirlit.indezy.model.InvoiceLine;
-import dev.swirlit.indezy.model.enums.DocumentFont;
 import dev.swirlit.indezy.model.enums.LogoPlacement;
 import dev.swirlit.indezy.model.enums.LogoSize;
 
@@ -25,8 +24,7 @@ final class BillingDocx {
 
     static byte[] render(BillingPage page, byte[] logo, String title) {
         String accent = page.accent() == null ? null : page.accent().substring(1).toUpperCase(java.util.Locale.ROOT);
-        DocxDocument docx = new DocxDocument(page.seller.getFont() == DocumentFont.SERIF ? "Liberation Serif" : "Liberation Sans",
-            page.seller.getFooter());
+        DocxDocument docx = new DocxDocument(BillingFonts.family(page.seller), page.seller.getFooter());
         if (logo != null) {
             LogoSize size = page.seller.getLogoSize() == null ? LogoSize.MEDIUM : page.seller.getLogoSize();
             LogoPlacement placement = page.seller.getLogoPlacement() == null ? LogoPlacement.LEFT : page.seller.getLogoPlacement();

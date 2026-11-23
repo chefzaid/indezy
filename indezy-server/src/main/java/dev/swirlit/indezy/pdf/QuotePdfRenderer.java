@@ -4,7 +4,7 @@ import dev.swirlit.indezy.model.DocumentLogo;
 import dev.swirlit.indezy.model.InvoiceBuyer;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.Quote;
-import dev.swirlit.indezy.model.enums.DocumentFont;
+import dev.swirlit.indezy.repository.DocumentFontFileRepository;
 import dev.swirlit.indezy.repository.DocumentLogoRepository;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -25,16 +25,20 @@ import java.io.UncheckedIOException;
 @Component
 public final class QuotePdfRenderer {
 
-    private final byte[] regularFont = PdfFonts.read(PdfFonts.REGULAR);
-    private final byte[] boldFont = PdfFonts.read(PdfFonts.BOLD);
-    private final byte[] serifFont = PdfFonts.read(PdfFonts.SERIF_REGULAR);
-    private final byte[] serifBoldFont = PdfFonts.read(PdfFonts.SERIF_BOLD);
+    private final BillingFonts fonts = new BillingFonts();
+    private DocumentFontFileRepository uploadedFonts;
     private DocumentLogoRepository logos;
 
     /** Where the sellers' logos are read; without it, as in tests, documents print none. */
     @Autowired(required = false)
     public void setLogos(DocumentLogoRepository logos) {
         this.logos = logos;
+    }
+
+    /** Where the uploaded fonts are read; without it, as in tests, documents print in the bundled ones. */
+    @Autowired(required = false)
+    public void setFonts(DocumentFontFileRepository repository) {
+        this.uploadedFonts = repository;
     }
 
     private byte[] logoOf(InvoiceSeller seller) {
@@ -59,9 +63,9 @@ public final class QuotePdfRenderer {
     /** As above, the terms and conditions PDF's pages appended after the quote when given. */
     public byte[] render(Quote quote, InvoiceSeller seller, InvoiceBuyer buyer, Integer paymentTermDays, String terms, byte[] termsPdf) {
         try (PDDocument document = new PDDocument()) {
-            boolean serif = seller.getFont() == DocumentFont.SERIF;
-            PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(serif ? serifFont : regularFont));
-            PDFont bold = PDType0Font.load(document, new ByteArrayInputStream(serif ? serifBoldFont : boldFont));
+            BillingFonts.Faces faces = fonts.of(seller, uploadedFonts);
+            PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(faces.regular()));
+            PDFont bold = PDType0Font.load(document, new ByteArrayInputStream(faces.bold()));
             QuotePage page;
             try (PdfPageWriter writer = new PdfPageWriter(document, PDRectangle.A4, regular, bold)) {
                 page = new QuotePage(writer, quote, seller, buyer, paymentTermDays, terms, termsPdf != null);
