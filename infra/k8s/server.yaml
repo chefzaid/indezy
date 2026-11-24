@@ -14,6 +14,8 @@ data:
   INDEZY_SECURITY_KEYCLOAK_AUDIENCE: oauth2-proxy
   # Emails of the accounts that open the admin console, comma-separated; empty names no administrator.
   INDEZY_ADMIN_EMAILS: "zaid@swirlit.dev"
+  # Accounts registered with a password confirm their email first (a link from noreply@swirlit.dev).
+  INDEZY_AUTH_EMAIL_VERIFICATION: "true"
 
 ---
 apiVersion: apps/v1
@@ -125,6 +127,11 @@ spec:
                 configMapKeyRef:
                   name: indezy-server-config
                   key: INDEZY_ADMIN_EMAILS
+            - name: INDEZY_AUTH_EMAIL_VERIFICATION
+              valueFrom:
+                configMapKeyRef:
+                  name: indezy-server-config
+                  key: INDEZY_AUTH_EMAIL_VERIFICATION
             # Saved search emails: without the key nothing is sent, and the app keeps serving.
             - name: RESEND_API_KEY
               valueFrom:

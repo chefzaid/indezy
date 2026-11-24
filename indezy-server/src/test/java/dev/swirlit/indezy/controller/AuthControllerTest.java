@@ -48,6 +48,12 @@ class AuthControllerTest {
     @Mock
     private LoginAttemptService loginAttemptService;
 
+    @Mock
+    private dev.swirlit.indezy.service.AccountEmailService accountEmails;
+
+    @org.mockito.Spy
+    private dev.swirlit.indezy.service.AccountRequestLimiter limiter = new dev.swirlit.indezy.service.AccountRequestLimiter();
+
     @InjectMocks
     private AuthController authController;
 
@@ -167,7 +173,7 @@ class AuthControllerTest {
         when(authService.register(any(RegisterRequest.class))).thenReturn(loginResponse);
 
         // When
-        ResponseEntity<LoginResponse> response = authController.register(registerRequest());
+        ResponseEntity<LoginResponse> response = authController.register(registerRequest(), new org.springframework.mock.web.MockHttpServletRequest());
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -182,7 +188,7 @@ class AuthControllerTest {
                 .thenThrow(new AccountAlreadyExistsException("User with this email already exists: " + EMAIL));
 
         // When
-        ResponseEntity<LoginResponse> response = authController.register(registerRequest());
+        ResponseEntity<LoginResponse> response = authController.register(registerRequest(), new org.springframework.mock.web.MockHttpServletRequest());
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -198,7 +204,7 @@ class AuthControllerTest {
         when(authService.register(any(RegisterRequest.class)))
                 .thenThrow(new IllegalArgumentException("password cannot be more than 72 bytes"));
 
-        ResponseEntity<LoginResponse> response = authController.register(registerRequest());
+        ResponseEntity<LoginResponse> response = authController.register(registerRequest(), new org.springframework.mock.web.MockHttpServletRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         // Mockito fills in the stack trace when the mocked call throws, so the origin is the service method.
@@ -212,7 +218,7 @@ class AuthControllerTest {
         when(authService.register(any(RegisterRequest.class))).thenThrow(new DataIntegrityViolationException("could not execute statement",
                 new org.hibernate.exception.ConstraintViolationException(DUPLICATE_KEY_MESSAGE, sqlException, "uk_users_email")));
 
-        ResponseEntity<LoginResponse> response = authController.register(registerRequest());
+        ResponseEntity<LoginResponse> response = authController.register(registerRequest(), new org.springframework.mock.web.MockHttpServletRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertLoggedAtWarnOnly(output, "Registration rejected by a database constraint: constraint uk_users_email, SQL state 23505");
@@ -223,7 +229,7 @@ class AuthControllerTest {
     void register_WhenAnUnexpectedErrorOccurs_ShouldReturnBadRequestAndLogItAtErrorWithoutTheEmail(CapturedOutput output) {
         when(authService.register(any(RegisterRequest.class))).thenThrow(new IllegalStateException("Token signing failed"));
 
-        ResponseEntity<LoginResponse> response = authController.register(registerRequest());
+        ResponseEntity<LoginResponse> response = authController.register(registerRequest(), new org.springframework.mock.web.MockHttpServletRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(logLine(output, "Registration failed with an unexpected error")).contains("ERROR");

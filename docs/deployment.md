@@ -27,10 +27,15 @@ The public endpoint is `https://indezy.swirlit.dev`. Application resources run i
 | Ingress | Path | Backend | Middlewares |
 |---|---|---|---|
 | `indezy-ingress` | `/` | `indezy-web` | upload limit |
-| `indezy-api-ingress` | `/api` | `indezy-server` | `indezy-sso` ForwardAuth, upload limit |
+| `indezy-api-ingress` | `/api` | `indezy-server` | upload limit |
+| `indezy-sso-api-ingress` | `/api/auth/sso`, `/api/actuator`, `/api/v3`, `/api/swagger-ui` | `indezy-server` | `indezy-sso` ForwardAuth, upload limit |
 | `indezy-public-api-ingress` | `/api/public` | `indezy-server` | upload limit |
 
-The `indezy-sso` Middleware sends requests to the shared Keycloak OAuth2 Proxy, preserves login return URLs and backend `401`s, and forwards the signed access token. `/api/public` skips it: shared links are opened by people without an account, and each request is authorized by its own token (see [Security](./security.md#activity-report-validation-links)). Traefik prefers the longer path. The same file owns the 52 MiB request-body limit and the `indezy-backend` ServersTransport (120 seconds for response headers). TLS uses the cluster's `swirlit-dev-tls` Secret; connection timeouts and HTTP-to-HTTPS redirects are platform settings. `indezy-ingress` publishes Indezy in the Homepage `Applications - PROD` group.
+The API authenticates each request with Indezy's own token, so members with a password sign in on Indezy's login screen
+(open registration, the email confirmed first: `INDEZY_AUTH_EMAIL_VERIFICATION=true` in `indezy-server-config`). The
+`indezy-sso` Middleware, which sends requests to the shared Keycloak OAuth2 Proxy, preserves login return URLs and backend
+`401`s and forwards the signed access token, guards only **Continue with SSO**'s exchange (`/api/auth/sso`) and the paths
+the backend leaves open for the cluster (`/api/actuator`, the OpenAPI document and Swagger UI). `/api/public` skips it: shared links are opened by people without an account, and each request is authorized by its own token (see [Security](./security.md#activity-report-validation-links)). Traefik prefers the longer path. The same file owns the 52 MiB request-body limit and the `indezy-backend` ServersTransport (120 seconds for response headers). TLS uses the cluster's `swirlit-dev-tls` Secret; connection timeouts and HTTP-to-HTTPS redirects are platform settings. `indezy-ingress` publishes Indezy in the Homepage `Applications - PROD` group.
 
 The Keycloak issuer, internal JWKS URI and required audience live in `infra/k8s/server.yaml`; identity-provider secrets stay platform-owned.
 

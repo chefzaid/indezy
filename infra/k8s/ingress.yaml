@@ -35,10 +35,41 @@ spec:
                 port:
                   number: 8080
 ---
+# The API authenticates each request with Indezy's own token: members with a password sign in on Indezy's login screen.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: indezy-api-ingress
+  namespace: apps
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: apps-indezy-upload-limit@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - indezy.swirlit.dev
+      secretName: swirlit-dev-tls
+  rules:
+    - host: indezy.swirlit.dev
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: indezy-server
+                port:
+                  number: 8080
+---
+# Behind the platform's OAuth2 Proxy: the Keycloak sign-in exchange (Continue with SSO), and the paths the backend
+# leaves open for the cluster (metrics, health details, the OpenAPI document and Swagger UI). These longer paths win over /api.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: indezy-sso-api-ingress
   namespace: apps
   annotations:
     argocd.argoproj.io/sync-wave: "1"
@@ -55,8 +86,36 @@ spec:
     - host: indezy.swirlit.dev
       http:
         paths:
-          - path: /api
+          - path: /api/auth/sso
             pathType: Prefix
+            backend:
+              service:
+                name: indezy-server
+                port:
+                  number: 8080
+          - path: /api/actuator
+            pathType: Prefix
+            backend:
+              service:
+                name: indezy-server
+                port:
+                  number: 8080
+          - path: /api/v3
+            pathType: Prefix
+            backend:
+              service:
+                name: indezy-server
+                port:
+                  number: 8080
+          - path: /api/swagger-ui
+            pathType: Prefix
+            backend:
+              service:
+                name: indezy-server
+                port:
+                  number: 8080
+          - path: /api/swagger-ui.html
+            pathType: Exact
             backend:
               service:
                 name: indezy-server

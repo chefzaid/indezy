@@ -116,7 +116,10 @@ Where `indezy.auth.email-verification` is on (production), registering opens not
 sent (`/verify-email`, `POST /api/auth/verify-email`), signing in before it says so and offers to send it again
 (`/api/auth/verify-email/resend`), and the link signs in; accounts from before, and those of the SSO, count as confirmed.
 Each link holds a 256-bit secret of which only the SHA-256 is kept, and one email goes every two minutes at most
-(`AccountEmailService`, from `noreply@swirlit.dev`). In production, sign-in goes through Keycloak. The
+(`AccountEmailService`, from `noreply@swirlit.dev`). In production the login screen offers both: the email and password,
+and **Continue with SSO** for the platform's Keycloak accounts; a browser holding a Keycloak session is signed in quietly
+on load, a visitor without one stays on the login screen, and signing out of a session opened through Keycloak ends the
+platform's session too. The
 profile page has the tabs **Personal information**, **Preferences**, **Notifications**, **Security**, **Billing**,
 **Emails**, **Public profile**, **Offer feed** and **Account**, where **Export my data** downloads every piece of the
 account's data as JSON, the prospection campaigns with their results and contacts (`prospectionCampaigns`) and the emails waiting to go (`scheduledEmails`) included.

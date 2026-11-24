@@ -25,6 +25,8 @@ export class AuthService {
   private readonly TOKEN_KEY = 'indezy_token';
   private readonly USER_KEY = 'indezy_user';
   private readonly SSO_ATTEMPT_KEY = 'indezy.keycloak-sso-attempt';
+  /** How the current session was opened: 'sso' through Keycloak, 'password' on Indezy's own screen. */
+  private readonly SIGN_IN_KEY = 'indezy.sign-in';
   private readonly SSO_START_URL = 'https://keycloak.swirlit.dev/oauth2/start';
 
   private readonly currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
@@ -37,11 +39,7 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials).pipe(
-      tap((response: LoginResponse) => {
-        this.setToken(response.token);
-        this.setUser(response.user);
-        this.currentUserSubject.next(response.user);
-      })
+      tap((response: LoginResponse) => this.openSession(response))
     );
   }
 
@@ -76,13 +74,14 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.API_URL}/password/reset`, { token, password }).pipe(tap(response => this.openSession(response)));
   }
 
-  private openSession(response: LoginResponse): void {
+  private openSession(response: LoginResponse, method: 'password' | 'sso' = 'password'): void {
     if (!response.token) {
       return;
     }
     this.setToken(response.token);
     this.setUser(response.user);
     this.currentUserSubject.next(response.user);
+    localStorage.setItem(this.SIGN_IN_KEY, method);
   }
 
   logout(): void {
@@ -91,7 +90,10 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);
-    if (environment.production) {
+    const throughSso = localStorage.getItem(this.SIGN_IN_KEY) === 'sso';
+    localStorage.removeItem(this.SIGN_IN_KEY);
+    // Signed in through Keycloak, the platform's session ends too; with a password, the login screen is enough.
+    if (environment.production && throughSso) {
       sessionStorage.setItem(this.SSO_ATTEMPT_KEY, 'pending');
       const returnUrl = `${window.location.origin}/`;
       window.location.assign(
@@ -102,9 +104,16 @@ export class AuthService {
     }
   }
 
-  /** Exchanges the Keycloak session for an Indezy one, except on public pages, which must not send visitors to sign in. */
+  /**
+   * Exchanges a Keycloak session, when the browser has one, for an Indezy one, quietly: a visitor without one stays on
+   * Indezy's own screens and signs in with a password or **Continue with SSO**. A session opened with a password is left
+   * as it is; public pages make no exchange.
+   */
   async initializeSso(enabled = environment.production, path = window.location.pathname): Promise<void> {
     if (!enabled || PUBLIC_PAGE_PATHS.some(publicPath => path === publicPath || path.startsWith(`${publicPath}/`))) {
+      return;
+    }
+    if (this.isAuthenticated() && localStorage.getItem(this.SIGN_IN_KEY) === 'password') {
       return;
     }
 
@@ -112,9 +121,7 @@ export class AuthService {
     const sessionExchanged = await firstValueFrom(
       this.http.get<LoginResponse>(`${this.API_URL}/sso`).pipe(
         tap((response: LoginResponse) => {
-          this.setToken(response.token);
-          this.setUser(response.user);
-          this.currentUserSubject.next(response.user);
+          this.openSession(response, 'sso');
           sessionStorage.removeItem(this.SSO_ATTEMPT_KEY);
         }),
         map(() => true),
@@ -132,19 +139,15 @@ export class AuthService {
       return;
     }
 
-    if (!sessionExchanged && !HOME_PAGE_PATHS.includes(path) && sessionStorage.getItem(this.SSO_ATTEMPT_KEY) !== 'pending') {
-      this.startSsoLogin();
+    if (!sessionExchanged) {
+      sessionStorage.removeItem(this.SSO_ATTEMPT_KEY);
     }
   }
 
   /** Takes the account signed in through Keycloak off hold, and opens its session. */
   restoreSso(): Observable<LoginResponse> {
     return this.http.get<LoginResponse>(`${this.API_URL}/sso`, { params: { restore: true } }).pipe(
-      tap((response: LoginResponse) => {
-        this.setToken(response.token);
-        this.setUser(response.user);
-        this.currentUserSubject.next(response.user);
-      })
+      tap((response: LoginResponse) => this.openSession(response, 'sso'))
     );
   }
 

@@ -5,7 +5,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { environment } from '../../../environments/environment';
 import { SIGN_UP_OPEN } from '../../shared/utils/sign-up';
 import { AuthService } from '../../services/auth/auth.service';
 import { AppLanguage, LANGUAGE_STORAGE_KEY } from '../../shared/locale/app-locale';
@@ -110,12 +109,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** The login screen, which offers the password and **Continue with SSO**. */
   signIn(): void {
-    if (environment.production) {
-      this.auth.startSsoLogin(`${globalThis.location.origin}/dashboard`);
-    } else {
-      this.router.navigate(['/login']);
-    }
+    this.router.navigate(['/login']);
   }
 
   /** The page's title, description, languages and card, for search engines and link previews. */

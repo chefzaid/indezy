@@ -79,9 +79,12 @@ Current backend rules:
   see [Admin Console And Feature Flags](./features.md#admin-console-and-feature-flags)); the member network's cards
   (`/network`) answer only to members
 
-These are the backend's rules. In production, every `/api` path except `/api/public` first passes the `indezy-sso`
-ForwardAuth Middleware (`indezy-api-ingress` in `infra/k8s/ingress.yaml`), so from the internet the actuator, OpenAPI and
-Swagger paths need an OAuth2 Proxy session. Inside the cluster, Prometheus scrapes `/api/actuator/prometheus` on the pod
+These are the backend's rules. In production, `/api` authenticates each request with Indezy's own token
+(`indezy-api-ingress` in `infra/k8s/ingress.yaml`), and the `indezy-sso` ForwardAuth Middleware guards the Keycloak
+exchange (`/api/auth/sso`, whose access token the server checks against Keycloak's keys too) and, from the internet, the
+actuator, OpenAPI and Swagger paths (`indezy-sso-api-ingress`), which need an OAuth2 Proxy session. Registering, asking
+for a reset link and asking for the confirmation link again count together, 10 an hour per client address
+(`AccountRequestLimiter`, `indezy.auth.requests-per-hour`), and failed sign-ins lock an email for 15 minutes after 5. Inside the cluster, Prometheus scrapes `/api/actuator/prometheus` on the pod
 and the deploy job reads the health endpoint on the service, which the network policy admits.
 
 A JWT authenticates only while its session is open and its account active. Each sign-in opens a session

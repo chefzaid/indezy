@@ -239,13 +239,27 @@ describe('AuthService', () => {
       expect(startSsoLogin).not.toHaveBeenCalled();
     });
 
-    it('still signs visitors in on pages that only start like a public one', async () => {
+    it('never sends a visitor to Keycloak on its own: without a Keycloak session, the login screen stays', async () => {
       const startSsoLogin = spyOn(service, 'startSsoLogin');
       const initialization = service.initializeSso(true, '/activity-reports-admin');
       httpMock.expectOne('http://localhost:8080/api/auth/sso').flush({}, { status: 401, statusText: 'Unauthorized' });
 
       await initialization;
-      expect(startSsoLogin).toHaveBeenCalled();
+      expect(startSsoLogin).not.toHaveBeenCalled();
+    });
+
+    it('leaves a session opened with a password as it is', async () => {
+      spyOn(service, 'isAuthenticated').and.returnValue(true);
+      localStorageSpy.and.callFake((key: string) => key === 'indezy.sign-in' ? 'password' : null);
+      await service.initializeSso(true, '/dashboard');
+      httpMock.expectNone('http://localhost:8080/api/auth/sso');
+    });
+
+    it('remembers a Keycloak session, so signing out ends it on the platform too', async () => {
+      const initialization = service.initializeSso(true, '/dashboard');
+      httpMock.expectOne('http://localhost:8080/api/auth/sso').flush(mockLoginResponse);
+      await initialization;
+      expect(localStorage.setItem).toHaveBeenCalledWith('indezy.sign-in', 'sso');
     });
 
     it('refreshes the Keycloak identity even when an app session already exists', async () => {

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Créez votre compte avec un e-mail et un mot de passe
+
+Chacun peut désormais créer un compte Indezy : confirmez votre e-mail depuis le lien envoyé, puis connectez-vous avec votre mot de passe, ou avec **Continuer avec SSO** comme avant. **Mot de passe oublié ?** envoie un lien pour en choisir un nouveau. Voir [Compte, sécurité et données](/help/account).
+
 ### Le montant de vos kilomètres professionnels
 
 Indiquez la puissance fiscale de votre voiture dans Profil → Préférences : l'export des kilomètres professionnels se termine désormais par le montant au barème kilométrique officiel. Voir [Le tableau de bord](/help/dashboard).

@@ -10,6 +10,9 @@ import dev.swirlit.indezy.exception.ExceptionLogDetails;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.exception.TwoFactorRequiredException;
 import dev.swirlit.indezy.service.AccountEmailService;
+import dev.swirlit.indezy.service.AccountRequestLimiter;
+import dev.swirlit.indezy.util.ClientAddress;
+import jakarta.servlet.http.HttpServletRequest;
 import dev.swirlit.indezy.service.AuthService;
 import dev.swirlit.indezy.validation.PasswordMaxBytes;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +45,7 @@ public class AuthController {
     private final AuthService authService;
     private final LoginAttemptService loginAttemptService;
     private final AccountEmailService accountEmails;
+    private final AccountRequestLimiter limiter;
 
     @PostMapping("/login")
     @Operation(summary = "User login", description = "Authenticate user and return JWT token")
@@ -84,8 +88,11 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(summary = "User registration", description = "Register new user and return JWT token")
-    public ResponseEntity<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<LoginResponse> register(@Valid @RequestBody RegisterRequest request, HttpServletRequest http) {
         log.debug("POST /auth/register - Registration attempt");
+        if (!limiter.allow(ClientAddress.of(http))) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        }
         try {
             LoginResponse response = authService.register(request);
             return ResponseEntity.ok(response);
@@ -139,14 +146,20 @@ public class AuthController {
 
     @PostMapping("/verify-email/resend")
     @Operation(summary = "Send the email confirmation link again", description = "Answers the same whether the address has an account or not")
-    public ResponseEntity<Void> resendVerification(@Valid @RequestBody EmailRequest request) {
+    public ResponseEntity<Void> resendVerification(@Valid @RequestBody EmailRequest request, HttpServletRequest http) {
+        if (!limiter.allow(ClientAddress.of(http))) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        }
         accountEmails.resendVerification(request.email());
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/password/forgot")
     @Operation(summary = "Send a link to set a new password", description = "Answers the same whether the address has an account or not")
-    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody EmailRequest request) {
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody EmailRequest request, HttpServletRequest http) {
+        if (!limiter.allow(ClientAddress.of(http))) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        }
         accountEmails.requestReset(request.email());
         return ResponseEntity.noContent().build();
     }
