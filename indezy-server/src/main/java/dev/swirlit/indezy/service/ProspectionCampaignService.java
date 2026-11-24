@@ -8,6 +8,7 @@ import dev.swirlit.indezy.model.ProspectionCampaign;
 import dev.swirlit.indezy.model.ScheduledContactEmail;
 import dev.swirlit.indezy.model.enums.InteractionDirection;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.ReplyKind;
 import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.ProspectionCampaignRepository;
@@ -41,8 +42,8 @@ public class ProspectionCampaignService {
     private final ProjectRepository projects;
 
     /** A campaign and its results, with the contacts it wrote or plans to write to (for **Prospect again**). */
-    public record Campaign(Long id, String name, LocalDateTime startedAt, int sent, int waiting, int answered, int opportunities, int interviews,
-                           int won, List<Long> contactIds) {
+    public record Campaign(Long id, String name, LocalDateTime startedAt, int sent, int waiting, int answered, int interested, int opportunities,
+                           int interviews, int won, List<Long> contactIds) {
 
         public Campaign {
             contactIds = contactIds == null ? List.of() : List.copyOf(contactIds);
@@ -56,7 +57,7 @@ public class ProspectionCampaignService {
         String stripped = name == null || name.isBlank() ? "Prospection" : name.strip();
         campaign.setName(stripped.length() > ProspectionCampaign.NAME_MAX ? stripped.substring(0, ProspectionCampaign.NAME_MAX) : stripped);
         ProspectionCampaign saved = campaigns.save(campaign);
-        return new Campaign(saved.getId(), saved.getName(), saved.getCreatedAt(), 0, 0, 0, 0, 0, 0, List.of());
+        return new Campaign(saved.getId(), saved.getName(), saved.getCreatedAt(), 0, 0, 0, 0, 0, 0, 0, List.of());
     }
 
     /** The campaign, refused when it is another workspace's. */
@@ -108,6 +109,7 @@ public class ProspectionCampaignService {
     private static Campaign results(ProspectionCampaign campaign, List<ContactInteraction> sent, List<ScheduledContactEmail> waiting,
                                     Map<Long, List<ContactInteraction>> exchanges, List<Project> pipeline) {
         Set<Long> answered = new HashSet<>();
+        Set<Long> interested = new HashSet<>();
         Set<Long> companies = new HashSet<>();
         for (ContactInteraction email : sent) {
             Long contactId = email.getContact().getId();
@@ -116,6 +118,11 @@ public class ProspectionCampaignService {
             }
             if (answered(email, exchanges.getOrDefault(contactId, List.of()))) {
                 answered.add(contactId);
+            }
+            // An answer the AI found interested, on or after the email.
+            if (exchanges.getOrDefault(contactId, List.of()).stream().anyMatch(other -> other.getReplyKind() == ReplyKind.INTERESTED &&
+                    email.getOccurredOn() != null && !other.getOccurredOn().isBefore(email.getOccurredOn()))) {
+                interested.add(contactId);
             }
         }
         LocalDateTime started = campaign.getCreatedAt();
@@ -129,7 +136,7 @@ public class ProspectionCampaignService {
         int interviews = opened.stream().mapToInt(project -> project.getSteps().size()).sum();
         List<Long> contacts = Stream.concat(sent.stream().map(email -> email.getContact().getId()),
             waiting.stream().map(email -> email.getContact().getId())).distinct().toList();
-        return new Campaign(campaign.getId(), campaign.getName(), started, sent.size(), waiting.size(), answered.size(), opened.size(), interviews,
-            won, contacts);
+        return new Campaign(campaign.getId(), campaign.getName(), started, sent.size(), waiting.size(), answered.size(), interested.size(),
+            opened.size(), interviews, won, contacts);
     }
 }

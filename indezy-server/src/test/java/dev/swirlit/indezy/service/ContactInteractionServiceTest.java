@@ -95,7 +95,7 @@ class ContactInteractionServiceTest {
             mock(ProjectRepository.class), Clock.systemUTC());
 
         assertThatThrownBy(() -> service.create(1L, new ContactInteractionDto(null, null, null, LocalDate.of(2026, 9, 1), EMAIL,
-            OUTGOING, null, null, null, null, null)))
+            OUTGOING, null, null, null, null, null, null)))
             .isInstanceOf(InvalidStateException.class)
             .hasMessage("A contact keeps at most 500 interactions");
         verify(repository, never()).save(any());

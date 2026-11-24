@@ -56,7 +56,7 @@ To add several at once, open the client's page, click **Import contacts**, paste
 
 1. On a contact's page, under **Exchanges**, click **Record an exchange**.
 2. Enter the **Date** (today at the latest), the **Channel** (**Email**, **Phone**, **LinkedIn**, **Meeting** or **Other**) and the **Direction**: **From me** or **From them**.
-3. For a message from you, set the **Answer**: **Waiting for an answer**, **Answered** or **No answer**. Where Indezy receives the answers to its emails, an email sent from Indezy is marked **Answered** by itself when the contact answers it: the answer is recorded here and forwarded to your mailbox.
+3. For a message from you, set the **Answer**: **Waiting for an answer**, **Answered** or **No answer**. Where Indezy receives the answers to its emails, an email sent from Indezy is marked **Answered** by itself when the contact answers it: the answer is recorded here and forwarded to your mailbox. With the AI, the answer is also sorted: **Interested**, **Not now**, **No need**, **Do not contact** or **Other answer**; a contact who asks not to be contacted is marked **Asked not to be contacted**, so your next prospection leaves them out.
 4. Optionally add a **Summary (optional)** and the opportunity it was about, then save.
 
 The page works out the **Last contact**, the **Response rate** and the **Preferred channel**. A message from you still unanswered after **Follow up after (days)** (5 by default, in **Profile → Preferences**) shows under **Follow-ups due** on the [dashboard](/help/dashboard).

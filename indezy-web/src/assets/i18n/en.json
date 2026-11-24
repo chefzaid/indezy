@@ -984,6 +984,13 @@
         "OUTGOING": "From me",
         "INCOMING": "From them"
       },
+      "replyKinds": {
+        "INTERESTED": "Interested",
+        "NOT_NOW": "Not now",
+        "NO_NEED": "No need",
+        "DO_NOT_CONTACT": "Do not contact",
+        "OTHER": "Other answer"
+      },
       "answers": {
         "WAITING": "Waiting for an answer",
         "ANSWERED": "Answered",
@@ -5512,6 +5519,7 @@
     "againReady": "{{count}} contacts this campaign did not reach are ticked: check the message, then send.",
     "campaigns": "Your campaigns",
     "results": "{{sent}} sent · {{answered}} answered · {{opportunities}} opportunities · {{interviews}} interviews · {{won}} won",
+    "interested": "{{count}} interested",
     "stillWaiting": "{{count}} still to go",
     "edit": "Edit",
     "edited": "Edited",

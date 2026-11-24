@@ -3,6 +3,7 @@ package dev.swirlit.indezy.dto;
 import dev.swirlit.indezy.model.ContactInteraction;
 import dev.swirlit.indezy.model.enums.InteractionChannel;
 import dev.swirlit.indezy.model.enums.InteractionDirection;
+import dev.swirlit.indezy.model.enums.ReplyKind;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -25,7 +26,9 @@ public record ContactInteractionDto(
     @Size(max = ContactInteraction.SUMMARY_MAX) String summary,
     Long projectId,
     String projectRole,
-    SentEmail email) {
+    SentEmail email,
+    /** Read-only: what an answer that came back through Indezy says, as the AI sorted it; null otherwise. */
+    ReplyKind replyKind) {
 
     /** An exchange Indezy sent as an email: when, whether it tracks opening, and when and how often it was seen opened. */
     public record SentEmail(Instant sentAt, boolean tracked, Instant openedAt, int opens) {

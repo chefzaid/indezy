@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Answers sorted by the AI
+
+Where Indezy receives the answers to its emails, the AI now sorts each one: interested, not now, no need or do not contact. A contact who asks not to be contacted is left out of your next prospection, and your campaigns count the interested answers. See [Clients and contacts](/help/clients-contacts).
+
 ### Create your account with an email and a password
 
 Anyone can now create an Indezy account: confirm your email from the link we send, and sign in with your password, or with **Continue with SSO** as before. **Forgot your password?** sends a link to choose a new one. See [Account, security and data](/help/account).

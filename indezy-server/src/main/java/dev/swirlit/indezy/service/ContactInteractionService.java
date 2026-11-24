@@ -287,6 +287,6 @@ public class ContactInteractionService {
             interaction.getSummary(), project == null ? null : project.getId(), project == null ? null : project.getRole(),
             interaction.getEmailSentAt() == null ? null : new ContactInteractionDto.SentEmail(interaction.getEmailSentAt(),
                 interaction.getEmailToken() != null, interaction.getEmailOpenedAt(),
-                interaction.getEmailOpens() == null ? 0 : interaction.getEmailOpens()));
+                interaction.getEmailOpens() == null ? 0 : interaction.getEmailOpens()), interaction.getReplyKind());
     }
 }

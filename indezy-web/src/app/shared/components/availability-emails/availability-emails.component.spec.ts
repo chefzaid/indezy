@@ -275,7 +275,7 @@ describe('AvailabilityEmailsComponent', () => {
   it('starts a campaign for each sending and lists what came of the latest, an email still going when none starts', () => {
     const { fixture, component, contacts, notifications } = create();
     contacts.campaigns.and.returnValue(of([{ id: 3, name: 'Disponible', startedAt: '2026-11-02T08:00:00', sent: 4, waiting: 2, answered: 1,
-      opportunities: 1, won: 0, contactIds: [1] }]));
+      interested: 1, opportunities: 1, won: 0, contactIds: [1] }]));
     component.subject = 'Disponible';
     component.body = 'Bonjour';
     component.toggle(1);
@@ -290,6 +290,7 @@ describe('AvailabilityEmailsComponent', () => {
     expect(campaign.textContent).toContain('Disponible');
     expect(campaign.textContent).toContain('availabilityEmails.results');
     expect(campaign.textContent).toContain('availabilityEmails.stillWaiting');
+    expect(campaign.querySelector('[data-campaign-interested]')!.textContent).toContain('availabilityEmails.interested');
 
     // Prospect again: the contacts it did not reach ticked, its subject back.
     expect(component.newTargets(component.campaigns[0]).map(recipient => recipient.id)).toEqual([2]);

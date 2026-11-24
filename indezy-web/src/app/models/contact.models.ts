@@ -55,7 +55,12 @@ export interface ContactInteraction {
   summary?: string | null;
   /** Read-only: set when Indezy sent the exchange as an email. */
   email?: SentEmail | null;
+  /** Read-only: what an answer that came back through Indezy says, as the AI sorted it. */
+  replyKind?: ReplyKind | null;
 }
+
+/** What an answer says: interested, not now, no need, do not contact, or anything else. */
+export type ReplyKind = 'INTERESTED' | 'NOT_NOW' | 'NO_NEED' | 'DO_NOT_CONTACT' | 'OTHER';
 
 /** An exchange Indezy sent as an email: when, whether it tracks opening, and when and how often it was seen opened. */
 export interface SentEmail {
@@ -94,6 +99,8 @@ export interface ProspectionCampaign {
   sent: number;
   waiting: number;
   answered: number;
+  /** Of those, the answers the AI sorted as interested. */
+  interested?: number;
   opportunities: number;
   /** The interview steps of those opportunities: the calls booked. */
   interviews?: number;

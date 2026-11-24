@@ -2,6 +2,7 @@ package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.InteractionChannel;
 import dev.swirlit.indezy.model.enums.InteractionDirection;
+import dev.swirlit.indezy.model.enums.ReplyKind;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -97,4 +98,9 @@ public class ContactInteraction extends BaseEntity {
     /** The id Resend gave the received email this incoming exchange records, so a webhook delivered twice counts once. */
     @Column(name = "inbound_email_id", length = 64, unique = true)
     private String inboundEmailId;
+
+    /** What this incoming answer says, as the AI sorted it when it came back through Indezy; null otherwise. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reply_kind", length = 20)
+    private ReplyKind replyKind;
 }

@@ -185,6 +185,9 @@ const MEMBER_MISSIONS = 5;
               <span class="name">{{ campaign.name }} · {{ campaign.startedAt | date:'d MMM y' }}</span>
               <span class="results">{{ 'availabilityEmails.results' | translate:{ sent: campaign.sent, answered: campaign.answered,
                 opportunities: campaign.opportunities, interviews: campaign.interviews ?? 0, won: campaign.won } }}
+                @if (campaign.interested) {
+                  · <span data-campaign-interested>{{ 'availabilityEmails.interested' | translate:{ count: campaign.interested } }}</span>
+                }
                 @if (campaign.waiting) {
                   · {{ 'availabilityEmails.stillWaiting' | translate:{ count: campaign.waiting } }}
                 }

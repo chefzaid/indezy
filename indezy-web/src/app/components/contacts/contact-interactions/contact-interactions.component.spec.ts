@@ -91,6 +91,17 @@ describe('ContactInteractionsComponent', () => {
     expect(lines[2]).not.toContain('notOpened');
   });
 
+  it('shows how the AI sorted an answer that came back through Indezy', () => {
+    const answer: ContactInteraction = { id: 12, occurredOn: '2026-11-22', channel: 'EMAIL', direction: 'INCOMING', replied: null,
+      summary: 'Pas de besoin', replyKind: 'DO_NOT_CONTACT' };
+    create(of({ ...history, interactions: [answer, sent] }));
+
+    const pill = element().querySelector('[data-reply-kind="DO_NOT_CONTACT"]');
+    expect(pill).not.toBeNull();
+    expect(pill!.classList).toContain('unanswered');
+    expect(pill!.textContent).toContain('contacts.interactions.replyKinds.DO_NOT_CONTACT');
+  });
+
   it('says when nothing is known yet', () => {
     create(of({ interactions: [], asked: 0, answered: 0 }));
 

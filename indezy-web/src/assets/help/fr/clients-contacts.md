@@ -56,7 +56,7 @@ Pour en ajouter plusieurs d'un coup, ouvrez la page du client, cliquez sur **Imp
 
 1. Sur la page d'un contact, dans **Échanges**, cliquez sur **Noter un échange**.
 2. Indiquez la **Date** (aujourd'hui au plus tard), le **Canal** (**E-mail**, **Téléphone**, **LinkedIn**, **Rendez-vous** ou **Autre**) et le **Sens** : **De ma part** ou **De sa part**.
-3. Pour un message de votre part, précisez la **Réponse** : **En attente de réponse**, **A répondu** ou **Sans réponse**. Quand Indezy reçoit les réponses à ses e-mails, un e-mail envoyé depuis Indezy est marqué **A répondu** de lui-même quand le contact y répond : la réponse est enregistrée ici et transférée dans votre boîte mail.
+3. Pour un message de votre part, précisez la **Réponse** : **En attente de réponse**, **A répondu** ou **Sans réponse**. Quand Indezy reçoit les réponses à ses e-mails, un e-mail envoyé depuis Indezy est marqué **A répondu** de lui-même quand le contact y répond : la réponse est enregistrée ici et transférée dans votre boîte mail. Avec l'IA, la réponse est aussi triée : **Intéressé**, **Pas maintenant**, **Pas de besoin**, **Ne plus contacter** ou **Autre réponse** ; un contact qui demande à ne plus être contacté est marqué **A demandé à ne pas être contacté**, et votre prochaine prospection le laisse de côté.
 4. Ajoutez au besoin un **Résumé (facultatif)** et l'opportunité concernée, puis enregistrez.
 
 La page en déduit le **Dernier contact**, le **Taux de réponse** et le **Canal préféré**. Un message de votre part resté sans réponse au-delà du délai **Relancer après (jours)** (5 par défaut, dans **Profil → Préférences**) apparaît dans les **Relances à faire** du [tableau de bord](/help/dashboard).

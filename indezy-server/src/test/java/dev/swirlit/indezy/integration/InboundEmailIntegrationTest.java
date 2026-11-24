@@ -37,6 +37,12 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
     @MockitoBean
     private ResendMailer mailer;
 
+    @MockitoBean
+    private dev.swirlit.indezy.ai.ReplySortingAiService sorting;
+
+    @MockitoBean
+    private dev.swirlit.indezy.ai.AiService ai;
+
     private org.springframework.http.ResponseEntity<String> deliver(String id, String body, boolean signed) throws Exception {
         long at = Instant.now().getEpochSecond();
         javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
@@ -65,6 +71,9 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(token).hasSize(40).matches("[0-9a-f]+");
         assertThat(sent.getValue().replyTo()).isEqualTo("reply+" + token + "@replies.example");
 
+        // Alice's AI sorts the answer: it asks not to be written to again.
+        when(ai.status(any())).thenReturn(new dev.swirlit.indezy.ai.AiDtos.Status(true, null, false, null, Map.of(), 0, 10, Map.of()));
+        when(sorting.sort(any(), any(), any())).thenReturn(dev.swirlit.indezy.model.enums.ReplyKind.DO_NOT_CONTACT);
         when(mailer.received("in-1")).thenReturn(new ResendMailer.Received("Léa Martin <lea@acme.example>", "Re: Mission Java",
             "Bonjour, oui, appelons-nous jeudi."));
         String body = "{\"type\":\"email.received\",\"created_at\":\"2026-11-24T10:00:00Z\",\"data\":{\"email_id\":\"in-1\"," +
@@ -76,7 +85,9 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
 
         List<Map<String, Object>> exchanges = (List<Map<String, Object>>) call(alice, HttpMethod.GET, "/contacts/" + contact + "/interactions",
             null, Map.class).getBody().get("interactions");
-        assertThat(exchanges).anySatisfy(item -> assertThat(item).containsEntry("direction", "INCOMING").containsEntry("summary", "Re: Mission Java"));
+        assertThat(exchanges).anySatisfy(item -> assertThat(item).containsEntry("direction", "INCOMING").containsEntry("summary", "Re: Mission Java")
+            .containsEntry("replyKind", "DO_NOT_CONTACT"));
+        assertThat(call(alice, HttpMethod.GET, "/contacts/" + contact, null, Map.class).getBody()).containsEntry("doNotContact", true);
         assertThat(exchanges).anySatisfy(item -> assertThat(item).containsEntry("id", (int) exchangeId).containsEntry("replied", true));
         assertThat(exchanges).filteredOn(item -> "INCOMING".equals(item.get("direction"))).hasSize(1);
         ArgumentCaptor<Email> forwarded = ArgumentCaptor.forClass(Email.class);

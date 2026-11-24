@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Les réponses triées par l'IA
+
+Quand Indezy reçoit les réponses à ses e-mails, l'IA trie désormais chacune : intéressé, pas maintenant, pas de besoin ou ne plus contacter. Un contact qui demande à ne plus être contacté est laissé de côté par votre prochaine prospection, et vos campagnes comptent les réponses intéressées. Voir [Clients et contacts](/help/clients-contacts).
+
 ### Créez votre compte avec un e-mail et un mot de passe
 
 Chacun peut désormais créer un compte Indezy : confirmez votre e-mail depuis le lien envoyé, puis connectez-vous avec votre mot de passe, ou avec **Continuer avec SSO** comme avant. **Mot de passe oublié ?** envoie un lien pour en choisir un nouveau. Voir [Compte, sécurité et données](/help/account).

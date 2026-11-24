@@ -120,6 +120,12 @@
                       : interaction.replied === false ? 'UNANSWERED' : 'WAITING') | translate }}
                   </span>
                 }
+                @if (interaction.replyKind) {
+                  <span class="answer-pill" [class.answered]="interaction.replyKind === 'INTERESTED'"
+                    [class.unanswered]="interaction.replyKind === 'DO_NOT_CONTACT'" [attr.data-reply-kind]="interaction.replyKind">
+                    {{ 'contacts.interactions.replyKinds.' + interaction.replyKind | translate }}
+                  </span>
+                }
               </div>
               @if (interaction.projectId) {
                 <a class="interaction-project" [routerLink]="['/projects', interaction.projectId]">

@@ -984,6 +984,13 @@
         "OUTGOING": "De ma part",
         "INCOMING": "De sa part"
       },
+      "replyKinds": {
+        "INTERESTED": "Intéressé",
+        "NOT_NOW": "Pas maintenant",
+        "NO_NEED": "Pas de besoin",
+        "DO_NOT_CONTACT": "Ne plus contacter",
+        "OTHER": "Autre réponse"
+      },
       "answers": {
         "WAITING": "En attente de réponse",
         "ANSWERED": "A répondu",
@@ -5512,6 +5519,7 @@
     "againReady": "{{count}} contacts que cette campagne n'a pas touchés sont cochés : relisez le message, puis envoyez.",
     "campaigns": "Vos campagnes",
     "results": "{{sent}} envoyés · {{answered}} réponses · {{opportunities}} opportunités · {{interviews}} entretiens · {{won}} gagnées",
+    "interested": "{{count}} intéressé(s)",
     "stillWaiting": "{{count}} encore à partir",
     "edit": "Modifier",
     "edited": "Modifié",

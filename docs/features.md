@@ -1028,8 +1028,12 @@ secret, within five minutes; anything else answers 401); for an `email.received`
 the email it answers is marked **Answered**, the answer is recorded as an incoming email exchange of the contact with its
 subject (its Resend id, `inbound_email_id`, so a webhook delivered twice counts once), which stops a planned reminder and
 counts as an answer in the campaigns' results, and the answer's text (read through `GET /emails/receiving/{id}`) is
-forwarded to the freelancer from "<contact> via Indezy", replying to it writing to the contact directly. Without the
-reply domain, answers go straight to the freelancer and **Answered** is set by hand.
+forwarded to the freelancer from "<contact> via Indezy", replying to it writing to the contact directly. When the AI is available to the freelancer, the answer is also sorted
+(`ReplySortingAiService`, on the triage allowance): **Interested**, **Not now**, **No need**, **Do not contact** or
+**Other answer**, shown on the exchange (`reply_kind`); a **Do not contact** answer ticks the contact's **Asked not to be
+contacted**, so later prospection leaves them out, and the campaigns' results count the interested answers. Without the
+AI the answer is recorded unsorted. Without the reply domain, answers go straight to the freelancer and **Answered** is
+set by hand.
 
 ## Calendar
 
