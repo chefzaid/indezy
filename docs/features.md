@@ -1030,8 +1030,13 @@ subject (its Resend id, `inbound_email_id`, so a webhook delivered twice counts 
 counts as an answer in the campaigns' results, and the answer's text (read through `GET /emails/receiving/{id}`) is
 forwarded to the freelancer from "<contact> via Indezy", replying to it writing to the contact directly. When the AI is available to the freelancer, the answer is also sorted
 (`ReplySortingAiService`, on the triage allowance): **Interested**, **Not now**, **No need**, **Do not contact** or
-**Other answer**, shown on the exchange (`reply_kind`); a **Do not contact** answer ticks the contact's **Asked not to be
-contacted**, so later prospection leaves them out, and the campaigns' results count the interested answers. Without the
+**Other answer**, shown on the exchange (`reply_kind`), and acted on (`AnswerFollowThroughService`): an **Interested**
+answer to an email about no opportunity opens one at Contact with the contact's company (its role the subject without
+"Re:", its rate the target daily rate), the email and its answer in its journal; a **Not now** answer sets the day to
+write back (`write_back_on`: the date it gave, read by the AI within two years, else three months later), the contact
+coming back in the follow-ups due on that day (**Asked to be written back on…**) unless an exchange followed; a **Do
+not contact** answer ticks the contact's **Asked not to be contacted**, so later prospection leaves them out. The
+campaigns' results count the interested answers. Without the
 AI the answer is recorded unsorted. Without the reply domain, answers go straight to the freelancer and **Answered** is
 set by hand.
 

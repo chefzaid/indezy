@@ -28,7 +28,9 @@ public record ContactInteractionDto(
     String projectRole,
     SentEmail email,
     /** Read-only: what an answer that came back through Indezy says, as the AI sorted it; null otherwise. */
-    ReplyKind replyKind) {
+    ReplyKind replyKind,
+    /** Read-only: for a "not now" answer, the day it said to write back, when the follow-up comes due. */
+    LocalDate writeBackOn) {
 
     /** An exchange Indezy sent as an email: when, whether it tracks opening, and when and how often it was seen opened. */
     public record SentEmail(Instant sentAt, boolean tracked, Instant openedAt, int opens) {

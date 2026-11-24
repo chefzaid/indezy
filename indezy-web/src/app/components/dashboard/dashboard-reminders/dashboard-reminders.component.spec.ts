@@ -269,6 +269,15 @@ describe('DashboardRemindersComponent', () => {
     expect(usual[0].textContent).toContain('dashboard.charts.usualAnswer');
   });
 
+  it('tells a contact who answered not now is to be written back on the day they gave', () => {
+    const element = render({ followUpsDue: [{ contactId: 6, name: 'Paul', channel: 'EMAIL', sentOn: '2026-09-28', daysWaiting: 57,
+      writeBackOn: '2026-11-24' }, { contactId: 7, name: 'Zoé', channel: 'EMAIL', sentOn: '2026-09-20', daysWaiting: 9 }] });
+    const writeBack = element.querySelectorAll('[data-write-back]');
+    expect(writeBack.length).toBe(1);
+    expect(writeBack[0].textContent).toContain('dashboard.charts.writeBack');
+    expect(element.textContent).toContain('dashboard.charts.waitingSince');
+  });
+
   it('drafts the follow-up of a message about an opportunity', () => {
     const element = render({ followUpsDue: [{ contactId: 6, name: 'Paul', channel: 'EMAIL', sentOn: '2026-09-28', daysWaiting: 5, projectId: 42 },
       { contactId: 7, name: 'Zoé', channel: 'EMAIL', sentOn: '2026-09-20', daysWaiting: 9 }] });

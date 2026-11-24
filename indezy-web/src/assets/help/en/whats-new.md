@@ -4,7 +4,7 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ### Answers sorted by the AI
 
-Where Indezy receives the answers to its emails, the AI now sorts each one: interested, not now, no need or do not contact. A contact who asks not to be contacted is left out of your next prospection, and your campaigns count the interested answers. See [Clients and contacts](/help/clients-contacts).
+Where Indezy receives the answers to its emails, the AI now sorts each one: interested, not now, no need or do not contact. An interested answer opens an opportunity, a "not now" comes back in your follow-ups on the day it gave, a contact who asks not to be contacted is left out of your next prospection, and your campaigns count the interested answers. See [Clients and contacts](/help/clients-contacts).
 
 ### Create your account with an email and a password
 

@@ -100,6 +100,15 @@ describe('ContactInteractionsComponent', () => {
     expect(pill).not.toBeNull();
     expect(pill!.classList).toContain('unanswered');
     expect(pill!.textContent).toContain('contacts.interactions.replyKinds.DO_NOT_CONTACT');
+    expect(element().querySelector('[data-write-back-on]')).toBeNull();
+  });
+
+  it('shows the day a not now answer said to write back', () => {
+    const answer: ContactInteraction = { id: 13, occurredOn: '2026-11-22', channel: 'EMAIL', direction: 'INCOMING', replied: null,
+      summary: 'Pas maintenant', replyKind: 'NOT_NOW', writeBackOn: '2027-03-01' };
+    create(of({ ...history, interactions: [answer, sent] }));
+
+    expect(element().querySelector('[data-write-back-on]')!.textContent).toContain('contacts.interactions.writeBackOn');
   });
 
   it('says when nothing is known yet', () => {

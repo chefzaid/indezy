@@ -257,7 +257,11 @@
             <span class="primary">{{ due.name }}</span>
             <span class="secondary">{{ due.clientName }}</span>
             <span class="meta">
-              {{ 'dashboard.charts.waitingSince' | translate:{ days: due.daysWaiting, channel: ('contacts.interactions.channels.' + due.channel | translate) } }}
+              @if (due.writeBackOn) {
+                <span data-write-back>{{ 'dashboard.charts.writeBack' | translate:{ date: (due.writeBackOn | date:'mediumDate') } }}</span>
+              } @else {
+                {{ 'dashboard.charts.waitingSince' | translate:{ days: due.daysWaiting, channel: ('contacts.interactions.channels.' + due.channel | translate) } }}
+              }
               @if (due.usualAnswerDays !== null && due.usualAnswerDays !== undefined) {
                 <span class="usual" data-usual-answer>· {{ 'dashboard.charts.usualAnswer' | translate:{ days: due.usualAnswerDays } }}</span>
               }

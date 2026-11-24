@@ -95,7 +95,8 @@ public class ContactInteractionService {
     /**
      * The contacts of workspace {@code freelanceId} whose latest exchange is a message the freelancer sent, still
      * waiting for an answer {@code followUpDays} days or more on {@code today} (two days past their company's usual answer
-     * time once known, see {@link #usualAnswerDays(Long)}), longest waiting first.
+     * time once known, see {@link #usualAnswerDays(Long)}), longest waiting first; and those whose latest exchange is a
+     * "not now" answer whose day to write back has come ({@code writeBackOn}).
      */
     @Transactional(readOnly = true)
     public List<DashboardStatsDto.FollowUpDue> followUpsDue(Long freelanceId, int followUpDays, LocalDate today) {
@@ -105,7 +106,7 @@ public class ContactInteractionService {
         // Newest first within each contact: the first one seen is its latest.
         all.forEach(interaction -> latest.putIfAbsent(interaction.getContact().getId(), interaction));
         return latest.values().stream()
-            .filter(interaction -> interaction.getDirection() == InteractionDirection.OUTGOING && interaction.getReplied() == null)
+            .filter(interaction -> waiting(interaction) || writeBackDue(interaction, today))
             .map(interaction -> DashboardStatsDto.FollowUpDue.builder()
                 .contactId(interaction.getContact().getId())
                 .name(interaction.getContact().getFullName())
@@ -115,11 +116,22 @@ public class ContactInteractionService {
                 .daysWaiting(ChronoUnit.DAYS.between(interaction.getOccurredOn(), today))
                 .usualAnswerDays(interaction.getContact().getClient() == null ? null : usual.get(interaction.getContact().getClient().getId()))
                 .projectId(interaction.getProject() == null ? null : interaction.getProject().getId())
+                .writeBackOn(interaction.getWriteBackOn())
                 .build())
             // Timed from the company's usual answer time when known: two days' grace after it, else the workspace's delay.
-            .filter(due -> due.getDaysWaiting() >= (due.getUsualAnswerDays() == null ? followUpDays : due.getUsualAnswerDays() + ANSWER_GRACE_DAYS))
+            .filter(due -> due.getWriteBackOn() != null ||
+                due.getDaysWaiting() >= (due.getUsualAnswerDays() == null ? followUpDays : due.getUsualAnswerDays() + ANSWER_GRACE_DAYS))
             .sorted(Comparator.comparingLong(DashboardStatsDto.FollowUpDue::getDaysWaiting).reversed())
             .toList();
+    }
+
+    private static boolean waiting(ContactInteraction interaction) {
+        return interaction.getDirection() == InteractionDirection.OUTGOING && interaction.getReplied() == null;
+    }
+
+    private static boolean writeBackDue(ContactInteraction interaction, LocalDate today) {
+        return interaction.getDirection() == InteractionDirection.INCOMING && interaction.getWriteBackOn() != null &&
+            !interaction.getWriteBackOn().isAfter(today);
     }
 
     /** Stages to update on the workspace's open opportunities, from what their contacts recently said. */
@@ -287,6 +299,7 @@ public class ContactInteractionService {
             interaction.getSummary(), project == null ? null : project.getId(), project == null ? null : project.getRole(),
             interaction.getEmailSentAt() == null ? null : new ContactInteractionDto.SentEmail(interaction.getEmailSentAt(),
                 interaction.getEmailToken() != null, interaction.getEmailOpenedAt(),
-                interaction.getEmailOpens() == null ? 0 : interaction.getEmailOpens()), interaction.getReplyKind());
+                interaction.getEmailOpens() == null ? 0 : interaction.getEmailOpens()), interaction.getReplyKind(),
+            interaction.getWriteBackOn());
     }
 }

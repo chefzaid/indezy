@@ -316,6 +316,8 @@ public class DashboardStatsDto {
         private Integer usualAnswerDays;
         /** The opportunity the message waiting for an answer was about, to draft the follow-up from; null when none. */
         private Long projectId;
+        /** Set when the contact answered "not now": the day they said to write back, come; then sentOn is that answer's day. */
+        private LocalDate writeBackOn;
     }
 
     /**

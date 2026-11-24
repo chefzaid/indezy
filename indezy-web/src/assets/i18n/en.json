@@ -254,6 +254,7 @@
       "idleForDays": "idle for {{days}} days",
       "upcomingInterviews": "Interviews this week",
       "followUpsDue": "Follow-ups due",
+      "writeBack": "Asked to be written back on {{date}}",
       "waitingSince": "{{channel}} sent {{days}} days ago, no answer",
       "overdueInvoices": "Overdue invoices",
       "daysLate": "{{days}} days late",
@@ -984,6 +985,7 @@
         "OUTGOING": "From me",
         "INCOMING": "From them"
       },
+      "writeBackOn": "Write back on {{date}}",
       "replyKinds": {
         "INTERESTED": "Interested",
         "NOT_NOW": "Not now",

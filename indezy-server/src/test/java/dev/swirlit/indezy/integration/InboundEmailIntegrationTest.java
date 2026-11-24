@@ -73,7 +73,8 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
 
         // Alice's AI sorts the answer: it asks not to be written to again.
         when(ai.status(any())).thenReturn(new dev.swirlit.indezy.ai.AiDtos.Status(true, null, false, null, Map.of(), 0, 10, Map.of()));
-        when(sorting.sort(any(), any(), any())).thenReturn(dev.swirlit.indezy.model.enums.ReplyKind.DO_NOT_CONTACT);
+        when(sorting.sort(any(), any(), any(), any())).thenReturn(new dev.swirlit.indezy.ai.ReplySortingAiService.Sort(
+            dev.swirlit.indezy.model.enums.ReplyKind.DO_NOT_CONTACT, null));
         when(mailer.received("in-1")).thenReturn(new ResendMailer.Received("Léa Martin <lea@acme.example>", "Re: Mission Java",
             "Bonjour, oui, appelons-nous jeudi."));
         String body = "{\"type\":\"email.received\",\"created_at\":\"2026-11-24T10:00:00Z\",\"data\":{\"email_id\":\"in-1\"," +
@@ -101,5 +102,55 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
         String other = body.replace("in-1", "in-2").replace(token, "0".repeat(40));
         assertThat(deliver("msg_2", other, true).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         verify(mailer, times(2)).send(any());
+    }
+
+    /** Sends Alice's email to a new contact of her client and answers it through the webhook, sorted as {@code sort}. */
+    @SuppressWarnings("unchecked")
+    private long answered(String email, String emailId, dev.swirlit.indezy.ai.ReplySortingAiService.Sort sort) throws Exception {
+        long contact = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Marc", "lastName", "Durand", "email",
+            email, "clientId", aliceClientId), Map.class));
+        when(mailer.configured()).thenReturn(true);
+        when(mailer.send(any())).thenReturn("e-" + emailId);
+        long exchangeId = ((Number) call(alice, HttpMethod.POST, "/contacts/" + contact + "/emails", Map.of("subject", "Disponible en janvier",
+            "body", "Bonjour Marc,", "language", "FR"), Map.class).getBody().get("id")).longValue();
+        String token = jdbcTemplate.queryForObject("SELECT reply_token FROM contact_interactions WHERE id = ?", String.class, exchangeId);
+        when(ai.status(any())).thenReturn(new dev.swirlit.indezy.ai.AiDtos.Status(true, null, false, null, Map.of(), 0, 10, Map.of()));
+        when(sorting.sort(any(), any(), any(), any())).thenReturn(sort);
+        when(mailer.received(emailId)).thenReturn(new ResendMailer.Received(email, "RE: Disponible en janvier", "Bonjour."));
+        String body = "{\"type\":\"email.received\",\"data\":{\"email_id\":\"" + emailId + "\",\"from\":\"" + email +
+            "\",\"to\":[\"reply+" + token + "@replies.example\"],\"subject\":\"RE: Disponible en janvier\"}}";
+        assertThat(deliver("msg_" + emailId, body, true).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        return contact;
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void anInterestedAnswerOpensAnOpportunityWithBothEmailsInItsJournal() throws Exception {
+        jdbcTemplate.update("UPDATE users SET target_daily_rate = 650 WHERE email = ?", aliceEmail);
+        long contact = answered("marc@acme.example", "in-10",
+            new dev.swirlit.indezy.ai.ReplySortingAiService.Sort(dev.swirlit.indezy.model.enums.ReplyKind.INTERESTED, null));
+
+        List<Map<String, Object>> exchanges = (List<Map<String, Object>>) call(alice, HttpMethod.GET, "/contacts/" + contact + "/interactions",
+            null, Map.class).getBody().get("interactions");
+        assertThat(exchanges).hasSize(2).allSatisfy(item -> assertThat(item).containsEntry("projectRole", "Disponible en janvier"));
+        Number projectId = (Number) exchanges.getFirst().get("projectId");
+        Map<String, Object> project = call(alice, HttpMethod.GET, "/projects/" + projectId, null, Map.class).getBody();
+        assertThat(project).containsEntry("status", "CONTACT").containsEntry("dailyRate", 650)
+            .containsEntry("clientId", aliceClientId.intValue());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void aNotNowAnswerComesDueOnTheDayItGave() throws Exception {
+        java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Paris"));
+        long contact = answered("paul@acme.example", "in-20",
+            new dev.swirlit.indezy.ai.ReplySortingAiService.Sort(dev.swirlit.indezy.model.enums.ReplyKind.NOT_NOW, today));
+
+        List<Map<String, Object>> due = (List<Map<String, Object>>) call(alice, HttpMethod.GET, "/projects/stats/dashboard/" + alice.freelanceId(),
+            null, Map.class).getBody().get("followUpsDue");
+        assertThat(due).anySatisfy(item -> assertThat(item).containsEntry("contactId", (int) contact)
+            .containsEntry("writeBackOn", today.toString()));
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM projects WHERE freelance_id = ?", Long.class, alice.freelanceId()))
+            .isZero();
     }
 }

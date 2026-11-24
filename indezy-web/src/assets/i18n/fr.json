@@ -254,6 +254,7 @@
       "idleForDays": "inactive depuis {{days}} jours",
       "upcomingInterviews": "Entretiens de la semaine",
       "followUpsDue": "Relances à faire",
+      "writeBack": "A demandé à être recontacté le {{date}}",
       "waitingSince": "{{channel}} envoyé il y a {{days}} jours, sans réponse",
       "overdueInvoices": "Factures en retard de paiement",
       "daysLate": "en retard de {{days}} jours",
@@ -984,6 +985,7 @@
         "OUTGOING": "De ma part",
         "INCOMING": "De sa part"
       },
+      "writeBackOn": "Recontacter le {{date}}",
       "replyKinds": {
         "INTERESTED": "Intéressé",
         "NOT_NOW": "Pas maintenant",

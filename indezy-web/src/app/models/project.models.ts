@@ -357,6 +357,8 @@ export interface FollowUpDue {
   usualAnswerDays?: number | null;
   /** The opportunity the waiting message was about, to draft the follow-up from. */
   projectId?: number | null;
+  /** Set when the contact answered "not now": the day they said to write back, come; sentOn is then that answer's day. */
+  writeBackOn?: string | null;
 }
 
 export interface DormantContact {

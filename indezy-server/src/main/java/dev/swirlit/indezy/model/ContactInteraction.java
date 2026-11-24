@@ -103,4 +103,11 @@ public class ContactInteraction extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "reply_kind", length = 20)
     private ReplyKind replyKind;
+
+    /**
+     * For a "not now" answer: the day to write back, the date it gave or three months later; the contact's follow-up
+     * comes due then, unless an exchange followed it.
+     */
+    @Column(name = "write_back_on")
+    private LocalDate writeBackOn;
 }

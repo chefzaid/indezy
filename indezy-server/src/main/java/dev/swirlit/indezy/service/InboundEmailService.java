@@ -1,7 +1,5 @@
 package dev.swirlit.indezy.service;
 
-import dev.swirlit.indezy.ai.AiService;
-import dev.swirlit.indezy.ai.ReplySortingAiService;
 import dev.swirlit.indezy.mail.MailException;
 import dev.swirlit.indezy.mail.MailProperties;
 import dev.swirlit.indezy.mail.ReplyForwardComposer;
@@ -12,7 +10,6 @@ import dev.swirlit.indezy.model.ContactInteraction;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.InteractionChannel;
 import dev.swirlit.indezy.model.enums.InteractionDirection;
-import dev.swirlit.indezy.model.enums.ReplyKind;
 import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -55,14 +52,12 @@ public class InboundEmailService {
     private final UserRepository users;
     private final Clock clock;
 
-    private ReplySortingAiService sorting;
-    private AiService ai;
+    private AnswerFollowThroughService followThrough;
 
-    /** The AI that sorts the answers; without it, they stay unsorted. */
+    /** What sorts the answers with the AI and acts on them; without it, they stay unsorted. */
     @Autowired(required = false)
-    void setSorting(ReplySortingAiService replySorting, AiService aiService) {
-        this.sorting = replySorting;
-        this.ai = aiService;
+    void setFollowThrough(AnswerFollowThroughService answerFollowThrough) {
+        this.followThrough = answerFollowThrough;
     }
 
     /** What came of a webhook: refused (bad signature), ignored (not an answer to an email of Indezy), or recorded. */
@@ -110,7 +105,10 @@ public class InboundEmailService {
         String subject = received.subject().isBlank() ? original.getSummary() : received.subject().strip();
         answer.setSummary(subject.length() > ContactInteraction.SUMMARY_MAX ? subject.substring(0, ContactInteraction.SUMMARY_MAX) : subject);
         answer.setInboundEmailId(emailId);
-        sort(answer, contact, subject, received.text());
+        AnswerFollowThroughService sorter = followThrough;
+        if (sorter != null) {
+            sorter.followThrough(answer, original, subject, received.text(), answer.getOccurredOn());
+        }
         interactions.save(answer);
         String freelancer = contact.getFreelance() == null ? null : contact.getFreelance().getEmail();
         if (freelancer != null && !freelancer.isBlank()) {
@@ -126,32 +124,6 @@ public class InboundEmailService {
             }
         }
         return Outcome.RECORDED;
-    }
-
-    /**
-     * Sorts the answer with the member's AI when it is available (interested, not now, no need, do not contact); one
-     * asking not to be written to again marks the contact so at once. Without AI, or failing, it stays unsorted.
-     */
-    private void sort(ContactInteraction answer, Contact contact, String subject, String text) {
-        ReplySortingAiService sorter = sorting;
-        AiService assistant = ai;
-        if (sorter == null || assistant == null || contact.getFreelance() == null ||
-                contact.getFreelance().getEmail() == null) {
-            return;
-        }
-        users.findByEmail(contact.getFreelance().getEmail()).ifPresent(user -> {
-            try {
-                if (!assistant.status(user.getId()).available()) {
-                    return;
-                }
-                answer.setReplyKind(sorter.sort(user.getId(), subject, text));
-                if (answer.getReplyKind() == ReplyKind.DO_NOT_CONTACT) {
-                    contact.setDoNotContact(true);
-                }
-            } catch (RuntimeException e) {
-                log.warn("The answer of contact {} could not be sorted: {}", contact.getId(), e.getMessage());
-            }
-        });
     }
 
     /** "reply+…@replies.swirlit.dev" from "Name <reply+…@Replies.swirlit.dev>", in lower case. */

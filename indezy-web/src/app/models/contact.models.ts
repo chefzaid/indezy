@@ -57,6 +57,8 @@ export interface ContactInteraction {
   email?: SentEmail | null;
   /** Read-only: what an answer that came back through Indezy says, as the AI sorted it. */
   replyKind?: ReplyKind | null;
+  /** Read-only: for a "not now" answer, the day it said to write back, when the follow-up comes due. */
+  writeBackOn?: string | null;
 }
 
 /** What an answer says: interested, not now, no need, do not contact, or anything else. */

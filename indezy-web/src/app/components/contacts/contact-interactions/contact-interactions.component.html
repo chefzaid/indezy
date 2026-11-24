@@ -126,6 +126,11 @@
                     {{ 'contacts.interactions.replyKinds.' + interaction.replyKind | translate }}
                   </span>
                 }
+                @if (interaction.writeBackOn) {
+                  <span class="answer-pill" data-write-back-on>
+                    {{ 'contacts.interactions.writeBackOn' | translate:{ date: (interaction.writeBackOn | date:'mediumDate') } }}
+                  </span>
+                }
               </div>
               @if (interaction.projectId) {
                 <a class="interaction-project" [routerLink]="['/projects', interaction.projectId]">
