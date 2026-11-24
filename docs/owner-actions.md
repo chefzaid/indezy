@@ -99,9 +99,8 @@ zones; the ESN scorecard names ESNs backed by 5 freelancers or more, with an opt
 and the opt-in daily autopilot are to be built; the Keycloak realm sends from `noreply@swirlit.dev`; visitors write to
 `contact@swirlit.dev`. Still yours:
 
-- **Reply detection:** once built, add the `replies.swirlit.dev` MX record to Resend's inbound service and its webhook
-  signing secret in Vault (the steps will follow here).
+- **Reply detection:** built on 2026-11-24 and off until set up: the receiving domain, its MX record, the `email.received`
+  webhook and its secret in Vault, as [Deployment](./deployment.md#reply-detection) gives.
 - **`contact@swirlit.dev`:** make sure it reaches a mailbox you read.
 - **Publisher's details** for the legal notice: to give in a few months (around 2027-03).
 - **Indezy's own sign-in:** an Indezy Keycloak realm with self-registration, or local accounts in Indezy with the platform's SSO beside them (TODO.md, Needs Input).
-- **Reply detection:** this coding environment cannot read Resend's documentation (resend.com is not reachable); allow that host for the coding sessions, or give the inbound webhook's event format, so the reply address can be built.

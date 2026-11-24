@@ -86,4 +86,15 @@ public class ContactInteraction extends BaseEntity {
     /** How many times the tracked email was seen opened. */
     @Column(name = "email_opens")
     private Integer emailOpens;
+
+    /**
+     * The secret of the reply address an email sent from Indezy carries ({@code reply+<token>@<reply domain>}), 160 bits
+     * in lower-case hex, unique; null when replies go straight to the freelancer.
+     */
+    @Column(name = "reply_token", length = 40, unique = true)
+    private String replyToken;
+
+    /** The id Resend gave the received email this incoming exchange records, so a webhook delivered twice counts once. */
+    @Column(name = "inbound_email_id", length = 64, unique = true)
+    private String inboundEmailId;
 }

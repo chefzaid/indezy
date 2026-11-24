@@ -125,6 +125,14 @@ public class ContactEmailService {
 
     private JobOfferRepository offers;
 
+    private dev.swirlit.indezy.mail.MailProperties mailProperties;
+
+    /** Where answers come back to; without it, they go straight to the freelancer. */
+    @Autowired(required = false)
+    void setMailProperties(dev.swirlit.indezy.mail.MailProperties properties) {
+        this.mailProperties = properties;
+    }
+
     /** The feed's offers, to find the companies posting missions for the profile; without them, none is. */
     @Autowired(required = false)
     void setOffers(JobOfferRepository repository) {
@@ -344,6 +352,9 @@ public class ContactEmailService {
         interaction.setEmailOpens(0);
         interaction.setCampaignId(message.campaignId());
         interaction.setObjectionToken(message.campaignId() == null ? null : token());
+        // Answers come back through Indezy when a reply address is set up: the exchange is marked answered, the answer forwarded.
+        boolean replies = mailProperties != null && mailProperties.replies();
+        interaction.setReplyToken(replies ? replyToken() : null);
         interactions.save(interaction);
 
         String sender = Stream.of(freelance.getFirstName(), freelance.getLastName()).filter(Objects::nonNull).map(String::strip)
@@ -351,8 +362,9 @@ public class ContactEmailService {
         String name = sender.isEmpty() ? "Indezy" : sender;
         DocumentLanguage language = message.language() == null ? DocumentLanguage.FR : message.language();
         String key = "contact-email-" + UUID.randomUUID();
+        String replyTo = replies ? "reply+" + interaction.getReplyToken() + "@" + mailProperties.replyDomain().strip() : freelance.getEmail();
         Email email = composer.compose(contact.getEmail().strip(), subject, message.body(), new ContactEmailComposer.Sender(name,
-            freelance.getEmail()), language, new ContactEmailComposer.Delivery(interaction.getEmailToken(), key, interaction.getObjectionToken()));
+            replyTo), language, new ContactEmailComposer.Delivery(interaction.getEmailToken(), key, interaction.getObjectionToken()));
         if (message.dossier() && userId != null) {
             // Focused on the skills their company asked for in the missions it posted lately, when it posted any.
             ActivityReportService.PdfFile dossier = dossiers.render(DossierService.focused(dossiers.dossier(userId, freelanceId,
@@ -441,6 +453,13 @@ public class ContactEmailService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    /** 160 random bits in lower-case hex: a reply address's local part stays under 64 characters and survives lower-casing. */
+    private static String replyToken() {
+        byte[] bytes = new byte[20];
+        RANDOM.nextBytes(bytes);
+        return java.util.HexFormat.of().formatHex(bytes);
     }
 
     private static String token() {

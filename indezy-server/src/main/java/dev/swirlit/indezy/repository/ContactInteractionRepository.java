@@ -48,6 +48,10 @@ public interface ContactInteractionRepository extends JpaRepository<ContactInter
 
     Optional<ContactInteraction> findByObjectionToken(String objectionToken);
 
+    Optional<ContactInteraction> findByReplyToken(String replyToken);
+
+    boolean existsByInboundEmailId(String inboundEmailId);
+
     long countByContactFreelanceIdAndOccurredOnBetween(Long freelanceId, LocalDate from, LocalDate to);
 
     @Query("SELECT i.contact.id AS contactId, MAX(i.occurredOn) AS lastOn FROM ContactInteraction i " +

@@ -91,6 +91,23 @@ search dialog says emails are not set up.
 Resend accepting an email means accepted for delivery, not delivered; its logs show bounces. Each email carries an
 idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 hours sends it once.
 
+## Reply detection
+
+Answers to the emails members send from Indezy come back through a reply subdomain once these are set
+(`indezy-server-config` ConfigMap or the deployment's environment, and a secret):
+
+1. In Resend, on the domain `replies.swirlit.dev` (add and verify it as for `swirlit.dev`), turn **Receiving** on and add
+   the MX record it shows to the DNS zone.
+2. In Resend → Webhooks, add a webhook for the `email.received` event to `https://indezy.swirlit.dev/api/public/emails/inbound`
+   and copy its signing secret (`whsec_…`).
+3. If the relay's key is restricted to sending, create a second Resend key allowed to read received emails.
+4. Store in Vault (KV v2) at `secret/apps/indezy/inbound`: `signing_secret`, and `api_key` for the key of step 3 (empty to
+   use the sending key); add an `indezy-inbound` ExternalSecret mapping them to `INDEZY_MAIL_INBOUND_SECRET` and
+   `INDEZY_MAIL_INBOUND_API_KEY` (as the `indezy-ai` one below, created only once the Vault entry exists), set
+   `INDEZY_MAIL_REPLY_DOMAIN=replies.swirlit.dev`, and restart the server.
+
+Until the domain and the secret are both set, answers go straight to the member, as before.
+
 ## AI key
 
 The owner's steps are in [Owner Actions](./owner-actions.md#1-turn-on-the-ai-features-anthropic-key).

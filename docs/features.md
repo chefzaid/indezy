@@ -1008,8 +1008,18 @@ each recorded in the contact's exchanges and counted in the 50 a day; those that
 address holds a 256-bit random token (`GET /api/public/emails/{token}.gif`, the same image whatever the token) and says
 at the email's foot that the sender is told when it is opened. The exchange then shows **Opened N×, first on…** or **Not
 opened yet**. Fetches within 30 seconds of sending (mailbox scanners) and after 30 days count nothing; mail apps that
-fetch images on delivery or never make it a hint. Up to 50 emails a workspace go in 24 hours. Answers are not detected
-yet: they reach the freelancer's mailbox, and **Answered** is set by hand (see TODO.md's **Needs Input**).
+fetch images on delivery or never make it a hint. Up to 50 emails a workspace go in 24 hours.
+
+Answers come back through Indezy once a reply domain is set up ([Deployment](./deployment.md#reply-detection)): each email
+then carries the reply address `reply+<token>@<reply domain>` (160 random bits in hex, `reply_token`) instead of the
+freelancer's own. Resend receives the answer and calls `POST /api/public/emails/inbound` (`InboundEmailService`), signed
+(Svix headers `svix-id`, `svix-timestamp`, `svix-signature`: an HMAC-SHA256 of id, timestamp and body with the webhook's
+secret, within five minutes; anything else answers 401); for an `email.received` event to a reply address of the domain,
+the email it answers is marked **Answered**, the answer is recorded as an incoming email exchange of the contact with its
+subject (its Resend id, `inbound_email_id`, so a webhook delivered twice counts once), which stops a planned reminder and
+counts as an answer in the campaigns' results, and the answer's text (read through `GET /emails/receiving/{id}`) is
+forwarded to the freelancer from "<contact> via Indezy", replying to it writing to the contact directly. Without the
+reply domain, answers go straight to the freelancer and **Answered** is set by hand.
 
 ## Calendar
 

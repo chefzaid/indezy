@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.ContactEmailScheduleService;
 import dev.swirlit.indezy.service.ContactEmailService;
+import dev.swirlit.indezy.service.InboundEmailService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Base64;
@@ -44,6 +46,7 @@ public class ContactEmailController {
     private final ContactEmailScheduleService schedule;
     private final dev.swirlit.indezy.service.ProspectionCampaignService campaigns;
     private final AccessGuard accessGuard;
+    private final InboundEmailService inbound;
 
     /** An email to a contact. */
     public record SendRequest(Long projectId, @NotBlank @Size(max = ContactEmailService.SUBJECT_MAX) String subject,
@@ -163,6 +166,18 @@ public class ContactEmailController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancel(@PathVariable Long id) {
         schedule.cancel(accessGuard.requireWorkspace(null), id);
+    }
+
+    @Operation(summary = "Resend's webhook for an answer to an email sent from Indezy",
+        description = "Signed by Resend (Svix headers); an answer to a reply address marks the email answered and is forwarded to the member")
+    @PostMapping(value = "/public/emails/inbound", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> inbound(@RequestHeader(value = "svix-id", required = false) String id,
+            @RequestHeader(value = "svix-timestamp", required = false) String timestamp,
+            @RequestHeader(value = "svix-signature", required = false) String signature,
+            @RequestBody String body) throws InterruptedException {
+        InboundEmailService.Outcome outcome = inbound.receive(new InboundEmailService.Delivery(id, timestamp, signature, body));
+        return outcome == InboundEmailService.Outcome.REFUSED ? ResponseEntity.status(HttpStatus.UNAUTHORIZED).build() :
+            ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "The page of a prospecting email's objection link, asking to confirm", description = "Changes nothing by itself")

@@ -88,6 +88,43 @@ public class ResendMailer {
         return id;
     }
 
+    /**
+     * A received email's text, for an answer that came back to a reply address: its sender as the {@code From:} header
+     * gives it, its subject, and its text (the plain part, else the HTML part without its tags).
+     */
+    public record Received(String from, String subject, String text) {
+    }
+
+    /** Reads the received email {@code emailId} ({@code GET /emails/receiving/{id}}). */
+    public Received received(String emailId) throws InterruptedException {
+        if (!configured() || emailId == null || !emailId.matches("[A-Za-z0-9-]{1,64}")) {
+            throw new MailException("No received email to read");
+        }
+        HttpRequest request = HttpRequest.newBuilder(URI.create(properties.resendUrl() + "/emails/receiving/" + emailId))
+            .timeout(REQUEST_TIMEOUT)
+            .header("Authorization", "Bearer " + properties.readingKey())
+            .GET()
+            .build();
+        HttpResponse<String> response;
+        try {
+            response = http.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new MailException("Resend could not be reached: " + e.getMessage(), e);
+        }
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new MailException("Resend answered " + response.statusCode() + ": " + errorName(response.body()));
+        }
+        JsonNode email = JSON.readTree(response.body());
+        String text = email.path("text").asString("");
+        if (text.isBlank()) {
+            text = email.path("html").asString("").replaceAll("(?is)<(script|style)[^>]*>.*?</\\1>", " ")
+                .replaceAll("(?i)<br\\s*/?>|</p>", "\n").replaceAll("<[^>]+>", " ").replaceAll("&nbsp;", " ")
+                .replaceAll("[ \t]+", " ").strip();
+        }
+        String from = email.path("headers").path("from").asString(email.path("from").asString(""));
+        return new Received(from, email.path("subject").asString(""), text);
+    }
+
     /** "Alice Martin via Indezy <noreply@...>" from "Indezy <noreply@...>" for an email sent for a member. */
     static String from(String sender, String memberName) {
         String name = memberName == null ? "" : memberName.replaceAll("[\\p{Cntrl}\"<>\\\\,;]", " ").replaceAll("\\s+", " ").strip();
