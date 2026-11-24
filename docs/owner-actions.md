@@ -102,6 +102,9 @@ and the opt-in daily autopilot are to be built; the Keycloak realm sends from `n
 - **Reply detection:** built on 2026-11-24 and off until set up: the receiving domain, its MX record, the `email.received`
   webhook and its secret in Vault, as [Deployment](./deployment.md#reply-detection) gives.
 - **`contact@swirlit.dev`:** make sure it reaches a mailbox you read.
+- **SASU contributions:** allow `open.lefebvre-dalloz.fr` (its 2026 payroll table, for the employer's rates that no
+  official page reachable from here gives) to compute a SASU president's contributions, or keep the own rate (TODO.md,
+  Needs Input).
 - **Training catalogue:** allow `opendata.caissedesdepots.fr` (the CPF catalogue's open data) for the coding sessions and
   the server, so the skills gap can suggest trainings, or keep **Plan a training** as it is (TODO.md, Needs Input).
 - **Publisher's details** for the legal notice: to give in a few months (around 2027-03).
