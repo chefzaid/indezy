@@ -253,7 +253,10 @@ export class ProfileComponent implements OnInit {
       autoArchive: [false],
       contactRetentionYears: [0],
       inactivityDays: [null, [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern('^[0-9]+$')]],
-      followUpDays: [5, [Validators.required, Validators.min(1), Validators.max(60), Validators.pattern('^[0-9]+$')]]
+      followUpDays: [5, [Validators.required, Validators.min(1), Validators.max(60), Validators.pattern('^[0-9]+$')]],
+      // The car driven to missions, for the kilometre scale of the professional kilometres.
+      vehicleHorsepower: [null as number | null],
+      vehicleElectric: [false]
     });
   }
 

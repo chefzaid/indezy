@@ -1249,6 +1249,10 @@
     "skillAlreadyListed": "Already listed as {{skill}}",
     "followUpDays": "Follow up after (days)",
     "followUpDaysHint": "A message to a contact unanswered this long shows on the dashboard",
+    "vehicleHorsepower": "Your car's fiscal horsepower",
+    "vehicleHorsepowerHint": "For the kilometre scale: the professional kilometres' export gives the amount to claim.",
+    "vehicleElectric": "Electric car (20 % more)",
+    "horsepower": { "3": "3 CV or less", "4": "4 CV", "5": "5 CV", "6": "6 CV", "7": "7 CV or more" },
     "followUpDaysError": "Enter a whole number from 1 to 60",
     "import": {
       "title": "Import data",

@@ -36,6 +36,11 @@ public class UserPreferencesDto {
     private Boolean shareEsnRecords;
     /** Triage the new offers that fit overnight, from the AI allowance; off by default. */
     private Boolean autopilot;
+    /** The car driven to missions, for the kilometre scale: its fiscal horsepower (3 to 7) and whether it is electric. */
+    @Min(3)
+    @Max(7)
+    private Integer vehicleHorsepower;
+    private Boolean vehicleElectric;
     /** The dashboard's blocks in the account's order, shown or hidden; left as they are when absent. */
     @Size(max = 20)
     private List<@Valid DashboardWidgetDto> dashboardWidgets;

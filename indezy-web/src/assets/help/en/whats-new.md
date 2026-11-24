@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### The amount of your professional kilometres
+
+Give your car's fiscal horsepower in Profile → Preferences: the professional kilometres' export now ends with the amount on the official kilometre scale. See [Dashboard](/help/dashboard).
+
 ### Offers triaged overnight
 
 Turn on the autopilot in Profile → Preferences → AI: every night, the new offers that fit you get a verdict and their deal-breakers, listed on your dashboard in the morning. See [The offer feed](/help/offers).

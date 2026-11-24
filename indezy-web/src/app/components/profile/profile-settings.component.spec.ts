@@ -73,6 +73,16 @@ describe('ProfileComponent settings', () => {
       expect(bed.users.updateUserPreferences).not.toHaveBeenCalled();
     });
 
+    it('saves the car driven to missions, for the kilometre scale', () => {
+      const component = bed.create().componentInstance;
+      bed.users.updateUserPreferences.and.returnValue(of({ theme: 'light', language: 'fr', inactivityDays: 14, vehicleHorsepower: 5, vehicleElectric: true }));
+      component.preferencesForm.patchValue({ inactivityDays: 14, vehicleHorsepower: 5, vehicleElectric: true });
+
+      component.onUpdatePreferences();
+
+      expect(bed.users.updateUserPreferences).toHaveBeenCalledWith(jasmine.objectContaining({ vehicleHorsepower: 5, vehicleElectric: true }));
+    });
+
     it('reports preferences that cannot be saved', () => {
       const component = bed.create().componentInstance;
       bed.users.updateUserPreferences.and.returnValue(throwError(() => new Error('offline')));

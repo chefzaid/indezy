@@ -1799,7 +1799,7 @@ days on site of its validated activity report (half days counting half), the rou
 a total per client (its days on site and kilometres, clients by name, those without a known route left out) and the
 year's total (`GET /api/commute/kilometres/{freelanceId}/{year}?language=FR`, French decimals and headers, or `EN`). A
 mission whose route is unknown keeps its days with the kilometres left blank; client names stay text in spreadsheets.
-The amount on the official scale is not computed: its yearly rates wait on the owner (see TODO.md).
+With the car given in Profile → Preferences (its fiscal horsepower, 3 CV and less to 7 CV and more, `vehicleHorsepower`, and whether it is electric, `vehicleElectric`), a last line gives the amount on the tax administration's kilometre scale for the year's total (`KilometreScale`: up to 5 000 km a rate per kilometre, from 5 001 to 20 000 km a rate plus a fixed amount, beyond a rate; 20 % more for an electric car), the scale of BOI-BAREME-000001 for the 2022 incomes, still the one impots.gouv.fr's simulator applies (checked 2026-11-24).
 
 ## Filtering And Search Surfaces
 

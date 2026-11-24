@@ -1,5 +1,11 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.UserRepository;
+import dev.swirlit.indezy.tax.KilometreScale;
+import org.springframework.beans.factory.annotation.Autowired;
 import dev.swirlit.indezy.model.ActivityDay;
 import dev.swirlit.indezy.model.ActivityReport;
 import dev.swirlit.indezy.model.Project;
@@ -38,6 +44,16 @@ public class ProfessionalKilometresService {
     private final ActivityReportRepository reports;
     private final CommuteService commutes;
 
+    private FreelanceRepository freelances;
+    private UserRepository users;
+
+    /** The workspace's account, for its car: without them, the CSV gives no amount. */
+    @Autowired(required = false)
+    void setAccounts(FreelanceRepository freelanceRepository, UserRepository userRepository) {
+        this.freelances = freelanceRepository;
+        this.users = userRepository;
+    }
+
     @Transactional(readOnly = true)
     public String csv(Long freelanceId, int year, DocumentLanguage language) {
         boolean french = language != DocumentLanguage.EN;
@@ -72,7 +88,30 @@ public class ProfessionalKilometresService {
         byClient.forEach((client, sums) -> csv.append(CsvText.row(SEPARATOR, "Total", CsvText.text(client), "", number(sums[0], french), "",
             number(sums[1].setScale(1, RoundingMode.HALF_UP), french))).append("\r\n"));
         csv.append(CsvText.row(SEPARATOR, "Total", "", "", "", "", number(total.setScale(1, RoundingMode.HALF_UP), french))).append("\r\n");
+        // With the car's horsepower given, the amount the kilometre scale gives for the year's distance.
+        BigDecimal driven = total;
+        car(freelanceId).ifPresent(car -> {
+            BigDecimal amount = KilometreScale.amount(car.getVehicleHorsepower(), driven, Boolean.TRUE.equals(car.getVehicleElectric()));
+            String label = (french ? "Barème kilométrique " : "Kilometre scale ") + horsepower(car.getVehicleHorsepower(), french) +
+                (Boolean.TRUE.equals(car.getVehicleElectric()) ? (french ? ", électrique (+20 %)" : ", electric (+20%)") : "") + " (€)";
+            csv.append(CsvText.row(SEPARATOR, label, "", "", "", "", number(amount, french))).append("\r\n");
+        });
         return csv.toString();
+    }
+
+    private Optional<User> car(Long freelanceId) {
+        if (freelances == null || users == null) {
+            return Optional.empty();
+        }
+        return freelances.findById(freelanceId).map(Freelance::getEmail).flatMap(users::findByEmail)
+            .filter(user -> user.getVehicleHorsepower() != null);
+    }
+
+    private static String horsepower(int horsepower, boolean french) {
+        if (horsepower <= KilometreScale.MIN_HORSEPOWER) {
+            return french ? "3 CV et moins" : "3 CV or less";
+        }
+        return horsepower >= KilometreScale.MAX_HORSEPOWER ? (french ? "7 CV et plus" : "7 CV or more") : horsepower + " CV";
     }
 
     private static String number(BigDecimal value, boolean french) {

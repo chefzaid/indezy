@@ -198,6 +198,18 @@
                       <mat-error>{{ 'profile.followUpDaysError' | translate }}</mat-error>
                     </mat-form-field>
                   </div>
+                  <div class="form-row" data-profile-vehicle>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'profile.vehicleHorsepower' | translate }}</mat-label>
+                      <mat-select formControlName="vehicleHorsepower" data-profile-vehicle-horsepower>
+                        @for (horsepower of [3, 4, 5, 6, 7]; track horsepower) {
+                          <mat-option [value]="horsepower">{{ 'profile.horsepower.' + horsepower | translate }}</mat-option>
+                        }
+                      </mat-select>
+                      <mat-hint>{{ 'profile.vehicleHorsepowerHint' | translate }}</mat-hint>
+                    </mat-form-field>
+                    <mat-slide-toggle formControlName="vehicleElectric" data-profile-vehicle-electric>{{ 'profile.vehicleElectric' | translate }}</mat-slide-toggle>
+                  </div>
                   <div class="toggle-section">
                     <mat-slide-toggle formControlName="autoArchive">
                       {{ 'profile.autoArchive' | translate }}

@@ -1249,6 +1249,10 @@
     "skillAlreadyListed": "Déjà listée comme {{skill}}",
     "followUpDays": "Relancer après (jours)",
     "followUpDaysHint": "Un message à un contact resté sans réponse aussi longtemps apparaît au tableau de bord",
+    "vehicleHorsepower": "Puissance fiscale de votre voiture",
+    "vehicleHorsepowerHint": "Pour le barème kilométrique : l'export des kilomètres professionnels donne le montant à déduire.",
+    "vehicleElectric": "Voiture électrique (20 % de plus)",
+    "horsepower": { "3": "3 CV et moins", "4": "4 CV", "5": "5 CV", "6": "6 CV", "7": "7 CV et plus" },
     "followUpDaysError": "Saisissez un nombre entier de 1 à 60",
     "import": {
       "title": "Importer des données",

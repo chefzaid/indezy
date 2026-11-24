@@ -60,6 +60,14 @@ class ProjectCommuteIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(csv.getHeaders().getContentDisposition().getFilename()).isEqualTo("kilometres-2026.csv");
         assertThat(csv.getHeaders().getFirst("Cache-Control")).isEqualTo("no-store");
         assertThat(csv.getBody()).startsWith("Month;Client;Mission;Days on site;Round trip (km);Kilometres").contains("Total;;;;;0");
+        assertThat(csv.getBody()).doesNotContain("Kilometre scale");
+        // With her car given, the amount the kilometre scale gives for the year's distance (none driven here).
+        assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("vehicleHorsepower", 9), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("vehicleHorsepower", 5, "vehicleElectric", true), Map.class).getBody())
+            .containsEntry("vehicleHorsepower", 5).containsEntry("vehicleElectric", true);
+        assertThat(call(alice, HttpMethod.GET, "/commute/kilometres/" + alice.freelanceId() + "/2026", null, String.class).getBody())
+            .contains("Barème kilométrique 5 CV, électrique (+20 %) (€);;;;;0");
         assertThat(call(alice, HttpMethod.GET, "/commute/kilometres/" + alice.freelanceId() + "/1999", null, String.class)
             .getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(call(bob, HttpMethod.GET, "/commute/kilometres/" + alice.freelanceId() + "/2026", null, String.class)

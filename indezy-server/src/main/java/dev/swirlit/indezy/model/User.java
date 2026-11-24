@@ -248,6 +248,14 @@ public class User extends BaseEntity {
         return Boolean.TRUE.equals(autopilot);
     }
 
+    /** The fiscal horsepower of the car driven to missions (3 for 3 CV and less, 7 for 7 CV and more); null when not given. */
+    @Column(name = "vehicle_horsepower")
+    private Integer vehicleHorsepower;
+
+    /** Whether that car is electric (the kilometre scale gives 20 % more). */
+    @Column(name = "vehicle_electric")
+    private Boolean vehicleElectric;
+
     /** The member's own Anthropic key, encrypted (AiKeyCipher); null to use Indezy's within its limits. */
     @Column(name = "ai_api_key", length = 600)
     private String aiApiKey;

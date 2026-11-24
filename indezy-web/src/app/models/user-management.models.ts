@@ -93,6 +93,9 @@ export interface UserPreferences {
   shareEsnRecords?: boolean;
   /** Whether the daily autopilot run triages the new offers that fit overnight, from the AI allowance; off unless turned on. */
   autopilot?: boolean;
+  /** The car driven to missions, for the kilometre scale: its fiscal horsepower (3 for 3 CV and less, 7 for 7 CV and more), null when not given, and whether it is electric. */
+  vehicleHorsepower?: number | null;
+  vehicleElectric?: boolean;
   /** The dashboard's blocks in the account's order, shown or hidden. */
   dashboardWidgets?: DashboardWidget[];
 }

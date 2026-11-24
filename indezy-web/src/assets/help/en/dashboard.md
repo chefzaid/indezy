@@ -63,7 +63,7 @@ An opportunity's page shows its **Commute** card and its effective daily rate, c
 
 ## Professional kilometres
 
-On the **Timesheets** page, **Professional kilometres** downloads this year's or last year's kilometres as CSV: one row per month and mission, with the days on site of its validated activity reports and the round trip by car, then a total per client and the year's total. The amount on the official tax scale is not computed: hand the file to your accountant.
+On the **Timesheets** page, **Professional kilometres** downloads this year's or last year's kilometres as CSV: one row per month and mission, with the days on site of its validated activity reports and the round trip by car, then a total per client and the year's total. Give your car's fiscal horsepower (and whether it is electric) in **Profile → Preferences**, and a last line gives the amount on the official kilometre scale for the year, to claim in frais réels or hand to your accountant.
 
 ## The weekly digest
 

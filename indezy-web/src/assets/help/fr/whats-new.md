@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Le montant de vos kilomètres professionnels
+
+Indiquez la puissance fiscale de votre voiture dans Profil → Préférences : l'export des kilomètres professionnels se termine désormais par le montant au barème kilométrique officiel. Voir [Le tableau de bord](/help/dashboard).
+
 ### Les offres triées pendant la nuit
 
 Activez le pilote automatique dans Profil → Préférences → IA : chaque nuit, les nouvelles offres qui vous correspondent reçoivent un avis et leurs points bloquants, listés sur votre tableau de bord le matin. Voir [Le flux d'offres](/help/offers).
