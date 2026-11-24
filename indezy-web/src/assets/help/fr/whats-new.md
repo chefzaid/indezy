@@ -2,13 +2,17 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Transférez les e-mails de vos recruteurs à l'IA
+
+**Veille de la boîte mail (IA)** dans Profil → Préférences vous donne une adresse où transférer les e-mails de vos recruteurs : une invitation à un entretien devient une étape d'entretien avec une réponse rédigée, un refus clôt l'opportunité, et une question sur votre disponibilité ou votre TJM reçoit sa réponse rédigée. Voir [Clients, ESN et contacts](/help/clients-contacts).
+
 ### Vos déclarations de TVA au réel normal
 
 Choisissez votre **Régime de TVA** dans Profil → Facturation : au réel normal, le calendrier fiscal liste votre déclaration de TVA (CA3) mensuelle ou trimestrielle à son jour exact, avec la TVA encaissée jusque-là. Voir [Devis et factures](/help/invoices-quotes).
 
 ### Les réponses triées par l'IA
 
-Quand Indezy reçoit les réponses à ses e-mails, l'IA trie désormais chacune : intéressé, pas maintenant, pas de besoin ou ne plus contacter. Une réponse intéressée ouvre une opportunité, un « pas maintenant » revient dans vos relances le jour qu'il a donné, un contact qui demande à ne plus être contacté est laissé de côté par votre prochaine prospection, et vos campagnes comptent les réponses intéressées. Voir [Clients et contacts](/help/clients-contacts).
+Quand Indezy reçoit les réponses à ses e-mails, l'IA trie désormais chacune : intéressé, pas maintenant, pas de besoin ou ne plus contacter. Une réponse intéressée ouvre une opportunité, un « pas maintenant » revient dans vos relances le jour qu'il a donné, un contact qui demande à ne plus être contacté est laissé de côté par votre prochaine prospection, et vos campagnes comptent les réponses intéressées. Voir [Clients, ESN et contacts](/help/clients-contacts).
 
 ### Créez votre compte avec un e-mail et un mot de passe
 

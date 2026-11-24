@@ -239,6 +239,9 @@ The member network (`/api/network`) is on unless an administrator turns it off (
 - web push sends only to the push services of the major browsers (`fcm.googleapis.com`, `updates.push.services.mozilla.com`,
   `*.push.apple.com`, `*.notify.windows.com`, https on the default port): a subscription cannot make the server call
   another address; the payload is encrypted for the browser and carries no content beyond a generic line and a link;
+- the inbox watcher's address holds 160 random bits, reaches only the workspace of the member it belongs to, and is
+  replaced at will; what is forwarded to it is read once through the signed webhook, its text sent to the AI only when
+  the member's AI is available and never stored (the sender, subject, kind and outcome are);
 - AI requests send only the member's own text and the opportunity it is about; a member's own Anthropic key is stored
   encrypted (AES-256-GCM, a key derived from the server's secret), never returned or logged, and the request bodies'
   `toString` leaves their text out of the logs;

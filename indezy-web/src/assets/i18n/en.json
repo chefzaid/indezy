@@ -5248,6 +5248,36 @@
       "OTHER": "Other"
     }
   },
+  "inboxWatcher": {
+    "title": "Inbox watcher (AI)",
+    "intro": "Forward your recruiters' and ESNs' emails to this address of yours: the AI adds an interview invite to the opportunity as an Interview step and drafts the answer, moves a rejection to Abandoned with its reason, and drafts the answer to a question on your availability or rate. The drafts wait on the dashboard. Only the emails you forward are read, and their text is not kept.",
+    "create": "Get my address",
+    "copy": "Copy the address",
+    "copied": "Address copied",
+    "renew": "Get a new address",
+    "failed": "The address could not be created. Try again.",
+    "steps": {
+      "gmail": "In Gmail: Settings → Forwarding and POP/IMAP → Add a forwarding address, then paste this one. Indezy sends you Gmail's confirmation email: open its link.",
+      "filter": "Then create a filter for your recruiters' emails (from their domains, or with words like mission, entretien, TJM) with Forward it to this address. In Outlook: a rule Forward to.",
+      "byHand": "Or forward one email by hand: Indezy reads who wrote it from the forwarded message."
+    },
+    "recent": "Latest forwarded emails",
+    "open": "Open the opportunity",
+    "kinds": {
+      "INTERVIEW_INVITE": "Interview invite",
+      "REJECTION": "Rejection",
+      "AVAILABILITY_ASK": "Availability or rate asked",
+      "FORWARDING_CONFIRMATION": "Forwarding confirmation",
+      "OTHER": "Other email"
+    },
+    "actions": {
+      "NONE": "nothing done",
+      "INTERVIEW_STEP": "interview step added, answer drafted",
+      "MARKED_LOST": "opportunity abandoned",
+      "DRAFTED": "answer drafted",
+      "FORWARDED": "sent to your address"
+    }
+  },
   "ai": {
     "disclaimer": "Written by AI from what you typed and the opportunity: check it before using it.",
     "models": {

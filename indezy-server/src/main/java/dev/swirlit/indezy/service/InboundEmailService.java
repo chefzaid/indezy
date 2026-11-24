@@ -7,6 +7,7 @@ import dev.swirlit.indezy.mail.ResendMailer;
 import dev.swirlit.indezy.mail.WebhookSignature;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.ContactInteraction;
+import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.InteractionChannel;
 import dev.swirlit.indezy.model.enums.InteractionDirection;
@@ -44,6 +45,7 @@ public class InboundEmailService {
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
     private static final JsonMapper JSON = JsonMapper.builder().build();
     private static final Pattern ADDRESS = Pattern.compile("reply\\+([0-9a-f]{40})@(.+)");
+    private static final Pattern INBOX = Pattern.compile("inbox\\+([0-9a-f]{40})@(.+)");
 
     private final MailProperties properties;
     private final ResendMailer mailer;
@@ -53,11 +55,18 @@ public class InboundEmailService {
     private final Clock clock;
 
     private AnswerFollowThroughService followThrough;
+    private InboxWatcherService watcher;
 
     /** What sorts the answers with the AI and acts on them; without it, they stay unsorted. */
     @Autowired(required = false)
     void setFollowThrough(AnswerFollowThroughService answerFollowThrough) {
         this.followThrough = answerFollowThrough;
+    }
+
+    /** The inbox watcher, for the emails forwarded to a member's {@code inbox+<token>} address. */
+    @Autowired(required = false)
+    void setWatcher(InboxWatcherService inboxWatcher) {
+        this.watcher = inboxWatcher;
     }
 
     /** What came of a webhook: refused (bad signature), ignored (not an answer to an email of Indezy), or recorded. */
@@ -88,9 +97,10 @@ public class InboundEmailService {
         if (!"email.received".equals(event.path("type").asString("")) || emailId.isBlank() || interactions.existsByInboundEmailId(emailId)) {
             return Outcome.IGNORED;
         }
-        Optional<ContactInteraction> answered = answered(data);
+        List<String> recipients = recipients(data);
+        Optional<ContactInteraction> answered = answered(recipients);
         if (answered.isEmpty()) {
-            return Outcome.IGNORED;
+            return forwarded(recipients, emailId, data.path("from").asString(""));
         }
         ContactInteraction original = answered.get();
         Contact contact = original.getContact();
@@ -134,11 +144,35 @@ public class InboundEmailService {
         return address.strip().toLowerCase(Locale.ROOT);
     }
 
-    /** The email of Indezy an answer is for: the first of its recipients that is a reply address of the reply domain. */
-    private Optional<ContactInteraction> answered(JsonNode data) {
+    private static List<String> recipients(JsonNode data) {
         List<String> recipients = new ArrayList<>();
         data.path("to").forEach(node -> recipients.add(node.asString("")));
         data.path("received_for").forEach(node -> recipients.add(node.asString("")));
+        return recipients;
+    }
+
+    /** An email a member forwarded to their inbox watcher address, handed to the watcher once; ignored otherwise. */
+    private Outcome forwarded(List<String> recipients, String emailId, String from) throws InterruptedException {
+        InboxWatcherService inbox = watcher;
+        String domain = properties.replyDomain().strip().toLowerCase(Locale.ROOT);
+        for (String recipient : recipients) {
+            Matcher match = INBOX.matcher(address(recipient));
+            if (inbox != null && match.matches() && match.group(2).equals(domain)) {
+                Optional<User> owner = users.findByInboxToken(match.group(1));
+                if (owner.isPresent()) {
+                    if (inbox.seen(emailId)) {
+                        return Outcome.IGNORED;
+                    }
+                    inbox.receive(owner.get(), emailId, from, mailer.received(emailId));
+                    return Outcome.RECORDED;
+                }
+            }
+        }
+        return Outcome.IGNORED;
+    }
+
+    /** The email of Indezy an answer is for: the first of its recipients that is a reply address of the reply domain. */
+    private Optional<ContactInteraction> answered(List<String> recipients) {
         String domain = properties.replyDomain().strip().toLowerCase(Locale.ROOT);
         for (String recipient : recipients) {
             Matcher match = ADDRESS.matcher(address(recipient));

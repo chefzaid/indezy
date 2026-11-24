@@ -1,3 +1,4 @@
+import { AiService } from '../../services/ai/ai.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TestimonialService } from '../../services/testimonial/testimonial.service';
 import { ContactService } from '../../services/contact/contact.service';
@@ -71,6 +72,7 @@ export function profileTestBed(): ProfileTestBed {
           { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }),
           apiTokens: () => of([]) } },
           { provide: WebhookService, useValue: { list: () => of([]) } },
+          { provide: AiService, useValue: { status: () => NEVER, inboxWatcher: () => of({ available: false, address: null, recent: [] }) } },
           { provide: CareerService, useValue: { experiences: () => of([]), educations: () => of([]), changed: NEVER } },
           { provide: ProfileCvService, useValue: { info: () => of(null), changed: NEVER } },
           { provide: TestimonialService, useValue: { list: () => of([]) } },

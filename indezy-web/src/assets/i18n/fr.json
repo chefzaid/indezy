@@ -5248,6 +5248,36 @@
       "OTHER": "Autre"
     }
   },
+  "inboxWatcher": {
+    "title": "Veille de la boîte mail (IA)",
+    "intro": "Transférez les e-mails de vos recruteurs et ESN à cette adresse qui vous est propre : l'IA ajoute une invitation à un entretien à l'opportunité comme étape Entretien et rédige la réponse, passe un refus en Abandonné avec sa raison, et rédige la réponse à une question sur votre disponibilité ou votre TJM. Les brouillons attendent sur le tableau de bord. Seuls les e-mails que vous transférez sont lus, et leur texte n'est pas conservé.",
+    "create": "Obtenir mon adresse",
+    "copy": "Copier l'adresse",
+    "copied": "Adresse copiée",
+    "renew": "Obtenir une nouvelle adresse",
+    "failed": "L'adresse n'a pas pu être créée. Réessayez.",
+    "steps": {
+      "gmail": "Dans Gmail : Paramètres → Transfert et POP/IMAP → Ajouter une adresse de transfert, puis collez celle-ci. Indezy vous renvoie l'e-mail de confirmation de Gmail : ouvrez son lien.",
+      "filter": "Créez ensuite un filtre pour les e-mails de vos recruteurs (depuis leurs domaines, ou avec des mots comme mission, entretien, TJM) avec Transférer à cette adresse. Dans Outlook : une règle Transférer à.",
+      "byHand": "Ou transférez un e-mail à la main : Indezy lit qui l'a écrit dans le message transféré."
+    },
+    "recent": "Derniers e-mails transférés",
+    "open": "Ouvrir l'opportunité",
+    "kinds": {
+      "INTERVIEW_INVITE": "Invitation à un entretien",
+      "REJECTION": "Refus",
+      "AVAILABILITY_ASK": "Disponibilité ou TJM demandés",
+      "FORWARDING_CONFIRMATION": "Confirmation du transfert",
+      "OTHER": "Autre e-mail"
+    },
+    "actions": {
+      "NONE": "rien de fait",
+      "INTERVIEW_STEP": "étape d'entretien ajoutée, réponse rédigée",
+      "MARKED_LOST": "opportunité abandonnée",
+      "DRAFTED": "réponse rédigée",
+      "FORWARDED": "envoyé à votre adresse"
+    }
+  },
   "ai": {
     "disclaimer": "Rédigé par l'IA à partir de ce que vous avez saisi et de l'opportunité : relisez-le avant de l'utiliser.",
     "models": {

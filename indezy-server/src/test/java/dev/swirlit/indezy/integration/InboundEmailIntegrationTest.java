@@ -43,6 +43,9 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
     @MockitoBean
     private dev.swirlit.indezy.ai.AiService ai;
 
+    @MockitoBean
+    private dev.swirlit.indezy.ai.InboxReadingAiService inboxReading;
+
     private org.springframework.http.ResponseEntity<String> deliver(String id, String body, boolean signed) throws Exception {
         long at = Instant.now().getEpochSecond();
         javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
@@ -152,5 +155,78 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
             .containsEntry("writeBackOn", today.toString()));
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM projects WHERE freelance_id = ?", Long.class, alice.freelanceId()))
             .isZero();
+    }
+
+    /** Alice's inbox watcher address, asked for, and an email from {@code sender} forwarded to it. */
+    @SuppressWarnings("unchecked")
+    private String forward(String emailId, String sender, String subject, dev.swirlit.indezy.ai.InboxReadingAiService.Read read) throws Exception {
+        String address = (String) call(alice, HttpMethod.POST, "/ai/inbox-watcher/address", null, Map.class).getBody().get("address");
+        when(ai.status(any())).thenReturn(new dev.swirlit.indezy.ai.AiDtos.Status(true, null, false, null, Map.of(), 0, 10, Map.of()));
+        when(inboxReading.read(any(), any(), any(), any(), any())).thenReturn(read);
+        when(mailer.received(emailId)).thenReturn(new ResendMailer.Received(sender, subject, "Bonjour Alice,"));
+        String body = "{\"type\":\"email.received\",\"data\":{\"email_id\":\"" + emailId + "\",\"from\":\"" + sender +
+            "\",\"to\":[\"" + address + "\"],\"subject\":\"" + subject + "\"}}";
+        assertThat(deliver("msg_" + emailId, body, true).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        // Delivered again: handled once.
+        assertThat(deliver("msg_" + emailId + "b", body, true).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        return address;
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void anInterviewInviteForwardedAddsTheStepMovesTheOpportunityAndDraftsTheAnswer() throws Exception {
+        long contact = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Inès", "lastName", "Roy", "email",
+            "ines@acme.example", "clientId", aliceClientId), Map.class));
+        long project = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "CONTACT",
+            "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class));
+        java.time.LocalDateTime slot = java.time.LocalDateTime.now().plusDays(3).withHour(10).withMinute(0).withSecond(0).withNano(0);
+        String address = forward("in-30", "Inès Roy <ines@acme.example>", "Entretien Lead Java", new dev.swirlit.indezy.ai.InboxReadingAiService.Read(
+            dev.swirlit.indezy.model.enums.InboxEmailKind.INTERVIEW_INVITE, List.of(slot), null, "Bonjour Inès, jeudi 10 h me convient."));
+        assertThat(address).matches("inbox\\+[0-9a-f]{40}@replies\\.example");
+
+        assertThat(jdbcTemplate.queryForObject("SELECT status FROM projects WHERE id = ?", String.class, project)).isEqualTo("INTERVIEW");
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM interview_steps WHERE project_id = ? AND status = 'PLANNED'", Long.class, project))
+            .isEqualTo(1L);
+        assertThat(jdbcTemplate.queryForObject("SELECT body FROM autopilot_drafts WHERE contact_id = ?", String.class, contact))
+            .contains("jeudi 10 h");
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM contact_interactions WHERE contact_id = ? AND direction = 'INCOMING'",
+            Long.class, contact)).isEqualTo(1L);
+        Map<String, Object> watcher = call(alice, HttpMethod.GET, "/ai/inbox-watcher", null, Map.class).getBody();
+        assertThat(watcher).containsEntry("available", true).containsEntry("address", address);
+        assertThat((List<Map<String, Object>>) watcher.get("recent")).singleElement().satisfies(item -> assertThat(item)
+            .containsEntry("kind", "INTERVIEW_INVITE").containsEntry("action", "INTERVIEW_STEP").containsEntry("projectId", (int) project)
+            .containsEntry("sender", "ines@acme.example"));
+        // Bob sees none of it.
+        assertThat((List<?>) call(bob, HttpMethod.GET, "/ai/inbox-watcher", null, Map.class).getBody().get("recent")).isEmpty();
+    }
+
+    @Test
+    void aRejectionForwardedAbandonsTheOpportunityAndAnAskFromSomeoneNewAddsThemAndDraftsTheAnswer() throws Exception {
+        idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Hugo", "lastName", "Petit", "email",
+            "hugo@acme.example", "clientId", aliceClientId), Map.class));
+        long project = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Data", "dailyRate", 600, "status", "INTERVIEW",
+            "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class));
+        forward("in-40", "hugo@acme.example", "Votre candidature", new dev.swirlit.indezy.ai.InboxReadingAiService.Read(
+            dev.swirlit.indezy.model.enums.InboxEmailKind.REJECTION, List.of(), dev.swirlit.indezy.model.enums.LostReason.POSITION_FILLED, null));
+        assertThat(jdbcTemplate.queryForMap("SELECT status, lost_reason, refused_by FROM projects WHERE id = ?", project))
+            .containsEntry("STATUS", "LOST").containsEntry("LOST_REASON", "POSITION_FILLED").containsEntry("REFUSED_BY", "RECRUITER");
+
+        forward("in-41", "Recrutement <jobs@acme.example>", "Dispo ?", new dev.swirlit.indezy.ai.InboxReadingAiService.Read(
+            dev.swirlit.indezy.model.enums.InboxEmailKind.AVAILABILITY_ASK, List.of(), null, "Bonjour, disponible le 5 janvier."));
+        Map<String, Object> added = jdbcTemplate.queryForMap("SELECT id, client_id FROM contacts WHERE email = 'jobs@acme.example'");
+        assertThat(((Number) added.get("CLIENT_ID")).longValue()).isEqualTo(aliceClientId);
+        assertThat(jdbcTemplate.queryForObject("SELECT subject FROM autopilot_drafts WHERE contact_id = ?", String.class, added.get("ID")))
+            .isEqualTo("Re: Dispo ?");
+    }
+
+    @Test
+    void sendsGmailsForwardingConfirmationOnToTheMember() throws Exception {
+        when(mailer.send(any())).thenReturn("e-50");
+        forward("in-50", "forwarding-noreply@google.com", "Gmail Forwarding Confirmation", new dev.swirlit.indezy.ai.InboxReadingAiService.Read(
+            dev.swirlit.indezy.model.enums.InboxEmailKind.OTHER, List.of(), null, null));
+        ArgumentCaptor<Email> sent = ArgumentCaptor.forClass(Email.class);
+        verify(mailer).send(sent.capture());
+        assertThat(sent.getValue().to()).isEqualTo(aliceEmail);
+        verify(inboxReading, org.mockito.Mockito.never()).read(any(), any(), any(), any(), any());
     }
 }

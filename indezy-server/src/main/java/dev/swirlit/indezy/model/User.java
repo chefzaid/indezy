@@ -278,6 +278,13 @@ public class User extends BaseEntity {
     @Column(name = "account_email_sent_at")
     private java.time.Instant accountEmailSentAt;
 
+    /**
+     * The secret of the member's inbox watcher address, {@code inbox+<token>@<reply domain>} (160 random bits in hex),
+     * set when they first ask for it; null before.
+     */
+    @Column(name = "inbox_token", length = 40, unique = true)
+    private String inboxToken;
+
     /** The member's own Anthropic key, encrypted (AiKeyCipher); null to use Indezy's within its limits. */
     @Column(name = "ai_api_key", length = 600)
     private String aiApiKey;

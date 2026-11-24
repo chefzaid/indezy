@@ -14,16 +14,16 @@ export const PREPARED_SHOWN = 5;
 
 /**
  * **Prepared overnight** (docs/features.md#daily-autopilot): when the daily autopilot run is on, what it triaged in the
- * last day, those worth applying to first, each opening its offer; nothing while it is off or found nothing.
+ * last day, those worth applying to first, each opening its offer; and the answers drafted, by it or the inbox watcher.
  */
 @Component({
   selector: 'app-autopilot-queue',
   imports: [RouterLink, MatButtonModule, MatIconModule, TranslateModule],
   template: `
-    @if (queue && queue.on && (queue.offers.length || drafts.length || packs.length)) {
+    @if (queue && (triaged.length || drafts.length || packs.length)) {
       <section class="autopilot" data-autopilot-queue aria-labelledby="autopilot-title">
         <h3 id="autopilot-title"><mat-icon aria-hidden="true">auto_awesome</mat-icon>{{ 'dashboard.autopilot.title' | translate }}</h3>
-        <p data-autopilot-summary>{{ 'dashboard.autopilot.summary' | translate:{ count: queue.offers.length, fit: fit, drafts: drafts.length, packs: packs.length } }}</p>
+        <p data-autopilot-summary>{{ 'dashboard.autopilot.summary' | translate:{ count: triaged.length, fit: fit, drafts: drafts.length, packs: packs.length } }}</p>
         <ul>
           @for (offer of shown; track offer.offerId) {
             <li [attr.data-autopilot-offer]="offer.offerId" [class.fit]="offer.goodFit">
@@ -209,11 +209,16 @@ export class AutopilotQueueComponent implements OnInit {
 
   /** How many are worth applying to. */
   get fit(): number {
-    return this.queue?.offers.filter(offer => offer.goodFit).length ?? 0;
+    return this.triaged.filter(offer => offer.goodFit).length;
+  }
+
+  /** The offers triaged overnight, none while the autopilot is off (the inbox watcher's drafts still show). */
+  get triaged(): AiPreparedOffer[] {
+    return this.queue?.on ? this.queue.offers : [];
   }
 
   get shown(): AiPreparedOffer[] {
-    return this.queue?.offers.slice(0, PREPARED_SHOWN) ?? [];
+    return this.triaged.slice(0, PREPARED_SHOWN);
   }
 
   get drafts(): AiDraftedFollowUp[] {

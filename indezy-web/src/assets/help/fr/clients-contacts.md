@@ -67,6 +67,16 @@ Dans **Écrire un e-mail** sur une opportunité, **Envoyer depuis Indezy** envoi
 
 Cochez **Me prévenir à son ouverture** pour savoir quand il le lit : l'e-mail l'indique en pied de message, et l'échange affiche **Ouvert 2 fois, la première le…** ou **Pas encore ouvert**. Certaines messageries chargent les images d'elles-mêmes et d'autres jamais : prenez-le comme une indication. Les ouvertures sont comptées pendant 30 jours. Jusqu'à 50 e-mails par jour partent d'Indezy ; au-delà, utilisez votre messagerie.
 
+## Transférez les e-mails de vos recruteurs (IA)
+
+Dans **Profil → Préférences**, **Veille de la boîte mail (IA)** vous donne une adresse qui vous est propre. Transférez-y les e-mails de vos recruteurs et ESN, avec un filtre Gmail (ajoutez l'adresse dans Paramètres → Transfert et POP/IMAP : Indezy vous renvoie l'e-mail de confirmation de Gmail), une règle Outlook, ou un e-mail à la main. L'IA lit ensuite chacun :
+
+- une **invitation à un entretien** ajoute une étape **Entretien** à l'opportunité avec cette société (sur le créneau proposé, ou avec ses créneaux dans les notes de l'étape), la passe en Entretien et rédige votre réponse, avec votre lien de réservation s'il est actif ;
+- un **refus** passe l'opportunité en **Abandonné** avec la raison devinée ;
+- une question sur votre **disponibilité ou votre TJM** rédige votre réponse d'après votre profil.
+
+L'e-mail est noté dans les échanges du contact (une personne inconnue est ajoutée à vos contacts), les brouillons attendent sur le tableau de bord sous **Préparé cette nuit**, et la carte liste ce qui a été fait des derniers e-mails. Seul ce que vous transférez est lu, et son texte n'est pas conservé. **Obtenir une nouvelle adresse** arrête l'ancienne.
+
 ## Le réseau d'un contact et l'organigramme
 
 1. Dans le formulaire d'un contact, choisissez son manager dans **Rattaché à**, dans la même société ou une autre.

@@ -56,6 +56,7 @@ public class AiController {
     private final ProfileImportAiService profileImports;
     private final AccessGuard accessGuard;
     private final AutopilotService autopilot;
+    private final dev.swirlit.indezy.service.InboxWatcherService inboxWatcher;
 
     /** A job posting pasted as text. */
     public record PostingRequest(@NotBlank @Size(max = PostingAiService.TEXT_MAX) String text) {
@@ -112,6 +113,18 @@ public class AiController {
     public ResponseEntity<Void> dismissDraft(@PathVariable Long id) {
         autopilot.dismiss(accessGuard.requireWorkspace(null), id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "The member's inbox watcher address and the emails forwarded to it lately, with what was done")
+    @GetMapping("/inbox-watcher")
+    public dev.swirlit.indezy.service.InboxWatcherService.Watcher inboxWatcher() {
+        return inboxWatcher.watcher(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null));
+    }
+
+    @Operation(summary = "Give the member a new inbox watcher address; the previous one receives nothing from then on")
+    @PostMapping("/inbox-watcher/address")
+    public dev.swirlit.indezy.service.InboxWatcherService.Watcher renewInboxAddress() {
+        return inboxWatcher.renew(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null));
     }
 
     @Operation(summary = "Whether AI can be used, through whose key, and this month's allowance")

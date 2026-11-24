@@ -67,6 +67,16 @@ In **Write an email** on an opportunity, **Send from Indezy** sends the message 
 
 Tick **Tell me when it is opened** to know when they read it: the email says so at its foot, and the exchange shows **Opened 2×, first on…** or **Not opened yet**. Some mail apps load images on their own and others never, so take it as a hint. Opens are counted for 30 days. Up to 50 emails a day go from Indezy; beyond, use your mail app.
 
+## Forward your recruiters' emails (AI)
+
+In **Profile → Preferences**, **Inbox watcher (AI)** gives you an address of your own. Forward your recruiters' and ESNs' emails to it, with a Gmail filter (add the address under Settings → Forwarding and POP/IMAP: Indezy sends you Gmail's confirmation email), an Outlook rule, or one email by hand. The AI then reads each one:
+
+- an **interview invite** adds an **Entretien** step to the opportunity with that company (on the slot it offers, or with its slots in the step's notes), moves it to Interview and drafts your answer, with your booking link when it is on;
+- a **rejection** moves the opportunity to **Abandonné** with the reason guessed;
+- a question on your **availability or rate** drafts your answer from your profile.
+
+The email is recorded in the contact's exchanges (someone new is added to your contacts), the drafts wait on the dashboard under **Prepared overnight**, and the card lists what was done with the latest emails. Only what you forward is read, and its text is not kept. **Get a new address** stops the old one.
+
 ## A contact's network and the org chart
 
 1. In a contact's form, pick their manager under **Reports to**, at the same company or another.

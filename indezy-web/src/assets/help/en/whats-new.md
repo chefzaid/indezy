@@ -2,13 +2,17 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Forward your recruiters' emails to the AI
+
+**Inbox watcher (AI)** in Profile → Preferences gives you an address to forward your recruiters' emails to: an interview invite becomes an interview step with a drafted answer, a rejection closes the opportunity, and a question on your availability or rate gets its answer drafted. See [Clients, ESNs and contacts](/help/clients-contacts).
+
 ### Your VAT returns under the normal regime
 
 Choose your **VAT regime** in Profile → Billing: under the normal regime, the tax calendar lists your monthly or quarterly VAT return (CA3) on its exact day, with the VAT received so far. See [Quotes and invoices](/help/invoices-quotes).
 
 ### Answers sorted by the AI
 
-Where Indezy receives the answers to its emails, the AI now sorts each one: interested, not now, no need or do not contact. An interested answer opens an opportunity, a "not now" comes back in your follow-ups on the day it gave, a contact who asks not to be contacted is left out of your next prospection, and your campaigns count the interested answers. See [Clients and contacts](/help/clients-contacts).
+Where Indezy receives the answers to its emails, the AI now sorts each one: interested, not now, no need or do not contact. An interested answer opens an opportunity, a "not now" comes back in your follow-ups on the day it gave, a contact who asks not to be contacted is left out of your next prospection, and your campaigns count the interested answers. See [Clients, ESNs and contacts](/help/clients-contacts).
 
 ### Create your account with an email and a password
 

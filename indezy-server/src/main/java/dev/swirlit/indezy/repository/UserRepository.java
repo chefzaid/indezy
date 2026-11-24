@@ -33,6 +33,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmailVerificationHash(String hash);
 
+    /** The member whose inbox watcher address holds {@code token}. */
+    Optional<User> findByInboxToken(String token);
+
     Optional<User> findByPasswordResetHash(String hash);
 
     /** The accounts that share their rates with the network's benchmark. */

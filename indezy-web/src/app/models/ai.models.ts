@@ -228,6 +228,25 @@ export interface AiDraftedFollowUp {
 }
 
 /** Whether the daily autopilot run is on, the offers triaged in the last day (worth applying to first) and the follow-ups drafted this week. */
+/** The member's inbox watcher: whether Indezy can receive emails, their forwarding address (null until asked for) and what came through it. */
+export interface InboxWatcher {
+  available: boolean;
+  address: string | null;
+  recent: InboxHandled[];
+}
+
+/** An email forwarded to the inbox watcher and what was done with it. */
+export interface InboxHandled {
+  id: number;
+  sender: string | null;
+  subject: string | null;
+  kind: 'INTERVIEW_INVITE' | 'REJECTION' | 'AVAILABILITY_ASK' | 'FORWARDING_CONFIRMATION' | 'OTHER';
+  action: 'NONE' | 'INTERVIEW_STEP' | 'MARKED_LOST' | 'DRAFTED' | 'FORWARDED';
+  contactId: number | null;
+  projectId: number | null;
+  receivedAt: string;
+}
+
 export interface AiAutopilotQueue {
   on: boolean;
   offers: AiPreparedOffer[];

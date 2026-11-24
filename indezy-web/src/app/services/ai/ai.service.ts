@@ -3,7 +3,7 @@ import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http
 import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiAutopilotQueue, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage } from '../../models';
+import { AiAutopilotQueue, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage, InboxWatcher } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -30,6 +30,16 @@ export class AiService {
   /** Sets aside a follow-up the autopilot drafted. */
   dismissDraft(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/autopilot/drafts/${id}`);
+  }
+
+  /** The member's inbox watcher address and the emails forwarded to it lately. */
+  inboxWatcher(): Observable<InboxWatcher> {
+    return this.http.get<InboxWatcher>(`${this.API_URL}/inbox-watcher`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  /** A new inbox watcher address; the previous one receives nothing from then on. */
+  renewInboxAddress(): Observable<InboxWatcher> {
+    return this.http.post<InboxWatcher>(`${this.API_URL}/inbox-watcher/address`, null);
   }
 
   setKey(apiKey: string, model: AiModel | null): Observable<AiStatus> {

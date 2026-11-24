@@ -111,7 +111,8 @@ Answers to the emails members send from Indezy come back through a reply subdoma
    `INDEZY_MAIL_INBOUND_API_KEY` (as the `indezy-ai` one below, created only once the Vault entry exists), set
    `INDEZY_MAIL_REPLY_DOMAIN=replies.swirlit.dev`, and restart the server.
 
-Until the domain and the secret are both set, answers go straight to the member, as before.
+Until the domain and the secret are both set, answers go straight to the member, as before. The same domain and webhook
+receive what members forward to their inbox watcher address (`inbox+<token>@replies.swirlit.dev`); nothing else to set.
 
 ## AI key
 

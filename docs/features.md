@@ -912,6 +912,38 @@ place of work. Each is ticked and noted (up to 500 characters, an example as pla
 note left, with the count checked (`2/7`). `PUT /api/projects/{id}/contract-checks` replaces it whole, each point at most
 once; editing the mission leaves it as it is, and the account export carries it with the mission.
 
+### Inbox Watcher
+
+**Inbox watcher (AI)**, in Profile → Preferences under the AI settings, shown once answers can come back through the reply
+domain ([Deployment](./deployment.md#reply-detection)), gives the member an address of their own, **Get my address**:
+`inbox+<token>@<reply domain>` (160 random bits in hex, `users.inbox_token`; **Get a new address** replaces it, the old one
+then receiving nothing), with how to forward to it (a Gmail forwarding address and a filter, an Outlook rule, or one email
+forwarded by hand) (`GET /api/ai/inbox-watcher`, `POST /api/ai/inbox-watcher/address`). Resend receives what is forwarded
+and calls the same signed webhook as the answers, `POST /api/public/emails/inbound`; an `email.received` event to an
+inbox address of the domain goes to `InboxWatcherService`, once per received email (`inbox_emails.email_id`):
+
+- the sender is the email's own, or, when the member forwarded it by hand (the sender is the member), the first `From:` or
+  `De :` line of the forwarded message;
+- Gmail's forwarding confirmation (from `forwarding-noreply@google.com`) is sent on to the member's address, so they can
+  open its link, without AI;
+- otherwise, when the member's AI is available, it reads the email (`InboxReadingAiService`, on the message model, from
+  the allowance or their key): an **interview invite** with the slots it offers, a **rejection** with its likely reason,
+  a question on their **availability or rate**, or anything else, and writes the answer to an invite or a question from
+  the profile (the name, the availability date, the target daily rate and the booking link when on), never inventing a
+  date or a rate;
+- the sender's contact is the workspace's one with that address; unknown, for an invite or a question, a new contact is
+  added, with the company of a contact sharing their email's domain; the email is recorded as an incoming exchange of the
+  contact, on the open opportunity (Contact, Interview or Offer, not archived) the contact last wrote about, else the
+  latest changed one with their company;
+- an invite adds an **Entretien** step to that opportunity (planned on the slot when it offers one, to plan with the
+  slots in its notes otherwise), moves it from Contact to Interview, and drafts the answer; a rejection moves it to
+  Abandoned, turned down by the recruiter, with the reason guessed; a question drafts the answer. The drafts wait a week
+  on the dashboard under **Prepared overnight**, to copy or dismiss, whether the overnight autopilot is on or not.
+
+The card lists the last 20 forwarded emails: when, the subject, what it was and what was done, with a link to the
+opportunity. The email's text is never stored: only its sender, subject, kind and outcome. Without AI, a forwarded email is
+recorded as **Other email** and nothing is done.
+
 ### Co-optation
 
 An opportunity's page holds a **Co-optation** card: who referred the mission to the freelancer (**I pay a bonus to who
