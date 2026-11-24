@@ -109,7 +109,14 @@ network, its settings say they do not apply; while the network is off, they are 
 ## Authentication And Account Access
 
 Local accounts register and sign in with an email and a password of 8 characters to 72 bytes (an accented letter counts
-as 2, an emoji as 4), and can turn on TOTP two-factor authentication. In production, sign-in goes through Keycloak. The
+as 2, an emoji as 4), and can turn on TOTP two-factor authentication. **Forgot your password?** on the login page sends a
+link setting a new one (`POST /api/auth/password/forgot`, then `/api/auth/password/reset` from `/reset-password`): it works
+an hour and once, ends every session of the account and signs in, and asking for an unknown address answers the same.
+Where `indezy.auth.email-verification` is on (production), registering opens nothing: a link confirming the address is
+sent (`/verify-email`, `POST /api/auth/verify-email`), signing in before it says so and offers to send it again
+(`/api/auth/verify-email/resend`), and the link signs in; accounts from before, and those of the SSO, count as confirmed.
+Each link holds a 256-bit secret of which only the SHA-256 is kept, and one email goes every two minutes at most
+(`AccountEmailService`, from `noreply@swirlit.dev`). In production, sign-in goes through Keycloak. The
 profile page has the tabs **Personal information**, **Preferences**, **Notifications**, **Security**, **Billing**,
 **Emails**, **Public profile**, **Offer feed** and **Account**, where **Export my data** downloads every piece of the
 account's data as JSON, the prospection campaigns with their results and contacts (`prospectionCampaigns`) and the emails waiting to go (`scheduledEmails`) included.

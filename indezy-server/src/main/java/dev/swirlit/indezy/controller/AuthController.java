@@ -4,11 +4,16 @@ import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import dev.swirlit.indezy.exception.AccountOnHoldException;
+import dev.swirlit.indezy.exception.EmailUnverifiedException;
 import dev.swirlit.indezy.exception.AccountAlreadyExistsException;
 import dev.swirlit.indezy.exception.ExceptionLogDetails;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.exception.TwoFactorRequiredException;
+import dev.swirlit.indezy.service.AccountEmailService;
 import dev.swirlit.indezy.service.AuthService;
+import dev.swirlit.indezy.validation.PasswordMaxBytes;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import dev.swirlit.indezy.service.LoginAttemptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +41,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final LoginAttemptService loginAttemptService;
+    private final AccountEmailService accountEmails;
 
     @PostMapping("/login")
     @Operation(summary = "User login", description = "Authenticate user and return JWT token")
@@ -53,6 +59,12 @@ public class AuthController {
             // The credentials were right: the account waits for its deletion, and signing in with restore takes it back.
             loginAttemptService.loginSucceeded(request.getEmail());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(onHold(e));
+        } catch (EmailUnverifiedException e) {
+            // The credentials were right: the account first confirms its email, through the link sent (or sent again).
+            loginAttemptService.loginSucceeded(request.getEmail());
+            LoginResponse unverified = new LoginResponse();
+            unverified.setEmailVerificationRequired(true);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(unverified);
         } catch (TwoFactorRequiredException e) {
             // Not a failed attempt: the password was right, the client must now ask for the code.
             LoginResponse challenge = new LoginResponse();
@@ -89,6 +101,60 @@ public class AuthController {
             logFailure("Registration", e);
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    /** A confirmation or reset link's secret. */
+    public record LinkRequest(@NotBlank @Size(max = 100) String token) {
+
+        @Override
+        public String toString() {
+            return "LinkRequest[]";
+        }
+    }
+
+    /** An address to send a link to. */
+    public record EmailRequest(@NotBlank @Size(max = 254) String email) {
+
+        @Override
+        public String toString() {
+            return "EmailRequest[]";
+        }
+    }
+
+    /** The reset link's secret and the new password. */
+    public record ResetRequest(@NotBlank @Size(max = 100) String token,
+                               @NotBlank @Size(min = 8, message = "Password must be at least 8 characters long") @PasswordMaxBytes String password) {
+
+        @Override
+        public String toString() {
+            return "ResetRequest[]";
+        }
+    }
+
+    @PostMapping("/verify-email")
+    @Operation(summary = "Confirm the email of an account registered with a password, and sign in")
+    public ResponseEntity<LoginResponse> verifyEmail(@Valid @RequestBody LinkRequest request) {
+        return ResponseEntity.ok(authService.verifyEmail(request.token()));
+    }
+
+    @PostMapping("/verify-email/resend")
+    @Operation(summary = "Send the email confirmation link again", description = "Answers the same whether the address has an account or not")
+    public ResponseEntity<Void> resendVerification(@Valid @RequestBody EmailRequest request) {
+        accountEmails.resendVerification(request.email());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/password/forgot")
+    @Operation(summary = "Send a link to set a new password", description = "Answers the same whether the address has an account or not")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody EmailRequest request) {
+        accountEmails.requestReset(request.email());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/password/reset")
+    @Operation(summary = "Set a new password from the reset link, and sign in", description = "Every other session of the account ends")
+    public ResponseEntity<LoginResponse> resetPassword(@Valid @RequestBody ResetRequest request) {
+        return ResponseEntity.ok(authService.resetPassword(request.token(), request.password()));
     }
 
     @GetMapping("/sso")

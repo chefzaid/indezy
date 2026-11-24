@@ -156,3 +156,13 @@
     font-size: 0.875rem;
   }
 }
+
+.forgot {
+  margin: -8px 0 12px;
+  text-align: right;
+  font-size: 0.875rem;
+
+  a {
+    color: var(--app-link);
+  }
+}

@@ -30,6 +30,16 @@
             </div>
           </section>
         }
+        @if (unverifiedEmail) {
+          <section class="on-hold" role="status" data-login-unverified>
+            <mat-icon aria-hidden="true">mark_email_unread</mat-icon>
+            <div>
+              <p class="on-hold-title">{{ 'auth.verification.pendingTitle' | translate }}</p>
+              <p>{{ 'auth.verification.pending' | translate: { email: unverifiedEmail } }}</p>
+              <button mat-stroked-button type="button" (click)="resendVerification()" data-login-resend>{{ 'auth.verification.resend' | translate }}</button>
+            </div>
+          </section>
+        }
         @if (ssoEnabled && !heldThroughSso) {
           <button mat-flat-button
             color="primary"
@@ -80,6 +90,8 @@
               </mat-error>
             }
           </mat-form-field>
+
+          <p class="forgot"><a routerLink="/forgot-password" data-login-forgot>{{ 'auth.forgotPassword' | translate }}</a></p>
 
           @if (needsTotpCode) {
             <mat-form-field appearance="outline" class="full-width">

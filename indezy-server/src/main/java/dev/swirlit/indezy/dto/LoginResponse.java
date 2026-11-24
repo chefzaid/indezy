@@ -15,6 +15,8 @@ public class LoginResponse {
     private Boolean twoFactorRequired;
     /** The account is on hold before its deletion: signing in again with {@code restore} takes it off hold. */
     private Boolean accountOnHold;
+    /** The account must first confirm its email: a link was sent, and no session opens until it is followed. */
+    private Boolean emailVerificationRequired;
     /** The day an account on hold is deleted for good. */
     private LocalDate purgeOn;
 

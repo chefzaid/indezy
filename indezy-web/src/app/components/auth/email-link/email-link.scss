@@ -1,0 +1,43 @@
+:host {
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: var(--app-bg);
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.state {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  line-height: 1.5;
+
+  mat-icon {
+    flex: none;
+  }
+}
+
+.back {
+  margin-top: 16px;
+  font-size: 0.875rem;
+
+  a {
+    color: var(--app-link);
+  }
+}

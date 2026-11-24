@@ -63,6 +63,9 @@ class AuthServiceTest {
     @Mock
     private dev.swirlit.indezy.service.account.AccountDeletionService deletion;
 
+    @Mock
+    private AccountEmailService accountEmails;
+
     @InjectMocks
     private AuthService authService;
 

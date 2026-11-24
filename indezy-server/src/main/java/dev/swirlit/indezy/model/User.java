@@ -256,6 +256,28 @@ public class User extends BaseEntity {
     @Column(name = "vehicle_electric")
     private Boolean vehicleElectric;
 
+    /**
+     * Whether the account's email was confirmed: false for an account registered with a password while verification is
+     * required, until its link is followed; null for the others (signed in through SSO, or created before), read as yes.
+     */
+    @Column(name = "email_verified")
+    private Boolean emailVerified;
+
+    /** The SHA-256, in hex, of the email confirmation link's secret; null once confirmed. */
+    @Column(name = "email_verification_hash", length = 64, unique = true)
+    private String emailVerificationHash;
+
+    /** The SHA-256, in hex, of the password reset link's secret, and until when it opens; null when none was asked. */
+    @Column(name = "password_reset_hash", length = 64, unique = true)
+    private String passwordResetHash;
+
+    @Column(name = "password_reset_expires_at")
+    private java.time.Instant passwordResetExpiresAt;
+
+    /** When the last confirmation or reset email went, so asking again and again sends one every two minutes at most. */
+    @Column(name = "account_email_sent_at")
+    private java.time.Instant accountEmailSentAt;
+
     /** The member's own Anthropic key, encrypted (AiKeyCipher); null to use Indezy's within its limits. */
     @Column(name = "ai_api_key", length = 600)
     private String aiApiKey;

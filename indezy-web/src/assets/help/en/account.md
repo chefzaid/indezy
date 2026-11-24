@@ -9,7 +9,7 @@ To change your password:
 1. Open **Profile → Security**.
 2. Click **Change password**, enter the **Current password**, then the **New password** twice.
 
-A new password signs out every other session. There is no reset for a forgotten password on local accounts yet.
+A new password signs out every other session. Forgot it? **Forgot your password?** on the login page emails you a link to choose a new one; it works for an hour. When you create an account, open the link we email you to confirm your address before you sign in.
 
 ### Turn on two-factor authentication
 

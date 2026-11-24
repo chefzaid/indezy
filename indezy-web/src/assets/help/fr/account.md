@@ -9,7 +9,7 @@ Pour changer de mot de passe :
 1. Ouvrez **Profil → Sécurité**.
 2. Cliquez sur **Changer le mot de passe**, saisissez le **Mot de passe actuel** puis le **Nouveau mot de passe** deux fois.
 
-Un nouveau mot de passe déconnecte toutes vos autres sessions. Il n'existe pas encore de réinitialisation du mot de passe oublié pour les comptes locaux.
+Un nouveau mot de passe déconnecte toutes vos autres sessions. Oublié ? **Mot de passe oublié ?** sur la page de connexion vous envoie un lien pour en choisir un nouveau ; il fonctionne pendant une heure. Quand vous créez un compte, ouvrez le lien que nous vous envoyons pour confirmer votre adresse avant de vous connecter.
 
 ### Activer l'authentification à deux facteurs
 

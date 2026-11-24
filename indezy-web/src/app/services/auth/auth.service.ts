@@ -11,7 +11,8 @@ import { clearOfflineData } from '../../shared/utils/offline-data';
  * Pages opened without an Indezy account: an ESN validating an activity report, opening shared documents or booking a
  * call, an email's unsubscribe link, a public profile.
  */
-export const PUBLIC_PAGE_PATHS = ['/activity-report', '/book', '/documents-pack', '/emails/unsubscribe', '/p', '/testimonial'];
+export const PUBLIC_PAGE_PATHS = ['/activity-report', '/book', '/documents-pack', '/emails/unsubscribe', '/forgot-password', '/p', '/reset-password',
+  '/testimonial', '/verify-email'];
 
 /** The presentation page's addresses: the session is exchanged there to know who is signed in, never asked for. */
 export const HOME_PAGE_PATHS = ['/', '/en'];
@@ -47,11 +48,41 @@ export class AuthService {
   register(userData: RegisterRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.API_URL}/register`, userData).pipe(
       tap((response: LoginResponse) => {
-        this.setToken(response.token);
-        this.setUser(response.user);
-        this.currentUserSubject.next(response.user);
+        // In production the email is confirmed first: no session until its link is followed.
+        if (!response.emailVerificationRequired) {
+          this.openSession(response);
+        }
       })
     );
+  }
+
+  /** Confirms the email from its link, and signs in. */
+  verifyEmail(token: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.API_URL}/verify-email`, { token }).pipe(tap(response => this.openSession(response)));
+  }
+
+  /** Sends the confirmation link again (the answer is the same whether the address has an account or not). */
+  resendVerification(email: string): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/verify-email/resend`, { email });
+  }
+
+  /** Sends a link to set a new password (the answer is the same whether the address has an account or not). */
+  forgotPassword(email: string): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/password/forgot`, { email });
+  }
+
+  /** Sets the new password from the reset link, and signs in. */
+  resetPassword(token: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.API_URL}/password/reset`, { token, password }).pipe(tap(response => this.openSession(response)));
+  }
+
+  private openSession(response: LoginResponse): void {
+    if (!response.token) {
+      return;
+    }
+    this.setToken(response.token);
+    this.setUser(response.user);
+    this.currentUserSubject.next(response.user);
   }
 
   logout(): void {

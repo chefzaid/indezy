@@ -29,6 +29,19 @@ export const routes: Routes = [
     loadComponent: () => import('./components/auth/register/register.component').then(m => m.RegisterComponent)
   },
   {
+    // The email links of an account signed in with a password.
+    path: 'verify-email',
+    loadComponent: () => import('./components/auth/email-link/verify-email.component').then(m => m.VerifyEmailComponent)
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./components/auth/email-link/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./components/auth/email-link/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
+  {
     // Opened by a client contact from a testimonial link, without an account.
     path: 'testimonial',
     loadComponent: () => import('./components/testimonial-writing/testimonial-writing.component').then(m => m.TestimonialWritingComponent)

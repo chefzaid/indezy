@@ -106,6 +106,37 @@
     "archiveHint": "Take it out of the pipeline; it keeps its status"
   },
   "auth": {
+    "forgotPassword": "Forgot your password?",
+    "verification": {
+      "title": "Confirm your email",
+      "checking": "Confirming your email…",
+      "done": "Email confirmed: welcome to Indezy",
+      "failed": "This link was already used or is not valid. Sign in, or ask for a new one.",
+      "sent": "We sent a link to {{email}}: open it to confirm your email and open your account.",
+      "resend": "Send the link again",
+      "resent": "If the account waits for it, a new link is on its way",
+      "resendError": "The link could not be sent: try again",
+      "pendingTitle": "Confirm your email first",
+      "pending": "Open the link sent to {{email}} to open your account."
+    },
+    "reset": {
+      "forgotTitle": "Forgot your password?",
+      "forgotIntro": "Give your account's email: we send a link to choose a new password.",
+      "send": "Send the link",
+      "sent": "If an account uses this email, a link to choose a new password is on its way. It works for an hour.",
+      "sendError": "The link could not be sent: try again",
+      "backToLogin": "Back to sign in",
+      "title": "Choose a new password",
+      "password": "New password",
+      "passwordHint": "8 characters at least",
+      "confirm": "Type it again",
+      "mismatch": "The two passwords differ",
+      "save": "Save and sign in",
+      "saved": "Password changed: your other sessions were closed",
+      "saveError": "The password could not be changed: try again",
+      "expired": "This link has expired or was already used.",
+      "askAgain": "Ask for a new link"
+    },
     "loginTitle": "Sign in to Indezy",
     "loginSubtitle": "Manage your freelance projects with ease",
     "login": "Sign in",

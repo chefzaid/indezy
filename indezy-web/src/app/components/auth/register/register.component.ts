@@ -74,6 +74,20 @@ export class RegisterComponent implements OnInit {
     }
   }
 
+  /** The address a confirmation link went to, after registering in production; null before. */
+  awaitingEmail: string | null = null;
+
+  /** Sends the confirmation link again. */
+  resend(): void {
+    if (!this.awaitingEmail) {
+      return;
+    }
+    this.authService.resendVerification(this.awaitingEmail).subscribe({
+      next: () => this.notificationService.success('auth.verification.resent'),
+      error: () => this.notificationService.error('auth.verification.resendError')
+    });
+  }
+
   onSubmit(): void {
     if (this.registerForm.valid) {
       this.isLoading = true;
@@ -85,8 +99,12 @@ export class RegisterComponent implements OnInit {
       };
 
       this.authService.register(userData).subscribe({
-        next: () => {
+        next: (response) => {
           this.isLoading = false;
+          if (response.emailVerificationRequired) {
+            this.awaitingEmail = userData.email;
+            return;
+          }
           this.notificationService.success('auth.registerSuccess');
           this.router.navigate(['/dashboard']);
         },

@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import dev.swirlit.indezy.exception.EmailUnverifiedException;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -43,6 +44,7 @@ public class AuthService {
     private final TotpService totpService;
     private final JobBoardSources jobBoardSources;
     private final AccountDeletionService deletion;
+    private final AccountEmailService accountEmails;
 
     public LoginResponse login(LoginRequest request) {
         log.debug("Attempting login");
@@ -61,6 +63,9 @@ public class AuthService {
             throw new ResourceNotFoundException("Invalid email or password");
         }
         requireTwoFactorCode(user, request.getTotpCode());
+        if (AccountEmailService.unverified(user)) {
+            throw new EmailUnverifiedException();
+        }
         offHold(user, request.getRestore());
 
         Freelance freelance = ensureFreelanceProfile(user);
@@ -101,10 +106,31 @@ public class AuthService {
         user = userRepository.save(user);
 
         Freelance freelance = ensureFreelanceProfile(user);
+        // In production the address is confirmed first: the link signs in, nothing opens before.
+        if (accountEmails.verificationRequired()) {
+            accountEmails.requireVerification(user);
+            return AccountEmailService.awaitingVerification();
+        }
         String token = sessions.open(user, SignInMethod.REGISTRATION);
         
         log.debug("Registration successful for user ID: {}", user.getId());
         return toLoginResponse(user, freelance.getId(), token);
+    }
+
+    /** Signs in through the email confirmation link. */
+    public LoginResponse verifyEmail(String token) {
+        AccountEmailService.Verified verified = accountEmails.verify(token);
+        User user = userRepository.findById(verified.userId()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return toLoginResponse(user, ensureFreelanceProfile(user).getId(), verified.session());
+    }
+
+    /** Signs in with the new password set from the reset link. */
+    public LoginResponse resetPassword(String token, String password) {
+        User user = accountEmails.reset(token, password);
+        if (user.getDeletedAt() != null || !user.isActive()) {
+            return new LoginResponse();
+        }
+        return toLoginResponse(user, ensureFreelanceProfile(user).getId(), sessions.open(user, SignInMethod.EMAIL_LINK));
     }
 
     /** An account on hold is restored when asked, and otherwise told it is on hold, with the day it goes. */

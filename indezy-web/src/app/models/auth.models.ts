@@ -16,7 +16,10 @@ export interface AccountOnHold {
 }
 
 export interface LoginResponse {
+  /** Absent while the account must first confirm its email. */
   token: string;
+  /** Registered, the account confirms its email first: a link was sent, no session opened. */
+  emailVerificationRequired?: boolean;
   user: {
     id: number;
     accountId?: number;

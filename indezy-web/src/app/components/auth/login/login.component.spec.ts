@@ -17,7 +17,7 @@ describe('LoginComponent', () => {
 
   /** Creates the page as opened from `/login`, optionally with the `returnUrl` a guard added. */
   function create(returnUrl?: string, params: Record<string, string> = {}): LoginComponent {
-    auth = jasmine.createSpyObj('AuthService', ['login', 'isAuthenticated', 'startSsoLogin', 'restoreSso']);
+    auth = jasmine.createSpyObj('AuthService', ['login', 'isAuthenticated', 'startSsoLogin', 'restoreSso', 'resendVerification']);
     notification = jasmine.createSpyObj('NotificationService', ['success', 'info', 'errorText', 'error']);
     TestBed.configureTestingModule({
       imports: [LoginComponent, TranslateModule.forRoot()],
@@ -125,6 +125,18 @@ describe('LoginComponent', () => {
   it('hands the Keycloak sign-in over to the auth service', () => {
     create().onSsoLogin();
     expect(auth.startSsoLogin).toHaveBeenCalled();
+  });
+
+  it('asks an account to confirm its email first, and sends the link again', () => {
+    const component = create();
+    fill(component);
+    failWith(new HttpErrorResponse({ status: 403, error: { emailVerificationRequired: true } }));
+    component.onSubmit();
+    expect(component.unverifiedEmail).toBe('jean.dupont@example.test');
+    auth.resendVerification.and.returnValue(of(undefined));
+    component.resendVerification();
+    expect(auth.resendVerification).toHaveBeenCalledWith('jean.dupont@example.test');
+    expect(notification.success).toHaveBeenCalledWith('auth.verification.resent');
   });
 
   it('says an account is on hold and restores it with the password given', () => {

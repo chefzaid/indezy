@@ -49,6 +49,19 @@ export class LoginComponent implements OnInit {
   /** The account on hold signed in through Keycloak, so restoring it needs no password. */
   heldThroughSso = false;
   readonly ssoEnabled = environment.production;
+  /** The address whose account must confirm its email before signing in; null otherwise. */
+  unverifiedEmail: string | null = null;
+
+  /** Sends the confirmation link again to the account that tried to sign in. */
+  resendVerification(): void {
+    if (!this.unverifiedEmail) {
+      return;
+    }
+    this.authService.resendVerification(this.unverifiedEmail).subscribe({
+      next: () => this.notificationService.success('auth.verification.resent'),
+      error: () => this.notificationService.error('auth.verification.resendError')
+    });
+  }
 
   constructor(
     private readonly fb: FormBuilder,
@@ -121,6 +134,10 @@ export class LoginComponent implements OnInit {
         error: (error) => {
           this.isLoading = false;
           let errorMessage = this.translateService.instant('auth.loginError');
+          if (error.status === 403 && error.error?.emailVerificationRequired) {
+            this.unverifiedEmail = credentials.email;
+            return;
+          }
           if (error.status === 409 && error.error?.accountOnHold) {
             this.onHold = error.error.purgeOn;
             this.heldThroughSso = false;

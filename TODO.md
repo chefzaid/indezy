@@ -683,7 +683,7 @@ How to use Indezy, told on the public website rather than only in the repository
 - [x] Profile surface for account, preferences, notifications, and security-related fields
 - [x] Harden backend security config (currently permissive for non-auth routes)
 - [ ] Authentication + Gmail / Outlook / LinkedIn authentication
-- [ ] Email validation and password reset flows (production passwords live in the shared Keycloak `swirl` realm, which owns both flows; see Needs Input "Keycloak email flows")
+- [x] Email validation and password reset flows (production passwords live in the shared Keycloak `swirl` realm, which owns both flows; see Needs Input "Keycloak email flows") Done on 2026-11-24 in Indezy, on the owner's answer (local accounts + platform SSO): the confirmation link after registering (on in production), **Forgot your password?** and its reset link, sent from `noreply@swirlit.dev` (`docs/features.md#authentication-and-account-access`).
 - [x] Two-factor authentication (TOTP) — currently stubbed (random UUID secret, placeholder QR, length-only code check); implement real secret generation, QR/URI, and code validation
 - [x] Replace hardcoded user/freelance IDs with the authenticated principal from `SecurityContext` (backend `UserController.CURRENT_USER_ID = 1`, and `freelanceId = 1` in the Angular contact service) once authentication is wired through
 - [x] Account deletion (soft-delete with confirmation) and GDPR data export (droit à la portabilité). Self-service deletion was missing until 2026-11-17 (nothing set `User.deletedAt`): **Profile → Account → Delete my account** now puts the account on hold for 30 days, restorable by signing in, then deletes everything it held for good (`docs/features.md#account-deletion`).

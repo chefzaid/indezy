@@ -106,6 +106,37 @@
     "archiveHint": "La sortir du pipeline ; elle garde son statut"
   },
   "auth": {
+    "forgotPassword": "Mot de passe oublié ?",
+    "verification": {
+      "title": "Confirmez votre e-mail",
+      "checking": "Confirmation de votre e-mail…",
+      "done": "E-mail confirmé : bienvenue sur Indezy",
+      "failed": "Ce lien a déjà servi ou n'est pas valide. Connectez-vous, ou demandez-en un nouveau.",
+      "sent": "Nous avons envoyé un lien à {{email}} : ouvrez-le pour confirmer votre e-mail et ouvrir votre compte.",
+      "resend": "Renvoyer le lien",
+      "resent": "Si le compte l'attend, un nouveau lien est en route",
+      "resendError": "Le lien n'a pas pu être envoyé : réessayez",
+      "pendingTitle": "Confirmez d'abord votre e-mail",
+      "pending": "Ouvrez le lien envoyé à {{email}} pour ouvrir votre compte."
+    },
+    "reset": {
+      "forgotTitle": "Mot de passe oublié ?",
+      "forgotIntro": "Indiquez l'e-mail de votre compte : nous envoyons un lien pour choisir un nouveau mot de passe.",
+      "send": "Envoyer le lien",
+      "sent": "Si un compte utilise cet e-mail, un lien pour choisir un nouveau mot de passe est en route. Il fonctionne pendant une heure.",
+      "sendError": "Le lien n'a pas pu être envoyé : réessayez",
+      "backToLogin": "Retour à la connexion",
+      "title": "Choisissez un nouveau mot de passe",
+      "password": "Nouveau mot de passe",
+      "passwordHint": "8 caractères au moins",
+      "confirm": "Saisissez-le à nouveau",
+      "mismatch": "Les deux mots de passe diffèrent",
+      "save": "Enregistrer et se connecter",
+      "saved": "Mot de passe changé : vos autres sessions ont été fermées",
+      "saveError": "Le mot de passe n'a pas pu être changé : réessayez",
+      "expired": "Ce lien a expiré ou a déjà servi.",
+      "askAgain": "Demander un nouveau lien"
+    },
     "loginTitle": "Connexion à Indezy",
     "loginSubtitle": "Gérez vos missions freelance en toute simplicité",
     "login": "Se connecter",

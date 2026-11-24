@@ -21,7 +21,7 @@ describe('RegisterComponent', () => {
   } as unknown as TranslateService;
 
   beforeEach(() => {
-    auth = jasmine.createSpyObj('AuthService', ['register', 'isAuthenticated']);
+    auth = jasmine.createSpyObj('AuthService', ['register', 'isAuthenticated', 'resendVerification']);
     router = jasmine.createSpyObj('Router', ['navigate']);
     notification = jasmine.createSpyObj('NotificationService', ['success', 'errorText']);
     component = new RegisterComponent(new FormBuilder(), auth, router, notification, translate);
@@ -74,6 +74,17 @@ describe('RegisterComponent', () => {
     expect(notification.success).toHaveBeenCalledWith('auth.registerSuccess');
     expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
     expect(component.isLoading).toBeFalse();
+  });
+
+  it('says to open the link sent when the email is confirmed first, and sends it again', () => {
+    auth.register.and.returnValue(of({ emailVerificationRequired: true } as LoginResponse));
+    fill('Password123!');
+    component.onSubmit();
+    expect(component.awaitingEmail).toBe('jean.dupont@example.test');
+    expect(router.navigate).not.toHaveBeenCalled();
+    auth.resendVerification.and.returnValue(of(undefined));
+    component.resend();
+    expect(auth.resendVerification).toHaveBeenCalledWith('jean.dupont@example.test');
   });
 
   it('reports an existing account only for a conflict', () => {

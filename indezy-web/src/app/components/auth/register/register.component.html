@@ -14,6 +14,13 @@
       </mat-card-header>
 
       <mat-card-content>
+        @if (awaitingEmail) {
+          <section class="awaiting" role="status" data-register-awaiting-email>
+            <mat-icon aria-hidden="true">mark_email_unread</mat-icon>
+            <p>{{ 'auth.verification.sent' | translate: { email: awaitingEmail } }}</p>
+            <button mat-stroked-button type="button" (click)="resend()" data-register-resend>{{ 'auth.verification.resend' | translate }}</button>
+          </section>
+        } @else {
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
           <div class="name-row">
             <mat-form-field appearance="outline" class="half-width">
@@ -119,6 +126,7 @@
             }
           </button>
         </form>
+        }
       </mat-card-content>
 
       <mat-card-actions class="register-actions">

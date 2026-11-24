@@ -31,6 +31,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByEmailVerificationHash(String hash);
+
+    Optional<User> findByPasswordResetHash(String hash);
+
     /** The accounts that share their rates with the network's benchmark. */
     List<User> findByShareRatesTrue();
 

@@ -42,6 +42,28 @@ test('presents the public authentication routes', async ({ page }) => {
   await expect(page.locator('input[autocomplete="given-name"]')).toBeVisible();
 });
 
+test('asks for a reset link from the login page and sets the new password from it', async ({ page }) => {
+  const sent: unknown[] = [];
+  await page.route('**/api/auth/password/forgot', route => {
+    sent.push(route.request().postDataJSON());
+    return route.fulfill({ status: 204 });
+  });
+  await page.route('**/api/auth/password/reset', route => route.fulfill({ status: 400, json: {} }));
+  await page.goto('/login');
+  await page.locator('[data-login-forgot]').click();
+  await expect(page).toHaveURL(/\/forgot-password$/);
+  await page.locator('[data-forgot-email]').fill('lea@example.com');
+  await page.locator('[data-forgot-send]').click();
+  await expect(page.locator('[data-forgot-sent]')).toBeVisible();
+  expect(sent).toEqual([{ email: 'lea@example.com' }]);
+
+  await page.goto('/reset-password?token=abc');
+  await page.locator('[data-reset-password]').fill('NewPassword1');
+  await page.locator('[data-reset-confirm]').fill('NewPassword1');
+  await page.locator('[data-reset-save]').click();
+  await expect(page.locator('[data-reset-expired]')).toBeVisible();
+});
+
 for (const language of ['en', 'fr'] as const) {
   const t = text[language];
 
