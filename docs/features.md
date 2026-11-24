@@ -1629,8 +1629,18 @@ Not estimated: a base past three PASS, the first two years' flat amounts and the
 income (the own rate then stands in). An EURL's majority manager gets the same computation (entreprendre.service-public.gouv.fr
 F38152, the same rates) on the pay of the year they give in Profile → Billing → **My pay this year**
 (`billing_manager_pay`, before contributions; an EURL taxed as a person gives its profit there) and their dividends past
-10 % of the share capital (**Dividends this year**, `billing_manager_dividends`). For another legal form, whose
-contributions follow the pay (SASU, SARL, portage), the own rate (from the URSSAF simulator, linked) gives the year's estimate, the card staying away without
+10 % of the share capital (**Dividends this year**, `billing_manager_dividends`). A SASU president gets the payslip's
+contributions on the gross pay of the year they give (**My gross pay this year**, the same column; dividends bear none),
+at the payroll rates of 1 January 2026 (`PresidentContributions`; open.lefebvre-dalloz.fr's table, the employee rates
+matching entreprendre.service-public.gouv.fr F2302, checked on 2026-11-24), the company's share and theirs line by line,
+with the net before income tax: health 13 %, autonomy 0.30 %, family allowances 5.25 % (the full rates, the reduced ones
+not applied), old-age 2.11 % + 0.40 % on the whole pay and 8.55 % + 6.90 % up to the PASS, FNAL 0.10 % up to the PASS,
+social dialogue 0.016 %, accidents at work at the company's rate (**Accident-at-work rate**, `billing_accident_rate`,
+left out without it), CSG and CRDS 9.7 % on 98.25 % of the pay up to four PASS, Agirc-Arrco 4.72 % + 3.15 % up to the
+PASS and 12.95 % + 8.64 % up to eight, CEG 1.29 % + 0.86 % and 1.62 % + 1.08 %, CET 0.21 % + 0.14 % past one PASS. Left out:
+unemployment, AGS and Apec (a president is not covered), the contributions that depend on the staff (training,
+apprenticeship, the mobility levy from 11 employees, the executives' death insurance) and the payroll tax (not due when
+charging VAT). For another legal form (SARL, portage), the own rate (from the URSSAF simulator, linked) gives the year's estimate, the card staying away without
 one. A year whose official rates are not in
 `FrenchFigures` yet says so and asks for an own rate. The amounts are estimates: URSSAF's declaration counts.
 

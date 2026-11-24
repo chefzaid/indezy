@@ -63,3 +63,24 @@ li {
     }
   }
 }
+
+.payroll {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+
+  th, td {
+    padding: 4px 6px;
+    text-align: right;
+    font-weight: normal;
+    border-top: 1px solid var(--app-border);
+  }
+
+  th[scope="row"], thead th:first-child {
+    text-align: left;
+  }
+
+  thead th {
+    font-weight: 600;
+  }
+}

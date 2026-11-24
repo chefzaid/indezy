@@ -124,6 +124,8 @@ export interface BillingIdentity {
   /** For an EURL's majority manager: their pay of the year before contributions and their dividends, in euros. */
   managerPay?: number | null;
   managerDividends?: number | null;
+  /** For a SASU: the company's accident-at-work rate, in percent. */
+  accidentRate?: number | null;
   /** Read-only: whether invoices can be issued. */
   complete?: boolean;
 }

@@ -71,6 +71,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     ownContributionRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
     managerPay: [null as number | null, [Validators.min(0), Validators.max(10_000_000)]],
     managerDividends: [null as number | null, [Validators.min(0), Validators.max(10_000_000)]],
+    accidentRate: [null as number | null, [Validators.min(0), Validators.max(20)]],
     incomeTaxFrequency: ['MONTHLY' as DeclarationFrequency],
     vatRegime: ['SIMPLIFIED' as VatRegime],
     quoteTerms: ['', Validators.maxLength(20000)],
@@ -111,6 +112,11 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   /** An EURL, whose majority manager's contributions Indezy computes from the pay and dividends they give. */
   get eurl(): boolean {
     return this.form.controls.legalForm.value === 'EURL';
+  }
+
+  /** A SASU, whose president's payslip contributions Indezy computes from the gross pay and the accident-at-work rate given. */
+  get sasu(): boolean {
+    return this.form.controls.legalForm.value === 'SASU';
   }
 
   /** Whether the income tax on the activity is paid in instalments: a micro-entreprise or an EI, without the versement libératoire. */
@@ -539,6 +545,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       ownContributionRate: value.ownContributionRate ?? null,
       managerPay: value.managerPay ?? null,
       managerDividends: value.managerDividends ?? null,
+      accidentRate: value.accidentRate ?? null,
       incomeTaxFrequency: value.incomeTaxFrequency ?? 'MONTHLY',
       vatRegime: value.vatRegime ?? 'SIMPLIFIED',
       quoteTerms: value.quoteTerms?.trim() || null,
@@ -586,6 +593,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       ownContributionRate: identity.ownContributionRate ?? null,
       managerPay: identity.managerPay ?? null,
       managerDividends: identity.managerDividends ?? null,
+      accidentRate: identity.accidentRate ?? null,
       incomeTaxFrequency: identity.incomeTaxFrequency ?? 'MONTHLY',
       vatRegime: identity.vatRegime ?? 'SIMPLIFIED',
       quoteTerms: identity.quoteTerms ?? '',

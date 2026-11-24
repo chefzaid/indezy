@@ -48,6 +48,16 @@ describe('ContributionsComponent', () => {
     expect(eurl.querySelector('[data-contributions-profit]')!.textContent).toContain('invoices.contributions.pay');
   });
 
+  it('shows a SASU president the payslip, the company share and theirs', () => {
+    const { element } = create({ ...quarterly, legalForm: 'SASU', rate: 40, contributions: 34243, periods: [], profit: 60000,
+      payroll: [{ kind: 'HEALTH', employer: 7800, employee: 0 }, { kind: 'CSG_CRDS', employer: 0, employee: 5718.15 }],
+      employerShare: 21797, employeeShare: 12446 });
+    expect(element.querySelector('[data-contributions-payroll]')!.textContent).toContain('invoices.contributions.payslip');
+    expect(element.querySelector('[data-payroll-line="CSG_CRDS"]')!.textContent).toContain('5,718 €');
+    expect(element.querySelector('[data-contributions-sasu-basis]')).not.toBeNull();
+    expect(element.querySelector('[data-contribution-line]')).toBeNull();
+  });
+
   it('says when no rate is known, and stays away for a company without its own rate', () => {
     expect(create({ ...quarterly, rate: null, contributions: null, periods: [] }).element.querySelector('[data-contributions-no-rate]'))
       .not.toBeNull();

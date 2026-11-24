@@ -141,4 +141,21 @@ class ContributionServiceTest {
         billing.setManagerDividends(null);
         assertThat(ContributionService.managerIncome(billing)).isEqualByComparingTo("40000");
     }
+
+    @Test
+    void estimatesASasuPresidentsPayslipOnTheGrossPayTheyGive() {
+        billing.setLegalForm(LegalForm.SASU);
+        billing.setManagerPay(60000);
+        billing.setAccidentRate(0.8);
+
+        ContributionService.Estimate estimate = service.estimate(7L, 2026);
+        assertThat(estimate.profit()).isEqualByComparingTo("60000");
+        assertThat(estimate.employerShare()).isEqualByComparingTo("21796.85");
+        assertThat(estimate.employeeShare()).isEqualByComparingTo("12446.07");
+        assertThat(estimate.contributions()).isEqualByComparingTo("34242.92");
+        assertThat(estimate.payroll()).isNotEmpty();
+        assertThat(estimate.lines()).isEmpty();
+        billing.setOwnContributionRate(50.0);
+        assertThat(service.estimate(7L, 2026).payroll()).isEmpty();
+    }
 }

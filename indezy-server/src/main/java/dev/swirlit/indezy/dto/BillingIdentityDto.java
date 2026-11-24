@@ -81,6 +81,8 @@ public record BillingIdentityDto(
     /** For an EURL's majority manager: their pay of the year and their dividends, in euros, for the contributions. */
     @jakarta.validation.constraints.PositiveOrZero @jakarta.validation.constraints.Max(10_000_000) Integer managerPay,
     @jakarta.validation.constraints.PositiveOrZero @jakarta.validation.constraints.Max(10_000_000) Integer managerDividends,
+    /** For a SASU: the company's accident-at-work rate, in percent. */
+    @DecimalMin("0") @DecimalMax("20") Double accidentRate,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;

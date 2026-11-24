@@ -8,6 +8,7 @@ import dev.swirlit.indezy.model.enums.MicroActivity;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.tax.FrenchFigures;
 import dev.swirlit.indezy.tax.IndependentContributions;
+import dev.swirlit.indezy.tax.PresidentContributions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +30,9 @@ import java.util.Optional;
  * the member's own rate, with the day each declaration is due; for an EI under the real regime affiliated with the SSI
  * (not the CIPAV), the official contributions on the year's profit so far, line by line ({@link IndependentContributions},
  * the revenue received less the deductible expenses); for an EURL's majority manager, the same on the year's pay they
- * give, with their dividends past 10 % of the share capital; for another legal form, the member's own rate on the year's
- * revenue.
+ * give, with their dividends past 10 % of the share capital; for a SASU president, the payroll's contributions on the
+ * gross pay they give ({@link PresidentContributions}), the company's share and theirs; for another legal form, the
+ * member's own rate on the year's revenue.
  */
 @Service
 @RequiredArgsConstructor
@@ -59,16 +61,19 @@ public class ContributionService {
      * The year's estimate: the rate applied and whether it is the official one (null when neither is known), the
      * figures' year, the settings it follows, the year's revenue and contributions, and the declarations (a
      * micro-entreprise only, else empty); for an EI under the real regime, the profit, the base after the abatement
-     * and the contributions line by line (else null and empty).
+     * and the contributions line by line (else null and empty); for a SASU president, the gross pay as {@code profit}
+     * and the payslip's lines with the company's and the president's totals (else empty and null).
      */
     public record Estimate(int year, int figuresYear, LegalForm legalForm, MicroActivity activity, boolean incomeTaxDischarge,
                            DeclarationFrequency frequency, BigDecimal rate, boolean officialRate, BigDecimal revenue,
                            BigDecimal contributions, List<Period> periods, BigDecimal profit, BigDecimal base,
-                           List<IndependentContributions.Line> lines) {
+                           List<IndependentContributions.Line> lines, List<PresidentContributions.Line> payroll,
+                           BigDecimal employerShare, BigDecimal employeeShare) {
 
         public Estimate {
             periods = List.copyOf(periods);
             lines = List.copyOf(lines);
+            payroll = List.copyOf(payroll);
         }
     }
 
@@ -111,11 +116,20 @@ public class ContributionService {
                 IndependentContributions.Contributions computed = official2026.get();
                 BigDecimal share = received.signum() == 0 ? null : computed.total().multiply(HUNDRED).divide(received, 2, RoundingMode.HALF_UP);
                 return new Estimate(year, IndependentContributions.YEAR, form, activity, discharge, frequency, share, true, received,
-                    computed.total(), List.of(), profit, computed.base(), computed.lines());
+                    computed.total(), List.of(), profit, computed.base(), computed.lines(), List.of(), null, null);
             }
         }
+        if (form == LegalForm.SASU && own == null && year == IndependentContributions.YEAR && billing.getManagerPay() != null) {
+            BigDecimal gross = BigDecimal.valueOf(billing.getManagerPay()).setScale(2, RoundingMode.HALF_UP);
+            PresidentContributions.Payslip payslip = PresidentContributions.of(gross,
+                billing.getAccidentRate() == null ? null : BigDecimal.valueOf(billing.getAccidentRate()));
+            BigDecimal total = payslip.employer().add(payslip.employee());
+            BigDecimal share = received.signum() == 0 ? null : total.multiply(HUNDRED).divide(received, 2, RoundingMode.HALF_UP);
+            return new Estimate(year, IndependentContributions.YEAR, form, activity, discharge, frequency, share, true, received, total,
+                List.of(), gross, null, List.of(), payslip.lines(), payslip.employer(), payslip.employee());
+        }
         return new Estimate(year, figures.year(), form, activity, discharge, frequency, rate, own == null && official != null, received,
-            contributions(received, rate), periods, null, null, List.of());
+            contributions(received, rate), periods, null, null, List.of(), List.of(), null, null);
     }
 
     /** An EURL manager's income for the contributions: their pay, and their dividends past 10 % of the share capital. */

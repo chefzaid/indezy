@@ -106,7 +106,14 @@ describe('ProfileBillingComponent', () => {
     expect(element.querySelector('[data-billing-manager-dividends]')).not.toBeNull();
     component.form.patchValue({ managerPay: -1 });
     expect(component.form.controls.managerPay.invalid).toBeTrue();
-    component.form.patchValue({ managerPay: 42000, legalForm: 'MICRO_ENTREPRISE' });
+    // A SASU: the president's gross pay and the accident-at-work rate, no dividends.
+    component.form.patchValue({ legalForm: 'SASU', managerPay: 42000 });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-billing-accident-rate]')).not.toBeNull();
+    expect(element.querySelector('[data-billing-manager-dividends]')).toBeNull();
+    component.form.patchValue({ accidentRate: 25 });
+    expect(component.form.controls.accidentRate.invalid).toBeTrue();
+    component.form.patchValue({ accidentRate: 0.8, managerPay: 42000, legalForm: 'MICRO_ENTREPRISE' });
     expect(element.querySelector('[data-billing-own-rate]')).not.toBeNull();
     component.form.patchValue({ legalForm: 'MICRO_ENTREPRISE', microActivity: 'BIC_SERVICES', declarationFrequency: 'QUARTERLY',
       incomeTaxDischarge: true });

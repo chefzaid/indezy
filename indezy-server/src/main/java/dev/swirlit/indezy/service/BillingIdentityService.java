@@ -131,6 +131,7 @@ public class BillingIdentityService {
         billing.setVatRegime(request.vatRegime());
         billing.setManagerPay(request.managerPay());
         billing.setManagerDividends(request.managerDividends());
+        billing.setAccidentRate(request.accidentRate());
         return billing;
     }
 
@@ -214,7 +215,7 @@ public class BillingIdentityService {
             Objects.requireNonNullElse(billing.getDeclarationFrequency(), DeclarationFrequency.MONTHLY), billing.getOwnContributionRate(),
             Objects.requireNonNullElse(billing.getIncomeTaxFrequency(), DeclarationFrequency.MONTHLY),
             Objects.requireNonNullElse(billing.getVatRegime(), dev.swirlit.indezy.model.enums.VatRegime.SIMPLIFIED),
-            billing.getManagerPay(), billing.getManagerDividends(), complete);
+            billing.getManagerPay(), billing.getManagerDividends(), billing.getAccidentRate(), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

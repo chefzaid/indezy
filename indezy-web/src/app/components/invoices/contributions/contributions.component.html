@@ -27,6 +27,27 @@
         </ul>
         <p class="note" data-contributions-ei-basis>{{ 'invoices.contributions.eiBasis' | translate }}</p>
       }
+      @if (figures.payroll?.length) {
+        <p class="profit" data-contributions-payroll>
+          {{ 'invoices.contributions.payslip' | translate:{ gross: (figures.profit | number:'1.0-0'), employer: (figures.employerShare | number:'1.0-0'),
+            employee: (figures.employeeShare | number:'1.0-0'), net: ((figures.profit ?? 0) - (figures.employeeShare ?? 0) | number:'1.0-0') } }}
+        </p>
+        <table class="payroll">
+          <thead>
+            <tr><th scope="col"></th><th scope="col">{{ 'invoices.contributions.employer' | translate }}</th><th scope="col">{{ 'invoices.contributions.employee' | translate }}</th></tr>
+          </thead>
+          <tbody>
+            @for (line of figures.payroll; track line.kind) {
+              <tr [attr.data-payroll-line]="line.kind">
+                <th scope="row">{{ 'invoices.contributions.payrollLines.' + line.kind | translate }}</th>
+                <td>{{ line.employer | number:'1.0-0' }} €</td>
+                <td>{{ line.employee | number:'1.0-0' }} €</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <p class="note" data-contributions-sasu-basis>{{ 'invoices.contributions.sasuBasis' | translate }}</p>
+      }
       @if (periods.length) {
         <ul>
           @for (period of periods; track period.from) {

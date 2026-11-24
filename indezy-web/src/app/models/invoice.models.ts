@@ -164,6 +164,18 @@ export interface ContributionEstimate {
   profit?: number | null;
   base?: number | null;
   lines?: ContributionLine[];
+  /** For a SASU president: the payslip's lines, the company's and the president's shares. */
+  payroll?: PayrollLine[];
+  employerShare?: number | null;
+  employeeShare?: number | null;
+}
+
+/** A line of a SASU president's payslip: the company's share and the president's. */
+export interface PayrollLine {
+  kind: 'HEALTH' | 'AUTONOMY' | 'FAMILY' | 'PENSION_UNCAPPED' | 'PENSION_CAPPED' | 'HOUSING' | 'SOCIAL_DIALOGUE' | 'ACCIDENTS' |
+    'CSG_CRDS' | 'AGIRC_ARRCO' | 'BALANCE' | 'TECHNICAL_BALANCE';
+  employer: number;
+  employee: number;
 }
 
 /** One of an EI's contributions under the real regime. */

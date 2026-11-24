@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Votre bulletin de président de SASU
+
+Indiquez votre rémunération brute de l'année dans Profil → Facturation : **Déclarations URSSAF** liste les cotisations de votre bulletin aux taux 2026, la part de la société et la vôtre, et votre net. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Qui se cache derrière l'offre d'une ESN
 
 **Postuler ? (IA)** dit désormais aussi pour quel client final l'offre d'une ESN ou d'une plateforme est probablement, nommé ou décrit d'après les indices de l'offre. Voir [Le flux d'offres](/help/offers).
