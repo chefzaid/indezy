@@ -7,6 +7,7 @@ import dev.swirlit.indezy.model.enums.LegalForm;
 import dev.swirlit.indezy.model.enums.MicroActivity;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.tax.FrenchFigures;
+import dev.swirlit.indezy.tax.IndependentContributions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +21,15 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * The URSSAF contributions on the revenue received (see docs/features.md#urssaf-contributions): for a micro-entreprise,
  * each month or quarter's revenue times the official rate of its activity (the income tax added when paid with it), or
- * the member's own rate, with the day each declaration is due; for another legal form, the member's own rate on the
- * year's revenue, the official rates being for the micro-entreprise only.
+ * the member's own rate, with the day each declaration is due; for an EI under the real regime affiliated with the SSI
+ * (not the CIPAV), the official contributions on the year's profit so far, line by line ({@link IndependentContributions},
+ * the revenue received less the deductible expenses); for another legal form, the member's own rate on the year's
+ * revenue.
  */
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,7 @@ public class ContributionService {
 
     private final FreelanceRepository freelances;
     private final RevenueCeilingService revenue;
+    private final ExpenseService expenses;
     private final Clock clock;
 
     /** Where a declaration stands: its period still running, ended and to declare, or past its deadline. */
@@ -52,14 +57,17 @@ public class ContributionService {
     /**
      * The year's estimate: the rate applied and whether it is the official one (null when neither is known), the
      * figures' year, the settings it follows, the year's revenue and contributions, and the declarations (a
-     * micro-entreprise only, else empty).
+     * micro-entreprise only, else empty); for an EI under the real regime, the profit, the base after the abatement
+     * and the contributions line by line (else null and empty).
      */
     public record Estimate(int year, int figuresYear, LegalForm legalForm, MicroActivity activity, boolean incomeTaxDischarge,
                            DeclarationFrequency frequency, BigDecimal rate, boolean officialRate, BigDecimal revenue,
-                           BigDecimal contributions, List<Period> periods) {
+                           BigDecimal contributions, List<Period> periods, BigDecimal profit, BigDecimal base,
+                           List<IndependentContributions.Line> lines) {
 
         public Estimate {
             periods = List.copyOf(periods);
+            lines = List.copyOf(lines);
         }
     }
 
@@ -94,8 +102,18 @@ public class ContributionService {
                 }
             }
         }
+        if (form == LegalForm.EI && own == null && year == IndependentContributions.YEAR && activity != MicroActivity.BNC_CIPAV) {
+            BigDecimal profit = received.subtract(expenses.summary(freelanceId, year).deductible());
+            Optional<IndependentContributions.Contributions> official2026 = IndependentContributions.of(profit);
+            if (official2026.isPresent()) {
+                IndependentContributions.Contributions computed = official2026.get();
+                BigDecimal share = received.signum() == 0 ? null : computed.total().multiply(HUNDRED).divide(received, 2, RoundingMode.HALF_UP);
+                return new Estimate(year, IndependentContributions.YEAR, form, activity, discharge, frequency, share, true, received,
+                    computed.total(), List.of(), profit, computed.base(), computed.lines());
+            }
+        }
         return new Estimate(year, figures.year(), form, activity, discharge, frequency, rate, own == null && official != null, received,
-            contributions(received, rate), periods);
+            contributions(received, rate), periods, null, null, List.of());
     }
 
     /**

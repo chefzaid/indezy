@@ -92,6 +92,12 @@ describe('ProfileBillingComponent', () => {
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('[data-billing-micro-activity]')).toBeNull();
+    // An EI: its activity (SSI or CIPAV) only, no declaration frequency nor versement libératoire.
+    component.form.patchValue({ legalForm: 'EI' });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-billing-micro-activity]')).not.toBeNull();
+    expect(element.querySelector('[data-billing-declaration-frequency]')).toBeNull();
+    expect(element.querySelector('[data-billing-income-tax-discharge]')).toBeNull();
     expect(element.querySelector('[data-billing-own-rate]')).not.toBeNull();
     component.form.patchValue({ legalForm: 'MICRO_ENTREPRISE', microActivity: 'BIC_SERVICES', declarationFrequency: 'QUARTERLY',
       incomeTaxDischarge: true });

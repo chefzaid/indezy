@@ -13,6 +13,20 @@
         <p class="summary" data-contributions-no-rate>{{ 'invoices.contributions.noRate' | translate:{ year: figures.year } }}
           <a routerLink="/profile" [queryParams]="{ tab: 'billing' }">{{ 'invoices.contributions.setRate' | translate }}</a></p>
       }
+      @if (figures.lines?.length) {
+        <p class="profit" data-contributions-profit>
+          {{ 'invoices.contributions.profit' | translate:{ profit: (figures.profit | number:'1.0-0'), base: (figures.base | number:'1.0-0') } }}
+        </p>
+        <ul class="lines">
+          @for (line of figures.lines; track line.kind) {
+            <li [attr.data-contribution-line]="line.kind">
+              <span class="name">{{ 'invoices.contributions.lines.' + line.kind | translate }}</span>
+              <span class="figure">{{ line.amount | number:'1.0-0' }} €</span>
+            </li>
+          }
+        </ul>
+        <p class="note" data-contributions-ei-basis>{{ 'invoices.contributions.eiBasis' | translate }}</p>
+      }
       @if (periods.length) {
         <ul>
           @for (period of periods; track period.from) {

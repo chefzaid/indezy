@@ -160,6 +160,16 @@ export interface ContributionEstimate {
   revenue: number;
   contributions: number | null;
   periods: ContributionPeriod[];
+  /** For an EI under the real regime: the year's profit so far, the base after the 26 % abatement, and the contributions line by line. */
+  profit?: number | null;
+  base?: number | null;
+  lines?: ContributionLine[];
+}
+
+/** One of an EI's contributions under the real regime. */
+export interface ContributionLine {
+  kind: 'HEALTH' | 'DAILY_ALLOWANCES' | 'BASE_PENSION' | 'SUPPLEMENTARY_PENSION' | 'DISABILITY' | 'FAMILY' | 'CSG_CRDS' | 'TRAINING';
+  amount: number;
 }
 
 /** A tax deadline of the next twelve months: the CFE, a VAT instalment (its month only known) or the annual VAT return. */

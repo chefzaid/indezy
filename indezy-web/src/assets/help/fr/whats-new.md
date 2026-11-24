@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Vos cotisations en EI au réel
+
+Pour une EI au réel (SSI), **Déclarations URSSAF** calcule désormais les cotisations de l'année sur votre bénéfice, ligne par ligne aux taux officiels 2026 : maladie, retraites, allocations familiales, CSG-CRDS et le reste. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Transférez les e-mails de vos recruteurs à l'IA
 
 **Veille de la boîte mail (IA)** dans Profil → Préférences vous donne une adresse où transférer les e-mails de vos recruteurs : une invitation à un entretien devient une étape d'entretien avec une réponse rédigée, un refus clôt l'opportunité, et une question sur votre disponibilité ou votre TJM reçoit sa réponse rédigée. Voir [Clients, ESN et contacts](/help/clients-contacts).

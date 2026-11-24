@@ -1613,8 +1613,20 @@ commercial services; plus 2.2 or 1.7 points of income tax with the versement lib
 the next month when declaring monthly; 30 April, 31 July, 31 October and 31 January when declaring quarterly. A period
 ended and not yet due reads **To declare by …**. Profile → Billing → **URSSAF contributions** sets the activity, the
 frequency (monthly by default), the versement libératoire and the member's own rate in percent of the revenue, which
-replaces the official one; for another legal form, whose contributions follow the profit, the own rate (from the URSSAF
-simulator, linked) gives the year's estimate, the card staying away without one. A year whose official rates are not in
+replaces the official one. For an EI under the real regime affiliated with the SSI (its activity not the CIPAV's) and
+without an own rate, the year's contributions are computed on its profit so far, the revenue received less the
+deductible expenses (**Expenses**), at the rates applying from 2026 (`IndependentContributions`;
+entreprendre.service-public.gouv.fr F33351, checked on 2026-11-24): the base is the profit less a flat 26 % abatement;
+health and maternity on a rate rising with the base (0 % under 20 % of the PASS of 48,060 €, then in straight lines to
+1.5 % at 40 %, 4 % at 60 %, 6.5 % at 110 %, 7.7 % at two PASS and 8.5 % at three, the table being followed where the
+page's formula for the last band disagrees), daily allowances 0.5 % from 40 % of the PASS, the base pension 17.87 % up
+to the PASS and 0.72 % on the whole base, the supplementary pension 8.1 % up to the PASS and 9.1 % up to four,
+disability and death 1.3 % up to the PASS, family allowances rising from 0 % at 110 % of the PASS to 3.1 % at 140 %, the
+CSG and CRDS 9.7 %, and the training contribution 0.25 % of the PASS; each line is listed, with the profit and the base.
+Not estimated: a base past three PASS, the first two years' flat amounts and the minimum contributions of a very low
+income (the own rate then stands in). For another legal form, whose contributions follow the pay (EURL, SASU,
+portage), the own rate (from the URSSAF simulator, linked) gives the year's estimate, the card staying away without
+one. A year whose official rates are not in
 `FrenchFigures` yet says so and asks for an own rate. The amounts are estimates: URSSAF's declaration counts.
 
 ### Tax Calendar

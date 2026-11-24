@@ -36,6 +36,15 @@ describe('ContributionsComponent', () => {
     expect(component.quarter(quarterly.periods[0])).toBe('Q3');
   });
 
+  it('shows an EI under the real regime its profit, the base and each contribution', () => {
+    const { element } = create({ ...quarterly, legalForm: 'EI', rate: 23.5, revenue: 17000, contributions: 4000, periods: [],
+      profit: 15000, base: 11100, lines: [{ kind: 'HEALTH', amount: 208.13 }, { kind: 'CSG_CRDS', amount: 1076.7 }] });
+    expect(element.querySelector('[data-contributions-profit]')!.textContent).toContain('invoices.contributions.profit');
+    expect(element.querySelector('[data-contribution-line="CSG_CRDS"]')!.textContent).toContain('1,077 €');
+    expect(element.querySelector('[data-contributions-ei-basis]')).not.toBeNull();
+    expect(element.querySelector('[data-contribution-period]')).toBeNull();
+  });
+
   it('says when no rate is known, and stays away for a company without its own rate', () => {
     expect(create({ ...quarterly, rate: null, contributions: null, periods: [] }).element.querySelector('[data-contributions-no-rate]'))
       .not.toBeNull();

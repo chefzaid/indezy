@@ -110,7 +110,7 @@
       </div>
       <fieldset class="contributions" data-billing-contributions>
         <legend>{{ 'profile.billing.contributions.title' | translate }}</legend>
-        @if (micro) {
+        @if (micro || ei) {
           <div class="row">
             <mat-form-field appearance="outline" class="grow">
               <mat-label>{{ 'profile.billing.contributions.activity' | translate }}</mat-label>
@@ -120,15 +120,19 @@
                 }
               </mat-select>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="grow">
-              <mat-label>{{ 'profile.billing.contributions.frequency' | translate }}</mat-label>
-              <mat-select formControlName="declarationFrequency" data-billing-declaration-frequency>
-                <mat-option value="MONTHLY">{{ 'profile.billing.contributions.monthly' | translate }}</mat-option>
-                <mat-option value="QUARTERLY">{{ 'profile.billing.contributions.quarterly' | translate }}</mat-option>
-              </mat-select>
-            </mat-form-field>
+            @if (micro) {
+              <mat-form-field appearance="outline" class="grow">
+                <mat-label>{{ 'profile.billing.contributions.frequency' | translate }}</mat-label>
+                <mat-select formControlName="declarationFrequency" data-billing-declaration-frequency>
+                  <mat-option value="MONTHLY">{{ 'profile.billing.contributions.monthly' | translate }}</mat-option>
+                  <mat-option value="QUARTERLY">{{ 'profile.billing.contributions.quarterly' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            }
           </div>
-          <mat-checkbox formControlName="incomeTaxDischarge" data-billing-income-tax-discharge>{{ 'profile.billing.contributions.discharge' | translate }}</mat-checkbox>
+          @if (micro) {
+            <mat-checkbox formControlName="incomeTaxDischarge" data-billing-income-tax-discharge>{{ 'profile.billing.contributions.discharge' | translate }}</mat-checkbox>
+          }
         }
         @if (incomeTaxInstalments) {
           <div class="row">
@@ -147,7 +151,7 @@
             <mat-label>{{ 'profile.billing.contributions.ownRate' | translate }}</mat-label>
             <input matInput type="number" min="0" max="100" step="0.1" formControlName="ownContributionRate" data-billing-own-rate>
             <span matTextSuffix>%</span>
-            <mat-hint>{{ (micro ? 'profile.billing.contributions.ownRateMicroHint' : 'profile.billing.contributions.ownRateHint') | translate }}</mat-hint>
+            <mat-hint>{{ (micro || ei ? 'profile.billing.contributions.ownRateMicroHint' : 'profile.billing.contributions.ownRateHint') | translate }}</mat-hint>
             <mat-error>{{ error('ownContributionRate') }}</mat-error>
           </mat-form-field>
         </div>

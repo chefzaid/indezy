@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Your contributions as an EI under the real regime
+
+For an EI under the real regime (SSI), **URSSAF declarations** now computes the year's contributions on your profit, line by line at the official 2026 rates: health, pensions, family allowances, CSG-CRDS and the rest. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Forward your recruiters' emails to the AI
 
 **Inbox watcher (AI)** in Profile → Preferences gives you an address to forward your recruiters' emails to: an interview invite becomes an interview step with a drafted answer, a rejection closes the opportunity, and a question on your availability or rate gets its answer drafted. See [Clients, ESNs and contacts](/help/clients-contacts).

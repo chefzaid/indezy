@@ -101,6 +101,11 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     return this.form.controls.legalForm.value === 'MICRO_ENTREPRISE';
   }
 
+  /** An EI under the real regime, whose contributions Indezy computes from the profit (its SSI or CIPAV activity asked). */
+  get ei(): boolean {
+    return this.form.controls.legalForm.value === 'EI';
+  }
+
   /** Whether the income tax on the activity is paid in instalments: a micro-entreprise or an EI, without the versement libératoire. */
   get incomeTaxInstalments(): boolean {
     const form = this.form.controls.legalForm.value;
