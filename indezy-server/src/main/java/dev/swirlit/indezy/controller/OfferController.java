@@ -72,6 +72,7 @@ public class OfferController {
     private final OfferLinkService linkService;
     private final OfferTrendService trendService;
     private final SkillsGapService skillsGapService;
+    private final dev.swirlit.indezy.service.TrainingCatalog trainingCatalog;
     private final OfferPublisherInsightService publisherService;
     private final OfferMarketService marketService;
     private final AccessGuard accessGuard;
@@ -104,6 +105,15 @@ public class OfferController {
     @GetMapping("/skills-gap")
     public SkillsGapService.SkillsGap skillsGap(@RequestParam(required = false) Long freelanceId) {
         return skillsGapService.gap(accessGuard.requireWorkspace(freelanceId));
+    }
+
+    @Operation(summary = "CPF-eligible trainings for a skill, from the Mon Compte Formation catalogue (open data), remote ones first",
+        description = "503 when the catalogue cannot be read")
+    @GetMapping("/skills-gap/trainings")
+    public List<dev.swirlit.indezy.service.TrainingCatalog.Training> trainings(@RequestParam String skill,
+                                                                              @RequestParam(required = false) Long freelanceId) {
+        accessGuard.requireWorkspace(freelanceId);
+        return trainingCatalog.forSkill(skill);
     }
 
     @Operation(summary = "What a publisher puts in the feed: its open missions, rates, republications, sites and offers",

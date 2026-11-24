@@ -1371,7 +1371,14 @@ nightly medians are kept 400 days.
 offers naming at least one of its skills: the share of those offers naming each skill the profile lacks, spellings and
 aliases of one skill counted once ("Kubernetes 33 % · 14 offers"), shown from 10 matching offers for skills in at least
 10 % of them and 3 offers, the six most asked first, with **Plan a training** to the Documents page's trainings. The
-open offers' skills are read again at most every 10 minutes.
+open offers' skills are read again at most every 10 minutes. **CPF trainings** on a skill lists, on request, the
+CPF-eligible trainings whose title names it (`GET /api/offers/skills-gap/trainings?skill=`, `TrainingCatalog`), read
+from the Mon Compte Formation catalogue the Caisse des Dépôts publishes as open data (`opendata.caissedesdepots.fr`,
+dataset `moncompteformation_catalogueformation`, Licence Ouverte, refreshed daily; only the skill is sent, the answer
+kept a day): each training once whatever the regions it is given in, those given remotely first, then those with the
+most sessions, five at most, with the provider, the certification, the usual hours and price and the regions. **Plan
+it** opens the training form filled with it (noted **CPF**) and adds it to the trainings. When the catalogue cannot be
+read, the list says so.
 
 ### Mission History
 

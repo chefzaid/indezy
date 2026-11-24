@@ -468,6 +468,18 @@ export interface OfferSkillsGap {
   gaps: { skill: string; offers: number; percent: number }[];
 }
 
+/** A CPF-eligible training from the Mon Compte Formation catalogue: its usual hours and price, whether it is given remotely, its regions. */
+export interface CatalogTraining {
+  id: string;
+  title: string | null;
+  provider: string | null;
+  certification: string | null;
+  hours: number | null;
+  price: number | null;
+  remote: boolean;
+  regions: string[];
+}
+
 export interface OfferTrend {
   /** The profile's skills, to choose from. */
   skills: string[];

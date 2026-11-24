@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ (training ? 'trainings.editTitle' : 'trainings.addTitle') | translate }}</h2>
+<h2 mat-dialog-title>{{ (training?.id ? 'trainings.editTitle' : 'trainings.addTitle') | translate }}</h2>
 <form [formGroup]="form" (ngSubmit)="save()">
   <mat-dialog-content class="fields">
     <mat-form-field appearance="outline">

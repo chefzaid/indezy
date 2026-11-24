@@ -94,6 +94,9 @@ class OfferControllerTest {
     private OfferSearchService searchService;
 
     @MockitoBean
+    private dev.swirlit.indezy.service.TrainingCatalog trainingCatalog;
+
+    @MockitoBean
     private OfferStateService stateService;
 
     @MockitoBean

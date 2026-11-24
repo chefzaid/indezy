@@ -28,8 +28,7 @@ import {
   OfferTrend,
   PublicSavedSearchEmails,
   SavedOfferSearch,
-  SavedSearchEmailsUpdate
-} from '../../models/offer.models';
+  SavedSearchEmailsUpdate, CatalogTraining } from '../../models/offer.models';
 import { offerQueryToHttpParams } from './offer-query';
 import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 
@@ -214,6 +213,12 @@ export class OfferService {
   /** The skills the open offers matching the profile ask for that it lacks, the most asked first. */
   skillsGap(): Observable<OfferSkillsGap> {
     return this.http.get<OfferSkillsGap>(`${this.API_URL}/skills-gap`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  /** CPF-eligible trainings for a skill, remote ones first; errors are the caller's to tell. */
+  skillTrainings(skill: string): Observable<CatalogTraining[]> {
+    return this.http.get<CatalogTraining[]>(`${this.API_URL}/skills-gap/trainings`, { params: new HttpParams().set('skill', skill),
+      context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
   }
 
   marketTrends(skill?: string, region?: string): Observable<OfferTrend> {

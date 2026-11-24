@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### CPF trainings for the skills you lack
+
+Under **Skills in demand you lack**, **CPF trainings** lists the CPF-eligible trainings for each skill, from the Mon Compte Formation catalogue, and **Plan it** adds one to your trainings. See [The offer feed](/help/offers).
+
 ### Your payslip as a SASU president
 
 Give your gross pay of the year in Profile → Billing: **URSSAF declarations** lists your payslip's contributions at the 2026 rates, the company's share and yours, and your net pay. See [Quotes and invoices](/help/invoices-quotes).

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Des formations CPF pour les compétences qui vous manquent
+
+Sous **Compétences demandées qui vous manquent**, **Formations CPF** liste les formations éligibles au CPF pour chaque compétence, depuis le catalogue Mon Compte Formation, et **La prévoir** en ajoute une à vos formations. Voir [Le flux d'offres](/help/offers).
+
 ### Votre bulletin de président de SASU
 
 Indiquez votre rémunération brute de l'année dans Profil → Facturation : **Déclarations URSSAF** liste les cotisations de votre bulletin aux taux 2026, la part de la société et la vôtre, et votre net. Voir [Devis et factures](/help/invoices-quotes).
