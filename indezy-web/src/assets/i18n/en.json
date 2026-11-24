@@ -5428,6 +5428,7 @@
       "ask": "Ask the AI",
       "again": "Ask again",
       "hint": "The AI weighs this offer against your profile: one line on whether it is worth applying, and its deal-breakers.",
+      "likelyClient": "Likely for {{client}} (the AI's guess from the offer)",
       "dealBreakers": "Deal-breakers"
     },
     "dossier": {

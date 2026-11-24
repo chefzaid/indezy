@@ -76,3 +76,15 @@ mat-spinner {
   margin-right: 8px;
   vertical-align: middle;
 }
+
+.likely-client {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 8px 0 0;
+  color: var(--app-text-muted);
+
+  mat-icon {
+    flex: none;
+  }
+}

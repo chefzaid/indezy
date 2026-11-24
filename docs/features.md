@@ -829,8 +829,10 @@ never saved or sent on its own:
 - **Should I apply? (AI)** on a feed offer's page (`GET`/`POST /api/ai/offers/{offerId}/verdict`): one line on whether
   the offer is worth applying to for the profile (skills, target rate, town) and its deal-breakers (on site every day, a
   rate under the target, a permanent job posted as freelance, portage required, a start date passed, required skills the
-  profile lacks). The verdict is kept for the workspace so an offer is paid once, asked again on request, and dropped
-  every night at 05:20 once the feed removes the offer.
+  profile lacks). When an ESN, a recruiting firm or a platform posted it, it also tells the end client it is likely for
+  (**Likely for …**, `likely_client`): the one it names, else a short description from its clues (sector, size, place,
+  project, tools), never a company name the offer does not support. The verdict is kept for the workspace so an offer is
+  paid once, asked again on request, and dropped every night at 05:20 once the feed removes the offer.
 - **Profile → Preferences → AI** (`GET /api/ai/status`, `PUT`/`DELETE /api/ai/key`): whether AI can be used and this
   month's allowance on Indezy's key (10 US dollars a month on the free tier, all accounts together within 100), or the member's own Anthropic key, stored encrypted, with
   Opus, Sonnet or Haiku 5.5 for every task or **Automatic**, which no limit applies to. Automatic, as on Indezy's key,

@@ -32,6 +32,12 @@ describe('OfferVerdictComponent', () => {
     const element: HTMLElement = fixture.nativeElement;
     expect(element.querySelector('[data-offer-verdict-fit="false"]')?.textContent).toContain('On site every day.');
     expect(element.querySelector('[data-offer-deal-breakers]')?.textContent).toContain('5 days on site');
+    expect(element.querySelector('[data-offer-likely-client]')).toBeNull();
+  });
+
+  it('tells the end client an intermediary offer is likely for', () => {
+    const element: HTMLElement = create({ ...verdict, likelyClient: 'a large French bank in Paris' }).nativeElement;
+    expect(element.querySelector('[data-offer-likely-client]')?.textContent).toContain('ai.triage.likelyClient');
   });
 
   it('asks for a verdict, and says why it could not', () => {

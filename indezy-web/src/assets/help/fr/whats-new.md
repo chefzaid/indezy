@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Qui se cache derrière l'offre d'une ESN
+
+**Postuler ? (IA)** dit désormais aussi pour quel client final l'offre d'une ESN ou d'une plateforme est probablement, nommé ou décrit d'après les indices de l'offre. Voir [Le flux d'offres](/help/offers).
+
 ### Vos cotisations en EI au réel ou gérant d'EURL
 
 Pour une EI au réel (SSI), **Déclarations URSSAF** calcule désormais les cotisations de l'année sur votre bénéfice (gérant majoritaire d'une EURL, sur la rémunération et les dividendes indiqués dans Profil → Facturation), ligne par ligne aux taux officiels 2026 : maladie, retraites, allocations familiales, CSG-CRDS et le reste. Voir [Devis et factures](/help/invoices-quotes).

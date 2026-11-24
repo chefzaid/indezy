@@ -29,4 +29,8 @@ public class OfferVerdict extends BaseEntity {
     /** One per line. */
     @Column(name = "deal_breakers", length = 1000)
     private String dealBreakers;
+
+    /** The end client the offer is likely for, as the AI named or described it from the offer; null when unknown. */
+    @Column(name = "likely_client", length = 120)
+    private String likelyClient;
 }

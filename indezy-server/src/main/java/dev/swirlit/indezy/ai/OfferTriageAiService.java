@@ -40,13 +40,18 @@ public class OfferTriageAiService {
     private static final int VERDICT_MAX = 300;
     private static final int BREAKER_MAX = 200;
     private static final int BREAKERS = 5;
+    private static final int CLIENT_MAX = 120;
     private static final long MAX_TOKENS = 2_000;
     private static final String SYSTEM = """
         You triage freelance IT mission offers for a French freelancer. Say in one short sentence whether the offer is worth
         applying to for this profile, and list its deal-breakers: on site every day, a daily rate under the target, a
         permanent position (CDI) posted as freelance, portage or an employment contract required, a start date already
         past, skills the profile lacks that the offer requires, or anything else plainly incompatible. Only what the offer
-        states; an empty list when there is none. Write in the language asked.""";
+        states; an empty list when there is none. When an ESN, a recruiting firm or a platform posted it, say in
+        likelyClient which end client it is likely for: the one it names, else a short description from its clues (the
+        sector, the size, the place, the project, the tools), such as "a large French bank in Paris", never a company
+        name the offer does not support; empty when the end client posted it itself or nothing hints at one. Write in the
+        language asked.""";
 
     private final AiService ai;
     private final JobOfferRepository offers;
@@ -58,7 +63,8 @@ public class OfferTriageAiService {
     record Triage(
         @JsonPropertyDescription("Whether it is worth applying to") boolean goodFit,
         @JsonPropertyDescription("One short sentence on why, 200 characters at most") String verdict,
-        @JsonPropertyDescription("Up to five deal-breakers, each a few words, or an empty list") List<String> dealBreakers) {
+        @JsonPropertyDescription("Up to five deal-breakers, each a few words, or an empty list") List<String> dealBreakers,
+        @JsonPropertyDescription("The end client it is likely for, named or described, 120 characters at most; empty when unknown") String likelyClient) {
 
         Triage {
             dealBreakers = dealBreakers == null ? List.of() : List.copyOf(dealBreakers);
@@ -66,7 +72,7 @@ public class OfferTriageAiService {
     }
 
     /** A verdict as the offer page shows it. */
-    public record Verdict(Long offerId, boolean goodFit, String verdict, List<String> dealBreakers, LocalDateTime createdAt) {
+    public record Verdict(Long offerId, boolean goodFit, String verdict, List<String> dealBreakers, LocalDateTime createdAt, String likelyClient) {
 
         public Verdict {
             dealBreakers = List.copyOf(dealBreakers);
@@ -107,6 +113,8 @@ public class OfferTriageAiService {
         verdict.setVerdict(cut(Objects.toString(triage.verdict(), "").strip(), VERDICT_MAX));
         verdict.setDealBreakers(String.join("\n", triage.dealBreakers().stream().filter(item -> item != null && !item.isBlank())
             .map(item -> cut(item.strip().replace('\n', ' '), BREAKER_MAX)).limit(BREAKERS).toList()));
+        String client = Objects.toString(triage.likelyClient(), "").strip().replace('\n', ' ');
+        verdict.setLikelyClient(client.isEmpty() ? null : cut(client, CLIENT_MAX));
         return toDto(verdicts.save(verdict));
     }
 
@@ -133,6 +141,7 @@ public class OfferTriageAiService {
     private static Verdict toDto(OfferVerdict verdict) {
         List<String> breakers = verdict.getDealBreakers() == null || verdict.getDealBreakers().isBlank() ? List.of() :
             Arrays.stream(verdict.getDealBreakers().split("\n")).toList();
-        return new Verdict(verdict.getOfferId(), verdict.isGoodFit(), verdict.getVerdict(), breakers, verdict.getCreatedAt());
+        return new Verdict(verdict.getOfferId(), verdict.isGoodFit(), verdict.getVerdict(), breakers, verdict.getCreatedAt(),
+            verdict.getLikelyClient());
     }
 }

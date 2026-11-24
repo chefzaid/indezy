@@ -101,7 +101,8 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                     "\"missions\":[{\"number\":1,\"description\":\"Migration de la paie vers Kafka, au cœur des flux.\"},{\"number\":9,\"description\":\"Inventée\"}]}",
                     "end_turn");
             } else if (body.contains("You triage")) {
-                answer = message("{\"goodFit\":false,\"verdict\":\"Sur site tous les jours.\",\"dealBreakers\":[\"5 jours sur site\",\"\",\"TJM sous l'objectif\"]}",
+                answer = message("{\"goodFit\":false,\"verdict\":\"Sur site tous les jours.\",\"dealBreakers\":[\"5 jours sur site\",\"\",\"TJM sous l'objectif\"]," +
+                    "\"likelyClient\":\" une grande banque à Paris\\n\"}",
                     "end_turn");
             } else if (body.contains("You are the coach")) {
                 answer = message("Préparez trois exemples de projets Kafka.", "end_turn");
@@ -265,6 +266,7 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         Map<String, Object> verdict = call(alice, HttpMethod.POST, "/ai/offers/" + offerId + "/verdict?language=FR", null, Map.class).getBody();
         assertThat(verdict).containsEntry("goodFit", false).containsEntry("verdict", "Sur site tous les jours.");
         assertThat((List<String>) verdict.get("dealBreakers")).containsExactly("5 jours sur site", "TJM sous l'objectif");
+        assertThat(verdict).containsEntry("likelyClient", "une grande banque à Paris");
         assertThat(BODIES.getLast()).contains("Lead Kotlin", "<profile>");
         assertThat(call(alice, HttpMethod.GET, "/ai/offers/" + offerId + "/verdict", null, Map.class).getBody()).containsEntry("goodFit", false);
         assertThat(call(bob, HttpMethod.GET, "/ai/offers/" + offerId + "/verdict", null, String.class).getStatusCode())

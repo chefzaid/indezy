@@ -274,6 +274,8 @@ export interface AiOfferVerdict {
   verdict: string;
   dealBreakers: string[];
   createdAt: string;
+  /** The end client an intermediary's offer is likely for, named or described by the AI from the offer's clues; null when unknown. */
+  likelyClient?: string | null;
 }
 
 export interface AiMessageDraft {

@@ -13,6 +13,12 @@
       <mat-icon aria-hidden="true">{{ verdict.goodFit ? 'thumb_up' : 'thumb_down' }}</mat-icon>
       <span>{{ verdict.verdict }}</span>
     </p>
+    @if (verdict.likelyClient) {
+      <p class="likely-client" data-offer-likely-client>
+        <mat-icon aria-hidden="true">domain</mat-icon>
+        <span>{{ 'ai.triage.likelyClient' | translate:{ client: verdict.likelyClient } }}</span>
+      </p>
+    }
     @if (verdict.dealBreakers.length) {
       <ul class="breakers" [attr.aria-label]="'ai.triage.dealBreakers' | translate" data-offer-deal-breakers>
         @for (breaker of verdict.dealBreakers; track $index) {

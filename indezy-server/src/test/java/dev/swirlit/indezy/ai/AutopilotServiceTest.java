@@ -81,7 +81,7 @@ class AutopilotServiceTest {
             List.of()));
         // Even offers are worth applying to.
         when(triage.triage(eq(3L), eq(9L), anyLong(), any())).thenAnswer(call -> new OfferTriageAiService.Verdict(call.getArgument(2),
-            (Long) call.getArgument(2) % 2 == 0, "Avis", List.of(), null));
+            (Long) call.getArgument(2) % 2 == 0, "Avis", List.of(), null, null));
     }
 
     @Test

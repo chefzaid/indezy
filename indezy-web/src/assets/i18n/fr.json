@@ -5428,6 +5428,7 @@
       "ask": "Demander à l'IA",
       "again": "Demander à nouveau",
       "hint": "L'IA évalue cette offre face à votre profil : une ligne pour dire si elle vaut une candidature, et ses points bloquants.",
+      "likelyClient": "Probablement pour {{client}} (déduit par l'IA de l'offre)",
       "dealBreakers": "Points bloquants"
     },
     "dossier": {
