@@ -1460,6 +1460,12 @@
       "shareCapital": "Capital social",
       "vatExempt": "Exonéré de TVA (franchise en base, art. 293 B du CGI)",
       "vatNumber": "Numéro de TVA",
+      "vatRegime": "Régime de TVA",
+      "vatRegimes": {
+        "SIMPLIFIED": "Simplifié (2 acomptes, déclaration annuelle)",
+        "NORMAL_MONTHLY": "Réel normal, déclaration mensuelle (CA3)",
+        "NORMAL_QUARTERLY": "Réel normal, déclaration trimestrielle (TVA sous 4 000 € par an)"
+      },
       "vatRate": "Taux de TVA",
       "address": "Adresse de facturation",
       "iban": "IBAN",
@@ -3494,9 +3500,12 @@
         "INCOME_TAX_INSTALMENT": "Acompte d'impôt sur le revenu (prélèvement à la source), prélevé ce jour",
         "CFE": "CFE (cotisation foncière des entreprises), à payer au plus tard ce jour",
         "VAT_INSTALMENT": "Acompte de TVA (l'avis indique le jour)",
+        "VAT_PERIOD_RETURN": "Déclaration de TVA (CA3)",
         "VAT_RETURN": "Déclaration annuelle de TVA (CA12), avec le solde"
       },
-      "basis": "Les douze prochains mois. La TVA est estimée d'après la TVA sur les paiements reçus, avant celle de vos dépenses ; le montant de la CFE figure sur votre avis. Au régime simplifié de TVA, exercice clos le 31 décembre."
+      "monthReturn": "Déclaration de TVA (CA3) de {{month}}",
+      "quarterReturn": "Déclaration de TVA (CA3) du trimestre commençant en {{month}}",
+      "basis": "Les douze prochains mois. La TVA est estimée d'après la TVA sur les paiements reçus, avant celle de vos dépenses ; le montant de la CFE figure sur votre avis. Au régime simplifié de TVA, exercice clos le 31 décembre ; au réel normal, le jour de la CA3 dépend de votre adresse de facturation, de votre forme juridique et de votre nom ou SIREN (impots.gouv.fr), seul son mois s'affiche quand l'un d'eux manque."
     },
     "ceilings": {
       "title": "Plafonds {{year}}",

@@ -60,6 +60,14 @@
             <span matTextSuffix>%</span>
             <mat-error>{{ error('vatRate') }}</mat-error>
           </mat-form-field>
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>{{ 'profile.billing.vatRegime' | translate }}</mat-label>
+            <mat-select formControlName="vatRegime" data-billing-vat-regime>
+              @for (regime of vatRegimes; track regime) {
+                <mat-option [value]="regime">{{ 'profile.billing.vatRegimes.' + regime | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
         </div>
       }
       <mat-form-field appearance="outline" class="full">

@@ -13,7 +13,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, debounceTime, forkJoin, map, merge, of, switchMap } from 'rxjs';
 
-import { BillingIdentity, BlockStyle, BodyBlock, DeclarationFrequency, LEGAL_FORMS, LegalForm, MICRO_ACTIVITIES, MicroActivity, STYLED_BLOCKS, USUAL_BLOCK_STYLE,
+import { BillingIdentity, BlockStyle, BodyBlock, DeclarationFrequency, VatRegime, LEGAL_FORMS, LegalForm, MICRO_ACTIVITIES, MicroActivity, STYLED_BLOCKS, USUAL_BLOCK_STYLE,
   USUAL_BODY_BLOCKS } from '../../../models';
 import { BillingService, PreviewPage } from '../../../services/billing/billing.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -49,6 +49,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
 
   readonly legalForms = LEGAL_FORMS;
   readonly microActivities = MICRO_ACTIVITIES;
+  readonly vatRegimes: VatRegime[] = ['SIMPLIFIED', 'NORMAL_MONTHLY', 'NORMAL_QUARTERLY'];
   readonly form = inject(FormBuilder).group({
     legalName: ['', [Validators.maxLength(120)]],
     legalForm: [null as LegalForm | null],
@@ -69,6 +70,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     declarationFrequency: ['MONTHLY' as DeclarationFrequency],
     ownContributionRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
     incomeTaxFrequency: ['MONTHLY' as DeclarationFrequency],
+    vatRegime: ['SIMPLIFIED' as VatRegime],
     quoteTerms: ['', Validators.maxLength(20000)],
     accentColor: [''],
     header: ['', Validators.maxLength(150)],
@@ -524,6 +526,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       declarationFrequency: value.declarationFrequency ?? 'MONTHLY',
       ownContributionRate: value.ownContributionRate ?? null,
       incomeTaxFrequency: value.incomeTaxFrequency ?? 'MONTHLY',
+      vatRegime: value.vatRegime ?? 'SIMPLIFIED',
       quoteTerms: value.quoteTerms?.trim() || null,
       accentColor: value.accentColor || null,
       header: value.header?.trim() || null,
@@ -568,6 +571,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       declarationFrequency: identity.declarationFrequency ?? 'MONTHLY',
       ownContributionRate: identity.ownContributionRate ?? null,
       incomeTaxFrequency: identity.incomeTaxFrequency ?? 'MONTHLY',
+      vatRegime: identity.vatRegime ?? 'SIMPLIFIED',
       quoteTerms: identity.quoteTerms ?? '',
       accentColor: identity.accentColor ?? '',
       header: identity.header ?? '',

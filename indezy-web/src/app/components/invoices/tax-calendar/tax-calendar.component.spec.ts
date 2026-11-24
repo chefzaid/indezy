@@ -28,6 +28,19 @@ describe('TaxCalendarComponent', () => {
     expect(vat).toContain('1,650 €');
   });
 
+  it('names the period of a normal-regime VAT return, a month or a quarter', () => {
+    const element = create([
+      { kind: 'VAT_PERIOD_RETURN', dueOn: '2026-12-17', monthOnly: false, amount: 400, covers: '2026-11', months: 1 },
+      { kind: 'VAT_PERIOD_RETURN', dueOn: '2027-04-21', monthOnly: false, amount: null, covers: '2027-01', months: 3 }]);
+    const returns = element.querySelectorAll('[data-tax-deadline="VAT_PERIOD_RETURN"]');
+    expect(returns.length).toBe(2);
+    expect(returns[0].textContent).toContain('invoices.taxCalendar.monthReturn');
+    expect(returns[0].textContent).toContain('17 December 2026');
+    expect(returns[0].textContent).toContain('400 €');
+    expect(returns[1].textContent).toContain('invoices.taxCalendar.quarterReturn');
+    expect(returns[1].textContent).not.toContain('€');
+  });
+
   it('stays away without a deadline', () => {
     expect(create([]).querySelector('[data-tax-calendar]')).toBeNull();
   });

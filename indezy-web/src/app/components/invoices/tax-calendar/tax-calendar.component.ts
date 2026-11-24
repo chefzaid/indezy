@@ -25,7 +25,12 @@ import { InvoiceService } from '../../../services/invoice/invoice.service';
             @for (deadline of deadlines; track deadline.kind + deadline.dueOn) {
               <li [attr.data-tax-deadline]="deadline.kind">
                 <span class="when">{{ deadline.monthOnly ? (deadline.dueOn | date:'MMMM y') : (deadline.dueOn | date:'d MMMM y') }}</span>
-                <span class="what">{{ 'invoices.taxCalendar.kinds.' + deadline.kind | translate }}</span>
+                @if (deadline.covers) {
+                  <span class="what">{{ (deadline.months === 3 ? 'invoices.taxCalendar.quarterReturn' : 'invoices.taxCalendar.monthReturn') |
+                    translate:{ month: (deadline.covers + '-01' | date:'MMMM y') } }}</span>
+                } @else {
+                  <span class="what">{{ 'invoices.taxCalendar.kinds.' + deadline.kind | translate }}</span>
+                }
                 @if (deadline.amount !== null) {
                   <span class="amount">≈ {{ deadline.amount | number:'1.0-0' }} €</span>
                 }

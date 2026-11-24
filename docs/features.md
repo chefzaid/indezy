@@ -1597,6 +1597,15 @@ rules are service-public.gouv.fr's (checked on 2026-11-23). For a micro-entrepri
 libératoire, the income-tax instalments (prélèvement à la source) are listed too, debited on the 15th: the next three
 months when monthly, or 15 February, 15 May, 15 August and 15 November when quarterly (Profile → Billing → **Income-tax
 instalments**, `incomeTaxFrequency`; impots.gouv.fr, checked on 2026-11-24), their amount the tax administration's.
+Under the normal VAT regime (Profile → Billing → **VAT regime**, `vatRegime`: simplified, normal monthly, or normal
+quarterly when the year's VAT stays under 4,000 €), the instalments and the annual return give way to the VAT return
+(CA3) of each period, due the month after it: the next three when monthly, those of the next twelve months when
+quarterly, each with the VAT on the payments received in its period so far (none for a period not begun). Its day is
+impots.gouv.fr's ("Dates limites de transmission des CA3", checked on 2026-11-24), read from the billing address's
+postcode, the legal form and the last name or the SIREN: in Paris (75), Hauts-de-Seine (92), Seine-Saint-Denis (93) and
+Val-de-Marne (94), an individual business the 15th (last name A to H) or the 17th (I to Z), a company the 19th (SIREN
+00 to 68), the 20th (69 to 78) or the 21st (79 to 99); elsewhere, an individual business the 16th (A to H) or the 19th
+(I to Z), a company the 21st. Without the postcode, the name or the SIREN it needs, only the month shows.
 
 ### Expenses
 

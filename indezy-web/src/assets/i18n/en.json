@@ -1460,6 +1460,12 @@
       "shareCapital": "Share capital",
       "vatExempt": "Exempt from VAT (franchise en base, art. 293 B du CGI)",
       "vatNumber": "VAT number",
+      "vatRegime": "VAT regime",
+      "vatRegimes": {
+        "SIMPLIFIED": "Simplified (2 instalments, annual return)",
+        "NORMAL_MONTHLY": "Normal, monthly return (CA3)",
+        "NORMAL_QUARTERLY": "Normal, quarterly return (VAT under 4,000 € a year)"
+      },
       "vatRate": "VAT rate",
       "address": "Billing address",
       "iban": "IBAN",
@@ -3494,9 +3500,12 @@
         "INCOME_TAX_INSTALMENT": "Income-tax instalment (prélèvement à la source), debited this day",
         "CFE": "CFE (business property tax), paid by this day",
         "VAT_INSTALMENT": "VAT instalment (the notice gives the day)",
+        "VAT_PERIOD_RETURN": "VAT return (CA3)",
         "VAT_RETURN": "Annual VAT return (CA12), with the balance"
       },
-      "basis": "The next twelve months. The VAT is estimated from the VAT on the payments received, before the VAT on your expenses; the CFE amount is on your notice. Under the simplified VAT regime, a year closed on 31 December."
+      "monthReturn": "VAT return (CA3) for {{month}}",
+      "quarterReturn": "VAT return (CA3) for the quarter from {{month}}",
+      "basis": "The next twelve months. The VAT is estimated from the VAT on the payments received, before the VAT on your expenses; the CFE amount is on your notice. Under the simplified VAT regime, a year closed on 31 December; under the normal regime, the CA3's day comes from your billing address, your legal form and your last name or SIREN (impots.gouv.fr), only its month when one is missing."
     },
     "ceilings": {
       "title": "Ceilings {{year}}",

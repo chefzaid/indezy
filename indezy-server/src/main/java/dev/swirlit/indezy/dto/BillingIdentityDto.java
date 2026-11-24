@@ -76,6 +76,8 @@ public record BillingIdentityDto(
     @DecimalMin("0") @DecimalMax("100") Double ownContributionRate,
     /** How often the income-tax instalments are debited, monthly or quarterly. */
     dev.swirlit.indezy.model.enums.DeclarationFrequency incomeTaxFrequency,
+    /** How the VAT is declared when charged: simplified, or normal with a monthly or quarterly return. */
+    dev.swirlit.indezy.model.enums.VatRegime vatRegime,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;

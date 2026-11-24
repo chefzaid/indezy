@@ -111,6 +111,21 @@ describe('ProfileBillingComponent', () => {
     expect(component.form.controls.ownContributionRate.invalid).toBeTrue();
   });
 
+  it('asks how the VAT is declared only when it is charged, and saves it', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    billing.saveIdentity.and.returnValue(of({ ...defaults }));
+    const element = fixture.nativeElement as HTMLElement;
+    component.form.patchValue({ vatExempt: true });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-billing-vat-regime]')).toBeNull();
+    component.form.patchValue({ vatExempt: false, vatNumber: 'FR40303265045', vatRegime: 'NORMAL_QUARTERLY' });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-billing-vat-regime]')).not.toBeNull();
+    component.save();
+    expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ vatRegime: 'NORMAL_QUARTERLY' }));
+  });
+
   it('refuses a malformed IBAN, and says when it cannot save or read', () => {
     const fixture = create();
     const component = fixture.componentInstance;

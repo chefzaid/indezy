@@ -10,6 +10,9 @@ export const MICRO_ACTIVITIES: MicroActivity[] = ['BNC_SSI', 'BNC_CIPAV', 'BIC_S
 /** How often the revenue is declared to URSSAF. */
 export type DeclarationFrequency = 'MONTHLY' | 'QUARTERLY';
 
+/** How the VAT is declared: the simplified regime, or the normal one with a monthly or quarterly return. */
+export type VatRegime = 'SIMPLIFIED' | 'NORMAL_MONTHLY' | 'NORMAL_QUARTERLY';
+
 /** What the workspace's invoices say of the seller. */
 /** What a Word template lays out. */
 export type DocumentTemplateKind = 'INVOICE' | 'QUOTE';
@@ -116,6 +119,8 @@ export interface BillingIdentity {
   ownContributionRate?: number | null;
   /** How often the income-tax instalments are debited (prélèvement à la source). */
   incomeTaxFrequency?: DeclarationFrequency;
+  /** How the VAT is declared when charged: simplified regime, or normal with a monthly or quarterly return (CA3). */
+  vatRegime?: VatRegime;
   /** Read-only: whether invoices can be issued. */
   complete?: boolean;
 }

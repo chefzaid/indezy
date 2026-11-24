@@ -192,6 +192,11 @@ public class BillingIdentity {
     @Column(name = "billing_income_tax_frequency", length = 10)
     private DeclarationFrequency incomeTaxFrequency;
 
+    /** How the VAT is declared when charged: simplified or normal regime; null reads as simplified. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "billing_vat_regime", length = 20)
+    private dev.swirlit.indezy.model.enums.VatRegime vatRegime;
+
     /** The member's own contribution rate, in percent of the revenue, in place of the official one; null for none. */
     @Column(name = "billing_own_contribution_rate")
     private Double ownContributionRate;

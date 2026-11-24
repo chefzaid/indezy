@@ -164,11 +164,14 @@ export interface ContributionEstimate {
 
 /** A tax deadline of the next twelve months: the CFE, a VAT instalment (its month only known) or the annual VAT return. */
 export interface TaxDeadline {
-  kind: 'CFE' | 'INCOME_TAX_INSTALMENT' | 'VAT_INSTALMENT' | 'VAT_RETURN';
+  kind: 'CFE' | 'INCOME_TAX_INSTALMENT' | 'VAT_INSTALMENT' | 'VAT_RETURN' | 'VAT_PERIOD_RETURN';
   dueOn: string;
   monthOnly: boolean;
-  /** Estimated from the VAT on the payments received; null when it cannot be (the CFE). */
+  /** Estimated from the VAT on the payments received; null when it cannot be (the CFE, a period not begun). */
   amount: number | null;
+  /** For a normal-regime return (CA3): the first month of its period ("2026-11") and its length, 1 or 3 months. */
+  covers?: string | null;
+  months?: number | null;
 }
 
 /** Why a bank credit was matched to an invoice, the strongest first: its number in the label, its client's name, the amount alone. */

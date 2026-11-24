@@ -77,4 +77,70 @@ class TaxCalendarServiceTest {
         billing.setIncomeTaxDischarge(true);
         assertThat(calendar.upcoming(7L)).noneMatch(deadline -> deadline.kind() == TaxCalendarService.Kind.INCOME_TAX_INSTALMENT);
     }
+
+    @Test
+    void listsTheNormalRegimesMonthlyReturnsOnTheDayOfTheBusinessesPlaceAndName() {
+        billing.setVatExempt(false);
+        billing.setVatRegime(dev.swirlit.indezy.model.enums.VatRegime.NORMAL_MONTHLY);
+        billing.setLegalForm(dev.swirlit.indezy.model.enums.LegalForm.EI);
+        billing.setAddress("3 rue de Rivoli, 75004 Paris");
+        freelances.findById(7L).orElseThrow().setLastName("Zola");
+
+        List<TaxCalendarService.Deadline> returns = calendar.upcoming(7L).stream()
+            .filter(deadline -> deadline.kind() == TaxCalendarService.Kind.VAT_PERIOD_RETURN).toList();
+
+        // October's was due on 17 November; 17 January 2027 is a Sunday.
+        assertThat(returns).extracting(TaxCalendarService.Deadline::dueOn)
+            .containsExactly(LocalDate.of(2026, 12, 17), LocalDate.of(2027, 1, 18), LocalDate.of(2027, 2, 17));
+        assertThat(returns.get(0).covers()).isEqualTo(java.time.YearMonth.of(2026, 11));
+        assertThat(returns.get(0).amount()).isEqualByComparingTo("0");
+        assertThat(returns.get(1).amount()).isNull();
+        assertThat(calendar.upcoming(7L)).extracting(TaxCalendarService.Deadline::kind)
+            .doesNotContain(TaxCalendarService.Kind.VAT_RETURN, TaxCalendarService.Kind.VAT_INSTALMENT);
+    }
+
+    @Test
+    void listsTheQuarterlyReturnsOfACompanyAndOnlyTheirMonthWhenThePlaceIsUnknown() {
+        billing.setVatExempt(false);
+        billing.setVatRegime(dev.swirlit.indezy.model.enums.VatRegime.NORMAL_QUARTERLY);
+        billing.setLegalForm(dev.swirlit.indezy.model.enums.LegalForm.SASU);
+        billing.setAddress("10 quai Saint-Antoine 69002 Lyon");
+
+        List<TaxCalendarService.Deadline> returns = calendar.upcoming(7L).stream()
+            .filter(deadline -> deadline.kind() == TaxCalendarService.Kind.VAT_PERIOD_RETURN).toList();
+        assertThat(returns).extracting(TaxCalendarService.Deadline::dueOn).containsExactly(LocalDate.of(2027, 1, 21),
+            LocalDate.of(2027, 4, 21), LocalDate.of(2027, 7, 21), LocalDate.of(2027, 10, 21));
+        assertThat(returns.get(0).months()).isEqualTo(3);
+        assertThat(returns.get(0).covers()).isEqualTo(java.time.YearMonth.of(2026, 10));
+
+        billing.setAddress(null);
+        TaxCalendarService.Deadline unknown = calendar.upcoming(7L).stream()
+            .filter(deadline -> deadline.kind() == TaxCalendarService.Kind.VAT_PERIOD_RETURN).findFirst().orElseThrow();
+        assertThat(unknown.monthOnly()).isTrue();
+        assertThat(unknown.dueOn()).isEqualTo(LocalDate.of(2027, 1, 31));
+    }
+
+    @Test
+    void readsTheReturnsDayFromThePlaceTheFormAndTheNameOrSiren() {
+        BillingIdentity identity = new BillingIdentity();
+        identity.setLegalForm(dev.swirlit.indezy.model.enums.LegalForm.MICRO_ENTREPRISE);
+        identity.setAddress("Bobigny 93000");
+        assertThat(TaxCalendarService.returnDay(identity, "Évrard")).isEqualTo(15);
+        assertThat(TaxCalendarService.returnDay(identity, "  ")).isNull();
+        identity.setAddress("Rennes 35000");
+        assertThat(TaxCalendarService.returnDay(identity, "Hugo")).isEqualTo(16);
+        assertThat(TaxCalendarService.returnDay(identity, "Martin")).isEqualTo(19);
+        identity.setLegalForm(dev.swirlit.indezy.model.enums.LegalForm.EURL);
+        identity.setAddress("Nanterre 92000");
+        identity.setSiret("123 456 789 00012");
+        assertThat(TaxCalendarService.returnDay(identity, null)).isEqualTo(19);
+        identity.setSiret("70000000000012");
+        assertThat(TaxCalendarService.returnDay(identity, null)).isEqualTo(20);
+        identity.setSiret("80000000000012");
+        assertThat(TaxCalendarService.returnDay(identity, null)).isEqualTo(21);
+        identity.setSiret(null);
+        assertThat(TaxCalendarService.returnDay(identity, null)).isNull();
+        identity.setLegalForm(dev.swirlit.indezy.model.enums.LegalForm.OTHER);
+        assertThat(TaxCalendarService.returnDay(identity, "Martin")).isNull();
+    }
 }
