@@ -197,6 +197,14 @@ public class BillingIdentity {
     @Column(name = "billing_vat_regime", length = 20)
     private dev.swirlit.indezy.model.enums.VatRegime vatRegime;
 
+    /** For an EURL's majority manager: their pay of the year, in euros, before contributions; null when not given. */
+    @Column(name = "billing_manager_pay")
+    private Integer managerPay;
+
+    /** For an EURL's majority manager: the dividends they receive in the year, in euros; null for none. */
+    @Column(name = "billing_manager_dividends")
+    private Integer managerDividends;
+
     /** The member's own contribution rate, in percent of the revenue, in place of the official one; null for none. */
     @Column(name = "billing_own_contribution_rate")
     private Double ownContributionRate;

@@ -2,9 +2,9 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
-### Vos cotisations en EI au réel
+### Vos cotisations en EI au réel ou gérant d'EURL
 
-Pour une EI au réel (SSI), **Déclarations URSSAF** calcule désormais les cotisations de l'année sur votre bénéfice, ligne par ligne aux taux officiels 2026 : maladie, retraites, allocations familiales, CSG-CRDS et le reste. Voir [Devis et factures](/help/invoices-quotes).
+Pour une EI au réel (SSI), **Déclarations URSSAF** calcule désormais les cotisations de l'année sur votre bénéfice (gérant majoritaire d'une EURL, sur la rémunération et les dividendes indiqués dans Profil → Facturation), ligne par ligne aux taux officiels 2026 : maladie, retraites, allocations familiales, CSG-CRDS et le reste. Voir [Devis et factures](/help/invoices-quotes).
 
 ### Transférez les e-mails de vos recruteurs à l'IA
 

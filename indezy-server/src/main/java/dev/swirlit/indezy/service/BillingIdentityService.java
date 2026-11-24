@@ -129,6 +129,8 @@ public class BillingIdentityService {
         billing.setOwnContributionRate(request.ownContributionRate());
         billing.setIncomeTaxFrequency(request.incomeTaxFrequency());
         billing.setVatRegime(request.vatRegime());
+        billing.setManagerPay(request.managerPay());
+        billing.setManagerDividends(request.managerDividends());
         return billing;
     }
 
@@ -211,7 +213,8 @@ public class BillingIdentityService {
             Objects.requireNonNullElse(billing.getMicroActivity(), MicroActivity.BNC_SSI), Boolean.TRUE.equals(billing.getIncomeTaxDischarge()),
             Objects.requireNonNullElse(billing.getDeclarationFrequency(), DeclarationFrequency.MONTHLY), billing.getOwnContributionRate(),
             Objects.requireNonNullElse(billing.getIncomeTaxFrequency(), DeclarationFrequency.MONTHLY),
-            Objects.requireNonNullElse(billing.getVatRegime(), dev.swirlit.indezy.model.enums.VatRegime.SIMPLIFIED), complete);
+            Objects.requireNonNullElse(billing.getVatRegime(), dev.swirlit.indezy.model.enums.VatRegime.SIMPLIFIED),
+            billing.getManagerPay(), billing.getManagerDividends(), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

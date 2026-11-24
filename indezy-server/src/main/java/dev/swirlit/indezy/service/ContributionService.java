@@ -28,7 +28,8 @@ import java.util.Optional;
  * each month or quarter's revenue times the official rate of its activity (the income tax added when paid with it), or
  * the member's own rate, with the day each declaration is due; for an EI under the real regime affiliated with the SSI
  * (not the CIPAV), the official contributions on the year's profit so far, line by line ({@link IndependentContributions},
- * the revenue received less the deductible expenses); for another legal form, the member's own rate on the year's
+ * the revenue received less the deductible expenses); for an EURL's majority manager, the same on the year's pay they
+ * give, with their dividends past 10 % of the share capital; for another legal form, the member's own rate on the year's
  * revenue.
  */
 @Service
@@ -102,8 +103,9 @@ public class ContributionService {
                 }
             }
         }
-        if (form == LegalForm.EI && own == null && year == IndependentContributions.YEAR && activity != MicroActivity.BNC_CIPAV) {
-            BigDecimal profit = received.subtract(expenses.summary(freelanceId, year).deductible());
+        boolean independent = form == LegalForm.EI || form == LegalForm.EURL && billing.getManagerPay() != null;
+        if (independent && own == null && year == IndependentContributions.YEAR && activity != MicroActivity.BNC_CIPAV) {
+            BigDecimal profit = form == LegalForm.EI ? received.subtract(expenses.summary(freelanceId, year).deductible()) : managerIncome(billing);
             Optional<IndependentContributions.Contributions> official2026 = IndependentContributions.of(profit);
             if (official2026.isPresent()) {
                 IndependentContributions.Contributions computed = official2026.get();
@@ -114,6 +116,14 @@ public class ContributionService {
         }
         return new Estimate(year, figures.year(), form, activity, discharge, frequency, rate, own == null && official != null, received,
             contributions(received, rate), periods, null, null, List.of());
+    }
+
+    /** An EURL manager's income for the contributions: their pay, and their dividends past 10 % of the share capital. */
+    static BigDecimal managerIncome(BillingIdentity billing) {
+        BigDecimal pay = BigDecimal.valueOf(Objects.requireNonNullElse(billing.getManagerPay(), 0));
+        BigDecimal dividends = BigDecimal.valueOf(Objects.requireNonNullElse(billing.getManagerDividends(), 0));
+        BigDecimal free = BigDecimal.valueOf(Objects.requireNonNullElse(billing.getShareCapital(), 0)).divide(BigDecimal.TEN, 2, RoundingMode.HALF_UP);
+        return pay.add(dividends.subtract(free).max(BigDecimal.ZERO)).setScale(2, RoundingMode.HALF_UP);
     }
 
     /**

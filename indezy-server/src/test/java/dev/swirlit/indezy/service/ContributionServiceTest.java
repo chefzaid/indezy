@@ -123,4 +123,22 @@ class ContributionServiceTest {
             assertThat(own.contributions()).isEqualByComparingTo("6800");
         });
     }
+
+    @Test
+    void estimatesAnEurlManagerOnTheirPayAndTheDividendsPastTenPercentOfTheCapital() {
+        billing.setLegalForm(LegalForm.EURL);
+        assertThat(service.estimate(7L, 2026).lines()).isEmpty();
+        billing.setManagerPay(40000);
+        billing.setManagerDividends(3000);
+        billing.setShareCapital(10000);
+
+        ContributionService.Estimate estimate = service.estimate(7L, 2026);
+        // 40,000 € of pay and 2,000 € of the dividends (1,000 € of them, 10 % of the capital, left out).
+        assertThat(estimate.profit()).isEqualByComparingTo("42000");
+        assertThat(estimate.base()).isEqualByComparingTo("31080");
+        assertThat(estimate.lines()).hasSize(8);
+        assertThat(estimate.officialRate()).isTrue();
+        billing.setManagerDividends(null);
+        assertThat(ContributionService.managerIncome(billing)).isEqualByComparingTo("40000");
+    }
 }

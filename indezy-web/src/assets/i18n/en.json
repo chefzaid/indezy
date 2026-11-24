@@ -1489,6 +1489,9 @@
         "discharge": "I pay my income tax with my contributions (versement libératoire)",
         "incomeTaxFrequency": "Income-tax instalments",
         "incomeTaxFrequencyHint": "Debited on the 15th of each month, or on 15 February, May, August and November: as chosen in your tax account.",
+        "managerPay": "My pay this year",
+        "managerPayHint": "Before contributions, as the EURL's majority manager; with your dividends past 10 % of the share capital, Indezy computes your official contributions. An EURL taxed as a person: give its profit.",
+        "managerDividends": "Dividends this year",
         "ownRate": "My own rate",
         "ownRateMicroHint": "Leave empty to use the official contributions of your activity.",
         "ownRateHint": "Your contributions in percent of your revenue, which the URSSAF simulator gives; Indezy computes the official ones for a micro-entreprise and for an EI under the real regime (SSI) only.",
@@ -3489,6 +3492,7 @@
       "own": "(your own rate)",
       "noRate": "Indezy does not know the official rates of {{year}} yet.",
       "setRate": "Set your own rate in Profile → Billing",
+      "pay": "Your pay and dividends counted: €{{profit}}, €{{base}} once the 26 % abatement is taken off, on which:",
       "profit": "Profit so far: €{{profit}} (revenue less your deductible expenses), €{{base}} once the 26 % abatement is taken off, on which:",
       "lines": {
         "HEALTH": "Health and maternity",
@@ -3500,7 +3504,7 @@
         "CSG_CRDS": "CSG and CRDS",
         "TRAINING": "Training contribution"
       },
-      "eiBasis": "For an EI under the real regime: the SSI's 2026 rates (service-public.gouv.fr), on the year's profit so far; not the first two years' flat amounts, the minimum contributions or a CIPAV membership.",
+      "eiBasis": "For an EI under the real regime or an EURL's majority manager: the SSI's 2026 rates (service-public.gouv.fr), on the year's profit so far or the pay given; not the first two years' flat amounts, the minimum contributions or a CIPAV membership.",
       "running": "In progress",
       "toDeclare": "To declare by {{date}}",
       "past": "Was due by {{date}}",

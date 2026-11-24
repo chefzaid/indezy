@@ -78,6 +78,9 @@ public record BillingIdentityDto(
     dev.swirlit.indezy.model.enums.DeclarationFrequency incomeTaxFrequency,
     /** How the VAT is declared when charged: simplified, or normal with a monthly or quarterly return. */
     dev.swirlit.indezy.model.enums.VatRegime vatRegime,
+    /** For an EURL's majority manager: their pay of the year and their dividends, in euros, for the contributions. */
+    @jakarta.validation.constraints.PositiveOrZero @jakarta.validation.constraints.Max(10_000_000) Integer managerPay,
+    @jakarta.validation.constraints.PositiveOrZero @jakarta.validation.constraints.Max(10_000_000) Integer managerDividends,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;

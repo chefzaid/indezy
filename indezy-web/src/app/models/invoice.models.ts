@@ -160,7 +160,7 @@ export interface ContributionEstimate {
   revenue: number;
   contributions: number | null;
   periods: ContributionPeriod[];
-  /** For an EI under the real regime: the year's profit so far, the base after the 26 % abatement, and the contributions line by line. */
+  /** For an EI under the real regime (or an EURL's manager): the year's profit so far (or pay), the base after the 26 % abatement, and the contributions line by line. */
   profit?: number | null;
   base?: number | null;
   lines?: ContributionLine[];

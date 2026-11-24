@@ -1624,8 +1624,11 @@ to the PASS and 0.72 % on the whole base, the supplementary pension 8.1 % up to 
 disability and death 1.3 % up to the PASS, family allowances rising from 0 % at 110 % of the PASS to 3.1 % at 140 %, the
 CSG and CRDS 9.7 %, and the training contribution 0.25 % of the PASS; each line is listed, with the profit and the base.
 Not estimated: a base past three PASS, the first two years' flat amounts and the minimum contributions of a very low
-income (the own rate then stands in). For another legal form, whose contributions follow the pay (EURL, SASU,
-portage), the own rate (from the URSSAF simulator, linked) gives the year's estimate, the card staying away without
+income (the own rate then stands in). An EURL's majority manager gets the same computation (entreprendre.service-public.gouv.fr
+F38152, the same rates) on the pay of the year they give in Profile → Billing → **My pay this year**
+(`billing_manager_pay`, before contributions; an EURL taxed as a person gives its profit there) and their dividends past
+10 % of the share capital (**Dividends this year**, `billing_manager_dividends`). For another legal form, whose
+contributions follow the pay (SASU, SARL, portage), the own rate (from the URSSAF simulator, linked) gives the year's estimate, the card staying away without
 one. A year whose official rates are not in
 `FrenchFigures` yet says so and asks for an own rate. The amounts are estimates: URSSAF's declaration counts.
 

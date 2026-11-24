@@ -1489,6 +1489,9 @@
         "discharge": "Je paie mon impôt sur le revenu avec mes cotisations (versement libératoire)",
         "incomeTaxFrequency": "Acomptes d'impôt sur le revenu",
         "incomeTaxFrequencyHint": "Prélevés le 15 de chaque mois, ou les 15 février, mai, août et novembre : comme choisi dans votre espace fiscal.",
+        "managerPay": "Ma rémunération cette année",
+        "managerPayHint": "Avant cotisations, en tant que gérant majoritaire de l'EURL ; avec vos dividendes au-delà de 10 % du capital social, Indezy calcule vos cotisations officielles. Une EURL à l'impôt sur le revenu : indiquez son bénéfice.",
+        "managerDividends": "Dividendes cette année",
         "ownRate": "Mon propre taux",
         "ownRateMicroHint": "Laissez vide pour appliquer les cotisations officielles de votre activité.",
         "ownRateHint": "Vos cotisations en pourcentage de votre chiffre d'affaires, que donne le simulateur de l'URSSAF ; Indezy ne calcule les cotisations officielles que pour la micro-entreprise et l'EI au réel (SSI).",
@@ -3489,6 +3492,7 @@
       "own": "(votre propre taux)",
       "noRate": "Indezy ne connaît pas encore les taux officiels {{year}}.",
       "setRate": "Indiquez votre propre taux dans Profil → Facturation",
+      "pay": "Rémunération et dividendes retenus : {{profit}} €, {{base}} € après l'abattement de 26 %, sur lesquels :",
       "profit": "Bénéfice à ce jour : {{profit}} € (recettes moins vos dépenses déductibles), {{base}} € après l'abattement de 26 %, sur lesquels :",
       "lines": {
         "HEALTH": "Maladie-maternité",
@@ -3500,7 +3504,7 @@
         "CSG_CRDS": "CSG et CRDS",
         "TRAINING": "Formation professionnelle"
       },
-      "eiBasis": "Pour une EI au réel : les taux 2026 de la SSI (service-public.gouv.fr), sur le bénéfice de l'année à ce jour ; sans les montants forfaitaires des deux premières années, les cotisations minimales ni une affiliation à la CIPAV.",
+      "eiBasis": "Pour une EI au réel ou le gérant majoritaire d'une EURL : les taux 2026 de la SSI (service-public.gouv.fr), sur le bénéfice de l'année à ce jour ou la rémunération indiquée ; sans les montants forfaitaires des deux premières années, les cotisations minimales ni une affiliation à la CIPAV.",
       "running": "En cours",
       "toDeclare": "À déclarer avant le {{date}}",
       "past": "Était à déclarer avant le {{date}}",

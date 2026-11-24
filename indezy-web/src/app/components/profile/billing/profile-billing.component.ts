@@ -69,6 +69,8 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     incomeTaxDischarge: [false],
     declarationFrequency: ['MONTHLY' as DeclarationFrequency],
     ownContributionRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
+    managerPay: [null as number | null, [Validators.min(0), Validators.max(10_000_000)]],
+    managerDividends: [null as number | null, [Validators.min(0), Validators.max(10_000_000)]],
     incomeTaxFrequency: ['MONTHLY' as DeclarationFrequency],
     vatRegime: ['SIMPLIFIED' as VatRegime],
     quoteTerms: ['', Validators.maxLength(20000)],
@@ -104,6 +106,11 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
   /** An EI under the real regime, whose contributions Indezy computes from the profit (its SSI or CIPAV activity asked). */
   get ei(): boolean {
     return this.form.controls.legalForm.value === 'EI';
+  }
+
+  /** An EURL, whose majority manager's contributions Indezy computes from the pay and dividends they give. */
+  get eurl(): boolean {
+    return this.form.controls.legalForm.value === 'EURL';
   }
 
   /** Whether the income tax on the activity is paid in instalments: a micro-entreprise or an EI, without the versement libératoire. */
@@ -530,6 +537,8 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       incomeTaxDischarge: !!value.incomeTaxDischarge,
       declarationFrequency: value.declarationFrequency ?? 'MONTHLY',
       ownContributionRate: value.ownContributionRate ?? null,
+      managerPay: value.managerPay ?? null,
+      managerDividends: value.managerDividends ?? null,
       incomeTaxFrequency: value.incomeTaxFrequency ?? 'MONTHLY',
       vatRegime: value.vatRegime ?? 'SIMPLIFIED',
       quoteTerms: value.quoteTerms?.trim() || null,
@@ -575,6 +584,8 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       incomeTaxDischarge: !!identity.incomeTaxDischarge,
       declarationFrequency: identity.declarationFrequency ?? 'MONTHLY',
       ownContributionRate: identity.ownContributionRate ?? null,
+      managerPay: identity.managerPay ?? null,
+      managerDividends: identity.managerDividends ?? null,
       incomeTaxFrequency: identity.incomeTaxFrequency ?? 'MONTHLY',
       vatRegime: identity.vatRegime ?? 'SIMPLIFIED',
       quoteTerms: identity.quoteTerms ?? '',

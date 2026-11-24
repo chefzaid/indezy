@@ -121,6 +121,9 @@ export interface BillingIdentity {
   incomeTaxFrequency?: DeclarationFrequency;
   /** How the VAT is declared when charged: simplified regime, or normal with a monthly or quarterly return (CA3). */
   vatRegime?: VatRegime;
+  /** For an EURL's majority manager: their pay of the year before contributions and their dividends, in euros. */
+  managerPay?: number | null;
+  managerDividends?: number | null;
   /** Read-only: whether invoices can be issued. */
   complete?: boolean;
 }

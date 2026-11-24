@@ -2,9 +2,9 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
-### Your contributions as an EI under the real regime
+### Your contributions as an EI under the real regime or an EURL's manager
 
-For an EI under the real regime (SSI), **URSSAF declarations** now computes the year's contributions on your profit, line by line at the official 2026 rates: health, pensions, family allowances, CSG-CRDS and the rest. See [Quotes and invoices](/help/invoices-quotes).
+For an EI under the real regime (SSI), **URSSAF declarations** now computes the year's contributions on your profit (as an EURL's majority manager, on the pay and dividends you give in Profile → Billing), line by line at the official 2026 rates: health, pensions, family allowances, CSG-CRDS and the rest. See [Quotes and invoices](/help/invoices-quotes).
 
 ### Forward your recruiters' emails to the AI
 

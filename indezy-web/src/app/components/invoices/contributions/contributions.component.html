@@ -15,7 +15,7 @@
       }
       @if (figures.lines?.length) {
         <p class="profit" data-contributions-profit>
-          {{ 'invoices.contributions.profit' | translate:{ profit: (figures.profit | number:'1.0-0'), base: (figures.base | number:'1.0-0') } }}
+          {{ (figures.legalForm === 'EURL' ? 'invoices.contributions.pay' : 'invoices.contributions.profit') | translate:{ profit: (figures.profit | number:'1.0-0'), base: (figures.base | number:'1.0-0') } }}
         </p>
         <ul class="lines">
           @for (line of figures.lines; track line.kind) {

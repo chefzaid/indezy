@@ -43,6 +43,9 @@ describe('ContributionsComponent', () => {
     expect(element.querySelector('[data-contribution-line="CSG_CRDS"]')!.textContent).toContain('1,077 €');
     expect(element.querySelector('[data-contributions-ei-basis]')).not.toBeNull();
     expect(element.querySelector('[data-contribution-period]')).toBeNull();
+    const eurl = create({ ...quarterly, legalForm: 'EURL', rate: 20, contributions: 9000, periods: [], profit: 42000, base: 31080,
+      lines: [{ kind: 'HEALTH', amount: 1700 }] }).element;
+    expect(eurl.querySelector('[data-contributions-profit]')!.textContent).toContain('invoices.contributions.pay');
   });
 
   it('says when no rate is known, and stays away for a company without its own rate', () => {
