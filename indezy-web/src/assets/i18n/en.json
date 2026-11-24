@@ -1441,6 +1441,8 @@
         "monthly": "Monthly",
         "quarterly": "Quarterly",
         "discharge": "I pay my income tax with my contributions (versement libératoire)",
+        "incomeTaxFrequency": "Income-tax instalments",
+        "incomeTaxFrequencyHint": "Debited on the 15th of each month, or on 15 February, May, August and November: as chosen in your tax account.",
         "ownRate": "My own rate",
         "ownRateMicroHint": "Leave empty to use the official rate of your activity.",
         "ownRateHint": "Your contributions in percent of your revenue, which the URSSAF simulator gives; Indezy knows the official rates of the micro-entreprise only.",
@@ -3449,6 +3451,7 @@
     "taxCalendar": {
       "title": "Tax calendar",
       "kinds": {
+        "INCOME_TAX_INSTALMENT": "Income-tax instalment (prélèvement à la source), debited this day",
         "CFE": "CFE (business property tax), paid by this day",
         "VAT_INSTALMENT": "VAT instalment (the notice gives the day)",
         "VAT_RETURN": "Annual VAT return (CA12), with the balance"

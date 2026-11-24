@@ -122,6 +122,18 @@
           </div>
           <mat-checkbox formControlName="incomeTaxDischarge" data-billing-income-tax-discharge>{{ 'profile.billing.contributions.discharge' | translate }}</mat-checkbox>
         }
+        @if (incomeTaxInstalments) {
+          <div class="row">
+            <mat-form-field appearance="outline" class="grow">
+              <mat-label>{{ 'profile.billing.contributions.incomeTaxFrequency' | translate }}</mat-label>
+              <mat-select formControlName="incomeTaxFrequency" data-billing-income-tax-frequency>
+                <mat-option value="MONTHLY">{{ 'profile.billing.contributions.monthly' | translate }}</mat-option>
+                <mat-option value="QUARTERLY">{{ 'profile.billing.contributions.quarterly' | translate }}</mat-option>
+              </mat-select>
+              <mat-hint>{{ 'profile.billing.contributions.incomeTaxFrequencyHint' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
+        }
         <div class="row">
           <mat-form-field appearance="outline" class="grow">
             <mat-label>{{ 'profile.billing.contributions.ownRate' | translate }}</mat-label>

@@ -100,6 +100,13 @@ describe('ProfileBillingComponent', () => {
     component.save();
     expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ microActivity: 'BIC_SERVICES', declarationFrequency: 'QUARTERLY',
       incomeTaxDischarge: true, ownContributionRate: null }));
+    // Paid with the contributions: no income-tax instalments to set; without it, their frequency.
+    expect(element.querySelector('[data-billing-income-tax-frequency]')).toBeNull();
+    component.form.patchValue({ legalForm: 'MICRO_ENTREPRISE', incomeTaxDischarge: false, incomeTaxFrequency: 'QUARTERLY' });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-billing-income-tax-frequency]')).not.toBeNull();
+    component.save();
+    expect(billing.saveIdentity).toHaveBeenCalledWith(jasmine.objectContaining({ incomeTaxFrequency: 'QUARTERLY' }));
     component.form.patchValue({ ownContributionRate: 120 });
     expect(component.form.controls.ownContributionRate.invalid).toBeTrue();
   });

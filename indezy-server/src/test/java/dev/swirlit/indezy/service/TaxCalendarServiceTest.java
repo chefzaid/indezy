@@ -63,4 +63,18 @@ class TaxCalendarServiceTest {
         // 2026: 1 May a Friday; Monday 4 and Tuesday 5 May.
         assertThat(TaxCalendarService.secondWorkingDayAfterFirstMay(2026)).isEqualTo(LocalDate.of(2026, 5, 5));
     }
+
+    @Test
+    void listsTheIncomeTaxInstalmentsOfAMicroEntrepriseUnlessPaidWithTheContributions() {
+        billing.setLegalForm(dev.swirlit.indezy.model.enums.LegalForm.MICRO_ENTREPRISE);
+        assertThat(calendar.upcoming(7L)).filteredOn(deadline -> deadline.kind() == TaxCalendarService.Kind.INCOME_TAX_INSTALMENT)
+            .extracting(TaxCalendarService.Deadline::dueOn)
+            .containsExactly(LocalDate.of(2026, 12, 15), LocalDate.of(2027, 1, 15), LocalDate.of(2027, 2, 15));
+        billing.setIncomeTaxFrequency(dev.swirlit.indezy.model.enums.DeclarationFrequency.QUARTERLY);
+        assertThat(calendar.upcoming(7L)).filteredOn(deadline -> deadline.kind() == TaxCalendarService.Kind.INCOME_TAX_INSTALMENT)
+            .extracting(TaxCalendarService.Deadline::dueOn)
+            .containsExactly(LocalDate.of(2027, 2, 15), LocalDate.of(2027, 5, 15), LocalDate.of(2027, 8, 15), LocalDate.of(2027, 11, 15));
+        billing.setIncomeTaxDischarge(true);
+        assertThat(calendar.upcoming(7L)).noneMatch(deadline -> deadline.kind() == TaxCalendarService.Kind.INCOME_TAX_INSTALMENT);
+    }
 }

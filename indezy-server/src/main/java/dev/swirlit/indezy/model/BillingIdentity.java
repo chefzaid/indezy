@@ -187,6 +187,11 @@ public class BillingIdentity {
     @Column(name = "billing_declaration_frequency", length = 10)
     private DeclarationFrequency declarationFrequency;
 
+    /** How often the income-tax instalments are debited (prélèvement à la source); null reads as monthly. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "billing_income_tax_frequency", length = 10)
+    private DeclarationFrequency incomeTaxFrequency;
+
     /** The member's own contribution rate, in percent of the revenue, in place of the official one; null for none. */
     @Column(name = "billing_own_contribution_rate")
     private Double ownContributionRate;

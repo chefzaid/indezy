@@ -68,6 +68,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
     incomeTaxDischarge: [false],
     declarationFrequency: ['MONTHLY' as DeclarationFrequency],
     ownContributionRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
+    incomeTaxFrequency: ['MONTHLY' as DeclarationFrequency],
     quoteTerms: ['', Validators.maxLength(20000)],
     accentColor: [''],
     header: ['', Validators.maxLength(150)],
@@ -96,6 +97,12 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
 
   get micro(): boolean {
     return this.form.controls.legalForm.value === 'MICRO_ENTREPRISE';
+  }
+
+  /** Whether the income tax on the activity is paid in instalments: a micro-entreprise or an EI, without the versement libératoire. */
+  get incomeTaxInstalments(): boolean {
+    const form = this.form.controls.legalForm.value;
+    return (form === 'MICRO_ENTREPRISE' || form === 'EI') && !this.form.controls.incomeTaxDischarge.value;
   }
 
   get portage(): boolean {
@@ -516,6 +523,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       incomeTaxDischarge: !!value.incomeTaxDischarge,
       declarationFrequency: value.declarationFrequency ?? 'MONTHLY',
       ownContributionRate: value.ownContributionRate ?? null,
+      incomeTaxFrequency: value.incomeTaxFrequency ?? 'MONTHLY',
       quoteTerms: value.quoteTerms?.trim() || null,
       accentColor: value.accentColor || null,
       header: value.header?.trim() || null,
@@ -559,6 +567,7 @@ export class ProfileBillingComponent implements OnInit, OnDestroy {
       incomeTaxDischarge: !!identity.incomeTaxDischarge,
       declarationFrequency: identity.declarationFrequency ?? 'MONTHLY',
       ownContributionRate: identity.ownContributionRate ?? null,
+      incomeTaxFrequency: identity.incomeTaxFrequency ?? 'MONTHLY',
       quoteTerms: identity.quoteTerms ?? '',
       accentColor: identity.accentColor ?? '',
       header: identity.header ?? '',

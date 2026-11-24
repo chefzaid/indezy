@@ -1441,6 +1441,8 @@
         "monthly": "Mensuelle",
         "quarterly": "Trimestrielle",
         "discharge": "Je paie mon impôt sur le revenu avec mes cotisations (versement libératoire)",
+        "incomeTaxFrequency": "Acomptes d'impôt sur le revenu",
+        "incomeTaxFrequencyHint": "Prélevés le 15 de chaque mois, ou les 15 février, mai, août et novembre : comme choisi dans votre espace fiscal.",
         "ownRate": "Mon propre taux",
         "ownRateMicroHint": "Laissez vide pour appliquer le taux officiel de votre activité.",
         "ownRateHint": "Vos cotisations en pourcentage de votre chiffre d'affaires, que donne le simulateur de l'URSSAF ; Indezy ne connaît les taux officiels que de la micro-entreprise.",
@@ -3449,6 +3451,7 @@
     "taxCalendar": {
       "title": "Calendrier fiscal",
       "kinds": {
+        "INCOME_TAX_INSTALMENT": "Acompte d'impôt sur le revenu (prélèvement à la source), prélevé ce jour",
         "CFE": "CFE (cotisation foncière des entreprises), à payer au plus tard ce jour",
         "VAT_INSTALMENT": "Acompte de TVA (l'avis indique le jour)",
         "VAT_RETURN": "Déclaration annuelle de TVA (CA12), avec le solde"

@@ -68,7 +68,7 @@ For an international client, choose **Currency** in the draft: euro, US dollar, 
 - Each client's page, and its opportunities' pages, says how it pays from its paid invoices, for example "Pays in 52 days on average, 12 days late".
 - **Ceilings** compares the revenue you received this year (excluding VAT, on the day each invoice was paid) with the micro-entreprise ceiling (83,600 € in 2026, for services) and the VAT franchise thresholds (37,500 €, and 41,250 € within the year). It warns from 80 % and says on which day the regime or the franchise ends once you pass them. It shows for a micro-entreprise, and while you are exempt from VAT.
 - **URSSAF declarations** estimates your contributions on the revenue received. For a micro-entreprise, it lists each month or quarter with its deadline, the one to declare now first, at the official rate of your activity. Set your activity, monthly or quarterly declarations, the versement libératoire or your own rate in Profile → Billing → **URSSAF contributions**.
-- **Tax calendar** lists the CFE (15 December) and, if you charge VAT, its July and December instalments and the annual return in May, with the VAT estimated from your payments received.
+- **Tax calendar** lists the CFE (15 December), your income-tax instalments (the 15th, monthly or quarterly as set in Profile → Billing, unless you pay the versement libératoire) and, if you charge VAT, its July and December instalments and the annual return in May, with the VAT estimated from your payments received.
 - **Revenue by client, last 12 months** splits your revenue and warns when one client makes up half of it or more, a risk of your contract being reclassified as employment.
 
 ## Factur-X

@@ -1574,7 +1574,10 @@ for portage); and, while charging VAT under the simplified regime with a year cl
 instalments, in July (55 % of the year before's VAT) and December (40 %), by month as the notice gives the day, and the
 annual return (CA12) with the balance by the second working day after 1 May, each estimated from the VAT on the payments
 received, before the VAT on expenses. A day falling on a weekend or a public holiday moves to the next working day. The
-rules are service-public.gouv.fr's (checked on 2026-11-23); the income-tax instalments are not listed yet.
+rules are service-public.gouv.fr's (checked on 2026-11-23). For a micro-entreprise or an EI without the versement
+libératoire, the income-tax instalments (prélèvement à la source) are listed too, debited on the 15th: the next three
+months when monthly, or 15 February, 15 May, 15 August and 15 November when quarterly (Profile → Billing → **Income-tax
+instalments**, `incomeTaxFrequency`; impots.gouv.fr, checked on 2026-11-24), their amount the tax administration's.
 
 ### Expenses
 

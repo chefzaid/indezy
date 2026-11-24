@@ -114,6 +114,8 @@ export interface BillingIdentity {
   incomeTaxDischarge?: boolean;
   declarationFrequency?: DeclarationFrequency;
   ownContributionRate?: number | null;
+  /** How often the income-tax instalments are debited (prélèvement à la source). */
+  incomeTaxFrequency?: DeclarationFrequency;
   /** Read-only: whether invoices can be issued. */
   complete?: boolean;
 }

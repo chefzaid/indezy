@@ -164,7 +164,7 @@ export interface ContributionEstimate {
 
 /** A tax deadline of the next twelve months: the CFE, a VAT instalment (its month only known) or the annual VAT return. */
 export interface TaxDeadline {
-  kind: 'CFE' | 'VAT_INSTALMENT' | 'VAT_RETURN';
+  kind: 'CFE' | 'INCOME_TAX_INSTALMENT' | 'VAT_INSTALMENT' | 'VAT_RETURN';
   dueOn: string;
   monthOnly: boolean;
   /** Estimated from the VAT on the payments received; null when it cannot be (the CFE). */

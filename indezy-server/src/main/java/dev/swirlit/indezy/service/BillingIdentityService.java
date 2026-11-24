@@ -127,6 +127,7 @@ public class BillingIdentityService {
         billing.setIncomeTaxDischarge(request.incomeTaxDischarge());
         billing.setDeclarationFrequency(request.declarationFrequency());
         billing.setOwnContributionRate(request.ownContributionRate());
+        billing.setIncomeTaxFrequency(request.incomeTaxFrequency());
         return billing;
     }
 
@@ -207,7 +208,8 @@ public class BillingIdentityService {
             billing.getQuoteAccentColor(), billing.getQuoteTheme(), BodyBlock.read(billing.getBodyBlocks()),
             dev.swirlit.indezy.model.BlockStyle.read(billing.getBlockStyles()),
             Objects.requireNonNullElse(billing.getMicroActivity(), MicroActivity.BNC_SSI), Boolean.TRUE.equals(billing.getIncomeTaxDischarge()),
-            Objects.requireNonNullElse(billing.getDeclarationFrequency(), DeclarationFrequency.MONTHLY), billing.getOwnContributionRate(), complete);
+            Objects.requireNonNullElse(billing.getDeclarationFrequency(), DeclarationFrequency.MONTHLY), billing.getOwnContributionRate(),
+            Objects.requireNonNullElse(billing.getIncomeTaxFrequency(), DeclarationFrequency.MONTHLY), complete);
     }
 
     private Freelance freelance(Long freelanceId) {

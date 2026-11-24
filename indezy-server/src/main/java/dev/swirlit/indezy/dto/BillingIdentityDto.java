@@ -74,6 +74,8 @@ public record BillingIdentityDto(
     Boolean incomeTaxDischarge,
     dev.swirlit.indezy.model.enums.DeclarationFrequency declarationFrequency,
     @DecimalMin("0") @DecimalMax("100") Double ownContributionRate,
+    /** How often the income-tax instalments are debited, monthly or quarterly. */
+    dev.swirlit.indezy.model.enums.DeclarationFrequency incomeTaxFrequency,
     Boolean complete) {
 
     public static final int QUOTE_TERMS_MAX = 20_000;
