@@ -112,7 +112,7 @@ describe('OfferSitesComponent', () => {
     expect(text(fixture, '[data-site="LEHIBOU"] [data-refresh-hint]')).toBe('Une lecture est en cours.');
     expect(button(fixture, 'KOINO').disabled).toBeTrue();
     expect(text(fixture, '[data-site="KOINO"] [data-refresh-hint]')).toBe('Lecture possible à nouveau dans 10 minutes.');
-    expect(button(fixture, 'FREE_WORK').getAttribute('aria-label')).toBe('Lire Free-Work maintenant');
+    expect(button(fixture, 'FREE_WORK').getAttribute('aria-label')).toBe('Lire maintenant : Free-Work');
   });
 
   it('reads a board on request and tells when it can be asked for again', () => {

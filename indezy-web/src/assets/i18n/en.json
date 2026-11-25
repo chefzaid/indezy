@@ -2594,7 +2594,7 @@
       "include": "Show in my feed",
       "excludedHint": "Its offers are left out of your feed, saved searches and market snapshot.",
       "refresh": "Read now",
-      "refreshAria": "Read {{site}} now",
+      "refreshAria": "Read now: {{site}}",
       "refreshLimit": "A board is read on request at most once every 15 minutes, whoever asks, and not right after a reading.",
       "refreshOff": "Reading on request is off on this server.",
       "refreshRunning": "A reading is under way.",
@@ -2647,9 +2647,9 @@
         "visited": "Visited {{when}}",
         "notVisited": "Not visited yet",
         "mark": "Mark as visited",
-        "markAria": "Mark {{site}} as visited",
+        "markAria": "Mark as visited: {{site}}",
         "clear": "Forget this visit",
-        "clearAria": "Forget the visit of {{site}}",
+        "clearAria": "Forget this visit: {{site}}",
         "error": "The visit could not be saved."
       },
       "foundNothing": "Its last reading found no offer: its pages may have changed."

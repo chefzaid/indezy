@@ -169,9 +169,9 @@ test('checks the job boards, keeps one out of the feed and reads another on requ
   await expect(page.locator('[data-left-out]')).toHaveCount(0);
   const malt = page.locator('[data-visit="MALT"]');
   await expect(malt).toContainText('Profile, then a call');
-  await malt.getByRole('button', { name: 'Mark Malt as visited' }).click();
+  await malt.getByRole('button', { name: 'Mark as visited: Malt' }).click();
   await expect(malt.locator('[data-visited]')).toContainText('Visited now');
-  await malt.getByRole('button', { name: 'Forget the visit of Malt' }).click();
+  await malt.getByRole('button', { name: 'Forget this visit: Malt' }).click();
   await expect(malt).toContainText('Not visited yet');
   expect(api.visits).toEqual(['PUT MALT', 'DELETE MALT']);
 
@@ -180,11 +180,11 @@ test('checks the job boards, keeps one out of the feed and reads another on requ
   expect(api.exclusions).toEqual([{ site: 'FREE_WORK', excluded: true }]);
   await expect(freeWork).toContainText('Its offers are left out of your feed, saved searches and market snapshot.');
 
-  await freeWork.getByRole('button', { name: 'Read Free-Work now' }).click();
+  await freeWork.getByRole('button', { name: 'Read now: Free-Work' }).click();
   await expect(page.getByText('Reading Free-Work: update the page in a minute to see what it brought.')).toBeVisible();
-  await expect(freeWork.getByRole('button', { name: 'Read Free-Work now' })).toBeDisabled();
+  await expect(freeWork.getByRole('button', { name: 'Read now: Free-Work' })).toBeDisabled();
   await expect(freeWork.locator('[data-refresh-hint]')).toHaveText('Can be read again in 15 minutes.');
-  await page.locator('[data-site="COLLECTIVE"]').getByRole('button', { name: 'Read Collective now' }).click();
+  await page.locator('[data-site="COLLECTIVE"]').getByRole('button', { name: 'Read now: Collective' }).click();
   await expect(page.getByText('Collective can be read again in 9 minutes.')).toBeVisible();
   await expect(page.locator('[data-site="COLLECTIVE"] [data-refresh-hint]')).toHaveText('Can be read again in 9 minutes.');
   expect(api.refreshes).toEqual(['FREE_WORK', 'COLLECTIVE']);

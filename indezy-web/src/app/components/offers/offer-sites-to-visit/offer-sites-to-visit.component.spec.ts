@@ -78,7 +78,7 @@ describe('OfferSitesToVisitComponent', () => {
     expect(service.clearSiteVisit).toHaveBeenCalledWith('OPTEAMIS');
     expect(text(fixture, '[data-visit="OPTEAMIS"]')).toContain('Pas encore consulté');
     expect(fixture.nativeElement.querySelector('[data-visit="HITECHPROS"] button').getAttribute('aria-label'))
-      .toBe('Marquer HiTechPros comme consulté');
+      .toBe('Marquer comme consulté : HiTechPros');
   });
 
   it('puts the former visit back when saving fails', () => {

@@ -2594,7 +2594,7 @@
       "include": "Afficher dans mon fil",
       "excludedHint": "Ses offres sont écartées de votre fil, de vos recherches enregistrées et de l'aperçu du marché.",
       "refresh": "Lire maintenant",
-      "refreshAria": "Lire {{site}} maintenant",
+      "refreshAria": "Lire maintenant : {{site}}",
       "refreshLimit": "Un site est lu à la demande au plus une fois toutes les 15 minutes, quel que soit le demandeur, et pas juste après une lecture.",
       "refreshOff": "La lecture à la demande est désactivée sur ce serveur.",
       "refreshRunning": "Une lecture est en cours.",
@@ -2647,9 +2647,9 @@
         "visited": "Consulté {{when}}",
         "notVisited": "Pas encore consulté",
         "mark": "Marquer comme consulté",
-        "markAria": "Marquer {{site}} comme consulté",
+        "markAria": "Marquer comme consulté : {{site}}",
         "clear": "Oublier cette visite",
-        "clearAria": "Oublier la visite de {{site}}",
+        "clearAria": "Oublier cette visite : {{site}}",
         "error": "La visite n'a pas pu être enregistrée."
       },
       "foundNothing": "Sa dernière lecture n'a trouvé aucune offre : ses pages ont peut-être changé."

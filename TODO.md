@@ -706,7 +706,7 @@ How to use Indezy, told on the public website rather than only in the repository
 
 ## Technical Improvements
 
-- [ ] WCAG audit on every page (started on 2026-11-25): a shared `e2e/helpers/axe.ts`; the legal pages, the public activity-report approval page, the activity reports and the email unsubscribe page are now audited and pass. Still unaudited: **Job boards** (`/offers/sites`), a publisher's page (`/offers/publishers/:name`), a tag's posts, drafts, an event's and an idea's page in the network.
+- [ ] WCAG audit on every page (started on 2026-11-25): a shared `e2e/helpers/axe.ts`; the legal pages, the public activity-report approval page, the activity reports and the email unsubscribe page are now audited and pass. Followed the same day: **Job boards** (which broke WCAG 2.5.3, *Label in Name*: its **Read now**, **Mark as visited** and **Forget this visit** buttons were named "Read Yeets now" and the like, not containing their visible text; now "Read now: Yeets"), a publisher's page and an event's page. Still unaudited: the network's drafts and an idea's page.
 
 - [x] Headings and WCAG audit of the account pages (found on 2026-11-25): the sign-in, registration, forgot-password, reset-password and email-confirmation pages had their title as a plain block, no heading for screen readers; each is now the page's `h1`, and `e2e/accessibility.spec.ts` audits registration, password reset (with an expired link), email confirmation and the help center as well.
 

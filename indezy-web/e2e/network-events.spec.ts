@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
+import { wcagViolations } from './helpers/axe';
 import { expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 
@@ -47,6 +48,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(page).toHaveURL(/\/network\/events\/4$/);
     await expect(page.locator('[data-event-about]')).toContainText('On parle Kafka');
     await expect(page.locator('[data-event-attendees]')).toContainText('Inès Bernard');
+    expect(await wcagViolations(page), 'event page').toEqual([]);
     const download = page.waitForEvent('download');
     await page.locator('[data-event-ics]').click();
     expect((await download).suggestedFilename()).toBe('indezy-event-4.ics');

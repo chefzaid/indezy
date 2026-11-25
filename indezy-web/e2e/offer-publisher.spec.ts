@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { mockFeed } from './helpers/offer-feed';
+import { wcagViolations } from './helpers/axe';
 
 test('opens what a publisher puts in the feed from an offer and hides its offers (en)', async ({ page }) => {
   await mockFeed(page, 'en');
@@ -20,9 +21,18 @@ test('opens what a publisher puts in the feed from an offer and hides its offers
   await expect(page.getByRole('heading', { level: 1, name: 'Exemple Conseil' })).toBeVisible();
   await expect(page.locator('[data-publisher-kpi="republished"] dd')).toHaveText('2 of 6 missions');
   await expect(page.locator('[data-publisher-no-client]')).toHaveText('Not in your clients');
+  expect(await wcagViolations(page), 'publisher page').toEqual([]);
   await page.getByRole('button', { name: 'Hide its offers' }).click();
   await expect(page.locator('[data-publisher-blocked]')).toBeVisible();
   expect(blocked).toEqual([{ name: 'Exemple Conseil' }]);
   await page.getByRole('link', { name: 'Développeur Java 1' }).click();
   await expect(page).toHaveURL(/\/offers\/1$/);
+});
+
+test('meets WCAG 2.1 AA on the job boards page (fr)', async ({ page }) => {
+  await mockFeed(page, 'fr');
+  await page.goto('/offers/sites');
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('h1').first()).toBeVisible();
+  expect(await wcagViolations(page), 'job boards').toEqual([]);
 });
