@@ -150,4 +150,58 @@ class AutopilotServiceTest {
         assertThat(saved.getAllValues().getFirst().getScreening()).isEqualTo("Disponibilité — Janvier");
         assertThat(saved.getAllValues().getFirst().getRate()).isEqualTo(650);
     }
+
+    @Test
+    void goesOnWithTheNextAccountWhenOneFailsAtNight() {
+        User broken = member(true);
+        User fine = new User();
+        fine.setId(4L);
+        fine.setEmail("paul@example.com");
+        fine.setAutopilot(true);
+        Freelance workspace = new Freelance();
+        workspace.setId(10L);
+        when(freelances.findByEmail("paul@example.com")).thenReturn(Optional.of(workspace));
+        when(ai.status(4L)).thenReturn(new AiDtos.Status(true, null, false, null, Map.of(), 0, 10, Map.of()));
+        when(users.findByAutopilotTrue()).thenReturn(List.of(broken, fine));
+        when(search.foundBetween(eq(9L), any(), any(), any(), anyInt())).thenThrow(new IllegalStateException("search down"));
+        when(search.foundBetween(eq(10L), any(), any(), any(), anyInt())).thenReturn(new OfferPageDto(List.of(), 0, 0, 0, 1, false, true));
+
+        autopilot.runNightly();
+
+        verify(search).foundBetween(eq(10L), any(), any(), any(), anyInt());
+        verify(interactions).followUpsDue(eq(10L), anyInt(), any());
+    }
+
+    @Test
+    void dropsTheDraftsAndApplicationsOlderThanAWeek() {
+        autopilot.dropOld();
+        // 4:10 in Paris on 24 November: what was prepared before 4:10 on the 17th goes.
+        java.time.LocalDateTime before = java.time.LocalDateTime.of(2026, 11, 17, 4, 10);
+        verify(drafts).deleteOlderThan(before);
+        verify(packs).deleteOlderThan(before);
+    }
+
+    @Test
+    void draftsFiveFollowUpsAtMostAndStopsWhenTheAllowanceIsUsedUp() {
+        User user = member(true);
+        when(interactions.followUpsDue(eq(9L), anyInt(), any())).thenReturn(LongStream.rangeClosed(1, 8).mapToObj(id -> due(id, 40L + id)).toList());
+        when(messages.draft(eq(3L), anyLong(), eq(MessageAiService.Kind.FOLLOW_UP), any(), any()))
+            .thenReturn(new MessageAiService.Draft("Point", "Bonjour,"));
+        assertThat(autopilot.draft(user)).isEqualTo(AutopilotService.DRAFTS);
+
+        when(messages.draft(eq(3L), eq(43L), any(), any(), any())).thenThrow(new InvalidStateException("Your AI allowance for this month is used up"));
+        assertThat(autopilot.draft(member(true))).isEqualTo(2);
+    }
+
+    @Test
+    void stopsPreparingApplicationsWhenTheAllowanceIsUsedUp() {
+        User user = member(true);
+        found(10);
+        when(applications.pack(eq(3L), eq(9L), eq(4L), any(), any())).thenThrow(new InvalidStateException("Your AI allowance for this month is used up"));
+
+        autopilot.run(user);
+
+        verify(packs, times(1)).save(any());
+        verify(applications, never()).pack(eq(3L), eq(9L), eq(6L), any(), any());
+    }
 }
