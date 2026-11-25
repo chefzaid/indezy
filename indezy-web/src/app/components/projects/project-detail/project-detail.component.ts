@@ -203,10 +203,11 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   /** Opens the AI debrief of an interview: what comes next, the steps read again once the next round was added. */
   debriefInterview(): void {
     if (this.project?.id) {
-      const data: AiDebriefDialogData = { projectId: this.project.id };
+      const data: AiDebriefDialogData = { projectId: this.project.id, status: this.project.status };
       this.dialog.open<AiDebriefDialogComponent, AiDebriefDialogData, boolean>(AiDebriefDialogComponent,
         { data, width: '720px', maxWidth: '96vw', autoFocus: 'first-tabbable' }).afterClosed().subscribe(added => {
         if (added) {
+          this.loadProject();
           this.loadSteps();
         }
       });

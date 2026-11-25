@@ -5533,6 +5533,7 @@
       "nextRound": "Prochain tour : {{round}}",
       "addRound": "L'ajouter comme étape à planifier",
       "roundAdded": "Étape ajoutée",
+      "moved": "Passée en {{status}}",
       "roundAddedToast": "Le prochain tour est dans les étapes, à planifier",
       "roundError": "L'étape n'a pas pu être ajoutée.",
       "nextSteps": "Prochaines actions",

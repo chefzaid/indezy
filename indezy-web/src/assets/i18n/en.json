@@ -5533,6 +5533,7 @@
       "nextRound": "Next round: {{round}}",
       "addRound": "Add it as a step to plan",
       "roundAdded": "Step added",
+      "moved": "Moved to {{status}}",
       "roundAddedToast": "The next round is in the steps, to plan",
       "roundError": "The step could not be added.",
       "nextSteps": "Next steps",

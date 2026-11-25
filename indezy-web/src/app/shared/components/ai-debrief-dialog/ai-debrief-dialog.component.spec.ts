@@ -5,7 +5,7 @@ import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
-import { AiDebrief, InterviewStepDto, ProjectNote, StepStatus } from '../../../models';
+import { AiDebrief, InterviewStepDto, ProjectDto, ProjectNote, ProjectStatus, StepStatus } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { InterviewStepService } from '../../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -26,10 +26,10 @@ describe('AiDebriefDialogComponent', () => {
   const debrief: AiDebrief = { outcome: 'NEXT_ROUND', nextRound: 'Entretien technique', nextSteps: ['Envoyer deux références'],
     thankYouSubject: "Merci pour l'échange", thankYouBody: 'Bonjour,\nmerci pour ce temps.' };
 
-  function create() {
+  function create(status?: ProjectStatus) {
     ai = jasmine.createSpyObj('AiService', ['debrief']);
     steps = jasmine.createSpyObj('InterviewStepService', ['create']);
-    projects = jasmine.createSpyObj('ProjectService', ['addProjectNote']);
+    projects = jasmine.createSpyObj('ProjectService', ['addProjectNote', 'updateStatus']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
@@ -52,7 +52,7 @@ describe('AiDebriefDialogComponent', () => {
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: InterviewStepService, useValue: steps }, { provide: ProjectService, useValue: projects },
         { provide: NotificationService, useValue: notifications }, { provide: Clipboard, useValue: clipboard },
-        { provide: MatDialogRef, useValue: dialogRef }, { provide: DictationService, useValue: dictation }, { provide: MAT_DIALOG_DATA, useValue: { projectId: 9 } }]
+        { provide: MatDialogRef, useValue: dialogRef }, { provide: DictationService, useValue: dictation }, { provide: MAT_DIALOG_DATA, useValue: { projectId: 9, status } }]
     });
     const fixture = TestBed.createComponent(AiDebriefDialogComponent);
     fixture.detectChanges();
@@ -180,6 +180,43 @@ describe('AiDebriefDialogComponent', () => {
     expect(listening).toBeFalse();
     fixture.destroy();
     expect(dictation.stop).toHaveBeenCalledTimes(3);
+  });
+
+  it('offers to move the opportunity to the stage the outcome points to, from a stage it may come from only', () => {
+    const read = (outcome: AiDebrief['outcome'], status?: ProjectStatus): HTMLElement => {
+      TestBed.resetTestingModule();
+      const fixture = create(status);
+      ai.debrief.and.returnValue(of({ ...debrief, outcome }));
+      write(fixture, 'Compte rendu.');
+      fixture.componentInstance.read();
+      fixture.detectChanges();
+      return fixture.nativeElement as HTMLElement;
+    };
+    expect(read('REJECTED', ProjectStatus.INTERVIEW).querySelector('[data-ai-debrief-move]')!.textContent).toContain('dashboard.suggestions.move');
+    expect(read('REJECTED', ProjectStatus.LOST).querySelector('[data-ai-debrief-move]')).toBeNull();
+    expect(read('OFFER', ProjectStatus.OFFER).querySelector('[data-ai-debrief-move]')).toBeNull();
+    expect(read('NEXT_ROUND', ProjectStatus.INTERVIEW).querySelector('[data-ai-debrief-move]')).toBeNull();
+    expect(read('WAITING', ProjectStatus.CONTACT).querySelector('[data-ai-debrief-move]')).toBeNull();
+    expect(read('OFFER').querySelector('[data-ai-debrief-move]')).toBeNull();
+
+    TestBed.resetTestingModule();
+    const fixture = create(ProjectStatus.INTERVIEW);
+    ai.debrief.and.returnValue(of({ ...debrief, outcome: 'OFFER' }));
+    const element = write(fixture, 'Une proposition arrive.');
+    fixture.componentInstance.read();
+    fixture.detectChanges();
+    projects.updateStatus.and.returnValue(throwError(() => new Error('down')));
+    (element.querySelector('[data-ai-debrief-move]') as HTMLButtonElement).click();
+    expect(notifications.error).toHaveBeenCalledWith('dashboard.suggestions.error');
+    projects.updateStatus.and.returnValue(of({} as ProjectDto));
+    (element.querySelector('[data-ai-debrief-move]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(projects.updateStatus).toHaveBeenCalledWith(9, ProjectStatus.OFFER);
+    expect(element.querySelector('[data-ai-debrief-move]')!.textContent).toContain('ai.debrief.moved');
+    fixture.componentInstance.moveTo(ProjectStatus.OFFER);
+    expect(projects.updateStatus).toHaveBeenCalledTimes(2);
+    fixture.componentInstance.close();
+    expect(dialogRef.close).toHaveBeenCalledWith(true);
   });
 
   it('says why the debrief could not be read', () => {

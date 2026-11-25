@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AiDebrief, StepStatus } from '../../../models';
+import { AiDebrief, ProjectStatus, StepStatus } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { InterviewStepService } from '../../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -21,12 +21,23 @@ export const DEBRIEF_MAX = 4000;
 
 export interface AiDebriefDialogData {
   projectId: number;
+  /** The opportunity's stage, for the move the outcome suggests. */
+  status?: ProjectStatus;
 }
+
+/** The stage an outcome moves the opportunity to, from the stages it may come from. */
+const MOVES: Record<AiDebrief['outcome'], { to: ProjectStatus; from: ProjectStatus[] } | null> = {
+  NEXT_ROUND: { to: ProjectStatus.INTERVIEW, from: [ProjectStatus.CONTACT] },
+  OFFER: { to: ProjectStatus.OFFER, from: [ProjectStatus.CONTACT, ProjectStatus.INTERVIEW] },
+  REJECTED: { to: ProjectStatus.LOST, from: [ProjectStatus.CONTACT, ProjectStatus.INTERVIEW, ProjectStatus.OFFER] },
+  WAITING: null
+};
 
 /**
  * Turns the debrief of an interview into what comes next with AI (see docs/features.md#ai-features): its likely
  * outcome, the next round added as a step to plan when one was announced, the next steps, and a thank-you message to
- * copy; kept as a journal note on request. Closes with true once a step was added, for the steps to be read again.
+ * copy, and the opportunity moved to the stage the outcome points to; kept as a journal note on request. Closes with true
+ * once a step was added or the stage changed, for the opportunity to be read again.
  */
 @Component({
   selector: 'app-ai-debrief-dialog',
@@ -42,6 +53,14 @@ export interface AiDebriefDialogData {
           <p class="outcome" [attr.data-ai-debrief-outcome]="debrief.outcome">
             <mat-icon aria-hidden="true">{{ icons[debrief.outcome] }}</mat-icon>{{ 'ai.debrief.outcomes.' + debrief.outcome | translate }}
           </p>
+          @if (move(); as to) {
+            <div class="round">
+              <button mat-stroked-button type="button" (click)="moveTo(to)" [disabled]="moving || moved" data-ai-debrief-move>
+                <mat-icon>{{ moved ? 'check' : 'swap_horiz' }}</mat-icon>
+                {{ (moved ? 'ai.debrief.moved' : 'dashboard.suggestions.move') | translate:{ status: ('projects.statuses.' + to | translate) } }}
+              </button>
+            </div>
+          }
           @if (debrief.nextRound; as round) {
             <div class="round">
               <span>{{ 'ai.debrief.nextRound' | translate:{ round } }}</span>
@@ -142,6 +161,8 @@ export class AiDebriefDialogComponent implements OnDestroy {
   adding = false;
   roundAdded = false;
   keeping = false;
+  moving = false;
+  moved = false;
   errorKey: string | null = null;
   readonly canDictate = this.dictation.supported();
   /** What the dictation is still hearing, shown under the debrief until it is final. */
@@ -197,6 +218,7 @@ export class AiDebriefDialogComponent implements OnDestroy {
         this.reading = false;
         this.debrief = debrief;
         this.roundAdded = false;
+        this.moved = false;
         this.changes.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
@@ -210,6 +232,34 @@ export class AiDebriefDialogComponent implements OnDestroy {
   /** Back to the debrief, to change it and read it again. */
   edit(): void {
     this.debrief = null;
+  }
+
+  /** The stage the outcome moves the opportunity to, when it is at one it may come from. */
+  move(): ProjectStatus | null {
+    const move = this.debrief ? MOVES[this.debrief.outcome] : null;
+    const status = this.data.status;
+    return move && status && move.from.includes(status) ? move.to : null;
+  }
+
+  /** Moves the opportunity to the stage the outcome points to; turned down, it is abandoned by the recruiter. */
+  moveTo(status: ProjectStatus): void {
+    if (this.moving || this.moved) {
+      return;
+    }
+    this.moving = true;
+    this.projects.updateStatus(this.data.projectId, status).subscribe({
+      next: () => {
+        this.moving = false;
+        this.moved = true;
+        this.notifications.success('dashboard.suggestions.applied');
+        this.changes.markForCheck();
+      },
+      error: () => {
+        this.moving = false;
+        this.notifications.error('dashboard.suggestions.error');
+        this.changes.markForCheck();
+      }
+    });
   }
 
   /** Adds the next round announced as a step to plan. */
@@ -266,7 +316,8 @@ export class AiDebriefDialogComponent implements OnDestroy {
     });
   }
 
+  /** Closes, saying whether a step was added or the stage changed, for the opportunity to be read again. */
   close(): void {
-    this.dialogRef.close(this.roundAdded);
+    this.dialogRef.close(this.roundAdded || this.moved);
   }
 }

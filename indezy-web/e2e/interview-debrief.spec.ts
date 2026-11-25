@@ -54,6 +54,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await round.click();
     await expect(round).toBeDisabled();
     expect(created).toEqual([{ projectId: 42, title: en ? 'Technical interview' : 'Entretien technique', status: 'TO_PLAN' }]);
+    // Already at Interview: no stage to move to for another round.
+    await expect(dialog.locator('[data-ai-debrief-move]')).toHaveCount(0);
     await dialog.locator('[data-ai-debrief-note]').click();
     await expect.poll(() => notes.length).toBe(1);
     expect(JSON.stringify(notes[0])).toContain(en ? 'Send two references' : 'Envoyer deux références');
@@ -61,3 +63,29 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(dialog).toHaveCount(0);
   });
 }
+
+test('abandons an opportunity whose debrief says it was turned down', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  await mockWorkspaceData(page, 'en');
+  await page.route(/\/api\/ai\/interview\/42\/debrief/, route => route.fulfill({ json: { outcome: 'REJECTED', nextRound: null,
+    nextSteps: [], thankYouSubject: 'Thank you', thankYouBody: 'Hello,\nthank you for your time.' } }));
+  const moves: string[] = [];
+  await page.route(/\/api\/projects\/42\/status/, route => {
+    moves.push(new URL(route.request().url()).searchParams.get('status') ?? '');
+    return route.fulfill({ json: { id: 42, role: 'Java developer', status: 'LOST', refusedBy: 'RECRUITER' } });
+  });
+
+  await page.goto('/projects/42');
+  await page.locator('[data-ai-debrief-open]').click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('How did it go?').fill('They went with a more senior profile.');
+  await dialog.locator('[data-ai-debrief-read]').click();
+  await expect(dialog.locator('[data-ai-debrief-outcome="REJECTED"]')).toContainText('Turned down');
+  await expect(dialog.locator('[data-ai-debrief-round]')).toHaveCount(0);
+  const move = dialog.locator('[data-ai-debrief-move]');
+  await move.click();
+  await expect(move).toBeDisabled();
+  expect(moves).toEqual(['LOST']);
+  await dialog.getByRole('button', { name: 'Close' }).click();
+  await expect(dialog).toHaveCount(0);
+});
