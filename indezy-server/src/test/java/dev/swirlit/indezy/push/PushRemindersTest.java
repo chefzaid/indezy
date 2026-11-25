@@ -27,6 +27,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -119,6 +120,33 @@ class PushRemindersTest {
         assertThat(PushReminders.followUpText(2).get(DocumentLanguage.FR)[1]).isEqualTo("2 contacts attendent votre relance.");
         verify(users, never()).claimFollowUpsPush(eq(8L), any());
         assertThat(PushReminders.followUpText(1).get(DocumentLanguage.EN)[1]).isEqualTo("1 contact waits for your follow-up.");
+    }
+
+    @Test
+    void tellsTheOtherAccountsWhenOneFailsEachInATransactionOfItsOwn() {
+        org.springframework.transaction.PlatformTransactionManager transactions = mock(org.springframework.transaction.PlatformTransactionManager.class);
+        when(transactions.getTransaction(any())).thenReturn(mock(org.springframework.transaction.TransactionStatus.class));
+        reminders.setTransactions(transactions);
+        when(subscriptions.findUserIds()).thenReturn(List.of(7L, 8L));
+        when(users.findById(7L)).thenReturn(Optional.of(user(7, "alice@example.com")));
+        when(users.findById(8L)).thenReturn(Optional.of(user(8, "bob@example.com")));
+        Freelance alice = new Freelance();
+        alice.setId(70L);
+        Freelance bob = new Freelance();
+        bob.setId(80L);
+        when(freelances.findByEmail("alice@example.com")).thenReturn(Optional.of(alice));
+        when(freelances.findByEmail("bob@example.com")).thenReturn(Optional.of(bob));
+        LocalDate today = LocalDate.of(2026, 11, 23);
+        when(interactions.followUpsDue(eq(70L), anyInt(), eq(today))).thenThrow(new IllegalStateException("broken workspace"));
+        when(interactions.followUpsDue(eq(80L), anyInt(), eq(today))).thenReturn(List.of(new DashboardStatsDto.FollowUpDue()));
+        when(users.claimFollowUpsPush(8L, today)).thenReturn(1);
+
+        assertThat(reminders.followUps()).isEqualTo(1);
+        verify(push).notify(eq(PushEvent.FOLLOW_UPS), eq(List.of(8L)), anyMap(), eq("/dashboard"));
+        // Two accounts, two transactions: the failed one undone alone, the other's claim kept.
+        verify(transactions, org.mockito.Mockito.times(2)).getTransaction(any());
+        verify(transactions).rollback(any());
+        verify(transactions).commit(any());
     }
 
     @Test
