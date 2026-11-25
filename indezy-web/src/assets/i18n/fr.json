@@ -5319,6 +5319,9 @@
     },
     "recent": "Derniers e-mails transférés",
     "open": "Ouvrir l'opportunité",
+    "openContact": "Ouvrir le contact",
+    "renewTitle": "Obtenir une nouvelle adresse ?",
+    "renewMessage": "Votre adresse actuelle ne reçoit alors plus rien : changez votre transfert (Gmail, Outlook) vers la nouvelle, sinon les e-mails que vous transférez sont perdus.",
     "kinds": {
       "INTERVIEW_INVITE": "Invitation à un entretien",
       "REJECTION": "Refus",

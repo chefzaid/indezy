@@ -25,10 +25,10 @@
                     <span class="rate"><mat-icon aria-hidden="true">payments</mat-icon>{{ rate }}{{ 'common.perDay' | translate }}</span>
                   }
                   @if (item.post.details?.city) {
-                    <span><mat-icon aria-hidden="true">place</mat-icon>{{ item.post.details?.city }}</span>
+                    <span><mat-icon aria-hidden="true">place</mat-icon>{{ item.post.details.city }}</span>
                   }
                   @if (item.post.details?.remoteDays != null) {
-                    <span><mat-icon aria-hidden="true">home_work</mat-icon>{{ 'dashboard.offers.remoteDays' | translate: { days: item.post.details?.remoteDays } }}</span>
+                    <span><mat-icon aria-hidden="true">home_work</mat-icon>{{ 'dashboard.offers.remoteDays' | translate: { days: item.post.details.remoteDays } }}</span>
                   }
                   <span class="site" data-mission-from>{{ 'dashboard.offers.fromNetwork' | translate: { name: authorName(item.post) } }}</span>
                 </span>

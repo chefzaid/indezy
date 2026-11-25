@@ -10,6 +10,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { InboxWatcher } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { filter } from 'rxjs';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
 /**
  * Profile → Preferences → **Inbox watcher** (docs/features.md#inbox-watcher): the member's own address to forward their
@@ -38,7 +40,7 @@ import { NotificationService } from '../../../services/notification/notification
               <li>{{ 'inboxWatcher.steps.filter' | translate }}</li>
               <li>{{ 'inboxWatcher.steps.byHand' | translate }}</li>
             </ol>
-            <button mat-button type="button" (click)="renew()" [disabled]="busy" data-inbox-renew>{{ 'inboxWatcher.renew' | translate }}</button>
+            <button mat-button type="button" (click)="renewAddress()" [disabled]="busy" data-inbox-renew>{{ 'inboxWatcher.renew' | translate }}</button>
           } @else {
             <button mat-flat-button color="primary" type="button" (click)="renew()" [disabled]="busy" data-inbox-create>
               {{ 'inboxWatcher.create' | translate }}
@@ -54,6 +56,8 @@ import { NotificationService } from '../../../services/notification/notification
                   <span class="done">{{ 'inboxWatcher.kinds.' + email.kind | translate }} · {{ 'inboxWatcher.actions.' + email.action | translate }}</span>
                   @if (email.projectId) {
                     <a [routerLink]="['/projects', email.projectId]" [attr.data-inbox-project]="email.projectId">{{ 'inboxWatcher.open' | translate }}</a>
+                  } @else if (email.contactId) {
+                    <a [routerLink]="['/contacts', email.contactId]" [attr.data-inbox-contact]="email.contactId">{{ 'inboxWatcher.openContact' | translate }}</a>
                   }
                 </li>
               }
@@ -82,12 +86,22 @@ export class InboxWatcherComponent implements OnInit {
   private readonly clipboard = inject(Clipboard);
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
+  private readonly confirm = inject(ConfirmDialogService);
 
   watcher: InboxWatcher | null = null;
   busy = false;
 
   ngOnInit(): void {
     this.ai.inboxWatcher().subscribe({ next: watcher => this.show(watcher), error: () => undefined });
+  }
+
+  /**
+   * A new address in place of the current one, once confirmed: the current one then receives nothing, so the
+   * forwarding set up to it must be changed.
+   */
+  renewAddress(): void {
+    this.confirm.confirm({ titleKey: 'inboxWatcher.renewTitle', messageKey: 'inboxWatcher.renewMessage', confirmKey: 'inboxWatcher.renew',
+      danger: true }).pipe(filter(Boolean)).subscribe(() => this.renew());
   }
 
   /** Gives the member an address, or a new one in place of the previous. */

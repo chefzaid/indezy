@@ -919,7 +919,7 @@ once; editing the mission leaves it as it is, and the account export carries it 
 
 **Inbox watcher (AI)**, in Profile → Preferences under the AI settings, shown once answers can come back through the reply
 domain ([Deployment](./deployment.md#reply-detection)), gives the member an address of their own, **Get my address**:
-`inbox+<token>@<reply domain>` (160 random bits in hex, `users.inbox_token`; **Get a new address** replaces it, the old one
+`inbox+<token>@<reply domain>` (160 random bits in hex, `users.inbox_token`; **Get a new address** replaces it once confirmed, the old one
 then receiving nothing), with how to forward to it (a Gmail forwarding address and a filter, an Outlook rule, or one email
 forwarded by hand) (`GET /api/ai/inbox-watcher`, `POST /api/ai/inbox-watcher/address`). Resend receives what is forwarded
 and calls the same signed webhook as the answers, `POST /api/public/emails/inbound`; an `email.received` event to an

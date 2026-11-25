@@ -5319,6 +5319,9 @@
     },
     "recent": "Latest forwarded emails",
     "open": "Open the opportunity",
+    "openContact": "Open the contact",
+    "renewTitle": "Get a new address?",
+    "renewMessage": "Your current address then receives nothing: change your forwarding (Gmail, Outlook) to the new one, or the emails you forward are lost.",
     "kinds": {
       "INTERVIEW_INVITE": "Interview invite",
       "REJECTION": "Rejection",

@@ -75,7 +75,7 @@ In **Profile → Preferences**, **Inbox watcher (AI)** gives you an address of y
 - a **rejection** moves the opportunity to **Abandonné** with the reason guessed;
 - a question on your **availability or rate** drafts your answer from your profile.
 
-The email is recorded in the contact's exchanges (someone new is added to your contacts with their company, found or created from their email's domain; someone writing from a Gmail, Outlook or similar address is not added), the drafts wait on the dashboard under **Prepared for you**, and the card lists what was done with the latest emails. Only what you forward is read, and its text is not kept. **Get a new address** stops the old one.
+The email is recorded in the contact's exchanges (someone new is added to your contacts, named from their address when it spells a name, with their company, found or created from their email's domain; someone writing from a Gmail, Outlook or similar address is not added), the drafts wait on the dashboard under **Prepared for you**, and the card lists what was done with the latest emails. Only what you forward is read, and its text is not kept. **Get a new address** stops the old one, once you confirm: change your forwarding to the new one. An email about no opportunity links its contact instead.
 
 ## A contact's network and the org chart
 

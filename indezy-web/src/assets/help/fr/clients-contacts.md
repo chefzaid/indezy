@@ -75,7 +75,7 @@ Dans **Profil → Préférences**, **Veille de la boîte mail (IA)** vous donne 
 - un **refus** passe l'opportunité en **Abandonné** avec la raison devinée ;
 - une question sur votre **disponibilité ou votre TJM** rédige votre réponse d'après votre profil.
 
-L'e-mail est noté dans les échanges du contact (une personne inconnue est ajoutée à vos contacts avec sa société, retrouvée ou créée d'après le domaine de son e-mail ; une personne qui écrit depuis une adresse Gmail, Outlook ou semblable n'est pas ajoutée), les brouillons attendent sur le tableau de bord sous **Préparé pour vous**, et la carte liste ce qui a été fait des derniers e-mails. Seul ce que vous transférez est lu, et son texte n'est pas conservé. **Obtenir une nouvelle adresse** arrête l'ancienne.
+L'e-mail est noté dans les échanges du contact (une personne inconnue est ajoutée à vos contacts, nommée d'après son adresse quand celle-ci donne un nom, avec sa société, retrouvée ou créée d'après le domaine de son e-mail ; une personne qui écrit depuis une adresse Gmail, Outlook ou semblable n'est pas ajoutée), les brouillons attendent sur le tableau de bord sous **Préparé pour vous**, et la carte liste ce qui a été fait des derniers e-mails. Seul ce que vous transférez est lu, et son texte n'est pas conservé. **Obtenir une nouvelle adresse** arrête l'ancienne, une fois confirmé : changez votre transfert vers la nouvelle. Un e-mail qui ne concerne aucune opportunité renvoie à son contact.
 
 ## Le réseau d'un contact et l'organigramme
 
