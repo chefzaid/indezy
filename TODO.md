@@ -706,6 +706,8 @@ How to use Indezy, told on the public website rather than only in the repository
 
 ## Technical Improvements
 
+- [ ] WCAG audit on every page (started on 2026-11-25): a shared `e2e/helpers/axe.ts`; the legal pages, the public activity-report approval page, the activity reports and the email unsubscribe page are now audited and pass. Still unaudited: **Job boards** (`/offers/sites`), a publisher's page (`/offers/publishers/:name`), a tag's posts, drafts, an event's and an idea's page in the network.
+
 - [x] Headings and WCAG audit of the account pages (found on 2026-11-25): the sign-in, registration, forgot-password, reset-password and email-confirmation pages had their title as a plain block, no heading for screen readers; each is now the page's `h1`, and `e2e/accessibility.spec.ts` audits registration, password reset (with an expired link), email confirmation and the help center as well.
 
 - [x] Inbound email actions in a transaction of their own (found on 2026-11-25 reviewing the inbox watcher): a database error in an action (an interview step, a contact, an opportunity) marked the whole webhook's transaction rollback-only, so it answered 500, Resend retried, and the email was never recorded. The inbox watcher's actions and the opportunity an interested answer opens now run in their own transaction: what fails is undone alone and the email or answer stays recorded.

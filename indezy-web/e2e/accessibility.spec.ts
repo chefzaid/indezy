@@ -91,3 +91,12 @@ test('meets WCAG 2.1 AA on the account pages a visitor opens: registration, pass
     expect(await violations(page), path).toEqual([]);
   }
 });
+
+test('meets WCAG 2.1 AA on the legal pages', async ({ page }) => {
+  for (const path of ['/legal', '/legal/terms', '/legal/privacy', '/legal/notice']) {
+    await page.goto(path);
+    await settled(page);
+    await expect(page.locator('h1').first()).toBeVisible();
+    expect(await violations(page), path).toEqual([]);
+  }
+});

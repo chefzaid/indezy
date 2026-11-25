@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { mockFeed, savedSearch, searchEmails } from './helpers/offer-feed';
+import { wcagViolations } from './helpers/axe';
 
 test('sets a saved search to email its new offers daily (en)', async ({ page }) => {
   test.setTimeout(60_000);
@@ -42,6 +43,7 @@ test('stops a saved search\'s emails from their link without an account (fr)', a
   await page.goto('/emails/unsubscribe#tok3n');
 
   await expect(page.getByText('Vous recevez par email les nouvelles offres de la recherche « Java remote ».')).toBeVisible();
+  expect(await wcagViolations(page), 'unsubscribe').toEqual([]);
   await page.getByRole('button', { name: 'Arrêter ces emails' }).click();
   await expect(page.getByRole('heading', { name: 'Emails arrêtés' })).toBeVisible();
   await expect(page).toHaveURL(/\/emails\/unsubscribe#tok3n$/);
@@ -55,4 +57,5 @@ test('says an unsubscribe link without its token is no longer valid (fr)', async
   await page.goto('/emails/unsubscribe');
 
   await expect(page.getByRole('heading', { name: 'Ce lien n\'est plus valide' })).toBeVisible();
+  expect(await wcagViolations(page), 'unsubscribe without a link').toEqual([]);
 });

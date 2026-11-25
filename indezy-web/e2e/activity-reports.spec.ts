@@ -1,6 +1,7 @@
 import { Page, expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
+import { wcagViolations } from './helpers/axe';
 
 interface Day { date: string; type: string; halfDay: boolean }
 
@@ -139,6 +140,7 @@ test('explains an expired validation link and switches its language', async ({ p
   await page.route('**/api/public/activity-reports', route => route.fulfill({ status: 404, json: {} }));
   await page.goto('/activity-report#expired-token');
   await expect(page.getByRole('heading', { name: texts.fr.invalid })).toBeVisible();
+  expect(await wcagViolations(page), 'expired validation link').toEqual([]);
   await page.getByRole('button', { name: 'English' }).click();
   await expect(page.getByRole('heading', { name: texts.en.invalid })).toBeVisible();
   await expect(page).toHaveURL(/#expired-token$/);
@@ -186,6 +188,8 @@ test('downloads the year\'s professional kilometres for the accountant', async (
     return route.fulfill({ body: 'Month;Client;Mission;Days on site;Round trip (km);Kilometres\r\nTotal;;;;;0\r\n', contentType: 'text/csv' });
   });
   await page.goto('/activity-reports');
+  await page.waitForLoadState('networkidle');
+  expect(await wcagViolations(page), 'activity reports').toEqual([]);
   await page.locator('[data-export-kilometres]').click();
   const download = page.waitForEvent('download');
   await page.locator(`[data-kilometres-year="${year}"]`).click();
