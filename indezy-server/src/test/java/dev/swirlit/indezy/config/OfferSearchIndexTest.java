@@ -29,6 +29,22 @@ class OfferSearchIndexTest {
     void setUp() {
         when(jdbc.execute(any(ConnectionCallback.class))).thenReturn("PostgreSQL");
         when(jdbc.queryForObject(anyString(), eq(Boolean.class), eq("job_offers"))).thenReturn(true);
+        when(jdbc.queryForList(contains("reloptions"), eq(String.class), eq("job_offers"))).thenReturn(List.of("fillfactor=100,toast_tuple_target=256"));
+    }
+
+    @Test
+    void keepsTheOffersRowsNarrowOnceAndGoesOnWhenRefused() {
+        validity(true);
+        when(jdbc.queryForList(contains("reloptions"), eq(String.class), eq("job_offers"))).thenReturn(java.util.Arrays.asList((String) null));
+
+        index.run(null);
+        verify(jdbc).execute("ALTER TABLE job_offers SET (toast_tuple_target = 256)");
+
+        doThrow(new DataAccessResourceFailureException("must be owner of table job_offers"))
+            .when(jdbc).execute("ALTER TABLE job_offers SET (toast_tuple_target = 256)");
+        validity();
+        index.run(null);
+        verify(jdbc).execute(startsWith("CREATE INDEX CONCURRENTLY"));
     }
 
     @Test

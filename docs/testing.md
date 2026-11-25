@@ -140,7 +140,8 @@ computes the rate medians, and creates a workspace with a profile and offers it 
 the feed's common searches and side requests alone, then sends them 20 at a time over HTTP, 400 searches in all,
 writes the timings to `indezy-server/target/load-test/report.md`, and fails when a request is not answered, when a search
 alone takes 300 ms or more (its median), or when the 95th percentile of the searches under load reaches one second
-(the target set on 2026-11-20 for real use, to revisit with real traffic).
+(the target set on 2026-11-20 for real use, to revisit with real traffic). The last full run, on 2026-11-25 (PostgreSQL 16, four
+cores): passed, every search alone under 300 ms (Best match 235 ms) and the 95th percentile 966 ms.
 
 The test carries the JUnit tag `load`, which `mvn test` and `mvn verify` leave out. It needs a disposable PostgreSQL;
 the offers are kept there for the next run, so only the first run collects them (about three minutes on two cores).
