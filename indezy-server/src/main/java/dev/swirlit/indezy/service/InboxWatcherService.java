@@ -250,7 +250,9 @@ public class InboxWatcherService {
         }
         Contact contact = new Contact();
         contact.setFreelance(workspace);
-        contact.setFirstName(cut(sender.substring(0, sender.indexOf('@')), InboxEmail.TEXT_MAX));
+        String[] name = name(sender.substring(0, sender.indexOf('@')));
+        contact.setFirstName(cut(name[0], InboxEmail.TEXT_MAX));
+        contact.setLastName(name[1] == null ? null : cut(name[1], InboxEmail.TEXT_MAX));
         contact.setEmail(sender);
         contact.setClient(company(workspace, domain, all));
         return contacts.save(contact);
@@ -281,6 +283,26 @@ public class InboxWatcherService {
             client.setFreelance(workspace);
             return clients.save(client);
         });
+    }
+
+    /**
+     * The first and last names an address's local part spells ("Jean", "Dupont" from {@code jean.dupont} or
+     * {@code jean_dupont}, "Jean-Pierre" kept whole); a role or anything else ({@code recrutement}, {@code jdupont42})
+     * as it is, with no last name.
+     */
+    static String[] name(String local) {
+        String[] parts = local.split("[._]");
+        if (parts.length < 2 || java.util.Arrays.stream(parts).anyMatch(part -> !part.matches("\\p{L}+(-\\p{L}+)*"))) {
+            return new String[] {local, null};
+        }
+        List<String> named = java.util.Arrays.stream(parts).map(InboxWatcherService::capitalized).toList();
+        return new String[] {named.getFirst(), String.join(" ", named.subList(1, named.size()))};
+    }
+
+    /** "Jean-Pierre" from "jean-pierre". */
+    private static String capitalized(String part) {
+        return java.util.Arrays.stream(part.split("-")).map(word -> word.substring(0, 1).toUpperCase(Locale.ROOT) + word.substring(1))
+            .collect(java.util.stream.Collectors.joining("-"));
     }
 
     /** "acme.example" from "https://www.Acme.example/". */

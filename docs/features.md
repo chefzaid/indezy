@@ -935,7 +935,7 @@ inbox address of the domain goes to `InboxWatcherService`, once per received ema
   the profile (the name, the availability date, the target daily rate and the booking link when on), never inventing a
   date or a rate;
 - the sender's contact is the workspace's one with that address; unknown, for an invite or a question, a new contact is
-  added, with the company whose domain is the email's, else that of a contact on the same domain, else a company created
+  added, named from the address when it spells a name (Jean Dupont for `jean.dupont@`, else the address's first part), with the company whose domain is the email's, else that of a contact on the same domain, else a company created
   from the domain ("Acme" for `acme.example`, as an intermediary); a sender on a public mailbox provider (Gmail, Outlook,
   Yahoo, Orange, Free...) is not added, their domain saying nothing of their company, so their email is only listed; the
   email is recorded as an incoming exchange of the

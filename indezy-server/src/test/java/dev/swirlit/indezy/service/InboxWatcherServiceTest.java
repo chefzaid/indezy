@@ -37,4 +37,14 @@ class InboxWatcherServiceTest {
         assertThat(InboxWatcherService.bare("https://www.Acme.example/jobs")).isEqualTo("acme.example");
         assertThat(InboxWatcherService.bare(" acme.example ")).isEqualTo("acme.example");
     }
+
+    @Test
+    void namesANewContactFromTheirAddressWhenItSpellsAName() {
+        assertThat(InboxWatcherService.name("jean.dupont")).containsExactly("Jean", "Dupont");
+        assertThat(InboxWatcherService.name("jean-pierre_de.la-tour")).containsExactly("Jean-Pierre", "De La-Tour");
+        assertThat(InboxWatcherService.name("élodie.marchand")).containsExactly("Élodie", "Marchand");
+        assertThat(InboxWatcherService.name("recrutement")).containsExactly("recrutement", null);
+        assertThat(InboxWatcherService.name("jdupont42.rh")).containsExactly("jdupont42.rh", null);
+        assertThat(InboxWatcherService.name("jean..dupont")).containsExactly("jean..dupont", null);
+    }
 }
