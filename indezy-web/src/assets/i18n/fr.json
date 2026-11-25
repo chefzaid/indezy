@@ -275,16 +275,18 @@
     "showAll": "Tout afficher ({{count}})",
     "showLess": "Réduire",
     "autopilot": {
-      "title": "Préparé cette nuit",
+      "title": "Préparé pour vous",
       "packFor": "Candidature préparée pour {{title}}",
       "openOffer": "Ouvrir l'offre",
       "rate": "TJM à proposer : {{rate}} €",
+      "answerFor": "Réponse rédigée pour {{contact}}",
       "draftFor": "Relance rédigée pour {{contact}}",
       "copy": "Copier",
       "copied": "Copié : collez-le dans votre e-mail",
       "openOpportunity": "Ouvrir l'opportunité",
       "dismiss": "Écarter",
       "dismissError": "Le brouillon n'a pas pu être écarté : réessayez",
+      "summaryDrafts": "{{drafts}} réponse(s) et relance(s) rédigée(s), à envoyer",
       "summary": "{{count}} offres triées, dont {{fit}} qui valent une candidature ; {{packs}} candidature(s) préparée(s), {{drafts}} relance(s) rédigée(s)"
     },
     "offers": {

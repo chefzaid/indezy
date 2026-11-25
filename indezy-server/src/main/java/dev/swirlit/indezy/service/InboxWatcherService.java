@@ -356,6 +356,7 @@ public class InboxWatcherService {
         String reply = subject.regionMatches(true, 0, "re:", 0, 3) ? subject : "Re: " + subject;
         draft.setSubject(cut(reply, AutopilotDraft.SUBJECT_MAX));
         draft.setBody(cut(answer, AutopilotDraft.BODY_MAX));
+        draft.setAnswer(true);
         drafts.save(draft);
         if (email.getAction() == InboxEmailAction.NONE) {
             email.setAction(InboxEmailAction.DRAFTED);

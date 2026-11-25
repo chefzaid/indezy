@@ -275,16 +275,18 @@
     "showAll": "Show all ({{count}})",
     "showLess": "Show less",
     "autopilot": {
-      "title": "Prepared overnight",
+      "title": "Prepared for you",
       "packFor": "Application prepared for {{title}}",
       "openOffer": "Open the offer",
       "rate": "Rate to propose: €{{rate}}/day",
+      "answerFor": "Answer drafted for {{contact}}",
       "draftFor": "Follow-up drafted for {{contact}}",
       "copy": "Copy",
       "copied": "Copied: paste it in your email",
       "openOpportunity": "Open the opportunity",
       "dismiss": "Dismiss",
       "dismissError": "The draft could not be set aside: try again",
+      "summaryDrafts": "{{drafts}} answer(s) and follow-up(s) drafted for you to send",
       "summary": "{{count}} offers triaged, {{fit}} worth applying to; {{packs}} application(s) prepared, {{drafts}} follow-up(s) drafted"
     },
     "offers": {

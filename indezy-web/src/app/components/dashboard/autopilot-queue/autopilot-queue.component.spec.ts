@@ -70,9 +70,12 @@ describe('AutopilotQueueComponent', () => {
 
   it('shows the answers the inbox watcher drafted while the autopilot is off, not its offers', () => {
     const element = create({ on: false, offers: [offer(1, true)], drafts: [{ id: 5, contactId: 3, contact: 'Inès Roy', company: 'Acme',
-      projectId: null, subject: 'Re: Dispo ?', body: 'Bonjour,', at: '2026-11-24T10:00:00' }] });
+      projectId: null, subject: 'Re: Dispo ?', body: 'Bonjour,', at: '2026-11-24T10:00:00', answer: true }] });
     expect(element.querySelector('[data-autopilot-queue]')).not.toBeNull();
     expect(element.textContent).toContain('Re: Dispo ?');
     expect(element.querySelector('[data-autopilot-offer]')).toBeNull();
+    // Named an answer, the summary counting only what was drafted, no offers triaged with the autopilot off.
+    expect(element.textContent).toContain('dashboard.autopilot.answerFor');
+    expect(element.querySelector('[data-autopilot-summary]')!.textContent).toContain('dashboard.autopilot.summaryDrafts');
   });
 });

@@ -195,6 +195,7 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
             .isEqualTo(1L);
         assertThat(jdbcTemplate.queryForObject("SELECT body FROM autopilot_drafts WHERE contact_id = ?", String.class, contact))
             .contains("jeudi 10 h");
+        assertThat(jdbcTemplate.queryForObject("SELECT answer FROM autopilot_drafts WHERE contact_id = ?", Boolean.class, contact)).isTrue();
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM contact_interactions WHERE contact_id = ? AND direction = 'INCOMING'",
             Long.class, contact)).isEqualTo(1L);
         Map<String, Object> watcher = call(alice, HttpMethod.GET, "/ai/inbox-watcher", null, Map.class).getBody();

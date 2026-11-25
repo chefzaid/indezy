@@ -344,7 +344,7 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         draft.setBody("Bonjour Léa,");
         long draftId = autopilotDrafts.save(draft).getId();
         assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts"))
-            .singleElement().satisfies(item -> assertThat(item).containsEntry("contact", "Léa Suivi").containsEntry("subject", "Point sur la mission"));
+            .singleElement().satisfies(item -> assertThat(item).containsEntry("contact", "Léa Suivi").containsEntry("subject", "Point sur la mission").containsEntry("answer", false));
         assertThat(call(bob, HttpMethod.DELETE, "/ai/autopilot/drafts/" + draftId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.DELETE, "/ai/autopilot/drafts/" + draftId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat((List<?>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts")).isEmpty();

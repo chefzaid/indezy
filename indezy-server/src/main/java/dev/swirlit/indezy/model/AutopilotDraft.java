@@ -9,7 +9,8 @@ import lombok.Setter;
 
 /**
  * A follow-up the daily autopilot run drafted overnight for a contact still waiting for an answer (see
- * docs/features.md#daily-autopilot): kept a week for the member to copy and send, or dismiss.
+ * docs/features.md#daily-autopilot), or the answer the inbox watcher drafted to an email the member forwarded: kept a
+ * week for the member to copy and send, or dismiss.
  */
 @Entity
 @Table(name = "autopilot_drafts", indexes = @Index(name = "idx_autopilot_drafts_freelance", columnList = "freelance_id"))
@@ -34,4 +35,8 @@ public class AutopilotDraft extends BaseEntity {
 
     @Column(name = "body", nullable = false, columnDefinition = "TEXT")
     private String body;
+
+    /** True for the answer to an email the member forwarded to the inbox watcher; null or false for a follow-up. */
+    @Column(name = "answer")
+    private Boolean answer;
 }

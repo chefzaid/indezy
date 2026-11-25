@@ -13,7 +13,7 @@ import { AiService } from '../../../services/ai/ai.service';
 export const PREPARED_SHOWN = 5;
 
 /**
- * **Prepared overnight** (docs/features.md#daily-autopilot): when the daily autopilot run is on, what it triaged in the
+ * **Prepared for you** (docs/features.md#daily-autopilot): when the daily autopilot run is on, what it triaged in the
  * last day, those worth applying to first, each opening its offer; and the answers drafted, by it or the inbox watcher.
  */
 @Component({
@@ -23,7 +23,8 @@ export const PREPARED_SHOWN = 5;
     @if (queue && (triaged.length || drafts.length || packs.length)) {
       <section class="autopilot" data-autopilot-queue aria-labelledby="autopilot-title">
         <h3 id="autopilot-title"><mat-icon aria-hidden="true">auto_awesome</mat-icon>{{ 'dashboard.autopilot.title' | translate }}</h3>
-        <p data-autopilot-summary>{{ 'dashboard.autopilot.summary' | translate:{ count: triaged.length, fit: fit, drafts: drafts.length, packs: packs.length } }}</p>
+        <p data-autopilot-summary>{{ (queue.on ? 'dashboard.autopilot.summary' : 'dashboard.autopilot.summaryDrafts') |
+          translate:{ count: triaged.length, fit: fit, drafts: drafts.length, packs: packs.length } }}</p>
         <ul>
           @for (offer of shown; track offer.offerId) {
             <li [attr.data-autopilot-offer]="offer.offerId" [class.fit]="offer.goodFit">
@@ -70,7 +71,7 @@ export const PREPARED_SHOWN = 5;
             @for (draft of drafts; track draft.id) {
               <li [attr.data-autopilot-draft]="draft.id">
                 <details>
-                  <summary>{{ 'dashboard.autopilot.draftFor' | translate:{ contact: draft.contact } }}@if (draft.company) { · {{ draft.company }} }</summary>
+                  <summary>{{ (draft.answer ? 'dashboard.autopilot.answerFor' : 'dashboard.autopilot.draftFor') | translate:{ contact: draft.contact } }}@if (draft.company) { · {{ draft.company }} }</summary>
                   @if (draft.subject) {
                     <p class="subject">{{ draft.subject }}</p>
                   }

@@ -885,12 +885,12 @@ preferences), runs every night at 04:10 Paris time (`AutopilotService`): the off
 match the profile and were not opened yet, the best matches first, get the verdict and deal-breakers **Should I apply?
 (AI)** gives (`OfferTriageAiService`, kept per workspace), 10 at most a night, those already triaged skipped, from the
 account's AI allowance or its own key, stopping when the allowance is used up (the owner's answer of 2026-11-23: opt-in,
-within the allowance). In the morning, **Prepared overnight** at the top of the dashboard's offers lists the offers
+within the allowance). In the morning, **Prepared for you** at the top of the dashboard's offers lists the offers
 triaged in the last day (`GET /api/ai/autopilot`), those worth applying to first, five shown, each with its verdict and
 deal-breakers and opening its page; it stays away while the autopilot is off or found nothing. The same night, for the
 contacts still waiting for an answer about an opportunity (the follow-ups due), the longest waiting first, it drafts a
 follow-up (**Draft a message (AI)**'s, `MessageAiService`), 5 at most, none for a contact drafted for in the week, kept a
-week (`autopilot_drafts`, removed with the account): **Prepared overnight** lists them, each with **Copy** (subject and
+week (`autopilot_drafts`, removed with the account): **Prepared for you** lists them, each with **Copy** (subject and
 text), **Open the opportunity** and **Dismiss** (`DELETE /api/ai/autopilot/drafts/{id}`). For the first 3 offers of the
 night found worth applying to, it also prepares the application by email to the ESN (**Prepare my application (AI)**'s,
 `ApplicationPackAiService`): subject and message, the screening answers and the rate to propose, kept a week
@@ -943,7 +943,8 @@ inbox address of the domain goes to `InboxWatcherService`, once per received ema
 - an invite adds an **Entretien** step to that opportunity (planned on the slot when it offers one, to plan with the
   slots in its notes otherwise), moves it from Contact to Interview, and drafts the answer; a rejection moves it to
   Abandoned, turned down by the recruiter, with the reason guessed; a question drafts the answer. The drafts wait a week
-  on the dashboard under **Prepared overnight**, to copy or dismiss, whether the overnight autopilot is on or not.
+  on the dashboard under **Prepared for you**, named **Answer drafted for …** (`autopilot_drafts.answer`), to copy or dismiss,
+  whether the overnight autopilot is on or not; with the autopilot off, the card's line counts only the drafts.
 
 What the AI's reading leads to runs in a transaction of its own: an action that fails (a step, a contact, a status) is
 undone with the others it went with, and the email stays recorded as read; likewise, an opportunity an interested answer

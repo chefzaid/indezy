@@ -89,7 +89,7 @@ public class AutopilotService {
 
     /** A follow-up drafted overnight: for whom, about which opportunity, its subject and text. */
     public record Drafted(Long id, Long contactId, String contact, String company, Long projectId, String subject, String body,
-                          LocalDateTime at) {
+                          LocalDateTime at, boolean answer) {
     }
 
     /** An application prepared overnight: for which offer, the email, the screening answers and the rate to propose. */
@@ -288,7 +288,7 @@ public class AutopilotService {
                 Contact contact = people.get(draft.getContactId());
                 return new Drafted(draft.getId(), contact.getId(), contact.getFullName(),
                     contact.getClient() == null ? null : contact.getClient().getCompanyName(), draft.getProjectId(), draft.getSubject(),
-                    draft.getBody(), draft.getCreatedAt());
+                    draft.getBody(), draft.getCreatedAt(), Boolean.TRUE.equals(draft.getAnswer()));
             }).toList();
         List<AutopilotPack> applied = packs.findByFreelanceIdAndCreatedAtAfterOrderByCreatedAtDesc(freelanceId,
             LocalDateTime.now(clock.withZone(PARIS)).minus(DRAFT_KEPT));

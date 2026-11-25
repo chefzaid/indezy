@@ -225,6 +225,8 @@ export interface AiDraftedFollowUp {
   subject: string | null;
   body: string;
   at: string;
+  /** The answer to an email forwarded to the inbox watcher, rather than a follow-up. */
+  answer?: boolean;
 }
 
 /** Whether the daily autopilot run is on, the offers triaged in the last day (worth applying to first) and the follow-ups drafted this week. */
