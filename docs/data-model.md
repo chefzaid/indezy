@@ -340,7 +340,7 @@ a data URL) are stored in the database. See [Security](./security.md).
 ## Database Initialization
 
 The local PostgreSQL container runs `infra/database/init/01-init.sql` once, when it creates its database. It enables
-`pg_trgm` (for the offers' trigram index) and sets `jit = off` and `random_page_cost = 1.1` for its role, as the
+`pg_trgm` (for the offers' trigram index) and sets `jit = off`, `random_page_cost = 1.1` and `plan_cache_mode = force_custom_plan` for its role, as the
 cluster's database setup hook does for the application's role. Tables are left to Hibernate.
 
 `mask db-reset` runs the short-lived `seed` profile: Hibernate recreates the schema (`ddl-auto: create`), Spring loads

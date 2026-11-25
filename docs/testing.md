@@ -141,7 +141,8 @@ the feed's common searches and side requests alone, then sends them 20 at a time
 writes the timings to `indezy-server/target/load-test/report.md`, and fails when a request is not answered, when a search
 alone takes 300 ms or more (its median), or when the 95th percentile of the searches under load reaches one second
 (the target set on 2026-11-20 for real use, to revisit with real traffic). The last full run, on 2026-11-25 (PostgreSQL 16, four
-cores): passed, every search alone under 300 ms (Best match 235 ms) and the 95th percentile 966 ms.
+cores): every search alone under 300 ms (Best match 235 to 242 ms), the 95th percentile at the one-second target (927 to 1,036 ms over
+three runs with the planner settings), the slowest search about 1.2 s.
 
 The test carries the JUnit tag `load`, which `mvn test` and `mvn verify` leave out. It needs a disposable PostgreSQL;
 the offers are kept there for the next run, so only the first run collects them (about three minutes on two cores).
@@ -158,7 +159,7 @@ docker rm -f indezy-load-pg
 `INDEZY_LOAD_DATABASE_URL`, `INDEZY_LOAD_DATABASE_USER` and `INDEZY_LOAD_DATABASE_PASSWORD` point it at another
 database. Never point it at a database holding real data: it adds its offers and accounts there. The test's
 connections take the planner settings the database setup hook gives the application's role (`jit = off`,
-`random_page_cost = 1.1`, see [Architecture](./architecture.md#offer-search-at-scale)).
+`random_page_cost = 1.1`, `plan_cache_mode = force_custom_plan`, see [Architecture](./architecture.md#offer-search-at-scale)).
 
 ## Factur-X Validation
 

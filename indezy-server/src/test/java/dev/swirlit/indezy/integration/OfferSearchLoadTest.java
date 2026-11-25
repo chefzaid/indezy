@@ -77,7 +77,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy",
         "spring.jpa.properties.hibernate.jdbc.batch_size=100",
         // What the database setup hook sets for the application's role (see docs/architecture.md#offer-search-at-scale).
-        "spring.datasource.hikari.connection-init-sql=SET jit = off; SET random_page_cost = 1.1",
+        "spring.datasource.hikari.connection-init-sql=SET jit = off; SET random_page_cost = 1.1; SET plan_cache_mode = force_custom_plan",
         "indezy.security.permit-all=false",
         "logging.level.org.springframework.web=INFO",
         "logging.level.org.springframework.security=INFO"

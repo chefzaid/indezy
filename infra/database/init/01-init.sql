@@ -4,6 +4,8 @@
 -- Trigram index of the offers' search text (built at startup by OfferSearchIndex)
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
--- As the cluster's database setup hook does for the application's role: no JIT compilation, SSD page costs
+-- As the cluster's database setup hook does for the application's role: no JIT compilation, SSD page costs, and a plan
+-- for each search's own values (a prepared statement's generic plan cannot weigh a keyword against the trigram index)
 ALTER ROLE CURRENT_USER SET jit = off;
 ALTER ROLE CURRENT_USER SET random_page_cost = 1.1;
+ALTER ROLE CURRENT_USER SET plan_cache_mode = force_custom_plan;
