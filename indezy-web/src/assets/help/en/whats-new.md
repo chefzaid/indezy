@@ -26,6 +26,10 @@ For an EI under the real regime (SSI), **URSSAF declarations** now computes the 
 
 Choose your **VAT regime** in Profile → Billing: under the normal regime, the tax calendar lists your monthly or quarterly VAT return (CA3) on its exact day, with the VAT received so far. See [Quotes and invoices](/help/invoices-quotes).
 
+### Send the prepared drafts from Indezy
+
+The follow-ups and answers **Prepared for you** on the dashboard now have **Send from Indezy**: one click, confirmed, and the email goes to the contact in your name, recorded in their exchanges. See [The offer feed](/help/offers).
+
 ### Answers sorted by the AI
 
 Where Indezy receives the answers to its emails, the AI now sorts each one: interested, not now, no need or do not contact. An interested answer opens an opportunity, a "not now" comes back in your follow-ups on the day it gave, a contact who asks not to be contacted is left out of your next prospection, and your campaigns count the interested answers. See [Clients, ESNs and contacts](/help/clients-contacts).

@@ -26,6 +26,10 @@ Pour une EI au réel (SSI), **Déclarations URSSAF** calcule désormais les coti
 
 Choisissez votre **Régime de TVA** dans Profil → Facturation : au réel normal, le calendrier fiscal liste votre déclaration de TVA (CA3) mensuelle ou trimestrielle à son jour exact, avec la TVA encaissée jusque-là. Voir [Devis et factures](/help/invoices-quotes).
 
+### Envoyez les brouillons préparés depuis Indezy
+
+Les relances et réponses **Préparé pour vous** du tableau de bord ont désormais **Envoyer depuis Indezy** : un clic, une confirmation, et l'e-mail part au contact en votre nom, noté dans ses échanges. Voir [Le flux d'offres](/help/offers).
+
 ### Les réponses triées par l'IA
 
 Quand Indezy reçoit les réponses à ses e-mails, l'IA trie désormais chacune : intéressé, pas maintenant, pas de besoin ou ne plus contacter. Une réponse intéressée ouvre une opportunité, un « pas maintenant » revient dans vos relances le jour qu'il a donné, un contact qui demande à ne plus être contacté est laissé de côté par votre prochaine prospection, et vos campagnes comptent les réponses intéressées. Voir [Clients, ESN et contacts](/help/clients-contacts).

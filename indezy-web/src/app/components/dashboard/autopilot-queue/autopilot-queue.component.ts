@@ -3,11 +3,14 @@ import { RouterLink } from '@angular/router';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AiAutopilotQueue, AiDraftedFollowUp, AiPreparedOffer, AiPreparedPack } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { AiService } from '../../../services/ai/ai.service';
+import { ContactService } from '../../../services/contact/contact.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { filter, switchMap, tap } from 'rxjs';
 
 /** How many prepared offers the dashboard lists. */
 export const PREPARED_SHOWN = 5;
@@ -78,6 +81,8 @@ export const PREPARED_SHOWN = 5;
                   <p class="body">{{ draft.body }}</p>
                 </details>
                 <div class="actions">
+                  <button mat-flat-button color="primary" type="button" (click)="send(draft)" [disabled]="sending.has(draft.id)"
+                    [attr.data-autopilot-send]="draft.id">{{ 'dashboard.autopilot.send' | translate }}</button>
                   <button mat-button type="button" (click)="copy(draft)" data-autopilot-copy>{{ 'dashboard.autopilot.copy' | translate }}</button>
                   @if (draft.projectId) {
                     <a mat-button [routerLink]="['/projects', draft.projectId]">{{ 'dashboard.autopilot.openOpportunity' | translate }}</a>
@@ -195,6 +200,12 @@ export class AutopilotQueueComponent implements OnInit {
   private readonly changes = inject(ChangeDetectorRef);
   private readonly clipboard = inject(Clipboard);
   private readonly notifications = inject(NotificationService);
+  private readonly contacts = inject(ContactService);
+  private readonly confirm = inject(ConfirmDialogService);
+  private readonly translate = inject(TranslateService);
+
+  /** The drafts being sent, their button disabled meanwhile. */
+  readonly sending = new Set<number>();
 
   queue: AiAutopilotQueue | null = null;
 
@@ -257,6 +268,38 @@ export class AutopilotQueueComponent implements OnInit {
     if (this.clipboard.copy(text)) {
       this.notifications.success('dashboard.autopilot.copied');
     }
+  }
+
+  /**
+   * Sends the draft from Indezy to its contact, once confirmed: recorded in the contact's exchanges like any email sent
+   * from Indezy, its answer coming back where replies are set up; the draft then goes.
+   */
+  send(draft: AiDraftedFollowUp): void {
+    this.confirm.confirm({ titleKey: 'dashboard.autopilot.sendTitle', messageKey: 'dashboard.autopilot.sendMessage',
+      messageParams: { contact: draft.contact }, confirmKey: 'dashboard.autopilot.send' }).pipe(
+      filter(Boolean),
+      tap(() => {
+        this.sending.add(draft.id);
+        this.changes.markForCheck();
+      }),
+      switchMap(() => this.contacts.sendEmail(draft.contactId, { projectId: draft.projectId, subject: draft.subject ?? '', body: draft.body,
+        track: false, copy: false, language: this.translate.currentLang === 'en' ? 'EN' : 'FR' })),
+      switchMap(() => this.ai.dismissDraft(draft.id))
+    ).subscribe({
+      next: () => {
+        this.sending.delete(draft.id);
+        if (this.queue) {
+          this.queue = { ...this.queue, drafts: this.drafts.filter(kept => kept.id !== draft.id) };
+        }
+        this.notifications.success('dashboard.autopilot.sent', undefined, { contact: draft.contact });
+        this.changes.markForCheck();
+      },
+      error: () => {
+        this.sending.delete(draft.id);
+        this.notifications.error('dashboard.autopilot.sendError');
+        this.changes.markForCheck();
+      }
+    });
   }
 
   /** Sets the draft aside, for good. */

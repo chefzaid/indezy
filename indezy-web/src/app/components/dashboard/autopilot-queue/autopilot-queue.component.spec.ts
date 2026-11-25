@@ -2,11 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { NotificationService } from '../../../services/notification/notification.service';
 
-import { AiAutopilotQueue } from '../../../models';
+import { AiAutopilotQueue, ContactInteraction } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
+import { ContactService } from '../../../services/contact/contact.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { AutopilotQueueComponent, PREPARED_SHOWN } from './autopilot-queue.component';
 
 describe('AutopilotQueueComponent', () => {
@@ -15,6 +17,9 @@ describe('AutopilotQueueComponent', () => {
 
   let ai: { autopilot: () => Observable<AiAutopilotQueue>; dismissDraft: jasmine.Spy; dismissPack: jasmine.Spy };
   let clipboard: jasmine.SpyObj<Clipboard>;
+  let contacts: jasmine.SpyObj<ContactService>;
+  let confirm: jasmine.SpyObj<ConfirmDialogService>;
+  let notifications: jasmine.SpyObj<NotificationService>;
 
   function create(queue: AiAutopilotQueue): HTMLElement {
     TestBed.resetTestingModule();
@@ -22,10 +27,15 @@ describe('AutopilotQueueComponent', () => {
       dismissPack: jasmine.createSpy('dismissPack').and.returnValue(of(undefined)) };
     clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
     clipboard.copy.and.returnValue(true);
+    contacts = jasmine.createSpyObj('ContactService', ['sendEmail']);
+    confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
+    confirm.confirm.and.returnValue(of(true));
+    notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
       imports: [AutopilotQueueComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: AiService, useValue: ai }, { provide: Clipboard, useValue: clipboard },
-        { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['success', 'error']) }]
+        { provide: NotificationService, useValue: notifications }, { provide: ContactService, useValue: contacts },
+        { provide: ConfirmDialogService, useValue: confirm }]
     });
     const fixture = TestBed.createComponent(AutopilotQueueComponent);
     fixture.detectChanges();
@@ -77,5 +87,29 @@ describe('AutopilotQueueComponent', () => {
     // Named an answer, the summary counting only what was drafted, no offers triaged with the autopilot off.
     expect(element.textContent).toContain('dashboard.autopilot.answerFor');
     expect(element.querySelector('[data-autopilot-summary]')!.textContent).toContain('dashboard.autopilot.summaryDrafts');
+  });
+
+  it('sends a draft from Indezy once confirmed, then sets it aside, and keeps it when the email cannot leave', () => {
+    const draft = { id: 5, contactId: 3, contact: 'Inès Roy', company: 'Acme', projectId: 41, subject: 'Re: Dispo ?', body: 'Bonjour,',
+      at: '2026-11-24T10:00:00', answer: true };
+    let element = create({ on: false, offers: [], drafts: [draft] });
+    contacts.sendEmail.and.returnValue(throwError(() => new Error('down')));
+    (element.querySelector('[data-autopilot-send="5"]') as HTMLButtonElement).click();
+    expect(contacts.sendEmail).toHaveBeenCalledWith(3, jasmine.objectContaining({ projectId: 41, subject: 'Re: Dispo ?', body: 'Bonjour,',
+      track: false }));
+    expect(notifications.error).toHaveBeenCalledWith('dashboard.autopilot.sendError');
+    expect(ai.dismissDraft).not.toHaveBeenCalled();
+
+    element = create({ on: false, offers: [], drafts: [draft] });
+    contacts.sendEmail.and.returnValue(of({} as ContactInteraction));
+    (element.querySelector('[data-autopilot-send="5"]') as HTMLButtonElement).click();
+    expect(ai.dismissDraft).toHaveBeenCalledWith(5);
+    expect(notifications.success).toHaveBeenCalledWith('dashboard.autopilot.sent', undefined, { contact: 'Inès Roy' });
+
+    // Not confirmed: nothing goes.
+    element = create({ on: false, offers: [], drafts: [draft] });
+    confirm.confirm.and.returnValue(of(false));
+    (element.querySelector('[data-autopilot-send="5"]') as HTMLButtonElement).click();
+    expect(contacts.sendEmail).not.toHaveBeenCalled();
   });
 });

@@ -890,7 +890,8 @@ triaged in the last day (`GET /api/ai/autopilot`), those worth applying to first
 deal-breakers and opening its page; it stays away while the autopilot is off or found nothing. The same night, for the
 contacts still waiting for an answer about an opportunity (the follow-ups due), the longest waiting first, it drafts a
 follow-up (**Draft a message (AI)**'s, `MessageAiService`), 5 at most, none for a contact drafted for in the week, kept a
-week (`autopilot_drafts`, removed with the account): **Prepared for you** lists them, each with **Copy** (subject and
+week (`autopilot_drafts`, removed with the account): **Prepared for you** lists them, each with **Send from Indezy** (once confirmed, sent to the contact as from
+**Email a contact from Indezy**, recorded in their exchanges, the draft then gone; told when it cannot leave), **Copy** (subject and
 text), **Open the opportunity** and **Dismiss** (`DELETE /api/ai/autopilot/drafts/{id}`). For the first 3 offers of the
 night found worth applying to, it also prepares the application by email to the ESN (**Prepare my application (AI)**'s,
 `ApplicationPackAiService`): subject and message, the screening answers and the rate to propose, kept a week
