@@ -51,6 +51,7 @@ interface TemplateChoice {
     .polish-note { color: var(--mat-sys-on-surface-variant); font-size: .8125rem; }
     .send-options { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
     .send-hint { margin: 0 0 0 40px; color: var(--mat-sys-on-surface-variant); font-size: .8125rem; }
+    .refused { display: flex; align-items: center; gap: 6px; margin: -8px 0 12px; color: var(--app-warning, #b26a00); font-size: .875rem; }
   `],
   changeDetection: ChangeDetectionStrategy.Eager
 })
@@ -114,7 +115,9 @@ export class ProjectEmailDialogComponent implements OnInit {
         })),
         ...own.map(template => ({ key: `own-${template.id}`, name: template.name, subject: template.subject, body: template.body }))
       ];
-      this.form.patchValue({ recipient: this.contacts[0]?.id ?? null }, { emitEvent: false });
+      // Someone who asked not to be contacted is never the one picked first.
+      const first = this.contacts.find(contact => !contact.doNotContact);
+      this.form.patchValue({ recipient: first?.id ?? null }, { emitEvent: false });
       this.fill();
       if (failed) {
         this.notificationService.error('emails.loadError');
@@ -206,6 +209,12 @@ export class ProjectEmailDialogComponent implements OnInit {
     globalThis.navigator.clipboard.writeText(`${this.form.value.subject}\n\n${this.form.value.body}`).then(
       () => this.notificationService.success('emails.copied'),
       () => this.notificationService.error('emails.copyError'));
+  }
+
+  /** The recipient chosen, when they asked not to be contacted: written to only to answer them. */
+  refused(): ContactDto | undefined {
+    const recipient = this.recipient();
+    return recipient?.doNotContact ? recipient : undefined;
   }
 
   private recipient(): ContactDto | undefined {

@@ -79,6 +79,19 @@ describe('ProjectEmailDialogComponent', () => {
     expect(component.mailto).toMatch(/^mailto:lea@alten\.fr\?subject=Suite%20%C3%A0/);
   });
 
+  it('never picks first a contact who asked not to be contacted, and warns when one is chosen', () => {
+    const fixture = create(() => contacts.getByClientId.and.callFake(id => of(id === 5 ? [{ ...lea, doNotContact: true } as ContactDto] :
+      [paul])));
+    const component = fixture.componentInstance;
+    const element = fixture.nativeElement as HTMLElement;
+    expect(component.form.value.recipient).toBe(12);
+    expect(element.querySelector('[data-email-do-not-contact]')).toBeNull();
+
+    component.form.patchValue({ recipient: 11 });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-email-do-not-contact]')!.textContent).toContain('Léa Martin a demandé à ne pas être contacté');
+  });
+
   it('starts on the template it is opened for, a known one only', () => {
     const review = create(undefined, { ...project, emailTemplate: 'rateReview' }).componentInstance;
     expect(review.form.value.template).toBe('rateReview');

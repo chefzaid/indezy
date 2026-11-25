@@ -13,11 +13,18 @@
       <mat-label>{{ 'emails.recipient' | translate }}</mat-label>
       <mat-select formControlName="recipient" (selectionChange)="fill()">
         @for (contact of contacts; track contact.id) {
-          <mat-option [value]="contact.id">{{ contact.firstName }} {{ contact.lastName }} · {{ contact.email }}</mat-option>
+          <mat-option [value]="contact.id">{{ contact.firstName }} {{ contact.lastName }} · {{ contact.email }}
+            @if (contact.doNotContact) { · {{ 'emails.askedNotToBeContacted' | translate }} }</mat-option>
         }
         <mat-option [value]="null">{{ 'emails.noRecipient' | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
+    @if (refused(); as contact) {
+      <p class="refused" role="status" data-email-do-not-contact>
+        <mat-icon aria-hidden="true">block</mat-icon>
+        {{ 'emails.doNotContactWarning' | translate:{ name: (contact.firstName + ' ' + (contact.lastName ?? '')).trim() } }}
+      </p>
+    }
     <mat-form-field appearance="outline">
       <mat-label>{{ 'emails.subject' | translate }}</mat-label>
       <input matInput formControlName="subject">

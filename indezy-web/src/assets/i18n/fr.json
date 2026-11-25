@@ -3020,6 +3020,8 @@
     "template": "Modèle",
     "recipient": "À",
     "noRecipient": "Aucun contact",
+    "askedNotToBeContacted": "a demandé à ne pas être contacté",
+    "doNotContactWarning": "{{name}} a demandé à ne pas être contacté : écrivez-lui seulement pour lui répondre.",
     "subject": "Objet",
     "body": "Message",
     "copy": "Copier",
