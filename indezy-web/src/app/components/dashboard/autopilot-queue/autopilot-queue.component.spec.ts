@@ -112,4 +112,15 @@ describe('AutopilotQueueComponent', () => {
     (element.querySelector('[data-autopilot-send="5"]') as HTMLButtonElement).click();
     expect(contacts.sendEmail).not.toHaveBeenCalled();
   });
+
+  it('says a draft was sent and takes it off the list even when setting it aside fails, so it is never sent twice', () => {
+    const draft = { id: 5, contactId: 3, contact: 'Inès Roy', company: 'Acme', projectId: null, subject: 'Relance', body: 'Bonjour,',
+      at: '2026-11-24T10:00:00', answer: false };
+    const element = create({ on: true, offers: [], drafts: [draft] });
+    contacts.sendEmail.and.returnValue(of({} as ContactInteraction));
+    ai.dismissDraft.and.returnValue(throwError(() => new Error('down')));
+    (element.querySelector('[data-autopilot-send="5"]') as HTMLButtonElement).click();
+    expect(notifications.success).toHaveBeenCalledWith('dashboard.autopilot.sent', undefined, { contact: 'Inès Roy' });
+    expect(notifications.error).not.toHaveBeenCalled();
+  });
 });

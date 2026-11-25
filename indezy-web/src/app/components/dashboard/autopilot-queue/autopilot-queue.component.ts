@@ -10,7 +10,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { AiService } from '../../../services/ai/ai.service';
 import { ContactService } from '../../../services/contact/contact.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { filter, switchMap, tap } from 'rxjs';
+import { catchError, filter, of, switchMap, tap } from 'rxjs';
 
 /** How many prepared offers the dashboard lists. */
 export const PREPARED_SHOWN = 5;
@@ -284,7 +284,8 @@ export class AutopilotQueueComponent implements OnInit {
       }),
       switchMap(() => this.contacts.sendEmail(draft.contactId, { projectId: draft.projectId, subject: draft.subject ?? '', body: draft.body,
         track: false, copy: false, language: this.translate.currentLang === 'en' ? 'EN' : 'FR' })),
-      switchMap(() => this.ai.dismissDraft(draft.id))
+      // Once sent, the draft goes whatever happens to setting it aside: a failure there must not invite a second send.
+      switchMap(() => this.ai.dismissDraft(draft.id).pipe(catchError(() => of(undefined))))
     ).subscribe({
       next: () => {
         this.sending.delete(draft.id);
