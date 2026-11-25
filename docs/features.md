@@ -1076,7 +1076,8 @@ answer to an email about no opportunity opens one at Contact with the contact's 
 "Re:", its rate the target daily rate), the email and its answer in its journal; a **Not now** answer sets the day to
 write back (`write_back_on`: the date it gave, read by the AI within two years, else three months later), the contact
 coming back in the follow-ups due on that day (**Asked to be written back on…**) unless an exchange followed; a **Do
-not contact** answer ticks the contact's **Asked not to be contacted**, so later prospection leaves them out. The
+not contact** answer ticks the contact's **Asked not to be contacted**, so later prospection leaves them out, and they never come up in the follow-ups due (nor the overnight
+autopilot's drafts, nor the follow-up push), as an anonymized contact does not either. The
 freelancer corrects a sort from the answer's menu in the contact's exchanges (`PUT /api/contacts/{id}/interactions/{id}/answer`,
 an answer received only): a **Not now** one with its day to write back (three months later by default), **Do not contact**
 ticking the contact's box and a sort away from it unticking it. The

@@ -133,6 +133,26 @@ class ContactInteractionServiceTest {
     }
 
     @Test
+    void neverRemindsToFollowUpSomeoneWhoAskedNotToBeContactedOrWasAnonymized() {
+        ContactInteractionRepository repository = mock(ContactInteractionRepository.class);
+        Contact refused = contact(2L, "Bob");
+        refused.setDoNotContact(true);
+        ContactInteraction toRefused = interaction(-10, PHONE, OUTGOING, null);
+        toRefused.setContact(refused);
+        Contact erased = contact(3L, "Zoé");
+        erased.setAnonymizedAt(java.time.LocalDateTime.of(2026, 9, 5, 10, 0));
+        ContactInteraction toErased = interaction(-5, EMAIL, OUTGOING, null);
+        toErased.setContact(erased);
+        ContactInteraction waiting = interaction(1, EMAIL, OUTGOING, null);
+        when(repository.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(7L)).thenReturn(List.of(waiting, toRefused, toErased));
+        ContactInteractionService service = new ContactInteractionService(repository, mock(ContactRepository.class),
+            mock(ProjectRepository.class), Clock.systemUTC());
+
+        assertThat(service.followUpsDue(7L, 5, LocalDate.of(2026, 9, 12))).extracting(DashboardStatsDto.FollowUpDue::getName)
+            .containsExactly("Alice");
+    }
+
+    @Test
     void timesAFollowUpFromTheCompanysUsualAnswerTime() {
         Client esn = new Client();
         esn.setId(50L);

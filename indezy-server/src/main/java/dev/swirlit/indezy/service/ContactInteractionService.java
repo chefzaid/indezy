@@ -9,6 +9,7 @@ import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.Client;
+import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.ContactInteraction;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.InteractionChannel;
@@ -121,7 +122,7 @@ public class ContactInteractionService {
      * The contacts of workspace {@code freelanceId} whose latest exchange is a message the freelancer sent, still
      * waiting for an answer {@code followUpDays} days or more on {@code today} (two days past their company's usual answer
      * time once known, see {@link #usualAnswerDays(Long)}), longest waiting first; and those whose latest exchange is a
-     * "not now" answer whose day to write back has come ({@code writeBackOn}).
+     * "not now" answer whose day to write back has come ({@code writeBackOn}); none who asked not to be contacted.
      */
     @Transactional(readOnly = true)
     public List<DashboardStatsDto.FollowUpDue> followUpsDue(Long freelanceId, int followUpDays, LocalDate today) {
@@ -131,6 +132,8 @@ public class ContactInteractionService {
         // Newest first within each contact: the first one seen is its latest.
         all.forEach(interaction -> latest.putIfAbsent(interaction.getContact().getId(), interaction));
         return latest.values().stream()
+            // Never someone who asked not to be contacted, nor whose data was anonymized.
+            .filter(interaction -> reachable(interaction.getContact()))
             .filter(interaction -> waiting(interaction) || writeBackDue(interaction, today))
             .map(interaction -> DashboardStatsDto.FollowUpDue.builder()
                 .contactId(interaction.getContact().getId())
@@ -148,6 +151,10 @@ public class ContactInteractionService {
                 due.getDaysWaiting() >= (due.getUsualAnswerDays() == null ? followUpDays : due.getUsualAnswerDays() + ANSWER_GRACE_DAYS))
             .sorted(Comparator.comparingLong(DashboardStatsDto.FollowUpDue::getDaysWaiting).reversed())
             .toList();
+    }
+
+    private static boolean reachable(Contact contact) {
+        return !Boolean.TRUE.equals(contact.getDoNotContact()) && contact.getAnonymizedAt() == null;
     }
 
     private static boolean waiting(ContactInteraction interaction) {
