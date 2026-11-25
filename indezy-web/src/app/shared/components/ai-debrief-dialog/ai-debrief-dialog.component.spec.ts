@@ -10,6 +10,7 @@ import { AiService } from '../../../services/ai/ai.service';
 import { InterviewStepService } from '../../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ProjectService } from '../../../services/project/project.service';
+import { DictationHandlers, DictationService } from '../../services/dictation.service';
 import { AiDebriefDialogComponent, DEBRIEF_MAX } from './ai-debrief-dialog.component';
 
 describe('AiDebriefDialogComponent', () => {
@@ -19,6 +20,9 @@ describe('AiDebriefDialogComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let dialogRef: jasmine.SpyObj<MatDialogRef<AiDebriefDialogComponent, boolean>>;
   let clipboard: jasmine.SpyObj<Clipboard>;
+  let dictation: jasmine.SpyObj<DictationService>;
+  let handlers: DictationHandlers | null;
+  let listening: boolean;
   const debrief: AiDebrief = { outcome: 'NEXT_ROUND', nextRound: 'Entretien technique', nextSteps: ['Envoyer deux références'],
     thankYouSubject: "Merci pour l'échange", thankYouBody: 'Bonjour,\nmerci pour ce temps.' };
 
@@ -30,12 +34,25 @@ describe('AiDebriefDialogComponent', () => {
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
     clipboard.copy.and.returnValue(true);
+    handlers = null;
+    listening = false;
+    dictation = jasmine.createSpyObj('DictationService', ['supported', 'listening', 'start', 'stop']);
+    dictation.supported.and.returnValue(true);
+    dictation.listening.and.callFake(() => listening);
+    dictation.start.and.callFake((_language: string, given: DictationHandlers) => {
+      handlers = given;
+      listening = true;
+      return true;
+    });
+    dictation.stop.and.callFake(() => {
+      listening = false;
+    });
     TestBed.configureTestingModule({
       imports: [AiDebriefDialogComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: InterviewStepService, useValue: steps }, { provide: ProjectService, useValue: projects },
         { provide: NotificationService, useValue: notifications }, { provide: Clipboard, useValue: clipboard },
-        { provide: MatDialogRef, useValue: dialogRef }, { provide: MAT_DIALOG_DATA, useValue: { projectId: 9 } }]
+        { provide: MatDialogRef, useValue: dialogRef }, { provide: DictationService, useValue: dictation }, { provide: MAT_DIALOG_DATA, useValue: { projectId: 9 } }]
     });
     const fixture = TestBed.createComponent(AiDebriefDialogComponent);
     fixture.detectChanges();
@@ -127,6 +144,42 @@ describe('AiDebriefDialogComponent', () => {
     fixture.componentInstance.keepAsNote();
     expect(projects.addProjectNote.calls.mostRecent().args[1]).toContain('- [ ] Envoyer deux références');
     expect(notifications.error).toHaveBeenCalledWith('ai.debrief.keepError');
+  });
+
+  it('dictates the debrief after what is typed, within its length, and stops listening to read it', () => {
+    const fixture = create();
+    const element = write(fixture, 'Bien passé.');
+    (element.querySelector('[data-ai-debrief-dictate]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(dictation.start).toHaveBeenCalled();
+    expect(element.querySelector('[data-ai-debrief-dictate]')!.getAttribute('aria-pressed')).toBe('true');
+    handlers!.interim('entretien tech');
+    fixture.detectChanges();
+    expect(element.querySelector('[data-ai-debrief-hearing]')!.textContent).toContain('entretien tech');
+    handlers!.final('Entretien technique lundi.');
+    handlers!.final('');
+    expect(fixture.componentInstance.notes.value).toBe('Bien passé. Entretien technique lundi.');
+    handlers!.final('x'.repeat(DEBRIEF_MAX));
+    expect(fixture.componentInstance.notes.value.length).toBe(DEBRIEF_MAX);
+
+    ai.debrief.and.returnValue(of(debrief));
+    fixture.componentInstance.read();
+    expect(dictation.stop).toHaveBeenCalled();
+    handlers!.ended('not-allowed');
+    expect(notifications.error).toHaveBeenCalledWith('projects.notes.dictationDenied');
+    handlers!.ended('network');
+    expect(notifications.error).toHaveBeenCalledWith('projects.notes.dictationFailed');
+    handlers!.ended('no-speech');
+    expect(notifications.error).toHaveBeenCalledTimes(2);
+
+    // A second press stops it; closing the dialog stops it too.
+    fixture.componentInstance.edit();
+    fixture.detectChanges();
+    listening = true;
+    fixture.componentInstance.toggleDictation();
+    expect(listening).toBeFalse();
+    fixture.destroy();
+    expect(dictation.stop).toHaveBeenCalledTimes(3);
   });
 
   it('says why the debrief could not be read', () => {

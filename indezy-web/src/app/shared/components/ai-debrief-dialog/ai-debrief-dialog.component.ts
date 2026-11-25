@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -14,6 +14,7 @@ import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { InterviewStepService } from '../../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ProjectService } from '../../../services/project/project.service';
+import { DictationService } from '../../services/dictation.service';
 
 /** The longest debrief read, as the server reads it. */
 export const DEBRIEF_MAX = 4000;
@@ -74,6 +75,17 @@ export interface AiDebriefDialogData {
           <textarea matInput [formControl]="notes" rows="7" [maxlength]="max" data-ai-debrief-notes></textarea>
           <mat-hint align="end">{{ notes.value.length }} / {{ max }}</mat-hint>
         </mat-form-field>
+        @if (dictating) {
+          <p class="hearing" role="status" data-ai-debrief-hearing>
+            <mat-icon aria-hidden="true">graphic_eq</mat-icon>{{ hearing || ('projects.notes.listening' | translate) }}
+          </p>
+        }
+        @if (canDictate) {
+          <button mat-stroked-button type="button" (click)="toggleDictation()" [attr.aria-pressed]="dictating" data-ai-debrief-dictate>
+            <mat-icon>{{ dictating ? 'stop_circle' : 'mic' }}</mat-icon>
+            {{ (dictating ? 'projects.notes.stopDictation' : 'projects.notes.dictate') | translate }}
+          </button>
+        }
         @if (errorKey) {
           <p class="error" role="alert">{{ errorKey | translate }}</p>
         }
@@ -96,6 +108,7 @@ export interface AiDebriefDialogData {
   styles: [`
     .busy { display: flex; justify-content: center; padding: 24px; }
     .notes { width: 100%; }
+    .hearing { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; color: var(--mat-sys-on-surface-variant); font-style: italic; }
     .intro { margin: 0 0 12px; color: var(--mat-sys-on-surface-variant); }
     .outcome { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-weight: 500; }
     .round { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 8px; }
@@ -109,7 +122,7 @@ export interface AiDebriefDialogData {
   `],
   changeDetection: ChangeDetectionStrategy.Eager
 })
-export class AiDebriefDialogComponent {
+export class AiDebriefDialogComponent implements OnDestroy {
   private readonly data = inject<AiDebriefDialogData>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject<MatDialogRef<AiDebriefDialogComponent, boolean>>(MatDialogRef);
   private readonly ai = inject(AiService);
@@ -119,6 +132,7 @@ export class AiDebriefDialogComponent {
   private readonly clipboard = inject(Clipboard);
   private readonly translate = inject(TranslateService);
   private readonly changes = inject(ChangeDetectorRef);
+  private readonly dictation = inject(DictationService);
 
   readonly max = DEBRIEF_MAX;
   readonly icons: Record<AiDebrief['outcome'], string> = { NEXT_ROUND: 'event_upcoming', OFFER: 'handshake', REJECTED: 'block', WAITING: 'hourglass_empty' };
@@ -129,11 +143,53 @@ export class AiDebriefDialogComponent {
   roundAdded = false;
   keeping = false;
   errorKey: string | null = null;
+  readonly canDictate = this.dictation.supported();
+  /** What the dictation is still hearing, shown under the debrief until it is final. */
+  hearing = '';
+
+  get dictating(): boolean {
+    return this.dictation.listening();
+  }
+
+  ngOnDestroy(): void {
+    this.dictation.stop();
+  }
+
+  /** Starts or stops dictating the debrief, in the interface language; the words heard are added to it, within its length. */
+  toggleDictation(): void {
+    if (this.dictation.listening()) {
+      this.dictation.stop();
+      return;
+    }
+    this.dictation.start(this.translate.currentLang, {
+      final: text => {
+        if (text) {
+          const written = this.notes.value.trim();
+          this.notes.setValue((written ? `${written} ${text}` : text).slice(0, DEBRIEF_MAX));
+          this.changes.markForCheck();
+        }
+      },
+      interim: text => {
+        this.hearing = text;
+        this.changes.markForCheck();
+      },
+      ended: error => {
+        this.hearing = '';
+        this.changes.markForCheck();
+        if (error === 'not-allowed' || error === 'service-not-allowed') {
+          this.notifications.error('projects.notes.dictationDenied');
+        } else if (error && error !== 'no-speech' && error !== 'aborted') {
+          this.notifications.error('projects.notes.dictationFailed');
+        }
+      }
+    });
+  }
 
   read(): void {
     if (this.notes.invalid || this.reading) {
       return;
     }
+    this.dictation.stop();
     this.reading = true;
     this.errorKey = null;
     this.ai.debrief(this.data.projectId, this.notes.value.trim(), this.translate.currentLang === 'en' ? 'EN' : 'FR').subscribe({

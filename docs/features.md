@@ -779,7 +779,7 @@ never saved or sent on its own:
   invoices are paid); **Keep as a note** puts it in the journal as Markdown. A mock interview is a conversation in **Ask the AI about this
   opportunity**.
 - **Debrief the interview (AI)** on an opportunity (`POST /api/ai/interview/{projectId}/debrief`, the debrief of 4,000
-  characters at most, never kept by Indezy unless kept as a note): the outcome it most likely points to (another
+  characters at most, typed or dictated as the journal's note is, never kept by Indezy unless kept as a note): the outcome it most likely points to (another
   interview coming, an offer coming, turned down, or waiting), the next round named when one was announced, with **Add it
   as a step to plan** (an Interview step To plan), up to six next steps, and a short thank-you message with its subject
   to copy; **Keep as a note** puts the debrief and all this in the journal, the next steps as a checklist.
