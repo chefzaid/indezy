@@ -93,4 +93,57 @@ class PushServiceTest {
         off.notify(PushEvent.NETWORK, java.util.List.of(3L), texts, "/network");
         org.mockito.Mockito.verify(users, org.mockito.Mockito.times(2)).findById(3L);
     }
+
+    @Test
+    void sendsTheEncryptedMessageSignedForThePushServiceAndDropsASubscriptionItNoLongerKnows() throws Exception {
+        java.security.KeyPair browser = WebPushCrypto.generate();
+        byte[] browserKey = WebPushCrypto.point((java.security.interfaces.ECPublicKey) browser.getPublic());
+        byte[] secret = new byte[16];
+        new java.security.SecureRandom().nextBytes(secret);
+        java.util.Base64.Encoder url = java.util.Base64.getUrlEncoder().withoutPadding();
+        String[] vapid = WebPushCrypto.newVapidKeys();
+        java.util.concurrent.atomic.AtomicInteger status = new java.util.concurrent.atomic.AtomicInteger(201);
+        java.util.Map<String, String> seen = new java.util.concurrent.ConcurrentHashMap<>();
+        java.util.concurrent.atomic.AtomicReference<byte[]> body = new java.util.concurrent.atomic.AtomicReference<>();
+        com.sun.net.httpserver.HttpServer server = com.sun.net.httpserver.HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/push", exchange -> {
+            seen.put("authorization", exchange.getRequestHeaders().getFirst("Authorization"));
+            seen.put("encoding", exchange.getRequestHeaders().getFirst("Content-Encoding"));
+            seen.put("ttl", exchange.getRequestHeaders().getFirst("TTL"));
+            body.set(exchange.getRequestBody().readAllBytes());
+            exchange.sendResponseHeaders(status.get(), -1);
+            exchange.close();
+        });
+        server.start();
+        try {
+            dev.swirlit.indezy.repository.PushSubscriptionRepository subscriptions =
+                org.mockito.Mockito.mock(dev.swirlit.indezy.repository.PushSubscriptionRepository.class);
+            PushService service = new PushService(new PushProperties(vapid[0], vapid[1]), subscriptions,
+                org.mockito.Mockito.mock(dev.swirlit.indezy.repository.UserRepository.class), Runnable::run,
+                tools.jackson.databind.json.JsonMapper.builder().build(), java.time.Clock.systemUTC(),
+                new dev.swirlit.indezy.mail.MailProperties("re_x", "Indezy <noreply@swirlit.dev>", "https://indezy.example", "https://api.resend.com"));
+            dev.swirlit.indezy.model.PushSubscription subscription = browser(1L, "http://127.0.0.1:" + server.getAddress().getPort() + "/push/abc");
+            subscription.setP256dh(url.encodeToString(browserKey));
+            subscription.setAuth(url.encodeToString(secret));
+
+            service.send(subscription, "New message", "Léa wrote to you", "/network/messages/7");
+
+            assertThat(seen.get("authorization")).startsWith("vapid t=").endsWith(", k=" + vapid[0]);
+            assertThat(seen).containsEntry("encoding", "aes128gcm").containsEntry("ttl", String.valueOf(PushService.TTL.toSeconds()));
+            String payload = new String(WebPushCrypto.decrypt(body.get(), (java.security.interfaces.ECPrivateKey) browser.getPrivate(), browserKey,
+                secret), java.nio.charset.StandardCharsets.UTF_8);
+            assertThat(payload).contains("\"title\":\"New message\"", "Léa wrote to you", "/network/messages/7");
+            org.mockito.Mockito.verify(subscriptions, org.mockito.Mockito.never()).deleteByEndpoint(org.mockito.ArgumentMatchers.any());
+
+            // An error keeps the subscription; one the push service no longer knows goes.
+            status.set(500);
+            service.send(subscription, "t", "b", "/");
+            org.mockito.Mockito.verify(subscriptions, org.mockito.Mockito.never()).deleteByEndpoint(org.mockito.ArgumentMatchers.any());
+            status.set(410);
+            service.send(subscription, "t", "b", "/");
+            org.mockito.Mockito.verify(subscriptions).deleteByEndpoint(subscription.getEndpoint());
+        } finally {
+            server.stop(0);
+        }
+    }
 }
