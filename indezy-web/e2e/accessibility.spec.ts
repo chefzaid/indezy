@@ -50,6 +50,10 @@ for (const { language, theme, phone } of [
       await page.goto(path);
       await settled(page);
       expect(await violations(page), path).toEqual([]);
+      if (phone) {
+        // Nothing wider than the phone: the page never scrolls sideways.
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), `${path} overflows`).toBeLessThanOrEqual(0);
+      }
     }
 
     for (const tab of language === 'en' ? ['Accounts', 'Features'] : ['Comptes', 'Fonctionnalités']) {
