@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
+import { wcagViolations } from './helpers/axe';
 import { expect, test } from '@playwright/test';
 import { mockWorkspaceSession, themeByWidth } from './helpers/workspace';
 
@@ -447,6 +448,7 @@ test('keeps a draft from the feed, then publishes it from the drafts', async ({ 
   await page.route('**/api/network/members/camille/page', route => route.fulfill({ json: { card: camille, followers: 0, following: 0,
     sharedSkills: [], followed: false, followsYou: false, own: true, muted: false, blocked: false, privateCard: false, requested: false } }));
   await page.route('**/api/network/members/camille/posts?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  await page.route('**/api/network/membership/about', route => route.fulfill({ json: { about: null, showMissions: false } }));
   await page.goto('/network');
   await page.locator('[data-composer-text]').fill('À relire avant lundi');
   await page.locator('[data-keep-draft]').click();
@@ -455,6 +457,7 @@ test('keeps a draft from the feed, then publishes it from the drafts', async ({ 
   await page.locator('[data-me-drafts]:visible').click();
   await expect(page).toHaveURL(/\/m\/camille\?tab=drafts$/);
   await expect(page.locator('[data-draft="5"]')).toContainText('À relire avant lundi');
+  expect(await wcagViolations(page), 'drafts').toEqual([]);
   const audit = await new AxeBuilder({ page }).include('app-network-drafts').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(violation => violation.id)).toEqual([]);
   await page.locator('[data-draft="5"] [data-draft-publish]').click();
