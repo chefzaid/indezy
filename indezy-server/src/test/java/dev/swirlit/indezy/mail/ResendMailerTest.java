@@ -35,8 +35,9 @@ class ResendMailerTest {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/emails", exchange -> {
             received.put("method", exchange.getRequestMethod());
-            received.put("authorization", exchange.getRequestHeaders().getFirst("Authorization"));
-            received.put("idempotency", exchange.getRequestHeaders().getFirst("Idempotency-Key"));
+            // A read has no idempotency key: only the headers sent are kept.
+            java.util.Optional.ofNullable(exchange.getRequestHeaders().getFirst("Authorization")).ifPresent(value -> received.put("authorization", value));
+            java.util.Optional.ofNullable(exchange.getRequestHeaders().getFirst("Idempotency-Key")).ifPresent(value -> received.put("idempotency", value));
             received.put("body", new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
             respond(exchange);
         });
@@ -118,6 +119,43 @@ class ResendMailerTest {
         assertThat(received).isEmpty();
         server.stop(0);
         assertThatThrownBy(() -> mailer("re_secret").send(EMAIL)).isInstanceOf(MailException.class).hasMessageStartingWith("Resend could not be reached");
+    }
+
+    @Test
+    void readsAReceivedEmailWithTheReadingKeyItsSenderSubjectAndText() throws Exception {
+        answer = "{\"id\":\"in-1\",\"subject\":\"Re: Mission Java\",\"from\":\"lea@acme.example\"," +
+            "\"headers\":{\"from\":\"Léa Martin <lea@acme.example>\"},\"text\":\"Bonjour, appelons-nous jeudi.\"}";
+        ResendMailer reader = new ResendMailer(new MailProperties("re_send", "Indezy <noreply@swirlit.dev>", "https://indezy.example", base,
+            "replies.example", "whsec_x", "re_read"));
+
+        ResendMailer.Received email = reader.received("in-1");
+
+        assertThat(email).isEqualTo(new ResendMailer.Received("Léa Martin <lea@acme.example>", "Re: Mission Java", "Bonjour, appelons-nous jeudi."));
+        assertThat(received).containsEntry("method", "GET").containsEntry("authorization", "Bearer re_read");
+    }
+
+    @Test
+    void readsTheTextOfAnHtmlOnlyEmailWithoutItsScriptsAndStylesAndFallsBackOnTheEnvelopeSender() throws Exception {
+        answer = "{\"subject\":\"Dispo ?\",\"from\":\"paul@esn.example\",\"html\":\"<style>p{color:red}</style>" +
+            "<p>Bonjour,</p><p>Dispo&nbsp;en janvier ?<br>Paul</p><script>x()</script>\"}";
+
+        ResendMailer.Received email = mailer("re_secret").received("in-2");
+
+        assertThat(email.from()).isEqualTo("paul@esn.example");
+        assertThat(email.text()).isEqualTo("Bonjour,\n Dispo en janvier ?\nPaul");
+        assertThat(email.text()).doesNotContain("color", "x()");
+    }
+
+    @Test
+    void refusesToReadAnUnsafeIdOrWithoutAKeyAndTellsWhatResendAnswered() {
+        assertThatThrownBy(() -> mailer("re_secret").received("../emails")).isInstanceOf(MailException.class);
+        assertThatThrownBy(() -> mailer("re_secret").received(null)).isInstanceOf(MailException.class);
+        assertThatThrownBy(() -> mailer("").received("in-3")).isInstanceOf(MailException.class);
+        assertThat(received).isEmpty();
+        status = 404;
+        answer = "{\"name\":\"not_found\"}";
+        assertThatThrownBy(() -> mailer("re_secret").received("in-4")).isInstanceOf(MailException.class).hasMessageContaining("404")
+            .hasMessageContaining("not_found");
     }
 
     private ResendMailer mailer(String key) {
