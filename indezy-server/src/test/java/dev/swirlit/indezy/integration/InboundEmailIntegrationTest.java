@@ -46,6 +46,12 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
     @MockitoBean
     private dev.swirlit.indezy.ai.InboxReadingAiService inboxReading;
 
+    @org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+    private dev.swirlit.indezy.service.InterviewStepService steps;
+
+    @org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+    private dev.swirlit.indezy.service.ProjectService projectService;
+
     private org.springframework.http.ResponseEntity<String> deliver(String id, String body, boolean signed) throws Exception {
         long at = Instant.now().getEpochSecond();
         javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
@@ -247,5 +253,28 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
         verify(mailer).send(sent.capture());
         assertThat(sent.getValue().to()).isEqualTo(aliceEmail);
         verify(inboxReading, org.mockito.Mockito.never()).read(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void anActionThatFailsIsUndoneAloneAndTheEmailOrAnswerStaysRecorded() throws Exception {
+        long project = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "CONTACT",
+            "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class));
+        idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Inès", "lastName", "Roy", "email", "ines@acme.example",
+            "clientId", aliceClientId), Map.class));
+        org.mockito.Mockito.doThrow(new org.springframework.dao.DataIntegrityViolationException("step refused")).when(steps).create(any());
+        forward("in-60", "ines@acme.example", "Entretien", new dev.swirlit.indezy.ai.InboxReadingAiService.Read(
+            dev.swirlit.indezy.model.enums.InboxEmailKind.INTERVIEW_INVITE, List.of(), null, "Bonjour Inès,"));
+        assertThat(jdbcTemplate.queryForMap("SELECT kind, action FROM inbox_emails WHERE email_id = 'in-60'"))
+            .containsEntry("KIND", "INTERVIEW_INVITE").containsEntry("ACTION", "NONE");
+        // Undone together: no exchange, no draft, the opportunity where it was.
+        assertThat(jdbcTemplate.queryForObject("SELECT status FROM projects WHERE id = ?", String.class, project)).isEqualTo("CONTACT");
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM contact_interactions WHERE inbound_email_id = 'in-60'", Long.class)).isZero();
+
+        // An interested answer whose opportunity cannot be created stays recorded and sorted.
+        org.mockito.Mockito.doThrow(new org.springframework.dao.DataIntegrityViolationException("project refused")).when(projectService).create(any());
+        long contact = answered("noe@acme.example", "in-61",
+            new dev.swirlit.indezy.ai.ReplySortingAiService.Sort(dev.swirlit.indezy.model.enums.ReplyKind.INTERESTED, null));
+        assertThat(jdbcTemplate.queryForObject("SELECT reply_kind FROM contact_interactions WHERE contact_id = ? AND direction = 'INCOMING'",
+            String.class, contact)).isEqualTo("INTERESTED");
     }
 }

@@ -14,7 +14,7 @@ import { NotificationService } from '../../../services/notification/notification
   imports: [RouterLink, MatCardModule, MatIconModule, MatProgressSpinnerModule, TranslateModule],
   template: `
     <mat-card class="card">
-      <mat-card-header><mat-card-title>{{ 'auth.verification.title' | translate }}</mat-card-title></mat-card-header>
+      <mat-card-header><h1 mat-card-title>{{ 'auth.verification.title' | translate }}</h1></mat-card-header>
       <mat-card-content>
         @if (failed) {
           <p class="state" role="alert" data-verify-failed><mat-icon aria-hidden="true">link_off</mat-icon>

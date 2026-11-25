@@ -41,3 +41,9 @@ form {
     color: var(--app-link);
   }
 }
+
+// The page's one heading, at the card title's size.
+h1[mat-card-title] {
+  margin: 0;
+  font: var(--mat-sys-title-large);
+}

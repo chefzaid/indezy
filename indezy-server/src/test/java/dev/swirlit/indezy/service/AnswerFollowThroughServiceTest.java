@@ -38,7 +38,8 @@ class AnswerFollowThroughServiceTest {
     private final UserRepository users = mock(UserRepository.class);
     private final ProjectService projects = mock(ProjectService.class);
     private final AnswerFollowThroughService service = new AnswerFollowThroughService(sorting, ai, users,
-        mock(FreelanceRepository.class), projects, mock(ProjectRepository.class));
+        mock(FreelanceRepository.class), projects, mock(ProjectRepository.class),
+        mock(org.springframework.transaction.PlatformTransactionManager.class));
     private Contact contact;
     private ContactInteraction answer;
 

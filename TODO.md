@@ -706,6 +706,10 @@ How to use Indezy, told on the public website rather than only in the repository
 
 ## Technical Improvements
 
+- [x] Headings and WCAG audit of the account pages (found on 2026-11-25): the sign-in, registration, forgot-password, reset-password and email-confirmation pages had their title as a plain block, no heading for screen readers; each is now the page's `h1`, and `e2e/accessibility.spec.ts` audits registration, password reset (with an expired link), email confirmation and the help center as well.
+
+- [x] Inbound email actions in a transaction of their own (found on 2026-11-25 reviewing the inbox watcher): a database error in an action (an interview step, a contact, an opportunity) marked the whole webhook's transaction rollback-only, so it answered 500, Resend retried, and the email was never recorded. The inbox watcher's actions and the opportunity an interested answer opens now run in their own transaction: what fails is undone alone and the email or answer stays recorded.
+
 - [x] The initial bundle is over its 1.20 MB budget (by about 5 kB on 2026-11-19, 4.6 kB before that day's network search): `ng build --configuration production` warns. Find what the first page loads that a lazy route could (the network's service is pulled in by the messenger corner and the menu's counts), or raise the budget knowingly in `angular.json`. Fixed on 2026-11-22: the messenger corner loads once the first page is idle (`@defer (on idle)`) and the help panel on first use, the first download going from 1.28 MB to 1.07 MB.
 - [x] Unit specs for the frontend pages no spec covers, now that the report counts them (frontend at 65.22% lines on 2026-10-21, under the 85% target): `project-detail`, `project-list`, `profile` and its personal info, `dashboard`, `season-picker`, the client, contact and source lists, details and forms, under 5% each, then `rename-tag-dialog`, `error-display`, `loading`, the error pages and the route files. Done on 2026-10-26: 322 specs for these pages, the frontend at 98.26% lines and 93.64% branches.
 - [x] Modernize codebase with latest Java and Angular versions/features

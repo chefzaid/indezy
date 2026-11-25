@@ -17,7 +17,7 @@ import { NotificationService } from '../../../services/notification/notification
   imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslateModule],
   template: `
     <mat-card class="card">
-      <mat-card-header><mat-card-title>{{ 'auth.reset.title' | translate }}</mat-card-title></mat-card-header>
+      <mat-card-header><h1 mat-card-title>{{ 'auth.reset.title' | translate }}</h1></mat-card-header>
       <mat-card-content>
         @if (expired || !token) {
           <p class="state" role="alert" data-reset-expired><mat-icon aria-hidden="true">link_off</mat-icon>

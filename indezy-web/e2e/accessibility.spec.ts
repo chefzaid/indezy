@@ -80,3 +80,14 @@ test('meets WCAG 2.1 AA on the sign-in page', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Sign in|Se connecter/ }).first()).toBeVisible();
   expect(await violations(page)).toEqual([]);
 });
+
+test('meets WCAG 2.1 AA on the account pages a visitor opens: registration, password reset and email confirmation', async ({ page }) => {
+  // The emailed links' tokens are refused here, so each page shows its expired-link state, measured too.
+  await page.route('**/api/auth/**', route => route.fulfill({ status: 400, json: { message: 'This link has expired or was already used' } }));
+  for (const path of ['/register', '/forgot-password', '/reset-password?token=expired', '/verify-email?token=expired', '/help']) {
+    await page.goto(path);
+    await settled(page);
+    await expect(page.locator('main, form, h1').first()).toBeVisible();
+    expect(await violations(page), path).toEqual([]);
+  }
+});

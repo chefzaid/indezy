@@ -945,7 +945,9 @@ inbox address of the domain goes to `InboxWatcherService`, once per received ema
   Abandoned, turned down by the recruiter, with the reason guessed; a question drafts the answer. The drafts wait a week
   on the dashboard under **Prepared overnight**, to copy or dismiss, whether the overnight autopilot is on or not.
 
-The card lists the last 20 forwarded emails: when, the subject, what it was and what was done, with a link to the
+What the AI's reading leads to runs in a transaction of its own: an action that fails (a step, a contact, a status) is
+undone with the others it went with, and the email stays recorded as read; likewise, an opportunity an interested answer
+cannot open leaves the answer recorded and sorted. The card lists the last 20 forwarded emails: when, the subject, what it was and what was done, with a link to the
 opportunity. The email's text is never stored: only its sender, subject, kind and outcome. Without AI, a forwarded email is
 recorded as **Other email** and nothing is done.
 

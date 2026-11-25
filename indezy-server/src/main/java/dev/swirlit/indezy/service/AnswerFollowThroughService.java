@@ -39,6 +39,7 @@ public class AnswerFollowThroughService {
     private final FreelanceRepository freelances;
     private final ProjectService projects;
     private final ProjectRepository projectRepository;
+    private final org.springframework.transaction.PlatformTransactionManager transactions;
 
     /** Sorts {@code answer} to {@code original}, read on {@code today}, and acts on it; without AI, or failing, nothing. */
     public void followThrough(ContactInteraction answer, ContactInteraction original, String subject, String text, LocalDate today) {
@@ -79,7 +80,13 @@ public class AnswerFollowThroughService {
         project.setFreelanceId(contact.getFreelance().getId());
         project.setClientId(contact.getClient().getId());
         project.setDailyRate(freelances.findTargetDailyRate(contact.getFreelance().getId()).orElse(0));
-        ProjectDto created = projects.create(project);
+        // In a transaction of its own: an opportunity that cannot be created leaves the answer recorded.
+        org.springframework.transaction.support.TransactionTemplate isolated = new org.springframework.transaction.support.TransactionTemplate(transactions);
+        isolated.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        ProjectDto created = isolated.execute(status -> projects.create(project));
+        if (created == null) {
+            return;
+        }
         Project opened = projectRepository.getReferenceById(created.getId());
         answer.setProject(opened);
         original.setProject(opened);

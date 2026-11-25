@@ -100,6 +100,7 @@ public class InboxWatcherService {
     private final ResendMailer mailer;
     private final ReplyForwardComposer composer;
     private final Clock clock;
+    private final org.springframework.transaction.PlatformTransactionManager transactions;
 
     /** The address and what came through it lately; the address null until asked for, or while answers cannot be received. */
     public record Watcher(boolean available, String address, List<Handled> recent) {
@@ -173,12 +174,22 @@ public class InboxWatcherService {
         LocalDate today = LocalDate.now(clock.withZone(PARIS));
         try {
             if (ai.status(user.getId()).available()) {
-                act(user, workspace, email, sender, subject, received.text(), today);
+                // In a transaction of its own: what fails there is undone alone, and the email is still recorded.
+                isolated().executeWithoutResult(status -> act(user, workspace, email, sender, subject, received.text(), today));
             }
         } catch (RuntimeException e) {
             log.warn("A forwarded email of workspace {} could not be read: {}", workspace.getId(), e.getMessage());
+            email.setAction(InboxEmailAction.NONE);
+            email.setContactId(null);
+            email.setProjectId(null);
         }
         emails.save(email);
+    }
+
+    private org.springframework.transaction.support.TransactionTemplate isolated() {
+        org.springframework.transaction.support.TransactionTemplate template = new org.springframework.transaction.support.TransactionTemplate(transactions);
+        template.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        return template;
     }
 
     private void act(User user, Freelance workspace, InboxEmail email, String sender, String subject, String text, LocalDate today) {

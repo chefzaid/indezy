@@ -17,7 +17,7 @@ import { NotificationService } from '../../../services/notification/notification
   imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslateModule],
   template: `
     <mat-card class="card">
-      <mat-card-header><mat-card-title>{{ 'auth.reset.forgotTitle' | translate }}</mat-card-title></mat-card-header>
+      <mat-card-header><h1 mat-card-title>{{ 'auth.reset.forgotTitle' | translate }}</h1></mat-card-header>
       <mat-card-content>
         @if (sent) {
           <p class="state" role="status" data-forgot-sent><mat-icon aria-hidden="true">mark_email_read</mat-icon>
