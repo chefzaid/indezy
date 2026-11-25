@@ -28,7 +28,8 @@ export class ContributionsComponent implements OnInit {
   ngOnInit(): void {
     this.invoices.contributions().subscribe({
       next: estimate => {
-        this.estimate = estimate.legalForm === 'MICRO_ENTREPRISE' || estimate.rate !== null ? estimate : null;
+        // A micro-entreprise always, another form with a rate, or an EI past the official table (asked for its own rate).
+        this.estimate = estimate.legalForm === 'MICRO_ENTREPRISE' || estimate.rate !== null || estimate.profit != null ? estimate : null;
         this.changes.markForCheck();
       },
       error: () => undefined

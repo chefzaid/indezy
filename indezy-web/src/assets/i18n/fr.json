@@ -3504,6 +3504,7 @@
       "official": "(taux officiel {{year}})",
       "own": "(votre propre taux)",
       "noRate": "Indezy ne connaît pas encore les taux officiels {{year}}.",
+      "pastScale": "Votre bénéfice à ce jour ({{profit}} €) dépasse trois plafonds de la sécurité sociale, là où s'arrête le barème officiel : indiquez votre propre taux, d'après le simulateur de l'URSSAF.",
       "setRate": "Indiquez votre propre taux dans Profil → Facturation",
       "payslip": "Sur {{gross}} € de rémunération brute : environ {{employer}} € payés par la société et {{employee}} € prélevés sur votre rémunération, soit un net d'environ {{net}} € avant impôt.",
       "employer": "Société",

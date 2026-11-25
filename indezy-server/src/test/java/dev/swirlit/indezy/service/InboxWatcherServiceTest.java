@@ -22,4 +22,19 @@ class InboxWatcherServiceTest {
         assertThat(InboxWatcherService.sender("alice@example.com", "Rien", "alice@example.com")).isNull();
         assertThat(InboxWatcherService.sender(null, null, null)).isNull();
     }
+
+    @Test
+    void knowsThePublicMailboxProvidersWhoseDomainSaysNothingOfACompany() {
+        assertThat(InboxWatcherService.webmail("gmail.com")).isTrue();
+        assertThat(InboxWatcherService.webmail("Outlook.fr")).isTrue();
+        assertThat(InboxWatcherService.webmail("yahoo.co.uk")).isTrue();
+        assertThat(InboxWatcherService.webmail("acme.example")).isFalse();
+        assertThat(InboxWatcherService.webmail("liveperson.com")).isFalse();
+    }
+
+    @Test
+    void readsACompanysDomainWhateverWayItIsWritten() {
+        assertThat(InboxWatcherService.bare("https://www.Acme.example/jobs")).isEqualTo("acme.example");
+        assertThat(InboxWatcherService.bare(" acme.example ")).isEqualTo("acme.example");
+    }
 }

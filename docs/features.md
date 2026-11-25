@@ -934,7 +934,10 @@ inbox address of the domain goes to `InboxWatcherService`, once per received ema
   the profile (the name, the availability date, the target daily rate and the booking link when on), never inventing a
   date or a rate;
 - the sender's contact is the workspace's one with that address; unknown, for an invite or a question, a new contact is
-  added, with the company of a contact sharing their email's domain; the email is recorded as an incoming exchange of the
+  added, with the company whose domain is the email's, else that of a contact on the same domain, else a company created
+  from the domain ("Acme" for `acme.example`, as an intermediary); a sender on a public mailbox provider (Gmail, Outlook,
+  Yahoo, Orange, Free...) is not added, their domain saying nothing of their company, so their email is only listed; the
+  email is recorded as an incoming exchange of the
   contact, on the open opportunity (Contact, Interview or Offer, not archived) the contact last wrote about, else the
   latest changed one with their company;
 - an invite adds an **Entretien** step to that opportunity (planned on the slot when it offers one, to plan with the
@@ -1632,8 +1635,8 @@ page's formula for the last band disagrees), daily allowances 0.5 % from 40 % of
 to the PASS and 0.72 % on the whole base, the supplementary pension 8.1 % up to the PASS and 9.1 % up to four,
 disability and death 1.3 % up to the PASS, family allowances rising from 0 % at 110 % of the PASS to 3.1 % at 140 %, the
 CSG and CRDS 9.7 %, and the training contribution 0.25 % of the PASS; each line is listed, with the profit and the base.
-Not estimated: a base past three PASS, the first two years' flat amounts and the minimum contributions of a very low
-income (the own rate then stands in). An EURL's majority manager gets the same computation (entreprendre.service-public.gouv.fr
+Not estimated: a base past three PASS (the card then gives the profit and asks for an own rate), the first two years'
+flat amounts and the minimum contributions of a very low income (the own rate then stands in). An EURL's majority manager gets the same computation (entreprendre.service-public.gouv.fr
 F38152, the same rates) on the pay of the year they give in Profile → Billing → **My pay this year**
 (`billing_manager_pay`, before contributions; an EURL taxed as a person gives its profit there) and their dividends past
 10 % of the share capital (**Dividends this year**, `billing_manager_dividends`). A SASU president gets the payslip's

@@ -3504,6 +3504,7 @@
       "official": "(official rate of {{year}})",
       "own": "(your own rate)",
       "noRate": "Indezy does not know the official rates of {{year}} yet.",
+      "pastScale": "Your profit so far (€{{profit}}) is past three times the social security ceiling, where the official table stops: give your own rate, from the URSSAF simulator.",
       "setRate": "Set your own rate in Profile → Billing",
       "payslip": "On €{{gross}} of gross pay: about €{{employer}} paid by the company and €{{employee}} taken from your pay, a net of about €{{net}} before income tax.",
       "employer": "Company",

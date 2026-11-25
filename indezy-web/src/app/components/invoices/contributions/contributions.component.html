@@ -9,6 +9,9 @@
           {{ 'invoices.contributions.summary' | translate:{ revenue: (figures.revenue | number:'1.0-0'), contributions: (figures.contributions | number:'1.0-0'), rate: (figures.rate | number:'1.0-1') } }}
           <span class="source">{{ (figures.officialRate ? 'invoices.contributions.official' : 'invoices.contributions.own') | translate:{ year: figures.figuresYear } }}</span>
         </p>
+      } @else if (figures.profit != null && figures.base == null && !figures.payroll?.length) {
+        <p class="summary" data-contributions-past-scale>{{ 'invoices.contributions.pastScale' | translate:{ profit: (figures.profit | number:'1.0-0') } }}
+          <a routerLink="/profile" [queryParams]="{ tab: 'billing' }">{{ 'invoices.contributions.setRate' | translate }}</a></p>
       } @else {
         <p class="summary" data-contributions-no-rate>{{ 'invoices.contributions.noRate' | translate:{ year: figures.year } }}
           <a routerLink="/profile" [queryParams]="{ tab: 'billing' }">{{ 'invoices.contributions.setRate' | translate }}</a></p>

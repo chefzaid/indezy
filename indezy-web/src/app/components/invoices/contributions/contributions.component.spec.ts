@@ -48,6 +48,12 @@ describe('ContributionsComponent', () => {
     expect(eurl.querySelector('[data-contributions-profit]')!.textContent).toContain('invoices.contributions.pay');
   });
 
+  it('asks an EI past the official table for its own rate', () => {
+    const { element } = create({ ...quarterly, legalForm: 'EI', rate: null, contributions: null, periods: [], profit: 220000, base: null, lines: [] });
+    expect(element.querySelector('[data-contributions-past-scale]')!.textContent).toContain('invoices.contributions.pastScale');
+    expect(element.querySelector('[data-contributions-no-rate]')).toBeNull();
+  });
+
   it('shows a SASU president the payslip, the company share and theirs', () => {
     const { element } = create({ ...quarterly, legalForm: 'SASU', rate: 40, contributions: 34243, periods: [], profit: 60000,
       payroll: [{ kind: 'HEALTH', employer: 7800, employee: 0 }, { kind: 'CSG_CRDS', employer: 0, employee: 5718.15 }],

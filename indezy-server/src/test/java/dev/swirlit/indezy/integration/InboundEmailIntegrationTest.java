@@ -217,6 +217,25 @@ class InboundEmailIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(((Number) added.get("CLIENT_ID")).longValue()).isEqualTo(aliceClientId);
         assertThat(jdbcTemplate.queryForObject("SELECT subject FROM autopilot_drafts WHERE contact_id = ?", String.class, added.get("ID")))
             .isEqualTo("Re: Dispo ?");
+
+        // From a webmail, someone unknown is not added (their domain says nothing of their company); the envelope's sender
+        // stands in for an empty header.
+        idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Léa", "lastName", "Gmail", "email", "lea.g@gmail.com",
+            "clientId", aliceClientId), Map.class));
+        when(mailer.received("in-42")).thenReturn(new ResendMailer.Received("", "Dispo ?", "Bonjour."));
+        String body = "{\"type\":\"email.received\",\"data\":{\"email_id\":\"in-42\",\"from\":\"paul.esn@gmail.com\",\"to\":[\"" +
+            call(alice, HttpMethod.GET, "/ai/inbox-watcher", null, Map.class).getBody().get("address") + "\"]}}";
+        assertThat(deliver("msg_in-42", body, true).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM contacts WHERE email = 'paul.esn@gmail.com'", Long.class)).isZero();
+        assertThat(jdbcTemplate.queryForObject("SELECT sender FROM inbox_emails WHERE email_id = 'in-42'", String.class))
+            .isEqualTo("paul.esn@gmail.com");
+
+        // From a company not in the workspace yet: added with it, named from the domain.
+        when(mailer.received("in-43")).thenReturn(new ResendMailer.Received("Inès <ines@newesn.example>", "Dispo ?", "Bonjour."));
+        String fromNew = body.replace("in-42", "in-43").replace("paul.esn@gmail.com", "ines@newesn.example");
+        assertThat(deliver("msg_in-43", fromNew, true).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(jdbcTemplate.queryForObject("SELECT c.company_name FROM contacts p JOIN clients c ON c.id = p.client_id " +
+            "WHERE p.email = 'ines@newesn.example'", String.class)).isEqualTo("Newesn");
     }
 
     @Test

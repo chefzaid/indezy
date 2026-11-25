@@ -9,6 +9,7 @@ import dev.swirlit.indezy.mail.MailProperties;
 import dev.swirlit.indezy.mail.ReplyForwardComposer;
 import dev.swirlit.indezy.mail.ResendMailer;
 import dev.swirlit.indezy.model.AutopilotDraft;
+import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.ContactInteraction;
 import dev.swirlit.indezy.model.Freelance;
@@ -75,11 +76,17 @@ public class InboxWatcherService {
     /** The original sender of an email forwarded by hand: the first "From:" or "De :" line of the forwarded message. */
     private static final Pattern FORWARDED_FROM = Pattern.compile("(?im)^[>\\s*]*(?:from|de)\\s*:\\s*(.+)$");
     private static final Set<String> CONFIRMATIONS = Set.of("forwarding-noreply@google.com");
+    /** Public mailbox providers: a sender's domain there says nothing of their company. */
+    private static final Set<String> WEBMAIL = Set.of("gmail.com", "googlemail.com", "icloud.com", "me.com", "orange.fr", "wanadoo.fr",
+        "free.fr", "sfr.fr", "neuf.fr", "laposte.net", "bbox.fr", "aol.com", "proton.me", "protonmail.com", "pm.me", "zoho.com",
+        "yandex.com", "mail.com");
+    private static final Set<String> WEBMAIL_PREFIXES = Set.of("outlook", "hotmail", "live", "msn", "yahoo", "gmx", "ymail");
     private static final DateTimeFormatter SLOT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final UserRepository users;
     private final FreelanceRepository freelances;
     private final ContactRepository contacts;
+    private final dev.swirlit.indezy.repository.ClientRepository clients;
     private final ContactInteractionRepository interactions;
     private final ProjectRepository projects;
     private final ProjectService projectService;
@@ -148,7 +155,8 @@ public class InboxWatcherService {
             return;
         }
         String subject = Objects.toString(received.subject(), "").strip();
-        String sender = sender(Objects.toString(received.from(), from), received.text(), user.getEmail());
+        String header = received.from() == null || received.from().isBlank() ? from : received.from();
+        String sender = sender(header, received.text(), user.getEmail());
         InboxEmail email = new InboxEmail();
         email.setFreelanceId(workspace.getId());
         email.setEmailId(emailId);
@@ -163,12 +171,12 @@ public class InboxWatcherService {
             return;
         }
         LocalDate today = LocalDate.now(clock.withZone(PARIS));
-        if (ai.status(user.getId()).available()) {
-            try {
+        try {
+            if (ai.status(user.getId()).available()) {
                 act(user, workspace, email, sender, subject, received.text(), today);
-            } catch (RuntimeException e) {
-                log.warn("A forwarded email of workspace {} could not be read: {}", workspace.getId(), e.getMessage());
             }
+        } catch (RuntimeException e) {
+            log.warn("A forwarded email of workspace {} could not be read: {}", workspace.getId(), e.getMessage());
         }
         emails.save(email);
     }
@@ -214,8 +222,9 @@ public class InboxWatcherService {
     }
 
     /**
-     * The sender's contact in the workspace; when unknown and the email asks something, a new contact with the company of
-     * a contact sharing their email's domain, if any.
+     * The sender's contact in the workspace; when unknown and the email asks something, a new contact with their
+     * company: the one whose domain is the email's, else that of a contact on the same domain, else one created from
+     * the domain. From a public mailbox provider, whose domain says nothing of the company, none unless already known.
      */
     private Contact contact(Freelance workspace, String sender, InboxEmailKind kind) {
         List<Contact> all = contacts.findByFreelanceId(workspace.getId());
@@ -224,19 +233,57 @@ public class InboxWatcherService {
         if (known.isPresent()) {
             return known.get();
         }
-        if (kind == InboxEmailKind.REJECTION) {
+        String domain = sender.substring(sender.indexOf('@') + 1);
+        if (kind == InboxEmailKind.REJECTION || webmail(domain)) {
             return null;
         }
-        String domain = sender.substring(sender.indexOf('@') + 1);
         Contact contact = new Contact();
         contact.setFreelance(workspace);
-        String local = sender.substring(0, sender.indexOf('@'));
-        contact.setFirstName(cut(local, InboxEmail.TEXT_MAX));
+        contact.setFirstName(cut(sender.substring(0, sender.indexOf('@')), InboxEmail.TEXT_MAX));
         contact.setEmail(sender);
-        all.stream().filter(other -> other.getClient() != null && other.getEmail() != null &&
-                other.getEmail().strip().toLowerCase(Locale.ROOT).endsWith("@" + domain))
-            .findFirst().ifPresent(other -> contact.setClient(other.getClient()));
+        contact.setClient(company(workspace, domain, all));
         return contacts.save(contact);
+    }
+
+    /** The workspace's company of {@code domain}, found by its domain or a contact's, else created from the domain. */
+    private Client company(Freelance workspace, String domain, List<Contact> all) {
+        List<Client> companies = clients.findByFreelanceId(workspace.getId());
+        Optional<Client> byDomain = companies.stream().filter(client -> client.getDomain() != null &&
+            bare(client.getDomain()).equals(domain)).findFirst();
+        if (byDomain.isPresent()) {
+            return byDomain.get();
+        }
+        Optional<Client> byContact = all.stream().filter(other -> other.getClient() != null && other.getEmail() != null &&
+            other.getEmail().strip().toLowerCase(Locale.ROOT).endsWith("@" + domain)).map(Contact::getClient).findFirst();
+        if (byContact.isPresent()) {
+            return byContact.get();
+        }
+        String[] labels = domain.split("\\.");
+        String label = labels.length >= 2 ? labels[labels.length - 2] : labels[0];
+        String name = label.isEmpty() ? domain : Character.toUpperCase(label.charAt(0)) + label.substring(1);
+        return clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(workspace.getId(), name).orElseGet(() -> {
+            Client client = new Client();
+            client.setCompanyName(cut(name, InboxEmail.TEXT_MAX));
+            client.setCity("France");
+            client.setIsFinal(false);
+            client.setDomain(domain);
+            client.setFreelance(workspace);
+            return clients.save(client);
+        });
+    }
+
+    /** "acme.example" from "https://www.Acme.example/". */
+    static String bare(String domain) {
+        String host = domain.strip().toLowerCase(Locale.ROOT).replaceFirst("^[a-z]+://", "");
+        int slash = host.indexOf('/');
+        host = slash < 0 ? host : host.substring(0, slash);
+        return host.startsWith("www.") ? host.substring(4) : host;
+    }
+
+    /** Whether {@code domain} is a public mailbox provider's, shared by people of every company. */
+    static boolean webmail(String domain) {
+        String name = domain.toLowerCase(Locale.ROOT);
+        return WEBMAIL.contains(name) || WEBMAIL_PREFIXES.stream().anyMatch(prefix -> name.startsWith(prefix + "."));
     }
 
     /** The open opportunity the contact last wrote about, else the latest changed one with their company. */

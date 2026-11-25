@@ -61,7 +61,8 @@ public class ContributionService {
      * The year's estimate: the rate applied and whether it is the official one (null when neither is known), the
      * figures' year, the settings it follows, the year's revenue and contributions, and the declarations (a
      * micro-entreprise only, else empty); for an EI under the real regime, the profit, the base after the abatement
-     * and the contributions line by line (else null and empty); for a SASU president, the gross pay as {@code profit}
+     * and the contributions line by line (else null and empty; the profit without a base when past the table's three
+     * PASS, no rate then); for a SASU president, the gross pay as {@code profit}
      * and the payslip's lines with the company's and the president's totals (else empty and null).
      */
     public record Estimate(int year, int figuresYear, LegalForm legalForm, MicroActivity activity, boolean incomeTaxDischarge,
@@ -118,6 +119,9 @@ public class ContributionService {
                 return new Estimate(year, IndependentContributions.YEAR, form, activity, discharge, frequency, share, true, received,
                     computed.total(), List.of(), profit, computed.base(), computed.lines(), List.of(), null, null);
             }
+            // Past three PASS, which the official table stops at: the profit alone, the member asked for their own rate.
+            return new Estimate(year, IndependentContributions.YEAR, form, activity, discharge, frequency, null, false, received, null,
+                List.of(), profit, null, List.of(), List.of(), null, null);
         }
         if (form == LegalForm.SASU && own == null && year == IndependentContributions.YEAR && billing.getManagerPay() != null) {
             BigDecimal gross = BigDecimal.valueOf(billing.getManagerPay()).setScale(2, RoundingMode.HALF_UP);

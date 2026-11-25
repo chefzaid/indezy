@@ -122,6 +122,15 @@ class ContributionServiceTest {
             assertThat(own.lines()).isEmpty();
             assertThat(own.contributions()).isEqualByComparingTo("6800");
         });
+        billing.setOwnContributionRate(null);
+        // Past three PASS: the profit alone, no rate.
+        when(revenue.payments(7L)).thenReturn(List.of(new RevenueCeilingService.Payment(LocalDate.of(2026, 5, 1), new BigDecimal("250000.00"))));
+        assertThat(service.estimate(7L, 2026)).satisfies(past -> {
+            assertThat(past.profit()).isEqualByComparingTo("248000");
+            assertThat(past.base()).isNull();
+            assertThat(past.rate()).isNull();
+            assertThat(past.lines()).isEmpty();
+        });
     }
 
     @Test
