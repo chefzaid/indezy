@@ -165,3 +165,14 @@
     font-size: 18px;
   }
 }
+
+.write-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+
+  input { font: inherit; color: var(--mat-sys-on-surface); background: transparent; border: 1px solid var(--mat-sys-outline-variant); border-radius: 4px; padding: 2px 6px; }
+}

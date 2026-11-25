@@ -1,9 +1,10 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.constants.ErrorMessages;
+import dev.swirlit.indezy.dto.AnswerSortDto;
 import dev.swirlit.indezy.dto.ContactInteractionDto;
-import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.ContactInteractionsDto;
+import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -12,6 +13,7 @@ import dev.swirlit.indezy.model.ContactInteraction;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.InteractionChannel;
 import dev.swirlit.indezy.model.enums.InteractionDirection;
+import dev.swirlit.indezy.model.enums.ReplyKind;
 import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
@@ -31,6 +33,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /** The exchanges kept with a contact, up to {@value #MAX_INTERACTIONS} each, and what they say about it. */
@@ -65,6 +68,28 @@ public class ContactInteractionService {
 
     public ContactInteractionDto update(Long contactId, Long id, ContactInteractionDto request) {
         return toDto(fill(find(contactId, id), request));
+    }
+
+    /**
+     * Sorts answer {@code id} as the freelancer says, the AI having maybe got it wrong: a "not now" one written back to on
+     * the day given, else three months later; the contact marked not to be contacted when it says so, and no longer
+     * when it said so before and no longer does.
+     */
+    public ContactInteractionDto sortAnswer(Long contactId, Long id, AnswerSortDto request) {
+        ContactInteraction answer = find(contactId, id);
+        if (answer.getDirection() != InteractionDirection.INCOMING) {
+            throw new FieldRejectedException("replyKind", ErrorMessages.CONTACT_INTERACTION_NOT_ANSWER);
+        }
+        ReplyKind before = answer.getReplyKind();
+        answer.setReplyKind(request.replyKind());
+        LocalDate later = LocalDate.now(clock.withZone(PARIS)).plusMonths(AnswerFollowThroughService.WRITE_BACK_MONTHS);
+        answer.setWriteBackOn(request.replyKind() != ReplyKind.NOT_NOW ? null : Objects.requireNonNullElse(request.writeBackOn(), later));
+        if (request.replyKind() == ReplyKind.DO_NOT_CONTACT) {
+            answer.getContact().setDoNotContact(true);
+        } else if (before == ReplyKind.DO_NOT_CONTACT) {
+            answer.getContact().setDoNotContact(false);
+        }
+        return toDto(answer);
     }
 
     public void delete(Long contactId, Long id) {

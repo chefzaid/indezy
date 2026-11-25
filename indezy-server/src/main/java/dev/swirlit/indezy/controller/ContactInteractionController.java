@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.AnswerSortDto;
 import dev.swirlit.indezy.dto.ContactInteractionDto;
 import dev.swirlit.indezy.dto.ContactInteractionsDto;
 import dev.swirlit.indezy.service.AccessGuard;
@@ -55,6 +56,13 @@ public class ContactInteractionController {
         accessGuard.requireContact(contactId);
         accessGuard.requireProjectIfPresent(request.projectId());
         return interactionService.update(contactId, id, request);
+    }
+
+    @Operation(summary = "Sort an answer received in place of the AI: what it says, and for a \"not now\" one the day to write back")
+    @PutMapping(CONTACT_INTERACTIONS + "/{id}/answer")
+    public ContactInteractionDto sortAnswer(@PathVariable Long contactId, @PathVariable Long id, @Valid @RequestBody AnswerSortDto request) {
+        accessGuard.requireContact(contactId);
+        return interactionService.sortAnswer(contactId, id, request);
     }
 
     @Operation(summary = "Delete an exchange with a contact")

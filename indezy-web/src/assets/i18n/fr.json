@@ -993,6 +993,10 @@
         "INCOMING": "De sa part"
       },
       "writeBackOn": "Recontacter le {{date}}",
+      "sortOne": "Classer la réponse du {{date}}",
+      "writeBackLabel": "Recontacter le",
+      "sorted": "Réponse classée",
+      "sortError": "La réponse n'a pas pu être classée. Réessayez.",
       "replyKinds": {
         "INTERESTED": "Intéressé",
         "NOT_NOW": "Pas maintenant",

@@ -132,6 +132,11 @@
                   </span>
                 }
               </div>
+              @if (interaction.replyKind === 'NOT_NOW') {
+                <label class="write-back">{{ 'contacts.interactions.writeBackLabel' | translate }}
+                  <input type="date" [value]="interaction.writeBackOn" (change)="writeBack(interaction, $event)" [attr.data-write-back-date]="interaction.id">
+                </label>
+              }
               @if (interaction.projectId) {
                 <a class="interaction-project" [routerLink]="['/projects', interaction.projectId]">
                   <mat-icon aria-hidden="true">work</mat-icon>{{ interaction.projectRole }}
@@ -154,6 +159,13 @@
                 </p>
               }
             </div>
+            @if (interaction.direction === 'INCOMING') {
+              <button mat-icon-button type="button" [matMenuTriggerFor]="sortMenu" [matMenuTriggerData]="{ interaction }"
+                [attr.data-sort-answer]="interaction.id"
+                [attr.aria-label]="'contacts.interactions.sortOne' | translate:{ date: (interaction.occurredOn | date:'mediumDate') }">
+                <mat-icon>label</mat-icon>
+              </button>
+            }
             <button mat-icon-button type="button" (click)="startEdit(interaction)"
               [attr.aria-label]="'contacts.interactions.editOne' | translate:{ date: (interaction.occurredOn | date:'mediumDate') }">
               <mat-icon>edit</mat-icon>
@@ -167,6 +179,17 @@
           <li class="no-interactions">{{ 'contacts.interactions.empty' | translate }}</li>
         }
       </ul>
+      <mat-menu #sortMenu="matMenu">
+        <ng-template matMenuContent let-interaction="interaction">
+          @for (kind of replyKinds; track kind) {
+            <button mat-menu-item type="button" role="menuitemradio" [attr.aria-checked]="interaction.replyKind === kind"
+              (click)="sortAnswer(interaction, kind)" [attr.data-reply-kind-option]="kind">
+              <mat-icon aria-hidden="true">{{ interaction.replyKind === kind ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+              {{ 'contacts.interactions.replyKinds.' + kind | translate }}
+            </button>
+          }
+        </ng-template>
+      </mat-menu>
     }
   </mat-card-content>
 </mat-card>

@@ -1077,6 +1077,9 @@ answer to an email about no opportunity opens one at Contact with the contact's 
 write back (`write_back_on`: the date it gave, read by the AI within two years, else three months later), the contact
 coming back in the follow-ups due on that day (**Asked to be written back on…**) unless an exchange followed; a **Do
 not contact** answer ticks the contact's **Asked not to be contacted**, so later prospection leaves them out. The
+freelancer corrects a sort from the answer's menu in the contact's exchanges (`PUT /api/contacts/{id}/interactions/{id}/answer`,
+an answer received only): a **Not now** one with its day to write back (three months later by default), **Do not contact**
+ticking the contact's box and a sort away from it unticking it. The
 campaigns' results count the interested answers. Without the
 AI the answer is recorded unsorted. Without the reply domain, answers go straight to the freelancer and **Answered** is
 set by hand.

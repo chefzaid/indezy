@@ -103,6 +103,7 @@ describe('API services', () => {
     { name: 'exchanges about an opportunity', call: () => contact().getProjectInteractions(12), method: 'GET', url: `${api}/projects/12/interactions` },
     { name: 'record an exchange', call: () => contact().addInteraction(4, { occurredOn: '2026-09-01' } as never), method: 'POST', url: `${api}/contacts/4/interactions`, body: { occurredOn: '2026-09-01' } },
     { name: 'change an exchange', call: () => contact().updateInteraction(4, 2, { occurredOn: '2026-09-01' } as never), method: 'PUT', url: `${api}/contacts/4/interactions/2`, body: { occurredOn: '2026-09-01' } },
+    { name: 'sort an answer', call: () => contact().sortAnswer(4, 2, 'NOT_NOW', '2027-01-15'), method: 'PUT', url: `${api}/contacts/4/interactions/2/answer`, body: { replyKind: 'NOT_NOW', writeBackOn: '2027-01-15' } },
     { name: 'delete an exchange', call: () => contact().deleteInteraction(4, 2), method: 'DELETE', url: `${api}/contacts/4/interactions/2` },
     { name: 'people a contact works with', call: () => contact().getRelations(4), method: 'GET', url: `${api}/contacts/4/relations` },
     { name: 'links of a client\'s contacts', call: () => contact().getClientRelations(3), method: 'GET', url: `${api}/clients/3/contact-relations` },

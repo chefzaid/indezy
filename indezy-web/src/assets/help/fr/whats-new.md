@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Corriger le classement d'une réponse par l'IA
+
+Dans les échanges d'un contact, le bouton étiquette d'une réponse la classe vous-même quand l'IA s'est trompée (intéressé, pas maintenant, pas de besoin, ne plus contacter), et le jour où recontacter après un « pas maintenant » se change. Voir [Clients, ESN et contacts](/help/clients-contacts).
+
 ### Des formations CPF pour les compétences qui vous manquent
 
 Sous **Compétences demandées qui vous manquent**, **Formations CPF** liste les formations éligibles au CPF pour chaque compétence, depuis le catalogue Mon Compte Formation, et **La prévoir** en ajoute une à vos formations. Voir [Le flux d'offres](/help/offers).

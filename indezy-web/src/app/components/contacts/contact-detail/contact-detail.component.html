@@ -145,7 +145,7 @@
         }
       </div>
       <app-contact-network [contact]="contact"></app-contact-network>
-      <app-contact-interactions [contactId]="contact.id!"></app-contact-interactions>
+      <app-contact-interactions [contactId]="contact.id!" (doNotContactChanged)="contact.doNotContact = $event"></app-contact-interactions>
     </div>
   }
 </div>

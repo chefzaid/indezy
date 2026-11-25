@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AvailabilityRecipient, ContactDto, ContactEmailRequest, ContactEmailStatus, ContactInteraction, ContactInteractions, ContactRelation,
-  ProspectionCampaign, ScheduledEmail, ScheduledEmailPlan } from '../../models/contact.models';
+  ProspectionCampaign, ReplyKind, ScheduledEmail, ScheduledEmailPlan } from '../../models/contact.models';
 import { AuthService } from '../auth/auth.service';
 import { BulkDeleteResult } from '../../models/bulk.models';
 
@@ -130,6 +130,11 @@ export class ContactService {
 
   addInteraction(contactId: number, interaction: ContactInteraction): Observable<ContactInteraction> {
     return this.http.post<ContactInteraction>(`${this.API_URL}/${contactId}/interactions`, interaction);
+  }
+
+  /** Sorts an answer received in place of the AI; a "not now" one without a day is written back to three months later. */
+  sortAnswer(contactId: number, id: number, replyKind: ReplyKind, writeBackOn: string | null): Observable<ContactInteraction> {
+    return this.http.put<ContactInteraction>(`${this.API_URL}/${contactId}/interactions/${id}/answer`, { replyKind, writeBackOn });
   }
 
   updateInteraction(contactId: number, id: number, interaction: ContactInteraction): Observable<ContactInteraction> {

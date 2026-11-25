@@ -33,7 +33,7 @@ describe('ContactInteractionsComponent', () => {
                   opportunities: Observable<ProjectDto[]> = of([kafka, archived, java])): void {
     projects = jasmine.createSpyObj('ProjectService', ['getByFreelanceId']);
     projects.getByFreelanceId.and.returnValue(opportunities);
-    contacts = jasmine.createSpyObj('ContactService', ['getInteractions', 'addInteraction', 'updateInteraction', 'deleteInteraction']);
+    contacts = jasmine.createSpyObj('ContactService', ['getInteractions', 'addInteraction', 'updateInteraction', 'deleteInteraction', 'sortAnswer']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     contacts.getInteractions.and.returnValue(loaded);
@@ -109,6 +109,50 @@ describe('ContactInteractionsComponent', () => {
     create(of({ ...history, interactions: [answer, sent] }));
 
     expect(element().querySelector('[data-write-back-on]')!.textContent).toContain('contacts.interactions.writeBackOn');
+  });
+
+  it('sorts an answer received in place of the AI, from its menu, and says when the contact may be written to again', () => {
+    const answer: ContactInteraction = { id: 12, occurredOn: '2026-11-22', channel: 'EMAIL', direction: 'INCOMING', replied: null,
+      summary: 'Pas de besoin', replyKind: 'DO_NOT_CONTACT' };
+    create(of({ ...history, interactions: [answer, sent] }));
+    const changed: boolean[] = [];
+    component.doNotContactChanged.subscribe(value => changed.push(value));
+    // Only an answer received is sorted.
+    expect(element().querySelector('[data-sort-answer="12"]')).not.toBeNull();
+    expect(element().querySelector('[data-sort-answer="7"]')).toBeNull();
+
+    contacts.sortAnswer.and.returnValue(of({ ...answer, replyKind: 'NOT_NOW', writeBackOn: '2027-02-22' }));
+    (element().querySelector('[data-sort-answer="12"]') as HTMLButtonElement).click();
+    const options = document.querySelectorAll('[data-reply-kind-option]');
+    expect(options.length).toBe(5);
+    expect(document.querySelector('[data-reply-kind-option="DO_NOT_CONTACT"]')!.getAttribute('aria-checked')).toBe('true');
+    (document.querySelector('[data-reply-kind-option="NOT_NOW"]') as HTMLButtonElement).click();
+    expect(contacts.sortAnswer).toHaveBeenCalledWith(3, 12, 'NOT_NOW', null);
+    expect(changed).toEqual([false]);
+    expect(notifications.success).toHaveBeenCalledWith('contacts.interactions.sorted');
+    expect(element().querySelector('[data-reply-kind="NOT_NOW"]')).not.toBeNull();
+
+    // The day to write back, picked.
+    contacts.sortAnswer.and.returnValue(of({ ...answer, replyKind: 'NOT_NOW', writeBackOn: '2027-01-15' }));
+    const day = element().querySelector('[data-write-back-date="12"]') as HTMLInputElement;
+    expect(day.value).toBe('2027-02-22');
+    day.value = '2027-01-15';
+    day.dispatchEvent(new Event('change'));
+    expect(contacts.sortAnswer).toHaveBeenCalledWith(3, 12, 'NOT_NOW', '2027-01-15');
+    for (const skipped of ['', '0202-01-15', '2020-01-15']) {
+      day.value = skipped;
+      day.dispatchEvent(new Event('change'));
+    }
+    expect(contacts.sortAnswer).toHaveBeenCalledTimes(2);
+
+    contacts.sortAnswer.and.returnValue(of({ ...answer, replyKind: 'DO_NOT_CONTACT' }));
+    component.sortAnswer({ ...answer, replyKind: 'NOT_NOW' }, 'DO_NOT_CONTACT');
+    expect(changed).toEqual([false, true]);
+    contacts.sortAnswer.and.returnValue(throwError(() => new Error('down')));
+    component.sortAnswer(answer, 'INTERESTED');
+    expect(notifications.error).toHaveBeenCalledWith('contacts.interactions.sortError');
+    component.sortAnswer({ ...answer, id: undefined }, 'INTERESTED');
+    expect(contacts.sortAnswer).toHaveBeenCalledTimes(4);
   });
 
   it('says when nothing is known yet', () => {

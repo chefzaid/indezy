@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,11 +8,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 
 import {
-  ContactInteraction, ContactInteractions, INTERACTION_CHANNELS, InteractionChannel, InteractionDirection
+  ContactInteraction, ContactInteractions, INTERACTION_CHANNELS, InteractionChannel, InteractionDirection, ReplyKind
 } from '../../../models/contact.models';
 import { ProjectDto } from '../../../models/project.models';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -39,13 +40,15 @@ type Answer = 'WAITING' | 'ANSWERED' | 'UNANSWERED';
 @Component({
   selector: 'app-contact-interactions',
   imports: [DatePipe, RouterModule, ReactiveFormsModule, MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule,
-    MatIconModule, MatInputModule, MatSelectModule, TranslateModule],
+    MatIconModule, MatInputModule, MatMenuModule, MatSelectModule, TranslateModule],
   templateUrl: './contact-interactions.component.html',
   styleUrls: ['./contact-interactions.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class ContactInteractionsComponent implements OnChanges {
   @Input({ required: true }) contactId!: number;
+  /** Whether the contact is now not to be contacted, once an answer's sort changed it. */
+  @Output() readonly doNotContactChanged = new EventEmitter<boolean>();
 
   private readonly contactService = inject(ContactService);
   private readonly notificationService = inject(NotificationService);
@@ -55,6 +58,7 @@ export class ContactInteractionsComponent implements OnChanges {
 
   readonly channels = INTERACTION_CHANNELS;
   readonly icons = CHANNEL_ICONS;
+  readonly replyKinds: ReplyKind[] = ['INTERESTED', 'NOT_NOW', 'NO_NEED', 'DO_NOT_CONTACT', 'OTHER'];
   readonly summaryMax = SUMMARY_MAX;
   readonly form = inject(FormBuilder).nonNullable.group({
     occurredOn: [toIsoDate(new Date()), Validators.required],
@@ -162,6 +166,40 @@ export class ContactInteractionsComponent implements OnChanges {
         error: () => this.notificationService.error('contacts.interactions.deleteError')
       });
     });
+  }
+
+  /**
+   * Sorts an answer received as the freelancer says, the AI having maybe got it wrong: a "not now" one written back to
+   * three months later unless a day is given; "do not contact" marks the contact so, and sorting it otherwise unmarks it.
+   */
+  sortAnswer(interaction: ContactInteraction, kind: ReplyKind, writeBackOn: string | null = null): void {
+    if (interaction.id === undefined) {
+      return;
+    }
+    const before = interaction.replyKind;
+    this.contactService.sortAnswer(this.contactId, interaction.id, kind, writeBackOn).subscribe({
+      next: sorted => {
+        if (this.history) {
+          this.history = { ...this.history, interactions: this.history.interactions.map(kept => kept.id === sorted.id ? sorted : kept) };
+        }
+        if (kind === 'DO_NOT_CONTACT' || before === 'DO_NOT_CONTACT') {
+          this.doNotContactChanged.emit(kind === 'DO_NOT_CONTACT');
+        }
+        this.notificationService.success('contacts.interactions.sorted');
+      },
+      error: () => this.notificationService.error('contacts.interactions.sortError')
+    });
+  }
+
+  /**
+   * The day to write back to a "not now" answer, as picked: from today on, which also skips the years a date field
+   * passes through while one is typed (0002, 0020, 0202...).
+   */
+  writeBack(interaction: ContactInteraction, event: Event): void {
+    const day = (event.target as HTMLInputElement).value;
+    if (day && day >= toIsoDate(new Date())) {
+      this.sortAnswer(interaction, 'NOT_NOW', day);
+    }
   }
 
   private load(): void {

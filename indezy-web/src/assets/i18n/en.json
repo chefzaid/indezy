@@ -993,6 +993,10 @@
         "INCOMING": "From them"
       },
       "writeBackOn": "Write back on {{date}}",
+      "sortOne": "Sort the answer of {{date}}",
+      "writeBackLabel": "Write back on",
+      "sorted": "Answer sorted",
+      "sortError": "The answer could not be sorted. Try again.",
       "replyKinds": {
         "INTERESTED": "Interested",
         "NOT_NOW": "Not now",

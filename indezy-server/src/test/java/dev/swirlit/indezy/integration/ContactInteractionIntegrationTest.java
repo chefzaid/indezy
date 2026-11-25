@@ -170,6 +170,40 @@ class ContactInteractionIntegrationTest {
     }
 
     @Test
+    void sortsAnAnswerAsTheFreelancerSaysInPlaceOfTheAi() throws Exception {
+        long sent = create("2026-09-01", "EMAIL", "OUTGOING", "true", "null");
+        long answer = create("2026-09-02", "EMAIL", "INCOMING", "null", "null");
+        jdbcTemplate.update("update contact_interactions set reply_kind = 'DO_NOT_CONTACT' where id = ?", answer);
+        jdbcTemplate.update("update contacts set do_not_contact = true where id = 100");
+        entityManager.clear();
+
+        // Not "do not contact" after all, but "not now": the contact may be written to again, three months later by default.
+        sort(answer, "{\"replyKind\": \"NOT_NOW\"}")
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.replyKind").value("NOT_NOW"))
+            .andExpect(jsonPath("$.writeBackOn").value(LocalDate.now(ZoneId.of("Europe/Paris")).plusMonths(3).toString()));
+        entityManager.flush();
+        assertThat(jdbcTemplate.queryForObject("select do_not_contact from contacts where id = 100", Boolean.class)).isFalse();
+
+        sort(answer, "{\"replyKind\": \"NOT_NOW\", \"writeBackOn\": \"2027-01-15\"}").andExpect(jsonPath("$.writeBackOn").value("2027-01-15"));
+        sort(answer, "{\"replyKind\": \"INTERESTED\", \"writeBackOn\": \"2027-01-15\"}")
+            .andExpect(jsonPath("$.replyKind").value("INTERESTED"))
+            .andExpect(jsonPath("$.writeBackOn").value(nullValue()));
+        sort(answer, "{\"replyKind\": \"DO_NOT_CONTACT\"}").andExpect(status().isOk());
+        entityManager.flush();
+        assertThat(jdbcTemplate.queryForObject("select do_not_contact from contacts where id = 100", Boolean.class)).isTrue();
+
+        // Only an answer received is sorted, and a kind is needed.
+        sort(sent, "{\"replyKind\": \"INTERESTED\"}").andExpect(status().isBadRequest());
+        sort(answer, "{}").andExpect(status().isBadRequest());
+        sort(999_999L, "{\"replyKind\": \"INTERESTED\"}").andExpect(status().isNotFound());
+    }
+
+    private org.springframework.test.web.servlet.ResultActions sort(long id, String body) throws Exception {
+        return mockMvc.perform(put(INTERACTIONS + "/" + id + "/answer").contentType(MediaType.APPLICATION_JSON).content(body));
+    }
+
+    @Test
     void keepsAnExchangeInTheJournalOfTheOpportunityItWasAbout() throws Exception {
         jdbcTemplate.update("""
             insert into projects (id, role, status, daily_rate, is_favorite, freelance_id, client_id, created_at, updated_at, version)

@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Correct how the AI sorted an answer
+
+In a contact's exchanges, an answer's label button sorts it yourself when the AI got it wrong (interested, not now, no need, do not contact), and a "not now" answer's day to write back can be changed. See [Clients, ESNs and contacts](/help/clients-contacts).
+
 ### CPF trainings for the skills you lack
 
 Under **Skills in demand you lack**, **CPF trainings** lists the CPF-eligible trainings for each skill, from the Mon Compte Formation catalogue, and **Plan it** adds one to your trainings. See [The offer feed](/help/offers).
