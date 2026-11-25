@@ -74,6 +74,14 @@ describe('InvoiceReminderDialogComponent', () => {
     expect(en.body).toContain('the fixed €40.00 recovery indemnity');
     expect(en.body).not.toContain('interest');
     expect(en.body.endsWith('Kind regards,')).toBeTrue();
+
+    // Reminded before: the next one says so, with the day.
+    const second = plain(reminderText({ ...invoice, remindedOn: '2026-11-10' } as Invoice, 'Léa', 'Ada'));
+    expect(second.subject).toBe('Facture F2026-0007 : seconde relance');
+    expect(second.body).toContain('après ma relance du 10 novembre 2026');
+    const secondEn = plain(reminderText({ ...invoice, language: 'EN', remindedOn: '2026-11-10' } as Invoice, null, 'Ada'));
+    expect(secondEn.subject).toBe('Invoice F2026-0007: second reminder');
+    expect(secondEn.body).toContain('my reminder of 10 November 2026');
   });
 
   it('writes to the client\'s first contact with an email, and sends it from Indezy with a copy', () => {

@@ -1531,7 +1531,7 @@ set, frozen with the seller). While overdue, an invoice states what it is owed o
 pay, the days late, the interest at its rate (amount × rate × days late / 365, none without a rate) and the €40 recovery
 indemnity (art. L441-10 and D441-5 du Code de commerce). Its menu's **Payment reminder** writes the reminder in the
 invoice's language (its number, issue and due dates, the amount left to pay, the days late, the interest at its rate and
-the indemnity, signed with the profile's name) to one of the client's contacts with an email, to open in the mail app,
+the indemnity, signed with the profile's name; once the client was reminded, a **second reminder** recalling that day) to one of the client's contacts with an email, to open in the mail app,
 copy, or send from Indezy with a copy to the freelancer, recorded in the contact's exchanges, the invoice then reading
 **reminded on …** while overdue (`POST /api/invoices/{id}/reminded`, `invoices.reminded_on`; see
 [Emails Sent From Indezy](#emails-sent-from-indezy)).
