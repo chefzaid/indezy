@@ -162,8 +162,8 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
             .isNotEmpty().allSatisfy(deadline -> assertThat(deadline).containsEntry("kind", "CFE"));
         assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first + "/payment", new HashMap<>(), Map.class).getBody())
             .containsEntry("status", "ISSUED").containsEntry("paidOn", null);
-        assertThat(call(alice, HttpMethod.POST, "/invoices/" + first + "/reminded", null, Map.class).getBody())
-            .containsEntry("remindedOn", java.time.LocalDate.now(java.time.ZoneId.of("Europe/Paris")).toString());
+        assertThat(call(alice, HttpMethod.POST, "/invoices/" + first + "/reminded", null, Map.class).getBody()).containsEntry("remindedOn", LocalDate.now(ZoneId.of("Europe/Paris")).toString());
+        assertThat(call(alice, HttpMethod.GET, "/projects/stats/dashboard/" + alice.freelanceId(), null, Map.class).getBody().get("overdueInvoices").toString()).contains("remindedOn=20");
         assertThat(call(bob, HttpMethod.POST, "/invoices/" + first + "/reminded", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
         // A partial credit lowers what the overdue alert says is due.

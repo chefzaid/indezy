@@ -292,7 +292,9 @@ describe('DashboardRemindersComponent', () => {
   });
 
   it('opens an overdue invoice\'s payment reminder, read whole, and says when it cannot be read', () => {
-    const element = render({ overdueInvoices: [{ invoiceId: 3, number: 'F2026-0003', clientName: 'Acme', total: 7800, dueDate: '2026-10-31', daysLate: 25 }] });
+    const element = render({ overdueInvoices: [{ invoiceId: 3, number: 'F2026-0003', clientName: 'Acme', total: 7800, dueDate: '2026-10-31', daysLate: 25,
+      remindedOn: '2026-11-10' }] });
+    expect(element.querySelector('[data-reminded-on]')!.textContent).toContain('invoices.remindedOn');
     const open = spyOn(TestBed.inject(MatDialog), 'open');
     const invoices = TestBed.inject(InvoiceService);
     const full = { id: 3, number: 'F2026-0003' } as Invoice;

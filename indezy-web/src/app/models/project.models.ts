@@ -326,6 +326,8 @@ export interface Trend {
 }
 
 export interface OverdueInvoice {
+  /** The day its client was last reminded of it from Indezy. */
+  remindedOn?: string | null;
   invoiceId: number;
   number: string;
   clientName: string;

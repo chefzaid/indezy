@@ -238,6 +238,8 @@ public class DashboardStatsDto {
         private BigDecimal total;
         private LocalDate dueDate;
         private long daysLate;
+        /** The day its client was last reminded of it from Indezy; null when never. */
+        private LocalDate remindedOn;
     }
 
     /**

@@ -16,7 +16,11 @@
           <a class="reminder-row" routerLink="/invoices">
             <span class="primary">{{ invoice.number }} · {{ invoice.total | number:'1.2-2' }} €</span>
             <span class="secondary">{{ invoice.clientName }}</span>
-            <span class="meta">{{ 'dashboard.charts.daysLate' | translate:{ days: invoice.daysLate } }}</span>
+            <span class="meta">{{ 'dashboard.charts.daysLate' | translate:{ days: invoice.daysLate } }}
+              @if (invoice.remindedOn) {
+                <span data-reminded-on>· {{ 'invoices.remindedOn' | translate: { date: (invoice.remindedOn | date:'mediumDate') } }}</span>
+              }
+            </span>
           </a>
           <button mat-icon-button type="button" class="draft-button" (click)="remind(invoice)" [attr.data-invoice-remind]="invoice.invoiceId"
             [attr.aria-label]="'dashboard.charts.remindInvoice' | translate:{ number: invoice.number }"

@@ -1813,7 +1813,7 @@ mode. **Customize** shows, hides and orders its six blocks, saved with the accou
   mission states none, up to the day it ended), the part still to come, active opportunities, and the target rate
   against the accepted missions' average.
 - **Charts**: opportunities by stage and work mode, and the negotiated rates.
-- **Reminders**: interviews this week, overdue invoices (each with its **Payment reminder**), follow-ups due, stale opportunities, missions ending within six
+- **Reminders**: interviews this week, overdue invoices (each with its **Payment reminder** and the day of the last one), follow-ups due, stale opportunities, missions ending within six
   weeks, order renewals within the notice period (30 days by default), purchase orders near their ceiling, documents to
   renew, contacts without activity for six months, and "on this day" anniversaries. Each renewal also shows the current
   daily rate and the market median of the mission's first skill in the offer feed, with **Ask for the new rate**, which

@@ -114,7 +114,7 @@ public class InvoiceService {
             .filter(invoice -> !invoice.isCreditNote())
             .map(invoice -> new DashboardStatsDto.OverdueInvoice(invoice.getId(), invoice.getNumber(), invoice.getBuyer().getName(),
                 inEuros(invoice, InvoiceTotals.of(invoice.getLines()).total().subtract(creditedTotal(invoice))), invoice.getDueDate(),
-                ChronoUnit.DAYS.between(invoice.getDueDate(), today)))
+                ChronoUnit.DAYS.between(invoice.getDueDate(), today), invoice.getRemindedOn()))
             .toList();
     }
 
