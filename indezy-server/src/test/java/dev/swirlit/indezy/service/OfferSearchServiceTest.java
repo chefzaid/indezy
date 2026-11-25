@@ -66,6 +66,27 @@ class OfferSearchServiceTest {
         benchmarks, history, Clock.fixed(NOW, ZoneOffset.UTC));
 
     @Test
+    void readsTheNotesNamingASearchsWordsOnlyWhenTheWordsAreItsOnlyFilter() {
+        dev.swirlit.indezy.dto.OfferSearchRequest words = new dev.swirlit.indezy.dto.OfferSearchRequest();
+        words.setQ("Léa java");
+        when(states.findNoted(7L, "%lea%")).thenReturn(java.util.List.<Object[]>of(new Object[] {4L, 40L}, new Object[] {5L, null}));
+        when(states.findNoted(7L, "%java%")).thenReturn(java.util.List.of());
+
+        var notes = service.notesNaming(7L, words);
+        org.assertj.core.api.Assertions.assertThat(notes.byTerm().get("lea").offers()).containsExactlyInAnyOrder(4L, 5L);
+        org.assertj.core.api.Assertions.assertThat(notes.byTerm().get("lea").copyGroups()).containsExactly(40L);
+        org.assertj.core.api.Assertions.assertThat(notes.byTerm().get("java").offers()).isEmpty();
+
+        // No workspace or no word: nothing to read; another filter: asked of each offer instead.
+        org.assertj.core.api.Assertions.assertThat(service.notesNaming(null, words)).isEqualTo(dev.swirlit.indezy.repository.JobOfferSpecifications.NoteMatches.NONE);
+        org.assertj.core.api.Assertions.assertThat(service.notesNaming(7L, new dev.swirlit.indezy.dto.OfferSearchRequest()))
+            .isEqualTo(dev.swirlit.indezy.repository.JobOfferSpecifications.NoteMatches.NONE);
+        words.setRateMin(600);
+        org.assertj.core.api.Assertions.assertThat(service.notesNaming(7L, words)).isNull();
+        org.mockito.Mockito.verify(states, org.mockito.Mockito.times(2)).findNoted(org.mockito.ArgumentMatchers.eq(7L), org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
     void measuresNearAndReachableByTheProfilesLongestCommute() {
         when(freelances.findProfileCity(3L)).thenReturn(Optional.of("Paris"));
         when(geoLocator.locate("Paris", null)).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", "11", 48.8589, 2.347)));

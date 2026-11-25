@@ -211,12 +211,16 @@ public class OfferSearchService {
 
     /**
      * The workspace's offers whose note names each word of the search, read before it so the search's text index still
-     * narrows (see {@link JobOfferSpecifications.NoteMatches}); none to read without a workspace or a word.
+     * narrows (see {@link JobOfferSpecifications.NoteMatches}); none to read without a workspace or a word, and none
+     * read with other filters, the notes then being asked of each offer ({@code null}).
      */
     public JobOfferSpecifications.NoteMatches notesNaming(Long freelanceId, OfferSearchRequest request) {
         List<String> words = JobOfferSpecifications.searchWords(request.getQ());
         if (freelanceId == null || words.isEmpty()) {
             return JobOfferSpecifications.NoteMatches.NONE;
+        }
+        if (JobOfferSpecifications.narrowed(request)) {
+            return null;
         }
         Map<String, JobOfferSpecifications.Noted> byTerm = new java.util.HashMap<>();
         for (String word : words) {

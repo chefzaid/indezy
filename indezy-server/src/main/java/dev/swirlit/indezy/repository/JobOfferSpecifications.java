@@ -169,7 +169,7 @@ public final class JobOfferSpecifications {
     }
 
     /** Whether the search filters on more than its words: the rate, the place, the work, the dates, sites, seniorities or skills. */
-    static boolean narrowed(OfferSearchRequest request) {
+    public static boolean narrowed(OfferSearchRequest request) {
         return request.getRateMin() != null || request.getRateMax() != null || request.isRateKnown() || !request.getRegions().isEmpty() ||
             !request.getDepartments().isEmpty() || request.getRadiusKm() != null || !request.getWorkModes().isEmpty() ||
             request.getMinRemoteDays() != null && request.getMinRemoteDays() > 0 || request.getDurationMin() != null ||
