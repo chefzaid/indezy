@@ -74,6 +74,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/invoices/draft-dialog/invoice-draft-dialog.component',
   'components/invoices/invoice-errors',
   'components/invoices/invoices.component',
+  'components/invoices/reminder-dialog/invoice-reminder-dialog.component',
   'components/invoices/report-dialog/invoice-report-dialog.component',
   'components/invoices/revenue-ceilings/revenue-ceilings.component',
   'components/invoices/tax-calendar/tax-calendar.component',

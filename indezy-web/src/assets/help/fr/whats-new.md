@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Relancer un client pour une facture en retard
+
+Le menu d'une facture en retard propose **Relance de paiement** : la relance rédigée dans la langue de la facture, avec le montant restant dû, les jours de retard, les pénalités et l'indemnité de 40 €, à envoyer à un contact du client. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Débriefer un entretien avec l'IA
 
 Sur une opportunité, **Débriefer l'entretien (IA)** tire de ce que vous dites de l'entretien la suite : l'issue probable, le prochain tour ajouté aux étapes en un clic, les prochaines actions et un message de remerciement. Voir [Pipeline et opportunités](/help/pipeline).

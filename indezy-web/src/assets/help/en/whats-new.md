@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Remind a client of an overdue invoice
+
+An overdue invoice's menu has **Payment reminder**: the reminder written in the invoice's language, with the amount left to pay, the days late, the interest and the €40 indemnity, to send to one of the client's contacts. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Debrief an interview with AI
 
 On an opportunity, **Debrief the interview (AI)** turns how you say the interview went into what comes next: the likely outcome, the next round added to the steps in one click, the next steps and a thank-you message. See [Pipeline and opportunities](/help/pipeline).

@@ -145,6 +145,9 @@
             @if (invoice.kind !== 'CREDIT_NOTE' && invoice.status === 'ISSUED') {
               <button mat-menu-item type="button" (click)="markPaid(invoice)"><mat-icon>paid</mat-icon>{{ 'invoices.markPaid' | translate }}</button>
             }
+            @if (invoice.overdue && invoice.kind !== 'CREDIT_NOTE') {
+              <button mat-menu-item type="button" (click)="remind(invoice)" data-invoice-remind><mat-icon>notification_important</mat-icon>{{ 'invoices.reminder.open' | translate }}</button>
+            }
             @if (invoice.status === 'PAID') {
               <button mat-menu-item type="button" (click)="markUnpaid(invoice)"><mat-icon>money_off</mat-icon>{{ 'invoices.markUnpaid' | translate }}</button>
             }

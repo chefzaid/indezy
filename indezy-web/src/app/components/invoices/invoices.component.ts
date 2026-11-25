@@ -29,6 +29,7 @@ import { TaxCalendarComponent } from './tax-calendar/tax-calendar.component';
 import { InvoiceBankDialogComponent } from './bank-dialog/invoice-bank-dialog.component';
 import { InvoiceDateDialogComponent, InvoiceDateDialogData } from './date-dialog/invoice-date-dialog.component';
 import { InvoiceDraftDialogComponent, InvoiceDraftDialogData } from './draft-dialog/invoice-draft-dialog.component';
+import { InvoiceReminderDialogComponent } from './reminder-dialog/invoice-reminder-dialog.component';
 import { InvoiceReportDialogComponent } from './report-dialog/invoice-report-dialog.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
@@ -158,6 +159,11 @@ export class InvoicesComponent implements OnInit {
           this.notifications.success('invoices.bank.done', 4000, { count: paid.length });
         }
       });
+  }
+
+  /** Opens the payment reminder of an overdue invoice, for one of its client's contacts. */
+  remind(invoice: Invoice): void {
+    this.dialog.open(InvoiceReminderDialogComponent, { data: invoice, width: '640px', maxWidth: '95vw', autoFocus: 'first-tabbable' });
   }
 
   markPaid(invoice: Invoice): void {

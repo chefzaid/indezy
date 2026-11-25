@@ -3442,6 +3442,11 @@
     "edit": "Edit",
     "issue": "Issue",
     "markPaid": "Mark as paid",
+    "reminder": {
+      "open": "Payment reminder",
+      "title": "Payment reminder for {{number}}",
+      "noContact": "No contact with an email at this client: add one in Contacts, or copy the reminder."
+    },
     "markUnpaid": "Mark as unpaid",
     "pdf": "Download PDF",
     "word": "Download as Word",

@@ -3442,6 +3442,11 @@
     "edit": "Modifier",
     "issue": "Émettre",
     "markPaid": "Marquer payée",
+    "reminder": {
+      "open": "Relance de paiement",
+      "title": "Relance de paiement de {{number}}",
+      "noContact": "Aucun contact avec une adresse e-mail chez ce client : ajoutez-en un dans Contacts, ou copiez la relance."
+    },
     "markUnpaid": "Marquer non payée",
     "pdf": "Télécharger le PDF",
     "word": "Télécharger en Word",

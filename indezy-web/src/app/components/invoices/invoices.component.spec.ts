@@ -16,6 +16,7 @@ import { ProjectService } from '../../services/project/project.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { InvoicesComponent } from './invoices.component';
 import { InvoiceBankDialogComponent } from './bank-dialog/invoice-bank-dialog.component';
+import { InvoiceReminderDialogComponent } from './reminder-dialog/invoice-reminder-dialog.component';
 import { InvoiceReportDialogComponent } from './report-dialog/invoice-report-dialog.component';
 import en from '../../../assets/i18n/en.json';
 
@@ -127,6 +128,10 @@ describe('InvoicesComponent', () => {
     expect(shown('PAID')).toEqual([4]);
     expect(shown('ALL')).toEqual([1, 2, 3, 4]);
     fixture.detectChanges();
+    // An overdue invoice's payment reminder, for one of its client's contacts.
+    const overdue = component.invoices.find(item => item.id === 3)!;
+    component.remind(overdue);
+    expect(dialog.open).toHaveBeenCalledWith(InvoiceReminderDialogComponent, jasmine.objectContaining({ data: overdue }));
   });
 
   it('writes a new draft among the clients by name, at the workspace\'s VAT rate', () => {
