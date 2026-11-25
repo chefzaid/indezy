@@ -26,6 +26,10 @@ public interface JobOfferStateRepository extends JpaRepository<JobOfferState, Lo
 
     List<JobOfferState> findByFreelanceId(Long freelanceId);
 
+    /** The offers, with their missions' copy groups, whose note in the workspace contains {@code pattern} (a {@code LIKE}). */
+    @Query("select s.offer.id, s.offer.copyGroup from JobOfferState s where s.freelance.id = :freelanceId and s.noteKey like :pattern escape '\\'")
+    List<Object[]> findNoted(@Param("freelanceId") Long freelanceId, @Param("pattern") String pattern);
+
     /** How many of each publisher's offers the workspace hid since {@code since}, by the name they were published under. */
     @Query("select s.offer.company, count(s) from JobOfferState s where s.freelance.id = :freelanceId and s.hidden = true " +
         "and s.updatedAt >= :since and s.offer.company is not null group by s.offer.company")

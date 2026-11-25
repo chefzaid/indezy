@@ -38,6 +38,36 @@ public final class JobOfferSpecifications {
     public record Origin(double latitude, double longitude) {
     }
 
+    /**
+     * The workspace's offers whose own note names each search word, read before the search: the offers and their
+     * missions' copy groups. Given, the search matches a word in an offer's text or among these, which PostgreSQL reads
+     * through the trigram index and the primary key; without them, it asks each offer's notes (an {@code exists} the
+     * index cannot narrow, about 400 ms of every keyword search on 40,000 open offers).
+     */
+    public record NoteMatches(java.util.Map<String, Noted> byTerm) {
+
+        public static final NoteMatches NONE = new NoteMatches(java.util.Map.of());
+
+        public NoteMatches {
+            byTerm = java.util.Map.copyOf(byTerm);
+        }
+
+        Noted of(String term) {
+            return byTerm.getOrDefault(term, Noted.NONE);
+        }
+    }
+
+    /** The offers a word's notes name, and their missions' copy groups. */
+    public record Noted(java.util.Set<Long> offers, java.util.Set<Long> copyGroups) {
+
+        static final Noted NONE = new Noted(java.util.Set.of(), java.util.Set.of());
+
+        public Noted {
+            offers = java.util.Set.copyOf(offers);
+            copyGroups = java.util.Set.copyOf(copyGroups);
+        }
+    }
+
     private static final double KM_PER_DEGREE_LATITUDE = 110.57;
     private static final double KM_PER_DEGREE_LONGITUDE_AT_EQUATOR = 111.32;
     private static final int MAX_TERMS = 8;
@@ -51,9 +81,16 @@ public final class JobOfferSpecifications {
      */
     public static Specification<JobOffer> matching(OfferSearchRequest request, Long freelanceId, OfferMatch.Profile profile,
                                                    Instant now) {
+        return matching(request, freelanceId, profile, now, null);
+    }
+
+    /** The same, the workspace's notes naming the search words read beforehand ({@code null}: asked of each offer). */
+    public static Specification<JobOffer> matching(OfferSearchRequest request, Long freelanceId, OfferMatch.Profile profile,
+                                                   Instant now, NoteMatches notes) {
+        Search search = new Search(request, freelanceId, profile, now, notes);
         return (root, query, cb) -> {
-            List<Predicate> predicates = filters(request, freelanceId, profile, now, root, query, cb);
-            predicates.add(cb.not(earlierCopy(request, freelanceId, profile, now, root, query, cb)));
+            List<Predicate> predicates = filters(search, root, query, cb);
+            predicates.add(cb.not(earlierCopy(search, root, query, cb)));
             if (!isCountQuery(query)) {
                 query.orderBy(order(request.getSort(), profile, root, query, cb));
             }
@@ -62,11 +99,10 @@ public final class JobOfferSpecifications {
     }
 
     /** A copy of the offer, published before it (or at once with a smaller id), that the same search finds. */
-    private static Predicate earlierCopy(OfferSearchRequest request, Long freelanceId, OfferMatch.Profile profile, Instant now,
-                                         Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+    private static Predicate earlierCopy(Search search, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
         Subquery<Long> copy = query.subquery(Long.class);
         Root<JobOffer> other = copy.from(JobOffer.class);
-        List<Predicate> conditions = filters(request, freelanceId, profile, now, other, copy, cb);
+        List<Predicate> conditions = filters(search, other, copy, cb);
         conditions.add(cb.equal(other.get("copyGroup"), root.get("copyGroup")));
         conditions.add(cb.or(cb.lessThan(other.get("publishedAt"), root.get("publishedAt")),
             cb.and(cb.equal(other.get("publishedAt"), root.get("publishedAt")), cb.lessThan(other.get("id"), root.get("id")))));
@@ -74,8 +110,16 @@ public final class JobOfferSpecifications {
         return cb.exists(copy);
     }
 
-    private static List<Predicate> filters(OfferSearchRequest request, Long freelanceId, OfferMatch.Profile profile, Instant now,
-                                           Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+    /** What a search is asked with: its filters, for which workspace and profile, when, and the notes naming its words. */
+    private record Search(OfferSearchRequest request, Long freelanceId, OfferMatch.Profile profile, Instant now, NoteMatches notes) {
+    }
+
+    private static List<Predicate> filters(Search search, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+        OfferSearchRequest request = search.request();
+        Long freelanceId = search.freelanceId();
+        OfferMatch.Profile profile = search.profile();
+        Instant now = search.now();
+        NoteMatches notes = search.notes();
         Origin origin = profile.origin();
         List<Predicate> predicates = new ArrayList<>();
         predicates.addAll(view(request, freelanceId, root, query, cb, now));
@@ -83,9 +127,16 @@ public final class JobOfferSpecifications {
             String pattern = "%" + escapeLike(term) + "%";
             // On each offer, after the cheaper filters: typed words are mostly common ones, which no index narrows.
             Predicate inText = cb.like(root.get("searchText"), pattern, '\\');
-            // The workspace's own notes are searched too.
-            predicates.add(freelanceId == null ? inText :
-                cb.or(inText, state(freelanceId, root, query, cb, state -> cb.like(state.get("noteKey"), pattern, '\\'))));
+            // The workspace's own notes are searched too: read beforehand when given and the words are the search's only
+            // filter, so the text's index narrows it; with other filters, asked of each offer, which PostgreSQL then reads
+            // last, on the offers the cheaper filters leave (a common word through the index reads most offers: 300 ms).
+            if (freelanceId == null) {
+                predicates.add(inText);
+            } else if (notes != null && !narrowed(request)) {
+                predicates.add(noted(inText, notes.of(term), root, cb));
+            } else {
+                predicates.add(cb.or(inText, state(freelanceId, root, query, cb, state -> cb.like(state.get("noteKey"), pattern, '\\'))));
+            }
         }
         for (String term : keywords(request.getExclude())) {
             predicates.add(cb.notLike(root.get("searchText"), "%" + escapeLike(term) + "%", '\\'));
@@ -115,6 +166,32 @@ public final class JobOfferSpecifications {
             predicates.add(cb.isNull(root.get("suspicion")));
         }
         return predicates;
+    }
+
+    /** Whether the search filters on more than its words: the rate, the place, the work, the dates, sites, seniorities or skills. */
+    static boolean narrowed(OfferSearchRequest request) {
+        return request.getRateMin() != null || request.getRateMax() != null || request.isRateKnown() || !request.getRegions().isEmpty() ||
+            !request.getDepartments().isEmpty() || request.getRadiusKm() != null || !request.getWorkModes().isEmpty() ||
+            request.getMinRemoteDays() != null && request.getMinRemoteDays() > 0 || request.getDurationMin() != null ||
+            request.getDurationMax() != null || request.getStartBefore() != null || request.getPublishedWithinDays() != null || !request.getSites().isEmpty() ||
+            !request.getSeniorities().isEmpty() || request.getSkills().stream().anyMatch(skill -> skill != null && !skill.isBlank());
+    }
+
+    /** In the offer's text, or among the offers a note names, or a copy of one. */
+    private static Predicate noted(Predicate inText, Noted noted, Root<JobOffer> root, CriteriaBuilder cb) {
+        List<Predicate> any = new ArrayList<>(List.of(inText));
+        if (!noted.offers().isEmpty()) {
+            any.add(root.get("id").in(noted.offers()));
+        }
+        if (!noted.copyGroups().isEmpty()) {
+            any.add(root.get("copyGroup").in(noted.copyGroups()));
+        }
+        return any.size() == 1 ? inText : cb.or(any.toArray(Predicate[]::new));
+    }
+
+    /** The folded words of a search, at least two characters each, at most {@value #MAX_TERMS}. */
+    public static List<String> searchWords(String q) {
+        return keywords(q);
     }
 
     /** The folded words of a search, at least two characters each, at most {@value #MAX_TERMS}. */

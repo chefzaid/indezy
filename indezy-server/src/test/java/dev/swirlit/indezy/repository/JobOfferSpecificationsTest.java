@@ -52,6 +52,9 @@ class JobOfferSpecificationsTest {
     @Autowired
     private JobOfferRepository repository;
 
+    @Autowired
+    private JobOfferStateRepository states;
+
     private Freelance alice;
 
     @BeforeEach
@@ -309,6 +312,39 @@ class JobOfferSpecificationsTest {
         assertThat(search(request(r -> r.setQ("lea serieuse")), alice.getId())).containsExactly("lyon");
         assertThat(search(request(r -> r.setQ("lea")), null)).isEmpty();
         assertThat(search(request(r -> r.setQ("java")), alice.getId())).containsExactly("java-copy");
+
+        // The notes read beforehand: the same offers found, and a copy of a noted mission found through its group.
+        assertThat(searchNoted(request(r -> r.setQ("lea serieuse")))).containsExactly("lyon");
+        assertThat(searchNoted(request(r -> r.setQ("java")))).containsExactly("java-copy");
+        assertThat(searchNoted(request(r -> r.setQ("rappeler")))).containsExactly("lyon");
+        assertThat(searchNoted(request(r -> r.setQ("inconnu")))).isEmpty();
+        JobOffer later = repository.findAll().stream().filter(offer -> offer.getExternalId().equals("java")).findFirst().orElseThrow();
+        JobOfferState onCopy = new JobOfferState();
+        onCopy.setFreelance(alice);
+        onCopy.setOffer(later);
+        onCopy.setNote("Mission annoncée deux fois");
+        entityManager.persistAndFlush(onCopy);
+        // The earliest copy of the mission is the one listed, though only its later copy carries the note.
+        assertThat(searchNoted(request(r -> r.setQ("annoncee")))).containsExactly("java-copy");
+        assertThat(search(request(r -> r.setQ("annoncee")), alice.getId())).containsExactly("java-copy");
+        // With another filter, the notes are asked of each offer, to the same end.
+        assertThat(searchNoted(request(r -> {
+            r.setQ("annoncee");
+            r.setRateKnown(true);
+        }))).containsExactly("java-copy");
+        assertThat(JobOfferSpecifications.narrowed(request(r -> r.setQ("java")))).isFalse();
+        assertThat(JobOfferSpecifications.narrowed(request(r -> r.setRegions(List.of("11"))))).isTrue();
+    }
+
+    private List<String> searchNoted(OfferSearchRequest request) {
+        java.util.Map<String, JobOfferSpecifications.Noted> byTerm = new java.util.HashMap<>();
+        for (String word : JobOfferSpecifications.searchWords(request.getQ())) {
+            List<Object[]> rows = states.findNoted(alice.getId(), "%" + JobOfferSpecifications.escapeLike(word) + "%");
+            byTerm.put(word, new JobOfferSpecifications.Noted(rows.stream().map(row -> (Long) row[0]).collect(java.util.stream.Collectors.toSet()),
+                rows.stream().map(row -> (Long) row[1]).filter(java.util.Objects::nonNull).collect(java.util.stream.Collectors.toSet())));
+        }
+        return repository.findAll(JobOfferSpecifications.matching(request, alice.getId(), OfferMatch.Profile.NONE, NOW,
+            new JobOfferSpecifications.NoteMatches(byTerm)), PageRequest.of(0, 20)).getContent().stream().map(JobOffer::getExternalId).toList();
     }
 
     @Test

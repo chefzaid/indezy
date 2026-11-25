@@ -98,7 +98,7 @@ public class OfferMarketService {
 
     private OfferMarketDto compute(Long freelanceId, OfferSearchRequest request, Instant now) {
         OfferMatch.Profile profile = search.profileFor(freelanceId, request);
-        Specification<JobOffer> found = JobOfferSpecifications.matching(request, freelanceId, profile, now);
+        Specification<JobOffer> found = JobOfferSpecifications.matching(request, freelanceId, profile, now, search.notesNaming(freelanceId, request));
         List<Figures> figures = queries.figures(found);
         List<Integer> rates = figures.stream().map(OfferMarketService::rate).filter(Objects::nonNull).sorted().toList();
         return new OfferMarketDto(figures.size(), rates(figures, rates, profile.targetRate()), rateBins(rates), remote(figures),

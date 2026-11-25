@@ -116,7 +116,7 @@ public class OfferSearchService {
     private OfferPageDto search(Long freelanceId, OfferSearchRequest request, Specification<JobOffer> within, PageRequest pageRequest) {
         Instant now = clock.instant();
         OfferMatch.Profile profile = profileFor(freelanceId, request);
-        Specification<JobOffer> matching = JobOfferSpecifications.matching(request, freelanceId, profile, now);
+        Specification<JobOffer> matching = JobOfferSpecifications.matching(request, freelanceId, profile, now, notesNaming(freelanceId, request));
         // Another page or sort of the same filters: the caller already knows their total (about 100 ms of counting).
         Page<JobOffer> page = within == null && request.getTotal() != null ? offers.findPage(matching, pageRequest, request.getTotal()) :
             offers.findAll(within == null ? matching : matching.and(within), pageRequest);
@@ -207,6 +207,24 @@ public class OfferSearchService {
             throw new IllegalArgumentException(ErrorMessages.OFFER_DISTANCE_NEEDS_CITY);
         }
         return profile;
+    }
+
+    /**
+     * The workspace's offers whose note names each word of the search, read before it so the search's text index still
+     * narrows (see {@link JobOfferSpecifications.NoteMatches}); none to read without a workspace or a word.
+     */
+    public JobOfferSpecifications.NoteMatches notesNaming(Long freelanceId, OfferSearchRequest request) {
+        List<String> words = JobOfferSpecifications.searchWords(request.getQ());
+        if (freelanceId == null || words.isEmpty()) {
+            return JobOfferSpecifications.NoteMatches.NONE;
+        }
+        Map<String, JobOfferSpecifications.Noted> byTerm = new java.util.HashMap<>();
+        for (String word : words) {
+            List<Object[]> rows = states.findNoted(freelanceId, "%" + JobOfferSpecifications.escapeLike(word) + "%");
+            byTerm.put(word, new JobOfferSpecifications.Noted(rows.stream().map(row -> (Long) row[0]).collect(java.util.stream.Collectors.toSet()),
+                rows.stream().map(row -> (Long) row[1]).filter(Objects::nonNull).collect(java.util.stream.Collectors.toSet())));
+        }
+        return new JobOfferSpecifications.NoteMatches(byTerm);
     }
 
     /** What the workspace's offers are measured against: the profile's skills, target daily rate, city and availability. */
