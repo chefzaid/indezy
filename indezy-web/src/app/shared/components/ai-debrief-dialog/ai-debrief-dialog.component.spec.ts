@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AiDebrief, InterviewStepDto, ProjectDto, ProjectNote, ProjectStatus, StepStatus } from '../../../models';
@@ -26,12 +26,15 @@ describe('AiDebriefDialogComponent', () => {
   const debrief: AiDebrief = { outcome: 'NEXT_ROUND', reason: null, nextRound: 'Entretien technique', nextSteps: ['Envoyer deux références'],
     thankYouSubject: "Merci pour l'échange", thankYouBody: 'Bonjour,\nmerci pour ce temps.' };
 
-  function create(status?: ProjectStatus) {
+  let dialog: jasmine.SpyObj<MatDialog>;
+
+  function create(status?: ProjectStatus, project?: ProjectDto) {
     ai = jasmine.createSpyObj('AiService', ['debrief']);
     steps = jasmine.createSpyObj('InterviewStepService', ['create']);
     projects = jasmine.createSpyObj('ProjectService', ['addProjectNote', 'updateStatus']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    dialog = jasmine.createSpyObj('MatDialog', ['open']);
     clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
     clipboard.copy.and.returnValue(true);
     handlers = null;
@@ -52,8 +55,10 @@ describe('AiDebriefDialogComponent', () => {
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: InterviewStepService, useValue: steps }, { provide: ProjectService, useValue: projects },
         { provide: NotificationService, useValue: notifications }, { provide: Clipboard, useValue: clipboard },
-        { provide: MatDialogRef, useValue: dialogRef }, { provide: DictationService, useValue: dictation }, { provide: MAT_DIALOG_DATA, useValue: { projectId: 9, status } }]
+        { provide: MatDialogRef, useValue: dialogRef }, { provide: DictationService, useValue: dictation }, { provide: MAT_DIALOG_DATA, useValue: { projectId: 9, status, project } }]
     });
+    // The component's own dialog module provides the dialog service: replaced where it is looked for.
+    TestBed.overrideProvider(MatDialog, { useValue: dialog });
     const fixture = TestBed.createComponent(AiDebriefDialogComponent);
     fixture.detectChanges();
     return fixture;
@@ -229,6 +234,26 @@ describe('AiDebriefDialogComponent', () => {
     projects.updateStatus.and.returnValue(of({} as ProjectDto));
     (element.querySelector('[data-ai-debrief-move]') as HTMLButtonElement).click();
     expect(projects.updateStatus).toHaveBeenCalledWith(9, ProjectStatus.LOST, { lostReason: 'RATE_TOO_LOW' });
+  });
+
+  it('writes the thank-you as the opportunity\'s email, when the opportunity is known', () => {
+    let fixture = create(ProjectStatus.INTERVIEW);
+    ai.debrief.and.returnValue(of(debrief));
+    write(fixture, 'Bien passé.');
+    fixture.componentInstance.read();
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-ai-debrief-write]')).toBeNull();
+
+    TestBed.resetTestingModule();
+    const project = { id: 9, role: 'Lead Java', dailyRate: 650 } as ProjectDto;
+    fixture = create(ProjectStatus.INTERVIEW, project);
+    ai.debrief.and.returnValue(of(debrief));
+    const element = write(fixture, 'Bien passé.');
+    fixture.componentInstance.read();
+    fixture.detectChanges();
+    (element.querySelector('[data-ai-debrief-write]') as HTMLButtonElement).click();
+    expect(dialog.open).toHaveBeenCalledWith(jasmine.anything(), jasmine.objectContaining({ data: jasmine.objectContaining({ id: 9,
+      draft: { subject: "Merci pour l'échange", body: 'Bonjour,\nmerci pour ce temps.' } }) }));
   });
 
   it('says why the debrief could not be read', () => {

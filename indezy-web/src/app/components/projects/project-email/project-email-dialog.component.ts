@@ -27,6 +27,14 @@ import { EMAIL_VARIABLES, EmailValues, fillTemplate, mailtoLink } from '../../..
 /** The templates always offered, in the interface language (translation keys under emails.builtIn). */
 export const BUILT_IN_EMAILS = ['followUp', 'rateProposal', 'availability', 'rateReview'];
 
+/** A message written beforehand (the thank-you of an interview's debrief), offered first as the template "This message". */
+export interface EmailDraft {
+  subject: string;
+  body: string;
+}
+
+const DRAFT = 'draft';
+
 /** A template to pick: a built-in one by its key, or one of the workspace's own. */
 interface TemplateChoice {
   key: string;
@@ -72,7 +80,7 @@ export class ProjectEmailDialogComponent implements OnInit {
 
   constructor(
     fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) readonly project: ProjectDto & { emailTemplate?: string },
+    @Inject(MAT_DIALOG_DATA) readonly project: ProjectDto & { emailTemplate?: string; draft?: EmailDraft },
     @Inject(LOCALE_ID) private readonly locale: string,
     private readonly contactService: ContactService,
     private readonly templateService: EmailTemplateService,
@@ -81,7 +89,7 @@ export class ProjectEmailDialogComponent implements OnInit {
     private readonly translate: TranslateService,
     private readonly changes: ChangeDetectorRef
   ) {
-    this.form = fb.group({ template: [BUILT_IN_EMAILS.includes(project.emailTemplate ?? '') ? project.emailTemplate : BUILT_IN_EMAILS[0]],
+    this.form = fb.group({ template: [project.draft ? DRAFT : BUILT_IN_EMAILS.includes(project.emailTemplate ?? '') ? project.emailTemplate : BUILT_IN_EMAILS[0]],
       recipient: [null], subject: [''], body: [''], track: [false], copy: [true] });
   }
 
@@ -106,7 +114,9 @@ export class ProjectEmailDialogComponent implements OnInit {
     }).subscribe(({ contacts, own, profile }) => {
       this.contacts = contacts.filter(contact => !!contact.email);
       this.profile = profile;
+      const draft = this.project.draft;
       this.templates = [
+        ...(draft ? [{ key: DRAFT, name: this.translate.instant('emails.draft'), subject: draft.subject, body: draft.body }] : []),
         ...BUILT_IN_EMAILS.map(key => ({
           key,
           name: this.translate.instant(`emails.builtIn.${key}.name`),

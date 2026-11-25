@@ -3,13 +3,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AiDebrief, ProjectStatus, StepStatus } from '../../../models';
+import { AiDebrief, ProjectDto, ProjectStatus, StepStatus } from '../../../models';
+import { ProjectEmailDialogComponent } from '../../../components/projects/project-email/project-email-dialog.component';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { InterviewStepService } from '../../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -21,6 +22,8 @@ export const DEBRIEF_MAX = 4000;
 
 export interface AiDebriefDialogData {
   projectId: number;
+  /** The opportunity, to write the thank-you to one of its contacts. */
+  project?: ProjectDto;
   /** The opportunity's stage, for the move the outcome suggests. */
   status?: ProjectStatus;
 }
@@ -84,9 +87,16 @@ const MOVES: Record<AiDebrief['outcome'], { to: ProjectStatus; from: ProjectStat
             <h3>{{ 'ai.debrief.thankYou' | translate }}</h3>
             <p class="subject"><strong>{{ debrief.thankYouSubject }}</strong></p>
             <p class="body" data-ai-debrief-thanks>{{ debrief.thankYouBody }}</p>
-            <button mat-stroked-button type="button" (click)="copyThanks()" data-ai-debrief-copy>
-              <mat-icon>content_copy</mat-icon>{{ 'ai.debrief.copy' | translate }}
-            </button>
+            <div class="thanks-actions">
+              @if (data.project) {
+                <button mat-stroked-button type="button" (click)="writeThanks()" data-ai-debrief-write>
+                  <mat-icon>mail</mat-icon>{{ 'ai.debrief.write' | translate }}
+                </button>
+              }
+              <button mat-stroked-button type="button" (click)="copyThanks()" data-ai-debrief-copy>
+                <mat-icon>content_copy</mat-icon>{{ 'ai.debrief.copy' | translate }}
+              </button>
+            </div>
           }
           <p class="disclaimer">{{ 'ai.disclaimer' | translate }}</p>
         </section>
@@ -140,13 +150,15 @@ const MOVES: Record<AiDebrief['outcome'], { to: ProjectStatus; from: ProjectStat
     li { margin-bottom: 4px; }
     .subject { margin: 0 0 4px; }
     .body { white-space: pre-line; margin: 0 0 8px; }
+    .thanks-actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .disclaimer { margin: 12px 0 0; color: var(--mat-sys-on-surface-variant); font-size: .8125rem; }
     .error { color: var(--mat-sys-error); }
   `],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class AiDebriefDialogComponent implements OnDestroy {
-  private readonly data = inject<AiDebriefDialogData>(MAT_DIALOG_DATA);
+  readonly data = inject<AiDebriefDialogData>(MAT_DIALOG_DATA);
+  private readonly dialog = inject(MatDialog);
   private readonly dialogRef = inject<MatDialogRef<AiDebriefDialogComponent, boolean>>(MatDialogRef);
   private readonly ai = inject(AiService);
   private readonly steps = inject(InterviewStepService);
@@ -286,6 +298,15 @@ export class AiDebriefDialogComponent implements OnDestroy {
         this.changes.markForCheck();
       }
     });
+  }
+
+  /** Opens the opportunity's email, the thank-you as its message, to send to one of its contacts or from the mail app. */
+  writeThanks(): void {
+    const debrief = this.debrief;
+    if (debrief && this.data.project) {
+      this.dialog.open(ProjectEmailDialogComponent, { data: { ...this.data.project, draft: { subject: debrief.thankYouSubject, body: debrief.thankYouBody } },
+        autoFocus: 'first-tabbable', maxWidth: '95vw' });
+    }
   }
 
   copyThanks(): void {

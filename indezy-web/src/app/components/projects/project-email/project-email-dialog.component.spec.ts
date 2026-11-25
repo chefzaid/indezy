@@ -92,6 +92,17 @@ describe('ProjectEmailDialogComponent', () => {
     expect(element.querySelector('[data-email-do-not-contact]')!.textContent).toContain('Léa Martin a demandé à ne pas être contacté');
   });
 
+  it('offers first, chosen, the message it is opened with, kept as written for any recipient', () => {
+    const component = create(() => undefined, { ...project, draft: { subject: "Merci pour l'échange", body: 'Bonjour,\nmerci pour ce temps.' } })
+      .componentInstance;
+    expect(component.templates[0].name).toBe('Ce message');
+    expect(component.form.value.subject).toBe("Merci pour l'échange");
+    expect(component.form.value.body).toBe('Bonjour,\nmerci pour ce temps.');
+    component.form.patchValue({ recipient: 12 });
+    component.fill();
+    expect(component.form.value.body).toBe('Bonjour,\nmerci pour ce temps.');
+  });
+
   it('starts on the template it is opened for, a known one only', () => {
     const review = create(undefined, { ...project, emailTemplate: 'rateReview' }).componentInstance;
     expect(review.form.value.template).toBe('rateReview');

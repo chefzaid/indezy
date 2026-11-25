@@ -59,6 +59,13 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await dialog.locator('[data-ai-debrief-note]').click();
     await expect.poll(() => notes.length).toBe(1);
     expect(JSON.stringify(notes[0])).toContain(en ? 'Send two references' : 'Envoyer deux références');
+    // The thank-you written as the opportunity's email, to one of its contacts.
+    await dialog.locator('[data-ai-debrief-write]').click();
+    const email = page.getByRole('dialog').filter({ has: page.locator('form.email-form') });
+    await expect(email.getByLabel(en ? 'Subject' : 'Objet')).toHaveValue(en ? 'Thank you' : 'Merci pour l’échange');
+    await expect(email.getByLabel('Message', { exact: true })).toHaveValue(en ? 'Hello,\nthank you for your time.' : 'Bonjour,\nmerci pour ce temps.');
+    await page.keyboard.press('Escape');
+    await expect(email).toHaveCount(0);
     await dialog.getByRole('button', { name: en ? 'Close' : 'Fermer' }).click();
     await expect(dialog).toHaveCount(0);
   });
