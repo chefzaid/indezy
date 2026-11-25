@@ -2,7 +2,7 @@
   <h3 id="testimonials-title">{{ 'profile.testimonials.title' | translate }}</h3>
   <p class="intro">{{ 'profile.testimonials.intro' | translate }}</p>
 
-  <form [formGroup]="form" (ngSubmit)="ask()" class="ask">
+  <form #askForm="ngForm" [formGroup]="form" (ngSubmit)="ask()" class="ask">
     <mat-form-field appearance="outline" class="recipient" subscriptSizing="dynamic">
       <mat-label>{{ 'profile.testimonials.contact' | translate }}</mat-label>
       <mat-select formControlName="contactId" [panelWidth]="null" data-testimonial-contact>

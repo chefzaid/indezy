@@ -54,7 +54,7 @@
       @if (status.ownKey) {
         <button mat-stroked-button type="button" (click)="removeKey()" [disabled]="saving" data-ai-remove-key>{{ 'ai.settings.removeKey' | translate }}</button>
       } @else {
-        <form [formGroup]="form" (ngSubmit)="saveKey()" class="key" data-ai-key-form>
+        <form #keyForm="ngForm" [formGroup]="form" (ngSubmit)="saveKey()" class="key" data-ai-key-form>
           <p class="hint">{{ 'ai.settings.ownKeyHint' | translate }}</p>
           <div class="row">
             <mat-form-field appearance="outline" class="grow">

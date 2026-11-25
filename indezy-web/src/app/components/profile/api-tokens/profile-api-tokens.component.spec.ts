@@ -90,6 +90,21 @@ describe('ProfileApiTokensComponent', () => {
     expect(clipboard.copy).toHaveBeenCalledTimes(1);
   });
 
+  it('shows no error on the emptied name once a token is created from the form', () => {
+    const fixture = create([]);
+    security.createApiToken.and.returnValue(of({ token: script, secret: 'idz_secret-value' }));
+    const element = fixture.nativeElement as HTMLElement;
+    const name = element.querySelector('form.create input[formControlName="name"]') as HTMLInputElement;
+    name.value = 'Backup script';
+    name.dispatchEvent(new Event('input'));
+    (element.querySelector('form.create') as HTMLFormElement).dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+
+    expect(security.createApiToken).toHaveBeenCalled();
+    expect(fixture.componentInstance.form.controls.name.value).toBe('');
+    expect(element.querySelector('form.create mat-error')).toBeNull();
+  });
+
   it('says when a token cannot be created, and stops at ten', () => {
     const fixture = create([]);
     security.createApiToken.and.returnValue(throwError(() => new Error('409')));

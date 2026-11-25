@@ -65,7 +65,7 @@
     @if (full) {
       <p class="hint" data-tokens-full>{{ 'profile.apiTokens.full' | translate: { max: 10 } }}</p>
     } @else {
-      <form class="create" [formGroup]="form" (ngSubmit)="create()">
+      <form class="create" #tokenForm="ngForm" [formGroup]="form" (ngSubmit)="create()">
         <mat-form-field appearance="outline">
           <mat-label>{{ 'profile.apiTokens.name' | translate }}</mat-label>
           <input matInput formControlName="name" maxlength="60" autocomplete="off">

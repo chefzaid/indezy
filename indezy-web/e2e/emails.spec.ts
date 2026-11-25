@@ -34,12 +34,14 @@ test('writes a rate proposal to the ESN\'s contact from a template, and keeps an
 
   await page.goto('/profile');
   await page.getByRole('tab', { name: 'E-mails' }).click();
-  await page.getByRole('button', { name: 'Nouveau modèle' }).click();
-  await page.getByLabel('Nom').fill('Relance ESN');
-  await page.getByLabel('Objet').fill('Point sur {{role}}');
-  await page.getByLabel('Message', { exact: true }).fill('Bonjour ');
-  await page.getByText('{{firstName}}', { exact: true }).click();
-  await page.getByRole('button', { name: 'Enregistrer' }).click();
+  // Within the templates' card: while the tab changes, the profile's own Nom field is still on the page.
+  const templates = page.locator('app-email-templates-settings');
+  await templates.getByRole('button', { name: 'Nouveau modèle' }).click();
+  await templates.getByLabel('Nom').fill('Relance ESN');
+  await templates.getByLabel('Objet').fill('Point sur {{role}}');
+  await templates.getByLabel('Message', { exact: true }).fill('Bonjour ');
+  await templates.getByText('{{firstName}}', { exact: true }).click();
+  await templates.getByRole('button', { name: 'Enregistrer' }).click();
   await expect(page.getByText('Modèle enregistré')).toBeVisible();
   expect(own).toEqual([{ id: 1, name: 'Relance ESN', subject: 'Point sur {{role}}', body: 'Bonjour {{firstName}}' }]);
 

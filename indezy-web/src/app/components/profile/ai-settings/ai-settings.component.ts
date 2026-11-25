@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -29,6 +29,9 @@ import { UserManagementService } from '../../../services/user-management/user-ma
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class AiSettingsComponent implements OnInit {
+  /** The form's directive, reset with it after a send so its emptied fields show no error. */
+  @ViewChild('keyForm') private keyForm?: FormGroupDirective;
+
   private readonly ai = inject(AiService);
   private readonly fb = inject(FormBuilder);
   private readonly notifications = inject(NotificationService);
@@ -89,7 +92,7 @@ export class AiSettingsComponent implements OnInit {
     this.saving = true;
     this.ai.setKey(apiKey.trim(), model).subscribe({
       next: status => {
-        this.form.reset({ apiKey: '', model });
+        this.resetAfterSubmit(this.keyForm, { apiKey: '', model });
         this.show(status);
         this.notifications.success('ai.settings.keySaved');
       },
@@ -142,5 +145,14 @@ export class AiSettingsComponent implements OnInit {
     this.status = status;
     this.saving = false;
     this.changes.markForCheck();
+  }
+
+  /** Empties the form after a send: its submitted state too, or its required fields show an error at once. */
+  private resetAfterSubmit(directive: FormGroupDirective | undefined, value?: Parameters<typeof this.form.reset>[0]): void {
+    if (directive) {
+      directive.resetForm(value);
+    } else {
+      this.form.reset(value);
+    }
   }
 }

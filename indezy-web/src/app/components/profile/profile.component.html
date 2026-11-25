@@ -34,7 +34,7 @@
                 <mat-card-title>{{ 'profile.changePassword' | translate }}</mat-card-title>
               </mat-card-header>
               <mat-card-content>
-                <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+                <form #passwordFormDirective="ngForm" [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'profile.currentPassword' | translate }}</mat-label>
                     <input aria-label="{{ 'profile.currentPassword' | translate }}" matInput formControlName="currentPassword" type="password" required>

@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
@@ -28,6 +28,9 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class ProfileApiTokensComponent implements OnInit, OnDestroy {
+  /** The form's directive, reset with it after a send so its emptied fields show no error. */
+  @ViewChild('tokenForm') private tokenForm?: FormGroupDirective;
+
   /** The most an account holds, as the server allows. */
   static readonly MAX_TOKENS = 10;
   /** Days a token lasts; 0 for one that does not expire (a null option would clear the select). */
@@ -96,7 +99,7 @@ export class ProfileApiTokensComponent implements OnInit, OnDestroy {
       next: created => {
         this.created = created;
         this.tokens = [created.token, ...this.tokens];
-        this.form.reset({ name: '', expiresInDays: 90 });
+        this.resetAfterSubmit(this.tokenForm, { name: '', expiresInDays: 90 });
         this.everything = true;
         this.chosen.clear();
         this.creating = false;
@@ -141,5 +144,14 @@ export class ProfileApiTokensComponent implements OnInit, OnDestroy {
         error: () => this.notifications.error('profile.apiTokens.revokeError')
       });
     });
+  }
+
+  /** Empties the form after a send: its submitted state too, or its required fields show an error at once. */
+  private resetAfterSubmit(directive: FormGroupDirective | undefined, value?: Parameters<typeof this.form.reset>[0]): void {
+    if (directive) {
+      directive.resetForm(value);
+    } else {
+      this.form.reset(value);
+    }
   }
 }

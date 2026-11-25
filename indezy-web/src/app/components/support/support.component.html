@@ -2,7 +2,7 @@
   <app-page-header [title]="'support.title' | translate" [subtitle]="'support.subtitle' | translate" icon="support_agent"></app-page-header>
   <mat-card appearance="outlined" class="new-request">
     <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="send()" data-support-form>
+      <form #supportForm="ngForm" [formGroup]="form" (ngSubmit)="send()" data-support-form>
         <mat-form-field appearance="outline">
           <mat-label>{{ 'support.kind' | translate }}</mat-label>
           <mat-select formControlName="kind">

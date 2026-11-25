@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -41,6 +41,9 @@ interface AskedLink {
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class TestimonialsSectionComponent implements OnInit {
+  /** The form's directive, reset with it after a send so its emptied fields show no error. */
+  @ViewChild('askForm') private askForm?: FormGroupDirective;
+
   private readonly testimonialService = inject(TestimonialService);
   private readonly contactService = inject(ContactService);
   private readonly confirm = inject(ConfirmDialogService);
@@ -93,7 +96,7 @@ export class TestimonialsSectionComponent implements OnInit {
         this.asking = false;
         this.asked = { recipient: link.testimonial.recipientName, url: `${globalThis.location.origin}/testimonial#${link.token}`,
           email: link.testimonial.recipientEmail ?? null, emailed: link.emailed };
-        this.form.reset();
+        this.resetAfterSubmit(this.askForm);
         this.show([link.testimonial, ...this.testimonials]);
       },
       error: (error: HttpErrorResponse) => {
@@ -135,5 +138,14 @@ export class TestimonialsSectionComponent implements OnInit {
   private show(testimonials: Testimonial[]): void {
     this.testimonials = testimonials;
     this.changes.markForCheck();
+  }
+
+  /** Empties the form after a send: its submitted state too, or its required fields show an error at once. */
+  private resetAfterSubmit(directive: FormGroupDirective | undefined, value?: Parameters<typeof this.form.reset>[0]): void {
+    if (directive) {
+      directive.resetForm(value);
+    } else {
+      this.form.reset(value);
+    }
   }
 }

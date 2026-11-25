@@ -93,7 +93,7 @@ test('creates an API token shown once, then revokes it', async ({ page, context 
   await card.getByRole('button', { name: 'Create token' }).click();
   await expect(card.locator('[data-token-secret]')).toHaveText('idz_AbCdEfGhsecret');
   const audit = await new AxeBuilder({ page }).include('[data-api-tokens]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
-  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  expect(audit.violations.flatMap(violation => violation.nodes.map(node => `${violation.id} ${node.target.join(' ')} ${node.failureSummary}`))).toEqual([]);
   await card.getByRole('button', { name: 'Copy token' }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('idz_AbCdEfGhsecret');
   await card.getByRole('button', { name: 'Done' }).click();

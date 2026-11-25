@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -33,6 +33,9 @@ import { version as APP_VERSION } from '../../../../package.json';
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class SupportComponent implements OnInit {
+  /** The form's directive, reset with it after a send so its emptied fields show no error. */
+  @ViewChild('supportForm') private supportForm?: FormGroupDirective;
+
   private readonly support = inject(SupportService);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
@@ -96,7 +99,7 @@ export class SupportComponent implements OnInit {
         this.sending = false;
         this.requests = [request, ...this.requests];
         this.files = [];
-        this.form.reset({ kind: value.kind, subject: '', description: '', sendContext: true });
+        this.resetAfterSubmit(this.supportForm, { kind: value.kind, subject: '', description: '', sendContext: true });
         this.notifications.success('support.sent');
         this.changes.markForCheck();
       },
@@ -144,5 +147,14 @@ export class SupportComponent implements OnInit {
       },
       error: () => this.notifications.error('support.loadError')
     });
+  }
+
+  /** Empties the form after a send: its submitted state too, or its required fields show an error at once. */
+  private resetAfterSubmit(directive: FormGroupDirective | undefined, value?: Parameters<typeof this.form.reset>[0]): void {
+    if (directive) {
+      directive.resetForm(value);
+    } else {
+      this.form.reset(value);
+    }
   }
 }

@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { AbstractControlOptions, ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControlOptions, FormBuilder, FormGroup, FormGroupDirective, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -60,6 +60,7 @@ const PROFILE_TABS_BEFORE_NETWORK = 7;
     styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
+  @ViewChild('passwordFormDirective') private passwordFormDirective?: FormGroupDirective;
   /** The retention periods offered for contacts, in years; 0 for never. */
   readonly retentionYears = [0, 1, 2, 3, 5];
   /** Avatars are stored inline, so photos are cropped to a small square before upload. */
@@ -374,7 +375,12 @@ export class ProfileComponent implements OnInit {
       this.userManagementService.changePassword(passwordData).subscribe({
         next: () => {
           this.isUpdating = false;
-          this.passwordForm.reset();
+          // Its submitted state reset too, or the emptied required fields show an error at once.
+          if (this.passwordFormDirective) {
+            this.passwordFormDirective.resetForm();
+          } else {
+            this.passwordForm.reset();
+          }
           this.notificationService.success('profile.passwordChanged');
         },
         error: (error: unknown) => {
