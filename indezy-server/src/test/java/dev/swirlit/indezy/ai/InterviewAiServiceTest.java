@@ -38,18 +38,21 @@ class InterviewAiServiceTest {
         org.mockito.Mockito.when(ai.structured(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString(),
             org.mockito.ArgumentMatchers.contains("x".repeat(InterviewAiService.DEBRIEF_MAX) + "\n</debrief>"), org.mockito.ArgumentMatchers.eq(InterviewAiService.Debrief.class),
             org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.any()))
-            .thenReturn(new InterviewAiService.Debrief(InterviewAiService.Outcome.REJECTED, "Entretien client", null, null, null))
-            .thenReturn(new InterviewAiService.Debrief(null, "", java.util.List.of("a", "b", "c", "d", "e", "f", "g"), "Merci", "Bonjour"));
+            .thenReturn(new InterviewAiService.Debrief(InterviewAiService.Outcome.REJECTED, dev.swirlit.indezy.model.enums.LostReason.NO_RESPONSE, "Entretien client", null, null, null))
+            .thenReturn(new InterviewAiService.Debrief(null, dev.swirlit.indezy.model.enums.LostReason.RATE_TOO_LOW, "", java.util.List.of("a", "b", "c", "d", "e", "f", "g"), "Merci", "Bonjour"));
 
         // Turned down: no next round, whatever the AI named; nothing else said, nothing invented.
         InterviewAiService.Debrief rejected = service.debrief(1L, 4L, "x".repeat(InterviewAiService.DEBRIEF_MAX + 50), dev.swirlit.indezy.model.enums.DocumentLanguage.FR);
         assertThat(rejected.outcome()).isEqualTo(InterviewAiService.Outcome.REJECTED);
         assertThat(rejected.nextRound()).isNull();
+        // Not answering is no refusal the debrief hears of: another reason, then.
+        assertThat(rejected.reason()).isEqualTo(dev.swirlit.indezy.model.enums.LostReason.OTHER);
         assertThat(rejected.nextSteps()).isEmpty();
         assertThat(rejected.thankYouBody()).isEmpty();
         // No outcome said: waiting; six steps at most.
         InterviewAiService.Debrief waiting = service.debrief(1L, 4L, "x".repeat(InterviewAiService.DEBRIEF_MAX + 50), dev.swirlit.indezy.model.enums.DocumentLanguage.FR);
         assertThat(waiting.outcome()).isEqualTo(InterviewAiService.Outcome.WAITING);
         assertThat(waiting.nextSteps()).hasSize(6);
+        assertThat(waiting.reason()).isNull();
     }
 }

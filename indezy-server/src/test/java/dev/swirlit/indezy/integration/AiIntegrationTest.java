@@ -457,7 +457,7 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         // The debrief turned into what comes next: the next round named, blank steps dropped, the thank-you trimmed.
         Map<String, Object> debrief = call(alice, HttpMethod.POST, "/ai/interview/" + negotiated + "/debrief?language=FR",
             Map.of("notes", "Bon feeling, un entretien technique la semaine prochaine, ils veulent deux références."), Map.class).getBody();
-        assertThat(debrief).containsEntry("outcome", "NEXT_ROUND").containsEntry("nextRound", "Entretien technique")
+        assertThat(debrief).containsEntry("outcome", "NEXT_ROUND").containsEntry("nextRound", "Entretien technique").containsEntry("reason", null)
             .containsEntry("thankYouSubject", "Merci pour l'échange").containsEntry("thankYouBody", "Bonjour, merci pour ce temps.");
         assertThat((List<String>) debrief.get("nextSteps")).containsExactly("Envoyer deux références");
         assertThat(BODIES.getLast()).contains("<debrief>", "deux références", "Lead Kafka");

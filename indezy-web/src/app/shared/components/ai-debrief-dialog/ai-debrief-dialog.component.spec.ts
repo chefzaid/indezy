@@ -23,7 +23,7 @@ describe('AiDebriefDialogComponent', () => {
   let dictation: jasmine.SpyObj<DictationService>;
   let handlers: DictationHandlers | null;
   let listening: boolean;
-  const debrief: AiDebrief = { outcome: 'NEXT_ROUND', nextRound: 'Entretien technique', nextSteps: ['Envoyer deux références'],
+  const debrief: AiDebrief = { outcome: 'NEXT_ROUND', reason: null, nextRound: 'Entretien technique', nextSteps: ['Envoyer deux références'],
     thankYouSubject: "Merci pour l'échange", thankYouBody: 'Bonjour,\nmerci pour ce temps.' };
 
   function create(status?: ProjectStatus) {
@@ -211,12 +211,24 @@ describe('AiDebriefDialogComponent', () => {
     projects.updateStatus.and.returnValue(of({} as ProjectDto));
     (element.querySelector('[data-ai-debrief-move]') as HTMLButtonElement).click();
     fixture.detectChanges();
-    expect(projects.updateStatus).toHaveBeenCalledWith(9, ProjectStatus.OFFER);
+    expect(projects.updateStatus).toHaveBeenCalledWith(9, ProjectStatus.OFFER, undefined);
     expect(element.querySelector('[data-ai-debrief-move]')!.textContent).toContain('ai.debrief.moved');
     fixture.componentInstance.moveTo(ProjectStatus.OFFER);
     expect(projects.updateStatus).toHaveBeenCalledTimes(2);
     fixture.componentInstance.close();
     expect(dialogRef.close).toHaveBeenCalledWith(true);
+  });
+
+  it('abandons an opportunity turned down for the reason the debrief gives, and shows it', () => {
+    const fixture = create(ProjectStatus.INTERVIEW);
+    ai.debrief.and.returnValue(of({ ...debrief, outcome: 'REJECTED', reason: 'RATE_TOO_LOW', nextRound: null }));
+    const element = write(fixture, 'Trop cher pour eux.');
+    fixture.componentInstance.read();
+    fixture.detectChanges();
+    expect(element.querySelector('[data-ai-debrief-reason]')!.textContent).toContain('projects.lostReason.RATE_TOO_LOW');
+    projects.updateStatus.and.returnValue(of({} as ProjectDto));
+    (element.querySelector('[data-ai-debrief-move]') as HTMLButtonElement).click();
+    expect(projects.updateStatus).toHaveBeenCalledWith(9, ProjectStatus.LOST, { lostReason: 'RATE_TOO_LOW' });
   });
 
   it('says why the debrief could not be read', () => {

@@ -67,11 +67,12 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
 test('abandons an opportunity whose debrief says it was turned down', async ({ page }) => {
   await mockWorkspaceSession(page, 'en');
   await mockWorkspaceData(page, 'en');
-  await page.route(/\/api\/ai\/interview\/42\/debrief/, route => route.fulfill({ json: { outcome: 'REJECTED', nextRound: null,
+  await page.route(/\/api\/ai\/interview\/42\/debrief/, route => route.fulfill({ json: { outcome: 'REJECTED', reason: 'PROFILE_MISMATCH', nextRound: null,
     nextSteps: [], thankYouSubject: 'Thank you', thankYouBody: 'Hello,\nthank you for your time.' } }));
   const moves: string[] = [];
   await page.route(/\/api\/projects\/42\/status/, route => {
-    moves.push(new URL(route.request().url()).searchParams.get('status') ?? '');
+    const params = new URL(route.request().url()).searchParams;
+    moves.push(`${params.get('status')} ${params.get('lostReason')}`);
     return route.fulfill({ json: { id: 42, role: 'Java developer', status: 'LOST', refusedBy: 'RECRUITER' } });
   });
 
@@ -81,11 +82,12 @@ test('abandons an opportunity whose debrief says it was turned down', async ({ p
   await dialog.getByLabel('How did it go?').fill('They went with a more senior profile.');
   await dialog.locator('[data-ai-debrief-read]').click();
   await expect(dialog.locator('[data-ai-debrief-outcome="REJECTED"]')).toContainText('Turned down');
+  await expect(dialog.locator('[data-ai-debrief-reason]')).toBeVisible();
   await expect(dialog.locator('[data-ai-debrief-round]')).toHaveCount(0);
   const move = dialog.locator('[data-ai-debrief-move]');
   await move.click();
   await expect(move).toBeDisabled();
-  expect(moves).toEqual(['LOST']);
+  expect(moves).toEqual(['LOST PROFILE_MISMATCH']);
   await dialog.getByRole('button', { name: 'Close' }).click();
   await expect(dialog).toHaveCount(0);
 });

@@ -1,4 +1,4 @@
-import { WorkMode } from './project.models';
+import { LostReason, WorkMode } from './project.models';
 import { DocumentLanguage } from './activity-report.models';
 import { SkillLevel } from './user-management.models';
 
@@ -75,6 +75,8 @@ export type AiDebriefOutcome = 'NEXT_ROUND' | 'OFFER' | 'REJECTED' | 'WAITING';
 /** What comes of an interview, read from its debrief: the next round only when one was announced. */
 export interface AiDebrief {
   outcome: AiDebriefOutcome;
+  /** When turned down: the likely reason. */
+  reason: LostReason | null;
   nextRound: string | null;
   nextSteps: string[];
   thankYouSubject: string;

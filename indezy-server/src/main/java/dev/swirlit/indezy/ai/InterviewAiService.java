@@ -11,6 +11,7 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.SkillDetail;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.UserRepository;
@@ -40,6 +41,9 @@ public class InterviewAiService {
     private static final int NOTES_MAX = 600;
     private static final int STEPS_MAX = 10;
     private static final int LIST_MAX = 6;
+    /** The reasons a debrief can tell of a refusal (no answer, or the freelancer's choice, are not refusals it hears of). */
+    private static final java.util.Set<LostReason> GUESSED = java.util.EnumSet.of(LostReason.RATE_TOO_LOW, LostReason.POSITION_FILLED,
+        LostReason.PROFILE_MISMATCH, LostReason.CLIENT_CANCELED, LostReason.OTHER);
     /** An interview step's title, at most. */
     private static final int ROUND_MAX = 120;
     private static final long MAX_TOKENS = 6_000;
@@ -57,7 +61,8 @@ public class InterviewAiService {
     private static final String DEBRIEF_SYSTEM = """
         You read the debrief a French freelance IT consultant wrote after an interview for a mission, and turn it into what
         comes next. Say the outcome it most likely points to: NEXT_ROUND when another interview was announced or planned,
-        OFFER when a proposal is coming or was made, REJECTED when they were turned down, WAITING otherwise. List the next
+        OFFER when a proposal is coming or was made, REJECTED when they were turned down, WAITING otherwise; when REJECTED,
+        the likely reason as the debrief gives it, OTHER when it gives none. List the next
         steps, each a short action for the consultant (send the references asked, prepare the case study...); when NEXT_ROUND,
         name that next interview as it was described (Technical interview, Meeting the end client...). Write a short
         thank-you message to the interviewer, in the first person, that recalls one point of the conversation, with a
@@ -131,6 +136,8 @@ public class InterviewAiService {
     /** What comes of an interview, read from its debrief. */
     public record Debrief(
         @JsonPropertyDescription("NEXT_ROUND, OFFER, REJECTED or WAITING") Outcome outcome,
+        @JsonPropertyDescription("When REJECTED: RATE_TOO_LOW, POSITION_FILLED, PROFILE_MISMATCH, CLIENT_CANCELED or OTHER; empty otherwise")
+        LostReason reason,
         @JsonPropertyDescription("When NEXT_ROUND: the next interview's name, a few words; empty otherwise") String nextRound,
         @JsonPropertyDescription("Up to six next steps, each a short action for the consultant") List<String> nextSteps,
         @JsonPropertyDescription("The thank-you message's subject") String thankYouSubject,
@@ -159,7 +166,9 @@ public class InterviewAiService {
             OutputConfig.Effort.LOW);
         Outcome outcome = answer.outcome() == null ? Outcome.WAITING : answer.outcome();
         String nextRound = Objects.toString(answer.nextRound(), "").strip();
-        return new Debrief(outcome, outcome == Outcome.NEXT_ROUND && !nextRound.isEmpty() ? cut(nextRound, ROUND_MAX) : null,
+        LostReason guessed = answer.reason() != null && GUESSED.contains(answer.reason()) ? answer.reason() : LostReason.OTHER;
+        LostReason reason = outcome == Outcome.REJECTED ? guessed : null;
+        return new Debrief(outcome, reason, outcome == Outcome.NEXT_ROUND && !nextRound.isEmpty() ? cut(nextRound, ROUND_MAX) : null,
             answer.nextSteps().stream().filter(step -> !step.isBlank()).map(String::strip).limit(LIST_MAX).toList(),
             Objects.toString(answer.thankYouSubject(), "").strip(), Objects.toString(answer.thankYouBody(), "").strip());
     }

@@ -783,7 +783,8 @@ never saved or sent on its own:
   interview coming, an offer coming, turned down, or waiting), the next round named when one was announced, with **Add it
   as a step to plan** (an Interview step To plan), up to six next steps, and a short thank-you message with its subject
   to copy, and the opportunity moved in one click to the stage the outcome points to (Interview for another round from
-  Contact, Offer from Contact or Interview, Abandoned by the recruiter when turned down); **Keep as a note** puts the
+  Contact, Offer from Contact or Interview, Abandoned by the recruiter when turned down, with the
+  reason the debrief gives: rate too low, position filled, profile mismatch, client canceled, or other); **Keep as a note** puts the
   debrief and all this in the journal, the next steps as a checklist.
 - **Prepare the negotiation (AI)** on an opportunity (`POST /api/ai/negotiation/{projectId}`): a counter-offer, the rate
   below which to walk away (never above the counter-offer), a strategy and up to five arguments for the call, from the

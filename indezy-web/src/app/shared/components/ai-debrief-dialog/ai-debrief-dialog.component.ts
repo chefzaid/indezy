@@ -52,6 +52,9 @@ const MOVES: Record<AiDebrief['outcome'], { to: ProjectStatus; from: ProjectStat
         <section data-ai-debrief>
           <p class="outcome" [attr.data-ai-debrief-outcome]="debrief.outcome">
             <mat-icon aria-hidden="true">{{ icons[debrief.outcome] }}</mat-icon>{{ 'ai.debrief.outcomes.' + debrief.outcome | translate }}
+            @if (debrief.reason) {
+              <span class="reason" data-ai-debrief-reason>· {{ 'projects.lostReason.' + debrief.reason | translate }}</span>
+            }
           </p>
           @if (move(); as to) {
             <div class="round">
@@ -129,7 +132,8 @@ const MOVES: Record<AiDebrief['outcome'], { to: ProjectStatus; from: ProjectStat
     .notes { width: 100%; }
     .hearing { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; color: var(--mat-sys-on-surface-variant); font-style: italic; }
     .intro { margin: 0 0 12px; color: var(--mat-sys-on-surface-variant); }
-    .outcome { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-weight: 500; }
+    .outcome { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; font-weight: 500; }
+    .reason { font-weight: 400; color: var(--mat-sys-on-surface-variant); }
     .round { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 8px; }
     h3 { margin: 16px 0 4px; font-size: 1rem; }
     ul { margin: 0 0 8px; padding-left: 20px; }
@@ -241,13 +245,14 @@ export class AiDebriefDialogComponent implements OnDestroy {
     return move && status && move.from.includes(status) ? move.to : null;
   }
 
-  /** Moves the opportunity to the stage the outcome points to; turned down, it is abandoned by the recruiter. */
+  /** Moves the opportunity to the stage the outcome points to; turned down, it is abandoned for the reason guessed. */
   moveTo(status: ProjectStatus): void {
     if (this.moving || this.moved) {
       return;
     }
     this.moving = true;
-    this.projects.updateStatus(this.data.projectId, status).subscribe({
+    const reason = status === ProjectStatus.LOST ? this.debrief?.reason ?? undefined : undefined;
+    this.projects.updateStatus(this.data.projectId, status, reason ? { lostReason: reason } : undefined).subscribe({
       next: () => {
         this.moving = false;
         this.moved = true;
