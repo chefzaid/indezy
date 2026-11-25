@@ -372,6 +372,18 @@ public class InvoiceService {
         return toDto(invoice);
     }
 
+    /** Records that the client was reminded of an overdue invoice today, from Indezy. */
+    @Transactional
+    public InvoiceDtos.Invoice reminded(Long freelanceId, Long id) {
+        Invoice invoice = invoice(freelanceId, id);
+        LocalDate today = LocalDate.now(clock.withZone(PARIS));
+        if (invoice.isCreditNote() || invoice.getStatus() != InvoiceStatus.ISSUED || invoice.getDueDate() == null || !invoice.getDueDate().isBefore(today)) {
+            throw new InvalidStateException("Only an overdue invoice is reminded of");
+        }
+        invoice.setRemindedOn(today);
+        return toDto(invoice);
+    }
+
     /** The invoice's PDF: as issued, or, for a draft, with the seller and the client as they are now. */
     @Transactional(readOnly = true)
     public ActivityReportService.PdfFile renderPdf(Long freelanceId, Long id) {
@@ -639,7 +651,7 @@ public class InvoiceService {
             .map(line -> new InvoiceDtos.Line(line.getDescription(), line.getQuantity(), line.getUnitPrice(), line.getVatRate())).toList(),
             totals.excludingVat(), totals.vat(), totals.total(), invoice.getPaidOn(), invoice.getCreatedAt(),
             overdue ? lateFees(invoice, totals.total().subtract(creditedTotal(invoice)), today) : null, invoice.getCurrency(),
-            invoice.getExchangeRate(), euros == null ? null : euros.excludingVat(), euros == null ? null : euros.total());
+            invoice.getExchangeRate(), euros == null ? null : euros.excludingVat(), euros == null ? null : euros.total(), invoice.getRemindedOn());
     }
 
     /** An amount of the invoice's currency in euros, at its rate. */

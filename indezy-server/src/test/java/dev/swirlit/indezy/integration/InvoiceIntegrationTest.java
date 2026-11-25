@@ -121,6 +121,7 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
                 Map.of("description", "Formation", "quantity", 0.5, "unitPrice", 800, "vatRate", 0))), Map.class).getBody();
         long second = ((Number) written.get("id")).longValue();
         assertThat(written).containsEntry("totalExcludingVat", 1600.5);
+        assertThat(call(alice, HttpMethod.POST, "/invoices/" + second + "/reminded", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(call(alice, HttpMethod.PUT, "/invoices/" + second, Map.of("clientId", aliceClientId, "lines", List.of()),
             String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         Map<String, Object> client2 = call(alice, HttpMethod.GET, "/clients/" + aliceClientId, null, Map.class).getBody();
@@ -161,6 +162,9 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
             .isNotEmpty().allSatisfy(deadline -> assertThat(deadline).containsEntry("kind", "CFE"));
         assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first + "/payment", new HashMap<>(), Map.class).getBody())
             .containsEntry("status", "ISSUED").containsEntry("paidOn", null);
+        assertThat(call(alice, HttpMethod.POST, "/invoices/" + first + "/reminded", null, Map.class).getBody())
+            .containsEntry("remindedOn", java.time.LocalDate.now(java.time.ZoneId.of("Europe/Paris")).toString());
+        assertThat(call(bob, HttpMethod.POST, "/invoices/" + first + "/reminded", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
         // A partial credit lowers what the overdue alert says is due.
         long note = idOf(call(alice, HttpMethod.POST, "/invoices/" + first + "/credit-note", null, Map.class));

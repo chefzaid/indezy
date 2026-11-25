@@ -1532,7 +1532,8 @@ pay, the days late, the interest at its rate (amount × rate × days late / 365,
 indemnity (art. L441-10 and D441-5 du Code de commerce). Its menu's **Payment reminder** writes the reminder in the
 invoice's language (its number, issue and due dates, the amount left to pay, the days late, the interest at its rate and
 the indemnity, signed with the profile's name) to one of the client's contacts with an email, to open in the mail app,
-copy, or send from Indezy with a copy to the freelancer, recorded in the contact's exchanges (see
+copy, or send from Indezy with a copy to the freelancer, recorded in the contact's exchanges, the invoice then reading
+**reminded on …** while overdue (`POST /api/invoices/{id}/reminded`, `invoices.reminded_on`; see
 [Emails Sent From Indezy](#emails-sent-from-indezy)).
 
 **Currency**: an invoice is in euros, or in US dollars, pounds sterling or Swiss francs for an international client.

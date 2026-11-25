@@ -3440,6 +3440,7 @@
     },
     "dueOn": "échéance le {{date}}",
     "paidOnDate": "payée le {{date}}",
+    "remindedOn": "relancée le {{date}}",
     "actions": "Actions pour {{name}}",
     "edit": "Modifier",
     "issue": "Émettre",

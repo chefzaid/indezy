@@ -3440,6 +3440,7 @@
     },
     "dueOn": "due {{date}}",
     "paidOnDate": "paid {{date}}",
+    "remindedOn": "reminded on {{date}}",
     "actions": "Actions for {{name}}",
     "edit": "Edit",
     "issue": "Issue",

@@ -59,6 +59,8 @@ export interface Invoice {
   vat: number;
   total: number;
   paidOn: string | null;
+  /** The day the client was last reminded of it from Indezy. */
+  remindedOn?: string | null;
   /** Set while the invoice is overdue. */
   lateFees?: LateFees | null;
   /** The currency of the lines and totals: the euro when absent. */

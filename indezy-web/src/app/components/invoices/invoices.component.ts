@@ -163,7 +163,12 @@ export class InvoicesComponent implements OnInit {
 
   /** Opens the payment reminder of an overdue invoice, for one of its client's contacts. */
   remind(invoice: Invoice): void {
-    this.dialog.open(InvoiceReminderDialogComponent, { data: invoice, width: '640px', maxWidth: '95vw', autoFocus: 'first-tabbable' });
+    this.dialog.open<InvoiceReminderDialogComponent, Invoice, Invoice | boolean>(InvoiceReminderDialogComponent,
+      { data: invoice, width: '640px', maxWidth: '95vw', autoFocus: 'first-tabbable' }).afterClosed().subscribe(result => {
+      if (result && typeof result === 'object') {
+        this.invoices = this.invoices.map(kept => kept.id === result.id ? result : kept);
+      }
+    });
   }
 
   markPaid(invoice: Invoice): void {

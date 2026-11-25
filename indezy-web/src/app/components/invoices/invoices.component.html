@@ -109,6 +109,9 @@
               @if (invoice.paidOn) {
                 · {{ 'invoices.paidOnDate' | translate: { date: (invoice.paidOn | date:'mediumDate') } }}
               }
+              @if (invoice.remindedOn && invoice.overdue) {
+                <span data-reminded-on>· {{ 'invoices.remindedOn' | translate: { date: (invoice.remindedOn | date:'mediumDate') } }}</span>
+              }
             </span>
             @if (invoice.lateFees; as fees) {
               <span class="late" data-late-fees>

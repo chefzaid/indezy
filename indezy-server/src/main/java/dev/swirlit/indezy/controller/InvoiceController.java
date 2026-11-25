@@ -145,6 +145,12 @@ public class InvoiceController {
         return invoices.pay(workspace(), id, payment);
     }
 
+    @Operation(summary = "Record that the client was reminded of an overdue invoice today")
+    @PostMapping("/{id}/reminded")
+    public InvoiceDtos.Invoice reminded(@PathVariable Long id) {
+        return invoices.reminded(workspace(), id);
+    }
+
     @Operation(summary = "Match a bank statement's credits with the invoices awaiting payment",
         description = "The statement is the bank's CSV export; nothing is recorded, each match kept is then marked paid")
     @PostMapping("/reconciliation")

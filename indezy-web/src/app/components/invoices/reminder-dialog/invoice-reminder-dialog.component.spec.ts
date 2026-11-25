@@ -9,6 +9,7 @@ import { of, throwError } from 'rxjs';
 import { ContactDto, ContactInteraction, Invoice } from '../../../models';
 import { UserProfile } from '../../../models/user-management.models';
 import { ContactService } from '../../../services/contact/contact.service';
+import { InvoiceService } from '../../../services/invoice/invoice.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { InvoiceReminderDialogComponent, reminderText } from './invoice-reminder-dialog.component';
@@ -24,6 +25,7 @@ describe('InvoiceReminderDialogComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let dialogRef: jasmine.SpyObj<MatDialogRef<InvoiceReminderDialogComponent>>;
   let clipboard: jasmine.SpyObj<Clipboard>;
+  let invoices: jasmine.SpyObj<InvoiceService>;
 
   function create(data: Invoice = invoice, found: ContactDto[] = [lea, { id: 12, firstName: 'Sans', email: null } as ContactDto], available = true) {
     contacts = jasmine.createSpyObj('ContactService', ['getByClientId', 'emailStatus', 'sendEmail']);
@@ -34,12 +36,14 @@ describe('InvoiceReminderDialogComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
+    invoices = jasmine.createSpyObj('InvoiceService', ['reminded']);
+    invoices.reminded.and.returnValue(of({ ...data, remindedOn: '2026-11-25' } as Invoice));
     TestBed.configureTestingModule({
       imports: [InvoiceReminderDialogComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: MAT_DIALOG_DATA, useValue: data },
         { provide: ContactService, useValue: contacts }, { provide: UserManagementService, useValue: users },
         { provide: NotificationService, useValue: notifications }, { provide: MatDialogRef, useValue: dialogRef },
-        { provide: Clipboard, useValue: clipboard }]
+        { provide: Clipboard, useValue: clipboard }, { provide: InvoiceService, useValue: invoices }]
     });
     const fixture = TestBed.createComponent(InvoiceReminderDialogComponent);
     fixture.detectChanges();
@@ -87,6 +91,11 @@ describe('InvoiceReminderDialogComponent', () => {
     component.send();
     expect(contacts.sendEmail).toHaveBeenCalledWith(11, jasmine.objectContaining({ projectId: 42, track: false, copy: true, language: 'FR',
       subject: 'Facture F2026-0007 : paiement en attente' }));
+    // Sent: the invoice notes the day, and the list gets it back.
+    expect(invoices.reminded).toHaveBeenCalledWith(9);
+    expect(dialogRef.close).toHaveBeenCalledWith(jasmine.objectContaining({ id: 9, remindedOn: '2026-11-25' }));
+    invoices.reminded.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    component.send();
     expect(dialogRef.close).toHaveBeenCalledWith(true);
 
     clipboard.copy.and.returnValue(true);

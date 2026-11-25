@@ -14,6 +14,7 @@ import { catchError, forkJoin, map, of } from 'rxjs';
 import { ContactDto, ContactEmailStatus, DocumentLanguage, Invoice } from '../../../models';
 import { UserProfile } from '../../../models/user-management.models';
 import { ContactService } from '../../../services/contact/contact.service';
+import { InvoiceService } from '../../../services/invoice/invoice.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { mailtoLink } from '../../../shared/utils/email-template';
@@ -53,7 +54,8 @@ export function reminderText(invoice: Invoice, firstName: string | null | undefi
 /**
  * Reminds a client of an overdue invoice (see docs/features.md#invoices): the reminder written in the invoice's language
  * with the amount left to pay, the days late, the interest at the rate it stated and the €40 indemnity, for one of the
- * client's contacts; opened in the mail app, copied, or sent from Indezy and recorded in the contact's exchanges.
+ * client's contacts; opened in the mail app, copied, or sent from Indezy and recorded in the contact's exchanges, the
+ * invoice then noting the day (closes with the invoice so).
  */
 @Component({
   selector: 'app-invoice-reminder-dialog',
@@ -104,6 +106,7 @@ export class InvoiceReminderDialogComponent implements OnInit {
   readonly invoice = inject<Invoice>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<InvoiceReminderDialogComponent>, { optional: true });
   private readonly contactService = inject(ContactService);
+  private readonly invoices = inject(InvoiceService);
   private readonly users = inject(UserManagementService);
   private readonly notifications = inject(NotificationService);
   private readonly clipboard = inject(Clipboard);
@@ -172,7 +175,11 @@ export class InvoiceReminderDialogComponent implements OnInit {
       next: () => {
         this.sending = false;
         this.notifications.success('emails.send.sent', undefined, { name: `${recipient.firstName ?? ''} ${recipient.lastName ?? ''}`.trim() });
-        this.dialogRef?.close(true);
+        // Sent: the invoice says when its client was reminded (left unsaid if that fails, the email being gone).
+        this.invoices.reminded(this.invoice.id).subscribe({
+          next: invoice => this.dialogRef?.close(invoice),
+          error: () => this.dialogRef?.close(true)
+        });
       },
       error: (error: HttpErrorResponse) => {
         this.sending = false;

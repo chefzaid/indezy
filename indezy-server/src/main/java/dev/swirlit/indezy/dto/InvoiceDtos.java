@@ -43,7 +43,7 @@ public final class InvoiceDtos {
         String projectRole, Long activityReportId, LocalDate issueDate, LocalDate dueDate, LocalDate periodStart, LocalDate periodEnd,
         DocumentLanguage language, String notes, List<Line> lines, BigDecimal totalExcludingVat, BigDecimal vat, BigDecimal total,
         LocalDate paidOn, LocalDateTime createdAt, LateFees lateFees, InvoiceCurrency currency, BigDecimal exchangeRate,
-        BigDecimal totalExcludingVatInEuros, BigDecimal totalInEuros) {
+        BigDecimal totalExcludingVatInEuros, BigDecimal totalInEuros, LocalDate remindedOn) {
 
         public Invoice {
             lines = List.copyOf(lines);

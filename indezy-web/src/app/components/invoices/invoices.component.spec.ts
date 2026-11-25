@@ -130,8 +130,15 @@ describe('InvoicesComponent', () => {
     fixture.detectChanges();
     // An overdue invoice's payment reminder, for one of its client's contacts.
     const overdue = component.invoices.find(item => item.id === 3)!;
+    dialog.open.and.returnValue({ afterClosed: () => of({ ...overdue, remindedOn: '2026-11-25' }) } as never);
     component.remind(overdue);
     expect(dialog.open).toHaveBeenCalledWith(InvoiceReminderDialogComponent, jasmine.objectContaining({ data: overdue }));
+    // Reminded: the list says so.
+    fixture.detectChanges();
+    expect(element.querySelector('[data-invoice="3"] [data-reminded-on]')?.textContent).toContain('reminded on Nov 25, 2026');
+    dialog.open.and.returnValue({ afterClosed: () => of(undefined) } as never);
+    component.remind(overdue);
+    expect(component.invoices.find(item => item.id === 3)!.remindedOn).toBe('2026-11-25');
   });
 
   it('writes a new draft among the clients by name, at the workspace\'s VAT rate', () => {

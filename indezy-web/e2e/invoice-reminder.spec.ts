@@ -21,6 +21,11 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/contacts/by-client/3', route => route.fulfill({ json: [
       { id: 2, firstName: 'Léa', lastName: 'Martin', email: 'lea@acme.example', clientId: 3, clientName: 'Acme' }] }));
     await page.route('**/api/contacts/emails/status', route => route.fulfill({ json: { available: true, sentToday: 0, dailyMax: 50 } }));
+    const reminded: string[] = [];
+    await page.route('**/api/invoices/3/reminded', route => {
+      reminded.push(route.request().method());
+      return route.fulfill({ json: { ...overdue, remindedOn: '2026-11-25' } });
+    });
     const sent: unknown[] = [];
     await page.route('**/api/contacts/2/emails', route => {
       sent.push(route.request().postDataJSON());
@@ -44,6 +49,9 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
 
     await dialog.locator('[data-reminder-send]').click();
     await expect(dialog).toHaveCount(0);
+    // The invoice now says when its client was reminded.
+    await expect(page.locator('[data-invoice="3"] [data-reminded-on]')).toContainText(en ? 'reminded on' : 'relancée le');
+    expect(reminded).toEqual(['POST']);
     expect(sent).toEqual([expect.objectContaining({ projectId: 42, track: false, copy: true, language: 'FR',
       subject: 'Facture F2026-0003 : paiement en attente' })]);
   });

@@ -106,6 +106,10 @@ public class Invoice extends BaseEntity {
     @Column(name = "paid_on")
     private LocalDate paidOn;
 
+    /** The day the client was last reminded of it from Indezy, while overdue; null when never. */
+    @Column(name = "reminded_on")
+    private LocalDate remindedOn;
+
     /** The currency of the lines and totals; a null column, as on invoices older than the field, reads as the euro. */
     @Enumerated(EnumType.STRING)
     @Column(name = "currency", length = 3)
