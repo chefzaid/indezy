@@ -2244,6 +2244,7 @@
     }
   },
   "shortcuts": {
+    "searchUnavailable": "The search could not open: check your connection, or reload the page.",
     "title": "Keyboard shortcuts",
     "newProject": "Create a project",
     "search": "Open and focus project search",

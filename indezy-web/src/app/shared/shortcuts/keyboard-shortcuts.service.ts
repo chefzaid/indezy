@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject, filter } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { ShortcutHelpComponent } from './shortcut-help.component';
+import { NotificationService } from '../../services/notification/notification.service';
 
 /**
  * Open dialogs, menus and selection panels, which Material renders in the CDK overlay. A list of chips or options shown
@@ -18,6 +19,7 @@ export class KeyboardShortcutsService {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
+  private readonly notifications = inject(NotificationService);
   private readonly searchRequests = new BehaviorSubject(false);
   readonly focusProjectSearch$ = this.searchRequests.pipe(filter(Boolean));
 
@@ -70,7 +72,8 @@ export class KeyboardShortcutsService {
       this.dialog.open(GlobalSearchDialogComponent, {
         width: '640px', maxWidth: '95vw', position: { top: '10vh' }, autoFocus: 'first-tabbable', panelClass: 'global-search-panel'
       });
-    });
+    // Offline, or after a release whose files replaced this one's: said, rather than nothing happening.
+    }, () => this.notifications.error('shortcuts.searchUnavailable'));
   }
 
   openHelp(): void {

@@ -5,6 +5,7 @@ import { GlobalSearchDialogComponent } from '../../components/global-search/glob
 import { AuthService } from '../../services/auth/auth.service';
 import { KeyboardShortcutsService } from './keyboard-shortcuts.service';
 import { ShortcutHelpComponent } from './shortcut-help.component';
+import { NotificationService } from '../../services/notification/notification.service';
 
 describe('workspace keyboard shortcuts', () => {
   let service: KeyboardShortcutsService;
@@ -21,7 +22,8 @@ describe('workspace keyboard shortcuts', () => {
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
     TestBed.configureTestingModule({ providers: [
       { provide: Router, useValue: router }, { provide: AuthService, useValue: auth },
-      { provide: MatDialog, useValue: dialog }
+      { provide: MatDialog, useValue: dialog },
+      { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['error']) }
     ] });
     service = TestBed.inject(KeyboardShortcutsService);
     surface = document.createElement('div');

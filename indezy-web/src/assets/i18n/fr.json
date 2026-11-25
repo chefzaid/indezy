@@ -2244,6 +2244,7 @@
     }
   },
   "shortcuts": {
+    "searchUnavailable": "La recherche n'a pas pu s'ouvrir : vérifiez votre connexion, ou rechargez la page.",
     "title": "Raccourcis clavier",
     "newProject": "Créer un projet",
     "search": "Ouvrir et activer la recherche de projets",
