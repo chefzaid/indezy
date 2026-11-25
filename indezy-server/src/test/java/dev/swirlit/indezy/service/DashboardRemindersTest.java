@@ -281,8 +281,19 @@ class DashboardRemindersTest extends DashboardStatsTestSupport {
         active.setLastName("Contact");
         active.setUpdatedAt(LocalDateTime.now().minusMonths(1));
 
+        Contact refused = new Contact();
+        refused.setId(5L);
+        refused.setFirstName("Refused");
+        refused.setDoNotContact(true);
+        refused.setUpdatedAt(LocalDateTime.now().minusMonths(9));
+        Contact erased = new Contact();
+        erased.setId(6L);
+        erased.setFirstName("Erased");
+        erased.setAnonymizedAt(LocalDateTime.now().minusMonths(7));
+        erased.setUpdatedAt(LocalDateTime.now().minusMonths(7));
+
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of());
-        when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of(dormant, active));
+        when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of(dormant, active, refused, erased));
 
         DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 

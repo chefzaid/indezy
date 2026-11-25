@@ -1173,7 +1173,8 @@ characters and optionally the opportunity it was about; up to 500 a contact. The
 contact**, the **Response rate** (answered out of the freelancer's messages whose answer is known) and the **Preferred
 channel**.
 
-A recent exchange keeps a contact off the dashboard's contacts to reconnect with. A contact whose latest exchange is an
+A recent exchange keeps a contact off the dashboard's contacts to reconnect with, as asking not to be contacted or an
+anonymization does. A contact whose latest exchange is an
 unanswered message from the freelancer appears in **Follow-ups due** after the follow-up delay (5 days by default, 1 to
 60 in Preferences), until an answer or a newer exchange is recorded. Once its company (client or ESN) answered twice, the
 row says how long it usually takes ("usually answers in 3 days": the median days from a message sent to one of its

@@ -276,12 +276,16 @@ final class DashboardReminders {
     /**
      * Lists contacts with no activity (their last update or recorded exchange, in {@code lastContacted}) for at least
      * {@link #DORMANT_THRESHOLD_MONTHS} months, so the freelance can reconnect before the
-     * relationship goes cold. Most dormant first.
+     * relationship goes cold; none who asked not to be contacted or was anonymized. Most dormant first.
      */
     static List<DashboardStatsDto.DormantContact> buildDormantContacts(List<Contact> contacts, Map<Long, LocalDate> lastContacted,
                                                                        LocalDateTime now) {
         List<DashboardStatsDto.DormantContact> dormant = new ArrayList<>();
         for (Contact contact : contacts) {
+            // Not someone to reconnect with: they asked not to be contacted, or their data was anonymized.
+            if (Boolean.TRUE.equals(contact.getDoNotContact()) || contact.getAnonymizedAt() != null) {
+                continue;
+            }
             LocalDateTime lastActivity = contact.getUpdatedAt() != null ?
                 contact.getUpdatedAt() : contact.getCreatedAt();
             LocalDate lastExchange = lastContacted.get(contact.getId());
