@@ -12,11 +12,18 @@
           <span class="count">{{ getOverdueInvoices().length }}</span>
         </h3>
         @for (invoice of visible(getOverdueInvoices(), 'invoices'); track invoice.invoiceId) {
+          <div class="reminder-item">
           <a class="reminder-row" routerLink="/invoices">
             <span class="primary">{{ invoice.number }} · {{ invoice.total | number:'1.2-2' }} €</span>
             <span class="secondary">{{ invoice.clientName }}</span>
             <span class="meta">{{ 'dashboard.charts.daysLate' | translate:{ days: invoice.daysLate } }}</span>
           </a>
+          <button mat-icon-button type="button" class="draft-button" (click)="remind(invoice)" [attr.data-invoice-remind]="invoice.invoiceId"
+            [attr.aria-label]="'dashboard.charts.remindInvoice' | translate:{ number: invoice.number }"
+            [matTooltip]="'dashboard.charts.remindInvoice' | translate:{ number: invoice.number }">
+            <mat-icon>notification_important</mat-icon>
+          </button>
+          </div>
         }
         @if (getOverdueInvoices().length > collapsedSize) {
           <button type="button" class="toggle-btn" (click)="toggle('invoices')">

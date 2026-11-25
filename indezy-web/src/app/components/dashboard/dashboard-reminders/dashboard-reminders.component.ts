@@ -15,6 +15,8 @@ import {
   PurchaseOrderAlert, ExpiringDocument, TrainingFundingDue, StatusSuggestion,
   UpcomingInterview
 } from '../../../models';
+import { InvoiceService } from '../../../services/invoice/invoice.service';
+import { InvoiceReminderDialogComponent } from '../../invoices/reminder-dialog/invoice-reminder-dialog.component';
 
 /** The status suggestions dismissed on this device, by exchange id. */
 const DISMISSED_KEY = 'indezy.dashboard.dismissedStatusSuggestions';
@@ -49,6 +51,7 @@ export class DashboardRemindersComponent {
   private readonly dialog = inject(MatDialog);
   private readonly projects = inject(ProjectService);
   private readonly notifications = inject(NotificationService);
+  private readonly invoices = inject(InvoiceService);
   /** The suggestions applied or dismissed, by exchange: dismissed ones are remembered on this device. */
   private readonly handled = new Set<number>(readDismissed());
 
@@ -69,6 +72,14 @@ export class DashboardRemindersComponent {
     }
     const data: AiMessageDialogData = { projectId: due.projectId, kind: 'FOLLOW_UP' };
     this.dialog.open(AiMessageDialogComponent, { data, width: '720px', maxWidth: '96vw', autoFocus: false });
+  }
+
+  /** Opens the payment reminder of an overdue invoice, read whole first. */
+  remind(overdue: OverdueInvoice): void {
+    this.invoices.get(overdue.invoiceId).subscribe({
+      next: invoice => this.dialog.open(InvoiceReminderDialogComponent, { data: invoice, width: '640px', maxWidth: '95vw', autoFocus: 'first-tabbable' }),
+      error: () => this.notifications.error('dashboard.charts.remindError')
+    });
   }
 
   /** The rows of a reminder list to render, capped unless the list was expanded. */

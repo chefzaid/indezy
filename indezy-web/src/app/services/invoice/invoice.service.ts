@@ -20,6 +20,11 @@ export class InvoiceService {
     return this.http.get<Invoice[]>(`${this.API_URL}/by-freelance/${freelanceId}`);
   }
 
+  /** One of the workspace's invoices. */
+  get(id: number): Observable<Invoice> {
+    return this.http.get<Invoice>(`${this.API_URL}/${id}`);
+  }
+
   create(draft: InvoiceDraft): Observable<Invoice> {
     return this.http.post<Invoice>(this.API_URL, draft);
   }

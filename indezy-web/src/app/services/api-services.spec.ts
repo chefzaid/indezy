@@ -231,6 +231,7 @@ describe('API services', () => {
       body: { start: 'x' } },
     { name: 'change a draft', call: () => invoices().update(5, { clientId: 3 } as never), method: 'PUT', url: `${api}/invoices/5`, body: { clientId: 3 } },
     { name: 'delete a draft', call: () => invoices().delete(5), method: 'DELETE', url: `${api}/invoices/5` },
+    { name: 'read an invoice', call: () => invoices().get(5), method: 'GET', url: `${api}/invoices/5` },
     { name: 'issue an invoice', call: () => invoices().issue(5, '2026-10-27'), method: 'POST', url: `${api}/invoices/5/issue`, body: { issueDate: '2026-10-27' } },
     { name: 'invoice paid', call: () => invoices().setPaid(5, '2026-11-02'), method: 'PUT', url: `${api}/invoices/5/payment`, body: { paidOn: '2026-11-02' } },
     { name: 'payment delays', call: () => invoices().paymentDelays(), method: 'GET', url: `${api}/invoices/payment-delays` },

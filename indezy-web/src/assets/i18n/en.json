@@ -258,6 +258,8 @@
       "waitingSince": "{{channel}} sent {{days}} days ago, no answer",
       "overdueInvoices": "Overdue invoices",
       "daysLate": "{{days}} days late",
+      "remindInvoice": "Payment reminder for {{number}}",
+      "remindError": "The invoice could not be read. Try again.",
       "purchaseOrderAlerts": "Purchase orders near their ceiling",
       "percentUsed": "{{percent}} % used",
       "expiringDocuments": "Documents to renew",

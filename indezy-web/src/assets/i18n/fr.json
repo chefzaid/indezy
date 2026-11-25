@@ -258,6 +258,8 @@
       "waitingSince": "{{channel}} envoyé il y a {{days}} jours, sans réponse",
       "overdueInvoices": "Factures en retard de paiement",
       "daysLate": "en retard de {{days}} jours",
+      "remindInvoice": "Relance de paiement de {{number}}",
+      "remindError": "La facture n'a pas pu être lue. Réessayez.",
       "purchaseOrderAlerts": "Bons de commande proches du plafond",
       "percentUsed": "{{percent}} % consommé",
       "expiringDocuments": "Documents à renouveler",

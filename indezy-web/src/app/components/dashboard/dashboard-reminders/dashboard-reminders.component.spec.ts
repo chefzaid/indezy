@@ -6,7 +6,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DashboardRemindersComponent } from './dashboard-reminders.component';
 import { AiMessageDialogComponent } from '../../../shared/components/ai-message-dialog/ai-message-dialog.component';
 import { of, throwError } from 'rxjs';
-import { DashboardStatsDto, OnThisDayItem, ProjectDto, ProjectStatus } from '../../../models';
+import { DashboardStatsDto, Invoice, OnThisDayItem, ProjectDto, ProjectStatus } from '../../../models';
+import { InvoiceService } from '../../../services/invoice/invoice.service';
+import { InvoiceReminderDialogComponent } from '../../invoices/reminder-dialog/invoice-reminder-dialog.component';
 import { ProjectService } from '../../../services/project/project.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { provideHttpClient } from '@angular/common/http';
@@ -286,6 +288,24 @@ describe('DashboardRemindersComponent', () => {
     element.querySelector<HTMLButtonElement>('[data-follow-up-draft="6"]')!.click();
     expect(open).toHaveBeenCalledWith(AiMessageDialogComponent, jasmine.objectContaining({ data: { projectId: 42, kind: 'FOLLOW_UP' } }));
     component.draftFollowUp({ contactId: 7, name: 'Zoé', channel: 'EMAIL', sentOn: '2026-09-20', daysWaiting: 9 });
+    expect(open).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens an overdue invoice\'s payment reminder, read whole, and says when it cannot be read', () => {
+    const element = render({ overdueInvoices: [{ invoiceId: 3, number: 'F2026-0003', clientName: 'Acme', total: 7800, dueDate: '2026-10-31', daysLate: 25 }] });
+    const open = spyOn(TestBed.inject(MatDialog), 'open');
+    const invoices = TestBed.inject(InvoiceService);
+    const full = { id: 3, number: 'F2026-0003' } as Invoice;
+    const get = spyOn(invoices, 'get').and.returnValue(of(full));
+    element.querySelector<HTMLButtonElement>('[data-invoice-remind="3"]')!.click();
+    expect(get).toHaveBeenCalledWith(3);
+    expect(open).toHaveBeenCalledWith(InvoiceReminderDialogComponent, jasmine.objectContaining({ data: full }));
+
+    const notifications = TestBed.inject(NotificationService);
+    spyOn(notifications, 'error');
+    get.and.returnValue(throwError(() => new Error('down')));
+    element.querySelector<HTMLButtonElement>('[data-invoice-remind="3"]')!.click();
+    expect(notifications.error).toHaveBeenCalledWith('dashboard.charts.remindError');
     expect(open).toHaveBeenCalledTimes(1);
   });
 
