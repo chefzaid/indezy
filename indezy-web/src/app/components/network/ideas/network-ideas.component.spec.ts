@@ -105,6 +105,17 @@ describe('NetworkIdeasComponent', () => {
     fixture.detectChanges();
     expect(ideas.list).toHaveBeenCalledWith('TOP', null, 'Export CSV');
     expect(fixture.nativeElement.querySelectorAll('[data-idea-similar-item]').length).toBe(3);
+    // Unread, none is suggested, and the next words are looked up again.
+    ideas.list.and.returnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+    component.title.setValue('Export CSV mensuel');
+    tick(300);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('[data-idea-similar-item]').length).toBe(0);
+    ideas.list.and.returnValue(of(board([idea(1), idea(3)])));
+    component.title.setValue('Export CSV');
+    tick(300);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('[data-idea-similar-item]').length).toBe(2);
     ideas.create.and.returnValue(of(idea(7, { title: 'Export CSV', own: true, voted: true })));
     component.description.setValue('  ');
     component.create();

@@ -60,5 +60,11 @@ describe('AiChatComponent', () => {
     component.clear();
     expect(ai.clearChat).toHaveBeenCalledWith(42);
     expect(component.turns).toEqual([]);
+    // Not cleared: the conversation stays, and it is said.
+    component.turns = turns;
+    ai.clearChat.and.returnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+    component.clear();
+    expect(component.turns).toEqual(turns);
+    expect(component.errorKey).toBe('ai.chat.clearError');
   });
 });

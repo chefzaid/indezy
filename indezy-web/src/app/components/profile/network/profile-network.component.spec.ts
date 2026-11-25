@@ -102,6 +102,17 @@ describe('ProfileNetworkComponent', () => {
     component.form.controls.handle.setValue('free_one');
     tick(300);
     expect(component.form.controls.handle.valid).toBeTrue();
+    // A check that fails leaves the next ones asked.
+    network.handle.and.returnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+    component.form.controls.handle.setValue('down_one');
+    tick(300);
+    network.handle.and.returnValue(of({ handle: 'taken_two', available: false }));
+    component.form.controls.handle.setValue('taken_two');
+    tick(300);
+    expect(component.form.controls.handle.hasError('taken')).toBeTrue();
+    network.handle.and.returnValue(of({ handle: 'free_one', available: true }));
+    component.form.controls.handle.setValue('free_one');
+    tick(300);
 
     network.join.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
     component.save();

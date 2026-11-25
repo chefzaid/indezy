@@ -10,7 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject, debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs';
+import { EMPTY, Subject, catchError, debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs';
 
 import { HANDLE_PATTERN, MemberCard, MessagingSettings, NetworkAvailability, NetworkFields, NetworkMembership, NetworkNotificationType,
   NetworkRestrictions } from '../../../models';
@@ -146,7 +146,8 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
     this.form.controls.handle.valueChanges.pipe(
       debounceTime(300), distinctUntilChanged(),
       filter(handle => HANDLE_PATTERN.test(handle) && handle !== this.membership?.handle),
-      switchMap(handle => this.network.handle(handle)),
+      // Unread, the handle is checked when saved, and the next one typed is asked about again.
+      switchMap(handle => this.network.handle(handle).pipe(catchError(() => EMPTY))),
       takeUntil(this.destroy$)
     ).subscribe(answer => {
       if (!answer.available && answer.handle === this.form.controls.handle.value) {

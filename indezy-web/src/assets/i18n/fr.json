@@ -5471,7 +5471,8 @@
       "question": "Votre question",
       "ask": "Demander",
       "clear": "Effacer la conversation",
-      "clearConfirm": "Effacer toute la conversation sur cette opportunité ?"
+      "clearConfirm": "Effacer toute la conversation sur cette opportunité ?",
+      "clearError": "La conversation n'a pas pu être effacée. Réessayez."
     },
     "triage": {
       "title": "Postuler ? (IA)",

@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
-import { EMPTY, Observable, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
+import { EMPTY, Observable, catchError, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
 
 import { IDEA_STATUSES, IdeaStatus, NetworkIdea } from '../../../models';
 import { IdeaOrder, NetworkIdeasService } from '../../../services/network/network-ideas.service';
@@ -108,7 +108,8 @@ export class NetworkIdeasComponent implements OnInit {
     if (typed.length < 5) {
       return of([]);
     }
-    return this.ideasService.list('TOP', null, typed).pipe(map(found => found.ideas.slice(0, 3)));
+    // Unread, nothing is suggested, and the next words typed are looked up again.
+    return this.ideasService.list('TOP', null, typed).pipe(map(found => found.ideas.slice(0, 3)), catchError(() => of([])));
   }
 
   /** The board from its first page, as ordered and narrowed. */

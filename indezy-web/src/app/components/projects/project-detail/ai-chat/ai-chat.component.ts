@@ -90,9 +90,15 @@ export class AiChatComponent implements OnChanges {
   clear(): void {
     this.confirm.confirm({ messageKey: 'ai.chat.clearConfirm', confirmKey: 'ai.chat.clear', danger: true }).subscribe(confirmed => {
       if (confirmed) {
-        this.ai.clearChat(this.projectId).subscribe(() => {
-          this.turns = [];
-          this.changes.markForCheck();
+        this.ai.clearChat(this.projectId).subscribe({
+          next: () => {
+            this.turns = [];
+            this.changes.markForCheck();
+          },
+          error: () => {
+            this.errorKey = 'ai.chat.clearError';
+            this.changes.markForCheck();
+          }
         });
       }
     });
