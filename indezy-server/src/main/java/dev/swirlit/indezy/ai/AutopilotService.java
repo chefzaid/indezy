@@ -8,11 +8,13 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.AutopilotDraft;
 import dev.swirlit.indezy.model.AutopilotPack;
 import dev.swirlit.indezy.model.Contact;
+import dev.swirlit.indezy.model.ContactInteraction;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.OfferVerdict;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.InteractionDirection;
 import dev.swirlit.indezy.repository.AutopilotDraftRepository;
 import dev.swirlit.indezy.repository.AutopilotPackRepository;
 import dev.swirlit.indezy.repository.ContactRepository;
@@ -35,6 +37,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -265,6 +268,16 @@ public class AutopilotService {
         return stripped.length() > max ? stripped.substring(0, max) : stripped;
     }
 
+    /**
+     * Whether a later exchange made the draft pointless: for a follow-up, any (the contact answered, or was followed up
+     * another way); for an answer, one the freelancer sent (they answered already).
+     */
+    static boolean overtaken(AutopilotDraft draft, List<ContactInteraction> later) {
+        return draft.getCreatedAt() != null && later.stream().anyMatch(interaction -> interaction.getCreatedAt() != null &&
+            interaction.getCreatedAt().isAfter(draft.getCreatedAt()) &&
+            (!Boolean.TRUE.equals(draft.getAnswer()) || interaction.getDirection() == InteractionDirection.OUTGOING));
+    }
+
     /** The offers triaged for the workspace in the last day, those worth applying to first, then the newest. */
     @Transactional(readOnly = true)
     public Queue queue(Long userId, Long freelanceId) {
@@ -283,7 +296,11 @@ public class AutopilotService {
             LocalDateTime.now(clock.withZone(PARIS)).minus(DRAFT_KEPT));
         Map<Long, Contact> people = contacts.findAllById(written.stream().map(AutopilotDraft::getContactId).toList()).stream()
             .collect(Collectors.toMap(Contact::getId, Function.identity()));
+        Map<Long, List<ContactInteraction>> later = written.isEmpty() ? Map.of() : interactions.recordedSince(people.keySet(),
+            written.stream().map(AutopilotDraft::getCreatedAt).filter(java.util.Objects::nonNull).min(Comparator.naturalOrder())
+                .orElse(LocalDateTime.MIN));
         List<Drafted> drafted = written.stream().filter(draft -> people.containsKey(draft.getContactId()))
+            .filter(draft -> !overtaken(draft, later.getOrDefault(draft.getContactId(), List.of())))
             .map(draft -> {
                 Contact contact = people.get(draft.getContactId());
                 return new Drafted(draft.getId(), contact.getId(), contact.getFullName(),

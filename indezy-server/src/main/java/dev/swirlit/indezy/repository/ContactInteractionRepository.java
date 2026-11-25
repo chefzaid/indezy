@@ -31,6 +31,9 @@ public interface ContactInteractionRepository extends JpaRepository<ContactInter
     @EntityGraph(attributePaths = "contact")
     List<ContactInteraction> findByProjectIdOrderByOccurredOnDescIdDesc(Long projectId);
 
+    /** The exchanges with {@code contactIds} recorded after {@code since}. */
+    List<ContactInteraction> findByContactIdInAndCreatedAtAfter(Collection<Long> contactIds, java.time.LocalDateTime since);
+
     /** The emails these campaigns sent. */
     List<ContactInteraction> findByCampaignIdIn(java.util.Collection<Long> campaignIds);
 

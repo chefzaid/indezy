@@ -348,6 +348,17 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.DELETE, "/ai/autopilot/drafts/" + draftId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.DELETE, "/ai/autopilot/drafts/" + draftId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat((List<?>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts")).isEmpty();
+        // Léa answering after a follow-up was drafted: the draft leaves the list, pointless now.
+        dev.swirlit.indezy.model.AutopilotDraft again = new dev.swirlit.indezy.model.AutopilotDraft();
+        again.setFreelanceId(alice.freelanceId());
+        again.setContactId(lea);
+        again.setSubject("Point sur la mission");
+        again.setBody("Bonjour Léa,");
+        autopilotDrafts.save(again);
+        assertThat((List<?>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts")).hasSize(1);
+        call(alice, HttpMethod.POST, "/contacts/" + lea + "/interactions", Map.of("occurredOn", java.time.LocalDate.now().toString(),
+            "channel", "PHONE", "direction", "INCOMING"), Map.class);
+        assertThat((List<?>) call(alice, HttpMethod.GET, "/ai/autopilot", null, Map.class).getBody().get("drafts")).isEmpty();
         // An application prepared overnight for the offer: listed with its rate, set aside.
         dev.swirlit.indezy.model.AutopilotPack pack = new dev.swirlit.indezy.model.AutopilotPack();
         pack.setFreelanceId(alice.freelanceId());

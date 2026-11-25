@@ -103,6 +103,16 @@ public class ContactInteractionService {
         return interactions.findByProjectIdOrderByOccurredOnDescIdDesc(projectId).stream().map(ContactInteractionService::toDto).toList();
     }
 
+    /** The exchanges with {@code contactIds} recorded after {@code since}, by contact. */
+    @Transactional(readOnly = true)
+    public Map<Long, List<ContactInteraction>> recordedSince(Collection<Long> contactIds, java.time.LocalDateTime since) {
+        if (contactIds.isEmpty()) {
+            return Map.of();
+        }
+        return interactions.findByContactIdInAndCreatedAtAfter(contactIds, since).stream()
+            .collect(Collectors.groupingBy(interaction -> interaction.getContact().getId()));
+    }
+
     /** The day of the latest exchange of each of {@code contactIds} that has one. */
     @Transactional(readOnly = true)
     public Map<Long, LocalDate> lastContacted(Collection<Long> contactIds) {

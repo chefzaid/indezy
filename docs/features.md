@@ -892,7 +892,9 @@ contacts still waiting for an answer about an opportunity (the follow-ups due), 
 follow-up (**Draft a message (AI)**'s, `MessageAiService`), 5 at most, none for a contact drafted for in the week, kept a
 week (`autopilot_drafts`, removed with the account): **Prepared for you** lists them, each with **Send from Indezy** (once confirmed, sent to the contact as from
 **Email a contact from Indezy**, recorded in their exchanges, the draft then gone; told when it cannot leave), **Copy** (subject and
-text), **Open the opportunity** and **Dismiss** (`DELETE /api/ai/autopilot/drafts/{id}`). For the first 3 offers of the
+text), **Open the opportunity** and **Dismiss** (`DELETE /api/ai/autopilot/drafts/{id}`). A draft leaves the list once an exchange recorded after it
+makes it pointless: any for a follow-up (the contact answered, or was written to another way), one the freelancer sent
+for an answer. For the first 3 offers of the
 night found worth applying to, it also prepares the application by email to the ESN (**Prepare my application (AI)**'s,
 `ApplicationPackAiService`): subject and message, the screening answers and the rate to propose, kept a week
 (`autopilot_packs`, removed with the account), listed with **Copy**, **Open the offer** and **Dismiss**

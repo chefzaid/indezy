@@ -173,6 +173,34 @@ class AutopilotServiceTest {
     }
 
     @Test
+    void dropsADraftALaterExchangeMadePointless() {
+        java.time.LocalDateTime drafted = java.time.LocalDateTime.of(2026, 11, 24, 4, 0);
+        dev.swirlit.indezy.model.AutopilotDraft followUp = new dev.swirlit.indezy.model.AutopilotDraft();
+        followUp.setCreatedAt(drafted);
+        dev.swirlit.indezy.model.AutopilotDraft answer = new dev.swirlit.indezy.model.AutopilotDraft();
+        answer.setCreatedAt(drafted);
+        answer.setAnswer(true);
+        java.util.function.BiFunction<dev.swirlit.indezy.model.enums.InteractionDirection, Integer, dev.swirlit.indezy.model.ContactInteraction> at =
+            (direction, hours) -> {
+                dev.swirlit.indezy.model.ContactInteraction interaction = new dev.swirlit.indezy.model.ContactInteraction();
+                interaction.setDirection(direction);
+                interaction.setCreatedAt(drafted.plusHours(hours));
+                return interaction;
+            };
+        var incoming = dev.swirlit.indezy.model.enums.InteractionDirection.INCOMING;
+        var outgoing = dev.swirlit.indezy.model.enums.InteractionDirection.OUTGOING;
+
+        // A follow-up goes once the contact answered or was followed up another way; not for what came before it.
+        assertThat(AutopilotService.overtaken(followUp, List.of(at.apply(incoming, 5)))).isTrue();
+        assertThat(AutopilotService.overtaken(followUp, List.of(at.apply(outgoing, 1)))).isTrue();
+        assertThat(AutopilotService.overtaken(followUp, List.of(at.apply(outgoing, -1)))).isFalse();
+        // An answer goes once the freelancer answered; another email from the contact keeps it.
+        assertThat(AutopilotService.overtaken(answer, List.of(at.apply(incoming, 5)))).isFalse();
+        assertThat(AutopilotService.overtaken(answer, List.of(at.apply(outgoing, 2)))).isTrue();
+        assertThat(AutopilotService.overtaken(answer, List.of())).isFalse();
+    }
+
+    @Test
     void dropsTheDraftsAndApplicationsOlderThanAWeek() {
         autopilot.dropOld();
         // 4:10 in Paris on 24 November: what was prepared before 4:10 on the 17th goes.
