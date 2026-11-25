@@ -67,6 +67,7 @@ import { CompanyHealthComponent } from '../../../shared/components/company-healt
 import { AiMessageDialogComponent, AiMessageDialogData } from '../../../shared/components/ai-message-dialog/ai-message-dialog.component';
 import { AiFitDialogComponent, AiFitDialogData } from '../../../shared/components/ai-fit-dialog/ai-fit-dialog.component';
 import { AiInterviewDialogComponent, AiInterviewDialogData } from '../../../shared/components/ai-interview-dialog/ai-interview-dialog.component';
+import { AiDebriefDialogComponent, AiDebriefDialogData } from '../../../shared/components/ai-debrief-dialog/ai-debrief-dialog.component';
 import { AiNegotiationDialogComponent, AiNegotiationDialogData } from '../../../shared/components/ai-negotiation-dialog/ai-negotiation-dialog.component';
 import { DossierButtonComponent } from '../../profile/dossier-button/dossier-button.component';
 import { AiChatComponent } from './ai-chat/ai-chat.component';
@@ -196,6 +197,19 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     if (this.project?.id) {
       const data: AiInterviewDialogData = { projectId: this.project.id };
       this.dialog.open(AiInterviewDialogComponent, { data, width: '720px', maxWidth: '96vw', autoFocus: false });
+    }
+  }
+
+  /** Opens the AI debrief of an interview: what comes next, the steps read again once the next round was added. */
+  debriefInterview(): void {
+    if (this.project?.id) {
+      const data: AiDebriefDialogData = { projectId: this.project.id };
+      this.dialog.open<AiDebriefDialogComponent, AiDebriefDialogData, boolean>(AiDebriefDialogComponent,
+        { data, width: '720px', maxWidth: '96vw', autoFocus: 'first-tabbable' }).afterClosed().subscribe(added => {
+        if (added) {
+          this.loadSteps();
+        }
+      });
     }
   }
 

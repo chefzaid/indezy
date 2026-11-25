@@ -69,6 +69,18 @@ export interface AiInterview {
   toAsk: string[];
 }
 
+/** What an interview's debrief points to: another round announced, an offer coming, turned down, or waiting. */
+export type AiDebriefOutcome = 'NEXT_ROUND' | 'OFFER' | 'REJECTED' | 'WAITING';
+
+/** What comes of an interview, read from its debrief: the next round only when one was announced. */
+export interface AiDebrief {
+  outcome: AiDebriefOutcome;
+  nextRound: string | null;
+  nextSteps: string[];
+  thankYouSubject: string;
+  thankYouBody: string;
+}
+
 /** What the freelancer looks for, read into the feed's filters; null for what was not said. */
 /** A CV read into the profile's fields; what it does not say is null. */
 export interface AiProfileImport {

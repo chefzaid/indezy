@@ -229,6 +229,23 @@ public class AiController {
         return interviews.prepare(SecurityUtils.getCurrentUserId(), projectId, language == null ? DocumentLanguage.FR : language);
     }
 
+    /** The debrief of an interview, as the freelancer wrote it. */
+    public record DebriefRequest(@jakarta.validation.constraints.NotBlank @jakarta.validation.constraints.Size(max = InterviewAiService.DEBRIEF_MAX) String notes) {
+
+        @Override
+        public String toString() {
+            return "DebriefRequest[" + (notes == null ? 0 : notes.length()) + " characters]";
+        }
+    }
+
+    @Operation(summary = "Turn an interview's debrief into what comes next: its likely outcome, the next round, next steps and a thank-you message")
+    @PostMapping("/interview/{projectId}/debrief")
+    public InterviewAiService.Debrief debrief(@PathVariable Long projectId, @RequestParam(required = false) DocumentLanguage language,
+                                              @Valid @RequestBody DebriefRequest request) {
+        accessGuard.requireProject(projectId);
+        return interviews.debrief(SecurityUtils.getCurrentUserId(), projectId, request.notes(), language == null ? DocumentLanguage.FR : language);
+    }
+
     @Operation(summary = "Draft a message about an opportunity: an application, a follow-up, a thank-you or a decline")
     @PostMapping("/message")
     public MessageAiService.Draft message(@Valid @RequestBody MessageRequest request) {

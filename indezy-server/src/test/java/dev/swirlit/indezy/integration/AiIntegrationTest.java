@@ -83,6 +83,9 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = message("{\"skills\":[\"Java\",\" Kafka \",\"Java\"],\"rateMin\":650,\"minRemoteDays\":2,\"workModes\":[\"HYBRID\"]," +
                     "\"regions\":[\"Île-de-France\",\"Atlantide\"],\"startBefore\":\"2027-03-01\",\"durationMin\":0,\"keywords\":\"\"," +
                     "\"avoid\":[\"banque\"]}", "end_turn");
+            } else if (body.contains("You read the debrief")) {
+                answer = message("{\"outcome\":\"NEXT_ROUND\",\"nextRound\":\" Entretien technique \",\"nextSteps\":[\"Envoyer deux références\",\" \"]," +
+                    "\"thankYouSubject\":\"Merci pour l'échange\",\"thankYouBody\":\" Bonjour, merci pour ce temps. \"}", "end_turn");
             } else if (body.contains("You coach")) {
                 answer = message("{\"technical\":[{\"question\":\"Kafka exactly-once ?\",\"hint\":\"Idempotence.\"},{\"question\":\" \",\"hint\":\"x\"}]," +
                     "\"behavioural\":[{\"question\":\"Un conflit ?\",\"hint\":null}],\"pitch\":\" Bonjour, je suis Alice. \",\"toAsk\":[\"Taille de l'équipe ?\",\"\"]}",
@@ -451,6 +454,17 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(interview).containsEntry("pitch", "Bonjour, je suis Alice.");
         assertThat((List<String>) interview.get("toAsk")).containsExactly("Taille de l'équipe ?");
         assertThat(BODIES.getLast()).contains("You coach", "Lead Kafka", "<steps>");
+        // The debrief turned into what comes next: the next round named, blank steps dropped, the thank-you trimmed.
+        Map<String, Object> debrief = call(alice, HttpMethod.POST, "/ai/interview/" + negotiated + "/debrief?language=FR",
+            Map.of("notes", "Bon feeling, un entretien technique la semaine prochaine, ils veulent deux références."), Map.class).getBody();
+        assertThat(debrief).containsEntry("outcome", "NEXT_ROUND").containsEntry("nextRound", "Entretien technique")
+            .containsEntry("thankYouSubject", "Merci pour l'échange").containsEntry("thankYouBody", "Bonjour, merci pour ce temps.");
+        assertThat((List<String>) debrief.get("nextSteps")).containsExactly("Envoyer deux références");
+        assertThat(BODIES.getLast()).contains("<debrief>", "deux références", "Lead Kafka");
+        assertThat(call(alice, HttpMethod.POST, "/ai/interview/" + negotiated + "/debrief", Map.of("notes", " "), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(bob, HttpMethod.POST, "/ai/interview/" + negotiated + "/debrief", Map.of("notes", "x"), String.class).getStatusCode())
+            .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
 
         // The availability announced from the day after the running mission ends.
         call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "WON", "clientId", aliceClientId,

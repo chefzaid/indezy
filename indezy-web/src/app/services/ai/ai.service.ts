@@ -3,7 +3,7 @@ import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http
 import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiAutopilotQueue, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage, InboxWatcher } from '../../models';
+import { AiAutopilotQueue, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiDebrief, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage, InboxWatcher } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -109,6 +109,11 @@ export class AiService {
 
   applicationPack(offerId: number, channel: AiPackChannel, language: DocumentLanguage): Observable<AiApplicationPack> {
     return this.http.post<AiApplicationPack>(`${this.API_URL}/offers/${offerId}/pack`, null, { params: { channel, language } });
+  }
+
+  /** What comes of an interview of the opportunity, read from the debrief written after it. */
+  debrief(projectId: number, notes: string, language: DocumentLanguage): Observable<AiDebrief> {
+    return this.http.post<AiDebrief>(`${this.API_URL}/interview/${projectId}/debrief`, { notes }, { params: { language } });
   }
 
   interview(projectId: number, language: DocumentLanguage): Observable<AiInterview> {

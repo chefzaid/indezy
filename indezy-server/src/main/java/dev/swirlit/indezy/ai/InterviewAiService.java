@@ -40,6 +40,8 @@ public class InterviewAiService {
     private static final int NOTES_MAX = 600;
     private static final int STEPS_MAX = 10;
     private static final int LIST_MAX = 6;
+    /** An interview step's title, at most. */
+    private static final int ROUND_MAX = 120;
     private static final long MAX_TOKENS = 6_000;
     private static final String SYSTEM = """
         You coach a French freelance IT consultant for their next interview for a mission. From the mission, the steps so
@@ -48,6 +50,18 @@ public class InterviewAiService {
         person, and the questions they should ask. When the company's health says it closed or is under insolvency
         proceedings, include questions on the mission's stability and how invoices are paid. Never invent experience the
         profile does not state. Write in the language asked.""";
+
+    /** The longest debrief read. */
+    public static final int DEBRIEF_MAX = 4_000;
+    private static final long DEBRIEF_TOKENS = 3_000;
+    private static final String DEBRIEF_SYSTEM = """
+        You read the debrief a French freelance IT consultant wrote after an interview for a mission, and turn it into what
+        comes next. Say the outcome it most likely points to: NEXT_ROUND when another interview was announced or planned,
+        OFFER when a proposal is coming or was made, REJECTED when they were turned down, WAITING otherwise. List the next
+        steps, each a short action for the consultant (send the references asked, prepare the case study...); when NEXT_ROUND,
+        name that next interview as it was described (Technical interview, Meeting the end client...). Write a short
+        thank-you message to the interviewer, in the first person, that recalls one point of the conversation, with a
+        subject. Never invent what the debrief does not say. Write in the language asked.""";
 
     private final AiService ai;
     private final ProjectRepository projects;
@@ -104,6 +118,54 @@ public class InterviewAiService {
             OutputConfig.Effort.MEDIUM);
         return new Preparation(questions(answer.technical()), questions(answer.behavioural()), Objects.toString(answer.pitch(), "").strip(),
             answer.toAsk().stream().filter(question -> !question.isBlank()).map(String::strip).limit(LIST_MAX).toList());
+    }
+
+    /** What an interview's debrief most likely points to. */
+    public enum Outcome {
+        NEXT_ROUND,
+        OFFER,
+        REJECTED,
+        WAITING
+    }
+
+    /** What comes of an interview, read from its debrief. */
+    public record Debrief(
+        @JsonPropertyDescription("NEXT_ROUND, OFFER, REJECTED or WAITING") Outcome outcome,
+        @JsonPropertyDescription("When NEXT_ROUND: the next interview's name, a few words; empty otherwise") String nextRound,
+        @JsonPropertyDescription("Up to six next steps, each a short action for the consultant") List<String> nextSteps,
+        @JsonPropertyDescription("The thank-you message's subject") String thankYouSubject,
+        @JsonPropertyDescription("A short thank-you message to the interviewer, in the first person") String thankYouBody) {
+
+        public Debrief {
+            nextSteps = nextSteps == null ? List.of() : List.copyOf(nextSteps.stream().filter(Objects::nonNull).toList());
+        }
+    }
+
+    /**
+     * What comes of an interview of the opportunity, from the debrief {@code notes} the freelancer wrote: its likely
+     * outcome, the next round when one was announced, the next steps and a thank-you message.
+     */
+    @Transactional(readOnly = true)
+    public Debrief debrief(Long userId, Long projectId, String notes, DocumentLanguage language) {
+        Project project = projects.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+        String debrief = Objects.toString(notes, "").strip();
+        StringBuilder context = new StringBuilder("Answer in ").append(language == DocumentLanguage.EN ? "English" : "French").append(".\n<mission>\n")
+            .append("Role: ").append(Objects.toString(project.getRole(), "")).append('\n')
+            .append("Company: ").append(project.getClient() == null ? "" : project.getClient().getCompanyName())
+            .append(project.getMiddleman() == null ? "" : ", through the ESN " + project.getMiddleman().getCompanyName()).append("\n</mission>\n<steps>\n");
+        steps.findByProjectIdOrderByDate(projectId).stream().limit(STEPS_MAX).forEach(step -> context.append("- ").append(line(step)).append('\n'));
+        context.append("</steps>\n<debrief>\n").append(debrief, 0, Math.min(debrief.length(), DEBRIEF_MAX)).append("\n</debrief>\n");
+        Debrief answer = ai.structured(userId, AiFeature.INTERVIEW, DEBRIEF_SYSTEM, context.toString(), Debrief.class, DEBRIEF_TOKENS,
+            OutputConfig.Effort.LOW);
+        Outcome outcome = answer.outcome() == null ? Outcome.WAITING : answer.outcome();
+        String nextRound = Objects.toString(answer.nextRound(), "").strip();
+        return new Debrief(outcome, outcome == Outcome.NEXT_ROUND && !nextRound.isEmpty() ? cut(nextRound, ROUND_MAX) : null,
+            answer.nextSteps().stream().filter(step -> !step.isBlank()).map(String::strip).limit(LIST_MAX).toList(),
+            Objects.toString(answer.thankYouSubject(), "").strip(), Objects.toString(answer.thankYouBody(), "").strip());
+    }
+
+    private static String cut(String text, int max) {
+        return text.length() > max ? text.substring(0, max) : text;
     }
 
     /** What the public registers say of a company, when they were asked: in business, closed, or under proceedings since a date. */

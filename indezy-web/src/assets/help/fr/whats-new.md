@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Débriefer un entretien avec l'IA
+
+Sur une opportunité, **Débriefer l'entretien (IA)** tire de ce que vous dites de l'entretien la suite : l'issue probable, le prochain tour ajouté aux étapes en un clic, les prochaines actions et un message de remerciement. Voir [Pipeline et opportunités](/help/pipeline).
+
 ### Corriger le classement d'une réponse par l'IA
 
 Dans les échanges d'un contact, le bouton étiquette d'une réponse la classe vous-même quand l'IA s'est trompée (intéressé, pas maintenant, pas de besoin, ne plus contacter), et le jour où recontacter après un « pas maintenant » se change. Voir [Clients, ESN et contacts](/help/clients-contacts).

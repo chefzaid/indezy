@@ -5517,6 +5517,33 @@
       "arguments": "Arguments pour l'échange",
       "again": "Préparer à nouveau"
     },
+    "debrief": {
+      "open": "Débriefer l'entretien (IA)",
+      "title": "Débrief d'entretien",
+      "intro": "Écrivez comment s'est passé l'entretien : ce qui a été demandé, ce qu'ils ont dit de la suite, ce que vous avez promis d'envoyer. L'IA en tire la suite.",
+      "notes": "Comment ça s'est passé ?",
+      "read": "En tirer la suite",
+      "busy": "L'IA lit votre débrief",
+      "outcomes": {
+        "NEXT_ROUND": "Un autre entretien arrive",
+        "OFFER": "Une proposition arrive",
+        "REJECTED": "Refusé",
+        "WAITING": "En attente de leur réponse"
+      },
+      "nextRound": "Prochain tour : {{round}}",
+      "addRound": "L'ajouter comme étape à planifier",
+      "roundAdded": "Étape ajoutée",
+      "roundAddedToast": "Le prochain tour est dans les étapes, à planifier",
+      "roundError": "L'étape n'a pas pu être ajoutée.",
+      "nextSteps": "Prochaines actions",
+      "thankYou": "Message de remerciement",
+      "copy": "Copier le message",
+      "copied": "Copié",
+      "edit": "Modifier le débrief",
+      "keep": "Garder en note",
+      "kept": "Gardé dans le journal",
+      "keepError": "La note n'a pas pu être gardée."
+    },
     "interview": {
       "open": "Préparer l'entretien (IA)",
       "title": "Préparation de l'entretien",

@@ -5517,6 +5517,33 @@
       "arguments": "Arguments for the call",
       "again": "Prepare again"
     },
+    "debrief": {
+      "open": "Debrief the interview (AI)",
+      "title": "Interview debrief",
+      "intro": "Write how the interview went: what was asked, what they said of the next steps, what you promised to send. The AI turns it into what comes next.",
+      "notes": "How did it go?",
+      "read": "Turn into next steps",
+      "busy": "The AI is reading your debrief",
+      "outcomes": {
+        "NEXT_ROUND": "Another interview is coming",
+        "OFFER": "An offer is coming",
+        "REJECTED": "Turned down",
+        "WAITING": "Waiting for their answer"
+      },
+      "nextRound": "Next round: {{round}}",
+      "addRound": "Add it as a step to plan",
+      "roundAdded": "Step added",
+      "roundAddedToast": "The next round is in the steps, to plan",
+      "roundError": "The step could not be added.",
+      "nextSteps": "Next steps",
+      "thankYou": "Thank-you message",
+      "copy": "Copy the message",
+      "copied": "Copied",
+      "edit": "Change the debrief",
+      "keep": "Keep as a note",
+      "kept": "Kept in the journal",
+      "keepError": "The note could not be kept."
+    },
     "interview": {
       "open": "Prepare the interview (AI)",
       "title": "Interview preparation",

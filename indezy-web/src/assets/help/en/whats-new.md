@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Debrief an interview with AI
+
+On an opportunity, **Debrief the interview (AI)** turns how you say the interview went into what comes next: the likely outcome, the next round added to the steps in one click, the next steps and a thank-you message. See [Pipeline and opportunities](/help/pipeline).
+
 ### Correct how the AI sorted an answer
 
 In a contact's exchanges, an answer's label button sorts it yourself when the AI got it wrong (interested, not now, no need, do not contact), and a "not now" answer's day to write back can be changed. See [Clients, ESNs and contacts](/help/clients-contacts).
