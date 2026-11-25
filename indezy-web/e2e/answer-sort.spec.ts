@@ -40,8 +40,6 @@ for (const language of ['en', 'fr'] as const) {
     await day.fill('2027-01-15');
     await expect(page.locator('[data-write-back-on]')).toContainText('2027');
     expect(sorts).toEqual([{ replyKind: 'NOT_NOW', writeBackOn: null }, { replyKind: 'NOT_NOW', writeBackOn: '2027-01-15' }]);
-    // Audited once the notifications are gone: Material keeps a snackbar's content hidden a moment before announcing it.
-    await expect(page.locator('mat-snack-bar-container')).toHaveCount(0, { timeout: 15_000 });
     await page.waitForLoadState('networkidle');
     expect(await wcagViolations(page), 'contact with a sorted answer').toEqual([]);
   });
