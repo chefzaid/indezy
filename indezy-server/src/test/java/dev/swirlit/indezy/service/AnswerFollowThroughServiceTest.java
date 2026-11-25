@@ -102,9 +102,10 @@ class AnswerFollowThroughServiceTest {
 
     @Test
     void takesTheRoleFromTheSubjectWithoutItsReplyPrefixes() {
-        assertThat(AnswerFollowThroughService.role("RE: TR : Re:Mission Java")).isEqualTo("Mission Java");
-        assertThat(AnswerFollowThroughService.role("Re: ")).isEqualTo("Opportunité");
-        assertThat(AnswerFollowThroughService.role(null)).isEqualTo("Opportunité");
-        assertThat(AnswerFollowThroughService.role("x".repeat(300))).hasSize(120);
+        assertThat(AnswerFollowThroughService.role("RE: TR : Re:Mission Java", false)).isEqualTo("Mission Java");
+        assertThat(AnswerFollowThroughService.role("Re: ", false)).isEqualTo("Opportunité");
+        assertThat(AnswerFollowThroughService.role("Re: ", true)).isEqualTo("Opportunity");
+        assertThat(AnswerFollowThroughService.role(null, false)).isEqualTo("Opportunité");
+        assertThat(AnswerFollowThroughService.role("x".repeat(300), false)).hasSize(120);
     }
 }

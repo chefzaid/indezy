@@ -57,7 +57,7 @@ public class AnswerFollowThroughService {
                 switch (sort.kind()) {
                     case DO_NOT_CONTACT -> contact.setDoNotContact(true);
                     case NOT_NOW -> answer.setWriteBackOn(sort.writeBackOn() == null ? today.plusMonths(WRITE_BACK_MONTHS) : sort.writeBackOn());
-                    case INTERESTED -> opportunity(answer, original, subject);
+                    case INTERESTED -> opportunity(answer, original, subject, "en".equalsIgnoreCase(user.getLanguagePreference()));
                     default -> {
                         // No need, or anything else: the answer is only recorded.
                     }
@@ -69,13 +69,13 @@ public class AnswerFollowThroughService {
     }
 
     /** An opportunity at Contact with the contact's company, unless the email was already about one or no company is known. */
-    private void opportunity(ContactInteraction answer, ContactInteraction original, String subject) {
+    private void opportunity(ContactInteraction answer, ContactInteraction original, String subject, boolean english) {
         Contact contact = answer.getContact();
         if (answer.getProject() != null || contact.getClient() == null) {
             return;
         }
         ProjectDto project = new ProjectDto();
-        project.setRole(role(subject));
+        project.setRole(role(subject, english));
         project.setStatus(ProjectStatus.CONTACT);
         project.setFreelanceId(contact.getFreelance().getId());
         project.setClientId(contact.getClient().getId());
@@ -93,11 +93,11 @@ public class AnswerFollowThroughService {
         log.info("An interested answer of contact {} opened opportunity {}", contact.getId(), created.getId());
     }
 
-    /** The answer's subject without its "Re:" prefixes, as the opportunity's role. */
-    static String role(String subject) {
+    /** The answer's subject without its "Re:" prefixes, as the opportunity's role; an empty one named in the freelancer's language. */
+    static String role(String subject, boolean english) {
         String role = REPLY_PREFIX.matcher(subject == null ? "" : subject.strip()).replaceFirst("").strip();
         if (role.isEmpty()) {
-            return "Opportunité";
+            return english ? "Opportunity" : "Opportunité";
         }
         return role.length() > ROLE_MAX ? role.substring(0, ROLE_MAX) : role;
     }

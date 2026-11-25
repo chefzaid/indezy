@@ -707,6 +707,7 @@ How to use Indezy, told on the public website rather than only in the repository
 ## Technical Improvements
 
 - [x] The dashboard's prepared items named for what they are (2026-11-25): the inbox watcher's answers sat under **Prepared overnight** as **Follow-up drafted for …**, the line saying "0 offers triaged" while the autopilot was off. The card is now **Prepared for you**, an answer reads **Answer drafted for …** (`autopilot_drafts.answer`), and with the autopilot off its line counts the drafts only. Each draft can then be sent in one click, **Send from Indezy** (confirmed, sent as from **Email a contact from Indezy**, the draft gone), rather than only copied. Once sent, a draft leaves the list even when setting it aside fails, so the error no longer says the email could not leave and nothing invites a second send.
+- [x] An interested answer with an empty subject opens its opportunity as **Opportunity** for an English-speaking freelancer (it was always **Opportunité**).
 
 - [ ] Angular 22.3 (checked on 2026-11-25: released 2026-11-18, the app on 22.2.6/22.2.7; `npm audit` finds no vulnerability in the production dependencies, and the translations' keys all exist in both languages): `npm update` moved Material and the CDK to 22.3 but left the core on 22.2, and installing the framework packages at 22.3 together failed on a peer conflict, so the update was reverted. Retry from 2026-12-02 with `ng update @angular/core @angular/cli @angular/material` (all framework packages at once), then the full gates.
 
