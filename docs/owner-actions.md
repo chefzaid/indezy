@@ -103,4 +103,3 @@ and the opt-in daily autopilot are to be built; the Keycloak realm sends from `n
   webhook and its secret in Vault, as [Deployment](./deployment.md#reply-detection) gives.
 - **`contact@swirlit.dev`:** make sure it reaches a mailbox you read.
 - **Publisher's details** for the legal notice: to give in a few months (around 2027-03).
-- **Indezy's own sign-in:** an Indezy Keycloak realm with self-registration, or local accounts in Indezy with the platform's SSO beside them (TODO.md, Needs Input).
