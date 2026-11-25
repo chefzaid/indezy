@@ -4,7 +4,6 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BillingIdentity, DocumentTemplate, DocumentTemplateKind } from '../../models';
 
-/** The seller's identity on the signed-in workspace's invoices. */
 /** A page of a style's preview, and how many pages the document has. */
 export interface PreviewPage {
   image: Blob;
@@ -14,6 +13,7 @@ export interface PreviewPage {
 /** A built-in layout of the documents. */
 export type DocumentLayout = 'SIMPLE' | 'MODERN' | 'CLASSIC';
 
+/** The seller's identity on the signed-in workspace's invoices and quotes, and what their documents look like. */
 @Injectable({
   providedIn: 'root'
 })
