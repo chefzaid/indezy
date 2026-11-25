@@ -47,12 +47,14 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { HelpLinkComponent } from '../../help/help-link.component';
 import { OfferBlockSuggestionsComponent } from '../offer-block-suggestions/offer-block-suggestions.component';
 import { OfferWordSuggestionsComponent } from '../offer-word-suggestions/offer-word-suggestions.component';
+import { TRANSLATED_PAGINATOR } from '../../../shared/i18n/translated-paginator-intl';
 
 /** Whether the market snapshot was left open, in this browser. */
 const MARKET_OPEN_KEY = 'indezy.offers.marketOpen';
 
 /** The freelance missions of every job board in one feed, newest first, with filters kept in the address. */
 @Component({
+  providers: [TRANSLATED_PAGINATOR],
   selector: 'app-offer-feed',
   imports: [HelpLinkComponent, PageHeaderComponent, MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule, MatIconModule, MatPaginatorModule,
     MatProgressSpinnerModule, MatSelectModule, RouterLink, TranslateModule, OfferCardComponent, OfferSelectionBarComponent, OfferFiltersComponent, OfferMarketComponent,

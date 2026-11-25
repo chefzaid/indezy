@@ -37,3 +37,9 @@ export class TranslatedPaginatorIntl extends MatPaginatorIntl implements OnDestr
     this.changes.next();
   }
 }
+
+/**
+ * The provider each page with a paginator declares: kept off the application's root so the paginator, and the select it
+ * uses, load with those pages rather than with the app's first download.
+ */
+export const TRANSLATED_PAGINATOR = { provide: MatPaginatorIntl, useClass: TranslatedPaginatorIntl };

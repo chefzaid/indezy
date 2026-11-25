@@ -2,7 +2,6 @@ import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDete
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
-import { MatPaginatorIntl } from '@angular/material/paginator';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -12,7 +11,6 @@ import { errorInterceptor } from './interceptors/error.interceptor';
 import { AuthService } from './services/auth/auth.service';
 import { provideAppLocale } from './shared/locale/app-locale';
 import { ThemeService } from './shared/theme/theme.service';
-import { TranslatedPaginatorIntl } from './shared/i18n/translated-paginator-intl';
 import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
@@ -32,7 +30,6 @@ export const appConfig: ApplicationConfig = {
     // Production only: the app and the workspace's last answers stay readable offline (ngsw-config.json).
     provideServiceWorker('ngsw-worker.js', { enabled: environment.production, registrationStrategy: 'registerWhenStable:30000' }),
     provideAppLocale(),
-    { provide: MatPaginatorIntl, useClass: TranslatedPaginatorIntl },
     provideAppInitializer(() => inject(ThemeService).restore()),
     provideAppInitializer(() => inject(AuthService).initializeSso()),
     provideTranslateService({

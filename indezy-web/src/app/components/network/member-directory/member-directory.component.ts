@@ -19,6 +19,7 @@ import { NetworkMeCardComponent } from '../me-card/network-me-card.component';
 import { NetworkNavComponent } from '../nav/network-nav.component';
 import { NetworkSideComponent } from '../side/network-side.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { TRANSLATED_PAGINATOR } from '../../../shared/i18n/translated-paginator-intl';
 
 type Availability = Exclude<NetworkAvailability, 'AUTO'>;
 
@@ -39,6 +40,7 @@ export const MEMBERS_TABS: MembersTab[] = ['all', 'following', 'followers', 'rec
  * and opens messages between the two.
  */
 @Component({
+  providers: [TRANSLATED_PAGINATOR],
   selector: 'app-member-directory',
   imports: [NetworkNavComponent, PageHeaderComponent, ReactiveFormsModule, RouterLink, NgTemplateOutlet, MatButtonModule, MatIconModule, MatTooltipModule, MatPaginatorModule, TranslateModule,
     MemberAvatarComponent, NetworkMeCardComponent, NetworkSideComponent],

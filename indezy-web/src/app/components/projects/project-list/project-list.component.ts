@@ -47,8 +47,10 @@ import { ProjectSelectionBarComponent } from '../../project-selection-bar/projec
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { CardCommute, byProject, cardCommutes } from './project-list-commutes';
 import { ProjectAdvancedFiltersComponent } from './advanced-filters/project-advanced-filters.component';
+import { TRANSLATED_PAGINATOR } from '../../../shared/i18n/translated-paginator-intl';
 
 @Component({
+  providers: [TRANSLATED_PAGINATOR],
     selector: 'app-project-list',
     imports: [PageHeaderComponent, 
         CommonModule,

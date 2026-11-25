@@ -13,9 +13,11 @@ import { AdminAccount, AdminAccountPage } from '../../models';
 import { AdminService } from '../../services/admin/admin.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
+import { TRANSLATED_PAGINATOR } from '../../shared/i18n/translated-paginator-intl';
 
 /** Accounts found by email or name, newest first, each disabled or enabled again after a confirmation. */
 @Component({
+  providers: [TRANSLATED_PAGINATOR],
   selector: 'app-admin-accounts',
   imports: [CommonModule, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule,
     TranslateModule],

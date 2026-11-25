@@ -21,6 +21,7 @@ import { IdSelection } from '../../../shared/utils/id-selection';
 import { ListSelectionBarComponent } from '../../../shared/components/list-selection-bar/list-selection-bar.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { TRANSLATED_PAGINATOR } from '../../../shared/i18n/translated-paginator-intl';
 
 export type ClientTypeFilter = 'ALL' | 'FINAL' | 'ESN' | 'BLACKLISTED';
 export type ClientSortField = 'name' | 'city' | 'rating' | 'projects';
@@ -42,6 +43,7 @@ const DEFAULT_FILTERS: ClientFilterValues = {
 };
 
 @Component({
+  providers: [TRANSLATED_PAGINATOR],
     selector: 'app-client-list',
     imports: [PageHeaderComponent, 
     RouterModule,

@@ -49,11 +49,12 @@ describe('workspace keyboard shortcuts', () => {
     subscription.unsubscribe();
   });
 
-  it('opens help from its shortcut and leaves unrelated keys alone', () => {
+  it('opens help from its shortcut, the search once loaded, and leaves unrelated keys alone', async () => {
     expect(press('KeyH').defaultPrevented).toBeTrue();
     expect(dialog.open).toHaveBeenCalledWith(ShortcutHelpComponent, { width: '560px', maxWidth: '95vw' });
 
     expect(press('KeyS').defaultPrevented).toBeTrue();
+    await TestBed.inject(KeyboardShortcutsService).openSearch();
     expect(dialog.open).toHaveBeenCalledWith(GlobalSearchDialogComponent, jasmine.objectContaining({ width: '640px' }));
     expect(press('KeyX').defaultPrevented).toBeFalse();
   });
