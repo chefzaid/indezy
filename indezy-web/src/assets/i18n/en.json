@@ -2808,7 +2808,7 @@
       "newThisWeek": "{{count}} new this week",
       "newThisWeekOne": "1 new this week",
       "preview": "Preview",
-      "previewNamed": "Preview the offers of {{name}}",
+      "previewNamed": "Preview: the offers of {{name}}",
       "save": "Save",
       "saveNamed": "Save the search {{name}}",
       "dismiss": "Dismiss the suggestion {{name}}",
@@ -5649,7 +5649,7 @@
     "copied": "Message copied: paste it in LinkedIn or the ESN's portal.",
     "memberMissions": "Members passing on missions for you",
     "memberMissionReply": "Answer on the network",
-    "memberMissionOpen": "Open {{name}}'s mission on the network"
+    "memberMissionOpen": "Answer on the network: {{name}}'s mission"
   },
   "marketReport": {
     "title": "IT freelance market report",

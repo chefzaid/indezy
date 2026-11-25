@@ -48,7 +48,7 @@ test('suggests searches from the profile to preview, save or dismiss (en)', asyn
   await panel.screenshot({ path: test.info().outputPath('search-suggestions.png') });
 
   const previewed = page.waitForRequest(request => isSearch(request) && new URL(request.url()).searchParams.get('radiusKm') === '30');
-  await panel.getByRole('button', { name: 'Preview the offers of Java · 600 €/day or more · Lyon + 30 km' }).click();
+  await panel.getByRole('button', { name: 'Preview: the offers of Java · 600 €/day or more · Lyon + 30 km' }).click();
   const preview = new URL((await previewed).url());
   expect(preview.searchParams.getAll('skills')).toEqual(['Java']);
   expect(preview.searchParams.get('rateMin')).toBe('600');

@@ -2808,7 +2808,7 @@
       "newThisWeek": "{{count}} nouvelles cette semaine",
       "newThisWeekOne": "1 nouvelle cette semaine",
       "preview": "Aperçu",
-      "previewNamed": "Voir les offres de {{name}}",
+      "previewNamed": "Aperçu : les offres de {{name}}",
       "save": "Sauvegarder",
       "saveNamed": "Sauvegarder la recherche {{name}}",
       "dismiss": "Écarter la suggestion {{name}}",
@@ -5649,7 +5649,7 @@
     "copied": "Message copié : collez-le dans LinkedIn ou le portail de l'ESN.",
     "memberMissions": "Des membres font passer des missions pour vous",
     "memberMissionReply": "Répondre sur le réseau",
-    "memberMissionOpen": "Ouvrir la mission de {{name}} sur le réseau"
+    "memberMissionOpen": "Répondre sur le réseau : la mission de {{name}}"
   },
   "marketReport": {
     "title": "Baromètre des TJM freelance IT",
