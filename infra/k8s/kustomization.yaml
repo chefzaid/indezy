@@ -11,9 +11,9 @@ resources:
   - observability.yaml
 images:
   - name: registry.swirlit.dev/swirl/indezy/indezy-server
-    newTag: 1.33.22
+    newTag: 1.34.226
   - name: registry.swirlit.dev/swirl/indezy/indezy-web
-    newTag: 1.33.22
+    newTag: 1.34.226
   - name: postgres
     newName: docker.io/library/postgres
     newTag: 18.7-alpine3.24
