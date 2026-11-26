@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 /**
  * What only PostgreSQL runs (see docs/testing.md#postgresql-specifics): a network event goes out as a {@code NOTIFY} and
  * comes back through the relay's own listening connection; the offers' trigram index is built and their long texts kept
- * out of their rows. Run on request against a disposable database, as the load test is: Maven leaves the {@code postgres}
+ * out of their rows; every enum value and declared length fits the schema Hibernate first wrote. Run on request against a disposable database, as the load test is: Maven leaves the {@code postgres}
  * tag out otherwise.
  */
 @Tag("postgres")
@@ -66,5 +66,18 @@ class PostgresSpecificsTest {
             String.class)).contains("toast_tuple_target=256");
         assertThat(Set.of(jdbcTemplate.queryForObject("SELECT extname FROM pg_extension WHERE extname = 'pg_trgm'", String.class)))
             .containsExactly("pg_trgm");
+    }
+
+    @Test
+    void letsEveryEnumValueAndEveryDeclaredLengthIntoTheSchema() {
+        // Every job board is allowed in the offers' site column, however old the constraint Hibernate first wrote.
+        String site = jdbcTemplate.queryForObject("SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid = 'job_offers'::regclass " +
+            "AND conname = 'job_offers_site_check'", String.class);
+        assertThat(java.util.Arrays.stream(dev.swirlit.indezy.model.enums.OfferSite.values()).map(Enum::name))
+            .allSatisfy(name -> assertThat(site).contains("'" + name + "'"));
+        // Every varchar column is at least as long as its entity declares.
+        Integer region = jdbcTemplate.queryForObject("SELECT character_maximum_length FROM information_schema.columns " +
+            "WHERE table_name = 'job_offers' AND column_name = 'region_code'", Integer.class);
+        assertThat(region).isGreaterThanOrEqualTo(3);
     }
 }

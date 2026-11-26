@@ -165,7 +165,8 @@ connections take the planner settings the database setup hook gives the applicat
 
 `PostgresSpecificsTest` checks what only PostgreSQL runs, the tests' H2 standing in otherwise: a network event goes out
 as a `NOTIFY` and comes back through `NetworkEventRelay`'s own listening connection (as it does between replicas), and
-`OfferSearchIndex` built the offers' trigram index and set their row size target (`toast_tuple_target = 256`). It
+`OfferSearchIndex` built the offers' trigram index and set their row size target (`toast_tuple_target = 256`), and that
+`EnumCheckConstraints` and `ColumnLengths` let every enum value (each job board) and every declared length into the schema. It
 carries the JUnit tag `postgres`, left out like `load`, and uses the same disposable database and variables as the load
 test:
 
