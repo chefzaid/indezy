@@ -133,11 +133,13 @@ public class WeeklyDigestComposer {
             section(html, text, WeeklyDigestLabel.PIPELINE.in(language), List.of(WeeklyDigestLabel.PIPELINE_LINE.format(language, stats.open(),
                 status.getOrDefault("CONTACT", 0L), status.getOrDefault("INTERVIEW", 0L), status.getOrDefault("OFFER", 0L))), item -> null);
         }
+        java.time.format.DateTimeFormatter remindedOn = java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.LONG).withLocale(language.locale());
         NumberFormat euros = NumberFormat.getCurrencyInstance(language.locale());
         euros.setCurrency(Currency.getInstance("EUR"));
         section(html, text, WeeklyDigestLabel.OVERDUE.in(language), stats.overdueInvoices().stream().limit(ITEMS)
             .map(invoice -> WeeklyDigestLabel.OVERDUE_LINE.format(language, invoice.getNumber(), invoice.getClientName(),
-                euros.format(invoice.getTotal()), invoice.getDaysLate())).toList(), line -> properties.appUrl() + "/invoices");
+                euros.format(invoice.getTotal()), invoice.getDaysLate()) + (invoice.getRemindedOn() == null ? "" :
+                WeeklyDigestLabel.REMINDED_ON.format(language, invoice.getRemindedOn().format(remindedOn)))).toList(), line -> properties.appUrl() + "/invoices");
         section(html, text, WeeklyDigestLabel.INTERVIEWS.in(language), stats.interviews().stream().limit(ITEMS)
             .map(interview -> interview.getDate().format(moment) + " · " + interview.getTitle() + " · " + who(interview.getRole(),
                 interview.getClientName())).toList(), item -> null);

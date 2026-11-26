@@ -33,7 +33,7 @@ class WeeklyDigestComposerTest {
             .missionsEndingSoon(List.of(DashboardStatsDto.MissionEndingSoon.builder().role("Dev Kotlin").clientName("Thales")
                 .endDate(LocalDate.of(2026, 11, 30)).build()))
             .overdueInvoices(List.of(DashboardStatsDto.OverdueInvoice.builder().number("F2026-0003").clientName("Alten")
-                .total(new BigDecimal("4200.00")).daysLate(12).build()))
+                .total(new BigDecimal("4200.00")).daysLate(12).remindedOn(LocalDate.of(2026, 10, 20)).build()))
             .build();
     }
 
@@ -55,7 +55,7 @@ class WeeklyDigestComposerTest {
         assertThat(email.text()).contains("Bonjour Zaid, voici votre semaine", "3 opportunités en cours : 2 premier contact, 1 entretiens, 0 offres",
             "jeu. 29 oct., 14h00 · Entretien <technique> · Lead Java (Acme)", "Léa Martin (Alten), sans réponse depuis 6 jours",
             "Architecte, rien depuis 21 jours", "Factures en retard de paiement",
-            "F2026-0003, Alten, 4\u202F200,00\u00A0€, en retard de 12 jours", "Dev Kotlin (Thales), fin le 30 novembre 2026", "8 nouvelles offres correspondent",
+            "F2026-0003, Alten, 4\u202F200,00\u00A0€, en retard de 12 jours, relancée le 20 octobre 2026", "Dev Kotlin (Thales), fin le 30 novembre 2026", "8 nouvelles offres correspondent",
             "https://indezy.example/offers/42", "Et 7 de plus", "Les plus aimées des étiquettes que vous suivez",
             "#kafka · Léo Martin : « Retour sur <Kafka> Streams » (12 J'aime)", "https://indezy.example/network/tags/kafka");
         assertThat(email.html()).contains("Entretien &lt;technique&gt;", "&lt;Kafka&gt;").doesNotContain("<technique>", "<Kafka>");
