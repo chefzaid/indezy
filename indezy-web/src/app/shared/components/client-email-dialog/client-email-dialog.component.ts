@@ -28,6 +28,8 @@ export interface ClientEmailDialogData {
   language: DocumentLanguage;
   /** Writes the email for the contact's first name, signed. */
   write: (firstName: string | null | undefined, signature: string) => { subject: string; body: string };
+  /** The contacts picked first when one matches, by address, name or notes (accounts for a payment reminder). */
+  prefer?: RegExp;
   /** What to record once it was sent from Indezy, the dialog then closing with its answer (or true when it fails). */
   sent?: () => Observable<unknown>;
 }
@@ -109,7 +111,10 @@ export class ClientEmailDialogComponent implements OnInit {
       this.status = status;
       this.profile = profile;
       this.loaded = true;
-      this.form.patchValue({ recipient: this.contacts[0]?.id ?? null });
+      const prefer = this.data.prefer;
+      const preferred = prefer ? this.contacts.find(contact =>
+        prefer.test([contact.email, contact.firstName, contact.lastName, contact.notes].filter(Boolean).join(' '))) : undefined;
+      this.form.patchValue({ recipient: (preferred ?? this.contacts[0])?.id ?? null });
       this.write();
       this.changes.markForCheck();
     });

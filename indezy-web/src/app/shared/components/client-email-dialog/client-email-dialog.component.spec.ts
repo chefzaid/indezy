@@ -27,7 +27,8 @@ describe('ClientEmailDialogComponent', () => {
   let clipboard: jasmine.SpyObj<Clipboard>;
   let sent: jasmine.Spy;
 
-  function create(data: Invoice = invoice, found: ContactDto[] = [lea, { id: 12, firstName: 'Sans', email: null } as ContactDto], available = true) {
+  function create(data: Invoice = invoice, found: ContactDto[] = [lea, { id: 12, firstName: 'Sans', email: null } as ContactDto], available = true,
+                  prefer?: RegExp) {
     contacts = jasmine.createSpyObj('ContactService', ['getByClientId', 'emailStatus', 'sendEmail']);
     contacts.getByClientId.and.returnValue(of(found));
     contacts.emailStatus.and.returnValue(of({ available, sentToday: 0, dailyMax: 50 }));
@@ -38,7 +39,7 @@ describe('ClientEmailDialogComponent', () => {
     clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
     sent = jasmine.createSpy('sent').and.returnValue(of({ ...data, remindedOn: '2026-11-25' } as Invoice));
     const dialogData: ClientEmailDialogData = { title: 'Relance de paiement de F2026-0007', clientId: data.clientId, projectId: data.projectId,
-      language: data.language, write: (firstName, signature) => reminderText(data, firstName, signature), sent };
+      language: data.language, write: (firstName, signature) => reminderText(data, firstName, signature), sent, prefer };
     TestBed.configureTestingModule({
       imports: [ClientEmailDialogComponent, TranslateModule.forRoot()],
       providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: MAT_DIALOG_DATA, useValue: dialogData },
@@ -79,6 +80,12 @@ describe('ClientEmailDialogComponent', () => {
     clipboard.copy.and.returnValue(false);
     component.copy();
     expect(notifications.error).toHaveBeenCalledWith('emails.copyError');
+  });
+
+  it('picks first a contact the caller prefers, else the first with an email', () => {
+    const compta = { id: 14, firstName: 'Service', lastName: 'Comptabilité', email: 'compta@acme.fr' } as ContactDto;
+    const fixture = create(invoice, [lea, compta], true, /compta/i);
+    expect(fixture.componentInstance.form.getRawValue().recipient).toBe(14);
   });
 
   it('says when the client has no contact to write to, and sends nothing without a recipient or with email off', () => {

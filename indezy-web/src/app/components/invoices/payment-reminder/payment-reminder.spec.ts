@@ -55,6 +55,9 @@ describe('paymentReminder', () => {
     expect(translate.instant).toHaveBeenCalledWith('invoices.reminder.title', { number: 'F2026-0007' });
     expect(data).toEqual(jasmine.objectContaining({ title: 'Relance de paiement de F2026-0007', clientId: 3, projectId: 42, language: 'FR' }));
     expect(data.write('Léa', 'Ada').subject).toBe('Facture F2026-0007 : paiement en attente');
+    expect(data.prefer!.test('compta@acme.fr')).toBeTrue();
+    expect(data.prefer!.test('Service facturation')).toBeTrue();
+    expect(data.prefer!.test('lea.martin@acme.fr')).toBeFalse();
     data.sent!().subscribe();
     expect(invoices.reminded).toHaveBeenCalledWith(9);
   });

@@ -41,6 +41,9 @@ export function reminderText(invoice: Invoice, firstName: string | null | undefi
   };
 }
 
+/** A client's accounts contact, by their address, name or notes: accounting, invoices, payables, finance. */
+export const ACCOUNTS = /compta|factur|finan|account|invoice|billing|payable|tr[ée]sor|paiement|payment/i;
+
 /**
  * The payment reminder of an overdue invoice (see docs/features.md#invoices), for the client email dialog: written in the
  * invoice's language with the amount left to pay, the days late, the interest at its rate and the €40 indemnity; once
@@ -53,6 +56,7 @@ export function paymentReminder(invoice: Invoice, translate: TranslateService, i
     projectId: invoice.projectId,
     language: invoice.language,
     write: (firstName, signature) => reminderText(invoice, firstName, signature),
+    prefer: ACCOUNTS,
     sent: () => invoices.reminded(invoice.id)
   };
 }
