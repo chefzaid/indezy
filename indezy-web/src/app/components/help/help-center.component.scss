@@ -1,12 +1,18 @@
-// The help center: a search, then the articles by section as cards, the legal pages at the foot.
+// The help center: a search, then the articles by section as cards, taking the full page width like every other view.
 .help-page {
   display: flex;
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding-bottom: 24px;
+  box-sizing: border-box;
+
+  &.public {
+    padding: 24px;
+
+    @media (max-width: 599.98px) {
+      padding: 12px;
+    }
+  }
 }
 
 .search {
@@ -95,17 +101,4 @@
 
 .empty {
   color: var(--app-text-muted);
-}
-
-.legal {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--app-border);
-
-  a {
-    color: var(--app-text-muted);
-    font-size: 0.875rem;
-  }
 }

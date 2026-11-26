@@ -1,8 +1,9 @@
 :host {
   display: flex;
+  flex: 1 0 auto;
+  align-items: flex-start;
   justify-content: center;
   padding: 48px 16px;
-  min-height: 100vh;
   box-sizing: border-box;
   background: var(--app-bg);
 }

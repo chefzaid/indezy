@@ -1,7 +1,7 @@
-@if (!auth.isAuthenticated()) {
-  <app-public-page-header></app-public-page-header>
-}
-<div class="help-page">
+<div class="help-page" [class.public]="!auth.isAuthenticated()">
+  @if (!auth.isAuthenticated()) {
+    <app-public-page-header></app-public-page-header>
+  }
   <app-page-header icon="help" [title]="'help.title' | translate" [subtitle]="'help.subtitle' | translate"></app-page-header>
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search">
@@ -43,10 +43,4 @@
       </section>
     }
   }
-
-  <footer class="legal">
-    <a routerLink="/legal/notice" data-help-legal="notice">{{ 'legal.notice' | translate }}</a>
-    <a routerLink="/legal/terms" data-help-legal="terms">{{ 'legal.terms' | translate }}</a>
-    <a routerLink="/legal/privacy" data-help-legal="privacy">{{ 'legal.privacy' | translate }}</a>
-  </footer>
 </div>

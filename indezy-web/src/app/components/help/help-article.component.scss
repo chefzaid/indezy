@@ -1,14 +1,24 @@
 // An article between the list of articles (left) and its sections (right); one column on a phone, the list under it.
+.article-shell {
+  width: 100%;
+  box-sizing: border-box;
+
+  &.public {
+    padding: 24px;
+
+    @media (max-width: 599.98px) {
+      padding: 12px;
+    }
+  }
+}
+
 .article-page {
   display: grid;
-  grid-template-columns: minmax(200px, 260px) minmax(0, 820px) minmax(180px, 240px);
+  grid-template-columns: minmax(200px, 260px) minmax(0, 1fr) minmax(180px, 240px);
   grid-template-areas: 'index content toc';
-  justify-content: center;
   align-items: start;
   gap: 24px;
   width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
   padding-bottom: 24px;
 
   @media (max-width: 1279.98px) {

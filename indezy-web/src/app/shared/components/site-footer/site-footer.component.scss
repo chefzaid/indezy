@@ -1,0 +1,71 @@
+:host {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.site-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
+
+  &.contained {
+    padding: 0 16px;
+    border-top: 0;
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 0 32px;
+      border-top: 1px solid var(--app-border);
+    }
+  }
+}
+
+// Keep footer links clear of the bottom-right messenger corner on wide authenticated screens.
+:host(.with-messenger) .site-footer {
+  padding-bottom: 68px;
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 20px;
+}
+
+.footer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+
+  a {
+    color: var(--app-text-muted);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--app-link);
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--app-link);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+}
+
+@media (max-width: 599.98px) {
+  .site-footer {
+    padding: 14px 12px;
+  }
+}

@@ -1,0 +1,19 @@
+<footer class="site-footer" [class.contained]="contained" data-site-footer>
+  <div class="footer-inner">
+    <div class="footer-meta">
+      <span>© {{ year }} Indezy</span>
+      <span class="separator" aria-hidden="true">·</span>
+      <span>{{ 'home.footer' | translate }}</span>
+    </div>
+    <nav class="footer-links" [attr.aria-label]="'legal.title' | translate">
+      <a routerLink="/help" data-home-help data-footer-link="help">{{ 'nav.help' | translate }}</a>
+      @if (auth.isAuthenticated()) {
+        <a routerLink="/support" data-footer-link="support">{{ 'support.title' | translate }}</a>
+      }
+      <a routerLink="/legal/notice" data-home-legal="notice" data-help-legal="notice" data-footer-link="notice">{{ 'legal.notice' | translate }}</a>
+      <a routerLink="/legal/terms" data-home-legal="terms" data-help-legal="terms" data-footer-link="terms">{{ 'legal.terms' | translate }}</a>
+      <a routerLink="/legal/privacy" data-home-legal="privacy" data-help-legal="privacy" data-footer-link="privacy">{{ 'legal.privacy' | translate }}</a>
+      <a href="mailto:contact@swirlit.dev" data-home-contact data-footer-link="contact">{{ 'home.contact' | translate }}</a>
+    </nav>
+  </div>
+</footer>

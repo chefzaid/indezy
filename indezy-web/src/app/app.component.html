@@ -1,4 +1,4 @@
-<div class="app-container">
+<div class="app-container" [class.app-shell]="authService.isAuthenticated() && !onHomePage()">
   @if (authService.isAuthenticated() && !onHomePage()) {
     <!-- Top Navigation -->
     <mat-toolbar class="app-toolbar">
@@ -90,8 +90,11 @@
       </mat-sidenav>
       <!-- Main Content -->
       <mat-sidenav-content class="app-main-content">
-        <div class="app-content" [class.with-messenger]="messengerShown && !onMessagesPage()">
-          <router-outlet></router-outlet>
+        <div class="app-main-layout">
+          <div class="app-content">
+            <router-outlet></router-outlet>
+          </div>
+          <app-site-footer [class.with-messenger]="messengerShown && !onMessagesPage()"></app-site-footer>
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -102,6 +105,11 @@
       }
     }
   } @else {
-    <router-outlet></router-outlet>
+    <div class="public-shell">
+      <div class="public-main">
+        <router-outlet></router-outlet>
+      </div>
+      <app-site-footer [contained]="onHomePage()"></app-site-footer>
+    </div>
   }
 </div>

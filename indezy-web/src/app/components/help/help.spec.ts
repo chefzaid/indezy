@@ -31,7 +31,7 @@ describe('excerptAround', () => {
 });
 
 describe('HelpCenterComponent', () => {
-  it('lists every article by section, with the legal pages', () => {
+  it('lists every article by section', () => {
     configure(HelpCenterComponent);
     const fixture = TestBed.createComponent(HelpCenterComponent);
     fixture.detectChanges();
@@ -39,7 +39,6 @@ describe('HelpCenterComponent', () => {
     expect(element.querySelectorAll('[data-help-article]').length).toBe(HELP_ARTICLES.length);
     expect(element.querySelector('[data-help-article="network"]')?.getAttribute('href')).toBe('/help/network');
     expect(element.querySelector('[data-help-article="network"]')?.textContent).toContain('The member network');
-    expect(element.querySelector('[data-help-legal="privacy"]')?.getAttribute('href')).toBe('/legal/privacy');
     expect(element.querySelector('app-public-page-header')).toBeNull();
   });
 

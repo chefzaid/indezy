@@ -62,6 +62,21 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(page.locator('[data-help-helpful] [role=status]')).toHaveText(en ? 'Thanks for telling us.' : 'Merci de nous le dire.');
 
     await page.goto('/help');
+    await expect(page.locator('[data-site-footer]')).toBeVisible();
+    // The help page takes the same full width as every other workspace view.
+    const widths = await page.evaluate(() => {
+      const content = document.querySelector('.app-content')!.getBoundingClientRect();
+      const style = getComputedStyle(document.querySelector('.app-content')!);
+      const inner = content.width - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      const help = document.querySelector('.help-page')!.getBoundingClientRect().width;
+      return { inner, help };
+    });
+    expect(Math.abs(widths.inner - widths.help)).toBeLessThanOrEqual(2);
+    // Even with a short empty search result, the footer stays anchored at the bottom of the viewport.
+    await page.locator('[data-help-search]').fill('zzzzzz-no-match');
+    await expect(page.locator('[data-help-none]')).toBeVisible();
+    const footerBottom = await page.locator('[data-site-footer]').evaluate(el => el.getBoundingClientRect().bottom);
+    expect(footerBottom).toBeGreaterThanOrEqual(895);
     await page.locator('[data-help-search]').fill(en ? 'invoice' : 'facture');
     await expect(page.locator('[data-help-hit="invoices-quotes"]')).toBeVisible();
   });

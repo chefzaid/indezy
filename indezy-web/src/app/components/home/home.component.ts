@@ -41,7 +41,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   readonly auth = inject(AuthService);
 
   language: AppLanguage = 'fr';
-  readonly year = new Date().getFullYear();
   readonly features: Feature[] = [
     { key: 'feed', icon: 'travel_explore' },
     { key: 'pipeline', icon: 'view_kanban' },

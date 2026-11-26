@@ -1,5 +1,11 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+
 .book-page {
-  min-height: 100vh;
+  flex: 1 0 auto;
   background: var(--app-bg);
 }
 

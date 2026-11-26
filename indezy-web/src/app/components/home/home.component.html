@@ -118,16 +118,4 @@
       <a mat-stroked-button [routerLink]="faqPath" data-home-faq>{{ 'home.faq.more' | translate }}</a>
     </section>
   </main>
-
-  <footer class="bottom">
-    <span>© {{ year }} Indezy</span>
-    <span>{{ 'home.footer' | translate }}</span>
-    <nav class="legal-links" [attr.aria-label]="'legal.title' | translate">
-      <a routerLink="/help" data-home-help>{{ 'nav.help' | translate }}</a>
-      <a routerLink="/legal/notice" data-home-legal="notice">{{ 'legal.notice' | translate }}</a>
-      <a routerLink="/legal/terms" data-home-legal="terms">{{ 'legal.terms' | translate }}</a>
-      <a routerLink="/legal/privacy" data-home-legal="privacy">{{ 'legal.privacy' | translate }}</a>
-      <a href="mailto:contact@swirlit.dev" data-home-contact>{{ 'home.contact' | translate }}</a>
-    </nav>
-  </footer>
 </div>

@@ -26,6 +26,7 @@ import { CapabilitiesService } from './services/admin/capabilities.service';
 import { FeatureFlag } from './models';
 import { HelpPanelService } from './components/help/help-panel.service';
 import { MessengerDockComponent } from './components/network/messenger-dock/messenger-dock.component';
+import { SiteFooterComponent } from './shared/components/site-footer/site-footer.component';
 
 interface MenuItem {
   labelKey: string;
@@ -54,7 +55,8 @@ interface MenuItem {
     TranslateModule,
     AsyncPipe,
     LogoComponent,
-    MessengerDockComponent
+    MessengerDockComponent,
+    SiteFooterComponent
 ],
     templateUrl: './app.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -92,7 +94,7 @@ export class AppComponent implements OnInit {
   readonly onHomePage = toSignal(this.router.events.pipe(
     filter(event => event instanceof NavigationEnd),
     map(event => HOME_PAGE_PATHS.includes((event as NavigationEnd).urlAfterRedirects.split(/[?#]/)[0]))
-  ), { initialValue: false });
+  ), { initialValue: HOME_PAGE_PATHS.includes(globalThis.location?.pathname ?? '') });
   /** The Messages page, which the messenger corner leaves to itself: no room is kept for the corner there. */
   readonly onMessagesPage = toSignal(this.router.events.pipe(
     filter(event => event instanceof NavigationEnd),

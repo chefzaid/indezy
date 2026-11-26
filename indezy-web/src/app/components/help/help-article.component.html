@@ -1,7 +1,8 @@
-@if (!auth.isAuthenticated()) {
-  <app-public-page-header></app-public-page-header>
-}
-<div class="article-page">
+<div class="article-shell" [class.public]="!auth.isAuthenticated()">
+  @if (!auth.isAuthenticated()) {
+    <app-public-page-header></app-public-page-header>
+  }
+  <div class="article-page">
   <nav class="index" [attr.aria-label]="'help.title' | translate" data-help-index>
     <a routerLink="/help" class="home"><mat-icon aria-hidden="true">arrow_back</mat-icon>{{ 'help.title' | translate }}</a>
     @for (item of articles; track item.slug) {
@@ -58,4 +59,5 @@
       }
     </nav>
   }
+  </div>
 </div>

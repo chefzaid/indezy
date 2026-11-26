@@ -72,6 +72,17 @@ describe('AppComponent', () => {
     const app = fixture.componentInstance;
     expect(app.title).toEqual('Indezy');
   });
+
+  it('renders the shared site footer for both public and authenticated views', () => {
+    mockAuthService.isAuthenticated.and.returnValue(false);
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-site-footer [data-site-footer]')).not.toBeNull();
+
+    mockAuthService.isAuthenticated.and.returnValue(true);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.app-main-layout app-site-footer [data-site-footer]')).not.toBeNull();
+  });
 });
 
 describe('AppComponent offer alerts', () => {
