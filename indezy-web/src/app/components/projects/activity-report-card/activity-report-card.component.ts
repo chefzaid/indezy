@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,6 +46,7 @@ import {
   totals
 } from '../../../shared/components/activity-calendar/activity-calendar.util';
 import { saveBlob } from '../../../shared/utils/download-file';
+import { ClientEmailDialogComponent, ClientEmailDialogData } from '../../../shared/components/client-email-dialog/client-email-dialog.component';
 
 const BRUSH_ICONS: Record<DayBrush, string> = {
   ONSITE: 'business',
@@ -89,6 +91,7 @@ export class ActivityReportCardComponent implements OnChanges, OnDestroy {
   private readonly notifications = inject(NotificationService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
   private readonly clipboard = inject(Clipboard);
   private readonly location = inject(Location);
   private readonly document = inject(DOCUMENT);
@@ -154,16 +157,44 @@ export class ActivityReportCardComponent implements OnChanges, OnDestroy {
     return this.project.middlemanName || this.project.clientName;
   }
 
-  get mailtoHref(): string {
+  /** The email sending the month's validation link: its month, mission, days worked and the link. */
+  linkEmail(): { subject: string; body: string } {
     const params = {
       month: this.monthLabel,
       role: this.project.role,
       days: formatNumber(this.liveTotals.worked, this.locale, '1.0-1'),
       link: this.link
     };
-    const subject = this.translate.instant('activityReports.link.emailSubject', params);
-    const body = this.translate.instant('activityReports.link.emailBody', params);
+    return { subject: this.translate.instant('activityReports.link.emailSubject', params),
+      body: this.translate.instant('activityReports.link.emailBody', params) };
+  }
+
+  get mailtoHref(): string {
+    const { subject, body } = this.linkEmail();
     return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
+  /** Who approves the month: the ESN when the mission has one, else the client. */
+  get approverId(): number | undefined {
+    return this.project.middlemanId ?? this.project.clientId;
+  }
+
+  /** Emails the validation link to one of the approver's contacts, greeted by name and signed. */
+  emailLink(): void {
+    const approverId = this.approverId;
+    if (!approverId || !this.link) {
+      return;
+    }
+    const { subject, body } = this.linkEmail();
+    const data: ClientEmailDialogData = {
+      title: this.translate.instant('activityReports.link.email'),
+      clientId: approverId,
+      projectId: this.project.id ?? null,
+      language: this.translate.currentLang === 'en' ? 'EN' : 'FR',
+      write: (firstName, signature) => ({ subject,
+        body: (firstName ? body.replace(/^([^,\n]+),/, `$1 ${firstName},`) : body) + (signature ? `\n${signature}` : '') })
+    };
+    this.dialog.open(ClientEmailDialogComponent, { data, width: '640px', maxWidth: '95vw', autoFocus: 'first-tabbable' });
   }
 
   formatMonth(year: number, month: number): string {

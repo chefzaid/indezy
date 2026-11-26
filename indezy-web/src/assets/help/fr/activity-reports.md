@@ -23,8 +23,8 @@ Les week-ends et les jours fériés français sont grisés. Les totaux se metten
 
 1. Une fois le mois complet, cliquez sur **Envoyer pour validation**.
 2. Le mois est verrouillé et passe **En attente de validation**.
-3. Le **Lien de validation** s'affiche une seule fois. Cliquez sur **Copier le lien**, ou sur **Envoyer par e-mail** pour ouvrir votre messagerie avec un message prêt à envoyer.
-4. Adressez-le à votre contact chez le client ou l'ESN.
+3. Le **Lien de validation** s'affiche une seule fois. Cliquez sur **Copier le lien**, ou sur **Envoyer par e-mail** : choisissez un contact de l'ESN (ou du client), et le message, qui le salue par son nom, s'ouvre dans votre messagerie ou part depuis Indezy.
+4. Ou adressez vous-même le lien copié à votre contact chez le client ou l'ESN.
 
 Le lien reste valable 30 jours. Si vous l'avez perdu, cliquez sur **Générer un nouveau lien** : l'ancien cesse de fonctionner.
 

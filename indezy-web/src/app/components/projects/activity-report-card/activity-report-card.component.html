@@ -160,10 +160,17 @@
                 <mat-icon>content_copy</mat-icon>
                 {{ 'activityReports.link.copy' | translate }}
               </button>
-              <a mat-stroked-button [href]="mailtoHref">
-                <mat-icon>mail</mat-icon>
-                {{ 'activityReports.link.email' | translate }}
-              </a>
+              @if (approverId) {
+                <button mat-stroked-button type="button" (click)="emailLink()" data-email-validation-link>
+                  <mat-icon>mail</mat-icon>
+                  {{ 'activityReports.link.email' | translate }}
+                </button>
+              } @else {
+                <a mat-stroked-button [href]="mailtoHref">
+                  <mat-icon>mail</mat-icon>
+                  {{ 'activityReports.link.email' | translate }}
+                </a>
+              }
             </div>
           } @else {
             <p class="hint">{{ 'activityReports.link.renewHint' | translate:{ date: formatDay(report.linkExpiresAt) } }}</p>

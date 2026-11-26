@@ -1485,7 +1485,8 @@ An accepted mission's page has an **Activity reports** card for the monthly comp
 - Pick full or half days on site, remote or absent and tap the days; **Fill business days** fills the empty business
   days by the work mode. Weekends and French public holidays are shaded. Totals (days, on site, remote, absences,
   amount before VAT) update as you type.
-- **Send for approval** locks the month and shows a validation link once, valid 30 days. The client or ESN opens it
+- **Send for approval** locks the month and shows a validation link once, valid 30 days, to copy or to **Send by email**
+  to one of the ESN's contacts (else the client's) through the client email dialog: mail app, copy, or sent from Indezy. The client or ESN opens it
   without an account, signs with their name and approves, or rejects with a reason; a month is answered once.
   **Generate a new link** replaces a lost one; **Reopen to edit** returns the month to draft and stops its link.
 - **Download PDF** follows the template of the mission's ESN, else its client (title, portrait day list or landscape

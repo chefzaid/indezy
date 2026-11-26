@@ -1,3 +1,5 @@
+import { MatDialog } from '@angular/material/dialog';
+import { ClientEmailDialogData } from '../../../shared/components/client-email-dialog/client-email-dialog.component';
 import { LOCALE_ID } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, provideRouter } from '@angular/router';
@@ -25,7 +27,7 @@ describe('ActivityReportCardComponent', () => {
 
   const mission: ProjectDto = {
     id: 42, role: 'Développeur Java', status: ProjectStatus.WON, dailyRate: 600, workMode: 'HYBRID',
-    startDate: '2026-09-01', durationInMonths: 6, clientName: 'Société Générale', middlemanName: 'Capgemini'
+    startDate: '2026-09-01', durationInMonths: 6, clientId: 3, clientName: 'Société Générale', middlemanId: 5, middlemanName: 'Capgemini'
   } as ProjectDto;
 
   function report(overrides: Partial<ActivityReport> = {}): ActivityReport {
@@ -208,6 +210,19 @@ describe('ActivityReportCardComponent', () => {
     expect(mailto).toContain('subject=Compte rendu d\'activité de Novembre 2026 – Développeur Java');
     expect(mailto).toContain('1 jour(s) travaillé(s)');
     expect(mailto).toContain(component.link!);
+
+    // Emailed to one of the approver's contacts (the ESN when there is one), greeted by name and signed.
+    const open = spyOn(TestBed.inject(MatDialog), 'open');
+    button(fixture, 'Envoyer par e-mail').click();
+    const data = open.calls.mostRecent().args[1]!.data as ClientEmailDialogData;
+    expect(data.clientId).toBe(5);
+    expect(data.projectId).toBe(42);
+    const written = data.write('Léa', 'Ada Lovelace');
+    expect(written.subject).toContain("Compte rendu d'activité de Novembre 2026");
+    expect(written.body.startsWith('Bonjour Léa,')).toBeTrue();
+    expect(written.body).toContain(component.link!);
+    expect(written.body.endsWith('Cordialement\nAda Lovelace')).toBeTrue();
+    expect(data.write(null, '').body.startsWith('Bonjour,')).toBeTrue();
   });
 
   it('submits a saved month without saving it again and reports a failed submission', () => {

@@ -41,8 +41,10 @@ async function mockMission(page: Page, language: string): Promise<{ saved: () =>
   let status = 'DRAFT';
   await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language } }));
   await page.route('**/api/users/profile', route => route.fulfill({ json: { id: 1, skills: [] } }));
+  await page.route('**/api/contacts/by-client/5', route => route.fulfill({ json: [
+    { id: 8, firstName: 'Paul', lastName: 'Durand', email: 'paul@capgemini.example', clientId: 5, clientName: 'Capgemini' }] }));
   await page.route('**/api/projects/42', route => route.fulfill({ json: {
-    id: 42, role: 'Java developer', status: 'WON', clientName: 'Société Générale', middlemanName: 'Capgemini',
+    id: 42, role: 'Java developer', status: 'WON', clientId: 3, clientName: 'Société Générale', middlemanId: 5, middlemanName: 'Capgemini',
     dailyRate: 600, workMode: 'HYBRID', startDate: '2026-11-01', durationInMonths: 1
   } }));
   await page.route('**/api/projects/42/notes', route => route.fulfill({ json: [] }));
@@ -92,6 +94,12 @@ for (const language of ['en', 'fr'] as const) {
     const link = await page.evaluate(() => navigator.clipboard.readText());
     expect(link).toBe('http://127.0.0.1:4200/activity-report#e2e-link-token');
     await expect(card.locator('[data-validation-link]')).toHaveValue(link);
+    // Emailed to the ESN's contact, the link in the message.
+    await card.locator('[data-email-validation-link]').click();
+    const email = page.getByRole('dialog');
+    await expect(email.locator('[data-client-email-body]')).toHaveValue(new RegExp(`^${language === 'en' ? 'Hello Paul' : 'Bonjour Paul'},[\\s\\S]*e2e-link-token`));
+    await page.keyboard.press('Escape');
+    await expect(email).toHaveCount(0);
 
     // The ESN opens the link in a browser without an Indezy session.
     const validatorContext = await browser.newContext(language === 'fr' ? { viewport: { width: 390, height: 844 } } : {});

@@ -23,8 +23,8 @@ Weekends and French public holidays are shaded. Totals update as you type: **Day
 
 1. Once the month is complete, click **Send for approval**.
 2. The month is locked and becomes **Awaiting approval**.
-3. The **Approval link** is shown once. Click **Copy link**, or **Send by email** to open your mail app with a message ready to send.
-4. Send it to your contact at the client or ESN.
+3. The **Approval link** is shown once. Click **Copy link**, or **Send by email**: pick a contact of the ESN (or of the client), and the message, greeting them by name, opens in your mail app or goes from Indezy.
+4. Or send the copied link to your contact at the client or ESN yourself.
 
 The link stays valid 30 days. If you lost it, click **Generate a new link**: the old one stops working.
 
