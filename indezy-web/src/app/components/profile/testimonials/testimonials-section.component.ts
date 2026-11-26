@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs';
 
 import { ContactDto, Testimonial } from '../../../models';
@@ -16,6 +16,7 @@ import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { TestimonialService } from '../../../services/testimonial/testimonial.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { mailtoLink } from '../../../shared/utils/email-template';
 
 /** The choice of someone outside the contacts, who is then asked by their names and email. */
 const EXTERNAL = 'EXTERNAL';
@@ -47,6 +48,7 @@ export class TestimonialsSectionComponent implements OnInit {
   private readonly testimonialService = inject(TestimonialService);
   private readonly contactService = inject(ContactService);
   private readonly confirm = inject(ConfirmDialogService);
+  private readonly translate = inject(TranslateService);
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
 
@@ -113,8 +115,10 @@ export class TestimonialsSectionComponent implements OnInit {
       () => this.notifications.error('profile.testimonials.copyError'));
   }
 
+  /** The request by email, to the person asked when their address was given, greeting them by name. */
   mailto(link: AskedLink): string {
-    return `mailto:?body=${encodeURIComponent(link.url)}`;
+    const params = { name: link.recipient, url: link.url };
+    return mailtoLink(link.email, this.translate.instant('profile.testimonials.emailSubject'), this.translate.instant('profile.testimonials.emailBody', params));
   }
 
   setStatus(testimonial: Testimonial, status: 'APPROVED' | 'HIDDEN'): void {

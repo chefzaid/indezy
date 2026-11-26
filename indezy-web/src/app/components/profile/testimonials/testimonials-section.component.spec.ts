@@ -64,7 +64,9 @@ describe('TestimonialsSectionComponent', () => {
       emailed: true });
     fixture.detectChanges();
     expect(element.querySelector('[data-testimonial-emailed]')?.textContent).toContain('profile.testimonials.emailed');
-    expect(component.mailto(component.asked!)).toContain(encodeURIComponent('/testimonial#abc'));
+    // To the person asked when their address was given, with a subject and a greeting.
+    expect(component.mailto(component.asked!)).toMatch(/^mailto:marie@acme\.example\?subject=profile\.testimonials\.emailSubject/);
+    expect(component.mailto({ ...component.asked!, email: null })).toMatch(/^mailto:\?subject=/);
 
     // A contact: no names asked, and an email that could not go says so.
     testimonials.request.and.returnValue(of({ token: 'def', emailed: false, testimonial: { ...asked, id: 4, recipientName: 'Léa Martin',

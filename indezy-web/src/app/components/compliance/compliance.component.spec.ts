@@ -143,7 +143,10 @@ describe('ComplianceComponent', () => {
     expect(service.share).toHaveBeenCalledWith(request);
     expect(component.packs[0].id).toBe(8);
     expect(component.sharedLink).toEqual({ recipient: 'Capgemini', url: `${location.origin}/documents-pack#secret-token` });
-    expect(component.mailto(component.sharedLink!)).toBe(`mailto:?body=${encodeURIComponent(component.sharedLink!.url)}`);
+    const mailto = decodeURIComponent(component.mailto(component.sharedLink!));
+    expect(mailto).toMatch(/^mailto:\?subject=/);
+    expect(mailto).toContain('subject=My compliance documents');
+    expect(mailto).toContain(component.sharedLink!.url);
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-shared-link]')!.textContent).toContain('secret-token');
 

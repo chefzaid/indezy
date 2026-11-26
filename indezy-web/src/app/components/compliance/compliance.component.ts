@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 
@@ -21,6 +21,7 @@ import {
 import { ComplianceShareDialogComponent, ComplianceShareDialogData } from './share-dialog/compliance-share-dialog.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { TrainingsSectionComponent } from './trainings/trainings-section.component';
+import { mailtoLink } from '../../shared/utils/email-template';
 
 /** The link just created, shown until the page is left: its token is given only once. */
 export interface SharedLink {
@@ -44,6 +45,7 @@ export class ComplianceComponent implements OnInit {
   private readonly compliance = inject(ComplianceService);
   private readonly dialog = inject(MatDialog);
   private readonly confirm = inject(ConfirmDialogService);
+  private readonly translate = inject(TranslateService);
   private readonly notifications = inject(NotificationService);
 
   documents: ComplianceDocument[] = [];
@@ -144,8 +146,9 @@ export class ComplianceComponent implements OnInit {
       () => this.notifications.error('compliance.copyError'));
   }
 
+  /** The link by email, with a subject and a word on what it opens. */
   mailto(link: SharedLink): string {
-    return `mailto:?body=${encodeURIComponent(link.url)}`;
+    return mailtoLink(null, this.translate.instant('compliance.emailSubject'), this.translate.instant('compliance.emailBody', { url: link.url }));
   }
 
   revoke(pack: CompliancePack): void {
