@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Follow up a quote
+
+A sent quote's menu has **Follow up**: an email in the quote's language to one of the client's contacts, asking for their feedback, or offering an updated quote once it expired. See [Quotes and invoices](/help/invoices-quotes).
+
 ### Remind a client of an overdue invoice
 
 An overdue invoice's menu has **Payment reminder**: the reminder written in the invoice's language, with the amount left to pay, the days late, the interest and the €40 indemnity, to send to one of the client's contacts. See [Quotes and invoices](/help/invoices-quotes).

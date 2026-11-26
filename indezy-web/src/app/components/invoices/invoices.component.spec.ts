@@ -16,7 +16,7 @@ import { ProjectService } from '../../services/project/project.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { InvoicesComponent } from './invoices.component';
 import { InvoiceBankDialogComponent } from './bank-dialog/invoice-bank-dialog.component';
-import { InvoiceReminderDialogComponent } from './reminder-dialog/invoice-reminder-dialog.component';
+import { ClientEmailDialogComponent } from '../../shared/components/client-email-dialog/client-email-dialog.component';
 import { InvoiceReportDialogComponent } from './report-dialog/invoice-report-dialog.component';
 import en from '../../../assets/i18n/en.json';
 
@@ -132,7 +132,7 @@ describe('InvoicesComponent', () => {
     const overdue = component.invoices.find(item => item.id === 3)!;
     dialog.open.and.returnValue({ afterClosed: () => of({ ...overdue, remindedOn: '2026-11-25' }) } as never);
     component.remind(overdue);
-    expect(dialog.open).toHaveBeenCalledWith(InvoiceReminderDialogComponent, jasmine.objectContaining({ data: overdue }));
+    expect(dialog.open).toHaveBeenCalledWith(ClientEmailDialogComponent, jasmine.objectContaining({ data: jasmine.objectContaining({ clientId: overdue.clientId }) }));
     // Reminded: the list says so.
     fixture.detectChanges();
     expect(element.querySelector('[data-invoice="3"] [data-reminded-on]')?.textContent).toContain('reminded on Nov 25, 2026');

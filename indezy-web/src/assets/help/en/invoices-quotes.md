@@ -100,7 +100,7 @@ The export holds the year's issued invoices and credit notes.
 1. Click **New quote**.
 2. Pick the client, optionally the mission, the language, how long it is **Valid for** (30 days by default, 365 at most), an optional **Deposit on order** (1 to 100 %), notes and the lines.
 3. Click **Send** and pick the **Quote date**. The quote gets its own number (D2026-0001) and is frozen. Then send its PDF to the client: Indezy does not send it itself.
-4. Depending on the answer, click **Accepted by the client** or **Refused by the client**. Without an answer, it reads **Expired** once its validity ends.
+4. Depending on the answer, click **Accepted by the client** or **Refused by the client**. Without an answer, it reads **Expired** once its validity ends. Meanwhile, **Follow up** writes to one of the client's contacts, in the quote's language, asking for their feedback (or, once expired, offering an updated quote).
 
 The PDF states the VAT or its exemption, the validity, the deposit, the payment term, the late payment penalties and a "Bon pour accord" box for the client's signature. Your **Terms and conditions of sale**, written in **Profile → Billing** or added there as a PDF, follow on their own pages; a sent quote keeps those it was sent with.
 

@@ -78,6 +78,7 @@
             @if (quote.status === 'SENT') {
               <button mat-menu-item type="button" (click)="decide(quote, true)" data-accept-quote><mat-icon>thumb_up</mat-icon>{{ 'quotes.accept' | translate }}</button>
               <button mat-menu-item type="button" (click)="decide(quote, false)" data-refuse-quote><mat-icon>thumb_down</mat-icon>{{ 'quotes.refuse' | translate }}</button>
+              <button mat-menu-item type="button" (click)="followUp(quote)" data-follow-up-quote><mat-icon>forward_to_inbox</mat-icon>{{ 'quotes.followUp.open' | translate }}</button>
             }
             @if (quote.status === 'ACCEPTED' && quote.depositPercent && !quote.depositInvoiceId && !quote.invoiceId) {
               <button mat-menu-item type="button" (click)="deposit(quote)" data-deposit-quote><mat-icon>savings</mat-icon>{{ 'quotes.invoiceDeposit' | translate }}</button>

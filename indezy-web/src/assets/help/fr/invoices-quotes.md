@@ -100,7 +100,7 @@ L'export reprend les factures et avoirs émis de l'année.
 1. Cliquez sur **Nouveau devis**.
 2. Choisissez le client, au besoin la mission, la langue, la **Durée de validité** (30 jours par défaut, 365 au plus), un éventuel **Acompte à la commande** (1 à 100 %), des notes et les lignes.
 3. Cliquez sur **Envoyer** et choisissez la **Date du devis**. Le devis reçoit son propre numéro (D2026-0001) et se fige. Envoyez ensuite son PDF au client : Indezy ne l'envoie pas lui-même.
-4. Selon la réponse, cliquez sur **Accepté par le client** ou **Refusé par le client**. Sans réponse, il passe **Expiré** à la fin de sa validité.
+4. Selon la réponse, cliquez sur **Accepté par le client** ou **Refusé par le client**. Sans réponse, il passe **Expiré** à la fin de sa validité. D'ici là, **Relancer** écrit à un contact du client, dans la langue du devis, pour lui demander son retour (ou, une fois expiré, lui proposer un nouveau devis).
 
 Le PDF porte la TVA ou son exonération, la validité, l'acompte, le délai de paiement, les pénalités de retard et une case « Bon pour accord » pour la signature du client. Vos **Conditions générales de vente**, écrites dans **Profil → Facturation** ou ajoutées là en PDF, suivent sur leurs propres pages ; un devis envoyé garde celles avec lesquelles il est parti.
 

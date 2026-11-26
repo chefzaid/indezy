@@ -29,7 +29,8 @@ import { TaxCalendarComponent } from './tax-calendar/tax-calendar.component';
 import { InvoiceBankDialogComponent } from './bank-dialog/invoice-bank-dialog.component';
 import { InvoiceDateDialogComponent, InvoiceDateDialogData } from './date-dialog/invoice-date-dialog.component';
 import { InvoiceDraftDialogComponent, InvoiceDraftDialogData } from './draft-dialog/invoice-draft-dialog.component';
-import { InvoiceReminderDialogComponent } from './reminder-dialog/invoice-reminder-dialog.component';
+import { ClientEmailDialogComponent, ClientEmailDialogData } from '../../shared/components/client-email-dialog/client-email-dialog.component';
+import { paymentReminder } from './payment-reminder/payment-reminder';
 import { InvoiceReportDialogComponent } from './report-dialog/invoice-report-dialog.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
@@ -163,12 +164,14 @@ export class InvoicesComponent implements OnInit {
 
   /** Opens the payment reminder of an overdue invoice, for one of its client's contacts. */
   remind(invoice: Invoice): void {
-    this.dialog.open<InvoiceReminderDialogComponent, Invoice, Invoice | boolean>(InvoiceReminderDialogComponent,
-      { data: invoice, width: '640px', maxWidth: '95vw', autoFocus: 'first-tabbable' }).afterClosed().subscribe(result => {
-      if (result && typeof result === 'object') {
-        this.invoices = this.invoices.map(kept => kept.id === result.id ? result : kept);
-      }
-    });
+    this.dialog.open<ClientEmailDialogComponent, ClientEmailDialogData, unknown>(ClientEmailDialogComponent,
+      { data: paymentReminder(invoice, this.translate, this.invoiceService), width: '640px', maxWidth: '95vw', autoFocus: 'first-tabbable' })
+      .afterClosed().subscribe(result => {
+        if (result && typeof result === 'object') {
+          const reminded = result as Invoice;
+          this.invoices = this.invoices.map(kept => kept.id === reminded.id ? reminded : kept);
+        }
+      });
   }
 
   markPaid(invoice: Invoice): void {

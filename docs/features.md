@@ -1616,7 +1616,9 @@ most, `quoteTerms`) follow on their own pages, the quote saying they apply; a se
 They can also be a PDF (`POST`/`DELETE /api/users/billing/quote-terms-file`, 5 MB and 20 pages at most, checked by the
 platform's ClamAV, refused with a password), whose pages are appended after the quote; each upload is a new file
 (`GET /api/users/billing/quote-terms-files/{id}`), so a sent quote keeps appending the one it was sent with. A sent quote is then **Accepted by the client** or **Refused by the client**, and reads
-**Expired** past its validity until then. An accepted quote that asks a deposit gets **Invoice the deposit**: a draft
+**Expired** past its validity until then. While sent, **Follow up** writes to one of the client's contacts in the quote's
+language (its number, date, amount before VAT and the day it holds until, or, expired, an updated quote offered), through the
+same email as the payment reminder (mail app, copy, or sent from Indezy). An accepted quote that asks a deposit gets **Invoice the deposit**: a draft
 **deposit invoice** (facture d'acompte, Factur-X type 386) of that share of the amount before VAT, one line per VAT rate
 of the quote, numbered with the other invoices once issued. **Invoice the balance** then drafts, once, the final invoice
 with the quote's lines, client, mission and language, stating "Selon devis N° …", less each issued deposit invoice line

@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, forkJoin } from 'rxjs';
 
 import { BillingIdentity, ClientDto, Invoice, Quote, QuoteDraft } from '../../models';
@@ -25,6 +25,8 @@ import { copyExtension, saveBlob } from '../../shared/utils/download-file';
 import { InvoiceDateDialogComponent, InvoiceDateDialogData } from '../invoices/date-dialog/invoice-date-dialog.component';
 import { InvoiceDraftDialogComponent, InvoiceDraftDialogData } from '../invoices/draft-dialog/invoice-draft-dialog.component';
 import { quoteErrorKey } from './quote-errors';
+import { ClientEmailDialogComponent } from '../../shared/components/client-email-dialog/client-email-dialog.component';
+import { quoteFollowUp } from './quote-follow-up';
 
 export type QuoteFilter = 'ALL' | 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REFUSED';
 
@@ -44,6 +46,7 @@ export class QuotesComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
   private readonly confirm = inject(ConfirmDialogService);
   private readonly notifications = inject(NotificationService);
   private readonly router = inject(Router);
@@ -113,6 +116,11 @@ export class QuotesComponent implements OnInit {
         this.apply(this.quoteService.send(quote.id, date), 'quotes.sent');
       }
     });
+  }
+
+  /** Opens the follow-up of a sent quote awaiting an answer, for one of its client's contacts. */
+  followUp(quote: Quote): void {
+    this.dialog.open(ClientEmailDialogComponent, { data: quoteFollowUp(quote, this.translate), width: '640px', maxWidth: '95vw', autoFocus: 'first-tabbable' });
   }
 
   decide(quote: Quote, accepted: boolean): void {

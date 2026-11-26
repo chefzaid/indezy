@@ -3022,6 +3022,7 @@
     "template": "Modèle",
     "recipient": "À",
     "noRecipient": "Aucun contact",
+    "noClientContact": "Aucun contact avec une adresse e-mail chez ce client : ajoutez-en un dans Contacts, ou copiez l'e-mail.",
     "draft": "Ce message",
     "askedNotToBeContacted": "a demandé à ne pas être contacté",
     "doNotContactWarning": "{{name}} a demandé à ne pas être contacté : écrivez-lui seulement pour lui répondre.",
@@ -3447,8 +3448,7 @@
     "markPaid": "Marquer payée",
     "reminder": {
       "open": "Relance de paiement",
-      "title": "Relance de paiement de {{number}}",
-      "noContact": "Aucun contact avec une adresse e-mail chez ce client : ajoutez-en un dans Contacts, ou copiez la relance."
+      "title": "Relance de paiement de {{number}}"
     },
     "markUnpaid": "Marquer non payée",
     "pdf": "Télécharger le PDF",
@@ -4130,6 +4130,10 @@
     "sendDate": "Date du devis",
     "accept": "Accepté par le client",
     "refuse": "Refusé par le client",
+    "followUp": {
+      "open": "Relancer",
+      "title": "Relance du devis {{number}}"
+    },
     "invoice": "Facturer le solde",
     "openInvoices": "Voir la facture",
     "created": "Devis rédigé",

@@ -14,6 +14,7 @@ import { NotificationService } from '../../services/notification/notification.se
 import { ProjectService } from '../../services/project/project.service';
 import { QuoteService } from '../../services/quote/quote.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
+import { ClientEmailDialogComponent } from '../../shared/components/client-email-dialog/client-email-dialog.component';
 import { InvoiceDraftDialogData } from '../invoices/draft-dialog/invoice-draft-dialog.component';
 import { quoteErrorKey } from './quote-errors';
 import { QuotesComponent } from './quotes.component';
@@ -93,6 +94,14 @@ describe('QuotesComponent', () => {
     component.filter = 'ACCEPTED';
     fixture.detectChanges();
     expect(element.querySelectorAll('[data-quote]').length).toBe(1);
+  });
+
+  it('follows up a sent quote, for one of its client\'s contacts', () => {
+    const component = create().componentInstance;
+    const sent = component.quotes.find(item => item.id === 2)!;
+    component.followUp(sent);
+    expect(dialog.open).toHaveBeenCalledWith(ClientEmailDialogComponent, jasmine.objectContaining({ data: jasmine.objectContaining({
+      clientId: sent.clientId, title: `Follow-up of ${sent.number}` }) }));
   });
 
   it('says when there is no quote, none answered yet, or the quotes cannot be loaded', () => {

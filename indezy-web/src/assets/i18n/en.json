@@ -3022,6 +3022,7 @@
     "template": "Template",
     "recipient": "To",
     "noRecipient": "No contact",
+    "noClientContact": "No contact with an email at this client: add one in Contacts, or copy the email.",
     "draft": "This message",
     "askedNotToBeContacted": "asked not to be contacted",
     "doNotContactWarning": "{{name}} asked not to be contacted: write only to answer them.",
@@ -3447,8 +3448,7 @@
     "markPaid": "Mark as paid",
     "reminder": {
       "open": "Payment reminder",
-      "title": "Payment reminder for {{number}}",
-      "noContact": "No contact with an email at this client: add one in Contacts, or copy the reminder."
+      "title": "Payment reminder for {{number}}"
     },
     "markUnpaid": "Mark as unpaid",
     "pdf": "Download PDF",
@@ -4130,6 +4130,10 @@
     "sendDate": "Quote date",
     "accept": "Accepted by the client",
     "refuse": "Refused by the client",
+    "followUp": {
+      "open": "Follow up",
+      "title": "Follow-up of {{number}}"
+    },
     "invoice": "Invoice the balance",
     "openInvoices": "See the invoice",
     "created": "Quote drafted",

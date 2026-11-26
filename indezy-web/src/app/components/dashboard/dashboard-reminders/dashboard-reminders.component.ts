@@ -7,7 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProjectService } from '../../../services/project/project.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import {
@@ -16,7 +16,8 @@ import {
   UpcomingInterview
 } from '../../../models';
 import { InvoiceService } from '../../../services/invoice/invoice.service';
-import { InvoiceReminderDialogComponent } from '../../invoices/reminder-dialog/invoice-reminder-dialog.component';
+import { ClientEmailDialogComponent } from '../../../shared/components/client-email-dialog/client-email-dialog.component';
+import { paymentReminder } from '../../invoices/payment-reminder/payment-reminder';
 
 /** The status suggestions dismissed on this device, by exchange id. */
 const DISMISSED_KEY = 'indezy.dashboard.dismissedStatusSuggestions';
@@ -52,6 +53,7 @@ export class DashboardRemindersComponent {
   private readonly projects = inject(ProjectService);
   private readonly notifications = inject(NotificationService);
   private readonly invoices = inject(InvoiceService);
+  private readonly translate = inject(TranslateService);
   /** The suggestions applied or dismissed, by exchange: dismissed ones are remembered on this device. */
   private readonly handled = new Set<number>(readDismissed());
 
@@ -77,7 +79,8 @@ export class DashboardRemindersComponent {
   /** Opens the payment reminder of an overdue invoice, read whole first. */
   remind(overdue: OverdueInvoice): void {
     this.invoices.get(overdue.invoiceId).subscribe({
-      next: invoice => this.dialog.open(InvoiceReminderDialogComponent, { data: invoice, width: '640px', maxWidth: '95vw', autoFocus: 'first-tabbable' }),
+      next: invoice => this.dialog.open(ClientEmailDialogComponent, { data: paymentReminder(invoice, this.translate, this.invoices), width: '640px',
+        maxWidth: '95vw', autoFocus: 'first-tabbable' }),
       error: () => this.notifications.error('dashboard.charts.remindError')
     });
   }

@@ -38,16 +38,16 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByRole('heading')).toContainText('F2026-0003');
     // The invoice is in French: so is its reminder, whatever the interface's language.
-    await expect(dialog.locator('[data-reminder-subject]')).toHaveValue('Facture F2026-0003 : paiement en attente');
-    const body = dialog.locator('[data-reminder-body]');
+    await expect(dialog.locator('[data-client-email-subject]')).toHaveValue('Facture F2026-0003 : paiement en attente');
+    const body = dialog.locator('[data-client-email-body]');
     await expect(body).toHaveValue(/Bonjour Léa,/);
     await expect(body).toHaveValue(/25 jours de retard/);
     await expect(body).toHaveValue(/art\. L441-10 et D441-5 du Code de commerce/);
-    await expect(dialog.locator('[data-reminder-open]')).toHaveAttribute('href', /^mailto:lea@acme\.example\?subject=Facture/);
+    await expect(dialog.locator('[data-client-email-open]')).toHaveAttribute('href', /^mailto:lea@acme\.example\?subject=Facture/);
     await settleDialog(page);
     expect(await wcagViolations(page), 'payment reminder').toEqual([]);
 
-    await dialog.locator('[data-reminder-send]').click();
+    await dialog.locator('[data-client-email-send]').click();
     await expect(dialog).toHaveCount(0);
     // The invoice now says when its client was reminded.
     await expect(page.locator('[data-invoice="3"] [data-reminded-on]')).toContainText(en ? 'reminded on' : 'relancée le');

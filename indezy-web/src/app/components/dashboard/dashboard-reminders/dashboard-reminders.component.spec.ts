@@ -8,7 +8,7 @@ import { AiMessageDialogComponent } from '../../../shared/components/ai-message-
 import { of, throwError } from 'rxjs';
 import { DashboardStatsDto, Invoice, OnThisDayItem, ProjectDto, ProjectStatus } from '../../../models';
 import { InvoiceService } from '../../../services/invoice/invoice.service';
-import { InvoiceReminderDialogComponent } from '../../invoices/reminder-dialog/invoice-reminder-dialog.component';
+import { ClientEmailDialogComponent } from '../../../shared/components/client-email-dialog/client-email-dialog.component';
 import { ProjectService } from '../../../services/project/project.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { provideHttpClient } from '@angular/common/http';
@@ -301,7 +301,7 @@ describe('DashboardRemindersComponent', () => {
     const get = spyOn(invoices, 'get').and.returnValue(of(full));
     element.querySelector<HTMLButtonElement>('[data-invoice-remind="3"]')!.click();
     expect(get).toHaveBeenCalledWith(3);
-    expect(open).toHaveBeenCalledWith(InvoiceReminderDialogComponent, jasmine.objectContaining({ data: full }));
+    expect(open).toHaveBeenCalledWith(ClientEmailDialogComponent, jasmine.objectContaining({ data: jasmine.objectContaining({ title: 'invoices.reminder.title' }) }));
 
     const notifications = TestBed.inject(NotificationService);
     spyOn(notifications, 'error');

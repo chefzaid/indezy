@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Relancer un devis
+
+Le menu d'un devis envoyé propose **Relancer** : un e-mail dans la langue du devis à un contact du client, pour lui demander son retour, ou lui proposer un nouveau devis une fois expiré. Voir [Devis et factures](/help/invoices-quotes).
+
 ### Relancer un client pour une facture en retard
 
 Le menu d'une facture en retard propose **Relance de paiement** : la relance rédigée dans la langue de la facture, avec le montant restant dû, les jours de retard, les pénalités et l'indemnité de 40 €, à envoyer à un contact du client. Voir [Devis et factures](/help/invoices-quotes).
