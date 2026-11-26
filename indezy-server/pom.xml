@@ -22,8 +22,8 @@
         <!-- JaCoCo's agent sets it; empty when JaCoCo is skipped. -->
         <argLine></argLine>
         <java.version>25</java.version>
-        <!-- The reader canaries read live sites and the load test needs a PostgreSQL: each runs on request only (see docs/testing.md). -->
-        <test.excludedGroups>canary,load</test.excludedGroups>
+        <!-- The reader canaries read live sites, the load and PostgreSQL tests need a PostgreSQL: each runs on request only (see docs/testing.md). -->
+        <test.excludedGroups>canary,load,postgres</test.excludedGroups>
         <!-- Test JVMs: one here; CI forks one per two CPUs of its job, with a heap share (infra/scripts/ci-verify.sh). -->
         <test.forkCount>1</test.forkCount>
         <test.jvmArgs></test.jvmArgs>

@@ -161,6 +161,21 @@ database. Never point it at a database holding real data: it adds its offers and
 connections take the planner settings the database setup hook gives the application's role (`jit = off`,
 `random_page_cost = 1.1`, `plan_cache_mode = force_custom_plan`, see [Architecture](./architecture.md#offer-search-at-scale)).
 
+## PostgreSQL Specifics
+
+`PostgresSpecificsTest` checks what only PostgreSQL runs, the tests' H2 standing in otherwise: a network event goes out
+as a `NOTIFY` and comes back through `NetworkEventRelay`'s own listening connection (as it does between replicas), and
+`OfferSearchIndex` built the offers' trigram index and set their row size target (`toast_tuple_target = 256`). It
+carries the JUnit tag `postgres`, left out like `load`, and uses the same disposable database and variables as the load
+test:
+
+```bash
+cd indezy-server
+./mvnw test -Dtest=PostgresSpecificsTest -Dgroups=postgres -Dtest.excludedGroups=none -Djacoco.skip=true
+```
+
+The last run, on 2026-11-26 (PostgreSQL 16): passed.
+
 ## Factur-X Validation
 
 `FacturXStyleTest` renders an issued invoice in every font and layout, with a logo, the page zones (`{{page}}`,
