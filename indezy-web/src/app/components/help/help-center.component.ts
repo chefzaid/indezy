@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnIn
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -21,8 +22,8 @@ import { HelpHit, HelpSearchService } from './help-search.service';
  */
 @Component({
   selector: 'app-help-center',
-  imports: [ReactiveFormsModule, RouterLink, MatFormFieldModule, MatIconModule, MatInputModule, TranslateModule, PageHeaderComponent,
-    PublicPageHeaderComponent],
+  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslateModule,
+    PageHeaderComponent, PublicPageHeaderComponent],
   templateUrl: './help-center.component.html',
   styleUrls: ['./help-center.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

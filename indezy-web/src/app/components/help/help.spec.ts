@@ -39,6 +39,10 @@ describe('HelpCenterComponent', () => {
     expect(element.querySelectorAll('[data-help-article]').length).toBe(HELP_ARTICLES.length);
     expect(element.querySelector('[data-help-article="network"]')?.getAttribute('href')).toBe('/help/network');
     expect(element.querySelector('[data-help-article="network"]')?.textContent).toContain('The member network');
+    expect(element.querySelector('[data-help-support]')?.getAttribute('href')).toBe('/support');
+    expect(element.querySelector('[data-help-support-problem]')?.getAttribute('href')).toBe('/support?kind=PROBLEM&page=%2Fhelp');
+    expect(element.querySelector('[data-help-support-feature]')?.getAttribute('href')).toBe('/support?kind=FEATURE&page=%2Fhelp');
+    expect(element.querySelector('[data-help-support-requests]')?.getAttribute('href')).toBe('/support#mine');
     expect(element.querySelector('app-public-page-header')).toBeNull();
   });
 
@@ -47,6 +51,8 @@ describe('HelpCenterComponent', () => {
     const fixture = TestBed.createComponent(HelpCenterComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-public-page-header')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-help-support]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-help-support-card]')).toBeNull();
     fixture.componentInstance.query.setValue('invoice');
     tick(200);
     const http = TestBed.inject(HttpTestingController);

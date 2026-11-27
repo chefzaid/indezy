@@ -40,6 +40,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.getByRole('link', { name: en ? 'Help' : 'Aide', exact: true }).click();
     await expect(page).toHaveURL(/\/help$/);
     await expect(page.locator('[data-help-article]')).toHaveCount(SLUGS.length);
+    await expect(page.locator('[data-help-support]')).toHaveAttribute('href', '/support');
+    await expect(page.locator('[data-help-support-requests]')).toHaveAttribute('href', '/support#mine');
     const audit = await new AxeBuilder({ page }).include('.help-page').withTags(AUDIT).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
 

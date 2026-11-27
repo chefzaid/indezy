@@ -2,7 +2,13 @@
   @if (!auth.isAuthenticated()) {
     <app-public-page-header></app-public-page-header>
   }
-  <app-page-header icon="help" [title]="'help.title' | translate" [subtitle]="'help.subtitle' | translate"></app-page-header>
+  <app-page-header icon="help" [title]="'help.title' | translate" [subtitle]="'help.subtitle' | translate">
+    @if (auth.isAuthenticated()) {
+      <a mat-flat-button color="primary" routerLink="/support" data-help-support>
+        <mat-icon aria-hidden="true">support_agent</mat-icon>{{ 'support.title' | translate }}
+      </a>
+    }
+  </app-page-header>
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search">
     <mat-icon matPrefix>search</mat-icon>
@@ -42,5 +48,28 @@
         </ul>
       </section>
     }
+  }
+
+  @if (auth.isAuthenticated()) {
+    <section class="support-card" aria-labelledby="help-support-heading" data-help-support-card>
+      <div class="support-copy">
+        <mat-icon aria-hidden="true">support_agent</mat-icon>
+        <div>
+          <h2 id="help-support-heading">{{ 'support.title' | translate }}</h2>
+          <p>{{ 'support.subtitle' | translate }}</p>
+        </div>
+      </div>
+      <div class="support-actions">
+        <a mat-stroked-button routerLink="/support" [queryParams]="{ kind: 'PROBLEM', page: '/help' }" data-help-support-problem>
+          <mat-icon aria-hidden="true">report_problem</mat-icon>{{ 'help.panel.problem' | translate }}
+        </a>
+        <a mat-stroked-button routerLink="/support" [queryParams]="{ kind: 'FEATURE', page: '/help' }" data-help-support-feature>
+          <mat-icon aria-hidden="true">lightbulb</mat-icon>{{ 'help.panel.feature' | translate }}
+        </a>
+        <a mat-stroked-button routerLink="/support" fragment="mine" data-help-support-requests>
+          <mat-icon aria-hidden="true">forum</mat-icon>{{ 'help.panel.requests' | translate }}
+        </a>
+      </div>
+    </section>
   }
 </div>
