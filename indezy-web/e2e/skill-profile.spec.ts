@@ -49,8 +49,14 @@ for (const language of ['en', 'fr']) {
     await expect(section.locator('.skill-name')).toHaveText(['Java', 'JavaScript', 'Kubernetes', 'Event Sourcing']);
 
     const sourcing = rows.nth(3);
+    // The skill field's suggestions stay open after the last skill added: close them first, as a click elsewhere
+    // while they are open may only close them.
+    await add.press('Escape');
+    await expect(page.getByRole('listbox')).toHaveCount(0);
     await sourcing.getByRole('combobox').click();
-    await page.getByRole('option', { name: en ? 'Advanced' : 'Avancé', exact: true }).click();
+    const advanced = page.getByRole('option', { name: en ? 'Advanced' : 'Avancé', exact: true });
+    await expect(advanced).toBeVisible();
+    await advanced.click();
     await expect(page.getByRole('listbox')).toBeHidden();
     await sourcing.getByRole('spinbutton').fill('3');
     await sourcing.getByRole('spinbutton').press('Tab');
