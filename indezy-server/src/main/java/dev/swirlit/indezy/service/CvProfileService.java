@@ -40,6 +40,7 @@ public class CvProfileService {
     private final CvProfileRepository profiles;
     private final DossierService dossiers;
     private final CareerService career;
+    private final dev.swirlit.indezy.repository.CvShareRepository shares;
 
     @Transactional(readOnly = true)
     public List<CvProfileDtos.Profile> list(Long freelanceId) {
@@ -183,6 +184,7 @@ public class CvProfileService {
         if (profile.getTwinId() != null) {
             profiles.findByIdAndFreelanceId(profile.getTwinId(), freelanceId).ifPresent(twin -> twin.setTwinId(null));
         }
+        shares.deleteByProfileId(profile.getId());
         profiles.delete(profile);
         profiles.flush();
         if (profile.isDefaultProfile()) {
@@ -366,6 +368,12 @@ public class CvProfileService {
     private static String cut(String text, int max) {
         String clean = blank(text);
         return clean == null || clean.length() <= max ? clean : clean.substring(0, max);
+    }
+
+    /** The profile's dossier as it is drawn, named or anonymized: what a shared link shows of it. */
+    @Transactional(readOnly = true)
+    public DossierDto shapedDossier(Long userId, Long freelanceId, Long id, DossierLayout layout) {
+        return shaped(userId, freelanceId, owned(freelanceId, id), layout);
     }
 
     private DossierDto shaped(Long userId, Long freelanceId, CvProfile profile, DossierLayout layout) {

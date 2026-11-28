@@ -11,7 +11,7 @@ import { clearOfflineData } from '../../shared/utils/offline-data';
  * Pages opened without an Indezy account: an ESN validating an activity report, opening shared documents or booking a
  * call, an email's unsubscribe link, a public profile.
  */
-export const PUBLIC_PAGE_PATHS = ['/activity-report', '/book', '/documents-pack', '/emails/unsubscribe', '/forgot-password', '/p', '/reset-password',
+export const PUBLIC_PAGE_PATHS = ['/activity-report', '/book', '/documents-pack', '/shared-cv', '/emails/unsubscribe', '/forgot-password', '/p', '/reset-password',
   '/testimonial', '/verify-email'];
 
 /** The presentation page's addresses: the session is exchanged there to know who is signed in, never asked for. */

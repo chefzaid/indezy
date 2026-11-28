@@ -15,6 +15,7 @@ import { aiErrorKey } from '../../../services/ai/ai.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { saveBlob } from '../../../shared/utils/download-file';
 import { CvProfileDialogComponent } from './cv-profile-dialog.component';
+import { CvShareDialogComponent } from './cv-share-dialog.component';
 
 /**
  * The CV profiles (see docs/features.md#cv-profiles): named positionings of the profile ("Java / Cloud backend", "Tech
@@ -69,6 +70,9 @@ import { CvProfileDialogComponent } from './cv-profile-dialog.component';
               </button>
             }
             <mat-divider></mat-divider>
+            <button mat-menu-item type="button" (click)="share(profile)" data-cv-profile-share>
+              <mat-icon>link</mat-icon><span>{{ 'cvShares.open' | translate }}</span>
+            </button>
             <button mat-menu-item type="button" (click)="translate(profile)" [disabled]="translating" data-cv-profile-translate>
               <mat-icon>translate</mat-icon>
               <span>{{ (twinOf(profile) ? 'cvProfiles.retranslate' : 'cvProfiles.translate') | translate:{ language: other(profile) } }}</span>
@@ -156,6 +160,11 @@ export class ProfileCvProfilesComponent implements OnInit {
 
   get archived(): CvProfile[] {
     return this.profiles.filter(profile => profile.archived);
+  }
+
+  /** Shares the profile through a link of its own, or revokes one of its links. */
+  share(profile: CvProfile): void {
+    this.dialog.open(CvShareDialogComponent, { data: { profile }, width: '600px', maxWidth: '95vw' });
   }
 
   duplicate(profile: CvProfile): void {

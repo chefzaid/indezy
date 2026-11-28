@@ -113,6 +113,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/compliance-pack/compliance-pack.component').then(m => m.CompliancePackComponent)
   },
   {
+    // A CV profile a freelancer shares with an ESN, opened from the link without an account.
+    path: 'shared-cv',
+    loadComponent: () => import('./components/shared-cv/shared-cv.component').then(m => m.SharedCvComponent)
+  },
+  {
     // A freelancer's booking link, opened by recruiters without an account.
     path: 'book/:slug',
     loadComponent: () => import('./components/book/book.component').then(m => m.BookComponent)

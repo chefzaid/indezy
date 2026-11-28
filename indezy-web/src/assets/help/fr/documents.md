@@ -102,6 +102,8 @@ Quand un fait sur lequel repose la formulation d'un profil change (les dates ou 
 
 Le menu d'un profil propose aussi **Dupliquer**, pour en commencer un nouveau à partir de lui, et **Archiver**, pour mettre de côté un profil que vous n'utilisez plus : les profils archivés attendent sous **Archivés** jusqu'à ce que vous en **Restauriez** un, et ne comptent pas dans les 20 que vous pouvez garder.
 
+**Partager par lien** dans le menu d'un profil crée un lien pour une ESN ou un recruteur : indiquez pour qui, nominatif ou anonymisé, et pour combien de jours, puis copiez le lien, affiché une seule fois. La personne qui l'ouvre télécharge ce CV en PDF ou en Word sans compte. La même fenêtre liste les liens du profil avec le nombre d'ouvertures et de téléchargements, et **Révoquer** en ferme un aussitôt.
+
 ## Adapter votre dossier à une annonce
 
 Pour répondre à une annonce reçue par e-mail ou trouvée sur un site que le flux ne collecte pas, sans l'ajouter à votre pipeline :

@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
+import { settleDialog } from './helpers/dialog';
 
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
@@ -93,7 +94,68 @@ for (const language of ['en', 'fr']) {
     await card.locator('[data-cv-profile-restore="8"]').click();
     await expect(card.locator('[data-cv-profile="8"]')).toBeVisible();
 
+    // Shared by a link of its own, shown once.
+    const shared: unknown[] = [];
+    await page.route(/\/api\/users\/cv-shares$/, route => {
+      if (route.request().method() === 'POST') {
+        shared.push(route.request().postDataJSON());
+        return route.fulfill({ status: 201, json: { token: 'e2e-cv-token', share: { id: 1, profileId: 7, profileName: 'Backend Kafka',
+          recipient: 'ESN Alpha', layout: 'ANONYMOUS', createdAt: '2026-11-28T08:00:00', expiresAt: '2026-12-05T08:00:00Z', revokedAt: null,
+          active: true, openCount: 0, downloadCount: 0, lastOpenedAt: null } } });
+      }
+      return route.fulfill({ json: [] });
+    });
+    await card.locator('[data-cv-profile-menu="7"]').click();
+    await page.locator('[data-cv-profile-share]').click();
+    const shareDialog = page.locator('mat-dialog-container');
+    await settleDialog(page);
+    await shareDialog.locator('[data-cv-share-recipient]').fill('ESN Alpha');
+    await shareDialog.locator('[data-cv-share-layout]').getByRole('radio').nth(1).click();
+    await shareDialog.locator('[data-cv-share-create]').click();
+    await expect(shareDialog.locator('[data-cv-share-url]')).toHaveValue(/\/shared-cv#e2e-cv-token$/);
+    expect(shared).toEqual([{ profileId: 7, recipient: 'ESN Alpha', layout: 'ANONYMOUS', days: 7 }]);
+    const shareAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
+    expect(shareAudit.violations.map(violation => violation.id)).toEqual([]);
+    await shareDialog.getByRole('button', { name: language === 'en' ? 'Close' : 'Fermer' }).click();
+    await expect(shareDialog).toHaveCount(0);
+
     const cardAudit = await new AxeBuilder({ page }).include('[data-cv-profiles]').withTags(WCAG).analyze();
     expect(cardAudit.violations.map(violation => violation.id)).toEqual([]);
   });
 }
+
+test('opens a shared CV without an account, and says when the link no longer opens', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const tokens: (string | undefined)[] = [];
+  await page.route('**/api/public/cv-shares', route => {
+    const token = route.request().headers()['x-cv-token'];
+    tokens.push(token);
+    return token === 'good' ? route.fulfill({ json: { name: 'A. M.', headline: 'Lead Kafka', language: 'FR', layout: 'ANONYMOUS',
+      expiresAt: '2026-12-05T08:00:00Z' } }) : route.fulfill({ status: 404, json: { message: 'Link invalid or expired' } });
+  });
+  const formats: string[] = [];
+  await page.route('**/api/public/cv-shares/dossier*', route => {
+    formats.push(new URL(route.request().url()).search);
+    return route.fulfill({ body: '%PDF-1.7', contentType: 'application/pdf' });
+  });
+
+  await page.goto('/shared-cv#good');
+  await expect(page.locator('[data-shared-cv-name]')).toHaveText('A. M.');
+  await expect(page.locator('main')).toContainText('Lead Kafka');
+  const download = page.waitForEvent('download');
+  await page.locator('[data-shared-cv-docx]').click();
+  expect((await download).suggestedFilename()).toBe('cv-a-m.docx');
+  expect(formats).toEqual(['?format=DOCX']);
+  const audit = await new AxeBuilder({ page }).withTags(WCAG).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  // The token never goes in an address.
+  expect(page.url()).toContain('#good');
+
+  // A new link is a new page: changing only what follows # would not reload it.
+  await page.goto('about:blank');
+  await page.goto('/shared-cv#gone');
+  await expect(page.locator('[data-shared-cv-invalid]')).toBeVisible();
+  expect(tokens).toEqual(['good', 'gone']);
+});
+

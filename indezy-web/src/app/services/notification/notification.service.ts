@@ -8,7 +8,7 @@ const DEFAULT_DURATION = 3000;
 /** An error shown with **Report** stays this long, to leave time to choose it. */
 const REPORTABLE_DURATION = 6000;
 /** Pages open without an account, where **Report** would lead to the sign-in page. */
-const PUBLIC_PAGES = /^\/($|en\/?$|login|register|help|legal|p\/|book\/|testimonial|activity-report|network-invitation|emails\/|documents-pack)/;
+const PUBLIC_PAGES = /^\/($|en\/?$|login|register|help|legal|p\/|book\/|testimonial|activity-report|network-invitation|emails\/|documents-pack|shared-cv)/;
 
 /**
  * Centralized snackbar notifications: translates the message key and applies

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Partager un profil de CV par lien
+
+Envoyez à une ESN un lien vers l'un de vos profils de CV, nominatif ou anonymisé, valable quelques jours : il s'ouvre et se télécharge sans compte, vous voyez chaque ouverture et téléchargement, et pouvez le révoquer. Voir [Documents](/help/documents).
+
 ### Profils de CV à revoir quand vos faits changent
 
 Dupliquez un profil de CV pour en commencer un autre, ou archivez celui que vous n'utilisez plus. Un profil de CV signale désormais quand un fait sur lequel repose sa formulation a changé (dates, stack, compétences, certifications, missions gagnées) : il ne vieillit plus sans que vous le sachiez. Voir [Documents](/help/documents).

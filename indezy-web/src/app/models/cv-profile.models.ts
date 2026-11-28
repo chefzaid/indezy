@@ -53,3 +53,34 @@ export interface CvProfileSources {
   missions: CvProfileSource[];
   positions: CvProfileSource[];
 }
+
+/** A link a CV profile is shared through. */
+export interface CvShare {
+  id: number;
+  profileId: number;
+  profileName: string | null;
+  recipient: string;
+  layout: 'NAMED' | 'ANONYMOUS';
+  createdAt: string;
+  expiresAt: string;
+  revokedAt: string | null;
+  active: boolean;
+  openCount: number;
+  downloadCount: number;
+  lastOpenedAt: string | null;
+}
+
+/** A link just made, with its token shown this once. */
+export interface CreatedCvShare {
+  share: CvShare;
+  token: string;
+}
+
+/** What a shared CV link shows, without an account. */
+export interface PublicCvShare {
+  name: string;
+  headline: string | null;
+  language: DocumentLanguage;
+  layout: 'NAMED' | 'ANONYMOUS';
+  expiresAt: string;
+}

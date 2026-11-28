@@ -296,6 +296,15 @@ profile out of the way: listed apart under **Archived**, out of the limit of 20 
 default's place goes to the oldest active one, and an archived profile cannot be made the default); **Bring back**
 returns it, within the limit, the default when there is none.
 
+**Share by link** (`POST /api/users/cv-shares` with the profile, who it is for, named or anonymized, 1 to 30 days, 7 by
+default; 20 open links at most) makes a link of its own, `/shared-cv#<token>`, shown once: only the token's SHA-256 is
+kept, and the token travels after `#` and in the `X-Cv-Token` header, never in an address, so it stays out of server
+logs. Whoever opens it, without an account, sees whose CV (initials only when anonymized), its headline and until when
+(`GET /api/public/cv-shares`), and downloads it as a PDF or a Word document (`GET /api/public/cv-shares/dossier`), drawn
+from the profile as it is then. Each opening and download is counted on the link, listed in the profile's **Share by
+link** dialog (`GET /api/users/cv-shares`), and **Revoke** (`PUT /api/users/cv-shares/{id}/revoke`) closes it for good;
+an unknown, expired or revoked link answers 404. Deleting a profile deletes its links.
+
 ### Experience And Education
 
 The personal information tab of **Profile** lists, under the form, the positions held before or outside Indezy and the

@@ -102,6 +102,8 @@ When a fact a profile's wording relies on changes (a mission's dates or stack, a
 
 A profile's menu also has **Duplicate**, to start a new one from it, and **Archive**, to keep one you no longer use out of the way: archived profiles wait under **Archived** until you **Bring back** one, and do not count in the 20 you can keep.
 
+**Share by link** in a profile's menu makes a link for an ESN or a recruiter: say who it is for, named or anonymized, and for how many days, then copy the link, shown this once. Whoever opens it downloads this CV as a PDF or a Word document without an account. The same dialog lists the profile's links with how often each was opened and downloaded, and **Revoke** closes one at once.
+
 ## Tailor your dossier to a job posting
 
 To answer a posting you received by email or found on a site the feed does not collect, without adding it to your pipeline:

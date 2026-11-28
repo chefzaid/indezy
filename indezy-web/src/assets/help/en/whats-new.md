@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Share a CV profile by link
+
+Send an ESN a link of its own to one of your CV profiles, named or anonymized, valid a few days: it opens and downloads without an account, you see each opening and download, and you can revoke it. See [Documents](/help/documents).
+
 ### CV profiles to review when your facts change
 
 Duplicate a CV profile to start another from it, or archive one you no longer use. A CV profile now says when a fact its wording relies on changed (dates, stack, skills, certifications, missions won), so it never goes stale unnoticed. See [Documents](/help/documents).
