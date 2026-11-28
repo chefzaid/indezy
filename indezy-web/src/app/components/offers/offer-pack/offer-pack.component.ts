@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -10,8 +10,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { catchError, map, of, switchMap } from 'rxjs';
-import { AiApplicationPack, AiPackChannel } from '../../../models';
+import { Observable, catchError, map, of, switchMap } from 'rxjs';
+import { AiApplicationPack, AiPackChannel, CvProfile } from '../../../models';
+import { CvProfileService } from '../../../services/cv-profile/cv-profile.service';
+import { saveBlob } from '../../../shared/utils/download-file';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { OfferService } from '../../../services/offer/offer.service';
@@ -48,6 +50,14 @@ import { DossierButtonComponent } from '../../profile/dossier-button/dossier-but
         </button>
         <app-dossier-button [offerId]="offerId" (made)="dossier = $event"></app-dossier-button>
       </div>
+      @if (closest && !dossier) {
+        <p class="disclaimer" data-offer-pack-cv>
+          {{ 'ai.pack.closestCv' | translate:{ name: closest.name } }}
+          <button mat-button type="button" (click)="downloadClosest()" data-offer-pack-cv-download>
+            <mat-icon>download</mat-icon>{{ 'ai.pack.downloadCv' | translate }}
+          </button>
+        </p>
+      }
       @if (dossier && pack) {
         <p class="disclaimer" data-offer-pack-dossier>{{ 'ai.pack.dossierKept' | translate:{ name: dossier.name } }}</p>
       }
@@ -101,13 +111,14 @@ import { DossierButtonComponent } from '../../profile/dossier-button/dossier-but
   `],
   changeDetection: ChangeDetectionStrategy.Eager
 })
-export class OfferPackComponent {
+export class OfferPackComponent implements OnInit {
   @Input({ required: true }) offerId!: number;
 
   private readonly ai = inject(AiService);
   private readonly offers = inject(OfferService);
   private readonly projects = inject(ProjectService);
   private readonly attachments = inject(ProjectAttachmentService);
+  private readonly cvProfiles = inject(CvProfileService);
   private readonly notifications = inject(NotificationService);
   private readonly clipboard = inject(Clipboard);
   private readonly translate = inject(TranslateService);
@@ -120,6 +131,38 @@ export class OfferPackComponent {
   pack: AiApplicationPack | null = null;
   /** The latest dossier tailored to the offer, attached to the opportunity it becomes. */
   dossier: File | null = null;
+  /** The CV profile closest to the offer, attached when no dossier was tailored to it. */
+  closest: CvProfile | null = null;
+
+  ngOnInit(): void {
+    this.cvProfiles.closestToOffer(this.offerId).subscribe({
+      next: profile => {
+        this.closest = profile;
+        this.changes.markForCheck();
+      },
+      error: () => this.closest = null
+    });
+  }
+
+  downloadClosest(): void {
+    const closest = this.closest;
+    if (closest) {
+      this.cvProfiles.dossier(closest.id, 'NAMED', 'PDF').subscribe({
+        next: file => saveBlob(file, cvFileName(closest)),
+        error: () => this.notifications.error('profile.dossier.error')
+      });
+    }
+  }
+
+  /** What the opportunity keeps of the CV: the dossier tailored to the offer, else the closest CV profile's, else nothing. */
+  private attachment(): Observable<File | null> {
+    if (this.dossier) {
+      return of(this.dossier);
+    }
+    const closest = this.closest;
+    return !closest ? of(null) : this.cvProfiles.dossier(closest.id, 'NAMED', 'PDF').pipe(
+      map(blob => new File([blob], cvFileName(closest), { type: 'application/pdf' })), catchError(() => of(null)));
+  }
   preparing = false;
   adding = false;
 
@@ -151,7 +194,6 @@ export class OfferPackComponent {
   /** Adds the offer to the pipeline, keeps the pack in the new opportunity's journal and the tailored dossier in its files, then opens it. */
   addToPipeline(): void {
     const pack = this.pack;
-    const dossier = this.dossier;
     if (!pack || this.adding) {
       return;
     }
@@ -164,8 +206,8 @@ export class OfferPackComponent {
     this.offers.importOffer(this.offerId).pipe(
       switchMap(project => this.projects.addProjectNote(project.id!, note).pipe(switchMap(() => [project]))),
       // The opportunity is there either way: a dossier that could not be attached is said so, to attach by hand.
-      switchMap(project => !dossier ? of({ project, attached: true }) : this.attachments.upload(project.id!, dossier).pipe(
-        map(() => ({ project, attached: true })), catchError(() => of({ project, attached: false }))))
+      switchMap(project => this.attachment().pipe(switchMap(file => !file ? of({ project, attached: true }) :
+        this.attachments.upload(project.id!, file).pipe(map(() => ({ project, attached: true })), catchError(() => of({ project, attached: false }))))))
     ).subscribe({
       next: ({ project, attached }) => {
         this.adding = false;
@@ -183,4 +225,10 @@ export class OfferPackComponent {
       }
     });
   }
+}
+
+/** A CV profile's file name: "cv-backend-kafka.pdf". */
+function cvFileName(profile: CvProfile): string {
+  const word = profile.name.normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return `cv-${word || 'profile'}.pdf`;
 }

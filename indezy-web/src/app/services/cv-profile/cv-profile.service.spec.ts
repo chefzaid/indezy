@@ -12,6 +12,10 @@ describe('CvProfileService', () => {
 
     service.list().subscribe();
     expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles')).request.method).toBe('GET');
+    let closest: unknown = 'unset';
+    service.closestToOffer(9).subscribe(profile => closest = profile);
+    http.expectOne(call => call.url.endsWith('/users/cv-profiles/closest') && call.params.get('offerId') === '9').flush(null, { status: 204, statusText: 'No Content' });
+    expect(closest).toBeNull();
     service.sources().subscribe();
     http.expectOne(call => call.url.endsWith('/users/cv-profiles/sources'));
     service.create(details).subscribe();

@@ -4,7 +4,7 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ### Le bon CV dans chaque e-mail
 
-Un e-mail envoyé depuis Indezy avec votre dossier joint désormais le profil de CV le plus proche de ce que chaque ESN demande, ou celui que vous choisissez. Voir [Documents](/help/documents).
+Un e-mail envoyé depuis Indezy avec votre dossier joint désormais le profil de CV le plus proche de ce que chaque ESN demande, ou celui que vous choisissez ; sur une offre du flux, le profil le plus proche est indiqué et joint à l'opportunité ajoutée. Voir [Documents](/help/documents).
 
 ### Vérifier un CV avant son envoi
 

@@ -320,7 +320,9 @@ contact's company asked for in the missions it posted lately and, about an oppor
 most of those skills, the default on a tie or when nothing is asked, in the email's language (its twin when it has one);
 without a profile, the dossier focused on those skills as before. A profile chosen then deleted gives way to the
 closest one. `GET /api/contacts/{id}/emails/cv-profile?projectId` says which one would go; the availability emails
-offer **CV attached**: the closest for each, or one profile for all.
+offer **CV attached**: the closest for each, or one profile for all. On a feed offer's page, **Prepare my application
+(AI)** names the CV profile closest to the offer's skills (`GET /api/users/cv-profiles/closest?offerId`), to download,
+and **Add to pipeline with this pack** attaches it to the opportunity when no dossier was tailored to the offer.
 
 ### Experience And Education
 

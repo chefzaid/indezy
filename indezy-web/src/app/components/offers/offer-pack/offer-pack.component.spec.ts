@@ -5,13 +5,14 @@ import { Router, provideRouter } from '@angular/router';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
-import { ProjectAttachment, ProjectDto, ProjectNote } from '../../../models';
+import { CvProfile, ProjectAttachment, ProjectDto, ProjectNote } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { OfferService } from '../../../services/offer/offer.service';
 import { ProjectService } from '../../../services/project/project.service';
 import { ProjectAttachmentService } from '../../../services/project/project-attachment.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
+import { CvProfileService } from '../../../services/cv-profile/cv-profile.service';
 import { OfferPackComponent } from './offer-pack.component';
 
 describe('OfferPackComponent', () => {
@@ -23,7 +24,11 @@ describe('OfferPackComponent', () => {
   const pack = { subject: 'Candidature Lead Kotlin', message: 'Bonjour,', screening: [{ question: 'Disponibilité', answer: 'Dès janvier.' }],
     rate: 620, rateReasons: ['Kotlin rare'] };
 
-  function create() {
+  let cvProfiles: jasmine.SpyObj<CvProfileService>;
+
+  function create(closest: CvProfile | null = null) {
+    cvProfiles = jasmine.createSpyObj('CvProfileService', ['closestToOffer', 'dossier']);
+    cvProfiles.closestToOffer.and.returnValue(of(closest));
     ai = jasmine.createSpyObj('AiService', ['applicationPack']);
     attachments = jasmine.createSpyObj('ProjectAttachmentService', ['upload']);
     offers = jasmine.createSpyObj('OfferService', ['importOffer']);
@@ -36,7 +41,8 @@ describe('OfferPackComponent', () => {
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: AiService, useValue: ai },
         { provide: OfferService, useValue: offers }, { provide: ProjectService, useValue: projects },
         { provide: NotificationService, useValue: notifications }, { provide: Clipboard, useValue: clipboard },
-        { provide: ProjectAttachmentService, useValue: attachments }, { provide: UserManagementService, useValue: {} }]
+        { provide: ProjectAttachmentService, useValue: attachments }, { provide: UserManagementService, useValue: {} },
+        { provide: CvProfileService, useValue: cvProfiles }]
     });
     const fixture = TestBed.createComponent(OfferPackComponent);
     fixture.componentRef.setInput('offerId', 5);
@@ -106,5 +112,25 @@ describe('OfferPackComponent', () => {
     attachments.upload.and.returnValue(throwError(() => new Error('too large')));
     component.addToPipeline();
     expect(notifications.error).toHaveBeenCalledWith('ai.pack.attachError');
+  });
+
+  it('offers the CV profile closest to the offer and attaches it when no dossier was tailored', () => {
+    const fixture = create({ id: 4, name: 'Backend Kafka' } as CvProfile);
+    const component = fixture.componentInstance;
+    expect(cvProfiles.closestToOffer).toHaveBeenCalledWith(5);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-offer-pack-cv]')).not.toBeNull();
+    spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    ai.applicationPack.and.returnValue(of(pack));
+    component.prepare();
+    cvProfiles.dossier.and.returnValue(of(new Blob(['%PDF'])));
+    offers.importOffer.and.returnValue(of({ id: 42 } as ProjectDto));
+    projects.addProjectNote.and.returnValue(of({ id: 1 } as ProjectNote));
+    attachments.upload.and.returnValue(of({ id: 3 } as ProjectAttachment));
+
+    component.addToPipeline();
+    expect(cvProfiles.dossier).toHaveBeenCalledWith(4, 'NAMED', 'PDF');
+    expect((attachments.upload.calls.mostRecent().args[1] as File).name).toBe('cv-backend-kafka.pdf');
+    expect(notifications.success).toHaveBeenCalledWith('ai.pack.added');
   });
 });

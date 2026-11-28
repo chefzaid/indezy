@@ -41,6 +41,7 @@ public class CvProfileService {
     private final DossierService dossiers;
     private final CareerService career;
     private final dev.swirlit.indezy.repository.CvShareRepository shares;
+    private final dev.swirlit.indezy.repository.JobOfferRepository offers;
 
     @Transactional(readOnly = true)
     public List<CvProfileDtos.Profile> list(Long freelanceId) {
@@ -299,6 +300,15 @@ public class CvProfileService {
             .distinct().count();
         return active.stream().max(java.util.Comparator.comparingLong(matches)
             .thenComparing(profile -> profile.isDefault()).thenComparing(java.util.Comparator.comparing(CvProfileDtos.Profile::id).reversed()));
+    }
+
+    /** The active CV profile closest to a feed offer's skills; none without a profile. */
+    @Transactional(readOnly = true)
+    public Optional<CvProfileDtos.Profile> closestToOffer(Long userId, Long freelanceId, Long offerId) {
+        java.util.Set<String> asked = offers.findById(offerId).orElseThrow(() -> new ResourceNotFoundException("Offer not found")).getSkills().stream()
+            .map(skill -> dev.swirlit.indezy.util.SkillNames.key(dev.swirlit.indezy.util.SkillNames.canonical(skill)))
+            .collect(java.util.stream.Collectors.toSet());
+        return closest(userId, freelanceId, asked);
     }
 
     /** The profile, or its twin when one is written in the language asked and it is not. */

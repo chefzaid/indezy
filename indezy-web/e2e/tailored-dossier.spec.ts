@@ -31,8 +31,12 @@ for (const language of ['en', 'fr']) {
       return route.fulfill({ json: { id: 3, fileName: 'dossier.pdf', contentType: 'application/pdf', sizeBytes: 8, createdAt: '2026-11-28T10:00:00' } });
     });
 
+    await page.route(/\/api\/users\/cv-profiles\/closest/, route => route.fulfill({ json: { id: 4, name: 'Backend Kafka', isDefault: true,
+      language: 'FR', headline: null, summary: null, skills: null, missions: null, positions: null, updatedAt: null } }));
     await page.goto('/offers/1');
     const pack = page.locator('[data-offer-pack]');
+    // The CV profile closest to the offer, until a dossier is tailored to it.
+    await expect(pack.locator('[data-offer-pack-cv]')).toContainText('Backend Kafka');
     // Tailored to the offer without preparing the pack nor adding the offer to the pipeline.
     await pack.locator('[data-dossier="offer"]').click();
     await page.locator('[data-dossier-choice="FR"]').click();

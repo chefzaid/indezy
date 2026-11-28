@@ -4,7 +4,7 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ### The right CV in each email
 
-An email from Indezy with your dossier now carries the CV profile closest to what each ESN asks for, or the one you choose. See [Documents](/help/documents).
+An email from Indezy with your dossier now carries the CV profile closest to what each ESN asks for, or the one you choose; on a feed offer, the closest profile is named and attached to the opportunity you add. See [Documents](/help/documents).
 
 ### Check a CV before it goes out
 

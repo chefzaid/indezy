@@ -5691,7 +5691,9 @@
       "added": "Ajoutée au pipeline, avec la candidature dans son journal",
       "addError": "L'offre n'a pas pu être ajoutée au pipeline.",
       "dossierKept": "{{name}} sera joint à l'opportunité.",
-      "attachError": "L'opportunité est ajoutée, mais le dossier adapté n'a pas pu être joint : joignez-le depuis les fichiers de l'opportunité."
+      "attachError": "L'opportunité est ajoutée, mais le dossier adapté n'a pas pu être joint : joignez-le depuis les fichiers de l'opportunité.",
+      "closestCv": "Profil de CV le plus proche de cette offre : {{name}}, joint à l'opportunité quand vous l'ajoutez.",
+      "downloadCv": "Télécharger"
     },
     "brief": {
       "open": "Décrire ma recherche (IA)",

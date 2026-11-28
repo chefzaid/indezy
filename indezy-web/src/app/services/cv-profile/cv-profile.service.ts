@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CvAudit, CvProfile, CvProfileDetails, CvProfileSources, DocumentLanguage } from '../../models';
 
@@ -14,6 +14,12 @@ export class CvProfileService {
 
   list(): Observable<CvProfile[]> {
     return this.http.get<CvProfile[]>(this.url);
+  }
+
+  /** The CV profile closest to a feed offer's skills; null without a profile. */
+  closestToOffer(offerId: number): Observable<CvProfile | null> {
+    return this.http.get<CvProfile>(`${this.url}/closest`, { params: { offerId }, observe: 'response' })
+      .pipe(map(response => response.status === 204 ? null : response.body));
   }
 
   sources(): Observable<CvProfileSources> {

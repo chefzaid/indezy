@@ -3,7 +3,12 @@ package dev.swirlit.indezy.integration;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.enums.OfferDatePrecision;
+import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.repository.JobOfferRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** Alice keeps CV profiles, draws each as its dossier and makes one the default; Bob reaches none of hers. */
 class CvProfileIntegrationTest extends TwoAccountsIntegrationTest {
+
+    @Autowired
+    private JobOfferRepository offers;
 
     private static String text(byte[] pdf) throws IOException {
         try (PDDocument document = Loader.loadPDF(pdf)) {
@@ -147,5 +155,34 @@ class CvProfileIntegrationTest extends TwoAccountsIntegrationTest {
             .containsEntry("archived", false);
         assertThat(call(bob, HttpMethod.POST, "/users/cv-profiles/" + backend + "/duplicate", null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void picksTheProfileClosestToAFeedOffer() {
+        call(alice, HttpMethod.PUT, "/users/profile", Map.of("firstName", "Alice", "lastName", "Martin", "email", aliceEmail, "skills",
+            List.of("Java", "Kafka", "Angular")), Map.class);
+        JobOffer offer = new JobOffer();
+        offer.setSite(OfferSite.FREE_WORK);
+        offer.setExternalId("cv-" + java.util.UUID.randomUUID());
+        offer.setUrl("https://www.free-work.com/fr/tech-it/job-mission/angular/" + java.util.UUID.randomUUID());
+        offer.setTitle("Lead Angular");
+        offer.setSkills(List.of("Angular"));
+        offer.setSearchText("lead angular");
+        java.time.Instant now = java.time.Instant.now();
+        offer.setPublishedAt(now);
+        offer.setDatePrecision(OfferDatePrecision.EXACT);
+        offer.setFirstSeenAt(now);
+        offer.setLastSeenAt(now);
+        long offerId = offers.save(offer).getId();
+        assertThat(call(alice, HttpMethod.GET, "/users/cv-profiles/closest?offerId=" + offerId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+
+        call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Backend", "skills", List.of("Java", "Kafka")), Map.class);
+        call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Front", "skills", List.of("Angular")), Map.class);
+        assertThat(call(alice, HttpMethod.GET, "/users/cv-profiles/closest?offerId=" + offerId, null, Map.class).getBody())
+            .containsEntry("name", "Front");
+        assertThat(call(alice, HttpMethod.GET, "/users/cv-profiles/closest?offerId=0", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        offers.deleteById(offerId);
     }
 }

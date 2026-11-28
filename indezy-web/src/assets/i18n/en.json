@@ -5691,7 +5691,9 @@
       "added": "Added to the pipeline, with the pack in its journal",
       "addError": "The offer could not be added to the pipeline.",
       "dossierKept": "{{name}} will be attached to the opportunity.",
-      "attachError": "The opportunity was added, but the tailored dossier could not be attached: attach it from the opportunity's files."
+      "attachError": "The opportunity was added, but the tailored dossier could not be attached: attach it from the opportunity's files.",
+      "closestCv": "Closest CV profile to this offer: {{name}}, attached to the opportunity when you add it.",
+      "downloadCv": "Download"
     },
     "brief": {
       "open": "Describe my search (AI)",

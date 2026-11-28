@@ -44,6 +44,14 @@ public class CvProfileController {
         return profiles.listChecked(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null));
     }
 
+    @Operation(summary = "The CV profile closest to a feed offer: the one showing the most of the skills it asks for",
+        description = "The default on a tie; 204 without a CV profile")
+    @GetMapping("/users/cv-profiles/closest")
+    public ResponseEntity<CvProfileDtos.Profile> closest(@RequestParam Long offerId) {
+        return profiles.closestToOffer(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), offerId).map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
     @Operation(summary = "What a CV profile is written from: the profile's headline, summary, skills, won missions and past positions")
     @GetMapping("/users/cv-profiles/sources")
     public CvProfileDtos.Sources sources() {
