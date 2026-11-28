@@ -100,6 +100,8 @@ From a profile's menu, download its dossier named or anonymized, as a PDF or a W
 
 When a fact a profile's wording relies on changes (a mission's dates or stack, a skill removed, a new certification, a mission won that the profile does not show), the profile shows **To review** with what changed. Edit it, or click **Mark as reviewed** once it still reads right.
 
+A profile's menu also has **Duplicate**, to start a new one from it, and **Archive**, to keep one you no longer use out of the way: archived profiles wait under **Archived** until you **Bring back** one, and do not count in the 20 you can keep.
+
 ## Tailor your dossier to a job posting
 
 To answer a posting you received by email or found on a site the feed does not collect, without adding it to your pipeline:

@@ -157,7 +157,7 @@ public class CvProfileService {
     /** A new profile; the first one is the default. */
     @Transactional
     public CvProfileDtos.Profile create(Long userId, Long freelanceId, CvProfileDtos.Details details) {
-        if (profiles.countByFreelanceId(freelanceId) >= PROFILES_MAX) {
+        if (profiles.countByFreelanceIdAndArchivedFalse(freelanceId) >= PROFILES_MAX) {
             throw new InvalidStateException("You already keep " + PROFILES_MAX + " CV profiles: delete one first");
         }
         CvProfile profile = new CvProfile();
@@ -186,13 +186,62 @@ public class CvProfileService {
         profiles.delete(profile);
         profiles.flush();
         if (profile.isDefaultProfile()) {
-            profiles.findByFreelanceIdOrderByCreatedAtAscIdAsc(freelanceId).stream().findFirst().ifPresent(next -> next.setDefaultProfile(true));
+            profiles.findByFreelanceIdOrderByCreatedAtAscIdAsc(freelanceId).stream().filter(next -> !next.isArchived()).findFirst()
+                .ifPresent(next -> next.setDefaultProfile(true));
         }
+    }
+
+    /** A copy of the profile, named "… (copy)", to change on its own: not the default, without a twin. */
+    @Transactional
+    public CvProfileDtos.Profile duplicate(Long userId, Long freelanceId, Long id) {
+        CvProfile source = owned(freelanceId, id);
+        if (profiles.countByFreelanceIdAndArchivedFalse(freelanceId) >= PROFILES_MAX) {
+            throw new InvalidStateException("You already keep " + PROFILES_MAX + " CV profiles: delete or archive one first");
+        }
+        CvProfile copy = new CvProfile();
+        copy.setFreelanceId(freelanceId);
+        String suffix = " (copy)";
+        copy.setName(source.getName().length() + suffix.length() > CvProfile.NAME_MAX ? source.getName() : source.getName() + suffix);
+        copy.setLanguage(source.getLanguage());
+        copy.setHeadline(source.getHeadline());
+        copy.setSummary(source.getSummary());
+        copy.setSkills(source.getSkills());
+        copy.setMissions(source.getMissions());
+        copy.setPositions(source.getPositions());
+        stamp(copy, facts(userId, freelanceId));
+        return dto(profiles.save(copy));
+    }
+
+    /**
+     * Archives the profile (kept, out of the default and of the limit; the default's place goes to the oldest active
+     * one) or brings it back, within the limit.
+     */
+    @Transactional
+    public CvProfileDtos.Profile archive(Long freelanceId, Long id, boolean archived) {
+        CvProfile profile = owned(freelanceId, id);
+        if (archived == profile.isArchived()) {
+            return dto(profile);
+        }
+        if (!archived && profiles.countByFreelanceIdAndArchivedFalse(freelanceId) >= PROFILES_MAX) {
+            throw new InvalidStateException("You already keep " + PROFILES_MAX + " CV profiles: delete or archive one first");
+        }
+        profile.setArchived(archived);
+        if (archived && profile.isDefaultProfile()) {
+            profile.setDefaultProfile(false);
+            profiles.findByFreelanceIdOrderByCreatedAtAscIdAsc(freelanceId).stream().filter(other -> !other.isArchived()).findFirst()
+                .ifPresent(next -> next.setDefaultProfile(true));
+        } else if (!archived && profiles.findFirstByFreelanceIdAndDefaultProfileTrue(freelanceId).isEmpty()) {
+            profile.setDefaultProfile(true);
+        }
+        return dto(profile);
     }
 
     @Transactional
     public CvProfileDtos.Profile makeDefault(Long freelanceId, Long id) {
         CvProfile chosen = owned(freelanceId, id);
+        if (chosen.isArchived()) {
+            throw new InvalidStateException("Bring the CV profile back from the archive first");
+        }
         profiles.findByFreelanceIdOrderByCreatedAtAscIdAsc(freelanceId).forEach(profile -> profile.setDefaultProfile(profile == chosen));
         return dto(chosen);
     }
@@ -282,7 +331,7 @@ public class CvProfileService {
         DocumentLanguage language = source.getLanguage() == DocumentLanguage.EN ? DocumentLanguage.FR : DocumentLanguage.EN;
         CvProfile twin = source.getTwinId() == null ? null : profiles.findByIdAndFreelanceId(source.getTwinId(), freelanceId).orElse(null);
         if (twin == null) {
-            if (profiles.countByFreelanceId(freelanceId) >= PROFILES_MAX) {
+            if (profiles.countByFreelanceIdAndArchivedFalse(freelanceId) >= PROFILES_MAX) {
                 throw new InvalidStateException("You already keep " + PROFILES_MAX + " CV profiles: delete one first");
             }
             twin = new CvProfile();
@@ -388,7 +437,7 @@ public class CvProfileService {
     static CvProfileDtos.Profile dto(CvProfile profile) {
         return new CvProfileDtos.Profile(profile.getId(), profile.getName(), profile.isDefaultProfile(), profile.getLanguage(), profile.getHeadline(),
             profile.getSummary(), profile.getSkills() == null ? null : Arrays.asList(JSON.readValue(profile.getSkills(), String[].class)),
-            read(profile.getMissions()), read(profile.getPositions()), profile.getUpdatedAt(), profile.getTwinId(), List.of());
+            read(profile.getMissions()), read(profile.getPositions()), profile.getUpdatedAt(), profile.getTwinId(), profile.isArchived(), List.of());
     }
 
     private static List<CvProfileDtos.Item> read(String json) {

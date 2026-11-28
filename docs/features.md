@@ -290,6 +290,12 @@ profile is then shown **To review** with those changes, rather than going stale 
 reviewed** (`PUT /api/users/cv-profiles/{id}/reviewed`) to take the facts as they are now. What is gone is left out of
 its dossier either way.
 
+**Duplicate** (`POST /api/users/cv-profiles/{id}/duplicate`) copies a profile as "… (copy)", not the default and
+without a twin, to change on its own. **Archive** (`PUT /api/users/cv-profiles/{id}/archived` with `{archived}`) keeps a
+profile out of the way: listed apart under **Archived**, out of the limit of 20 active profiles, never the default (the
+default's place goes to the oldest active one, and an archived profile cannot be made the default); **Bring back**
+returns it, within the limit, the default when there is none.
+
 ### Experience And Education
 
 The personal information tab of **Profile** lists, under the form, the positions held before or outside Indezy and the

@@ -5932,7 +5932,12 @@
       "title": "title",
       "dates": "dates",
       "stack": "stack"
-    }
+    },
+    "duplicate": "Duplicate",
+    "archive": "Archive",
+    "restore": "Bring back",
+    "archived": "Archived ({{count}})",
+    "deleteNamed": "Delete {{name}}"
   },
   "billingTemplates": {
     "title": "Word templates and PDF forms",

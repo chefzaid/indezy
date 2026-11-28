@@ -80,6 +80,19 @@ for (const language of ['en', 'fr']) {
     await expect(review).toHaveCount(0);
     expect(reviewed).toBe(1);
 
+    // Archived, it waits apart until brought back.
+    await page.route(/\/api\/users\/cv-profiles\/8\/archived$/, route => {
+      const archived = route.request().postDataJSON().archived;
+      profiles[1] = { ...profiles[1], archived };
+      return route.fulfill({ json: profiles[1] });
+    });
+    await card.locator('[data-cv-profile-menu="8"]').click();
+    await page.locator('[data-cv-profile-archive]').click();
+    await expect(card.locator('[data-cv-profile="8"]')).toHaveCount(0);
+    await card.locator('[data-cv-profiles-archived-toggle]').click();
+    await card.locator('[data-cv-profile-restore="8"]').click();
+    await expect(card.locator('[data-cv-profile="8"]')).toBeVisible();
+
     const cardAudit = await new AxeBuilder({ page }).include('[data-cv-profiles]').withTags(WCAG).analyze();
     expect(cardAudit.violations.map(violation => violation.id)).toEqual([]);
   });

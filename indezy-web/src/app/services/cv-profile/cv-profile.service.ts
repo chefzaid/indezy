@@ -33,6 +33,16 @@ export class CvProfileService {
     return this.http.put<CvProfile>(`${this.url}/${id}/reviewed`, null);
   }
 
+  /** A copy of the profile, to change on its own. */
+  duplicate(id: number): Observable<CvProfile> {
+    return this.http.post<CvProfile>(`${this.url}/${id}/duplicate`, null);
+  }
+
+  /** Archives the profile, or brings it back. */
+  archive(id: number, archived: boolean): Observable<CvProfile> {
+    return this.http.put<CvProfile>(`${this.url}/${id}/archived`, { archived });
+  }
+
   makeDefault(id: number): Observable<CvProfile> {
     return this.http.put<CvProfile>(`${this.url}/${id}/default`, null);
   }

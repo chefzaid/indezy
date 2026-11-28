@@ -15,4 +15,6 @@ public interface CvProfileRepository extends JpaRepository<CvProfile, Long> {
     Optional<CvProfile> findFirstByFreelanceIdAndDefaultProfileTrue(Long freelanceId);
 
     long countByFreelanceId(Long freelanceId);
+
+    long countByFreelanceIdAndArchivedFalse(Long freelanceId);
 }

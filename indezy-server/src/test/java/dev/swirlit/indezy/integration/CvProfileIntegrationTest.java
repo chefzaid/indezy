@@ -113,4 +113,39 @@ class CvProfileIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.PUT, "/users/cv-profiles/" + profile + "/reviewed", null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void duplicatesAndArchivesProfilesTheDefaultPassingOn() {
+        long backend = idOf(call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Backend", "headline", "Lead Kafka",
+            "skills", List.of("Java")), Map.class));
+        Map<String, Object> copy = call(alice, HttpMethod.POST, "/users/cv-profiles/" + backend + "/duplicate", null, Map.class).getBody();
+        assertThat(copy).containsEntry("name", "Backend (copy)").containsEntry("headline", "Lead Kafka").containsEntry("skills", List.of("Java"))
+            .containsEntry("isDefault", false).containsEntry("archived", false);
+        long copyId = ((Number) copy.get("id")).longValue();
+
+        // The default archived: the other becomes the default; an archived one cannot be the default.
+        Map<String, Object> archived = call(alice, HttpMethod.PUT, "/users/cv-profiles/" + backend + "/archived", Map.of("archived", true),
+            Map.class).getBody();
+        assertThat(archived).containsEntry("archived", true).containsEntry("isDefault", false);
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/cv-profiles", null, List.class).getBody())
+            .filteredOn(profile -> ((Number) profile.get("id")).longValue() == copyId).singleElement()
+            .satisfies(profile -> assertThat(profile).containsEntry("isDefault", true));
+        assertThat(call(alice, HttpMethod.PUT, "/users/cv-profiles/" + backend + "/default", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+
+        // Archived ones are out of the limit of 20 active; brought back, within it.
+        for (int index = 0; index < 19; index++) {
+            call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Profil " + index), Map.class);
+        }
+        assertThat(call(alice, HttpMethod.PUT, "/users/cv-profiles/" + backend + "/archived", Map.of("archived", false), String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(alice, HttpMethod.POST, "/users/cv-profiles/" + copyId + "/duplicate", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        call(alice, HttpMethod.DELETE, "/users/cv-profiles/" + copyId, null, String.class);
+        assertThat(call(alice, HttpMethod.PUT, "/users/cv-profiles/" + backend + "/archived", Map.of("archived", false), Map.class).getBody())
+            .containsEntry("archived", false);
+        assertThat(call(bob, HttpMethod.POST, "/users/cv-profiles/" + backend + "/duplicate", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }

@@ -5932,7 +5932,12 @@
       "title": "titre",
       "dates": "dates",
       "stack": "stack"
-    }
+    },
+    "duplicate": "Dupliquer",
+    "archive": "Archiver",
+    "restore": "Restaurer",
+    "archived": "Archivés ({{count}})",
+    "deleteNamed": "Supprimer {{name}}"
   },
   "billingTemplates": {
     "title": "Modèles Word et formulaires PDF",

@@ -4,7 +4,7 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ### Profils de CV à revoir quand vos faits changent
 
-Un profil de CV signale désormais quand un fait sur lequel repose sa formulation a changé (dates, stack, compétences, certifications, missions gagnées) : il ne vieillit plus sans que vous le sachiez. Voir [Documents](/help/documents).
+Dupliquez un profil de CV pour en commencer un autre, ou archivez celui que vous n'utilisez plus. Un profil de CV signale désormais quand un fait sur lequel repose sa formulation a changé (dates, stack, compétences, certifications, missions gagnées) : il ne vieillit plus sans que vous le sachiez. Voir [Documents](/help/documents).
 
 ### Profils de CV en français et en anglais
 

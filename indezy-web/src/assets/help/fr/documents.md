@@ -100,6 +100,8 @@ Depuis le menu d'un profil, téléchargez son dossier nominatif ou anonymisé, e
 
 Quand un fait sur lequel repose la formulation d'un profil change (les dates ou la stack d'une mission, une compétence retirée, une nouvelle certification, une mission gagnée que le profil ne montre pas), le profil affiche **À revoir** avec ce qui a changé. Modifiez-le, ou cliquez sur **Marquer comme revu** s'il se lit toujours bien.
 
+Le menu d'un profil propose aussi **Dupliquer**, pour en commencer un nouveau à partir de lui, et **Archiver**, pour mettre de côté un profil que vous n'utilisez plus : les profils archivés attendent sous **Archivés** jusqu'à ce que vous en **Restauriez** un, et ne comptent pas dans les 20 que vous pouvez garder.
+
 ## Adapter votre dossier à une annonce
 
 Pour répondre à une annonce reçue par e-mail ou trouvée sur un site que le flux ne collecte pas, sans l'ajouter à votre pipeline :

@@ -20,7 +20,7 @@ describe('ProfileCvProfilesComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
 
   function create(): { component: ProfileCvProfilesComponent; element: () => HTMLElement } {
-    service = Object.assign(jasmine.createSpyObj<CvProfileService>('CvProfileService', ['list', 'dossier', 'makeDefault', 'remove', 'translate', 'reviewed']),
+    service = Object.assign(jasmine.createSpyObj<CvProfileService>('CvProfileService', ['list', 'dossier', 'makeDefault', 'remove', 'translate', 'reviewed', 'duplicate', 'archive']),
       { changed: new Subject<void>() });
     service.list.and.returnValue(of([BACKEND]));
     dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
@@ -117,6 +117,26 @@ describe('ProfileCvProfilesComponent', () => {
     expect(service.reviewed).toHaveBeenCalledWith(3);
     service.reviewed.and.returnValue(throwError(() => new Error('down')));
     component.markReviewed(BACKEND);
+    expect(notifications.error).toHaveBeenCalledWith('cvProfiles.saveError');
+  });
+
+  it('keeps archived profiles apart, duplicates one and brings one back', () => {
+    const { component, element } = create();
+    service.list.and.returnValue(of([BACKEND, { ...BACKEND, id: 9, name: 'Old', isDefault: false, archived: true }]));
+    service.changed.next();
+    expect(component.active.map(profile => profile.id)).toEqual([3]);
+    expect(element().querySelector('[data-cv-profile-archived="9"]')).toBeNull();
+    component.showArchived = true;
+    expect(element().querySelector('[data-cv-profile-archived="9"]')?.textContent).toContain('Old');
+
+    service.duplicate.and.returnValue(of(BACKEND));
+    component.duplicate(BACKEND);
+    expect(service.duplicate).toHaveBeenCalledWith(3);
+    service.archive.and.returnValue(of(BACKEND));
+    component.archive(component.archived[0], false);
+    expect(service.archive).toHaveBeenCalledWith(9, false);
+    service.archive.and.returnValue(throwError(() => new Error('full')));
+    component.archive(BACKEND, true);
     expect(notifications.error).toHaveBeenCalledWith('cvProfiles.saveError');
   });
 });

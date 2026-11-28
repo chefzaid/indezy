@@ -4,7 +4,7 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ### CV profiles to review when your facts change
 
-A CV profile now says when a fact its wording relies on changed (dates, stack, skills, certifications, missions won), so it never goes stale unnoticed. See [Documents](/help/documents).
+Duplicate a CV profile to start another from it, or archive one you no longer use. A CV profile now says when a fact its wording relies on changed (dates, stack, skills, certifications, missions won), so it never goes stale unnoticed. See [Documents](/help/documents).
 
 ### CV profiles in French and English
 

@@ -27,12 +27,12 @@ import { CvProfileDialogComponent } from './cv-profile-dialog.component';
     <section class="cv-profiles" aria-labelledby="cv-profiles-title" data-cv-profiles>
       <div class="heading">
         <h2 id="cv-profiles-title">{{ 'cvProfiles.title' | translate }}</h2>
-        <button mat-stroked-button type="button" (click)="open()" [disabled]="profiles.length >= max" data-cv-profile-add>
+        <button mat-stroked-button type="button" (click)="open()" [disabled]="active.length >= max" data-cv-profile-add>
           <mat-icon>add</mat-icon>{{ 'cvProfiles.add' | translate }}
         </button>
       </div>
       <p class="muted">{{ 'cvProfiles.intro' | translate }}</p>
-      @for (profile of ordered; track profile.id) {
+      @for (profile of active; track profile.id) {
         <div class="entry" [class.twin]="isTwinOfPrevious(profile)" [attr.data-cv-profile]="profile.id">
           <mat-icon class="kind" aria-hidden="true">{{ profile.isDefault ? 'star' : 'badge' }}</mat-icon>
           <div class="text">
@@ -74,6 +74,12 @@ import { CvProfileDialogComponent } from './cv-profile-dialog.component';
               <span>{{ (twinOf(profile) ? 'cvProfiles.retranslate' : 'cvProfiles.translate') | translate:{ language: other(profile) } }}</span>
             </button>
             <button mat-menu-item type="button" (click)="open(profile)" data-cv-profile-edit><mat-icon>edit</mat-icon><span>{{ 'common.edit' | translate }}</span></button>
+            <button mat-menu-item type="button" (click)="duplicate(profile)" [disabled]="active.length >= max" data-cv-profile-duplicate>
+              <mat-icon>content_copy</mat-icon><span>{{ 'cvProfiles.duplicate' | translate }}</span>
+            </button>
+            <button mat-menu-item type="button" (click)="archive(profile, true)" data-cv-profile-archive>
+              <mat-icon>archive</mat-icon><span>{{ 'cvProfiles.archive' | translate }}</span>
+            </button>
             @if (!profile.isDefault) {
               <button mat-menu-item type="button" (click)="makeDefault(profile)" data-cv-profile-default>
                 <mat-icon>star</mat-icon><span>{{ 'cvProfiles.makeDefault' | translate }}</span>
@@ -84,6 +90,27 @@ import { CvProfileDialogComponent } from './cv-profile-dialog.component';
         </div>
       } @empty {
         <p class="muted" data-no-cv-profile>{{ 'cvProfiles.none' | translate }}</p>
+      }
+      @if (archived.length) {
+        <button mat-button type="button" (click)="showArchived = !showArchived" [attr.aria-expanded]="showArchived" data-cv-profiles-archived-toggle>
+          <mat-icon>{{ showArchived ? 'expand_less' : 'expand_more' }}</mat-icon>{{ 'cvProfiles.archived' | translate:{ count: archived.length } }}
+        </button>
+        @if (showArchived) {
+          @for (profile of archived; track profile.id) {
+            <div class="entry archived" [attr.data-cv-profile-archived]="profile.id">
+              <mat-icon class="kind" aria-hidden="true">inventory_2</mat-icon>
+              <div class="text">
+                <h3>{{ profile.name }}</h3>
+                <span class="muted">{{ 'cvProfiles.other' | translate:{ language: profile.language } }}</span>
+              </div>
+              <button mat-button type="button" (click)="archive(profile, false)" [disabled]="active.length >= max"
+                [attr.data-cv-profile-restore]="profile.id">{{ 'cvProfiles.restore' | translate }}</button>
+              <button mat-icon-button type="button" (click)="remove(profile)" [attr.aria-label]="'cvProfiles.deleteNamed' | translate:{ name: profile.name }">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        }
       }
     </section>
   `,
@@ -97,6 +124,7 @@ import { CvProfileDialogComponent } from './cv-profile-dialog.component';
     .entry h3 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
     .kind { color: var(--mat-sys-primary); }
     .entry.twin { border-top-style: dashed; padding-left: 24px; }
+    .entry.archived .kind { color: var(--mat-sys-on-surface-variant); }
     .review { margin-top: 6px; padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--mat-sys-tertiary) 10%, transparent); }
     .review p { display: flex; align-items: center; gap: 6px; margin: 0; }
     .review mat-icon { width: 18px; height: 18px; font-size: 18px; color: var(--mat-sys-tertiary); }
@@ -119,6 +147,31 @@ export class ProfileCvProfilesComponent implements OnInit {
   ];
   profiles: CvProfile[] = [];
   translating = false;
+  showArchived = false;
+
+  /** The profiles in use, each twin right after its profile. */
+  get active(): CvProfile[] {
+    return this.ordered.filter(profile => !profile.archived);
+  }
+
+  get archived(): CvProfile[] {
+    return this.profiles.filter(profile => profile.archived);
+  }
+
+  duplicate(profile: CvProfile): void {
+    this.service.duplicate(profile.id).subscribe({
+      next: () => this.load(),
+      error: () => this.notifications.error('cvProfiles.saveError')
+    });
+  }
+
+  /** Archives the profile (kept, out of the default and of the limit) or brings it back. */
+  archive(profile: CvProfile, archived: boolean): void {
+    this.service.archive(profile.id, archived).subscribe({
+      next: () => this.load(),
+      error: () => this.notifications.error('cvProfiles.saveError')
+    });
+  }
 
   /** The profiles in their order, each twin right after the profile it was written from. */
   get ordered(): CvProfile[] {

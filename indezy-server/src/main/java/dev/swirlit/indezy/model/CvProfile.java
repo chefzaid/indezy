@@ -31,6 +31,10 @@ public class CvProfile extends BaseEntity {
     @Column(name = "name", nullable = false, length = NAME_MAX)
     private String name;
 
+    /** Kept for what it was sent with, out of the pickers and of the limit; never the default. */
+    @Column(name = "archived", nullable = false)
+    private boolean archived;
+
     /** The profile drawn wherever no other is chosen, e.g. the dossier download. */
     @Column(name = "default_profile", nullable = false)
     private boolean defaultProfile;

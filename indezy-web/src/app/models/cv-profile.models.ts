@@ -24,6 +24,8 @@ export interface CvProfile extends CvProfileDetails {
   updatedAt: string | null;
   /** The same profile in the other language, kept in step by Translate (AI); none without one. */
   twinId?: number | null;
+  /** Kept for what it was sent with, out of the default and of the limit. */
+  archived?: boolean;
   /** What changed in the facts it relies on since it was last saved or reviewed; empty when it is in step. */
   changes?: CvProfileChange[];
 }

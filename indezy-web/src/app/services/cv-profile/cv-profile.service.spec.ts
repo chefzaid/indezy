@@ -20,6 +20,10 @@ describe('CvProfileService', () => {
     expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles/3')).request.method).toBe('PUT');
     service.reviewed(3).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles/3/reviewed')).request.method).toBe('PUT');
+    service.duplicate(3).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles/3/duplicate')).request.method).toBe('POST');
+    service.archive(3, true).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles/3/archived')).request.body).toEqual({ archived: true });
     service.makeDefault(3).subscribe();
     http.expectOne(call => call.url.endsWith('/users/cv-profiles/3/default'));
     service.translate(3).subscribe();

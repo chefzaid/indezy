@@ -43,7 +43,7 @@ public final class CvProfileDtos {
      * profile's facts since its wording was last saved or reviewed, empty when it is in step.
      */
     public record Profile(Long id, String name, boolean isDefault, DocumentLanguage language, String headline, String summary, List<String> skills,
-                          List<Item> missions, List<Item> positions, LocalDateTime updatedAt, Long twinId, List<Change> changes) {
+                          List<Item> missions, List<Item> positions, LocalDateTime updatedAt, Long twinId, boolean archived, List<Change> changes) {
 
         public Profile {
             skills = skills == null ? null : List.copyOf(skills);
@@ -53,7 +53,7 @@ public final class CvProfileDtos {
         }
 
         public Profile with(List<Change> found) {
-            return new Profile(id, name, isDefault, language, headline, summary, skills, missions, positions, updatedAt, twinId, found);
+            return new Profile(id, name, isDefault, language, headline, summary, skills, missions, positions, updatedAt, twinId, archived, found);
         }
     }
 

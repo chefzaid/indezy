@@ -68,6 +68,24 @@ public class CvProfileController {
         return profiles.review(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), id);
     }
 
+    @Operation(summary = "Copy a CV profile, to change on its own", description = "Named \"… (copy)\"; not the default, without a twin")
+    @PostMapping("/users/cv-profiles/{id}/duplicate")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CvProfileDtos.Profile duplicate(@PathVariable Long id) {
+        return profiles.duplicate(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), id);
+    }
+
+    /** Whether the profile is archived. */
+    public record Archiving(boolean archived) {
+    }
+
+    @Operation(summary = "Archive a CV profile, or bring it back",
+        description = "Archived: kept, out of the default and of the limit of 20 active profiles")
+    @PutMapping("/users/cv-profiles/{id}/archived")
+    public CvProfileDtos.Profile archive(@PathVariable Long id, @RequestBody Archiving archiving) {
+        return profiles.archive(accessGuard.requireWorkspace(null), id, archiving.archived());
+    }
+
     @Operation(summary = "Make a CV profile the default, drawn wherever none is chosen")
     @PutMapping("/users/cv-profiles/{id}/default")
     public CvProfileDtos.Profile makeDefault(@PathVariable Long id) {
