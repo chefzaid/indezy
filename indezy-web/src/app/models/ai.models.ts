@@ -109,6 +109,8 @@ export interface AiCvRewrite {
   positions: AiCvItem[];
   /** Only when tailored to what something asks for. */
   coverage?: AiCvCoverage | null;
+  /** The kept CV file's text the AI drew details from, names and contact taken out; none when it did not read it. */
+  fileText?: string | null;
 }
 
 /** An impact question on a block of the review, by its key. */

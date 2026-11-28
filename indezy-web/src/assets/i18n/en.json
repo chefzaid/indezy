@@ -5586,7 +5586,9 @@
       },
       "downloadFile": "Download",
       "namedWord": "Named, Word (.docx)",
-      "anonymousWord": "Anonymized, Word (.docx)"
+      "anonymousWord": "Anonymized, Word (.docx)",
+      "fromFile": "Bring in details from my kept CV ({{name}})",
+      "fromFileHint": "Its text is read with your name, contact details, clients and employers taken out first; the AI only adds what it states about the same blocks."
     },
     "rate": {
       "ask": "Suggest a rate (AI)",

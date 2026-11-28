@@ -91,7 +91,7 @@ To answer a posting you received by email or found on a site the feed does not c
 
 1. On the Profile page, click **Dossier de compétences**, then **Tailor to a job posting (AI)…**.
 2. Paste the posting, or click **From a PDF** to read its text from the PDF brief.
-3. Choose the language, then click **Tailor to this posting**.
+3. Choose the language (and, with a kept CV file, whether to bring in its details), then click **Tailor to this posting**.
 4. Review the dossier (see below), then download it named or anonymized.
 
 The AI rewrites your summary, the order of your skills and your missions' descriptions for the posting, from your profile's facts only. Nothing is kept. For an offer of the feed, use **Tailored dossier (AI)** on its page (see [Offers](/help/offers)).
@@ -101,7 +101,7 @@ The AI rewrites your summary, the order of your skills and your missions' descri
 **Rewrite my CV (AI)**, at the top of the Profile page, rewrites your whole CV for the way you want to come across, without choosing an opportunity.
 
 1. Type a **Positioning** (for example "Lead Java developer, Kafka and AWS"), or leave it empty to keep your current one.
-2. Choose a **Style**: results and impact, concise, technical depth or leadership, then the language of the CV, and click **Rewrite**.
+2. Choose a **Style**: results and impact, concise, technical depth or leadership, then the language of the CV. When your profile keeps a CV file, tick **Bring in details from my kept CV** for the AI to use what the file says about the same missions and positions (figures, scope, tools) and nothing else; your name, contact details, clients and employers are taken out of it first. Then click **Rewrite**.
 3. Check each block: your headline, your summary, the order of your skills, then each mission and past position (see below).
 4. Click **Download PDF** for the named or anonymized dossier with the blocks you kept, or **Apply to my profile** to save the kept headline, summary and past positions on your profile.
 

@@ -5586,7 +5586,9 @@
       },
       "downloadFile": "Télécharger",
       "namedWord": "Nominatif, Word (.docx)",
-      "anonymousWord": "Anonymisé, Word (.docx)"
+      "anonymousWord": "Anonymisé, Word (.docx)",
+      "fromFile": "Reprendre des détails de mon CV conservé ({{name}})",
+      "fromFileHint": "Son texte est lu après en avoir retiré votre nom, vos coordonnées, vos clients et vos employeurs ; l'IA n'ajoute que ce qu'il dit des mêmes blocs."
     },
     "rate": {
       "ask": "Suggérer un TJM (IA)",

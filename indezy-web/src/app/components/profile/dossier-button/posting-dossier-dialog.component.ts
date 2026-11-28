@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { AiCvRewrite, DocumentLanguage } from '../../../models';
 import { AiService, aiErrorKey, postingPdfErrorKey } from '../../../services/ai/ai.service';
+import { ProfileCvService } from '../../../services/profile-cv/profile-cv.service';
 import { PDF_MAX_BYTES, TEXT_MAX } from '../../projects/project-form/ai-posting-dialog/ai-posting-dialog.component';
 
 /** The posting's tailoring, to review, in the language asked. */
@@ -25,7 +27,7 @@ export interface PostingReview {
  */
 @Component({
   selector: 'app-posting-dossier-dialog',
-  imports: [FormsModule, ReactiveFormsModule, MatButtonModule, MatButtonToggleModule, MatDialogModule, MatFormFieldModule, MatIconModule,
+  imports: [FormsModule, ReactiveFormsModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatDialogModule, MatFormFieldModule, MatIconModule,
     MatInputModule, MatProgressSpinnerModule, TranslateModule],
   template: `
     <h2 mat-dialog-title>{{ 'ai.dossier.posting.title' | translate }}</h2>
@@ -56,6 +58,11 @@ export interface PostingReview {
           <mat-button-toggle value="EN">English</mat-button-toggle>
         </mat-button-toggle-group>
       </div>
+      @if (keptFile) {
+        <p class="row">
+          <mat-checkbox [(ngModel)]="fromFile" data-posting-dossier-from-file>{{ 'ai.cv.fromFile' | translate:{ name: keptFile } }}</mat-checkbox>
+        </p>
+      }
       @if (errorKey) {
         <p class="error" role="alert" data-ai-error>{{ errorKey | translate }}</p>
       }
@@ -86,6 +93,20 @@ export class PostingDossierDialogComponent {
   private readonly ai = inject(AiService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly dialogRef = inject<MatDialogRef<PostingDossierDialogComponent, PostingReview>>(MatDialogRef);
+  private readonly cvFiles = inject(ProfileCvService);
+  /** The CV file kept in the profile, to draw details from; none kept, none offered. */
+  keptFile: string | null = null;
+  fromFile = false;
+
+  constructor() {
+    this.cvFiles.info().subscribe({
+      next: cv => {
+        this.keptFile = cv?.fileName ?? null;
+        this.changes.markForCheck();
+      },
+      error: () => undefined
+    });
+  }
 
   readonly max = TEXT_MAX;
   readonly text = new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(TEXT_MAX)] });
@@ -133,7 +154,7 @@ export class PostingDossierDialogComponent {
     this.making = true;
     this.errorKey = null;
     const language = this.language;
-    this.ai.reviewPostingDossier(text, language).subscribe({
+    this.ai.reviewPostingDossier(text, language, this.fromFile && !!this.keptFile).subscribe({
       next: rewrite => this.dialogRef.close({ rewrite, language }),
       error: (error: HttpErrorResponse) => {
         this.making = false;

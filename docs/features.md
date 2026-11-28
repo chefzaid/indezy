@@ -849,6 +849,12 @@ never saved or sent on its own:
   `POST /api/ai/cv/pdf?layout=NAMED|ANONYMOUS&language=FR|EN` renders the dossier with the blocks kept (no AI call), and
   `PUT /api/ai/cv/profile` writes the kept headline, summary and past positions' descriptions to the profile (only the
   member's own positions; won missions keep their opportunity's description). Nothing else is kept.
+  With **Bring in details from my kept CV** (`fromFile` in the request; also `fromFile=true` on
+  `POST /api/ai/dossier/posting/review`), the [kept CV file](#profile-import)'s text (12,000 characters at most) goes to
+  the AI too, with the profile's name and each part of it, its contact details, its clients and employers, and any email
+  address, phone number or link taken out first: the AI may bring in what the file states about the same summary,
+  missions and positions, nothing else, and the review returns that text (`fileText`) so the fact check counts it as a
+  source. A file with no text (a scan) is refused as the profile import refuses it.
 - **Import my profile → Choose my CV** on the profile's personal information (`POST /api/ai/profile-import`, a PDF, Word `.docx` or `.doc` (its text read with Apache POI) or
   OpenDocument `.odt` of 10 MB at most, its first 20,000 characters read): the name, phone, city, current position and
   company, presentation, links, languages and skills with their years, nothing it does not state. A review shows each

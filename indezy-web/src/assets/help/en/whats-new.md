@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Rewrite your CV with the details of your kept CV file
+
+When your profile keeps a CV file richer than your profile, **Rewrite my CV (AI)** and **Tailor to a job posting (AI)…** can bring in what it states about your missions and positions, your name, contact details, clients and employers taken out of it first. See [Documents](/help/documents).
+
 ### Your dossier as a Word document
 
 The dossier de compétences downloads as an editable Word (.docx) document too, named or anonymized, in French or English, for the ESNs that paste it into their own template; so do the dossiers rewritten or tailored by AI. See [Documents](/help/documents).

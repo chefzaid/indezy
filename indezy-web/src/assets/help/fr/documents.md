@@ -91,7 +91,7 @@ Pour répondre à une annonce reçue par e-mail ou trouvée sur un site que le f
 
 1. Sur la page Profil, cliquez sur **Dossier de compétences**, puis sur **Adapter à une annonce (IA)…**.
 2. Collez l'annonce, ou cliquez sur **Depuis un PDF** pour lire son texte depuis le PDF.
-3. Choisissez la langue, puis cliquez sur **Adapter à cette annonce**.
+3. Choisissez la langue (et, avec un fichier CV conservé, s'il faut reprendre ses détails), puis cliquez sur **Adapter à cette annonce**.
 4. Vérifiez le dossier (voir plus bas), puis téléchargez-le nominatif ou anonymisé.
 
 L'IA réécrit votre résumé, l'ordre de vos compétences et les descriptions de vos missions pour l'annonce, à partir des seuls faits de votre profil. Rien n'est conservé. Pour une offre du flux, utilisez **Dossier adapté (IA)** sur sa page (voir [Offres](/help/offers)).
@@ -101,7 +101,7 @@ L'IA réécrit votre résumé, l'ordre de vos compétences et les descriptions d
 **Réécrire mon CV (IA)**, en haut de la page Profil, réécrit tout votre CV selon la façon dont vous voulez vous présenter, sans choisir d'opportunité.
 
 1. Saisissez un **Positionnement** (par exemple « Lead développeur Java, Kafka et AWS »), ou laissez-le vide pour garder le vôtre.
-2. Choisissez un **Style** : résultats et impact, concis, profondeur technique ou leadership, puis la langue du CV, et cliquez sur **Réécrire**.
+2. Choisissez un **Style** : résultats et impact, concis, profondeur technique ou leadership, puis la langue du CV. Si votre profil conserve un fichier CV, cochez **Reprendre des détails de mon CV conservé** pour que l'IA utilise ce que le fichier dit des mêmes missions et postes (chiffres, périmètre, outils), et rien d'autre ; votre nom, vos coordonnées, vos clients et vos employeurs en sont retirés d'abord. Cliquez ensuite sur **Réécrire**.
 3. Vérifiez chaque bloc : votre titre, votre résumé, l'ordre de vos compétences, puis chaque mission et poste passé (voir plus bas).
 4. Cliquez sur **Télécharger le PDF** pour le dossier nominatif ou anonymisé avec les blocs retenus, ou sur **Appliquer à mon profil** pour enregistrer le titre, le résumé et les postes passés retenus sur votre profil.
 

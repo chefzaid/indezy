@@ -6,6 +6,7 @@ import dev.swirlit.indezy.dto.CareerDtos;
 import dev.swirlit.indezy.dto.DossierDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.ProfileCv;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.DossierFormat;
@@ -14,6 +15,7 @@ import dev.swirlit.indezy.repository.UserRepository;
 import dev.swirlit.indezy.service.ActivityReportService;
 import dev.swirlit.indezy.service.CareerService;
 import dev.swirlit.indezy.service.DossierService;
+import dev.swirlit.indezy.service.ProfileCvService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +48,11 @@ public class CvRewriteAiService {
     static final int POSITIONING_MAX = 120;
     private static final int EXPERIENCE_DESCRIPTION_MAX = 2_000;
     private static final long MAX_TOKENS = 10_000;
+    /** At most this much of the kept CV file is read. */
+    static final int FILE_TEXT_MAX = 12_000;
+    private static final String HIDDEN = "[…]";
+    private static final Pattern CONTACT = Pattern.compile("[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+|https?://\\S+|www\\.\\S+|(linkedin|github)\\.com/\\S+" +
+        "|\\+?\\d[\\d .()-]{7,}\\d", Pattern.CASE_INSENSITIVE);
     /** A block refined is at most this long, as a past position's description is. */
     public static final int REFINE_TEXT_MAX = EXPERIENCE_DESCRIPTION_MAX;
     public static final int FOCUS_MAX = 80;
@@ -91,6 +100,7 @@ public class CvRewriteAiService {
     private final DossierService dossiers;
     private final CareerService career;
     private final UserRepository users;
+    private final ProfileCvService cvFiles;
 
     /** The rewording the AI proposes. */
     public record Rewriting(
@@ -137,9 +147,12 @@ public class CvRewriteAiService {
         }
     }
 
-    /** The CV rewritten, block by block, to review; {@code coverage} only when tailored to what something asks for. */
+    /**
+     * The CV rewritten, block by block, to review; {@code coverage} only when tailored to what something asks for, and
+     * {@code fileText} the kept CV file's text the AI drew details from (names and contact taken out), or none.
+     */
     public record CvRewrite(Block headline, Block summary, List<String> skillsBefore, List<String> skills, List<Item> missions,
-                            List<Item> positions, Coverage coverage) {
+                            List<Item> positions, Coverage coverage, String fileText) {
 
         public CvRewrite {
             skillsBefore = List.copyOf(skillsBefore);
@@ -149,7 +162,11 @@ public class CvRewriteAiService {
         }
 
         CvRewrite with(Coverage covered) {
-            return new CvRewrite(headline, summary, skillsBefore, skills, missions, positions, covered);
+            return new CvRewrite(headline, summary, skillsBefore, skills, missions, positions, covered, fileText);
+        }
+
+        CvRewrite withFile(String text) {
+            return new CvRewrite(headline, summary, skillsBefore, skills, missions, positions, coverage, text);
         }
     }
 
@@ -278,12 +295,57 @@ public class CvRewriteAiService {
     /** The whole CV rewritten for {@code positioning} in {@code style}, to review block by block. */
     @Transactional(readOnly = true)
     public CvRewrite rewrite(Long userId, Long freelanceId, String positioning, Style style, DocumentLanguage language) {
+        return rewrite(userId, freelanceId, positioning, style, language, false);
+    }
+
+    /** As above, {@code fromFile}: the details the kept CV file states about the same blocks may be brought in. */
+    @Transactional(readOnly = true)
+    public CvRewrite rewrite(Long userId, Long freelanceId, String positioning, Style style, DocumentLanguage language, boolean fromFile) {
         // Anonymized: the AI reads neither the author's name and contact, nor the clients and employers.
         DossierDto dossier = dossiers.dossier(userId, freelanceId, DossierLayout.ANONYMOUS);
         List<CareerDtos.Experience> experiences = career.experiences(freelanceId);
-        Rewriting rewriting = ai.structured(userId, AiFeature.DOSSIER, SYSTEM, context(dossier, positioning, style, language), Rewriting.class,
-            MAX_TOKENS, OutputConfig.Effort.LOW);
-        return review(dossier, experiences, rewriting);
+        String file = fromFile ? fileText(userId, freelanceId) : null;
+        Rewriting rewriting = ai.structured(userId, AiFeature.DOSSIER, SYSTEM, context(dossier, positioning, style, language) + fileContext(file),
+            Rewriting.class, MAX_TOKENS, OutputConfig.Effort.LOW);
+        return review(dossier, experiences, rewriting).withFile(file);
+    }
+
+    /**
+     * The kept CV file's text, for the AI to draw details from, with what names its author taken out: the profile's
+     * name, contact details, clients and employers, and any email address, phone number or link the file holds.
+     */
+    @Transactional(readOnly = true)
+    public String fileText(Long userId, Long freelanceId) {
+        ProfileCv cv = cvFiles.file(freelanceId);
+        String text = ProfileImportAiService.text(cv.getFileName(), cv.getContent());
+        return redact(text.length() > FILE_TEXT_MAX ? text.substring(0, FILE_TEXT_MAX) : text, terms(dossiers.dossier(userId, freelanceId, DossierLayout.NAMED)));
+    }
+
+    /** The context's part that hands the AI the kept CV file, or nothing without one. */
+    static String fileContext(String file) {
+        return file == null ? "" : "The freelancer's own CV file follows: bring in what it states about the same summary, missions and positions, " +
+            "and nothing it does not state.\n<cv_file>\n" + file + "\n</cv_file>\n";
+    }
+
+    /** What names the author in their own CV: their name and each part of it, their contact details, clients and employers. */
+    static List<String> terms(DossierDto named) {
+        List<String> terms = new ArrayList<>();
+        terms.add(named.name());
+        terms.addAll(List.of(named.name().split("\\s+")));
+        terms.addAll(named.contact());
+        Stream.concat(named.missions().stream(), named.positions().stream()).map(DossierDto.Mission::client).forEach(terms::add);
+        return terms.stream().filter(Objects::nonNull).map(String::strip).filter(term -> term.length() >= 2).distinct()
+            .sorted(java.util.Comparator.comparingInt(String::length).reversed()).toList();
+    }
+
+    /** {@code text} with each term (case and accents aside) and any email address, phone number or link replaced by "[…]". */
+    static String redact(String text, List<String> terms) {
+        String redacted = text;
+        for (String term : terms) {
+            redacted = Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(term) + "(?![\\p{L}\\p{N}])",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(redacted).replaceAll(HIDDEN);
+        }
+        return CONTACT.matcher(redacted).replaceAll(HIDDEN);
     }
 
     /** What the AI reads: the positioning and style, then the CV without its author's name or contact, nor its clients. */
@@ -333,7 +395,7 @@ public class CvRewriteAiService {
         List<String> before = dossier.skills().stream().map(DossierDto.Skill::name).toList();
         return new CvRewrite(new Block(dossier.position(), headline == null ? dossier.position() : headline),
             new Block(dossier.summary(), summary == null ? dossier.summary() : summary), before, order(before, rewriting.skills()),
-            items(dossier.missions(), null, rewriting.missions()), items(dossier.positions(), experiences, rewriting.positions()), null);
+            items(dossier.missions(), null, rewriting.missions()), items(dossier.positions(), experiences, rewriting.positions()), null, null);
     }
 
     /** The profile's skills in the order given, the ones it did not name after; a name the profile lacks is dropped. */

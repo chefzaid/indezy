@@ -54,6 +54,7 @@ public class DossierAiService {
     private final ProjectRepository projects;
     private final JobOfferRepository offers;
     private final DossierService dossiers;
+    private final CvRewriteAiService cvRewrites;
 
     /** What the dossier is tailored to: an opportunity, a feed offer or a pasted posting (its text as the description). */
     public record Target(String role, String stack, String description) {
@@ -135,10 +136,10 @@ public class DossierAiService {
         return review(userId, freelanceId, Target.of(offer), language);
     }
 
-    /** Tailored to a pasted posting, block by block; nothing is kept. */
+    /** Tailored to a pasted posting, block by block, the kept CV file's details brought in when {@code fromFile}; nothing is kept. */
     @Transactional(readOnly = true)
-    public CvRewriteAiService.CvRewrite reviewPosting(Long userId, Long freelanceId, String text, DocumentLanguage language) {
-        return review(userId, freelanceId, Target.posting(text), language);
+    public CvRewriteAiService.CvRewrite reviewPosting(Long userId, Long freelanceId, String text, DocumentLanguage language, boolean fromFile) {
+        return review(userId, freelanceId, Target.posting(text), language, fromFile ? cvRewrites.fileText(userId, freelanceId) : null);
     }
 
     /**
@@ -147,12 +148,16 @@ public class DossierAiService {
      * what the AI reads is.
      */
     CvRewriteAiService.CvRewrite review(Long userId, Long freelanceId, Target target, DocumentLanguage language) {
+        return review(userId, freelanceId, target, language, null);
+    }
+
+    private CvRewriteAiService.CvRewrite review(Long userId, Long freelanceId, Target target, DocumentLanguage language, String file) {
         DossierDto dossier = dossiers.dossier(userId, freelanceId, DossierLayout.ANONYMOUS);
-        Tailoring tailoring = ai.structured(userId, AiFeature.DOSSIER, SYSTEM, context(target, dossier, language), Tailoring.class,
-            MAX_TOKENS, OutputConfig.Effort.LOW);
+        Tailoring tailoring = ai.structured(userId, AiFeature.DOSSIER, SYSTEM, context(target, dossier, language) +
+            CvRewriteAiService.fileContext(file), Tailoring.class, MAX_TOKENS, OutputConfig.Effort.LOW);
         return CvRewriteAiService.review(dossier, List.of(), new CvRewriteAiService.Rewriting(null, tailoring.summary(), tailoring.skills(),
             tailoring.missions().stream().filter(Objects::nonNull).map(text -> new CvRewriteAiService.Text(text.number(), text.description()))
-                .toList(), List.of())).with(coverage(dossier, target, tailoring.requirements()));
+                .toList(), List.of())).with(coverage(dossier, target, tailoring.requirements())).withFile(file);
     }
 
     /**

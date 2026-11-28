@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AiCvRewrite } from '../../../models';
 import { of, throwError } from 'rxjs';
 import { AiService } from '../../../services/ai/ai.service';
+import { ProfileCvService } from '../../../services/profile-cv/profile-cv.service';
 import { PostingDossierDialogComponent } from './posting-dossier-dialog.component';
 
 describe('PostingDossierDialogComponent', () => {
@@ -16,7 +17,8 @@ describe('PostingDossierDialogComponent', () => {
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     TestBed.configureTestingModule({
       imports: [PostingDossierDialogComponent, TranslateModule.forRoot()],
-      providers: [{ provide: AiService, useValue: ai }, { provide: MatDialogRef, useValue: dialogRef }]
+      providers: [{ provide: AiService, useValue: ai }, { provide: MatDialogRef, useValue: dialogRef },
+        { provide: ProfileCvService, useValue: { info: () => of({ fileName: 'cv.pdf' }) } }]
     });
     const fixture = TestBed.createComponent(PostingDossierDialogComponent);
     fixture.detectChanges();
@@ -39,7 +41,12 @@ describe('PostingDossierDialogComponent', () => {
     component.text.setValue('  Mission Kafka, 12 mois. ');
     component.language = 'EN';
     component.make();
-    expect(ai.reviewPostingDossier).toHaveBeenCalledWith('Mission Kafka, 12 mois.', 'EN');
+    expect(ai.reviewPostingDossier).toHaveBeenCalledWith('Mission Kafka, 12 mois.', 'EN', false);
+    // The dialog closes with it; asked again here, with the kept CV file.
+    component.making = false;
+    component.fromFile = true;
+    component.make();
+    expect(ai.reviewPostingDossier).toHaveBeenCalledWith('Mission Kafka, 12 mois.', 'EN', true);
     expect(dialogRef.close).toHaveBeenCalledWith({ rewrite, language: 'EN' });
   });
 

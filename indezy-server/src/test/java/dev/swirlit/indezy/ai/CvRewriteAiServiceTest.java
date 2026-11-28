@@ -109,7 +109,8 @@ class CvRewriteAiServiceTest {
         user.setBio("Dix ans de Java.");
         when(users.findById(3L)).thenReturn(Optional.of(user));
         when(career.experiences(9L)).thenReturn(EXPERIENCES);
-        CvRewriteAiService service = new CvRewriteAiService(mock(AiService.class), mock(DossierService.class), career, users);
+        CvRewriteAiService service = new CvRewriteAiService(mock(AiService.class), mock(DossierService.class), career, users,
+            mock(dev.swirlit.indezy.service.ProfileCvService.class));
 
         service.approve(3L, 9L, new CvRewriteAiService.Approved(" Lead Java ", null, List.of(new CvRewriteAiService.PositionText(70L, " Paie. "),
             new CvRewriteAiService.PositionText(99L, "Pas à elle"), new CvRewriteAiService.PositionText(70L, " "))));
@@ -134,7 +135,8 @@ class CvRewriteAiServiceTest {
     @Test
     void refusesARefinementThatChangedALockedPhrase() {
         AiService ai = mock(AiService.class);
-        CvRewriteAiService service = new CvRewriteAiService(ai, mock(DossierService.class), mock(CareerService.class), mock(UserRepository.class));
+        CvRewriteAiService service = new CvRewriteAiService(ai, mock(DossierService.class), mock(CareerService.class), mock(UserRepository.class),
+            mock(dev.swirlit.indezy.service.ProfileCvService.class));
         when(ai.structured(eq(3L), eq(AiFeature.DOSSIER), anyString(), anyString(), eq(CvRewriteAiService.Refined.class), anyLong(),
             any(OutputConfig.Effort.class))).thenReturn(new CvRewriteAiService.Refined(" Migration du SI vers Kafka. "));
 
@@ -148,7 +150,8 @@ class CvRewriteAiServiceTest {
     @Test
     void asksAtMostOneQuestionPerVagueBlockGivenAndWeavesTheAnswerIn() {
         AiService ai = mock(AiService.class);
-        CvRewriteAiService service = new CvRewriteAiService(ai, mock(DossierService.class), mock(CareerService.class), mock(UserRepository.class));
+        CvRewriteAiService service = new CvRewriteAiService(ai, mock(DossierService.class), mock(CareerService.class), mock(UserRepository.class),
+            mock(dev.swirlit.indezy.service.ProfileCvService.class));
         when(ai.structured(eq(3L), eq(AiFeature.DOSSIER), anyString(), anyString(), eq(CvRewriteAiService.Questions.class), anyLong(),
             any(OutputConfig.Effort.class))).thenReturn(new CvRewriteAiService.Questions(List.of(
                 new CvRewriteAiService.Question(" mission-1 ", " Combien de services migrés ? "),
@@ -167,5 +170,22 @@ class CvRewriteAiServiceTest {
         verify(ai).structured(eq(3L), eq(AiFeature.DOSSIER), anyString(),
             org.mockito.ArgumentMatchers.contains("<answer>\n40 services\n</answer>"), eq(CvRewriteAiService.Refined.class), anyLong(),
             any(OutputConfig.Effort.class));
+    }
+
+    @Test
+    void takesWhatNamesTheAuthorOutOfTheirOwnCvFile() {
+        DossierDto named = new DossierDto("Alice Martin", null, null, List.of("alice@example.com", "06 12 34 56 78"), null, List.of(), List.of(),
+            List.of(), List.of(new DossierDto.Mission("Lead Java", "Banque X", null, null, null, null)),
+            List.of(new DossierDto.Mission("Développeuse", "Éditeur Paie", null, null, null, null)), List.of());
+
+        String redacted = CvRewriteAiService.redact("""
+            ALICE MARTIN – alice@example.com – +33 6 12 34 56 78 – linkedin.com/in/alice-martin
+            Banque X : migration de 40 services vers Kafka (Martinique exclue).
+            Éditeur paie : refonte de la paie, 3 000 bulletins par mois. Voir https://exemple.fr/cv""", CvRewriteAiService.terms(named));
+
+        assertThat(redacted).contains("migration de 40 services vers Kafka", "Martinique", "3 000 bulletins par mois")
+            .doesNotContain("Alice", "ALICE", "Martin ", "MARTIN", "alice@example.com", "12 34 56 78", "Banque X", "Éditeur", "linkedin", "https");
+        assertThat(CvRewriteAiService.fileContext(null)).isEmpty();
+        assertThat(CvRewriteAiService.fileContext("Texte.")).contains("<cv_file>\nTexte.\n</cv_file>", "nothing it does not state");
     }
 }

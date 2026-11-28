@@ -158,6 +158,12 @@
       <mat-button-toggle value="FR">Français</mat-button-toggle>
       <mat-button-toggle value="EN">English</mat-button-toggle>
     </mat-button-toggle-group>
+    @if (keptFile) {
+      <p class="file">
+        <mat-checkbox [(ngModel)]="fromFile" data-ai-cv-from-file>{{ 'ai.cv.fromFile' | translate:{ name: keptFile } }}</mat-checkbox>
+        <span class="hint">{{ 'ai.cv.fromFileHint' | translate }}</span>
+      </p>
+    }
     @if (errorKey) {
       <p class="error" role="alert">{{ errorKey | translate }}</p>
     }

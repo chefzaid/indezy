@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Réécrire votre CV avec les détails de votre CV conservé
+
+Quand votre profil conserve un fichier CV plus riche que votre profil, **Réécrire mon CV (IA)** et **Adapter à une annonce (IA)…** peuvent reprendre ce qu'il dit de vos missions et postes, après en avoir retiré votre nom, vos coordonnées, vos clients et vos employeurs. Voir [Documents](/help/documents).
+
 ### Votre dossier en document Word
 
 Le dossier de compétences se télécharge aussi en document Word (.docx) modifiable, nominatif ou anonymisé, en français ou en anglais, pour les ESN qui le collent dans leur propre modèle ; les dossiers réécrits ou adaptés par l'IA aussi. Voir [Documents](/help/documents).

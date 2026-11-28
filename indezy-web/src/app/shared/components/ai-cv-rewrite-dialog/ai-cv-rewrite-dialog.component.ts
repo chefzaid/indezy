@@ -19,6 +19,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AiCvItem, AiCvRefinement, AiCvRewrite, AiCvStyle, DocumentLanguage } from '../../../models';
 import { AiService, aiBlobErrorKey, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ProfileCvService } from '../../../services/profile-cv/profile-cv.service';
 import { saveBlob } from '../../utils/download-file';
 import { DiffSegment, changed, wordDiff } from '../../utils/word-diff';
 import { newFacts } from '../../utils/fact-check';
@@ -83,6 +84,7 @@ export class AiCvRewriteDialogComponent {
   private readonly changes = inject(ChangeDetectorRef);
   private readonly dialogRef = inject<MatDialogRef<AiCvRewriteDialogComponent, boolean>>(MatDialogRef);
   private readonly data = inject<CvReviewData | null>(MAT_DIALOG_DATA, { optional: true }) ?? {};
+  private readonly cvFiles = inject(ProfileCvService);
 
   readonly max = POSITIONING_MAX;
   readonly focusMax = FOCUS_MAX;
@@ -110,16 +112,28 @@ export class AiCvRewriteDialogComponent {
   /** Everything the profile states, that the rewording is checked against. */
   private source = '';
 
+  /** The CV file kept in the profile, to draw details from; none kept, none offered. */
+  keptFile: string | null = null;
+  fromFile = false;
+
   constructor() {
     if (this.data.tailored) {
       this.show(this.data.tailored.rewrite);
+    } else {
+      this.cvFiles.info().subscribe({
+        next: cv => {
+          this.keptFile = cv?.fileName ?? null;
+          this.changes.markForCheck();
+        },
+        error: () => undefined
+      });
     }
   }
 
   start(): void {
     this.rewriting = true;
     this.errorKey = null;
-    this.ai.rewriteCv(this.positioning.trim(), this.style, this.language).subscribe({
+    this.ai.rewriteCv(this.positioning.trim(), this.style, this.language, this.fromFile && !!this.keptFile).subscribe({
       next: rewrite => {
         this.rewriting = false;
         this.show(rewrite);
@@ -152,7 +166,7 @@ export class AiCvRewriteDialogComponent {
     ];
     this.keepSkills = rewrite.skills.join() !== rewrite.skillsBefore.join();
     this.source = [rewrite.headline.before, rewrite.summary.before, ...rewrite.skillsBefore,
-      ...[...rewrite.missions, ...rewrite.positions].flatMap(item => [item.title, item.before, item.stack])]
+      ...[...rewrite.missions, ...rewrite.positions].flatMap(item => [item.title, item.before, item.stack]), rewrite.fileText]
       .filter((text): text is string => !!text).join('. ');
   }
 

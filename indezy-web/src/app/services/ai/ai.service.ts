@@ -144,8 +144,9 @@ export class AiService {
   }
 
   /** The whole CV rewritten for a positioning and a style, tied to no opportunity. */
-  rewriteCv(positioning: string, style: AiCvStyle, language: DocumentLanguage): Observable<AiCvRewrite> {
-    return this.http.post<AiCvRewrite>(`${this.API_URL}/cv/rewrite`, { positioning, style, language });
+  /** The whole CV rewritten; {@code fromFile}: the details the kept CV file states may be brought in. */
+  rewriteCv(positioning: string, style: AiCvStyle, language: DocumentLanguage, fromFile = false): Observable<AiCvRewrite> {
+    return this.http.post<AiCvRewrite>(`${this.API_URL}/cv/rewrite`, { positioning, style, language, ...(fromFile ? { fromFile } : {}) });
   }
 
   /** The dossier de compétences with the reviewed wording, as a PDF; no AI is asked. */
@@ -174,8 +175,9 @@ export class AiService {
   }
 
   /** The dossier tailored to a job posting pasted as text, block by block; nothing is kept. */
-  reviewPostingDossier(text: string, language: DocumentLanguage): Observable<AiCvRewrite> {
-    return this.http.post<AiCvRewrite>(`${this.API_URL}/dossier/posting/review`, { text }, { params: { language } });
+  reviewPostingDossier(text: string, language: DocumentLanguage, fromFile = false): Observable<AiCvRewrite> {
+    return this.http.post<AiCvRewrite>(`${this.API_URL}/dossier/posting/review`, { text },
+      { params: { language, ...(fromFile ? { fromFile: 'true' } : {}) } });
   }
 
   /** One block of the CV refined as asked, its locked phrases kept; refused (409) when the AI changed one. */

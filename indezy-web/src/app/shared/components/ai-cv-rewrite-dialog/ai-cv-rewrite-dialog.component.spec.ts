@@ -4,9 +4,10 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
-import { AiCvRewrite } from '../../../models';
+import { AiCvRewrite, ProfileCv } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ProfileCvService } from '../../../services/profile-cv/profile-cv.service';
 import { AiCvRewriteDialogComponent, CvReviewData, ReviewBlock } from './ai-cv-rewrite-dialog.component';
 
 const REWRITE: AiCvRewrite = {
@@ -24,14 +25,15 @@ describe('AiCvRewriteDialogComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let dialogRef: jasmine.SpyObj<MatDialogRef<AiCvRewriteDialogComponent, boolean>>;
 
-  function create(data: CvReviewData | null = null): { component: AiCvRewriteDialogComponent; element: () => HTMLElement } {
+  function create(data: CvReviewData | null = null, cv: ProfileCv | null = null): { component: AiCvRewriteDialogComponent; element: () => HTMLElement } {
     ai = jasmine.createSpyObj('AiService', ['rewriteCv', 'rewrittenCv', 'approveCv', 'refineCv', 'cvQuestions']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     TestBed.configureTestingModule({
       imports: [AiCvRewriteDialogComponent, TranslateModule.forRoot()],
       providers: [{ provide: AiService, useValue: ai }, { provide: NotificationService, useValue: notifications },
-        { provide: MatDialogRef, useValue: dialogRef }, { provide: MAT_DIALOG_DATA, useValue: data }]
+        { provide: MatDialogRef, useValue: dialogRef }, { provide: MAT_DIALOG_DATA, useValue: data },
+        { provide: ProfileCvService, useValue: { info: () => of(cv) } }]
     });
     const fixture = TestBed.createComponent(AiCvRewriteDialogComponent);
     fixture.detectChanges();
@@ -62,7 +64,7 @@ describe('AiCvRewriteDialogComponent', () => {
 
     component.start();
 
-    expect(ai.rewriteCv).toHaveBeenCalledWith('Lead Java', 'TECHNICAL', 'EN');
+    expect(ai.rewriteCv).toHaveBeenCalledWith('Lead Java', 'TECHNICAL', 'EN', false);
     // The summary only gained a space: not shown.
     expect(component.blocks.map(candidate => candidate.key)).toEqual(['headline', 'mission-1', 'position-1']);
     expect(block(component, 'headline')).toEqual(jasmine.objectContaining({ keep: true, text: 'Lead Java / Kafka', refinable: false }));
@@ -254,5 +256,21 @@ describe('AiCvRewriteDialogComponent', () => {
     component.askQuestions();
     expect(notifications.error).toHaveBeenCalledWith('ai.errors.declined');
     expect(component.asking).toBeFalse();
+  });
+
+  it('offers to bring in details from the kept CV file, and checks the facts against it too', () => {
+    const { component, element } = create(null, { fileName: 'cv-alice.pdf', contentType: 'application/pdf', sizeBytes: 9, keptAt: '2026-11-28' });
+    expect(element().querySelector('[data-ai-cv-from-file]')?.textContent).toContain('ai.cv.fromFile');
+    component.fromFile = true;
+    ai.rewriteCv.and.returnValue(of({ ...REWRITE, fileText: 'Migration du SI de paie vers Kafka.' }));
+    component.start();
+    expect(ai.rewriteCv).toHaveBeenCalledWith('', 'IMPACT', 'FR', true);
+    // "SI" comes from the file: nothing new to check.
+    expect(component.facts(block(component, 'mission-1'))).toEqual([]);
+  });
+
+  it('offers no file without one kept', () => {
+    const { element } = create();
+    expect(element().querySelector('[data-ai-cv-from-file]')).toBeNull();
   });
 });

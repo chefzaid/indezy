@@ -329,9 +329,10 @@ public class AiController {
     @Operation(summary = "The dossier tailored to a job posting pasted as text, block by block", description = "Nothing is kept")
     @PostMapping("/dossier/posting/review")
     public CvRewriteAiService.CvRewrite reviewPostingDossier(@RequestParam(defaultValue = "FR") DocumentLanguage language,
+                                                             @RequestParam(defaultValue = "false") boolean fromFile,
                                                              @Valid @RequestBody PostingRequest request) {
         Long freelanceId = accessGuard.requireWorkspace(null);
-        return dossiers.reviewPosting(SecurityUtils.getCurrentUserId(), freelanceId, request.text(), language);
+        return dossiers.reviewPosting(SecurityUtils.getCurrentUserId(), freelanceId, request.text(), language, fromFile);
     }
 
     /** One block of the CV to refine, its locked phrases kept as written. */
@@ -398,7 +399,7 @@ public class AiController {
 
     /** What the whole CV is rewritten for: a positioning (a target role) and a style. */
     public record CvRewriteRequest(@Size(max = CvRewriteAiService.POSITIONING_MAX) String positioning, CvRewriteAiService.Style style,
-                                   DocumentLanguage language) {
+                                   DocumentLanguage language, Boolean fromFile) {
     }
 
     @Operation(summary = "Rewrite the whole CV for a positioning and a style, tied to no opportunity",
@@ -407,7 +408,7 @@ public class AiController {
     public CvRewriteAiService.CvRewrite rewriteCv(@Valid @RequestBody CvRewriteRequest request) {
         Long freelanceId = accessGuard.requireWorkspace(null);
         return cvRewrites.rewrite(SecurityUtils.getCurrentUserId(), freelanceId, request.positioning(), request.style(),
-            request.language() == null ? DocumentLanguage.FR : request.language());
+            request.language() == null ? DocumentLanguage.FR : request.language(), Boolean.TRUE.equals(request.fromFile()));
     }
 
     @Operation(summary = "The dossier de compétences with the reviewed rewriting, as a PDF or an editable Word document",

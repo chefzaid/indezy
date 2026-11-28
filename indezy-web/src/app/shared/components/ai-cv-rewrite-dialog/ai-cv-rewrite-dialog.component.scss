@@ -24,3 +24,5 @@
 .coverage mat-icon, .facts mat-icon { flex: none; width: 18px; height: 18px; font-size: 18px; }
 .question { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .question mat-form-field { flex: 1 1 260px; }
+.file { display: flex; flex-direction: column; margin: 12px 0 0; }
+.file .hint { margin-left: 40px; color: var(--mat-sys-on-surface-variant); font-size: .8125rem; }

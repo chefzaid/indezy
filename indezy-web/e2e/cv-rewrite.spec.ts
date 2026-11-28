@@ -29,12 +29,15 @@ for (const language of ['en', 'fr']) {
       return route.fulfill({ status: 204 });
     });
 
+    await page.route('**/api/users/cv/info', route => route.fulfill({ json: { fileName: 'cv-alice.pdf', contentType: 'application/pdf',
+      sizeBytes: 9, keptAt: '2026-11-28T10:00:00' } }));
     await page.goto('/profile');
     await page.locator('[data-ai-cv-open]').click();
     await page.locator('[data-ai-cv-positioning]').fill('Lead Java, Kafka');
+    await page.locator('[data-ai-cv-from-file] input').check();
     await page.locator('[data-ai-cv-rewrite]').click();
     await expect(page.locator('[data-ai-cv-review]')).toBeVisible();
-    expect(asked).toEqual([{ positioning: 'Lead Java, Kafka', style: 'IMPACT', language: 'FR' }]);
+    expect(asked).toEqual([{ positioning: 'Lead Java, Kafka', style: 'IMPACT', language: 'FR', fromFile: true }]);
     const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
 

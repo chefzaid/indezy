@@ -410,6 +410,17 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(BODIES.getLast()).contains("Staff Java / Kafka", "technical depth", "Paie en Java.")
             .doesNotContain(aliceEmail, "Alice Corp", "Banque X", "Martin");
 
+        // From the kept CV file too: its details reach the AI, what names Alice or her employer does not.
+        assertThat(call(alice, HttpMethod.POST, "/ai/cv/rewrite", Map.of("fromFile", true), String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        keepCv(dev.swirlit.indezy.ai.PostingPdfTextTest.pdf(false, "Alice Martin " + aliceEmail, "Banque X : paie de 3000 salariés migrée vers Kafka."));
+        Map<String, Object> fromFile = call(alice, HttpMethod.POST, "/ai/cv/rewrite", Map.of("positioning", "Staff Java", "fromFile", true),
+            Map.class).getBody();
+        assertThat((String) fromFile.get("fileText")).contains("paie de 3000 salariés migrée vers Kafka").doesNotContain("Martin", "Banque X");
+        assertThat(BODIES.getLast()).contains("<cv_file>", "paie de 3000 salari").doesNotContain(aliceEmail, "Banque X", "Martin");
+        assertThat(call(alice, HttpMethod.POST, "/ai/dossier/posting/review?fromFile=true", Map.of("text", "Mission Kafka"), Map.class)
+            .getBody().get("fileText")).isNotNull();
+        assertThat(BODIES.getLast()).contains("You tailor", "<cv_file>").doesNotContain("Banque X");
+
         // The reviewed wording as a PDF, without AI.
         int asked = BODIES.size();
         ResponseEntity<byte[]> pdf = call(alice, HttpMethod.POST, "/ai/cv/pdf?layout=NAMED&language=FR", Map.of("headline", "Lead Java / Kafka",
@@ -663,5 +674,19 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(BODIES.getLast()).contains("Lead Kafka", "Kafka, Java", "REMOTE", "6 months");
         assertThat(call(alice, HttpMethod.POST, "/ai/rate", Map.of("role", "x".repeat(301)), String.class).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    private void keepCv(byte[] pdf) {
+        org.springframework.util.LinkedMultiValueMap<String, Object> form = new org.springframework.util.LinkedMultiValueMap<>();
+        form.add("file", new org.springframework.core.io.ByteArrayResource(pdf) {
+            @Override
+            public String getFilename() {
+                return "cv.pdf";
+            }
+        });
+        HttpHeaders multipart = new HttpHeaders();
+        multipart.setBearerAuth(alice.token());
+        multipart.setContentType(MediaType.MULTIPART_FORM_DATA);
+        assertThat(exchange("/users/cv", HttpMethod.POST, new HttpEntity<>(form, multipart), Map.class).getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
