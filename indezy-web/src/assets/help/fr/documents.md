@@ -115,4 +115,10 @@ Que l'IA ait adapté votre dossier à une opportunité, à une offre du flux ou 
 - **Affiner avec l'IA** (la baguette) réécrit un bloc en un clic : **Plus court**, **Plus technique**, **Moins de jargon**, **Traduire**, ou **Mettre en avant** ce que vous avez saisi dans le champ de ce nom (par exemple « Kubernetes »), seulement là où le bloc le dit déjà.
 - **Phrases à garder telles quelles** : saisissez une phrase et appuyez sur Entrée. Chaque affinage la garde mot pour mot ; si l'IA en change une malgré tout, le bloc reste tel quel et vous êtes prévenu.
 
+À côté des blocs :
+
+- **Ce qui est demandé** (dossiers adaptés) : les compétences que l'opportunité, l'offre ou l'annonce nomme, celles de votre profil, celles que seules vos missions mentionnent, et celles que vous n'avez pas, qui ne sont jamais ajoutées.
+- **Vérification** : les chiffres, sigles et noms qu'un bloc retenu indique et que votre profil n'indique pas, à vérifier avant l'envoi. Elle se met à jour pendant que vous modifiez.
+- **Demander ce qui manque (IA)** : une courte question sur chaque bloc vague (combien de services, quel gain). Saisissez seulement ce qui est vrai et cliquez sur **Intégrer** : l'IA l'ajoute au bloc. Dans la réécriture du CV, **Appliquer à mon profil** enregistre ensuite les postes passés avec.
+
 Ensuite, **Télécharger le PDF** donne le dossier nominatif ou anonymisé avec les blocs tels que vous les avez laissés.

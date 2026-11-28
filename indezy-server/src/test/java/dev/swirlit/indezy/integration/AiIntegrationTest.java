@@ -83,6 +83,8 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = message("{\"skills\":[\"Java\",\" Kafka \",\"Java\"],\"rateMin\":650,\"minRemoteDays\":2,\"workModes\":[\"HYBRID\"]," +
                     "\"regions\":[\"Île-de-France\",\"Atlantide\"],\"startBefore\":\"2027-03-01\",\"durationMin\":0,\"keywords\":\"\"," +
                     "\"avoid\":[\"banque\"]}", "end_turn");
+            } else if (body.contains("You read blocks of a French freelance")) {
+                answer = message("{\"questions\":[{\"key\":\"mission-1\",\"question\":\"Combien de flux migrés ?\"}]}", "end_turn");
             } else if (body.contains("You refine one block")) {
                 answer = message("{\"text\":\" Migration de la paie vers Kafka. \"}", "end_turn");
             } else if (body.contains("You rewrite a French freelance IT consultant's whole CV")) {
@@ -472,11 +474,13 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat((List<Map<String, Object>>) review.get("missions")).first().satisfies(item ->
             assertThat(item).containsEntry("before", "Paie migrée vers Kafka.").containsEntry("after", "Migration de la paie vers Kafka, au cœur des flux."));
         assertThat(BODIES.getLast()).contains("You tailor", "Role: Lead Java").doesNotContain(aliceEmail, "Alice Corp", "Martin");
+        assertThat((Map<String, Object>) review.get("coverage")).containsEntry("covered", List.of("Java", "Kafka")).containsEntry("gaps", List.of());
         assertThat(call(bob, HttpMethod.POST, "/ai/dossier/" + project + "/review", null, String.class).getStatusCode())
             .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
 
         long offerId = offers.save(offer()).getId();
-        assertThat(call(alice, HttpMethod.POST, "/ai/offers/" + offerId + "/dossier/review", null, Map.class).getBody()).containsKey("skills");
+        assertThat((Map<String, Object>) call(alice, HttpMethod.POST, "/ai/offers/" + offerId + "/dossier/review", null, Map.class).getBody()
+            .get("coverage")).containsEntry("gaps", List.of("Kotlin"));
         assertThat(BODIES.getLast()).contains("Role: Lead Kotlin");
         assertThat(call(alice, HttpMethod.POST, "/ai/dossier/posting/review?language=EN", Map.of("text", "Mission Kafka, 12 mois."), Map.class)
             .getBody()).containsKey("missions");
@@ -494,6 +498,15 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(refused.getBody()).containsEntry("message", "The AI changed a locked phrase: refine the block again or edit it by hand");
         assertThat(call(alice, HttpMethod.POST, "/ai/cv/refine", Map.of("text", " ", "refinement", "SHORTER"), String.class).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);
+
+        // Impact questions on the vague blocks, one answered and woven in.
+        assertThat(call(alice, HttpMethod.POST, "/ai/cv/questions", Map.of("blocks", List.of(Map.of("key", "mission-1", "text", "Paie migrée vers Kafka.")),
+            "language", "FR"), List.class).getBody()).containsExactly(Map.of("key", "mission-1", "question", "Combien de flux migrés ?"));
+        assertThat(BODIES.getLast()).contains("<block key=\\\"mission-1\\\">");
+        assertThat(call(alice, HttpMethod.POST, "/ai/cv/questions", Map.of("blocks", List.of()), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+        call(alice, HttpMethod.POST, "/ai/cv/refine", Map.of("text", "Paie migrée vers Kafka.", "refinement", "WEAVE", "answer", "12 flux"), Map.class);
+        assertThat(BODIES.getLast()).contains("Weave the freelancer's answer", "<answer>\\n12 flux\\n</answer>");
     }
 
     @Test

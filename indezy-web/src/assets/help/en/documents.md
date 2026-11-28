@@ -115,4 +115,10 @@ Whether the AI tailored your dossier to an opportunity, a feed offer or a postin
 - **Refine with AI** (the wand) rewrites one block in one click: **Shorter**, **More technical**, **Less jargon**, **Translate**, or **Bring out** what you typed in the field of that name (for example "Kubernetes"), only where the block already says it.
 - **Phrases to keep as written**: type a phrase and press Enter. Every refinement keeps it word for word; when the AI changes one anyway, the block stays as it was and you are told.
 
+Beside the blocks:
+
+- **What it asks for** (tailored dossiers): the skills the opportunity, offer or posting names, those in your profile, those only your missions mention, and those you do not have, which are never added.
+- **Fact check**: the numbers, acronyms and names a kept block states that your profile does not, to check before sending. It updates as you edit.
+- **Ask what's missing (AI)**: a short question on each vague block (how many services, what gain). Type only what is true and click **Weave in**: the AI adds it to the block. In the whole-CV rewrite, **Apply to my profile** then saves the past positions with it.
+
 Then **Download PDF** gives the named or anonymized dossier with the blocks as you left them.

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Vérifier un dossier réécrit face à l'offre et à vos faits
+
+La vérification d'un dossier réécrit montre désormais ce que l'offre demande (dans votre profil, seulement dans vos missions, ou absent), signale tout chiffre ou nom que votre profil n'indique pas, et demande ce qu'un bloc vague laisse de côté, en intégrant votre réponse. Voir [Documents](/help/documents).
+
 ### Vérifier et affiner un dossier réécrit
 
 Un dossier adapté ne se télécharge plus à l'aveugle : sur une opportunité, une offre du flux ou une annonce collée, vous voyez d'abord chaque bloc modifié par l'IA, les mots retirés barrés et les mots ajoutés surlignés. Gardez, modifiez ou verrouillez chaque bloc, affinez-en un en un clic (plus court, plus technique, moins de jargon, traduit, ou en mettant quelque chose en avant), et gardez mot pour mot les phrases choisies. Voir [Documents](/help/documents).

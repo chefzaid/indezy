@@ -24,6 +24,46 @@
           <input [matChipInputFor]="phraseGrid" [matChipInputSeparatorKeyCodes]="phraseKeys" (matChipInputTokenEnd)="addPhrase($event)"
             [placeholder]="'ai.cv.lockedHint' | translate" data-ai-cv-phrase-input>
         </mat-form-field>
+        <button mat-stroked-button type="button" class="ask" (click)="askQuestions()" [disabled]="asking" data-ai-cv-ask>
+          @if (asking) {
+            <mat-spinner diameter="18" [attr.aria-label]="'ai.cv.asking' | translate"></mat-spinner>
+          } @else {
+            <mat-icon>help_outline</mat-icon>
+          }
+          {{ 'ai.cv.ask' | translate }}
+        </button>
+      </div>
+      @if (rewrite.coverage; as coverage) {
+        <section class="coverage" aria-labelledby="ai-cv-coverage" data-ai-cv-coverage>
+          <h3 id="ai-cv-coverage">{{ 'ai.cv.coverage.title' | translate }}</h3>
+          @if (coverage.covered.length + coverage.partial.length + coverage.gaps.length === 0) {
+            <p class="kept">{{ 'ai.cv.coverage.none' | translate }}</p>
+          }
+          @if (coverage.covered.length) {
+            <p data-ai-cv-covered><mat-icon class="ok" aria-hidden="true">check_circle</mat-icon>
+              <strong>{{ 'ai.cv.coverage.covered' | translate }}</strong> {{ coverage.covered.join(', ') }}</p>
+          }
+          @if (coverage.partial.length) {
+            <p data-ai-cv-partial><mat-icon class="partial" aria-hidden="true">adjust</mat-icon>
+              <strong>{{ 'ai.cv.coverage.partial' | translate }}</strong> {{ coverage.partial.join(', ') }}</p>
+          }
+          @if (coverage.gaps.length) {
+            <p data-ai-cv-gaps><mat-icon class="gap" aria-hidden="true">remove_circle_outline</mat-icon>
+              <strong>{{ 'ai.cv.coverage.gaps' | translate }}</strong> {{ coverage.gaps.join(', ') }}</p>
+          }
+        </section>
+      }
+      <div class="facts" role="status" data-ai-cv-facts>
+        @if (unchecked.length) {
+          <p><mat-icon class="partial" aria-hidden="true">fact_check</mat-icon><strong>{{ 'ai.cv.facts.check' | translate }}</strong></p>
+          <ul>
+            @for (block of unchecked; track block.key) {
+              <li [attr.data-ai-cv-fact]="block.key">{{ block.label | translate:block.params }} — {{ facts(block).join(', ') }}</li>
+            }
+          </ul>
+        } @else {
+          <p><mat-icon class="ok" aria-hidden="true">fact_check</mat-icon>{{ 'ai.cv.facts.none' | translate }}</p>
+        }
       </div>
       @for (block of blocks; track block.key) {
         <div class="block" [attr.data-ai-cv-block]="block.key">
@@ -67,6 +107,17 @@
                 <input matInput [(ngModel)]="block.text" [readonly]="block.locked" [maxlength]="block.max" [attr.data-ai-cv-text]="block.key">
               }
             </mat-form-field>
+            @if (block.question && !block.locked) {
+              <div class="question" [attr.data-ai-cv-question]="block.key">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>{{ block.question }}</mat-label>
+                  <input matInput [(ngModel)]="block.answer" [maxlength]="answerMax" [placeholder]="'ai.cv.answerHint' | translate"
+                    [attr.data-ai-cv-answer]="block.key">
+                </mat-form-field>
+                <button mat-stroked-button type="button" (click)="weave(block)" [disabled]="!block.answer?.trim() || block.refining"
+                  [attr.data-ai-cv-weave]="block.key">{{ 'ai.cv.weave' | translate }}</button>
+              </div>
+            }
           } @else {
             <p class="kept">{{ block.before || ('ai.cv.empty' | translate) }}</p>
           }

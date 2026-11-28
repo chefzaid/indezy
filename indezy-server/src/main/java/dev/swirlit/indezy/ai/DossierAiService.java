@@ -12,6 +12,8 @@ import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.service.ActivityReportService;
 import dev.swirlit.indezy.service.DossierService;
+import dev.swirlit.indezy.util.SkillNames;
+import dev.swirlit.indezy.util.TextFolding;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The dossier de compétences tailored to an opportunity, a feed offer or a pasted job posting (see
@@ -73,13 +78,23 @@ public class DossierAiService {
         @JsonPropertyDescription("The profile's skill names, the ones the mission asks for first, spelled exactly as given")
         List<String> skills,
         @JsonPropertyDescription("For each past mission given with a description, that description rewritten for this mission")
-        List<MissionText> missions) {
+        List<MissionText> missions,
+        @JsonPropertyDescription("The skills, tools and technologies the mission asks for, as it names them, at most 20, none it does not name")
+        List<String> requirements) {
 
         public Tailoring {
             skills = skills == null ? List.of() : List.copyOf(skills);
             missions = missions == null ? List.of() : List.copyOf(missions);
+            requirements = requirements == null ? List.of() : List.copyOf(requirements);
+        }
+
+        public Tailoring(String summary, List<String> skills, List<MissionText> missions) {
+            this(summary, skills, missions, List.of());
         }
     }
+
+    /** At most this many skills asked for are checked against the profile. */
+    static final int ASKED_MAX = 30;
 
     /** A past mission's rewritten description, by its number in the profile. */
     public record MissionText(
@@ -137,7 +152,36 @@ public class DossierAiService {
             MAX_TOKENS, OutputConfig.Effort.LOW);
         return CvRewriteAiService.review(dossier, List.of(), new CvRewriteAiService.Rewriting(null, tailoring.summary(), tailoring.skills(),
             tailoring.missions().stream().filter(Objects::nonNull).map(text -> new CvRewriteAiService.Text(text.number(), text.description()))
-                .toList(), List.of()));
+                .toList(), List.of())).with(coverage(dossier, target, tailoring.requirements()));
+    }
+
+    /**
+     * What the target asks for (its stack, then the requirements the AI read in it) against the profile, aliases folded
+     * to one name: covered when the profile lists the skill, partial when only a mission's or a position's stack or
+     * description names it, a gap otherwise. Nothing here is written by the AI: it only says what the posting names.
+     */
+    static CvRewriteAiService.Coverage coverage(DossierDto dossier, Target target, List<String> requirements) {
+        Map<String, String> asked = new LinkedHashMap<>();
+        Stream.concat(Stream.of(Objects.toString(target.stack(), "").split("[,;/|]")), requirements.stream().filter(Objects::nonNull))
+            .map(String::strip).filter(name -> !name.isEmpty() && name.length() <= 60).map(SkillNames::canonical)
+            .forEach(name -> asked.putIfAbsent(SkillNames.key(name), name));
+        Set<String> listed = dossier.skills().stream().map(skill -> SkillNames.key(SkillNames.canonical(skill.name()))).collect(Collectors.toSet());
+        String named = " " + TextFolding.words(Stream.concat(dossier.missions().stream(), dossier.positions().stream())
+            .flatMap(mission -> Stream.of(mission.stack(), mission.description())).filter(Objects::nonNull)
+            .collect(Collectors.joining(" "))).replaceAll("[.,;:!?)]+(?=\\s|$)", "") + " ";
+        List<String> covered = new ArrayList<>();
+        List<String> partial = new ArrayList<>();
+        List<String> gaps = new ArrayList<>();
+        asked.entrySet().stream().limit(ASKED_MAX).forEach(skill -> {
+            if (listed.contains(skill.getKey())) {
+                covered.add(skill.getValue());
+            } else if (SkillNames.variants(skill.getValue()).stream().anyMatch(variant -> named.contains(" " + variant + " "))) {
+                partial.add(skill.getValue());
+            } else {
+                gaps.add(skill.getValue());
+            }
+        });
+        return new CvRewriteAiService.Coverage(covered, partial, gaps);
     }
 
     private ActivityReportService.PdfFile pdf(Long userId, Long freelanceId, Target target, DossierLayout layout, DocumentLanguage language) {

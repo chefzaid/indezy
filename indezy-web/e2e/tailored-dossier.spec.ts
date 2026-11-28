@@ -7,7 +7,8 @@ import { mockWorkspaceData } from './helpers/workspace-data';
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const REVIEW = { headline: { before: 'Développeur Java', after: 'Développeur Java' },
   summary: { before: 'Dix ans de Java.', after: 'Dix ans de Java et de Kafka.' }, skillsBefore: ['Java', 'Kafka'], skills: ['Kafka', 'Java'],
-  missions: [{ number: 1, id: null, title: 'Lead Java', before: 'Migration vers Kafka.', after: 'Migration du SI vers Kafka.' }], positions: [] };
+  missions: [{ number: 1, id: null, title: 'Lead Java', before: 'Migration vers Kafka.', after: 'Migration du SI vers Kafka.', stack: 'Java, Kafka' }],
+  positions: [], coverage: { covered: ['Java', 'Kafka'], partial: [], gaps: ['Rust'] } };
 
 for (const language of ['en', 'fr']) {
   test(`tailors the dossier to a feed offer and attaches it to the opportunity it becomes (${language})`, async ({ page }) => {
@@ -86,6 +87,10 @@ for (const language of ['en', 'fr']) {
     await expect(review).toBeVisible();
     expect(asked).toEqual([{ search: '?language=EN', body: { text: 'Mission Kafka chez un assureur, 12 mois.' } }]);
 
+    // What the posting asks for, and what the rewording states that the profile does not ("SI").
+    await expect(review.locator('[data-ai-cv-gaps]')).toContainText('Rust');
+    await expect(review.locator('[data-ai-cv-fact="mission-1"]')).toContainText('SI');
+
     // The mission refined in one click, bringing Kubernetes out and keeping "Kafka" as written; then the summary locked.
     await review.locator('[data-ai-cv-focus]').fill('Kubernetes');
     await review.locator('[data-ai-cv-phrase-input]').fill('Kafka');
@@ -95,6 +100,13 @@ for (const language of ['en', 'fr']) {
     await page.locator('[data-ai-cv-refinement="HIGHLIGHT"]').click();
     await expect(review.locator('[data-ai-cv-text="mission-1"]')).toHaveValue('Migration vers Kafka, au cœur du SI.');
     expect(refined).toEqual([{ text: 'Migration du SI vers Kafka.', refinement: 'HIGHLIGHT', focus: 'Kubernetes', locked: ['Kafka'], language: 'EN' }]);
+    // A question on the vague mission, answered and woven in.
+    await page.route('**/api/ai/cv/questions', route => route.fulfill({ json: [{ key: 'mission-1', question: 'How many services?' }] }));
+    await review.locator('[data-ai-cv-ask]').click();
+    await review.locator('[data-ai-cv-answer="mission-1"]').fill('12 services');
+    await review.locator('[data-ai-cv-weave="mission-1"]').click();
+    await expect(review.locator('[data-ai-cv-question="mission-1"]')).toHaveCount(0);
+    expect(refined[1]).toEqual(expect.objectContaining({ refinement: 'WEAVE', answer: '12 services' }));
     await review.locator('[data-ai-cv-lock="summary"]').click();
     await expect(review.locator('[data-ai-cv-refine="summary"]')).toBeDisabled();
     await expect(review.locator('[data-ai-cv-text="summary"]')).not.toBeEditable();

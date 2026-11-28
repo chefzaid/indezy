@@ -81,4 +81,20 @@ class DossierAiServiceTest {
         String pasted = DossierAiService.context(DossierAiService.Target.posting("x".repeat(7_000)), base, DocumentLanguage.EN);
         assertThat(pasted).contains("Role: \nStack: \nDescription: " + "x".repeat(6_000) + "\n</mission>");
     }
+
+    @Test
+    void checksWhatTheTargetAsksForAgainstTheProfileAliasesFolded() {
+        DossierDto base = new DossierDto("A. M.", null, null, List.of(), "Dix ans de Java.",
+            List.of(new DossierDto.Skill("Java", null, 8), new DossierDto.Skill("Kubernetes", null, 2)), List.of(), List.of(),
+            List.of(new DossierDto.Mission("Lead Java", null, LocalDate.of(2025, 1, 1), null, "Java, PostgreSQL", "Migration vers Kafka.")),
+            List.of(), List.of());
+
+        CvRewriteAiService.Coverage coverage = DossierAiService.coverage(base, new DossierAiService.Target("Lead", "K8s, Postgres / Rust", null),
+            List.of("kafka", "Java", " ", "Kubernetes"));
+
+        // K8s is Kubernetes, listed; Postgres and Kafka are only named by a mission; Rust is held nowhere.
+        assertThat(coverage.covered()).containsExactly("Kubernetes", "Java");
+        assertThat(coverage.partial()).containsExactly("PostgreSQL", "kafka");
+        assertThat(coverage.gaps()).containsExactly("Rust");
+    }
 }

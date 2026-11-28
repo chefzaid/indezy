@@ -3,7 +3,7 @@ import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http
 import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiAutopilotQueue, AiCvApproved, AiCvRefine, AiCvReviewed, AiCvRewrite, AiCvStyle, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiDebrief, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage, InboxWatcher } from '../../models';
+import { AiAutopilotQueue, AiCvApproved, AiCvQuestion, AiCvRefine, AiCvReviewed, AiCvRewrite, AiCvStyle, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiDebrief, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage, InboxWatcher } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -179,6 +179,11 @@ export class AiService {
   /** One block of the CV refined as asked, its locked phrases kept; refused (409) when the AI changed one. */
   refineCv(request: AiCvRefine): Observable<{ text: string }> {
     return this.http.post<{ text: string }>(`${this.API_URL}/cv/refine`, request);
+  }
+
+  /** Questions on the vague blocks, for the freelancer to answer with facts they know (at most five). */
+  cvQuestions(blocks: { key: string; text: string }[], language: DocumentLanguage): Observable<AiCvQuestion[]> {
+    return this.http.post<AiCvQuestion[]>(`${this.API_URL}/cv/questions`, { blocks, language });
   }
 
   draftMessage(projectId: number, kind: AiMessageKind, language: DocumentLanguage, notes: string | null): Observable<AiMessageDraft> {

@@ -13,3 +13,14 @@
 .after { margin: 0; }
 .disclaimer { margin: 12px 0 0; color: var(--mat-sys-on-surface-variant); font-size: .8125rem; }
 .error { color: var(--mat-sys-error); }
+.ask { align-self: center; justify-self: start; }
+.coverage, .facts { margin: 0 0 8px; padding: 8px 12px; border-radius: 8px; background: var(--mat-sys-surface-container-low); }
+.coverage h3 { margin: 0 0 4px; font-size: .9375rem; }
+.coverage p, .facts p { display: flex; align-items: flex-start; gap: 6px; margin: 4px 0; font-size: .875rem; }
+.facts ul { margin: 0; padding-left: 28px; font-size: .875rem; }
+.ok { color: var(--mat-sys-primary); }
+.partial { color: var(--mat-sys-tertiary); }
+.gap { color: var(--mat-sys-error); }
+.coverage mat-icon, .facts mat-icon { flex: none; width: 18px; height: 18px; font-size: 18px; }
+.question { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.question mat-form-field { flex: 1 1 260px; }

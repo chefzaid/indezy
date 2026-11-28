@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The whole CV rewritten for a positioning and a style, tied to no opportunity (see docs/features.md#ai-features): the
@@ -46,11 +48,23 @@ public class CvRewriteAiService {
     public static final int FOCUS_MAX = 80;
     public static final int LOCKED_MAX = 10;
     public static final int LOCKED_LENGTH = 200;
+    /** The freelancer's answer to an impact question, woven into a block. */
+    public static final int ANSWER_MAX = 500;
+    public static final int QUESTIONS_MAX = 5;
+    public static final int QUESTION_BLOCKS_MAX = 30;
+    public static final int BLOCK_KEY_MAX = 40;
+    private static final int QUESTION_MAX = 300;
+    private static final String QUESTIONS_SYSTEM = """
+        You read blocks of a French freelance IT consultant's CV (dossier de compétences) and find the vague ones: a claim
+        without its scale, a result without its measure, a migration without what it changed. For at most five of them, ask
+        the freelancer one short question each that would let them add a fact they know (how many users, services or
+        people, what gain in time, cost or latency, what scope), only about what the block states. Never suggest a figure
+        or an answer. Ask in the language asked, plainly. Skip blocks that are already precise.""";
     private static final long REFINE_TOKENS = 2_000;
     private static final String REFINE_SYSTEM = """
         You refine one block of a French freelance IT consultant's CV (dossier de compétences) as asked. Reword only what the
         block says: never add a skill, a tool, a figure, a client, a date, a responsibility or a result that is not written in
-        it. Keep every phrase given as locked exactly as written. Write in the language asked, in the third person or without a
+        it, or in the freelancer's answer when one is given. Keep every phrase given as locked exactly as written. Write in the language asked, in the third person or without a
         subject as French dossiers do, plainly, without superlatives. Answer with the block's new text only.""";
     private static final String SYSTEM = """
         You rewrite a French freelance IT consultant's whole CV (dossier de compétences) for the positioning and the style
@@ -102,19 +116,39 @@ public class CvRewriteAiService {
     public record Block(String before, String after) {
     }
 
-    /** A mission or position, by its number (and, for a position, its id in the profile), as it is and as rewritten. */
-    public record Item(int number, Long id, String title, String before, String after) {
+    /**
+     * A mission or position, by its number (and, for a position, its id in the profile), as it is and as rewritten, with
+     * its stack: what the rewording may name besides its own text.
+     */
+    public record Item(int number, Long id, String title, String before, String after, String stack) {
     }
 
-    /** The CV rewritten, block by block, to review. */
+    /**
+     * What an opportunity, an offer or a posting asks for, against the profile: the skills the profile lists, the ones
+     * only its missions or positions name, and the ones it does not hold at all (never written into the CV).
+     */
+    public record Coverage(List<String> covered, List<String> partial, List<String> gaps) {
+
+        public Coverage {
+            covered = List.copyOf(covered);
+            partial = List.copyOf(partial);
+            gaps = List.copyOf(gaps);
+        }
+    }
+
+    /** The CV rewritten, block by block, to review; {@code coverage} only when tailored to what something asks for. */
     public record CvRewrite(Block headline, Block summary, List<String> skillsBefore, List<String> skills, List<Item> missions,
-                            List<Item> positions) {
+                            List<Item> positions, Coverage coverage) {
 
         public CvRewrite {
             skillsBefore = List.copyOf(skillsBefore);
             skills = List.copyOf(skills);
             missions = List.copyOf(missions);
             positions = List.copyOf(positions);
+        }
+
+        CvRewrite with(Coverage covered) {
+            return new CvRewrite(headline, summary, skillsBefore, skills, missions, positions, covered);
         }
     }
 
@@ -142,7 +176,49 @@ public class CvRewriteAiService {
 
     /** A one-click refinement of a single block. */
     public enum Refinement {
-        SHORTER, TECHNICAL, PLAIN, TRANSLATE, HIGHLIGHT
+        SHORTER, TECHNICAL, PLAIN, TRANSLATE, HIGHLIGHT,
+        /** Weaves in the freelancer's answer to an impact question. */
+        WEAVE
+    }
+
+    /** A block of the CV as it reads, by its key in the review. */
+    public record BlockText(String key, String text) {
+    }
+
+    /** An impact question on a block, by its key. */
+    public record Question(@JsonPropertyDescription("The block's key as given") String key,
+                           @JsonPropertyDescription("One short question to the freelancer, in the language asked") String question) {
+    }
+
+    /** The questions the AI asks. */
+    public record Questions(@JsonPropertyDescription("At most five questions, one per vague block") List<Question> questions) {
+
+        public Questions {
+            questions = questions == null ? List.of() : List.copyOf(questions);
+        }
+    }
+
+    /**
+     * Questions on the vague blocks (at most {@value #QUESTIONS_MAX}, one per block given), for the freelancer to answer
+     * with facts they know; the AI never suggests the answer.
+     */
+    public List<Question> questions(Long userId, List<BlockText> blocks, DocumentLanguage language) {
+        List<BlockText> given = blocks.stream().filter(block -> block != null && block.key() != null && block.text() != null && !block.text().isBlank())
+            .limit(QUESTION_BLOCKS_MAX).toList();
+        if (given.isEmpty()) {
+            return List.of();
+        }
+        StringBuilder context = new StringBuilder("Answer in ").append(language == DocumentLanguage.EN ? "English" : "French").append(".\n");
+        given.forEach(block -> context.append("<block key=\"").append(block.key().strip()).append("\">\n").append(block.text().strip())
+            .append("\n</block>\n"));
+        Questions asked = ai.structured(userId, AiFeature.DOSSIER, QUESTIONS_SYSTEM, context.toString(), Questions.class, REFINE_TOKENS,
+            OutputConfig.Effort.LOW);
+        Set<String> keys = given.stream().map(block -> block.key().strip()).collect(Collectors.toSet());
+        Map<String, Question> byKey = new LinkedHashMap<>();
+        asked.questions().stream().filter(question -> question != null && question.key() != null && keys.contains(question.key().strip()))
+            .map(question -> new Question(question.key().strip(), cut(clean(question.question()), QUESTION_MAX)))
+            .filter(question -> question.question() != null).forEach(question -> byKey.putIfAbsent(question.key(), question));
+        return byKey.values().stream().limit(QUESTIONS_MAX).toList();
     }
 
     /** The block refined. */
@@ -154,9 +230,20 @@ public class CvRewriteAiService {
      * {@code locked} phrases exactly; refused when the AI dropped one or wrote nothing.
      */
     public String refine(Long userId, String text, Refinement refinement, String focus, List<String> locked, DocumentLanguage language) {
+        return refine(userId, text, refinement, focus, null, locked, language);
+    }
+
+    /** As above, {@code answer} the freelancer's answer to an impact question, woven in for {@link Refinement#WEAVE}. */
+    public String refine(Long userId, String text, Refinement refinement, String focus, String answer, List<String> locked,
+                         DocumentLanguage language) {
         List<String> kept = locked == null ? List.of() : locked.stream().filter(Objects::nonNull).map(String::strip)
             .filter(phrase -> !phrase.isEmpty() && phrase.length() <= LOCKED_LENGTH && text.contains(phrase)).distinct().limit(LOCKED_MAX).toList();
-        Refined refined = ai.structured(userId, AiFeature.DOSSIER, REFINE_SYSTEM, refineContext(text, refinement, focus, kept, language),
+        String context = refineContext(text, refinement, focus, kept, language);
+        String told = Objects.toString(answer, "").strip();
+        if (refinement == Refinement.WEAVE && !told.isEmpty()) {
+            context += "<answer>\n" + told.substring(0, Math.min(told.length(), ANSWER_MAX)) + "\n</answer>\n";
+        }
+        Refined refined = ai.structured(userId, AiFeature.DOSSIER, REFINE_SYSTEM, context,
             Refined.class, REFINE_TOKENS, OutputConfig.Effort.LOW);
         String result = cut(clean(refined.text()), REFINE_TEXT_MAX);
         if (result == null || kept.stream().anyMatch(phrase -> !result.contains(phrase))) {
@@ -173,6 +260,7 @@ public class CvRewriteAiService {
             case TECHNICAL -> "Make it more technical: bring out the stacks, architecture and practices it names.";
             case PLAIN -> "Use less jargon: plain words a non-technical client understands.";
             case TRANSLATE -> "Translate it into " + english + ", keeping its meaning and its technical terms.";
+            case WEAVE -> "Weave the freelancer's answer below into the block, plainly, adding nothing else.";
             case HIGHLIGHT -> "Bring out " + (target.isEmpty() ? "what matters most" : target.substring(0, Math.min(target.length(), FOCUS_MAX))) +
                 ", only where the block states it.";
         };
@@ -244,7 +332,7 @@ public class CvRewriteAiService {
         List<String> before = dossier.skills().stream().map(DossierDto.Skill::name).toList();
         return new CvRewrite(new Block(dossier.position(), headline == null ? dossier.position() : headline),
             new Block(dossier.summary(), summary == null ? dossier.summary() : summary), before, order(before, rewriting.skills()),
-            items(dossier.missions(), null, rewriting.missions()), items(dossier.positions(), experiences, rewriting.positions()));
+            items(dossier.missions(), null, rewriting.missions()), items(dossier.positions(), experiences, rewriting.positions()), null);
     }
 
     /** The profile's skills in the order given, the ones it did not name after; a name the profile lacks is dropped. */
@@ -266,7 +354,7 @@ public class CvRewriteAiService {
             DossierDto.Mission item = items.get(index);
             String text = index < ITEMS_MAX && item.description() != null ? byNumber.get(index + 1) : null;
             Long id = experiences != null && index < experiences.size() ? experiences.get(index).id() : null;
-            reviewed.add(new Item(index + 1, id, item.role(), item.description(), text == null ? item.description() : text));
+            reviewed.add(new Item(index + 1, id, item.role(), item.description(), text == null ? item.description() : text, item.stack()));
         }
         return reviewed;
     }

@@ -59,6 +59,8 @@ describe('AiService', () => {
     expect(http.expectOne(`${url}/dossier/posting/review?language=FR`).request.body).toEqual({ text: 'Mission Kafka' });
     service.refineCv({ text: 'Paie.', refinement: 'SHORTER', focus: null, locked: ['Paie'], language: 'FR' }).subscribe();
     expect(http.expectOne(`${url}/cv/refine`).request.body.locked).toEqual(['Paie']);
+    service.cvQuestions([{ key: 'mission-1', text: 'Paie.' }], 'EN').subscribe();
+    expect(http.expectOne(`${url}/cv/questions`).request.body).toEqual({ blocks: [{ key: 'mission-1', text: 'Paie.' }], language: 'EN' });
     http.verify();
   });
 

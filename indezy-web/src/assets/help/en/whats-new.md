@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Check a rewritten dossier against the offer and your facts
+
+The review of a rewritten dossier now shows what the offer asks for (in your profile, only in your missions, or missing), flags any number or name your profile does not state, and asks what a vague block leaves out, weaving your answer in. See [Documents](/help/documents).
+
 ### Review and refine a rewritten dossier
 
 A tailored dossier is no longer downloaded blind: on an opportunity, a feed offer or a pasted posting, you first see each block the AI changed, the words removed struck through and the words added highlighted. Keep, edit or lock each block, refine one in a click (shorter, more technical, less jargon, translated, or bringing something out), and keep the phrases you choose word for word. See [Documents](/help/documents).

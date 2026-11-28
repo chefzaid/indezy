@@ -85,6 +85,18 @@ export interface AiCvItem {
   title: string | null;
   before: string | null;
   after: string | null;
+  /** What the rewording may name besides the item's own text. */
+  stack?: string | null;
+}
+
+/** What an opportunity, an offer or a posting asks for, against the profile. */
+export interface AiCvCoverage {
+  /** Skills the profile lists. */
+  covered: string[];
+  /** Skills only a mission or a position names. */
+  partial: string[];
+  /** Skills the profile does not hold: never written into the CV. */
+  gaps: string[];
 }
 
 /** The whole CV rewritten for a positioning, block by block, to review. */
@@ -95,6 +107,14 @@ export interface AiCvRewrite {
   skills: string[];
   missions: AiCvItem[];
   positions: AiCvItem[];
+  /** Only when tailored to what something asks for. */
+  coverage?: AiCvCoverage | null;
+}
+
+/** An impact question on a block of the review, by its key. */
+export interface AiCvQuestion {
+  key: string;
+  question: string;
 }
 
 /** The wording kept, to render: a block left out stays as the profile says. */
@@ -350,13 +370,15 @@ export interface AiProspectionMessage {
 }
 
 /** A one-click refinement of a single block of the CV. */
-export type AiCvRefinement = 'SHORTER' | 'TECHNICAL' | 'PLAIN' | 'TRANSLATE' | 'HIGHLIGHT';
+export type AiCvRefinement = 'SHORTER' | 'TECHNICAL' | 'PLAIN' | 'TRANSLATE' | 'HIGHLIGHT' | 'WEAVE';
 
 /** One block of the CV to refine, its locked phrases kept as written. */
 export interface AiCvRefine {
   text: string;
   refinement: AiCvRefinement;
   focus: string | null;
+  /** The freelancer's answer to an impact question, for WEAVE. */
+  answer?: string | null;
   locked: string[];
   language: DocumentLanguage;
 }

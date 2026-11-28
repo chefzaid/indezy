@@ -14,7 +14,7 @@ const REWRITE: AiCvRewrite = {
   summary: { before: 'Dix ans de Java.', after: 'Dix ans de Java. ' },
   skillsBefore: ['Java', 'Kafka'],
   skills: ['Kafka', 'Java'],
-  missions: [{ number: 1, id: null, title: 'Lead Java', before: 'Migration vers Kafka.', after: 'Migration du SI vers Kafka.' },
+  missions: [{ number: 1, id: null, title: 'Lead Java', before: 'Migration vers Kafka.', after: 'Migration du SI vers Kafka.', stack: 'Java, Kafka' },
     { number: 2, id: null, title: 'Dev Java', before: null, after: null }],
   positions: [{ number: 1, id: 70, title: 'Développeuse', before: 'Paie en Java.', after: 'Logiciel de paie en Java.' }]
 };
@@ -25,7 +25,7 @@ describe('AiCvRewriteDialogComponent', () => {
   let dialogRef: jasmine.SpyObj<MatDialogRef<AiCvRewriteDialogComponent, boolean>>;
 
   function create(data: CvReviewData | null = null): { component: AiCvRewriteDialogComponent; element: () => HTMLElement } {
-    ai = jasmine.createSpyObj('AiService', ['rewriteCv', 'rewrittenCv', 'approveCv', 'refineCv']);
+    ai = jasmine.createSpyObj('AiService', ['rewriteCv', 'rewrittenCv', 'approveCv', 'refineCv', 'cvQuestions']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     TestBed.configureTestingModule({
@@ -191,5 +191,60 @@ describe('AiCvRewriteDialogComponent', () => {
     component.again();
     expect(component.rewrite).toBeNull();
     expect(component.blocks).toEqual([]);
+  });
+
+  it('shows what a tailored dossier\'s target asks for, covered, only in the missions, or missing', () => {
+    const { element } = create({ tailored: { rewrite: { ...REWRITE, coverage: { covered: ['Java'], partial: ['Kafka'], gaps: ['Rust'] } },
+      language: 'FR' } });
+    const coverage = element().querySelector('[data-ai-cv-coverage]')!;
+    expect(coverage.querySelector('[data-ai-cv-covered]')?.textContent).toContain('Java');
+    expect(coverage.querySelector('[data-ai-cv-partial]')?.textContent).toContain('Kafka');
+    expect(coverage.querySelector('[data-ai-cv-gaps]')?.textContent).toContain('Rust');
+  });
+
+  it('checks each kept block for numbers and names the profile does not state, as it is edited', () => {
+    const { component, element } = create({ tailored: { rewrite: REWRITE, language: 'FR' } });
+    // "SI" is not in the profile; "Kafka" is.
+    expect(component.unchecked.map(block => block.key)).toEqual(['mission-1']);
+    expect(component.facts(block(component, 'mission-1'))).toEqual(['SI']);
+    block(component, 'mission-1').text = 'Migration de 40 services vers Kafka.';
+    expect(element().querySelector('[data-ai-cv-fact="mission-1"]')?.textContent).toContain('40');
+    block(component, 'mission-1').keep = false;
+    block(component, 'headline').text = 'Lead Java';
+    expect(component.unchecked).toEqual([]);
+    expect(element().querySelector('[data-ai-cv-fact]')).toBeNull();
+  });
+
+  it('asks what the vague blocks leave out and weaves the answer in', () => {
+    const { component, element } = create({ tailored: { rewrite: REWRITE, language: 'EN' } });
+    block(component, 'position-1').locked = true;
+    ai.cvQuestions.and.returnValue(of([{ key: 'mission-1', question: 'How many services?' }, { key: 'gone', question: 'Lost?' }]));
+    component.askQuestions();
+    expect(ai.cvQuestions).toHaveBeenCalledWith([{ key: 'headline', text: 'Lead Java / Kafka' }, { key: 'mission-1', text: 'Migration du SI vers Kafka.' }],
+      'EN');
+    const mission = block(component, 'mission-1');
+    expect(mission.question).toBe('How many services?');
+    expect(element().querySelector('[data-ai-cv-question="mission-1"]')).not.toBeNull();
+
+    ai.refineCv.and.returnValue(of({ text: 'Migration of 40 services to Kafka.' }));
+    component.weave(mission);
+    expect(ai.refineCv).not.toHaveBeenCalled();
+    mission.answer = ' 40 services ';
+    component.weave(mission);
+    expect(ai.refineCv).toHaveBeenCalledWith({ text: 'Migration du SI vers Kafka.', refinement: 'WEAVE', focus: null, answer: '40 services',
+      locked: [], language: 'EN' });
+    expect(mission.text).toBe('Migration of 40 services to Kafka.');
+    expect(mission.question).toBeUndefined();
+  });
+
+  it('says when no block needs a question, and why the AI could not ask', () => {
+    const { component } = create({ tailored: { rewrite: REWRITE, language: 'FR' } });
+    ai.cvQuestions.and.returnValue(of([]));
+    component.askQuestions();
+    expect(notifications.success).toHaveBeenCalledWith('ai.cv.noQuestions');
+    ai.cvQuestions.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'The AI declined this request' } })));
+    component.askQuestions();
+    expect(notifications.error).toHaveBeenCalledWith('ai.errors.declined');
+    expect(component.asking).toBeFalse();
   });
 });

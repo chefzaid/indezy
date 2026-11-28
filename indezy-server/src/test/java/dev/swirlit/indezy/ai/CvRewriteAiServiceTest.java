@@ -69,7 +69,7 @@ class CvRewriteAiServiceTest {
         // A mission without a description gets none; the first text for a number wins.
         assertThat(rewrite.missions()).extracting(CvRewriteAiService.Item::after).containsExactly("Migration du SI vers Kafka.", null);
         assertThat(rewrite.positions()).singleElement().isEqualTo(new CvRewriteAiService.Item(1, 70L, "Développeuse", "Paie en Java.",
-            "Logiciel de paie en Java."));
+            "Logiciel de paie en Java.", "Java"));
     }
 
     @Test
@@ -143,5 +143,29 @@ class CvRewriteAiServiceTest {
             DocumentLanguage.FR)).isEqualTo("Migration du SI vers Kafka.");
         assertThatThrownBy(() -> service.refine(3L, "Migration vers Kafka.", CvRewriteAiService.Refinement.SHORTER, null,
             List.of("Migration vers"), DocumentLanguage.FR)).isInstanceOf(InvalidStateException.class).hasMessageContaining("locked phrase");
+    }
+
+    @Test
+    void asksAtMostOneQuestionPerVagueBlockGivenAndWeavesTheAnswerIn() {
+        AiService ai = mock(AiService.class);
+        CvRewriteAiService service = new CvRewriteAiService(ai, mock(DossierService.class), mock(CareerService.class), mock(UserRepository.class));
+        when(ai.structured(eq(3L), eq(AiFeature.DOSSIER), anyString(), anyString(), eq(CvRewriteAiService.Questions.class), anyLong(),
+            any(OutputConfig.Effort.class))).thenReturn(new CvRewriteAiService.Questions(List.of(
+                new CvRewriteAiService.Question(" mission-1 ", " Combien de services migrés ? "),
+                new CvRewriteAiService.Question("mission-1", "Doublon ?"), new CvRewriteAiService.Question("inventé", "Hors liste ?"),
+                new CvRewriteAiService.Question("summary", " "))));
+
+        assertThat(service.questions(3L, List.of(new CvRewriteAiService.BlockText("mission-1", "Migration vers Kafka."),
+            new CvRewriteAiService.BlockText("summary", "Dix ans de Java."), new CvRewriteAiService.BlockText("vide", " ")), DocumentLanguage.FR))
+            .containsExactly(new CvRewriteAiService.Question("mission-1", "Combien de services migrés ?"));
+        assertThat(service.questions(3L, List.of(), DocumentLanguage.FR)).isEmpty();
+
+        when(ai.structured(eq(3L), eq(AiFeature.DOSSIER), anyString(), anyString(), eq(CvRewriteAiService.Refined.class), anyLong(),
+            any(OutputConfig.Effort.class))).thenReturn(new CvRewriteAiService.Refined("Migration de 40 services vers Kafka."));
+        assertThat(service.refine(3L, "Migration vers Kafka.", CvRewriteAiService.Refinement.WEAVE, null, " 40 services ", List.of("Kafka"),
+            DocumentLanguage.FR)).isEqualTo("Migration de 40 services vers Kafka.");
+        verify(ai).structured(eq(3L), eq(AiFeature.DOSSIER), anyString(),
+            org.mockito.ArgumentMatchers.contains("<answer>\n40 services\n</answer>"), eq(CvRewriteAiService.Refined.class), anyLong(),
+            any(OutputConfig.Effort.class));
     }
 }

@@ -392,6 +392,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/utils/billing-validators',
   'shared/utils/download-file',
   'shared/utils/email-template',
+  'shared/utils/fact-check',
   'shared/utils/form-errors',
   'shared/utils/form-payload',
   'shared/utils/highlight',

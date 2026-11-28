@@ -20,12 +20,14 @@ import { AiService, aiBlobErrorKey, aiErrorKey } from '../../../services/ai/ai.s
 import { NotificationService } from '../../../services/notification/notification.service';
 import { saveBlob } from '../../utils/download-file';
 import { DiffSegment, changed, wordDiff } from '../../utils/word-diff';
+import { newFacts } from '../../utils/fact-check';
 
 /** The longest positioning asked for, as the server reads it. */
 export const POSITIONING_MAX = 120;
 const FOCUS_MAX = 80;
 const LOCKED_MAX = 10;
 const LOCKED_LENGTH = 200;
+const ANSWER_MAX = 500;
 
 /** What opens the review: nothing for the whole-CV rewrite, or a dossier tailored to an opportunity, an offer or a posting. */
 export interface CvReviewData {
@@ -51,6 +53,11 @@ export interface ReviewBlock {
   item?: AiCvItem;
   /** The diff last shown, for the text it was computed from. */
   shown?: { text: string; segments: DiffSegment[] };
+  /** The new facts last checked, for the text they were found in. */
+  checked?: { text: string; facts: string[] };
+  /** The AI's impact question on the block, and the freelancer's answer to weave in. */
+  question?: string;
+  answer?: string;
 }
 
 /**
@@ -96,6 +103,10 @@ export class AiCvRewriteDialogComponent {
   focus = '';
   /** Phrases every refinement keeps exactly as written. */
   lockedPhrases: string[] = [];
+  readonly answerMax = ANSWER_MAX;
+  asking = false;
+  /** Everything the profile states, that the rewording is checked against. */
+  private source = '';
 
   constructor() {
     if (this.data.tailored) {
@@ -138,6 +149,61 @@ export class AiCvRewriteDialogComponent {
       ...items(rewrite.positions, 'position')
     ];
     this.keepSkills = rewrite.skills.join() !== rewrite.skillsBefore.join();
+    this.source = [rewrite.headline.before, rewrite.summary.before, ...rewrite.skillsBefore,
+      ...[...rewrite.missions, ...rewrite.positions].flatMap(item => [item.title, item.before, item.stack])]
+      .filter((text): text is string => !!text).join('. ');
+  }
+
+  /** The numbers and names the block now states that the profile does not. */
+  facts(block: ReviewBlock): string[] {
+    if (block.checked?.text !== block.text) {
+      block.checked = { text: block.text, facts: newFacts(block.text, this.source) };
+    }
+    return block.checked.facts;
+  }
+
+  /** The kept blocks stating something the profile does not, to check before downloading. */
+  get unchecked(): ReviewBlock[] {
+    return this.blocks.filter(block => block.keep && this.facts(block).length > 0);
+  }
+
+  /** Asks the AI what the vague kept blocks leave out, one question each, for the freelancer to answer. */
+  askQuestions(): void {
+    const blocks = this.blocks.filter(block => block.keep && !block.locked && block.text.trim())
+      .map(block => ({ key: block.key, text: block.text.trim() }));
+    if (!blocks.length || this.asking) {
+      return;
+    }
+    this.asking = true;
+    this.ai.cvQuestions(blocks, this.language).subscribe({
+      next: questions => {
+        this.asking = false;
+        for (const { key, question } of questions) {
+          const block = this.blocks.find(candidate => candidate.key === key);
+          if (block) {
+            block.question = question;
+            block.answer = '';
+          }
+        }
+        if (!questions.length) {
+          this.notifications.success('ai.cv.noQuestions');
+        }
+        this.changes.markForCheck();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.asking = false;
+        this.notifications.error(aiErrorKey(error));
+        this.changes.markForCheck();
+      }
+    });
+  }
+
+  /** The freelancer's answer woven into the block; the question is then done. */
+  weave(block: ReviewBlock): void {
+    const answer = (block.answer ?? '').trim();
+    if (answer) {
+      this.refine(block, 'WEAVE', answer);
+    }
   }
 
   /** The words changed between the block as it was and as it reads now. */
@@ -161,17 +227,21 @@ export class AiCvRewriteDialogComponent {
   }
 
   /** One block refined as asked, the locked phrases kept; a block locked is never sent. */
-  refine(block: ReviewBlock, refinement: AiCvRefinement): void {
+  refine(block: ReviewBlock, refinement: AiCvRefinement, answer: string | null = null): void {
     const text = block.text.trim();
     if (block.locked || !block.keep || !text || block.refining) {
       return;
     }
     block.refining = true;
-    this.ai.refineCv({ text, refinement, focus: refinement === 'HIGHLIGHT' ? this.focus.trim() || null : null, locked: this.lockedPhrases,
-      language: this.language }).subscribe({
+    this.ai.refineCv({ text, refinement, focus: refinement === 'HIGHLIGHT' ? this.focus.trim() || null : null,
+      ...(answer ? { answer } : {}), locked: this.lockedPhrases, language: this.language }).subscribe({
       next: ({ text: refined }) => {
         block.refining = false;
         block.text = refined.slice(0, block.max);
+        if (answer) {
+          block.question = undefined;
+          block.answer = undefined;
+        }
         this.changes.markForCheck();
       },
       error: (error: HttpErrorResponse) => {

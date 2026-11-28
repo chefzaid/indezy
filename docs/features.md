@@ -826,7 +826,16 @@ never saved or sent on its own:
   `PLAIN`, `TRANSLATE` into the dossier's language, or `HIGHLIGHT` with what to bring out, 80 characters at most; the
   block 2,000 characters at most), keeping **locked phrases** word for word (10 at most, 200 characters each; only those
   the block holds are sent): when the AI dropped one, the refinement is refused (409) and the block stays as it was. The
-  dossier is then rendered with the blocks kept by `POST /api/ai/cv/pdf`, without AI.
+  dossier is then rendered with the blocks kept by `POST /api/ai/cv/pdf`, without AI. Beside the blocks:
+  - **What it asks for** (tailored dossiers only, in the review's `coverage`): the target's stack and the skills the AI read
+    in its text (at most 30, aliases folded through the canonical skill names), each **covered** when the profile lists
+    it, **partial** when only a mission's or a position's stack or description names it, or a **gap**, never written in;
+  - a **fact check**, in the browser as the blocks are edited: the numbers, acronyms and names a kept block states that
+    the profile (its headline, summary, skills, the items' titles, descriptions and stacks) never does;
+  - **Ask what's missing (AI)** (`POST /api/ai/cv/questions`, the kept unlocked blocks, 30 at most): one short question
+    on each vague block, five at most, that the AI never answers itself; the freelancer's answer (500 characters at most)
+    is woven into the block by `POST /api/ai/cv/refine` (`WEAVE` with the `answer`), the locked phrases kept. Past
+    positions woven this way are saved back with **Apply to my profile** in the whole-CV rewrite.
 - **Rewrite my CV (AI)** at the top of the profile (`POST /api/ai/cv/rewrite`, a positioning of at most 120 characters, a
   style `IMPACT|CONCISE|TECHNICAL|EXECUTIVE` and a language): the whole [dossier de compétences](#dossier-de-competences)
   rewritten for that positioning, tied to no opportunity: the headline (120 characters at most), the summary (900), the

@@ -5567,6 +5567,22 @@
         "PLAIN": "Less jargon",
         "TRANSLATE": "Translate into {{language}}",
         "HIGHLIGHT": "Bring out {{focus}}"
+      },
+      "ask": "Ask what's missing (AI)",
+      "asking": "The AI is reading the blocks",
+      "noQuestions": "Every block is precise enough: no question to ask.",
+      "answerHint": "Only what is true, e.g. 40 services",
+      "weave": "Weave in",
+      "coverage": {
+        "title": "What it asks for",
+        "none": "No skill named to check.",
+        "covered": "In your profile:",
+        "partial": "Only in your missions:",
+        "gaps": "Not in your profile (left out):"
+      },
+      "facts": {
+        "check": "Check these: your profile does not state them.",
+        "none": "Fact check: no number, date or name your profile does not state."
       }
     },
     "rate": {

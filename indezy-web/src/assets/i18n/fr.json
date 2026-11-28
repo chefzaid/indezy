@@ -5567,6 +5567,22 @@
         "PLAIN": "Moins de jargon",
         "TRANSLATE": "Traduire en {{language}}",
         "HIGHLIGHT": "Mettre en avant {{focus}}"
+      },
+      "ask": "Demander ce qui manque (IA)",
+      "asking": "L'IA lit les blocs",
+      "noQuestions": "Chaque bloc est assez précis : aucune question à poser.",
+      "answerHint": "Seulement ce qui est vrai, ex. 40 services",
+      "weave": "Intégrer",
+      "coverage": {
+        "title": "Ce qui est demandé",
+        "none": "Aucune compétence nommée à vérifier.",
+        "covered": "Dans votre profil :",
+        "partial": "Seulement dans vos missions :",
+        "gaps": "Absent de votre profil (non ajouté) :"
+      },
+      "facts": {
+        "check": "À vérifier : votre profil ne l'indique pas.",
+        "none": "Vérification : aucun chiffre, date ni nom que votre profil n'indique pas."
       }
     },
     "rate": {

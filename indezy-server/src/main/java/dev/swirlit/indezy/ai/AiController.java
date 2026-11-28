@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
@@ -336,7 +337,7 @@ public class AiController {
     public record RefineRequest(@NotBlank @Size(max = CvRewriteAiService.REFINE_TEXT_MAX) String text,
                                 @NotNull CvRewriteAiService.Refinement refinement, @Size(max = CvRewriteAiService.FOCUS_MAX) String focus,
                                 @Size(max = CvRewriteAiService.LOCKED_MAX) List<@Size(max = CvRewriteAiService.LOCKED_LENGTH) String> locked,
-                                DocumentLanguage language) {
+                                @Size(max = CvRewriteAiService.ANSWER_MAX) String answer, DocumentLanguage language) {
 
         public RefineRequest {
             locked = locked == null ? List.of() : List.copyOf(locked.stream().filter(Objects::nonNull).toList());
@@ -349,7 +350,31 @@ public class AiController {
     public CvRewriteAiService.Refined refineCv(@Valid @RequestBody RefineRequest request) {
         accessGuard.requireWorkspace(null);
         return new CvRewriteAiService.Refined(cvRewrites.refine(SecurityUtils.getCurrentUserId(), request.text(), request.refinement(),
-            request.focus(), request.locked(), request.language() == null ? DocumentLanguage.FR : request.language()));
+            request.focus(), request.answer(), request.locked(), request.language() == null ? DocumentLanguage.FR : request.language()));
+    }
+
+    /** A block of the CV as it reads in the review. */
+    public record QuestionBlock(@NotBlank @Size(max = CvRewriteAiService.BLOCK_KEY_MAX) String key,
+                                @NotBlank @Size(max = CvRewriteAiService.REFINE_TEXT_MAX) String text) {
+    }
+
+    /** The blocks to ask impact questions on. */
+    public record QuestionsRequest(@NotEmpty @Size(max = CvRewriteAiService.QUESTION_BLOCKS_MAX) List<@Valid @NotNull QuestionBlock> blocks,
+                                   DocumentLanguage language) {
+
+        public QuestionsRequest {
+            blocks = blocks == null ? List.of() : List.copyOf(blocks.stream().filter(Objects::nonNull).toList());
+        }
+    }
+
+    @Operation(summary = "Questions on the CV's vague blocks, for the freelancer to answer with facts they know",
+        description = "At most five, one per block; the AI never suggests the answer. Weave an answer in with POST /ai/cv/refine (WEAVE)")
+    @PostMapping("/cv/questions")
+    public List<CvRewriteAiService.Question> cvQuestions(@Valid @RequestBody QuestionsRequest request) {
+        accessGuard.requireWorkspace(null);
+        return cvRewrites.questions(SecurityUtils.getCurrentUserId(), request.blocks().stream()
+            .map(block -> new CvRewriteAiService.BlockText(block.key(), block.text())).toList(),
+            request.language() == null ? DocumentLanguage.FR : request.language());
     }
 
     @Operation(summary = "The dossier de compétences tailored to a feed offer, as a PDF, without adding the offer to the pipeline",
