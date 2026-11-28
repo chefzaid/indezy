@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Base64;
@@ -51,7 +52,7 @@ public class ContactEmailController {
     /** An email to a contact. */
     public record SendRequest(Long projectId, @NotBlank @Size(max = ContactEmailService.SUBJECT_MAX) String subject,
                               @NotBlank @Size(max = ContactEmailService.BODY_MAX) String body, Boolean track, Boolean copy,
-                              DocumentLanguage language, Boolean dossier, Long campaignId) {
+                              DocumentLanguage language, Boolean dossier, Long campaignId, Long cvProfileId) {
 
         // Spring MVC logs bodies through toString at DEBUG: never the subject or the message.
         @Override
@@ -75,7 +76,21 @@ public class ContactEmailController {
         Long campaign = request.campaignId() == null ? null : campaigns.require(workspace, request.campaignId());
         return emails.send(SecurityUtils.getCurrentUserId(), workspace, contactId, new ContactEmailService.Message(
             request.projectId(), request.subject(), request.body(), Boolean.TRUE.equals(request.track()), Boolean.TRUE.equals(request.copy()),
-            request.language(), Boolean.TRUE.equals(request.dossier()), campaign));
+            request.language(), Boolean.TRUE.equals(request.dossier()), campaign, request.cvProfileId()));
+    }
+
+    /** The CV profile an email would carry, when there is one. */
+    public record AttachedCv(Long profileId, String name) {
+    }
+
+    @Operation(summary = "The CV profile an email to the contact would carry, closest to what their company asks for",
+        description = "About the opportunity when one is given; 204 without a CV profile")
+    @GetMapping("/contacts/{contactId}/emails/cv-profile")
+    public ResponseEntity<AttachedCv> cvProfile(@PathVariable Long contactId, @RequestParam(required = false) Long projectId) {
+        accessGuard.requireContact(contactId);
+        accessGuard.requireProjectIfPresent(projectId);
+        return emails.cvProfileFor(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), contactId, projectId)
+            .map(profile -> ResponseEntity.ok(new AttachedCv(profile.id(), profile.name()))).orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     /** A campaign to start: what it is called (the emails' subject). */
@@ -115,7 +130,8 @@ public class ContactEmailController {
 
     /** Emails to send later, spread over working days. */
     public record ScheduleRequest(@NotEmpty @Size(max = 100) List<@Valid @NotNull ScheduledDraft> emails, Boolean dossier, DocumentLanguage language,
-                                  @Min(1) @Max(10) int days, @Min(1) @Max(ContactEmailService.DAILY_MAX) int dailyMax, Long campaignId) {
+                                  @Min(1) @Max(10) int days, @Min(1) @Max(ContactEmailService.DAILY_MAX) int dailyMax, Long campaignId,
+                                  Long cvProfileId) {
 
         public ScheduleRequest {
             emails = emails == null ? null : java.util.Collections.unmodifiableList(new java.util.ArrayList<>(emails));
@@ -131,7 +147,7 @@ public class ContactEmailController {
         Long campaign = request.campaignId() == null ? null : campaigns.require(workspace, request.campaignId());
         return schedule.schedule(SecurityUtils.getCurrentUserId(), workspace, new ContactEmailScheduleService.Plan(
             request.emails().stream().map(email -> new ContactEmailScheduleService.Draft(email.contactId(), email.subject(), email.body())).toList(),
-            Boolean.TRUE.equals(request.dossier()), request.language(), request.days(), request.dailyMax(), campaign));
+            Boolean.TRUE.equals(request.dossier()), request.language(), request.days(), request.dailyMax(), campaign, request.cvProfileId()));
     }
 
     /** A campaign's reminders, one per contact, written for each. */

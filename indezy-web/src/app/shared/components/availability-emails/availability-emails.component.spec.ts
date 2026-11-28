@@ -4,12 +4,13 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
-import { AvailabilityRecipient, ContactInteraction, NetworkPost, NetworkPosts } from '../../../models';
+import { AvailabilityRecipient, ContactInteraction, CvProfile, NetworkPost, NetworkPosts } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { ContactService } from '../../../services/contact/contact.service';
 import { provideRouter } from '@angular/router';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { CvProfileService } from '../../../services/cv-profile/cv-profile.service';
 import { AvailabilityEmailsComponent } from './availability-emails.component';
 
 describe('AvailabilityEmailsComponent', () => {
@@ -18,7 +19,8 @@ describe('AvailabilityEmailsComponent', () => {
   const marc: AvailabilityRecipient = { id: 2, firstName: null, name: 'Marc Durand', company: 'Autre', email: 'marc@autre.example', answers: 0,
     lastContactedOn: null, postings: 2, mission: 'Lead Java', silentCampaigns: 0, campaignOpportunities: 0 };
 
-  function create(recipients = of([lea, marc]), missions: Observable<NetworkPosts> = of({ posts: [], page: 0, more: false })) {
+  function create(recipients = of([lea, marc]), missions: Observable<NetworkPosts> = of({ posts: [], page: 0, more: false }),
+                  profiles: CvProfile[] = []) {
     const contacts = jasmine.createSpyObj('ContactService', ['availabilityRecipients', 'sendEmail', 'scheduledEmails', 'scheduleEmails',
       'cancelScheduledEmail', 'startCampaign', 'campaigns', 'scheduleReminders']);
     contacts.startCampaign.and.returnValue(of({ id: 3, name: 'x', startedAt: '2026-11-23T08:00:00', sent: 0, waiting: 0, answered: 0,
@@ -34,7 +36,7 @@ describe('AvailabilityEmailsComponent', () => {
       imports: [AvailabilityEmailsComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ContactService, useValue: contacts },
         { provide: NotificationService, useValue: notifications }, { provide: AiService, useValue: ai },
-        { provide: NetworkService, useValue: network }]
+        { provide: NetworkService, useValue: network }, { provide: CvProfileService, useValue: { list: () => of(profiles) } }]
     });
     const fixture = TestBed.createComponent(AvailabilityEmailsComponent);
     fixture.componentRef.setInput('availableFrom', '2027-02-01');
@@ -76,7 +78,8 @@ describe('AvailabilityEmailsComponent', () => {
         providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ContactService, useValue: contacts },
           { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['success', 'error', 'info']) },
           { provide: AiService, useValue: jasmine.createSpyObj('AiService', ['prospectionMessages']) },
-          { provide: NetworkService, useValue: { missions: () => of({ posts: [], page: 0, more: false }) } }]
+          { provide: NetworkService, useValue: { missions: () => of({ posts: [], page: 0, more: false }) } },
+          { provide: CvProfileService, useValue: { list: () => of([]) } }]
       });
       const created = TestBed.createComponent(AvailabilityEmailsComponent);
       created.componentRef.setInput('availableFrom', '2027-02-01');
@@ -192,7 +195,7 @@ describe('AvailabilityEmailsComponent', () => {
     component.send();
     expect(contacts.sendEmail.calls.allArgs()).toEqual([
       [1, { subject: 'Disponible à partir du 1 février 2027', body: 'Mon texte Léa chez Conseil', track: false, copy: false, language: 'FR', dossier: true,
-        campaignId: 3 }],
+        campaignId: 3, cvProfileId: null }],
       [2, jasmine.objectContaining({ body: 'Mon texte Marc Durand chez Autre' })]]);
     expect(notifications.success).toHaveBeenCalledWith('availabilityEmails.sent', 4000, { count: 1 });
     expect(notifications.error).toHaveBeenCalledWith('availabilityEmails.failed', 8000, { names: 'Marc Durand' });
@@ -247,7 +250,7 @@ describe('AvailabilityEmailsComponent', () => {
     expect(contacts.sendEmail).not.toHaveBeenCalled();
     expect(contacts.scheduleEmails).toHaveBeenCalledWith({
       emails: [{ contactId: 1, subject: 'Disponible chez Conseil', body: 'Bonjour Léa' }, { contactId: 2, subject: 'Disponible chez Autre', body: 'Bonjour Marc Durand' }],
-      dossier: true, language: 'FR', days: 3, dailyMax: 50, campaignId: 3
+      dossier: true, language: 'FR', days: 3, dailyMax: 50, campaignId: 3, cvProfileId: null
     });
     expect(notifications.success).toHaveBeenCalledWith('availabilityEmails.scheduled', 6000, { count: 2 });
     expect(component.chosen.size).toBe(0);
@@ -321,4 +324,22 @@ describe('AvailabilityEmailsComponent', () => {
     expect(failing.component.subject).toBe('My availability');
     expect(failing.component.body).toContain('Hello {{firstName}}');
   });
+
+  it('attaches the CV profile chosen, or for each the closest one when none is', () => {
+    const backend = { id: 4, name: 'Backend', archived: false } as CvProfile;
+    const { fixture, component, contacts } = create(of([lea]), of({ posts: [], page: 0, more: false }),
+      [backend, { id: 5, name: 'Old', archived: true } as CvProfile]);
+    expect(component.cvProfiles).toEqual([backend]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-availability-emails-cv-profile]')).not.toBeNull();
+    contacts.sendEmail.and.returnValue(of({ id: 9 } as ContactInteraction));
+    contacts.scheduleReminders.and.returnValue(of([]));
+    component.chosen.add(1);
+    component.subject = 'Dispo';
+    component.body = 'Bonjour {{firstName}}';
+    component.cvProfileId = 4;
+    component.send();
+    expect(contacts.sendEmail).toHaveBeenCalledWith(1, jasmine.objectContaining({ dossier: true, cvProfileId: 4 }));
+  });
 });
+

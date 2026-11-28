@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Le bon CV dans chaque e-mail
+
+Un e-mail envoyé depuis Indezy avec votre dossier joint désormais le profil de CV le plus proche de ce que chaque ESN demande, ou celui que vous choisissez. Voir [Documents](/help/documents).
+
 ### Vérifier un CV avant son envoi
 
 **Vérifier ce CV** repère un nom de client ou de contact resté dans un CV anonymisé, les formulations faibles, les missions sans chiffre, les trous et l'essentiel manquant ; un lien anonymisé n'est pas créé tant qu'un nom reste. Voir [Documents](/help/documents).

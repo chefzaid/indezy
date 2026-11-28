@@ -1,5 +1,7 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.model.enums.DossierFormat;
+import dev.swirlit.indezy.dto.CvProfileDtos;
 import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.ContactInteractionDto;
 import dev.swirlit.indezy.exception.FieldRejectedException;
@@ -43,6 +45,7 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -86,14 +89,14 @@ public class ContactEmailService {
      * dossier de compétences attached or not.
      */
     public record Message(Long projectId, String subject, String body, boolean track, boolean copy, DocumentLanguage language,
-                          boolean dossier, Long campaignId) {
+                          boolean dossier, Long campaignId, Long cvProfileId) {
 
         public Message(Long projectId, String subject, String body, boolean track, boolean copy, DocumentLanguage language) {
-            this(projectId, subject, body, track, copy, language, false, null);
+            this(projectId, subject, body, track, copy, language, false, null, null);
         }
 
         public Message(Long projectId, String subject, String body, boolean track, boolean copy, DocumentLanguage language, boolean dossier) {
-            this(projectId, subject, body, track, copy, language, dossier, null);
+            this(projectId, subject, body, track, copy, language, dossier, null, null);
         }
 
         // Spring MVC logs bodies through toString at DEBUG: never the subject or the message.
@@ -131,6 +134,14 @@ public class ContactEmailService {
     @Autowired(required = false)
     void setMailProperties(dev.swirlit.indezy.mail.MailProperties properties) {
         this.mailProperties = properties;
+    }
+
+    private CvProfileService cvProfiles;
+
+    /** The CV profiles, to attach the closest one; without them, the dossier is. */
+    @Autowired(required = false)
+    void setCvProfiles(CvProfileService service) {
+        this.cvProfiles = service;
     }
 
     /** The feed's offers, to find the companies posting missions for the profile; without them, none is. */
@@ -366,9 +377,7 @@ public class ContactEmailService {
         Email email = composer.compose(contact.getEmail().strip(), subject, message.body(), new ContactEmailComposer.Sender(name,
             replyTo), language, new ContactEmailComposer.Delivery(interaction.getEmailToken(), key, interaction.getObjectionToken()));
         if (message.dossier() && userId != null) {
-            // Focused on the skills their company asked for in the missions it posted lately, when it posted any.
-            ActivityReportService.PdfFile dossier = dossiers.render(DossierService.focused(dossiers.dossier(userId, freelanceId,
-                DossierLayout.NAMED), asked(contact)), language);
+            ActivityReportService.PdfFile dossier = attached(userId, freelanceId, contact, message.projectId(), message.cvProfileId(), language);
             email = email.withAttachments(List.of(new Email.Attachment(dossier.fileName(), "application/pdf", dossier.content())));
         }
         try {
@@ -385,6 +394,50 @@ public class ContactEmailService {
             sendCopy(freelance.getEmail(), contact.getFullName(), subject, message.body(), language, key + "-copy");
         }
         return ContactInteractionService.toDto(interaction);
+    }
+
+    /**
+     * The CV attached to an email: the CV profile chosen, else the one closest to what the contact's company asked for in
+     * the missions it posted lately and the opportunity's stack (in the email's language, its twin when it has one), else
+     * the dossier focused on those skills.
+     */
+    private ActivityReportService.PdfFile attached(Long userId, Long freelanceId, Contact contact, Long projectId, Long cvProfileId,
+                                                   DocumentLanguage language) {
+        Set<String> asked = askedFor(contact, projectId);
+        Long chosen = cvProfileId;
+        if (chosen == null && cvProfiles != null) {
+            chosen = cvProfiles.closest(userId, freelanceId, asked).map(CvProfileDtos.Profile::id).orElse(null);
+        }
+        if (chosen != null && cvProfiles != null) {
+            try {
+                return cvProfiles.file(userId, freelanceId, chosen, DossierLayout.NAMED, language, DossierFormat.PDF);
+            } catch (ResourceNotFoundException e) {
+                // Deleted since it was chosen, or not the workspace's: the closest one goes instead.
+                Long closest = cvProfiles.closest(userId, freelanceId, asked).map(CvProfileDtos.Profile::id).orElse(null);
+                if (closest != null) {
+                    return cvProfiles.file(userId, freelanceId, closest, DossierLayout.NAMED, language, DossierFormat.PDF);
+                }
+            }
+        }
+        return dossiers.render(DossierService.focused(dossiers.dossier(userId, freelanceId, DossierLayout.NAMED), asked), language);
+    }
+
+    /** The skills a contact's company asked for lately, and the opportunity's stack when the email is about one. */
+    private Set<String> askedFor(Contact contact, Long projectId) {
+        Set<String> asked = new HashSet<>(asked(contact));
+        if (projectId != null) {
+            projects.findById(projectId).map(Project::getTechStack).ifPresent(stack -> Stream.of(stack.split("[,;/|]")).map(String::strip)
+                .filter(part -> !part.isEmpty()).map(part -> SkillNames.key(SkillNames.canonical(part))).forEach(asked::add));
+        }
+        asked.remove("");
+        return asked;
+    }
+
+    /** The CV profile an email to the contact would carry, about the opportunity or not; none without a profile. */
+    @Transactional(readOnly = true)
+    public Optional<CvProfileDtos.Profile> cvProfileFor(Long userId, Long freelanceId, Long contactId, Long projectId) {
+        Contact contact = contacts.findById(contactId).orElseThrow(() -> new ResourceNotFoundException("Contact not found"));
+        return cvProfiles == null ? Optional.empty() : cvProfiles.closest(userId, freelanceId, askedFor(contact, projectId));
     }
 
     /** Counts an open of the email whose tracking image holds {@code token}, unless too early or too late to mean one. */

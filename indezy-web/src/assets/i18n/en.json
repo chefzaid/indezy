@@ -5806,7 +5806,9 @@
     "copied": "Message copied: paste it in LinkedIn or the ESN's portal.",
     "memberMissions": "Members passing on missions for you",
     "memberMissionReply": "Answer on the network",
-    "memberMissionOpen": "Answer on the network: {{name}}'s mission"
+    "memberMissionOpen": "Answer on the network: {{name}}'s mission",
+    "cvProfile": "CV attached",
+    "closestCv": "For each, the CV profile closest to what its company asks for"
   },
   "marketReport": {
     "title": "IT freelance market report",

@@ -106,6 +106,8 @@ A profile's menu also has **Duplicate**, to start a new one from it, and **Archi
 
 **Check this CV** in a profile's menu checks it before it goes out, anonymized or named: a client, contact, employer or your own name left in an anonymized CV first (an anonymized link cannot be made while one is), then weak phrasing, missions without a figure, gaps between missions, text in the other language, what is missing (summary, city, availability) and its length.
 
+When an email from Indezy carries your dossier, it carries the CV profile closest to what the ESN asked for in the missions it posted lately, in the email's language; in the availability emails, **CV attached** lets you choose one profile for all instead.
+
 ## Tailor your dossier to a job posting
 
 To answer a posting you received by email or found on a site the feed does not collect, without adding it to your pipeline:

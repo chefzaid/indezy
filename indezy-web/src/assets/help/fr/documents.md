@@ -106,6 +106,8 @@ Le menu d'un profil propose aussi **Dupliquer**, pour en commencer un nouveau à
 
 **Vérifier ce CV** dans le menu d'un profil le vérifie avant son envoi, anonymisé ou nominatif : d'abord un client, un contact, un employeur ou votre propre nom resté dans un CV anonymisé (un lien anonymisé ne peut pas être créé tant qu'il y en a), puis les formulations faibles, les missions sans chiffre, les trous entre missions, le texte dans l'autre langue, ce qui manque (résumé, ville, disponibilité) et sa longueur.
 
+Quand un e-mail envoyé depuis Indezy joint votre dossier, il joint le profil de CV le plus proche de ce que l'ESN a demandé dans les missions qu'elle a publiées récemment, dans la langue de l'e-mail ; dans les e-mails de disponibilité, **CV joint** permet de choisir plutôt un profil pour tous.
+
 ## Adapter votre dossier à une annonce
 
 Pour répondre à une annonce reçue par e-mail ou trouvée sur un site que le flux ne collecte pas, sans l'ajouter à votre pipeline :

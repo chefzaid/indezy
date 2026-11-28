@@ -281,6 +281,26 @@ public class CvProfileService {
             dossiers.file(userId, freelanceId, layout, language, format);
     }
 
+    /**
+     * The active CV profile closest to what is asked ({@link dev.swirlit.indezy.util.SkillNames#key skill keys}): the one
+     * showing the most of the skills asked (all the profile's when it does not choose), the default on a tie or when
+     * nothing is asked; none without a profile.
+     */
+    @Transactional(readOnly = true)
+    public Optional<CvProfileDtos.Profile> closest(Long userId, Long freelanceId, java.util.Set<String> asked) {
+        List<CvProfileDtos.Profile> active = list(freelanceId).stream().filter(profile -> !profile.archived()).toList();
+        if (active.isEmpty()) {
+            return Optional.empty();
+        }
+        List<String> all = asked.isEmpty() ? List.of() : dossiers.dossier(userId, freelanceId, DossierLayout.NAMED).skills().stream()
+            .map(DossierDto.Skill::name).toList();
+        java.util.function.ToLongFunction<CvProfileDtos.Profile> matches = profile -> (profile.skills() == null ? all : profile.skills()).stream()
+            .map(skill -> dev.swirlit.indezy.util.SkillNames.key(dev.swirlit.indezy.util.SkillNames.canonical(skill))).filter(asked::contains)
+            .distinct().count();
+        return active.stream().max(java.util.Comparator.comparingLong(matches)
+            .thenComparing(profile -> profile.isDefault()).thenComparing(java.util.Comparator.comparing(CvProfileDtos.Profile::id).reversed()));
+    }
+
     /** The profile, or its twin when one is written in the language asked and it is not. */
     private CvProfile inLanguage(Long freelanceId, CvProfile profile, DocumentLanguage language) {
         if (language == null || language == profile.getLanguage() || profile.getTwinId() == null) {

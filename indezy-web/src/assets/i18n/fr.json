@@ -5806,7 +5806,9 @@
     "copied": "Message copié : collez-le dans LinkedIn ou le portail de l'ESN.",
     "memberMissions": "Des membres font passer des missions pour vous",
     "memberMissionReply": "Répondre sur le réseau",
-    "memberMissionOpen": "Répondre sur le réseau : la mission de {{name}}"
+    "memberMissionOpen": "Répondre sur le réseau : la mission de {{name}}",
+    "cvProfile": "CV joint",
+    "closestCv": "Pour chacun, le profil de CV le plus proche de ce que son entreprise demande"
   },
   "marketReport": {
     "title": "Baromètre des TJM freelance IT",

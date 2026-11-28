@@ -51,6 +51,10 @@ public class ScheduledContactEmail extends BaseEntity {
     @Column(name = "dossier", nullable = false)
     private boolean dossier;
 
+    /** The CV profile attached as the dossier; none for the one closest to what the contact's company asks for. */
+    @Column(name = "cv_profile_id")
+    private Long cvProfileId;
+
     /**
      * A campaign's reminder: sent only when the campaign's first email to the contact went and nothing but the
      * campaign's own emails was recorded with them since it was planned; null or false for any other email.

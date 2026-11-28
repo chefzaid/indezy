@@ -225,6 +225,46 @@ class ContactEmailIntegrationTest extends TwoAccountsIntegrationTest {
     }
 
     @Test
+    void attachesTheCvProfileClosestToWhatTheEmailIsAboutOrTheOneChosen() throws Exception {
+        Map<String, Object> profile = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        profile.put("skills", List.of("Java", "Kafka", "Angular"));
+        call(alice, HttpMethod.PUT, "/users/profile", profile, Map.class);
+        long backend = idOf(call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Backend", "headline", "Lead Kafka",
+            "skills", List.of("Java", "Kafka")), Map.class));
+        idOf(call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Front", "headline", "Lead Angular", "skills", List.of("Angular")),
+            Map.class));
+        long client = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "ESN Front", "city", "Lyon", "isFinal", false,
+            "freelanceId", alice.freelanceId()), Map.class));
+        long contact = idOf(call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Zoé", "lastName", "Front", "email", "zoe@front.example",
+            "clientId", client), Map.class));
+        long project = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Angular", "dailyRate", 600, "status", "CONTACT",
+            "clientId", client, "techStack", "Angular"), Map.class));
+
+        // About an Angular mission, the Front profile; about nothing in particular, the default (the first one).
+        assertThat(call(alice, HttpMethod.GET, "/contacts/" + contact + "/emails/cv-profile?projectId=" + project, null, Map.class).getBody())
+            .containsEntry("name", "Front");
+        assertThat(call(alice, HttpMethod.GET, "/contacts/" + contact + "/emails/cv-profile", null, Map.class).getBody()).containsEntry("name", "Backend");
+
+        when(mailer.configured()).thenReturn(true);
+        when(mailer.send(any())).thenReturn("e-9");
+        call(alice, HttpMethod.POST, "/contacts/" + contact + "/emails", Map.of("subject", "Mission Angular", "body", "Bonjour Zoé,",
+            "dossier", true, "language", "FR", "projectId", project), Map.class);
+        call(alice, HttpMethod.POST, "/contacts/" + contact + "/emails", Map.of("subject", "Autre", "body", "Bonjour Zoé,",
+            "dossier", true, "language", "FR", "projectId", project, "cvProfileId", backend), Map.class);
+        ArgumentCaptor<Email> emails = ArgumentCaptor.forClass(Email.class);
+        verify(mailer, org.mockito.Mockito.times(2)).send(emails.capture());
+        assertThat(pdfText(emails.getAllValues().get(0).attachments().getFirst().content())).contains("Lead Angular");
+        assertThat(pdfText(emails.getAllValues().get(1).attachments().getFirst().content())).contains("Lead Kafka");
+        assertThat(call(bob, HttpMethod.GET, "/contacts/" + contact + "/emails/cv-profile", null, String.class).getStatusCode().is4xxClientError()).isTrue();
+    }
+
+    private static String pdfText(byte[] pdf) throws java.io.IOException {
+        try (org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.Loader.loadPDF(pdf)) {
+            return new org.apache.pdfbox.text.PDFTextStripper().getText(document);
+        }
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     void addsTheEsnsPostingMissionsForTheProfileAndLeavesOutWhoeverAskedNotToBeContacted() {
         Map<String, Object> profile = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();

@@ -91,6 +91,8 @@ export interface ContactEmailRequest {
   dossier?: boolean;
   /** The prospection campaign it goes in. */
   campaignId?: number | null;
+  /** The CV profile attached as the dossier; none for the one closest to what their company asks for. */
+  cvProfileId?: number | null;
 }
 
 /** A prospection campaign and what came of it: emails sent and waiting, answers, opportunities opened since, missions won. */
@@ -121,6 +123,8 @@ export interface ScheduledEmailPlan {
   /** At most this many a day, 1 to 50. */
   dailyMax: number;
   campaignId?: number | null;
+  /** The CV profile attached as the dossier; none for the one closest to what each company asks for. */
+  cvProfileId?: number | null;
 }
 
 /** An email waiting to go; dropped unsent if the contact gets in touch first. */

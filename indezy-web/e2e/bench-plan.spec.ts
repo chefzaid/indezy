@@ -32,6 +32,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/contacts/emails/availability-recipients', route => route.fulfill({ json: [
       { id: 7, firstName: 'Léa', name: 'Léa Martin', company: 'Conseil Exemple', email: 'lea@conseil.example', answers: 2,
         lastContactedOn: '2026-08-01', postings: 3, mission: 'Lead Java', silentCampaigns: 1, campaignOpportunities: 0 }] }));
+    await page.route(/\/api\/users\/cv-profiles$/, route => route.fulfill({ json: [{ id: 4, name: 'Backend Kafka', isDefault: true,
+      language: 'FR', headline: null, summary: null, skills: null, missions: null, positions: null, updatedAt: null, archived: false }] }));
     const emails: Record<string, unknown>[] = [];
     await page.route('**/api/contacts/7/emails', route => {
       emails.push(route.request().postDataJSON());
@@ -103,8 +105,12 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(own).toHaveValue(en ? /^Hello Léa,/ : /^Bonjour Léa,/);
     await own.fill((await own.inputValue()) + '\nP.S. Lead Java');
     await expect(dialog.locator('[data-recipient-edit="7"]')).toHaveText(en ? 'Edited' : 'Modifié');
+    // The CV attached: the closest for each unless one is chosen.
+    await dialog.locator('[data-availability-emails-cv-profile]').click();
+    await page.getByRole('option', { name: 'Backend Kafka' }).click();
     await dialog.locator('[data-availability-emails-send]').click();
     await expect.poll(() => emails.length).toBe(1);
+    expect(emails[0]).toEqual(expect.objectContaining({ cvProfileId: 4 }));
     expect(String(emails[0]['body'])).toContain('P.S. Lead Java');
     expect(emails[0]).toEqual(expect.objectContaining({ campaignId: 50 }));
     await expect(dialog.locator('[data-campaign="50"]')).toContainText(en ? '1 sent · 0 answered' : '1 envoyés · 0 réponses');

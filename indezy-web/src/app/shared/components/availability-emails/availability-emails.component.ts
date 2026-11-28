@@ -11,7 +11,8 @@ import { DatePipe } from '@angular/common';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, concatMap, from, map, of, catchError, switchMap, toArray } from 'rxjs';
-import { AvailabilityRecipient, DocumentLanguage, NetworkPost, ProspectionCampaign, ScheduledEmail } from '../../../models';
+import { AvailabilityRecipient, CvProfile, DocumentLanguage, NetworkPost, ProspectionCampaign, ScheduledEmail } from '../../../models';
+import { CvProfileService } from '../../../services/cv-profile/cv-profile.service';
 import { AiService } from '../../../services/ai/ai.service';
 import { ContactService } from '../../../services/contact/contact.service';
 import { NetworkService } from '../../../services/network/network.service';
@@ -113,6 +114,17 @@ const MEMBER_MISSIONS = 5;
           <mat-hint>{{ 'availabilityEmails.variable' | translate }}</mat-hint>
         </mat-form-field>
         <mat-checkbox [(ngModel)]="dossier" data-availability-emails-dossier>{{ 'availabilityEmails.dossier' | translate }}</mat-checkbox>
+        @if (dossier && cvProfiles.length) {
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'availabilityEmails.cvProfile' | translate }}</mat-label>
+            <mat-select [(ngModel)]="cvProfileId" data-availability-emails-cv-profile>
+              <mat-option [value]="null">{{ 'availabilityEmails.closestCv' | translate }}</mat-option>
+              @for (profile of cvProfiles; track profile.id) {
+                <mat-option [value]="profile.id">{{ profile.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
         <div class="when">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'availabilityEmails.when' | translate }}</mat-label>
@@ -253,6 +265,7 @@ export class AvailabilityEmailsComponent implements OnInit {
   private readonly ai = inject(AiService);
   private readonly network = inject(NetworkService);
   private readonly clipboard = inject(Clipboard);
+  private readonly profiles = inject(CvProfileService);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
   private readonly changes = inject(ChangeDetectorRef);
@@ -262,6 +275,10 @@ export class AvailabilityEmailsComponent implements OnInit {
   subject = '';
   body = '';
   dossier = true;
+  /** The active CV profiles, to attach one of them as the dossier. */
+  cvProfiles: CvProfile[] = [];
+  /** The CV profile attached; none for the one closest to what each company asks for. */
+  cvProfileId: number | null = null;
   sending = false;
   /** 0 to send now, else over how many working days. */
   days = 0;
@@ -296,6 +313,13 @@ export class AvailabilityEmailsComponent implements OnInit {
         this.recipients = [];
         this.changes.markForCheck();
       }
+    });
+    this.profiles.list().subscribe({
+      next: profiles => {
+        this.cvProfiles = profiles.filter(profile => !profile.archived);
+        this.changes.markForCheck();
+      },
+      error: () => this.cvProfiles = []
     });
     this.loadWaiting();
     this.loadCampaigns();
@@ -402,7 +426,8 @@ export class AvailabilityEmailsComponent implements OnInit {
         campaign = campaignId;
         return from(recipients).pipe(
           concatMap(recipient => this.contacts.sendEmail(recipient.id, {
-            ...this.written(recipient), track: false, copy: false, language: this.language, dossier: this.dossier, campaignId
+            ...this.written(recipient), track: false, copy: false, language: this.language, dossier: this.dossier, campaignId,
+            cvProfileId: this.dossier ? this.cvProfileId : null
           }).pipe(map(() => ({ recipient, sent: true })), catchError(() => of({ recipient, sent: false })))),
           toArray());
       })
@@ -431,7 +456,7 @@ export class AvailabilityEmailsComponent implements OnInit {
     const dailyMax = Math.min(50, Math.max(1, Math.round(Number(this.dailyMax) || 1)));
     this.contacts.scheduleEmails({
       emails: recipients.map(recipient => ({ contactId: recipient.id, ...this.written(recipient) })),
-      dossier: this.dossier, language: this.language, days: this.days, dailyMax, campaignId
+      dossier: this.dossier, language: this.language, days: this.days, dailyMax, campaignId, cvProfileId: this.dossier ? this.cvProfileId : null
     }).subscribe({
       next: planned => {
         this.sending = false;

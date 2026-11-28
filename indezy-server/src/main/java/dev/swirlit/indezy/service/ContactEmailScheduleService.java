@@ -71,10 +71,10 @@ public class ContactEmailScheduleService {
     }
 
     /** The plan: the emails, sent over this many working days, at most this many a day. */
-    public record Plan(List<Draft> emails, boolean dossier, DocumentLanguage language, int days, int dailyMax, Long campaignId) {
+    public record Plan(List<Draft> emails, boolean dossier, DocumentLanguage language, int days, int dailyMax, Long campaignId, Long cvProfileId) {
 
         public Plan(List<Draft> emails, boolean dossier, DocumentLanguage language, int days, int dailyMax) {
-            this(emails, dossier, language, days, dailyMax, null);
+            this(emails, dossier, language, days, dailyMax, null, null);
         }
 
         public Plan {
@@ -108,6 +108,7 @@ public class ContactEmailScheduleService {
             email.setSubject(draft.subject().strip());
             email.setBody(draft.body());
             email.setDossier(plan.dossier());
+            email.setCvProfileId(plan.dossier() ? plan.cvProfileId() : null);
             email.setLanguage(plan.language());
             email.setCampaignId(plan.campaignId());
             email.setSendAt(times.get(index));
@@ -159,7 +160,7 @@ public class ContactEmailScheduleService {
         boolean first = !reminder || exchanges.stream().anyMatch(exchange -> ofCampaign(exchange, email.getCampaignId()));
         if (!Boolean.TRUE.equals(contact.getDoNotContact()) && !inTouch && first && contact.getAnonymizedAt() == null) {
             emails.send(email.getUserId(), email.getFreelanceId(), contact.getId(), new ContactEmailService.Message(null, email.getSubject(),
-                email.getBody(), false, false, email.getLanguage(), email.isDossier(), email.getCampaignId()));
+                email.getBody(), false, false, email.getLanguage(), email.isDossier(), email.getCampaignId(), email.getCvProfileId()));
         }
         scheduled.delete(email);
     }

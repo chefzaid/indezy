@@ -314,6 +314,14 @@ language, a missing summary, skills, city or availability date, a mission withou
 than 3 pages (about 2,800 characters a page). An anonymized link is refused (409) while the check finds a name in it,
 the dialog saying which.
 
+**The CV an email carries**: an email from Indezy with the dossier attached (`dossier` on `POST /api/contacts/{id}/emails`,
+and on the planned ones) carries the CV profile chosen (`cvProfileId`), or else the active profile closest to what the
+contact's company asked for in the missions it posted lately and, about an opportunity, its stack: the one showing the
+most of those skills, the default on a tie or when nothing is asked, in the email's language (its twin when it has one);
+without a profile, the dossier focused on those skills as before. A profile chosen then deleted gives way to the
+closest one. `GET /api/contacts/{id}/emails/cv-profile?projectId` says which one would go; the availability emails
+offer **CV attached**: the closest for each, or one profile for all.
+
 ### Experience And Education
 
 The personal information tab of **Profile** lists, under the form, the positions held before or outside Indezy and the

@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### The right CV in each email
+
+An email from Indezy with your dossier now carries the CV profile closest to what each ESN asks for, or the one you choose. See [Documents](/help/documents).
+
 ### Check a CV before it goes out
 
 **Check this CV** finds a client or contact name left in an anonymized CV, weak phrasing, missions without a figure, gaps and missing essentials; an anonymized link is not made while a name is left. See [Documents](/help/documents).
