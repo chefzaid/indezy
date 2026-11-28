@@ -35,6 +35,8 @@ for (const width of [1280, 390]) {
     await expect(card).toContainText('No purchase order yet');
     await card.locator('[data-add-order]').click();
     const dialog = page.getByRole('dialog');
+    // The dialog moves the focus to its first field once open: fill the fields after that, not while it happens.
+    await settleDialog(page);
     await dialog.getByLabel('Order number').fill('BC-2026-118');
     await dialog.getByLabel('Starts on').fill('2026-11-01');
     await dialog.locator('[data-save-order]').click();
@@ -56,6 +58,8 @@ for (const width of [1280, 390]) {
 
     await saved.getByRole('button', { name: 'Actions for BC-2026-118' }).click();
     await page.getByRole('menuitem', { name: 'Add an amendment' }).click();
+    await expect(dialog.getByLabel('Amendment number')).toBeVisible();
+    await settleDialog(page);
     await dialog.getByLabel('Amendment number').fill('Avenant 1');
     await dialog.getByLabel('Days added').fill('10');
     await dialog.getByLabel('New end').fill('2027-03-31');

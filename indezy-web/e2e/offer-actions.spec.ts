@@ -140,7 +140,10 @@ test('keeps a private note on an offer and edits it from the keyboard (en)', asy
   await note.fill('Not for me: onsite every day');
   await page.keyboard.press('Escape');
   await expect(cards.first().locator('[data-note]')).toContainText('Called Julie');
+  // The editor gives the focus back to the card's menu once closed: the shortcut acts on the focused card.
+  await expect(cards.first().getByRole('button', { name: 'More actions' })).toBeFocused();
   await page.keyboard.press('n');
+  await expect(note).toBeFocused();
   await note.fill('Not for me: onsite every day');
   await page.keyboard.press('Control+Enter');
   await expect(cards.first().locator('[data-note]')).toContainText('Not for me: onsite every day');

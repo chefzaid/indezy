@@ -38,6 +38,7 @@ for (const width of [1280, 390]) {
     await expect(card.locator('[data-booking="6"]')).toContainText('Bob Recruiter');
     await card.locator('[data-booking-settings]').click();
     const dialog = page.getByRole('dialog');
+    await settleDialog(page);
     await dialog.locator('[data-booking-enabled]').getByRole('switch').click();
     await dialog.locator('[data-booking-title]').fill('Call with Alice');
     await dialog.locator('[data-save-booking]').click();
@@ -49,7 +50,8 @@ for (const width of [1280, 390]) {
     expect(dialogAudit.violations.map(violation => violation.id)).toEqual([]);
     await dialog.locator('[data-save-booking]').click();
     await expect(dialog).toBeHidden();
-    expect(saved).toEqual([{ enabled: true, title: 'Call with Alice', durationMinutes: 30, bufferMinutes: 15, minNoticeHours: 24,
+    // The card sends the settings once the dialog has closed: wait for the request rather than read it at once.
+    await expect.poll(() => saved).toEqual([{ enabled: true, title: 'Call with Alice', durationMinutes: 30, bufferMinutes: 15, minNoticeHours: 24,
       maxDaysAhead: 21, windows: [{ dayOfWeek: 'TUESDAY', start: '09:00', end: '12:00' }] }]);
     await expect(card.locator('[data-booking-url]')).toHaveText(/\/book\/Ab3dEf6hJk9mNp2q$/);
     await card.locator('[data-copy-booking-link]').click();
