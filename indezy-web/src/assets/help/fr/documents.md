@@ -82,3 +82,14 @@ Le **Dossier de compétences** est un PDF A4 construit à partir de votre profil
 Il reprend votre nom et votre titre, votre ville, vos coordonnées (version nominative seulement), votre présentation, vos compétences avec leur niveau et leurs années, vos langues, vos certifications valides, puis vos missions gagnées, de la plus récente à la plus ancienne. Dans la version anonymisée, vos initiales remplacent votre nom et chaque client devient « Client communiqué sur demande ». Rien n'y est rédigé par une IA.
 
 > **Astuce :** complétez la description et la stack de vos missions gagnées : ce sont elles qui remplissent le dossier.
+
+## Réécrire votre CV avec l'IA
+
+**Réécrire mon CV (IA)**, en haut de la page Profil, réécrit tout votre CV selon la façon dont vous voulez vous présenter, sans choisir d'opportunité.
+
+1. Saisissez un **Positionnement** (par exemple « Lead développeur Java, Kafka et AWS »), ou laissez-le vide pour garder le vôtre.
+2. Choisissez un **Style** : résultats et impact, concis, profondeur technique ou leadership, puis la langue du CV, et cliquez sur **Réécrire**.
+3. Vérifiez chaque bloc : votre titre, votre résumé, l'ordre de vos compétences, puis chaque mission et poste passé. La formulation actuelle est barrée, la réécrite est en dessous et modifiable. Décochez un bloc pour le garder tel quel.
+4. Cliquez sur **Télécharger le PDF** pour le dossier nominatif ou anonymisé avec les blocs retenus, ou sur **Appliquer à mon profil** pour enregistrer le titre, le résumé et les postes passés retenus sur votre profil.
+
+L'IA ne fait que reformuler : aucune date, aucun client, employeur, compétence ni stack n'est ajouté, une compétence absente de votre profil est écartée, et votre nom, vos coordonnées, vos clients et vos employeurs ne lui sont jamais envoyés. Les missions gagnées gardent leur propre description sur leur opportunité : seul le dossier téléchargé porte leur formulation réécrite.

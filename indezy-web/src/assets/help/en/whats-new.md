@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Rewrite your CV with AI
+
+**Rewrite my CV (AI)** on the Profile page rewrites your headline, summary, skills order, missions and past positions for a positioning and a style you choose, block by block: keep, edit or drop each one, then download the dossier or apply the wording to your profile. See [Documents](/help/documents).
+
 ### Follow up a quote
 
 A sent quote's menu has **Follow up**: an email in the quote's language to one of the client's contacts, asking for their feedback, or offering an updated quote once it expired. See [Quotes and invoices](/help/invoices-quotes).

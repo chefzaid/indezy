@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Réécrire votre CV avec l'IA
+
+**Réécrire mon CV (IA)** sur la page Profil réécrit votre titre, votre résumé, l'ordre de vos compétences, vos missions et vos postes passés pour le positionnement et le style choisis, bloc par bloc : gardez, modifiez ou écartez chacun, puis téléchargez le dossier ou appliquez la formulation à votre profil. Voir [Documents](/help/documents).
+
 ### Relancer un devis
 
 Le menu d'un devis envoyé propose **Relancer** : un e-mail dans la langue du devis à un contact du client, pour lui demander son retour, ou lui proposer un nouveau devis une fois expiré. Voir [Devis et factures](/help/invoices-quotes).

@@ -1305,7 +1305,13 @@
     "vehicleHorsepower": "Puissance fiscale de votre voiture",
     "vehicleHorsepowerHint": "Pour le barème kilométrique : l'export des kilomètres professionnels donne le montant à déduire.",
     "vehicleElectric": "Voiture électrique (20 % de plus)",
-    "horsepower": { "3": "3 CV et moins", "4": "4 CV", "5": "5 CV", "6": "6 CV", "7": "7 CV et plus" },
+    "horsepower": {
+      "3": "3 CV et moins",
+      "4": "4 CV",
+      "5": "5 CV",
+      "6": "6 CV",
+      "7": "7 CV et plus"
+    },
     "followUpDaysError": "Saisissez un nombre entier de 1 à 60",
     "import": {
       "title": "Importer des données",
@@ -5501,6 +5507,38 @@
     "dossier": {
       "open": "Dossier adapté (IA)",
       "busy": "L'IA adapte le dossier"
+    },
+    "cv": {
+      "open": "Réécrire mon CV (IA)",
+      "title": "Réécrire mon CV avec l'IA",
+      "intro": "L'IA réécrit le titre, le résumé, l'ordre des compétences et les descriptions de vos missions et postes passés pour le positionnement et le style choisis. Les faits restent tels quels : aucune date, aucun client, employeur, compétence ni stack n'est ajouté ou modifié.",
+      "positioning": "Positionnement",
+      "positioningHint": "ex. Lead développeur Java, Kafka et AWS",
+      "style": "Style",
+      "styles": {
+        "IMPACT": "Résultats et impact",
+        "CONCISE": "Concis",
+        "TECHNICAL": "Profondeur technique",
+        "EXECUTIVE": "Leadership"
+      },
+      "language": "Langue du CV",
+      "rewrite": "Réécrire",
+      "busy": "L'IA réécrit le CV",
+      "review": "Vérifiez chaque bloc : la formulation actuelle est barrée au-dessus, la réécrite en dessous. Décochez un bloc pour le garder tel quel ; modifiez une réécriture à votre guise.",
+      "headline": "Titre",
+      "summary": "Résumé",
+      "skills": "Ordre des compétences",
+      "mission": "Mission : {{title}}",
+      "position": "Poste : {{title}}",
+      "rewritten": "Réécrit",
+      "empty": "Non renseigné",
+      "again": "Recommencer",
+      "download": "Télécharger le PDF",
+      "named": "Dossier nominatif",
+      "anonymous": "Dossier anonymisé",
+      "approve": "Appliquer à mon profil",
+      "approved": "Le titre, le résumé et les postes passés retenus sont enregistrés sur votre profil",
+      "approveError": "La formulation réécrite n'a pas pu être enregistrée sur votre profil"
     },
     "rate": {
       "ask": "Suggérer un TJM (IA)",

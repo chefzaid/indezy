@@ -1305,7 +1305,13 @@
     "vehicleHorsepower": "Your car's fiscal horsepower",
     "vehicleHorsepowerHint": "For the kilometre scale: the professional kilometres' export gives the amount to claim.",
     "vehicleElectric": "Electric car (20 % more)",
-    "horsepower": { "3": "3 CV or less", "4": "4 CV", "5": "5 CV", "6": "6 CV", "7": "7 CV or more" },
+    "horsepower": {
+      "3": "3 CV or less",
+      "4": "4 CV",
+      "5": "5 CV",
+      "6": "6 CV",
+      "7": "7 CV or more"
+    },
     "followUpDaysError": "Enter a whole number from 1 to 60",
     "import": {
       "title": "Import data",
@@ -5501,6 +5507,38 @@
     "dossier": {
       "open": "Tailored dossier (AI)",
       "busy": "The AI is tailoring the dossier"
+    },
+    "cv": {
+      "open": "Rewrite my CV (AI)",
+      "title": "Rewrite my CV with AI",
+      "intro": "The AI rewrites the headline, the summary, the order of the skills and the descriptions of your missions and past positions for the positioning and the style you choose. Facts stay as they are: no date, client, employer, skill or stack is added or changed.",
+      "positioning": "Positioning",
+      "positioningHint": "e.g. Lead Java developer, Kafka and AWS",
+      "style": "Style",
+      "styles": {
+        "IMPACT": "Results and impact",
+        "CONCISE": "Concise",
+        "TECHNICAL": "Technical depth",
+        "EXECUTIVE": "Leadership"
+      },
+      "language": "Language of the CV",
+      "rewrite": "Rewrite",
+      "busy": "The AI is rewriting the CV",
+      "review": "Check each block: the current wording is crossed out above, the rewritten one below. Untick a block to keep it as it is; edit a rewritten one as you like.",
+      "headline": "Headline",
+      "summary": "Summary",
+      "skills": "Order of the skills",
+      "mission": "Mission: {{title}}",
+      "position": "Position: {{title}}",
+      "rewritten": "Rewritten",
+      "empty": "Not filled in",
+      "again": "Start again",
+      "download": "Download PDF",
+      "named": "Named dossier",
+      "anonymous": "Anonymized dossier",
+      "approve": "Apply to my profile",
+      "approved": "The headline, summary and past positions kept are saved on your profile",
+      "approveError": "The rewritten wording could not be saved on your profile"
     },
     "rate": {
       "ask": "Suggest a rate (AI)",

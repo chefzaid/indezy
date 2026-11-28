@@ -69,6 +69,50 @@ export interface AiInterview {
   toAsk: string[];
 }
 
+/** How the whole CV is rewritten: short, outcomes first, technical depth, or for a non-technical reader. */
+export type AiCvStyle = 'CONCISE' | 'IMPACT' | 'TECHNICAL' | 'EXECUTIVE';
+
+/** A block of the CV as it is and as rewritten. */
+export interface AiCvBlock {
+  before: string | null;
+  after: string | null;
+}
+
+/** A won mission or past position, by its number (a position with its id in the profile), as it is and as rewritten. */
+export interface AiCvItem {
+  number: number;
+  id: number | null;
+  title: string | null;
+  before: string | null;
+  after: string | null;
+}
+
+/** The whole CV rewritten for a positioning, block by block, to review. */
+export interface AiCvRewrite {
+  headline: AiCvBlock;
+  summary: AiCvBlock;
+  skillsBefore: string[];
+  skills: string[];
+  missions: AiCvItem[];
+  positions: AiCvItem[];
+}
+
+/** The wording kept, to render: a block left out stays as the profile says. */
+export interface AiCvReviewed {
+  headline: string | null;
+  summary: string | null;
+  skills: string[];
+  missions: { number: number; description: string }[];
+  positions: { number: number; description: string }[];
+}
+
+/** The wording approved for the profile: the headline, the summary and past positions' descriptions by id. */
+export interface AiCvApproved {
+  headline: string | null;
+  summary: string | null;
+  positions: { id: number; description: string }[];
+}
+
 /** What an interview's debrief points to: another round announced, an offer coming, turned down, or waiting. */
 export type AiDebriefOutcome = 'NEXT_ROUND' | 'OFFER' | 'REJECTED' | 'WAITING';
 

@@ -41,13 +41,14 @@ import { InboxWatcherComponent } from './inbox-watcher/inbox-watcher.component';
 import { AiSettingsComponent } from './ai-settings/ai-settings.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { DossierButtonComponent } from './dossier-button/dossier-button.component';
+import { CvRewriteButtonComponent } from './cv-rewrite-button/cv-rewrite-button.component';
 
 /** The tabs before **Network** (personal information to billing), the public page aside when it shows. */
 const PROFILE_TABS_BEFORE_NETWORK = 7;
 
 @Component({
     selector: 'app-profile',
-    imports: [AiSettingsComponent, InboxWatcherComponent, DossierButtonComponent, PageHeaderComponent, 
+    imports: [AiSettingsComponent, InboxWatcherComponent, DossierButtonComponent, CvRewriteButtonComponent, PageHeaderComponent,
     ProfileDataImportComponent, ProfilePublicPageComponent, ProfileNetworkComponent, ProfilePrivacyComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
     ProfileWebhooksComponent, ProfileAccountDeletionComponent,
     ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent, ProfileCareerComponent, ProfileCvCardComponent, BillingTemplatesComponent,
@@ -61,6 +62,7 @@ const PROFILE_TABS_BEFORE_NETWORK = 7;
 })
 export class ProfileComponent implements OnInit {
   @ViewChild('passwordFormDirective') private passwordFormDirective?: FormGroupDirective;
+  @ViewChild('career') private career?: ProfileCareerComponent;
   /** The retention periods offered for contacts, in years; 0 for never. */
   readonly retentionYears = [0, 1, 2, 3, 5];
   /** Avatars are stored inline, so photos are cropped to a small square before upload. */
@@ -278,6 +280,12 @@ export class ProfileComponent implements OnInit {
     }
 
     return null;
+  }
+
+  /** The headline, summary and positions the AI rewrote were written to the profile: shown again as saved. */
+  cvRewritten(): void {
+    this.loadUserProfile();
+    this.career?.reload();
   }
 
   private loadUserProfile(): void {

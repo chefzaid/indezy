@@ -83,6 +83,10 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = message("{\"skills\":[\"Java\",\" Kafka \",\"Java\"],\"rateMin\":650,\"minRemoteDays\":2,\"workModes\":[\"HYBRID\"]," +
                     "\"regions\":[\"Île-de-France\",\"Atlantide\"],\"startBefore\":\"2027-03-01\",\"durationMin\":0,\"keywords\":\"\"," +
                     "\"avoid\":[\"banque\"]}", "end_turn");
+            } else if (body.contains("You rewrite a French freelance IT consultant's whole CV")) {
+                answer = message("{\"headline\":\" Lead Java / Kafka \",\"summary\":\"Dix ans de Java et de flux.\",\"skills\":[\"Kafka\",\"Cobol\"]," +
+                    "\"missions\":[{\"number\":1,\"description\":\"Migration de la paie vers Kafka.\"}]," +
+                    "\"positions\":[{\"number\":1,\"description\":\"Logiciel de paie en Java.\"}]}", "end_turn");
             } else if (body.contains("You read the debrief")) {
                 answer = message("{\"outcome\":\"NEXT_ROUND\",\"nextRound\":\" Entretien technique \",\"nextSteps\":[\"Envoyer deux références\",\" \"]," +
                     "\"thankYouSubject\":\"Merci pour l'échange\",\"thankYouBody\":\" Bonjour, merci pour ce temps. \"}", "end_turn");
@@ -379,6 +383,48 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         jdbcTemplate.update("DELETE FROM offer_ai_verdicts WHERE offer_id = ?", offerId);
         jdbcTemplate.update("DELETE FROM job_offer_skills WHERE offer_id = ?", offerId);
         offers.deleteById(offerId);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void rewritesTheWholeCvThenRendersItAndWritesTheApprovedWordingBack() throws IOException {
+        call(alice, HttpMethod.PUT, "/ai/key", Map.of("apiKey", "sk-ant-alice-own"), Map.class);
+        call(alice, HttpMethod.PUT, "/users/profile", Map.of("firstName", "Alice", "lastName", "Martin", "email", aliceEmail, "position", "Développeuse Java",
+            "bio", "Dix ans de Java.", "skills", List.of("Java", "Kafka")), Map.class);
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "WON", "clientId", aliceClientId,
+            "startDate", "2025-03-01", "techStack", "Java, Kafka", "description", "Paie migrée vers Kafka."), Map.class);
+        long position = idOf(call(alice, HttpMethod.POST, "/users/experiences", Map.of("employer", "Banque X", "title", "Développeuse",
+            "startsOn", "2015-09-01", "endsOn", "2022-12-31", "description", "Paie en Java."), Map.class));
+
+        Map<String, Object> rewrite = call(alice, HttpMethod.POST, "/ai/cv/rewrite", Map.of("positioning", "Staff Java / Kafka", "style", "TECHNICAL",
+            "language", "FR"), Map.class).getBody();
+        assertThat((Map<String, Object>) rewrite.get("headline")).containsEntry("after", "Lead Java / Kafka");
+        assertThat((List<String>) rewrite.get("skills")).containsExactly("Kafka", "Java");
+        assertThat((List<Map<String, Object>>) rewrite.get("positions")).singleElement().satisfies(item ->
+            assertThat(item).containsEntry("id", (int) position).containsEntry("after", "Logiciel de paie en Java."));
+        // Neither the author's name and contact, nor the clients and employers, go to the AI.
+        assertThat(BODIES.getLast()).contains("Staff Java / Kafka", "technical depth", "Paie en Java.")
+            .doesNotContain(aliceEmail, "Alice Corp", "Banque X", "Martin");
+
+        // The reviewed wording as a PDF, without AI.
+        int asked = BODIES.size();
+        ResponseEntity<byte[]> pdf = call(alice, HttpMethod.POST, "/ai/cv/pdf?layout=NAMED&language=FR", Map.of("headline", "Lead Java / Kafka",
+            "summary", "Dix ans de Java et de flux.", "skills", List.of("Kafka"), "positions", List.of(Map.of("number", 1, "description", "Logiciel de paie."))),
+            byte[].class);
+        assertThat(pdf.getHeaders().getContentType().toString()).isEqualTo("application/pdf");
+        assertThat(text(pdf.getBody())).contains("Lead Java / Kafka", "Dix ans de Java et de flux.", "Logiciel de paie.");
+        assertThat(BODIES).hasSize(asked);
+
+        // Approved: the profile's headline and the past position change; another workspace's position is not touched.
+        assertThat(call(alice, HttpMethod.PUT, "/ai/cv/profile", Map.of("headline", "Lead Java / Kafka", "positions",
+            List.of(Map.of("id", position, "description", "Logiciel de paie en Java."))), String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody()).containsEntry("position", "Lead Java / Kafka")
+            .containsEntry("bio", "Dix ans de Java.");
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/experiences", null, List.class).getBody())
+            .anySatisfy(item -> assertThat(item).containsEntry("description", "Logiciel de paie en Java."));
+        call(bob, HttpMethod.PUT, "/ai/cv/profile", Map.of("positions", List.of(Map.of("id", position, "description", "Volé"))), String.class);
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/experiences", null, List.class).getBody())
+            .noneSatisfy(item -> assertThat(item).containsEntry("description", "Volé"));
     }
 
     @Test

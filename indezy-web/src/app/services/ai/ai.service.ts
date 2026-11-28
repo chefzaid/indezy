@@ -3,7 +3,7 @@ import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http
 import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiAutopilotQueue, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiDebrief, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage, InboxWatcher } from '../../models';
+import { AiAutopilotQueue, AiCvApproved, AiCvReviewed, AiCvRewrite, AiCvStyle, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiDebrief, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage, InboxWatcher } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -141,6 +141,21 @@ export class AiService {
 
   suggestRate(request: AiRateRequest): Observable<AiRateSuggestion> {
     return this.http.post<AiRateSuggestion>(`${this.API_URL}/rate`, request);
+  }
+
+  /** The whole CV rewritten for a positioning and a style, tied to no opportunity. */
+  rewriteCv(positioning: string, style: AiCvStyle, language: DocumentLanguage): Observable<AiCvRewrite> {
+    return this.http.post<AiCvRewrite>(`${this.API_URL}/cv/rewrite`, { positioning, style, language });
+  }
+
+  /** The dossier de compétences with the reviewed wording, as a PDF; no AI is asked. */
+  rewrittenCv(reviewed: AiCvReviewed, layout: 'NAMED' | 'ANONYMOUS', language: DocumentLanguage): Observable<Blob> {
+    return this.http.post(`${this.API_URL}/cv/pdf`, reviewed, { params: { layout, language }, responseType: 'blob' });
+  }
+
+  /** Writes the approved headline, summary and past positions' descriptions to the profile. */
+  approveCv(approved: AiCvApproved): Observable<void> {
+    return this.http.put<void>(`${this.API_URL}/cv/profile`, approved);
   }
 
   /** The dossier de compétences tailored to an opportunity, as a PDF. */

@@ -252,7 +252,7 @@ dossier "Client communiqué sur demande", and initials instead of the name), the
 the tech stack; then the [past positions](#experience-and-education) under "Expériences antérieures" (the experience
 itself when no mission was won), their employer hidden the same way when anonymized, and the schools under "Formation".
 Nothing in it is written by AI (`GET /api/users/dossier?layout=NAMED|ANONYMOUS&language=FR|EN`); the **Tailored dossier
-(AI)** on an opportunity's page is the AI version (see [AI Features](#ai-features)).
+(AI)** on an opportunity's page and **Rewrite my CV (AI)** on the profile are the AI versions (see [AI Features](#ai-features)).
 
 ### Experience And Education
 
@@ -813,6 +813,16 @@ never saved or sent on its own:
   dossier's language. The AI only rewords: a skill it names that the profile lacks is dropped, a mission without a
   description gets none, the summary is cut at 900 characters, and the name, contact details and clients are never sent
   to it. Nothing is kept.
+- **Rewrite my CV (AI)** at the top of the profile (`POST /api/ai/cv/rewrite`, a positioning of at most 120 characters, a
+  style `IMPACT|CONCISE|TECHNICAL|EXECUTIVE` and a language): the whole [dossier de compétences](#dossier-de-competences)
+  rewritten for that positioning, tied to no opportunity: the headline (120 characters at most), the summary (900), the
+  order of the skills and the descriptions of the 15 latest missions and past positions, each shown before and after.
+  The AI only rewords, as for the tailored dossier: a skill it names that the profile lacks is dropped and the rest follow,
+  a mission or position without a description gets none, a summary is never written where the profile has none, and the
+  name, contact details, clients and employers are never sent to it. Each block is kept or not and editable, then
+  `POST /api/ai/cv/pdf?layout=NAMED|ANONYMOUS&language=FR|EN` renders the dossier with the blocks kept (no AI call), and
+  `PUT /api/ai/cv/profile` writes the kept headline, summary and past positions' descriptions to the profile (only the
+  member's own positions; won missions keep their opportunity's description). Nothing else is kept.
 - **Import my profile → Choose my CV** on the profile's personal information (`POST /api/ai/profile-import`, a PDF, Word `.docx` or `.doc` (its text read with Apache POI) or
   OpenDocument `.odt` of 10 MB at most, its first 20,000 characters read): the name, phone, city, current position and
   company, presentation, links, languages and skills with their years, nothing it does not state. A review shows each

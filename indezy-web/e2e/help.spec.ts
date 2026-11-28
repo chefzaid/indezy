@@ -37,7 +37,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     if (width < 900) {
       await page.getByRole('button', { name: en ? 'Toggle navigation menu' : 'Afficher ou masquer le menu' }).click();
     }
-    await page.getByRole('link', { name: en ? 'Help' : 'Aide', exact: true }).click();
+    await page.locator('mat-nav-list').getByRole('link', { name: en ? 'Help' : 'Aide', exact: true }).click();
     await expect(page).toHaveURL(/\/help$/);
     await expect(page.locator('[data-help-article]')).toHaveCount(SLUGS.length);
     await expect(page.locator('[data-help-support]')).toHaveAttribute('href', '/support');
@@ -65,6 +65,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
 
     await page.goto('/help');
     await expect(page.locator('[data-site-footer]')).toBeVisible();
+    await expect(page.locator('[data-help-article]')).toHaveCount(SLUGS.length);
     // The help page takes the same full width as every other workspace view.
     const widths = await page.evaluate(() => {
       const content = document.querySelector('.app-content')!.getBoundingClientRect();

@@ -50,6 +50,7 @@ public class AiController {
     private final ProspectionAiService prospection;
     private final NegotiationAiService negotiations;
     private final InterviewAiService interviews;
+    private final CvRewriteAiService cvRewrites;
     private final ApplicationPackAiService packs;
     private final OfferBriefAiService briefs;
     private final SemanticSearchAiService semantic;
@@ -303,6 +304,37 @@ public class AiController {
         accessGuard.requireProject(projectId);
         Long freelanceId = accessGuard.requireWorkspace(null);
         return PdfResponses.attachment(dossiers.pdf(SecurityUtils.getCurrentUserId(), freelanceId, projectId, layout, language));
+    }
+
+    /** What the whole CV is rewritten for: a positioning (a target role) and a style. */
+    public record CvRewriteRequest(@Size(max = CvRewriteAiService.POSITIONING_MAX) String positioning, CvRewriteAiService.Style style,
+                                   DocumentLanguage language) {
+    }
+
+    @Operation(summary = "Rewrite the whole CV for a positioning and a style, tied to no opportunity",
+        description = "The headline, summary, skill order, won missions' and past positions' descriptions, each before and after, to review")
+    @PostMapping("/cv/rewrite")
+    public CvRewriteAiService.CvRewrite rewriteCv(@Valid @RequestBody CvRewriteRequest request) {
+        Long freelanceId = accessGuard.requireWorkspace(null);
+        return cvRewrites.rewrite(SecurityUtils.getCurrentUserId(), freelanceId, request.positioning(), request.style(),
+            request.language() == null ? DocumentLanguage.FR : request.language());
+    }
+
+    @Operation(summary = "The dossier de compétences with the reviewed rewriting, as a PDF", description = "No AI is asked; named or anonymized")
+    @PostMapping("/cv/pdf")
+    public ResponseEntity<byte[]> rewrittenCv(@RequestParam(defaultValue = "NAMED") DossierLayout layout,
+                                              @RequestParam(defaultValue = "FR") DocumentLanguage language,
+                                              @RequestBody CvRewriteAiService.Reviewed reviewed) {
+        Long freelanceId = accessGuard.requireWorkspace(null);
+        return PdfResponses.attachment(cvRewrites.pdf(SecurityUtils.getCurrentUserId(), freelanceId, layout, language, reviewed));
+    }
+
+    @Operation(summary = "Write the approved headline, summary and past positions' descriptions to the profile")
+    @PutMapping("/cv/profile")
+    public ResponseEntity<Void> approveCv(@RequestBody CvRewriteAiService.Approved approved) {
+        Long freelanceId = accessGuard.requireWorkspace(null);
+        cvRewrites.approve(SecurityUtils.getCurrentUserId(), freelanceId, approved);
+        return ResponseEntity.noContent().build();
     }
 
     /** An opportunity being written, to suggest a rate for. */

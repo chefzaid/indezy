@@ -82,3 +82,14 @@ The **Dossier de compétences** is an A4 PDF built from your profile.
 It holds your name and title, your city, your contact details (named version only), your presentation, your skills with their level and years, your languages, your valid certifications, then your won missions, the latest first. In the anonymized version, your initials replace your name and each client reads "Client communiqué sur demande". Nothing in it is written by AI.
 
 > **Tip:** fill in the description and tech stack of your won missions: they are what fills the dossier.
+
+## Rewrite your CV with AI
+
+**Rewrite my CV (AI)**, at the top of the Profile page, rewrites your whole CV for the way you want to come across, without choosing an opportunity.
+
+1. Type a **Positioning** (for example "Lead Java developer, Kafka and AWS"), or leave it empty to keep your current one.
+2. Choose a **Style**: results and impact, concise, technical depth or leadership, then the language of the CV, and click **Rewrite**.
+3. Check each block: your headline, your summary, the order of your skills, then each mission and past position. The current wording is crossed out, the rewritten one is below it and can be edited. Untick a block to keep it as it is.
+4. Click **Download PDF** for the named or anonymized dossier with the blocks you kept, or **Apply to my profile** to save the kept headline, summary and past positions on your profile.
+
+The AI only rewords: no date, client, employer, skill or stack is added, a skill your profile lacks is dropped, and your name, contact details, clients and employers are never sent to it. Won missions keep their own description on their opportunity: only the downloaded dossier carries their rewritten wording.
