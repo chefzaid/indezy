@@ -96,4 +96,26 @@ class DossierPdfRendererTest {
             "Mars 2025 – février 2026", "Refonte du SI de paiement.", "Environnement : Java 21, Kafka", "Généré par Indezy le 14 novembre 2026");
         assertThat(new String(parts.get("docProps/core.xml"), java.nio.charset.StandardCharsets.UTF_8)).contains("Alice Martin");
     }
+
+    @Test
+    void laysTheDossierOutCompactWithItsAccentAndPreviewsItsFirstPage() throws IOException {
+        List<DossierDto.Mission> many = IntStream.range(0, 12).mapToObj(index -> new DossierDto.Mission("Mission " + index, "Client",
+            LocalDate.of(2020 + index / 6, 1 + index % 6, 1), null, "Java", "Description longue de la mission ".repeat(20).strip())).toList();
+        DossierLook compact = new DossierLook(dev.swirlit.indezy.model.enums.DossierStyle.COMPACT, "#1a73e8");
+        assertThat(compact.accent()).isEqualTo("#1A73E8");
+        assertThat(new DossierLook(null, "blue")).isEqualTo(DossierLook.CLASSIC);
+
+        String text = text(renderer.render(dossier("Client", many), DocumentLanguage.FR, TODAY, compact));
+        // The 8 latest missions only, each description cut with an ellipsis.
+        assertThat(text).contains("Mission 7", "…").doesNotContain("Mission 8", "Mission 11");
+        try (PDDocument classic = Loader.loadPDF(renderer.render(dossier("Client", many), DocumentLanguage.FR, TODAY));
+             PDDocument tight = Loader.loadPDF(renderer.render(dossier("Client", many), DocumentLanguage.FR, TODAY, compact))) {
+            assertThat(tight.getNumberOfPages()).isLessThan(classic.getNumberOfPages());
+        }
+
+        byte[] png = renderer.preview(dossier("Client", null), DocumentLanguage.FR, TODAY, compact, 50);
+        assertThat(png).startsWith((byte) 0x89, (byte) 'P', (byte) 'N', (byte) 'G');
+        java.awt.image.BufferedImage image = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(png));
+        assertThat(image.getWidth()).isBetween(400, 420);
+    }
 }

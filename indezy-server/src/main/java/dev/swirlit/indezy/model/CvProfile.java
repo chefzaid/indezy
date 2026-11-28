@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DossierStyle;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -42,6 +43,14 @@ public class CvProfile extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "language", nullable = false, length = 2)
     private DocumentLanguage language = DocumentLanguage.FR;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "style", length = 12)
+    private DossierStyle style = DossierStyle.CLASSIC;
+
+    /** The headings' and rule's colour, as {@code #RRGGBB}; none for black. */
+    @Column(name = "accent", length = 7)
+    private String accent;
 
     @Column(name = "headline", length = 120)
     private String headline;

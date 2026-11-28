@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Une mise en page compacte, une couleur et un aperçu pour vos profils de CV
+
+Mettez un profil de CV en page compacte pour une ou deux pages, donnez une couleur à ses titres, et voyez sa première page avant d'enregistrer. Voir [Documents](/help/documents).
+
 ### Le bon CV dans chaque e-mail
 
 Un e-mail envoyé depuis Indezy avec votre dossier joint désormais le profil de CV le plus proche de ce que chaque ESN demande, ou celui que vous choisissez ; sur une offre du flux, le profil le plus proche est indiqué et joint à l'opportunité ajoutée. Voir [Documents](/help/documents).

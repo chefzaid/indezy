@@ -2,9 +2,11 @@ package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.CvProfile;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DossierStyle;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
@@ -29,7 +31,8 @@ public final class CvProfileDtos {
     /** What a profile is set to; a list left null shows all of the profile's, in its order. */
     public record Details(@NotBlank @Size(max = CvProfile.NAME_MAX) String name, DocumentLanguage language, @Size(max = 120) String headline,
                           @Size(max = SUMMARY_MAX) String summary, @Size(max = SKILLS_MAX) List<@NotBlank @Size(max = 60) String> skills,
-                          @Size(max = ITEMS_MAX) List<@Valid @NotNull Item> missions, @Size(max = ITEMS_MAX) List<@Valid @NotNull Item> positions) {
+                          @Size(max = ITEMS_MAX) List<@Valid @NotNull Item> missions, @Size(max = ITEMS_MAX) List<@Valid @NotNull Item> positions,
+                          DossierStyle style, @Pattern(regexp = "#[0-9A-Fa-f]{6}") String accent) {
 
         public Details {
             skills = skills == null ? null : List.copyOf(skills.stream().filter(Objects::nonNull).toList());
@@ -43,7 +46,8 @@ public final class CvProfileDtos {
      * profile's facts since its wording was last saved or reviewed, empty when it is in step.
      */
     public record Profile(Long id, String name, boolean isDefault, DocumentLanguage language, String headline, String summary, List<String> skills,
-                          List<Item> missions, List<Item> positions, LocalDateTime updatedAt, Long twinId, boolean archived, List<Change> changes) {
+                          List<Item> missions, List<Item> positions, LocalDateTime updatedAt, Long twinId, boolean archived, DossierStyle style,
+                          String accent, List<Change> changes) {
 
         public Profile {
             skills = skills == null ? null : List.copyOf(skills);
@@ -53,7 +57,8 @@ public final class CvProfileDtos {
         }
 
         public Profile with(List<Change> found) {
-            return new Profile(id, name, isDefault, language, headline, summary, skills, missions, positions, updatedAt, twinId, archived, found);
+            return new Profile(id, name, isDefault, language, headline, summary, skills, missions, positions, updatedAt, twinId, archived, style, accent,
+                found);
         }
     }
 

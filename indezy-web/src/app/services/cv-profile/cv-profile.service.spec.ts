@@ -20,6 +20,10 @@ describe('CvProfileService', () => {
     http.expectOne(call => call.url.endsWith('/users/cv-profiles/sources'));
     service.create(details).subscribe();
     expect(http.expectOne(call => call.method === 'POST').request.body).toEqual(details);
+    service.preview(details, 'ANONYMOUS').subscribe();
+    const preview = http.expectOne(call => call.url.endsWith('/users/cv-profiles/preview'));
+    expect(preview.request.params.get('layout')).toBe('ANONYMOUS');
+    expect(preview.request.responseType).toBe('blob');
     service.update(3, details).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles/3')).request.method).toBe('PUT');
     service.reviewed(3).subscribe();

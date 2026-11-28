@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### A compact layout, a colour and a preview for your CV profiles
+
+Lay a CV profile out compact for one or two pages, give its headings a colour, and preview its first page before saving. See [Documents](/help/documents).
+
 ### The right CV in each email
 
 An email from Indezy with your dossier now carries the CV profile closest to what each ESN asks for, or the one you choose; on a feed offer, the closest profile is named and attached to the opportunity you add. See [Documents](/help/documents).

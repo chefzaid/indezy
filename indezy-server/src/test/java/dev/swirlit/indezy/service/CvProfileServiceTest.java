@@ -21,7 +21,7 @@ class CvProfileServiceTest {
 
     private static CvProfileDtos.Profile profile(String headline, List<String> skills, List<CvProfileDtos.Item> missions,
                                                  List<CvProfileDtos.Item> positions) {
-        return new CvProfileDtos.Profile(1L, "Backend", true, DocumentLanguage.FR, headline, null, skills, missions, positions, null, null, false, List.of());
+        return new CvProfileDtos.Profile(1L, "Backend", true, DocumentLanguage.FR, headline, null, skills, missions, positions, null, null, false, null, null, List.of());
     }
 
     @Test

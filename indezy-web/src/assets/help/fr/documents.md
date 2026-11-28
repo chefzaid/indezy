@@ -92,7 +92,8 @@ Les **Profils de CV**, sur la page Profil sous votre CV conservé, sont quelques
 1. Cliquez sur **Nouveau profil de CV** et nommez-le.
 2. Choisissez sa langue, et rédigez son titre et son résumé, ou laissez-les vides pour garder ceux de votre profil.
 3. Décochez les compétences, missions et postes passés qu'il écarte, ordonnez le reste avec les flèches, et formulez une mission ou un poste pour ce profil si vous le souhaitez.
-4. Cliquez sur **Enregistrer**.
+4. Choisissez sa mise en page, **Classique** ou **Compacte (1 à 2 pages)**, et une couleur d'accent pour ses titres ; **Aperçu** montre sa première page avant d'enregistrer.
+5. Cliquez sur **Enregistrer**.
 
 Depuis le menu d'un profil, téléchargez son dossier nominatif ou anonymisé, en PDF ou en Word, ou **Mettre par défaut** : le profil par défaut est celui que **Dossier de compétences** télécharge. Les dates, clients et stacks viennent toujours de votre profil : en corriger un le corrige dans chaque profil. Dans la vérification de **Réécrire mon CV (IA)**, **Enregistrer comme profil de CV** garde la réécriture comme profil.
 

@@ -8,6 +8,7 @@ import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.DossierFormat;
 import dev.swirlit.indezy.model.enums.DossierLayout;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.pdf.DossierLook;
 import dev.swirlit.indezy.pdf.DossierPdfRenderer;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.util.SkillNames;
@@ -40,6 +41,8 @@ public class DossierService {
     /** A mission's description is cut to this many characters, at a word. */
     static final int DESCRIPTION_LENGTH = 600;
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+    /** A preview's resolution: a page about 660 pixels wide. */
+    static final float PREVIEW_DPI = 80;
 
     private final UserService users;
     private final ProjectRepository projects;
@@ -105,11 +108,21 @@ public class DossierService {
 
     /** A dossier as a PDF or a {@code .docx} file named after its author. */
     public ActivityReportService.PdfFile render(DossierDto dossier, DocumentLanguage language, DossierFormat format) {
+        return render(dossier, language, format, DossierLook.CLASSIC);
+    }
+
+    /** As above, laid out and coloured as {@code look} says. */
+    public ActivityReportService.PdfFile render(DossierDto dossier, DocumentLanguage language, DossierFormat format, DossierLook look) {
         LocalDate today = LocalDate.now(clock.withZone(PARIS));
         boolean word = format == DossierFormat.DOCX;
-        byte[] content = word ? renderer.docx(dossier, language, today) : renderer.render(dossier, language, today);
+        byte[] content = word ? renderer.docx(dossier, language, today, look) : renderer.render(dossier, language, today, look);
         String prefix = language == DocumentLanguage.EN ? "skills-profile" : "dossier-competences";
         return new ActivityReportService.PdfFile(prefix + "-" + fileWord(dossier.name()) + (word ? ".docx" : ".pdf"), content);
+    }
+
+    /** The first page of a dossier as a PNG image, to see it before downloading it. */
+    public byte[] preview(DossierDto dossier, DocumentLanguage language, DossierLook look) {
+        return renderer.preview(dossier, language, LocalDate.now(clock.withZone(PARIS)), look, PREVIEW_DPI);
     }
 
     /**

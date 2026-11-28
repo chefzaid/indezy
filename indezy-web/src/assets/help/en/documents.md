@@ -92,7 +92,8 @@ It holds your name and title, your city, your contact details (named version onl
 1. Click **New CV profile** and name it.
 2. Choose its language, and write its headline and summary, or leave them empty to keep your profile's.
 3. Untick the skills, missions and past positions it leaves out, order the rest with the arrows, and word a mission or position for this profile if you like.
-4. Click **Save**.
+4. Choose its layout, **Classic** or **Compact (1-2 pages)**, and an accent colour for its headings; **Preview** shows its first page before you save.
+5. Click **Save**.
 
 From a profile's menu, download its dossier named or anonymized, as a PDF or a Word document, or **Make default**: the default profile is what **Dossier de compétences** downloads. Dates, clients and stacks always come from your profile, so fixing one fixes it in every profile. In the review of **Rewrite my CV (AI)**, **Save as a CV profile** keeps the rewrite as a profile.
 

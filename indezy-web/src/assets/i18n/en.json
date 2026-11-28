@@ -5941,7 +5941,24 @@
     "archive": "Archive",
     "restore": "Bring back",
     "archived": "Archived ({{count}})",
-    "deleteNamed": "Delete {{name}}"
+    "deleteNamed": "Delete {{name}}",
+    "layout": "Layout",
+    "styles": {
+      "CLASSIC": "Classic",
+      "COMPACT": "Compact (1-2 pages)"
+    },
+    "accent": "Accent colour",
+    "colours": {
+      "none": "No colour",
+      "blue": "Blue",
+      "teal": "Teal",
+      "violet": "Violet",
+      "red": "Red",
+      "slate": "Slate"
+    },
+    "preview": "Preview",
+    "previewAlt": "First page of the dossier of {{name}}",
+    "previewError": "The preview could not be made"
   },
   "cvShares": {
     "open": "Share by link",

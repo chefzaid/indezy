@@ -30,6 +30,11 @@ export class CvProfileService {
     return this.http.post<CvProfile>(this.url, details);
   }
 
+  /** What a profile written so would look like, unsaved: its dossier's first page as a PNG image. */
+  preview(details: CvProfileDetails, layout: 'NAMED' | 'ANONYMOUS'): Observable<Blob> {
+    return this.http.post(`${this.url}/preview`, details, { params: { layout }, responseType: 'blob' });
+  }
+
   update(id: number, details: CvProfileDetails): Observable<CvProfile> {
     return this.http.put<CvProfile>(`${this.url}/${id}`, details);
   }

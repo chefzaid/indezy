@@ -17,7 +17,7 @@ describe('CvProfileDialogComponent', () => {
   let dialogRef: jasmine.SpyObj<MatDialogRef<CvProfileDialogComponent, boolean>>;
 
   function create(profile?: CvProfile): CvProfileDialogComponent {
-    service = jasmine.createSpyObj('CvProfileService', ['sources', 'create', 'update']);
+    service = jasmine.createSpyObj('CvProfileService', ['sources', 'create', 'update', 'preview']);
     service.sources.and.returnValue(of(SOURCES));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
@@ -38,7 +38,8 @@ describe('CvProfileDialogComponent', () => {
   it('starts from the profile as it is: everything shown, nothing set', () => {
     const component = create();
     component.name = ' Backend ';
-    expect(component.details()).toEqual({ name: 'Backend', language: 'FR', headline: null, summary: null, skills: null, missions: null, positions: null });
+    expect(component.details()).toEqual({ name: 'Backend', language: 'FR', headline: null, summary: null, skills: null, missions: null, positions: null,
+      style: 'CLASSIC', accent: null });
   });
 
   it('keeps what is left out, the order and the wording chosen', () => {
@@ -80,5 +81,24 @@ describe('CvProfileDialogComponent', () => {
     const fixture = TestBed.createComponent(CvProfileDialogComponent);
     fixture.detectChanges();
     expect(TestBed.inject(MatDialogRef).close).toHaveBeenCalledWith(false);
+  });
+
+  it('previews the dossier as set now, in the layout and colour chosen, before saving', () => {
+    const component = create();
+    spyOn(URL, 'createObjectURL').and.returnValue('blob:preview');
+    const revoke = spyOn(URL, 'revokeObjectURL');
+    service.preview.and.returnValue(of(new Blob(['png'])));
+    component.name = 'Backend';
+    component.style = 'COMPACT';
+    component.accent = '#1A73E8';
+    component.preview();
+    expect(service.preview).toHaveBeenCalledWith(jasmine.objectContaining({ name: 'Backend', style: 'COMPACT', accent: '#1A73E8' }), 'NAMED');
+    expect(component.previewUrl).not.toBeNull();
+    component.preview();
+    expect(revoke).toHaveBeenCalledWith('blob:preview');
+    service.preview.and.returnValue(throwError(() => new Error('down')));
+    component.preview();
+    expect(notifications.error).toHaveBeenCalledWith('cvProfiles.previewError');
+    component.ngOnDestroy();
   });
 });

@@ -5941,7 +5941,24 @@
     "archive": "Archiver",
     "restore": "Restaurer",
     "archived": "Archivés ({{count}})",
-    "deleteNamed": "Supprimer {{name}}"
+    "deleteNamed": "Supprimer {{name}}",
+    "layout": "Mise en page",
+    "styles": {
+      "CLASSIC": "Classique",
+      "COMPACT": "Compacte (1 à 2 pages)"
+    },
+    "accent": "Couleur d'accent",
+    "colours": {
+      "none": "Sans couleur",
+      "blue": "Bleu",
+      "teal": "Sarcelle",
+      "violet": "Violet",
+      "red": "Rouge",
+      "slate": "Ardoise"
+    },
+    "preview": "Aperçu",
+    "previewAlt": "Première page du dossier de {{name}}",
+    "previewError": "L'aperçu n'a pas pu être créé"
   },
   "cvShares": {
     "open": "Partager par lien",

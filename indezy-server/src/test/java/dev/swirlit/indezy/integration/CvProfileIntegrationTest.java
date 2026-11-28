@@ -185,4 +185,24 @@ class CvProfileIntegrationTest extends TwoAccountsIntegrationTest {
             .isEqualTo(HttpStatus.NOT_FOUND);
         offers.deleteById(offerId);
     }
+
+    @Test
+    void keepsAProfilesLayoutAndAccentAndPreviewsItUnsaved() throws IOException {
+        call(alice, HttpMethod.PUT, "/users/profile", Map.of("firstName", "Alice", "lastName", "Martin", "email", aliceEmail, "skills",
+            List.of("Java")), Map.class);
+        Map<String, Object> profile = call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Court", "style", "COMPACT",
+            "accent", "#1a73e8"), Map.class).getBody();
+        assertThat(profile).containsEntry("style", "COMPACT").containsEntry("accent", "#1A73E8");
+        assertThat(call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Faux", "accent", "bleu"), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(text(call(alice, HttpMethod.GET, "/users/cv-profiles/" + profile.get("id") + "/dossier", null, byte[].class).getBody()))
+            .contains("Alice Martin");
+
+        ResponseEntity<byte[]> preview = call(alice, HttpMethod.POST, "/users/cv-profiles/preview?layout=ANONYMOUS", Map.of("name", "Essai",
+            "headline", "Lead Java", "style", "CLASSIC"), byte[].class);
+        assertThat(preview.getHeaders().getContentType().toString()).isEqualTo("image/png");
+        assertThat(preview.getBody()).startsWith((byte) 0x89, (byte) 'P', (byte) 'N', (byte) 'G');
+        // Nothing was saved.
+        assertThat(call(alice, HttpMethod.GET, "/users/cv-profiles", null, List.class).getBody()).hasSize(1);
+    }
 }

@@ -23,8 +23,13 @@ final class DossierDocx {
     }
 
     static byte[] render(DossierDto dossier, DocumentLanguage language, LocalDate today) {
+        return render(dossier, language, today, DossierLook.CLASSIC);
+    }
+
+    static byte[] render(DossierDto dossier, DocumentLanguage language, LocalDate today, DossierLook look) {
+        String accent = look.accent() == null ? null : look.accent().substring(1);
         DocxDocument docx = new DocxDocument("Liberation Sans", (String) null);
-        docx.paragraph(List.of(new DocxDocument.Run(dossier.name(), true, DocxDocument.TITLE, null),
+        docx.paragraph(List.of(new DocxDocument.Run(dossier.name(), true, DocxDocument.TITLE, accent),
             new DocxDocument.Run("    " + DossierLabel.TITLE.in(language), false, SUBTITLE, GREY)), DocxDocument.Align.LEFT, 60);
         List<String> subtitle = new ArrayList<>();
         if (dossier.position() != null) {
@@ -40,25 +45,27 @@ final class DossierDocx {
             docx.paragraph(List.of(new DocxDocument.Run(String.join(" · ", dossier.contact()), false, DocxDocument.SMALL, GREY)),
                 DocxDocument.Align.LEFT, 60);
         }
-        docx.rule(null);
-        section(docx, DossierLabel.SUMMARY.in(language), dossier.summary());
-        section(docx, DossierLabel.SKILLS.in(language), String.join(" · ", dossier.skills().stream()
+        docx.rule(accent);
+        section(docx, accent, DossierLabel.SUMMARY.in(language), dossier.summary());
+        section(docx, accent, DossierLabel.SKILLS.in(language), String.join(" · ", dossier.skills().stream()
             .map(skill -> DossierPage.skill(skill, language)).toList()));
-        section(docx, DossierLabel.LANGUAGES.in(language), String.join(", ", dossier.languages()));
-        section(docx, DossierLabel.CERTIFICATIONS.in(language), String.join(" · ", dossier.certifications()));
+        section(docx, accent, DossierLabel.LANGUAGES.in(language), String.join(", ", dossier.languages()));
+        section(docx, accent, DossierLabel.CERTIFICATIONS.in(language), String.join(" · ", dossier.certifications()));
         if (!dossier.missions().isEmpty() || dossier.positions().isEmpty()) {
-            heading(docx, DossierLabel.MISSIONS.in(language));
+            heading(docx, accent, DossierLabel.MISSIONS.in(language));
             if (dossier.missions().isEmpty()) {
                 body(docx, DossierLabel.NO_MISSIONS.in(language));
             }
-            entries(docx, dossier.missions(), language);
+            entries(docx, look.compact() ? dossier.missions().stream().limit(DossierPage.COMPACT_MISSIONS).toList() : dossier.missions(), language,
+                look);
         }
         if (!dossier.positions().isEmpty()) {
-            heading(docx, (dossier.missions().isEmpty() ? DossierLabel.MISSIONS : DossierLabel.POSITIONS).in(language));
-            entries(docx, dossier.positions(), language);
+            heading(docx, accent, (dossier.missions().isEmpty() ? DossierLabel.MISSIONS : DossierLabel.POSITIONS).in(language));
+            entries(docx, look.compact() ? dossier.positions().stream().limit(DossierPage.COMPACT_MISSIONS).toList() : dossier.positions(), language,
+                look);
         }
         if (!dossier.education().isEmpty()) {
-            heading(docx, DossierLabel.EDUCATION.in(language));
+            heading(docx, accent, DossierLabel.EDUCATION.in(language));
             for (DossierDto.Education school : dossier.education()) {
                 String years = school.startYear() != null && school.endYear() != null ? school.startYear() + " – " + school.endYear() :
                     school.endYear() != null ? String.valueOf(school.endYear()) : school.startYear() != null ? String.valueOf(school.startYear()) : null;
@@ -72,7 +79,7 @@ final class DossierDocx {
         return docx.save(DossierLabel.TITLE.in(language) + " – " + dossier.name(), dossier.name());
     }
 
-    private static void entries(DocxDocument docx, List<DossierDto.Mission> entries, DocumentLanguage language) {
+    private static void entries(DocxDocument docx, List<DossierDto.Mission> entries, DocumentLanguage language, DossierLook look) {
         for (DossierDto.Mission mission : entries) {
             docx.paragraph(List.of(new DocxDocument.Run(mission.role() + " · " +
                 (mission.client() != null ? mission.client() : DossierLabel.CLIENT_HIDDEN.in(language)), true, DocxDocument.BODY, null)),
@@ -82,7 +89,7 @@ final class DossierDocx {
                 docx.paragraph(List.of(new DocxDocument.Run(period, false, DocxDocument.SMALL, GREY)), DocxDocument.Align.LEFT, 40);
             }
             if (mission.description() != null) {
-                for (String paragraph : mission.description().split("\\R")) {
+                for (String paragraph : (look.compact() ? DossierPage.cut(mission.description()) : mission.description()).split("\\R")) {
                     if (!paragraph.isBlank()) {
                         body(docx, paragraph.strip());
                     }
@@ -96,11 +103,11 @@ final class DossierDocx {
     }
 
     /** A heading and its text, left out when there is nothing to say. */
-    private static void section(DocxDocument docx, String heading, String text) {
+    private static void section(DocxDocument docx, String accent, String heading, String text) {
         if (text == null || text.isBlank()) {
             return;
         }
-        heading(docx, heading);
+        heading(docx, accent, heading);
         for (String paragraph : text.split("\\R")) {
             if (!paragraph.isBlank()) {
                 body(docx, paragraph.strip());
@@ -108,9 +115,9 @@ final class DossierDocx {
         }
     }
 
-    private static void heading(DocxDocument docx, String heading) {
+    private static void heading(DocxDocument docx, String accent, String heading) {
         docx.paragraph("", false, DocxDocument.SMALL, DocxDocument.Align.LEFT);
-        docx.paragraph(List.of(new DocxDocument.Run(heading, true, HEADING, null)), DocxDocument.Align.LEFT, 80);
+        docx.paragraph(List.of(new DocxDocument.Run(heading, true, HEADING, accent)), DocxDocument.Align.LEFT, 80);
     }
 
     private static void body(DocxDocument docx, String text) {

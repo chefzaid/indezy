@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, inject } from '@angular/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -32,7 +34,7 @@ export interface PickRow {
 @Component({
   selector: 'app-cv-profile-dialog',
   imports: [FormsModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatDialogModule, MatFormFieldModule, MatIconModule,
-    MatInputModule, MatProgressSpinnerModule, TranslateModule],
+    MatInputModule, MatProgressSpinnerModule, MatTooltipModule, TranslateModule],
   template: `
     <h2 mat-dialog-title>{{ (profile ? 'cvProfiles.editTitle' : 'cvProfiles.newTitle') | translate }}</h2>
     <mat-dialog-content>
@@ -48,6 +50,26 @@ export interface PickRow {
           <mat-button-toggle value="FR">Français</mat-button-toggle>
           <mat-button-toggle value="EN">English</mat-button-toggle>
         </mat-button-toggle-group>
+        <div class="look">
+          <mat-button-toggle-group [(ngModel)]="style" [attr.aria-label]="'cvProfiles.layout' | translate" data-cv-profile-style>
+            <mat-button-toggle value="CLASSIC">{{ 'cvProfiles.styles.CLASSIC' | translate }}</mat-button-toggle>
+            <mat-button-toggle value="COMPACT">{{ 'cvProfiles.styles.COMPACT' | translate }}</mat-button-toggle>
+          </mat-button-toggle-group>
+          <mat-button-toggle-group [(ngModel)]="accent" [attr.aria-label]="'cvProfiles.accent' | translate" data-cv-profile-accent>
+            @for (colour of accents; track colour.name) {
+              <mat-button-toggle [value]="colour.value" [aria-label]="'cvProfiles.colours.' + colour.name | translate"
+                [matTooltip]="'cvProfiles.colours.' + colour.name | translate">
+                <span class="swatch" [style.background]="colour.value ?? 'transparent'" [class.none]="!colour.value" aria-hidden="true"></span>
+              </mat-button-toggle>
+            }
+          </mat-button-toggle-group>
+          <button mat-stroked-button type="button" (click)="preview()" [disabled]="previewing" data-cv-profile-preview>
+            <mat-icon>visibility</mat-icon>{{ 'cvProfiles.preview' | translate }}
+          </button>
+        </div>
+        @if (previewUrl) {
+          <img class="preview" [src]="previewUrl" [alt]="'cvProfiles.previewAlt' | translate:{ name: name || '' }" data-cv-profile-preview-image>
+        }
         <mat-form-field appearance="outline" class="wide gap">
           <mat-label>{{ 'ai.cv.headline' | translate }}</mat-label>
           <input matInput [(ngModel)]="headline" maxlength="120" [placeholder]="sources.headline ?? ''" data-cv-profile-headline>
@@ -99,14 +121,21 @@ export interface PickRow {
     .row { display: flex; align-items: center; }
     .spacer { flex: 1; }
     .wording { margin: 0 0 8px 40px; width: calc(100% - 40px); }
+    .look { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
+    .swatch { display: inline-block; width: 16px; height: 16px; border-radius: 50%; vertical-align: middle;
+      border: 1px solid var(--mat-sys-outline); }
+    .swatch.none { background: linear-gradient(135deg, transparent 45%, var(--mat-sys-outline) 45% 55%, transparent 55%) !important; }
+    .preview { display: block; width: 100%; max-width: 420px; margin: 12px auto 0; border: 1px solid var(--mat-sys-outline-variant);
+      box-shadow: var(--mat-sys-level1); background: #fff; }
   `],
   changeDetection: ChangeDetectionStrategy.Eager
 })
-export class CvProfileDialogComponent {
+export class CvProfileDialogComponent implements OnDestroy {
   private readonly profiles = inject(CvProfileService);
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly dialogRef = inject<MatDialogRef<CvProfileDialogComponent, boolean>>(MatDialogRef);
+  private readonly sanitizer = inject(DomSanitizer);
   readonly profile = inject<{ profile?: CvProfile } | null>(MAT_DIALOG_DATA, { optional: true })?.profile ?? null;
 
   sources: CvProfileSources | null = null;
@@ -116,6 +145,47 @@ export class CvProfileDialogComponent {
   summary = this.profile?.summary ?? '';
   groups: { key: 'skills' | 'missions' | 'positions'; title: string; rows: PickRow[] }[] = [];
   saving = false;
+  style: 'CLASSIC' | 'COMPACT' = this.profile?.style ?? 'CLASSIC';
+  accent: string | null = this.profile?.accent ?? null;
+  readonly accents: { name: string; value: string | null }[] = [{ name: 'none', value: null }, { name: 'blue', value: '#1A73E8' },
+    { name: 'teal', value: '#00796B' }, { name: 'violet', value: '#6A1B9A' }, { name: 'red', value: '#C62828' }, { name: 'slate', value: '#455A64' }];
+  previewing = false;
+  /** The dossier's first page as the profile is set now, unsaved. */
+  previewUrl: SafeUrl | null = null;
+  private objectUrl: string | null = null;
+
+  /** Its dossier's first page as the profile is set now, before saving it. */
+  preview(): void {
+    if (!this.sources || this.previewing) {
+      return;
+    }
+    this.previewing = true;
+    this.profiles.preview({ ...this.details(), name: this.name.trim() || '—' }, 'NAMED').subscribe({
+      next: image => {
+        this.previewing = false;
+        this.release();
+        this.objectUrl = URL.createObjectURL(image);
+        this.previewUrl = this.sanitizer.bypassSecurityTrustUrl(this.objectUrl);
+        this.changes.markForCheck();
+      },
+      error: () => {
+        this.previewing = false;
+        this.notifications.error('cvProfiles.previewError');
+        this.changes.markForCheck();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.release();
+  }
+
+  private release(): void {
+    if (this.objectUrl) {
+      URL.revokeObjectURL(this.objectUrl);
+      this.objectUrl = null;
+    }
+  }
 
   constructor() {
     this.profiles.sources().subscribe({
@@ -174,7 +244,9 @@ export class CvProfileDialogComponent {
       summary: this.summary.trim() || null,
       skills: asIs(skills, sources.skills.map(skill => 'skill-' + skill)) ? null : skills.filter(row => row.shown).map(row => row.label),
       missions: items('mission', sources.missions),
-      positions: items('position', sources.positions)
+      positions: items('position', sources.positions),
+      style: this.style,
+      accent: this.accent
     };
   }
 

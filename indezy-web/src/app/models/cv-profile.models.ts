@@ -15,6 +15,10 @@ export interface CvProfileDetails {
   skills: string[] | null;
   missions: CvProfileItem[] | null;
   positions: CvProfileItem[] | null;
+  /** Its dossier's layout: CLASSIC, or COMPACT for one or two pages. */
+  style?: 'CLASSIC' | 'COMPACT';
+  /** Its headings' colour, as #RRGGBB; none for black. */
+  accent?: string | null;
 }
 
 /** A CV profile: one positioning of the profile, drawn as its own dossier de compétences. */

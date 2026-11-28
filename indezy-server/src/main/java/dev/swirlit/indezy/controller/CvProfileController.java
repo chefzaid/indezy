@@ -65,6 +65,16 @@ public class CvProfileController {
         return profiles.create(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), details);
     }
 
+    @Operation(summary = "What a CV profile written so would look like, unsaved: its dossier's first page as a PNG image",
+        description = "Named or anonymized; drawn from the profile's facts, with the layout and accent colour given")
+    @PostMapping(value = "/users/cv-profiles/preview", produces = "image/png")
+    public ResponseEntity<byte[]> preview(@Valid @RequestBody CvProfileDtos.Details details,
+                                          @RequestParam(defaultValue = "NAMED") DossierLayout layout) {
+        byte[] image = profiles.preview(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), details, layout);
+        return ResponseEntity.ok().contentType(org.springframework.http.MediaType.IMAGE_PNG).cacheControl(org.springframework.http.CacheControl.noStore())
+            .body(image);
+    }
+
     @Operation(summary = "Change a CV profile")
     @PutMapping("/users/cv-profiles/{id}")
     public CvProfileDtos.Profile update(@PathVariable Long id, @Valid @RequestBody CvProfileDtos.Details details) {

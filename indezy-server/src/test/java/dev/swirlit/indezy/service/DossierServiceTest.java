@@ -104,8 +104,8 @@ class DossierServiceTest {
 
     @Test
     void namesTheFileAfterTheDossierInItsLanguage() {
-        when(renderer.render(any(), eq(DocumentLanguage.EN), eq(LocalDate.of(2026, 11, 14)))).thenReturn(new byte[] {1});
-        when(renderer.render(any(), eq(DocumentLanguage.FR), any())).thenReturn(new byte[] {2});
+        when(renderer.render(any(), eq(DocumentLanguage.EN), eq(LocalDate.of(2026, 11, 14)), any())).thenReturn(new byte[] {1});
+        when(renderer.render(any(), eq(DocumentLanguage.FR), any(), any())).thenReturn(new byte[] {2});
         assertThat(service.pdf(1L, 5L, DossierLayout.NAMED, DocumentLanguage.EN).fileName()).isEqualTo("skills-profile-elodie-martin.pdf");
         assertThat(service.pdf(1L, 5L, DossierLayout.ANONYMOUS, DocumentLanguage.FR).fileName()).isEqualTo("dossier-competences-e-m.pdf");
     }

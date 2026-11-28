@@ -39,12 +39,25 @@ for (const language of ['en', 'fr']) {
     await dialog.locator('[data-cv-profile-headline]').fill('Lead Kafka');
     await dialog.locator('[data-cv-profile-row="skill-Angular"] input').uncheck();
     await dialog.locator('[data-cv-profile-text="mission-42"]').fill('Real-time payroll flows.');
+    // Compact, in blue, previewed before saving.
+    const previewed: Record<string, unknown>[] = [];
+    await page.route('**/api/users/cv-profiles/preview*', route => {
+      previewed.push(route.request().postDataJSON());
+      return route.fulfill({ contentType: 'image/png', body: Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64') });
+    });
+    await dialog.locator('[data-cv-profile-style]').getByRole('radio').nth(1).click();
+    await dialog.locator('[data-cv-profile-accent]').getByRole('radio').nth(1).click();
+    await dialog.locator('[data-cv-profile-preview]').click();
+    await expect(dialog.locator('[data-cv-profile-preview-image]')).toBeVisible();
+    expect(previewed[0]).toEqual(expect.objectContaining({ style: 'COMPACT', accent: '#1A73E8' }));
+    await settleDialog(page);
     const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     await dialog.locator('[data-cv-profile-save]').click();
     await expect(dialog).toHaveCount(0);
     expect(created).toEqual([{ name: 'Backend Kafka', language: 'FR', headline: 'Lead Kafka', summary: null, skills: ['Java', 'Kafka'],
-      missions: [{ id: 42, text: 'Real-time payroll flows.' }], positions: null }]);
+      missions: [{ id: 42, text: 'Real-time payroll flows.' }], positions: null, style: 'COMPACT', accent: '#1A73E8' }]);
 
     await expect(card.locator('[data-cv-profile="7"]')).toContainText('Backend Kafka');
     await card.locator('[data-cv-profile-menu="7"]').click();
@@ -101,6 +114,8 @@ for (const language of ['en', 'fr']) {
     await page.locator('[data-cv-profile-audit]').click();
     const auditDialog = page.locator('mat-dialog-container');
     await expect(auditDialog.locator('[data-cv-audit-finding="LEAK"]')).toContainText('Acme');
+    // Measured once the dialog has faded in, not while its colours are still transparent.
+    await settleDialog(page);
     const checkAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
     expect(checkAudit.violations.map(violation => violation.id)).toEqual([]);
     await auditDialog.getByRole('button', { name: language === 'en' ? 'Close' : 'Fermer' }).click();

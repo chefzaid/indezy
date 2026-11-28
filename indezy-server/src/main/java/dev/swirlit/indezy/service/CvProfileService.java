@@ -9,6 +9,8 @@ import dev.swirlit.indezy.model.CvProfile;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.DossierFormat;
 import dev.swirlit.indezy.model.enums.DossierLayout;
+import dev.swirlit.indezy.model.enums.DossierStyle;
+import dev.swirlit.indezy.pdf.DossierLook;
 import dev.swirlit.indezy.repository.CvProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -211,6 +213,8 @@ public class CvProfileService {
         copy.setSkills(source.getSkills());
         copy.setMissions(source.getMissions());
         copy.setPositions(source.getPositions());
+        copy.setStyle(source.getStyle());
+        copy.setAccent(source.getAccent());
         stamp(copy, facts(userId, freelanceId));
         return dto(profiles.save(copy));
     }
@@ -270,7 +274,7 @@ public class CvProfileService {
     public ActivityReportService.PdfFile file(Long userId, Long freelanceId, Long id, DossierLayout layout, DocumentLanguage language,
                                               DossierFormat format) {
         CvProfile profile = inLanguage(freelanceId, owned(freelanceId, id), language);
-        return dossiers.render(shaped(userId, freelanceId, profile, layout), language == null ? profile.getLanguage() : language, format);
+        return dossiers.render(shaped(userId, freelanceId, profile, layout), language == null ? profile.getLanguage() : language, format, look(profile));
     }
 
     /** The dossier as the default profile draws it, or as the profile says without one. */
@@ -278,7 +282,8 @@ public class CvProfileService {
     public ActivityReportService.PdfFile defaultFile(Long userId, Long freelanceId, DossierLayout layout, DocumentLanguage language,
                                                      DossierFormat format) {
         Optional<CvProfile> chosen = profiles.findFirstByFreelanceIdAndDefaultProfileTrue(freelanceId);
-        return chosen.isPresent() ? dossiers.render(shaped(userId, freelanceId, inLanguage(freelanceId, chosen.get(), language), layout), language, format) :
+        CvProfile drawn = chosen.map(profile -> inLanguage(freelanceId, profile, language)).orElse(null);
+        return drawn != null ? dossiers.render(shaped(userId, freelanceId, drawn, layout), language, format, look(drawn)) :
             dossiers.file(userId, freelanceId, layout, language, format);
     }
 
@@ -375,6 +380,8 @@ public class CvProfileService {
         twin.setHeadline(cut(translated.get("headline"), 120));
         twin.setSummary(cut(translated.get("summary"), CvProfileDtos.SUMMARY_MAX));
         twin.setSkills(source.getSkills());
+        twin.setStyle(source.getStyle());
+        twin.setAccent(source.getAccent());
         CvProfileDtos.Profile from = dto(source);
         twin.setMissions(json(twinItems("mission", from.missions(), dossiers.missionIds(freelanceId), translated)));
         twin.setPositions(json(twinItems("position", from.positions(), career.experiences(freelanceId).stream().map(CareerDtos.Experience::id).toList(),
@@ -461,6 +468,24 @@ public class CvProfileService {
         profile.setSkills(details.skills() == null ? null : JSON.writeValueAsString(details.skills().stream().map(String::strip).distinct().toList()));
         profile.setMissions(json(details.missions()));
         profile.setPositions(json(details.positions()));
+        profile.setStyle(details.style() == null ? DossierStyle.CLASSIC : details.style());
+        profile.setAccent(details.accent() == null ? null : details.accent().toUpperCase(Locale.ROOT));
+    }
+
+    private static DossierLook look(CvProfile profile) {
+        return new DossierLook(profile.getStyle(), profile.getAccent());
+    }
+
+    /**
+     * What a profile written as {@code details} would look like, unsaved: its dossier's first page as a PNG image, named
+     * or anonymized, drawn from the profile's facts.
+     */
+    @Transactional(readOnly = true)
+    public byte[] preview(Long userId, Long freelanceId, CvProfileDtos.Details details, DossierLayout layout) {
+        CvProfile draft = new CvProfile();
+        write(draft, details);
+        return dossiers.preview(shape(dossiers.dossier(userId, freelanceId, layout), dossiers.missionIds(freelanceId),
+            career.experiences(freelanceId).stream().map(CareerDtos.Experience::id).toList(), dto(draft)), draft.getLanguage(), look(draft));
     }
 
     private static String json(List<CvProfileDtos.Item> items) {
@@ -475,7 +500,8 @@ public class CvProfileService {
     static CvProfileDtos.Profile dto(CvProfile profile) {
         return new CvProfileDtos.Profile(profile.getId(), profile.getName(), profile.isDefaultProfile(), profile.getLanguage(), profile.getHeadline(),
             profile.getSummary(), profile.getSkills() == null ? null : Arrays.asList(JSON.readValue(profile.getSkills(), String[].class)),
-            read(profile.getMissions()), read(profile.getPositions()), profile.getUpdatedAt(), profile.getTwinId(), profile.isArchived(), List.of());
+            read(profile.getMissions()), read(profile.getPositions()), profile.getUpdatedAt(), profile.getTwinId(), profile.isArchived(),
+            profile.getStyle() == null ? DossierStyle.CLASSIC : profile.getStyle(), profile.getAccent(), List.of());
     }
 
     private static List<CvProfileDtos.Item> read(String json) {

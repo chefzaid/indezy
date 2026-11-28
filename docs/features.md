@@ -324,6 +324,13 @@ offer **CV attached**: the closest for each, or one profile for all. On a feed o
 (AI)** names the CV profile closest to the offer's skills (`GET /api/users/cv-profiles/closest?offerId`), to download,
 and **Add to pipeline with this pack** attaches it to the opportunity when no dossier was tailored to the offer.
 
+**Layout, colour and preview**: a profile's dossier is **Classic** (the French dossier de compétences) or **Compact** (for
+one or two pages: smaller type and spacing, the 8 latest missions and positions, each description cut at 300
+characters), with an accent colour (`#RRGGBB`: blue, teal, violet, red, slate, or none for black) on its name, headings
+and rule, in the PDF and the Word document alike; duplicates and twins keep them. **Preview** in the profile's editor
+(`POST /api/users/cv-profiles/preview?layout`, the profile as set, unsaved) shows its dossier's first page as an image,
+drawn from the profile's facts at 80 dpi.
+
 ### Experience And Education
 
 The personal information tab of **Profile** lists, under the form, the positions held before or outside Indezy and the
