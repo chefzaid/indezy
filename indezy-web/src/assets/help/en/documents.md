@@ -96,6 +96,8 @@ It holds your name and title, your city, your contact details (named version onl
 
 From a profile's menu, download its dossier named or anonymized, as a PDF or a Word document, or **Make default**: the default profile is what **Dossier de compétences** downloads. Dates, clients and stacks always come from your profile, so fixing one fixes it in every profile. In the review of **Rewrite my CV (AI)**, **Save as a CV profile** keeps the rewrite as a profile.
 
+**Translate into English (AI)** (or French) in a profile's menu writes its twin in the other language, listed right after it and then edited on its own; translating again updates the same twin. When you download the dossier in English, the English twin is the one drawn.
+
 ## Tailor your dossier to a job posting
 
 To answer a posting you received by email or found on a site the feed does not collect, without adding it to your pipeline:

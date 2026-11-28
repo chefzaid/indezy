@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.ai.CvProfileTranslationAiService;
 import dev.swirlit.indezy.dto.CvProfileDtos;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.DossierFormat;
@@ -33,6 +34,7 @@ public class CvProfileController {
 
     private final CvProfileService profiles;
     private final AccessGuard accessGuard;
+    private final CvProfileTranslationAiService translations;
 
     @Operation(summary = "The CV profiles, the oldest first")
     @GetMapping("/users/cv-profiles")
@@ -63,6 +65,14 @@ public class CvProfileController {
     @PutMapping("/users/cv-profiles/{id}/default")
     public CvProfileDtos.Profile makeDefault(@PathVariable Long id) {
         return profiles.makeDefault(accessGuard.requireWorkspace(null), id);
+    }
+
+    @Operation(summary = "Write the CV profile's twin in the other language with AI",
+        description = "Its headline, summary and each shown mission's and position's wording translated; the twin is created or rewritten, " +
+            "then each is edited on its own. Asked in the twin's language, a profile's dossier is the twin's")
+    @PostMapping("/users/cv-profiles/{id}/translate")
+    public CvProfileDtos.Profile translate(@PathVariable Long id) {
+        return translations.translate(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), id);
     }
 
     @Operation(summary = "Delete a CV profile", description = "When it was the default, the oldest one left becomes it")

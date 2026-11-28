@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Subject, of, throwError } from 'rxjs';
 import { CvProfile } from '../../../models';
 import { CvProfileService } from '../../../services/cv-profile/cv-profile.service';
@@ -19,13 +20,13 @@ describe('ProfileCvProfilesComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
 
   function create(): { component: ProfileCvProfilesComponent; element: () => HTMLElement } {
-    service = Object.assign(jasmine.createSpyObj<CvProfileService>('CvProfileService', ['list', 'dossier', 'makeDefault', 'remove']),
+    service = Object.assign(jasmine.createSpyObj<CvProfileService>('CvProfileService', ['list', 'dossier', 'makeDefault', 'remove', 'translate']),
       { changed: new Subject<void>() });
     service.list.and.returnValue(of([BACKEND]));
     dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
     dialog.open.and.returnValue({ afterClosed: () => of(true) } as never);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
-    notifications = jasmine.createSpyObj('NotificationService', ['error']);
+    notifications = jasmine.createSpyObj('NotificationService', ['error', 'success']);
     TestBed.configureTestingModule({
       imports: [ProfileCvProfilesComponent, TranslateModule.forRoot()],
       providers: [{ provide: CvProfileService, useValue: service }, { provide: ConfirmDialogService, useValue: confirm },
@@ -80,5 +81,26 @@ describe('ProfileCvProfilesComponent', () => {
     service.remove.and.returnValue(of(undefined));
     component.remove(BACKEND);
     expect(service.remove).toHaveBeenCalledWith(3);
+  });
+
+  it('lists each twin right after its profile, and writes a twin in the other language with AI', () => {
+    const front: CvProfile = { ...BACKEND, id: 4, name: 'Front', isDefault: false, twinId: null };
+    const twin: CvProfile = { ...BACKEND, id: 5, name: 'Backend Kafka (EN)', isDefault: false, language: 'EN', twinId: 3 };
+    const { component, element } = create();
+    service.list.and.returnValue(of([{ ...BACKEND, twinId: 5 }, front, twin]));
+    service.changed.next();
+    expect(component.ordered.map(profile => profile.id)).toEqual([3, 5, 4]);
+    expect(component.isTwinOfPrevious(component.ordered[1])).toBeTrue();
+    expect(element().querySelector('[data-cv-profile-twin="3"]')?.textContent).toContain('cvProfiles.twin');
+    expect(component.other(twin)).toBe('FR');
+
+    service.translate.and.returnValue(of(twin));
+    component.translate(component.ordered[0]);
+    expect(service.translate).toHaveBeenCalledWith(3);
+    expect(notifications.success).toHaveBeenCalledWith('cvProfiles.translated', undefined, { name: 'Backend Kafka (EN)' });
+    service.translate.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'The AI declined this request' } })));
+    component.translate(front);
+    expect(notifications.error).toHaveBeenCalledWith('ai.errors.declined');
+    expect(component.translating).toBeFalse();
   });
 });

@@ -83,6 +83,9 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = message("{\"skills\":[\"Java\",\" Kafka \",\"Java\"],\"rateMin\":650,\"minRemoteDays\":2,\"workModes\":[\"HYBRID\"]," +
                     "\"regions\":[\"Île-de-France\",\"Atlantide\"],\"startBefore\":\"2027-03-01\",\"durationMin\":0,\"keywords\":\"\"," +
                     "\"avoid\":[\"banque\"]}", "end_turn");
+            } else if (body.contains("You translate the blocks of a freelance")) {
+                answer = message("{\"blocks\":[{\"key\":\"headline\",\"text\":\"Kafka lead\"},{\"key\":\"summary\",\"text\":\"Ten years of Java.\"}]}",
+                    "end_turn");
             } else if (body.contains("You read blocks of a French freelance")) {
                 answer = message("{\"questions\":[{\"key\":\"mission-1\",\"question\":\"Combien de flux migrés ?\"}]}", "end_turn");
             } else if (body.contains("You refine one block")) {
@@ -523,6 +526,39 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
             .isEqualTo(HttpStatus.BAD_REQUEST);
         call(alice, HttpMethod.POST, "/ai/cv/refine", Map.of("text", "Paie migrée vers Kafka.", "refinement", "WEAVE", "answer", "12 flux"), Map.class);
         assertThat(BODIES.getLast()).contains("Weave the freelancer's answer", "<answer>\\n12 flux\\n</answer>");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void writesACvProfilesTwinInTheOtherLanguageDrawnWhenThatLanguageIsAsked() throws IOException {
+        call(alice, HttpMethod.PUT, "/ai/key", Map.of("apiKey", "sk-ant-alice-own"), Map.class);
+        call(alice, HttpMethod.PUT, "/users/profile", Map.of("firstName", "Alice", "lastName", "Martin", "email", aliceEmail, "position", "Développeuse",
+            "bio", "Dix ans de Java.", "skills", List.of("Java", "Kafka")), Map.class);
+        long mission = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Kafka", "dailyRate", 650, "status", "WON",
+            "clientId", aliceClientId, "startDate", "2025-03-01", "techStack", "Kafka", "description", "Flux de paie."), Map.class));
+        long profile = idOf(call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Backend", "headline", "Lead Kafka"), Map.class));
+
+        Map<String, Object> twin = call(alice, HttpMethod.POST, "/users/cv-profiles/" + profile + "/translate", null, Map.class).getBody();
+        assertThat(twin).containsEntry("name", "Backend (EN)").containsEntry("language", "EN").containsEntry("headline", "Kafka lead")
+            .containsEntry("summary", "Ten years of Java.").containsEntry("twinId", (int) profile).containsEntry("isDefault", false);
+        // The mission the AI did not translate keeps its wording; no name, contact or client went to the AI.
+        assertThat((List<Map<String, Object>>) twin.get("missions")).containsExactly(Map.of("id", (int) mission, "text", "Flux de paie."));
+        assertThat(BODIES.getLast()).contains("Translate into English", "<block key=\\\"headline\\\">", "Flux de paie.")
+            .doesNotContain("Martin", aliceEmail, "Alice Corp");
+        long twinId = ((Number) twin.get("id")).longValue();
+
+        // Asked in English, the French profile's dossier is its twin's; translated again, the same twin is rewritten.
+        assertThat(text(call(alice, HttpMethod.GET, "/users/cv-profiles/" + profile + "/dossier?language=EN", null, byte[].class).getBody()))
+            .contains("Kafka lead", "Skills profile");
+        assertThat(text(call(alice, HttpMethod.GET, "/users/dossier?language=EN", null, byte[].class).getBody())).contains("Kafka lead");
+        assertThat(call(alice, HttpMethod.POST, "/users/cv-profiles/" + profile + "/translate", null, Map.class).getBody()).containsEntry("id", (int) twinId);
+        assertThat(call(alice, HttpMethod.GET, "/users/cv-profiles", null, List.class).getBody()).hasSize(2);
+        // Deleting one leaves the other without a twin.
+        call(alice, HttpMethod.DELETE, "/users/cv-profiles/" + twinId, null, String.class);
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/cv-profiles", null, List.class).getBody()).singleElement()
+            .satisfies(left -> assertThat(left).containsEntry("twinId", null));
+        assertThat(call(bob, HttpMethod.POST, "/users/cv-profiles/" + profile + "/translate", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

@@ -53,6 +53,10 @@ public class CvProfile extends BaseEntity {
     @Column(name = "missions", columnDefinition = "TEXT")
     private String missions;
 
+    /** The same profile in the other language, kept in step by {@code Translate (AI)}; none without one. */
+    @Column(name = "twin_id")
+    private Long twinId;
+
     /** The past positions shown, as {@link #missions} are. */
     @Column(name = "positions", columnDefinition = "TEXT")
     private String positions;

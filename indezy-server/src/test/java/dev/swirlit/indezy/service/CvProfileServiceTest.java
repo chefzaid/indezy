@@ -21,7 +21,7 @@ class CvProfileServiceTest {
 
     private static CvProfileDtos.Profile profile(String headline, List<String> skills, List<CvProfileDtos.Item> missions,
                                                  List<CvProfileDtos.Item> positions) {
-        return new CvProfileDtos.Profile(1L, "Backend", true, DocumentLanguage.FR, headline, null, skills, missions, positions, null);
+        return new CvProfileDtos.Profile(1L, "Backend", true, DocumentLanguage.FR, headline, null, skills, missions, positions, null, null);
     }
 
     @Test
@@ -49,5 +49,14 @@ class CvProfileServiceTest {
         assertThat(CvProfileService.shape(DOSSIER, List.of(10L, 11L), List.of(20L), profile(null, null,
             List.of(new CvProfileDtos.Item(11L, null), new CvProfileDtos.Item(10L, " ")), null)).missions())
             .extracting(DossierDto.Mission::role).containsExactly("Dev Angular", "Lead Java");
+    }
+
+    @Test
+    void writesATwinsItemsInTheSourcesOrderWithTheirTranslatedWording() {
+        java.util.Map<String, String> translated = java.util.Map.of("mission-10", "Payroll flows.", "position-20", "Payroll in Java.");
+        assertThat(CvProfileService.twinItems("mission", null, List.of(10L, 11L), translated))
+            .containsExactly(new CvProfileDtos.Item(10L, "Payroll flows."), new CvProfileDtos.Item(11L, null));
+        assertThat(CvProfileService.twinItems("mission", List.of(new CvProfileDtos.Item(11L, "Front."), new CvProfileDtos.Item(10L, null)),
+            List.of(10L, 11L), translated)).containsExactly(new CvProfileDtos.Item(11L, null), new CvProfileDtos.Item(10L, "Payroll flows."));
     }
 }

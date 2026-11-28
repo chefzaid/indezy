@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### CV profiles in French and English
+
+A CV profile can keep a twin in the other language, translated by AI and then edited on its own; the dossier downloaded in English draws the English twin. See [Documents](/help/documents).
+
 ### CV profiles
 
 Keep a few positionings of your profile, each with its own headline, summary, skills and missions, downloaded as its own dossier; the default one is what **Dossier de compétences** downloads, and a CV rewritten by AI can be saved as one. See [Documents](/help/documents).

@@ -5912,7 +5912,11 @@
     "wording": "Its wording in this profile (empty: as your profile says)",
     "saved": "CV profile saved",
     "saveError": "The CV profile could not be saved",
-    "loadError": "The CV profiles could not be loaded"
+    "loadError": "The CV profiles could not be loaded",
+    "twin": "{{name}} is its twin",
+    "translate": "Translate into {{language}} (AI)",
+    "retranslate": "Translate its {{language}} twin again (AI)",
+    "translated": "“{{name}}” written in the other language"
   },
   "billingTemplates": {
     "title": "Word templates and PDF forms",

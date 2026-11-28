@@ -5912,7 +5912,11 @@
     "wording": "Sa formulation dans ce profil (vide : telle que votre profil la dit)",
     "saved": "Profil de CV enregistré",
     "saveError": "Le profil de CV n'a pas pu être enregistré",
-    "loadError": "Les profils de CV n'ont pas pu être chargés"
+    "loadError": "Les profils de CV n'ont pas pu être chargés",
+    "twin": "jumeau : {{name}}",
+    "translate": "Traduire en {{language}} (IA)",
+    "retranslate": "Retraduire son jumeau {{language}} (IA)",
+    "translated": "« {{name}} » écrit dans l'autre langue"
   },
   "billingTemplates": {
     "title": "Modèles Word et formulaires PDF",

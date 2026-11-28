@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Profils de CV en français et en anglais
+
+Un profil de CV peut garder un jumeau dans l'autre langue, traduit par l'IA puis modifié à part ; le dossier téléchargé en anglais utilise le jumeau anglais. Voir [Documents](/help/documents).
+
 ### Profils de CV
 
 Gardez quelques positionnements de votre profil, chacun avec son titre, son résumé, ses compétences et ses missions, téléchargé comme son propre dossier ; celui par défaut est celui que **Dossier de compétences** télécharge, et un CV réécrit par l'IA peut être enregistré comme profil. Voir [Documents](/help/documents).

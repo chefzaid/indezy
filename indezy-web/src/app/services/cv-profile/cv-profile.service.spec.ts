@@ -20,6 +20,8 @@ describe('CvProfileService', () => {
     expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles/3')).request.method).toBe('PUT');
     service.makeDefault(3).subscribe();
     http.expectOne(call => call.url.endsWith('/users/cv-profiles/3/default'));
+    service.translate(3).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles/3/translate')).request.method).toBe('POST');
     service.remove(3).subscribe();
     expect(http.expectOne(call => call.method === 'DELETE').request.url).toContain('/users/cv-profiles/3');
     service.dossier(3, 'ANONYMOUS', 'DOCX').subscribe();

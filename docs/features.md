@@ -273,6 +273,14 @@ gives what a profile is written from. **Save as a CV profile** in the review of 
 as a profile: its headline, summary and skills order kept, every mission and position shown with the rewritten wording
 where it was kept. Profiles are part of the data export and go with the account.
 
+**Language twins**: **Translate into English (AI)** (or French) on a profile (`POST /api/users/cv-profiles/{id}/translate`)
+writes its twin in the other language: its headline, summary and the wording of each mission and position it shows
+(the profile's own wording when the CV profile has none) translated by AI, nothing else sent; a block the AI leaves out
+keeps its wording. The twin is named after it ("Backend (EN)"), shows the same skills, missions and positions in the
+same order, is listed right after it, and is then edited on its own; translating again rewrites the same twin. Asked in
+the twin's language, a profile's dossier is the twin's (`?language=EN`), and so is the plain dossier download's for the
+default profile. Deleting one leaves the other without a twin.
+
 ### Experience And Education
 
 The personal information tab of **Profile** lists, under the form, the positions held before or outside Indezy and the

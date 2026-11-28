@@ -22,6 +22,8 @@ export interface CvProfile extends CvProfileDetails {
   id: number;
   isDefault: boolean;
   updatedAt: string | null;
+  /** The same profile in the other language, kept in step by Translate (AI); none without one. */
+  twinId?: number | null;
 }
 
 /** A won mission or past position of the profile, to pick and word. */

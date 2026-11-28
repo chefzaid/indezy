@@ -51,6 +51,18 @@ for (const language of ['en', 'fr']) {
     await page.locator('[data-cv-profile-download="ANONYMOUS-DOCX"]').click();
     expect((await download).suggestedFilename()).toBe('cv-backend-kafka-anonymous.docx');
     expect(drawn).toEqual(['?layout=ANONYMOUS&format=DOCX']);
+    // Its English twin, written by AI and listed right after it.
+    await page.route(/\/api\/users\/cv-profiles\/7\/translate$/, route => {
+      const twin = { ...profiles[0], id: 8, name: 'Backend Kafka (EN)', language: 'EN', isDefault: false, twinId: 7 };
+      profiles[0] = { ...profiles[0], twinId: 8 };
+      profiles.push(twin);
+      return route.fulfill({ json: twin });
+    });
+    await card.locator('[data-cv-profile-menu="7"]').click();
+    await page.locator('[data-cv-profile-translate]').click();
+    await expect(card.locator('[data-cv-profile="8"]')).toContainText('Backend Kafka (EN)');
+    await expect(card.locator('[data-cv-profile-twin="7"]')).toContainText('Backend Kafka (EN)');
+
     const cardAudit = await new AxeBuilder({ page }).include('[data-cv-profiles]').withTags(WCAG).analyze();
     expect(cardAudit.violations.map(violation => violation.id)).toEqual([]);
   });

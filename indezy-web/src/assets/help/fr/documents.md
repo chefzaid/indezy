@@ -96,6 +96,8 @@ Les **Profils de CV**, sur la page Profil sous votre CV conservé, sont quelques
 
 Depuis le menu d'un profil, téléchargez son dossier nominatif ou anonymisé, en PDF ou en Word, ou **Mettre par défaut** : le profil par défaut est celui que **Dossier de compétences** télécharge. Les dates, clients et stacks viennent toujours de votre profil : en corriger un le corrige dans chaque profil. Dans la vérification de **Réécrire mon CV (IA)**, **Enregistrer comme profil de CV** garde la réécriture comme profil.
 
+**Traduire en EN (IA)** (ou en FR) dans le menu d'un profil écrit son jumeau dans l'autre langue, affiché juste après lui puis modifié à part ; retraduire met à jour le même jumeau. Quand vous téléchargez le dossier en anglais, c'est le jumeau anglais qui est utilisé.
+
 ## Adapter votre dossier à une annonce
 
 Pour répondre à une annonce reçue par e-mail ou trouvée sur un site que le flux ne collecte pas, sans l'ajouter à votre pipeline :

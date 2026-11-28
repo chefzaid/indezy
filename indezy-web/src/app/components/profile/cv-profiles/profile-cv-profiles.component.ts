@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -10,6 +11,7 @@ import { filter, switchMap } from 'rxjs';
 import { CvProfile } from '../../../models';
 import { CvProfileService } from '../../../services/cv-profile/cv-profile.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { aiErrorKey } from '../../../services/ai/ai.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { saveBlob } from '../../../shared/utils/download-file';
 import { CvProfileDialogComponent } from './cv-profile-dialog.component';
@@ -30,12 +32,15 @@ import { CvProfileDialogComponent } from './cv-profile-dialog.component';
         </button>
       </div>
       <p class="muted">{{ 'cvProfiles.intro' | translate }}</p>
-      @for (profile of profiles; track profile.id) {
-        <div class="entry" [attr.data-cv-profile]="profile.id">
+      @for (profile of ordered; track profile.id) {
+        <div class="entry" [class.twin]="isTwinOfPrevious(profile)" [attr.data-cv-profile]="profile.id">
           <mat-icon class="kind" aria-hidden="true">{{ profile.isDefault ? 'star' : 'badge' }}</mat-icon>
           <div class="text">
             <h3>{{ profile.name }}</h3>
             <span class="muted">{{ (profile.isDefault ? 'cvProfiles.default' : 'cvProfiles.other') | translate:{ language: profile.language } }}</span>
+            @if (twinOf(profile); as twin) {
+              <span class="muted" [attr.data-cv-profile-twin]="profile.id"> · {{ 'cvProfiles.twin' | translate:{ name: twin.name } }}</span>
+            }
           </div>
           <button mat-icon-button type="button" [matMenuTriggerFor]="menu" [attr.aria-label]="'cvProfiles.actions' | translate:{ name: profile.name }"
             [attr.data-cv-profile-menu]="profile.id">
@@ -50,6 +55,10 @@ import { CvProfileDialogComponent } from './cv-profile-dialog.component';
               </button>
             }
             <mat-divider></mat-divider>
+            <button mat-menu-item type="button" (click)="translate(profile)" [disabled]="translating" data-cv-profile-translate>
+              <mat-icon>translate</mat-icon>
+              <span>{{ (twinOf(profile) ? 'cvProfiles.retranslate' : 'cvProfiles.translate') | translate:{ language: other(profile) } }}</span>
+            </button>
             <button mat-menu-item type="button" (click)="open(profile)" data-cv-profile-edit><mat-icon>edit</mat-icon><span>{{ 'common.edit' | translate }}</span></button>
             @if (!profile.isDefault) {
               <button mat-menu-item type="button" (click)="makeDefault(profile)" data-cv-profile-default>
@@ -73,6 +82,7 @@ import { CvProfileDialogComponent } from './cv-profile-dialog.component';
     .entry .text { flex: 1; min-width: 0; }
     .entry h3 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
     .kind { color: var(--mat-sys-primary); }
+    .entry.twin { border-top-style: dashed; padding-left: 24px; }
   `],
   changeDetection: ChangeDetectionStrategy.Eager
 })
@@ -89,6 +99,55 @@ export class ProfileCvProfilesComponent implements OnInit {
     { layout: 'NAMED', format: 'PDF' }, { layout: 'ANONYMOUS', format: 'PDF' }, { layout: 'NAMED', format: 'DOCX' }, { layout: 'ANONYMOUS', format: 'DOCX' }
   ];
   profiles: CvProfile[] = [];
+  translating = false;
+
+  /** The profiles in their order, each twin right after the profile it was written from. */
+  get ordered(): CvProfile[] {
+    const placed: CvProfile[] = [];
+    for (const profile of this.profiles) {
+      if (!placed.includes(profile)) {
+        placed.push(profile);
+        const twin = this.twinOf(profile);
+        if (twin && !placed.includes(twin)) {
+          placed.push(twin);
+        }
+      }
+    }
+    return placed;
+  }
+
+  twinOf(profile: CvProfile): CvProfile | undefined {
+    return profile.twinId ? this.profiles.find(candidate => candidate.id === profile.twinId) : undefined;
+  }
+
+  /** Whether the profile is listed right after its twin. */
+  isTwinOfPrevious(profile: CvProfile): boolean {
+    const ordered = this.ordered;
+    const index = ordered.indexOf(profile);
+    return index > 0 && ordered[index - 1].id === profile.twinId;
+  }
+
+  /** The language a profile's twin is written in. */
+  other(profile: CvProfile): string {
+    return profile.language === 'EN' ? 'FR' : 'EN';
+  }
+
+  /** Writes or rewrites the profile's twin in the other language with AI. */
+  translate(profile: CvProfile): void {
+    this.translating = true;
+    this.service.translate(profile.id).subscribe({
+      next: twin => {
+        this.translating = false;
+        this.notifications.success('cvProfiles.translated', undefined, { name: twin.name });
+        this.load();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.translating = false;
+        this.notifications.error(aiErrorKey(error));
+        this.changes.markForCheck();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.load();

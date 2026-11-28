@@ -38,8 +38,9 @@ public final class CvProfileDtos {
         }
     }
 
+    /** A CV profile; {@code twinId}: the same profile in the other language, or none. */
     public record Profile(Long id, String name, boolean isDefault, DocumentLanguage language, String headline, String summary, List<String> skills,
-                          List<Item> missions, List<Item> positions, LocalDateTime updatedAt) {
+                          List<Item> missions, List<Item> positions, LocalDateTime updatedAt, Long twinId) {
 
         public Profile {
             skills = skills == null ? null : List.copyOf(skills);
@@ -59,6 +60,18 @@ public final class CvProfileDtos {
             skills = List.copyOf(skills);
             missions = List.copyOf(missions);
             positions = List.copyOf(positions);
+        }
+    }
+
+    /** A block of a profile's wording, by its key ("headline", "summary", "mission-10", "position-20"). */
+    public record Block(String key, String text) {
+    }
+
+    /** What a profile reads as, block by block, to translate into {@code language}. */
+    public record Wording(Long profileId, DocumentLanguage language, List<Block> blocks) {
+
+        public Wording {
+            blocks = List.copyOf(blocks);
         }
     }
 }

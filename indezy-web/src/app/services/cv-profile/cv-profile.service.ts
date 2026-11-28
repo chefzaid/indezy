@@ -32,6 +32,11 @@ export class CvProfileService {
     return this.http.put<CvProfile>(`${this.url}/${id}/default`, null);
   }
 
+  /** Writes (or rewrites) the profile's twin in the other language with AI. */
+  translate(id: number): Observable<CvProfile> {
+    return this.http.post<CvProfile>(`${this.url}/${id}/translate`, null);
+  }
+
   remove(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
