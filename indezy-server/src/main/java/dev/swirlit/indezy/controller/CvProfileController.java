@@ -36,10 +36,10 @@ public class CvProfileController {
     private final AccessGuard accessGuard;
     private final CvProfileTranslationAiService translations;
 
-    @Operation(summary = "The CV profiles, the oldest first")
+    @Operation(summary = "The CV profiles, the oldest first, each with what changed in the facts it relies on since it was last saved or reviewed")
     @GetMapping("/users/cv-profiles")
     public List<CvProfileDtos.Profile> list() {
-        return profiles.list(accessGuard.requireWorkspace(null));
+        return profiles.listChecked(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null));
     }
 
     @Operation(summary = "What a CV profile is written from: the profile's headline, summary, skills, won missions and past positions")
@@ -52,13 +52,20 @@ public class CvProfileController {
     @PostMapping("/users/cv-profiles")
     @ResponseStatus(HttpStatus.CREATED)
     public CvProfileDtos.Profile create(@Valid @RequestBody CvProfileDtos.Details details) {
-        return profiles.create(accessGuard.requireWorkspace(null), details);
+        return profiles.create(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), details);
     }
 
     @Operation(summary = "Change a CV profile")
     @PutMapping("/users/cv-profiles/{id}")
     public CvProfileDtos.Profile update(@PathVariable Long id, @Valid @RequestBody CvProfileDtos.Details details) {
-        return profiles.update(accessGuard.requireWorkspace(null), id, details);
+        return profiles.update(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), id, details);
+    }
+
+    @Operation(summary = "Mark a CV profile's wording reviewed against the profile's facts as they are now",
+        description = "The changes listed with it since it was last saved or reviewed are cleared")
+    @PutMapping("/users/cv-profiles/{id}/reviewed")
+    public CvProfileDtos.Profile reviewed(@PathVariable Long id) {
+        return profiles.review(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), id);
     }
 
     @Operation(summary = "Make a CV profile the default, drawn wherever none is chosen")

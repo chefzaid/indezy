@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### CV profiles to review when your facts change
+
+A CV profile now says when a fact its wording relies on changed (dates, stack, skills, certifications, missions won), so it never goes stale unnoticed. See [Documents](/help/documents).
+
 ### CV profiles in French and English
 
 A CV profile can keep a twin in the other language, translated by AI and then edited on its own; the dossier downloaded in English draws the English twin. See [Documents](/help/documents).

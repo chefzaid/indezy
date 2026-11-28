@@ -6,7 +6,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs';
 import { CvProfile } from '../../../models';
 import { CvProfileService } from '../../../services/cv-profile/cv-profile.service';
@@ -40,6 +40,20 @@ import { CvProfileDialogComponent } from './cv-profile-dialog.component';
             <span class="muted">{{ (profile.isDefault ? 'cvProfiles.default' : 'cvProfiles.other') | translate:{ language: profile.language } }}</span>
             @if (twinOf(profile); as twin) {
               <span class="muted" [attr.data-cv-profile-twin]="profile.id"> · {{ 'cvProfiles.twin' | translate:{ name: twin.name } }}</span>
+            }
+            @if (profile.changes?.length) {
+              <div class="review" role="status" [attr.data-cv-profile-review]="profile.id">
+                <p><mat-icon aria-hidden="true">update</mat-icon><strong>{{ 'cvProfiles.toReview' | translate }}</strong></p>
+                <ul>
+                  @for (change of profile.changes; track $index) {
+                    <li>{{ 'cvProfiles.changes.' + change.kind | translate:{ label: change.label ?? '', fields: fields(change.fields) } }}</li>
+                  }
+                </ul>
+                <button mat-button type="button" (click)="open(profile)">{{ 'common.edit' | translate }}</button>
+                <button mat-button type="button" (click)="markReviewed(profile)" [attr.data-cv-profile-reviewed]="profile.id">
+                  {{ 'cvProfiles.markReviewed' | translate }}
+                </button>
+              </div>
             }
           </div>
           <button mat-icon-button type="button" [matMenuTriggerFor]="menu" [attr.aria-label]="'cvProfiles.actions' | translate:{ name: profile.name }"
@@ -83,6 +97,10 @@ import { CvProfileDialogComponent } from './cv-profile-dialog.component';
     .entry h3 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
     .kind { color: var(--mat-sys-primary); }
     .entry.twin { border-top-style: dashed; padding-left: 24px; }
+    .review { margin-top: 6px; padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--mat-sys-tertiary) 10%, transparent); }
+    .review p { display: flex; align-items: center; gap: 6px; margin: 0; }
+    .review mat-icon { width: 18px; height: 18px; font-size: 18px; color: var(--mat-sys-tertiary); }
+    .review ul { margin: 4px 0; padding-left: 24px; font-size: .875rem; }
   `],
   changeDetection: ChangeDetectionStrategy.Eager
 })
@@ -93,6 +111,7 @@ export class ProfileCvProfilesComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly i18n = inject(TranslateService);
 
   readonly max = 20;
   readonly downloads: { layout: 'NAMED' | 'ANONYMOUS'; format: 'PDF' | 'DOCX' }[] = [
@@ -125,6 +144,19 @@ export class ProfileCvProfilesComponent implements OnInit {
     const ordered = this.ordered;
     const index = ordered.indexOf(profile);
     return index > 0 && ordered[index - 1].id === profile.twinId;
+  }
+
+  /** The facts of an item that changed, as words: "dates, stack". */
+  fields(fields: string[]): string {
+    return fields.map(field => this.i18n.instant('cvProfiles.fields.' + field)).join(', ');
+  }
+
+  /** The profile's wording reviewed: in step with the facts again. */
+  markReviewed(profile: CvProfile): void {
+    this.service.reviewed(profile.id).subscribe({
+      next: () => this.load(),
+      error: () => this.notifications.error('cvProfiles.saveError')
+    });
   }
 
   /** The language a profile's twin is written in. */

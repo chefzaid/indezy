@@ -46,9 +46,117 @@ public class CvProfileService {
         return profiles.findByFreelanceIdOrderByCreatedAtAscIdAsc(freelanceId).stream().map(CvProfileService::dto).toList();
     }
 
+    /** The profiles, each with what changed in the facts it relies on since its wording was last saved or reviewed. */
+    @Transactional(readOnly = true)
+    public List<CvProfileDtos.Profile> listChecked(Long userId, Long freelanceId) {
+        List<CvProfile> kept = profiles.findByFreelanceIdOrderByCreatedAtAscIdAsc(freelanceId);
+        if (kept.isEmpty()) {
+            return List.of();
+        }
+        CvProfileDtos.Facts now = facts(userId, freelanceId);
+        return kept.stream().map(profile -> {
+            CvProfileDtos.Profile dto = dto(profile);
+            return profile.getFacts() == null ? dto : dto.with(changes(JSON.readValue(profile.getFacts(), CvProfileDtos.Facts.class), now, dto));
+        }).toList();
+    }
+
+    /** The wording reviewed against the facts as they are now: the profile is in step again. */
+    @Transactional
+    public CvProfileDtos.Profile review(Long userId, Long freelanceId, Long id) {
+        CvProfile profile = owned(freelanceId, id);
+        stamp(profile, facts(userId, freelanceId));
+        return dto(profile);
+    }
+
+    /** The profile's facts now: its skills and certifications, its won missions' and past positions' title, dates and stack by key. */
+    CvProfileDtos.Facts facts(Long userId, Long freelanceId) {
+        DossierDto dossier = dossiers.dossier(userId, freelanceId, DossierLayout.NAMED);
+        Map<String, CvProfileDtos.ItemFacts> items = new LinkedHashMap<>();
+        List<Long> missionIds = dossiers.missionIds(freelanceId);
+        for (int index = 0; index < Math.min(missionIds.size(), dossier.missions().size()); index++) {
+            items.put("mission-" + missionIds.get(index), itemFacts(dossier.missions().get(index)));
+        }
+        List<CareerDtos.Experience> experiences = career.experiences(freelanceId);
+        for (int index = 0; index < Math.min(experiences.size(), dossier.positions().size()); index++) {
+            items.put("position-" + experiences.get(index).id(), itemFacts(dossier.positions().get(index)));
+        }
+        return new CvProfileDtos.Facts(dossier.skills().stream().map(DossierDto.Skill::name).toList(), dossier.certifications(), items);
+    }
+
+    private static CvProfileDtos.ItemFacts itemFacts(DossierDto.Mission mission) {
+        return new CvProfileDtos.ItemFacts(mission.role(), Objects.toString(mission.startsOn(), null), Objects.toString(mission.endsOn(), null),
+            mission.stack());
+    }
+
+    private static void stamp(CvProfile profile, CvProfileDtos.Facts facts) {
+        profile.setFacts(JSON.writeValueAsString(facts));
+    }
+
+    /**
+     * What changed since {@code was} that the profile relies on (gone since, not gone before: the dossier leaves out what
+     * is gone): a skill it shows gone, or one added that it does not show;
+     * a certification added or gone; a mission or position it words with its title, dates or stack changed, or gone; one
+     * added that a profile choosing its missions or positions does not show.
+     */
+    static List<CvProfileDtos.Change> changes(CvProfileDtos.Facts was, CvProfileDtos.Facts now, CvProfileDtos.Profile profile) {
+        List<CvProfileDtos.Change> changes = new ArrayList<>();
+        if (profile.skills() != null) {
+            List<String> current = now.skills().stream().map(skill -> skill.toLowerCase(Locale.ROOT)).toList();
+            List<String> before = was.skills().stream().map(skill -> skill.toLowerCase(Locale.ROOT)).toList();
+            profile.skills().stream().filter(skill -> before.contains(skill.toLowerCase(Locale.ROOT)) && !current.contains(skill.toLowerCase(Locale.ROOT)))
+                .forEach(skill -> changes.add(new CvProfileDtos.Change(CvProfileDtos.ChangeKind.SKILL_REMOVED, skill, null)));
+            now.skills().stream().filter(skill -> !before.contains(skill.toLowerCase(Locale.ROOT)))
+                .forEach(skill -> changes.add(new CvProfileDtos.Change(CvProfileDtos.ChangeKind.SKILL_ADDED, skill, null)));
+        }
+        now.certifications().stream().filter(certification -> !was.certifications().contains(certification))
+            .forEach(certification -> changes.add(new CvProfileDtos.Change(CvProfileDtos.ChangeKind.CERTIFICATION_ADDED, certification, null)));
+        was.certifications().stream().filter(certification -> !now.certifications().contains(certification))
+            .forEach(certification -> changes.add(new CvProfileDtos.Change(CvProfileDtos.ChangeKind.CERTIFICATION_REMOVED, certification, null)));
+        items(changes, "mission", profile.missions(), was, now);
+        items(changes, "position", profile.positions(), was, now);
+        return changes;
+    }
+
+    private static void items(List<CvProfileDtos.Change> changes, String kind, List<CvProfileDtos.Item> chosen, CvProfileDtos.Facts was,
+                              CvProfileDtos.Facts now) {
+        if (chosen == null) {
+            return;
+        }
+        for (CvProfileDtos.Item item : chosen) {
+            String key = kind + "-" + item.id();
+            CvProfileDtos.ItemFacts before = was.items().get(key);
+            CvProfileDtos.ItemFacts after = now.items().get(key);
+            if (after == null) {
+                if (before != null) {
+                    changes.add(new CvProfileDtos.Change(CvProfileDtos.ChangeKind.ITEM_REMOVED, before.title(), null));
+                }
+            } else if (before != null && blank(item.text()) != null) {
+                List<String> fields = new ArrayList<>();
+                if (!Objects.equals(before.title(), after.title())) {
+                    fields.add("title");
+                }
+                if (!Objects.equals(before.startsOn(), after.startsOn()) || !Objects.equals(before.endsOn(), after.endsOn())) {
+                    fields.add("dates");
+                }
+                if (!Objects.equals(before.stack(), after.stack())) {
+                    fields.add("stack");
+                }
+                if (!fields.isEmpty()) {
+                    changes.add(new CvProfileDtos.Change(CvProfileDtos.ChangeKind.ITEM_CHANGED, after.title(), fields));
+                }
+            }
+        }
+        List<String> shown = chosen.stream().map(item -> kind + "-" + item.id()).toList();
+        now.items().forEach((key, facts) -> {
+            if (key.startsWith(kind + "-") && !shown.contains(key) && !was.items().containsKey(key)) {
+                changes.add(new CvProfileDtos.Change(CvProfileDtos.ChangeKind.ITEM_ADDED, facts.title(), null));
+            }
+        });
+    }
+
     /** A new profile; the first one is the default. */
     @Transactional
-    public CvProfileDtos.Profile create(Long freelanceId, CvProfileDtos.Details details) {
+    public CvProfileDtos.Profile create(Long userId, Long freelanceId, CvProfileDtos.Details details) {
         if (profiles.countByFreelanceId(freelanceId) >= PROFILES_MAX) {
             throw new InvalidStateException("You already keep " + PROFILES_MAX + " CV profiles: delete one first");
         }
@@ -56,13 +164,15 @@ public class CvProfileService {
         profile.setFreelanceId(freelanceId);
         profile.setDefaultProfile(profiles.findFirstByFreelanceIdAndDefaultProfileTrue(freelanceId).isEmpty());
         write(profile, details);
+        stamp(profile, facts(userId, freelanceId));
         return dto(profiles.save(profile));
     }
 
     @Transactional
-    public CvProfileDtos.Profile update(Long freelanceId, Long id, CvProfileDtos.Details details) {
+    public CvProfileDtos.Profile update(Long userId, Long freelanceId, Long id, CvProfileDtos.Details details) {
         CvProfile profile = owned(freelanceId, id);
         write(profile, details);
+        stamp(profile, facts(userId, freelanceId));
         return dto(profile);
     }
 
@@ -167,7 +277,7 @@ public class CvProfileService {
      * A profile without a twin gets one, named after it; the two are linked both ways.
      */
     @Transactional
-    public CvProfileDtos.Profile saveTwin(Long freelanceId, Long id, Map<String, String> translated) {
+    public CvProfileDtos.Profile saveTwin(Long userId, Long freelanceId, Long id, Map<String, String> translated) {
         CvProfile source = owned(freelanceId, id);
         DocumentLanguage language = source.getLanguage() == DocumentLanguage.EN ? DocumentLanguage.FR : DocumentLanguage.EN;
         CvProfile twin = source.getTwinId() == null ? null : profiles.findByIdAndFreelanceId(source.getTwinId(), freelanceId).orElse(null);
@@ -188,6 +298,7 @@ public class CvProfileService {
         twin.setMissions(json(twinItems("mission", from.missions(), dossiers.missionIds(freelanceId), translated)));
         twin.setPositions(json(twinItems("position", from.positions(), career.experiences(freelanceId).stream().map(CareerDtos.Experience::id).toList(),
             translated)));
+        stamp(twin, facts(userId, freelanceId));
         twin = profiles.save(twin);
         twin.setTwinId(source.getId());
         source.setTwinId(twin.getId());
@@ -277,7 +388,7 @@ public class CvProfileService {
     static CvProfileDtos.Profile dto(CvProfile profile) {
         return new CvProfileDtos.Profile(profile.getId(), profile.getName(), profile.isDefaultProfile(), profile.getLanguage(), profile.getHeadline(),
             profile.getSummary(), profile.getSkills() == null ? null : Arrays.asList(JSON.readValue(profile.getSkills(), String[].class)),
-            read(profile.getMissions()), read(profile.getPositions()), profile.getUpdatedAt(), profile.getTwinId());
+            read(profile.getMissions()), read(profile.getPositions()), profile.getUpdatedAt(), profile.getTwinId(), List.of());
     }
 
     private static List<CvProfileDtos.Item> read(String json) {

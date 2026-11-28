@@ -77,4 +77,40 @@ class CvProfileIntegrationTest extends TwoAccountsIntegrationTest {
         ResponseEntity<Map> refused = call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "De trop"), Map.class);
         assertThat(refused.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void flagsAProfileToReviewWhenAFactItReliesOnChanges() {
+        call(alice, HttpMethod.PUT, "/users/profile", Map.of("firstName", "Alice", "lastName", "Martin", "email", aliceEmail, "skills",
+            List.of("Java", "Kafka")), Map.class);
+        long mission = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Kafka", "dailyRate", 650, "status", "WON",
+            "clientId", aliceClientId, "startDate", "2025-03-01", "techStack", "Kafka", "description", "Flux."), Map.class));
+        long profile = idOf(call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Backend", "skills", List.of("Kafka", "Java"),
+            "missions", List.of(Map.of("id", mission, "text", "Flux de paie temps réel."))), Map.class));
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/cv-profiles", null, List.class).getBody()).singleElement()
+            .satisfies(listed -> assertThat(listed).containsEntry("changes", List.of()));
+
+        // The mission's stack changes, a skill goes, a mission is won.
+        Map<String, Object> project = call(alice, HttpMethod.GET, "/projects/" + mission, null, Map.class).getBody();
+        project.remove("contractChecks");
+        project.put("techStack", "Kafka, Flink");
+        call(alice, HttpMethod.PUT, "/projects/" + mission, project, Map.class);
+        call(alice, HttpMethod.PUT, "/users/profile", Map.of("firstName", "Alice", "lastName", "Martin", "email", aliceEmail, "skills", List.of("Java")),
+            Map.class);
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Architecte", "dailyRate", 700, "status", "WON", "clientId", aliceClientId,
+            "startDate", "2026-11-02"), Map.class);
+
+        List<Map<String, Object>> changes = (List<Map<String, Object>>) ((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/cv-profiles",
+            null, List.class).getBody()).getFirst().get("changes");
+        assertThat(changes).containsExactly(Map.of("kind", "SKILL_REMOVED", "label", "Kafka", "fields", List.of()),
+            Map.of("kind", "ITEM_CHANGED", "label", "Lead Kafka", "fields", List.of("stack")),
+            Map.of("kind", "ITEM_ADDED", "label", "Architecte", "fields", List.of()));
+
+        // Reviewed: in step again.
+        assertThat(call(alice, HttpMethod.PUT, "/users/cv-profiles/" + profile + "/reviewed", null, Map.class).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/cv-profiles", null, List.class).getBody()).singleElement()
+            .satisfies(listed -> assertThat(listed).containsEntry("changes", List.of()));
+        assertThat(call(bob, HttpMethod.PUT, "/users/cv-profiles/" + profile + "/reviewed", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }

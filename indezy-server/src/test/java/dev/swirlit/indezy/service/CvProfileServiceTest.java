@@ -21,7 +21,7 @@ class CvProfileServiceTest {
 
     private static CvProfileDtos.Profile profile(String headline, List<String> skills, List<CvProfileDtos.Item> missions,
                                                  List<CvProfileDtos.Item> positions) {
-        return new CvProfileDtos.Profile(1L, "Backend", true, DocumentLanguage.FR, headline, null, skills, missions, positions, null, null);
+        return new CvProfileDtos.Profile(1L, "Backend", true, DocumentLanguage.FR, headline, null, skills, missions, positions, null, null, List.of());
     }
 
     @Test
@@ -58,5 +58,31 @@ class CvProfileServiceTest {
             .containsExactly(new CvProfileDtos.Item(10L, "Payroll flows."), new CvProfileDtos.Item(11L, null));
         assertThat(CvProfileService.twinItems("mission", List.of(new CvProfileDtos.Item(11L, "Front."), new CvProfileDtos.Item(10L, null)),
             List.of(10L, 11L), translated)).containsExactly(new CvProfileDtos.Item(11L, null), new CvProfileDtos.Item(10L, "Payroll flows."));
+    }
+
+    @Test
+    void flagsTheChangesInTheFactsAProfileReliesOn() {
+        CvProfileDtos.Facts was = new CvProfileDtos.Facts(List.of("Java", "Kafka"), List.of("CKA"), java.util.Map.of(
+            "mission-10", new CvProfileDtos.ItemFacts("Lead Kafka", "2025-03-01", null, "Kafka"),
+            "mission-11", new CvProfileDtos.ItemFacts("Dev Angular", "2023-03-01", "2024-12-20", "Angular"),
+            "position-20", new CvProfileDtos.ItemFacts("Développeuse", "2015-09-01", "2022-12-31", "Java")));
+        CvProfileDtos.Facts now = new CvProfileDtos.Facts(List.of("Java", "Rust"), List.of("CKA", "AWS SA"), java.util.Map.of(
+            "mission-10", new CvProfileDtos.ItemFacts("Lead Kafka", "2025-03-01", "2026-10-31", "Kafka, Flink"),
+            "mission-11", new CvProfileDtos.ItemFacts("Dev Angular", "2023-03-01", "2024-12-20", "Angular"),
+            "mission-12", new CvProfileDtos.ItemFacts("Architecte", "2026-11-02", null, "AWS")));
+        CvProfileDtos.Profile profile = profile(null, List.of("Kafka", "Java"), List.of(new CvProfileDtos.Item(10L, "Flux de paie."),
+            new CvProfileDtos.Item(11L, null)), List.of(new CvProfileDtos.Item(20L, "Paie.")));
+
+        assertThat(CvProfileService.changes(was, now, profile)).containsExactly(
+            new CvProfileDtos.Change(CvProfileDtos.ChangeKind.SKILL_REMOVED, "Kafka", null),
+            new CvProfileDtos.Change(CvProfileDtos.ChangeKind.SKILL_ADDED, "Rust", null),
+            new CvProfileDtos.Change(CvProfileDtos.ChangeKind.CERTIFICATION_ADDED, "AWS SA", null),
+            new CvProfileDtos.Change(CvProfileDtos.ChangeKind.ITEM_CHANGED, "Lead Kafka", List.of("dates", "stack")),
+            new CvProfileDtos.Change(CvProfileDtos.ChangeKind.ITEM_ADDED, "Architecte", null),
+            new CvProfileDtos.Change(CvProfileDtos.ChangeKind.ITEM_REMOVED, "Développeuse", null));
+        // A profile showing all as the profile says relies on nothing but the certifications.
+        assertThat(CvProfileService.changes(was, now, profile(null, null, null, null)))
+            .containsExactly(new CvProfileDtos.Change(CvProfileDtos.ChangeKind.CERTIFICATION_ADDED, "AWS SA", null));
+        assertThat(CvProfileService.changes(was, was, profile)).isEmpty();
     }
 }

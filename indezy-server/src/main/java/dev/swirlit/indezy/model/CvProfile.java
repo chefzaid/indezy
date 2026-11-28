@@ -57,6 +57,13 @@ public class CvProfile extends BaseEntity {
     @Column(name = "twin_id")
     private Long twinId;
 
+    /**
+     * The facts the wording relied on when it was last saved or reviewed, as JSON: the profile's skills and certifications,
+     * each mission's and position's title, dates and stack; compared with the profile's to flag the profile to review.
+     */
+    @Column(name = "facts", columnDefinition = "TEXT")
+    private String facts;
+
     /** The past positions shown, as {@link #missions} are. */
     @Column(name = "positions", columnDefinition = "TEXT")
     private String positions;

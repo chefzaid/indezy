@@ -38,14 +38,60 @@ public final class CvProfileDtos {
         }
     }
 
-    /** A CV profile; {@code twinId}: the same profile in the other language, or none. */
+    /**
+     * A CV profile; {@code twinId}: the same profile in the other language, or none; {@code changes}: what changed in the
+     * profile's facts since its wording was last saved or reviewed, empty when it is in step.
+     */
     public record Profile(Long id, String name, boolean isDefault, DocumentLanguage language, String headline, String summary, List<String> skills,
-                          List<Item> missions, List<Item> positions, LocalDateTime updatedAt, Long twinId) {
+                          List<Item> missions, List<Item> positions, LocalDateTime updatedAt, Long twinId, List<Change> changes) {
 
         public Profile {
             skills = skills == null ? null : List.copyOf(skills);
             missions = missions == null ? null : List.copyOf(missions);
             positions = positions == null ? null : List.copyOf(positions);
+            changes = changes == null ? List.of() : List.copyOf(changes);
+        }
+
+        public Profile with(List<Change> found) {
+            return new Profile(id, name, isDefault, language, headline, summary, skills, missions, positions, updatedAt, twinId, found);
+        }
+    }
+
+    /** What changed in a fact a profile relies on. */
+    public enum ChangeKind {
+        /** A skill the profile shows is no longer in the profile. */
+        SKILL_REMOVED,
+        /** A skill was added to the profile, that this profile does not show. */
+        SKILL_ADDED,
+        CERTIFICATION_ADDED,
+        CERTIFICATION_REMOVED,
+        /** A mission or position the profile words had its title, dates or stack changed. */
+        ITEM_CHANGED,
+        /** A mission or position the profile shows is gone. */
+        ITEM_REMOVED,
+        /** A mission was won or a position added, that this profile does not show. */
+        ITEM_ADDED
+    }
+
+    /** A change to review: its kind, what it is about ("Kafka", "Lead Java") and, for an item changed, which of its facts did. */
+    public record Change(ChangeKind kind, String label, List<String> fields) {
+
+        public Change {
+            fields = fields == null ? List.of() : List.copyOf(fields);
+        }
+    }
+
+    /** A mission's or position's facts a profile's wording relies on. */
+    public record ItemFacts(String title, String startsOn, String endsOn, String stack) {
+    }
+
+    /** The profile's facts at one time: its skills, its certifications, and its missions' and positions' facts by key. */
+    public record Facts(List<String> skills, List<String> certifications, java.util.Map<String, ItemFacts> items) {
+
+        public Facts {
+            skills = skills == null ? List.of() : List.copyOf(skills);
+            certifications = certifications == null ? List.of() : List.copyOf(certifications);
+            items = items == null ? java.util.Map.of() : java.util.Map.copyOf(items);
         }
     }
 

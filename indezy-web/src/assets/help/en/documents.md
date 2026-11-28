@@ -98,6 +98,8 @@ From a profile's menu, download its dossier named or anonymized, as a PDF or a W
 
 **Translate into English (AI)** (or French) in a profile's menu writes its twin in the other language, listed right after it and then edited on its own; translating again updates the same twin. When you download the dossier in English, the English twin is the one drawn.
 
+When a fact a profile's wording relies on changes (a mission's dates or stack, a skill removed, a new certification, a mission won that the profile does not show), the profile shows **To review** with what changed. Edit it, or click **Mark as reviewed** once it still reads right.
+
 ## Tailor your dossier to a job posting
 
 To answer a posting you received by email or found on a site the feed does not collect, without adding it to your pipeline:

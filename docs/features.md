@@ -281,6 +281,15 @@ same order, is listed right after it, and is then edited on its own; translating
 the twin's language, a profile's dossier is the twin's (`?language=EN`), and so is the plain dossier download's for the
 default profile. Deleting one leaves the other without a twin.
 
+**Facts kept in step**: a profile keeps, each time it is saved, translated or reviewed, the facts its wording relied on
+then (the profile's skills and certifications, each won mission's and past position's title, dates and stack). The list
+(`GET /api/users/cv-profiles`) gives each profile the `changes` since: a skill it shows gone from the profile or one added
+that it does not show (when it chooses its skills), a certification added or gone, a mission or position it words with
+its title, dates or stack changed, one it shows gone, or one added that it does not show (when it chooses them). The
+profile is then shown **To review** with those changes, rather than going stale or being rewritten: edited, or **Mark as
+reviewed** (`PUT /api/users/cv-profiles/{id}/reviewed`) to take the facts as they are now. What is gone is left out of
+its dossier either way.
+
 ### Experience And Education
 
 The personal information tab of **Profile** lists, under the form, the positions held before or outside Indezy and the

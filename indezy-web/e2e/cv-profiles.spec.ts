@@ -63,6 +63,23 @@ for (const language of ['en', 'fr']) {
     await expect(card.locator('[data-cv-profile="8"]')).toContainText('Backend Kafka (EN)');
     await expect(card.locator('[data-cv-profile-twin="7"]')).toContainText('Backend Kafka (EN)');
 
+    // A fact its wording relies on changed: said, then marked reviewed.
+    profiles[0] = { ...profiles[0], changes: [{ kind: 'ITEM_CHANGED', label: 'Lead Kafka', fields: ['dates'] }] };
+    let reviewed = 0;
+    await page.route(/\/api\/users\/cv-profiles\/7\/reviewed$/, route => {
+      reviewed++;
+      profiles[0] = { ...profiles[0], changes: [] };
+      return route.fulfill({ json: profiles[0] });
+    });
+    await page.reload();
+    const review = card.locator('[data-cv-profile-review="7"]');
+    await expect(review).toContainText(language === 'en' ? 'Lead Kafka: its dates changed' : 'Lead Kafka : dates modifié(s)');
+    const reviewAudit = await new AxeBuilder({ page }).include('[data-cv-profiles]').withTags(WCAG).analyze();
+    expect(reviewAudit.violations.map(violation => violation.id)).toEqual([]);
+    await review.locator('[data-cv-profile-reviewed="7"]').click();
+    await expect(review).toHaveCount(0);
+    expect(reviewed).toBe(1);
+
     const cardAudit = await new AxeBuilder({ page }).include('[data-cv-profiles]').withTags(WCAG).analyze();
     expect(cardAudit.violations.map(violation => violation.id)).toEqual([]);
   });

@@ -98,6 +98,8 @@ Depuis le menu d'un profil, téléchargez son dossier nominatif ou anonymisé, e
 
 **Traduire en EN (IA)** (ou en FR) dans le menu d'un profil écrit son jumeau dans l'autre langue, affiché juste après lui puis modifié à part ; retraduire met à jour le même jumeau. Quand vous téléchargez le dossier en anglais, c'est le jumeau anglais qui est utilisé.
 
+Quand un fait sur lequel repose la formulation d'un profil change (les dates ou la stack d'une mission, une compétence retirée, une nouvelle certification, une mission gagnée que le profil ne montre pas), le profil affiche **À revoir** avec ce qui a changé. Modifiez-le, ou cliquez sur **Marquer comme revu** s'il se lit toujours bien.
+
 ## Adapter votre dossier à une annonce
 
 Pour répondre à une annonce reçue par e-mail ou trouvée sur un site que le flux ne collecte pas, sans l'ajouter à votre pipeline :

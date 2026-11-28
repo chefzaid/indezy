@@ -20,7 +20,7 @@ describe('ProfileCvProfilesComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
 
   function create(): { component: ProfileCvProfilesComponent; element: () => HTMLElement } {
-    service = Object.assign(jasmine.createSpyObj<CvProfileService>('CvProfileService', ['list', 'dossier', 'makeDefault', 'remove', 'translate']),
+    service = Object.assign(jasmine.createSpyObj<CvProfileService>('CvProfileService', ['list', 'dossier', 'makeDefault', 'remove', 'translate', 'reviewed']),
       { changed: new Subject<void>() });
     service.list.and.returnValue(of([BACKEND]));
     dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
@@ -102,5 +102,21 @@ describe('ProfileCvProfilesComponent', () => {
     component.translate(front);
     expect(notifications.error).toHaveBeenCalledWith('ai.errors.declined');
     expect(component.translating).toBeFalse();
+  });
+
+  it('says what to review in a profile whose facts changed, and marks it reviewed', () => {
+    const { component, element } = create();
+    service.list.and.returnValue(of([{ ...BACKEND, changes: [{ kind: 'ITEM_CHANGED', label: 'Lead Kafka', fields: ['dates', 'stack'] },
+      { kind: 'SKILL_REMOVED', label: 'Kafka', fields: [] }] }]));
+    service.changed.next();
+    const review = element().querySelector('[data-cv-profile-review="3"]');
+    expect(review?.querySelectorAll('li').length).toBe(2);
+    expect(component.fields(['dates', 'stack'])).toBe('cvProfiles.fields.dates, cvProfiles.fields.stack');
+    service.reviewed.and.returnValue(of(BACKEND));
+    component.markReviewed(BACKEND);
+    expect(service.reviewed).toHaveBeenCalledWith(3);
+    service.reviewed.and.returnValue(throwError(() => new Error('down')));
+    component.markReviewed(BACKEND);
+    expect(notifications.error).toHaveBeenCalledWith('cvProfiles.saveError');
   });
 });

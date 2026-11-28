@@ -51,7 +51,7 @@ public class CvProfileTranslationAiService {
         CvProfileDtos.Wording wording = profiles.wording(userId, freelanceId, id);
         Map<String, String> translated = wording.blocks().isEmpty() ? Map.of() : translated(wording, ai.structured(userId, AiFeature.DOSSIER, SYSTEM,
             context(wording), Translation.class, MAX_TOKENS, OutputConfig.Effort.LOW));
-        return profiles.saveTwin(freelanceId, id, translated);
+        return profiles.saveTwin(userId, freelanceId, id, translated);
     }
 
     static String context(CvProfileDtos.Wording wording) {

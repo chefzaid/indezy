@@ -28,6 +28,11 @@ export class CvProfileService {
     return this.http.put<CvProfile>(`${this.url}/${id}`, details);
   }
 
+  /** The profile's wording reviewed against the facts as they are now: its changes are cleared. */
+  reviewed(id: number): Observable<CvProfile> {
+    return this.http.put<CvProfile>(`${this.url}/${id}/reviewed`, null);
+  }
+
   makeDefault(id: number): Observable<CvProfile> {
     return this.http.put<CvProfile>(`${this.url}/${id}/default`, null);
   }

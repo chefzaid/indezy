@@ -5916,7 +5916,23 @@
     "twin": "{{name}} is its twin",
     "translate": "Translate into {{language}} (AI)",
     "retranslate": "Translate its {{language}} twin again (AI)",
-    "translated": "“{{name}}” written in the other language"
+    "translated": "“{{name}}” written in the other language",
+    "toReview": "To review: facts its wording relies on changed",
+    "markReviewed": "Mark as reviewed",
+    "changes": {
+      "SKILL_REMOVED": "{{label}} is no longer in your skills",
+      "SKILL_ADDED": "{{label}} was added to your skills, not shown here",
+      "CERTIFICATION_ADDED": "New certification: {{label}}",
+      "CERTIFICATION_REMOVED": "{{label}} is no longer a valid certification",
+      "ITEM_CHANGED": "{{label}}: its {{fields}} changed",
+      "ITEM_REMOVED": "{{label}} is no longer in your profile",
+      "ITEM_ADDED": "{{label}} was added, not shown here"
+    },
+    "fields": {
+      "title": "title",
+      "dates": "dates",
+      "stack": "stack"
+    }
   },
   "billingTemplates": {
     "title": "Word templates and PDF forms",

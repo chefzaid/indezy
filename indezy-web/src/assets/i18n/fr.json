@@ -5916,7 +5916,23 @@
     "twin": "jumeau : {{name}}",
     "translate": "Traduire en {{language}} (IA)",
     "retranslate": "Retraduire son jumeau {{language}} (IA)",
-    "translated": "« {{name}} » écrit dans l'autre langue"
+    "translated": "« {{name}} » écrit dans l'autre langue",
+    "toReview": "À revoir : des faits sur lesquels repose sa formulation ont changé",
+    "markReviewed": "Marquer comme revu",
+    "changes": {
+      "SKILL_REMOVED": "{{label}} n'est plus dans vos compétences",
+      "SKILL_ADDED": "{{label}} a été ajouté à vos compétences, sans figurer ici",
+      "CERTIFICATION_ADDED": "Nouvelle certification : {{label}}",
+      "CERTIFICATION_REMOVED": "{{label}} n'est plus une certification valide",
+      "ITEM_CHANGED": "{{label}} : {{fields}} modifié(s)",
+      "ITEM_REMOVED": "{{label}} n'est plus dans votre profil",
+      "ITEM_ADDED": "{{label}} a été ajouté, sans figurer ici"
+    },
+    "fields": {
+      "title": "titre",
+      "dates": "dates",
+      "stack": "stack"
+    }
   },
   "billingTemplates": {
     "title": "Modèles Word et formulaires PDF",

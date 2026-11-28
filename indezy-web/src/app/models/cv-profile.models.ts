@@ -24,6 +24,16 @@ export interface CvProfile extends CvProfileDetails {
   updatedAt: string | null;
   /** The same profile in the other language, kept in step by Translate (AI); none without one. */
   twinId?: number | null;
+  /** What changed in the facts it relies on since it was last saved or reviewed; empty when it is in step. */
+  changes?: CvProfileChange[];
+}
+
+/** A change in a fact a CV profile relies on. */
+export interface CvProfileChange {
+  kind: 'SKILL_REMOVED' | 'SKILL_ADDED' | 'CERTIFICATION_ADDED' | 'CERTIFICATION_REMOVED' | 'ITEM_CHANGED' | 'ITEM_REMOVED' | 'ITEM_ADDED';
+  label: string | null;
+  /** For an item changed: which of "title", "dates", "stack" did. */
+  fields: string[];
 }
 
 /** A won mission or past position of the profile, to pick and word. */
