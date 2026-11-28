@@ -5970,6 +5970,31 @@
       "pdf": "Download the PDF",
       "word": "Download as Word (.docx)",
       "downloadError": "The CV could not be downloaded"
+    },
+    "leak": "Not shared: the anonymized CV still names {{names}}. Change its wording (Check this CV says where), or share it named."
+  },
+  "cvAudit": {
+    "open": "Check this CV",
+    "title": "Check “{{name}}”",
+    "pages": "About {{count}} page(s).",
+    "clean": "Nothing to point out.",
+    "severity": {
+      "ERROR": "Must fix",
+      "WARNING": "To improve",
+      "INFO": "Note"
+    },
+    "checks": {
+      "LEAK": "{{block}} names “{{detail}}”: an anonymized CV must not",
+      "WEAK_PHRASING": "{{block}}: “{{detail}}” says little; say what you did and what it changed",
+      "NO_FIGURE": "{{block}}: no figure (scale, users, gain)",
+      "DATE_GAP": "No mission or position from {{detail}}",
+      "OTHER_LANGUAGE": "{{block}} reads in another language than the CV's",
+      "MISSING_SUMMARY": "No summary",
+      "NO_SKILLS": "No skills shown",
+      "MISSING_CITY": "No city in your profile",
+      "MISSING_AVAILABILITY": "No availability date in your profile",
+      "NO_DESCRIPTION": "{{block}} has no description",
+      "LONG": "About {{detail}} pages: ESNs prefer 2 to 3"
     }
   },
   "billingTemplates": {

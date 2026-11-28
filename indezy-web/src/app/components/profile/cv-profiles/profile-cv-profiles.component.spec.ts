@@ -9,6 +9,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { CvProfileDialogComponent } from './cv-profile-dialog.component';
 import { CvShareDialogComponent } from './cv-share-dialog.component';
+import { CvAuditDialogComponent } from './cv-audit-dialog.component';
 import { ProfileCvProfilesComponent } from './profile-cv-profiles.component';
 
 const BACKEND: CvProfile = { id: 3, name: 'Backend Kafka', isDefault: true, language: 'FR', headline: null, summary: null, skills: null,
@@ -145,5 +146,11 @@ describe('ProfileCvProfilesComponent', () => {
     const { component } = create();
     component.share(BACKEND);
     expect(dialog.open).toHaveBeenCalledWith(CvShareDialogComponent, jasmine.objectContaining({ data: { profile: BACKEND } }));
+  });
+
+  it('opens the check of a profile', () => {
+    const { component } = create();
+    component.check(BACKEND);
+    expect(dialog.open).toHaveBeenCalledWith(CvAuditDialogComponent, jasmine.objectContaining({ data: { profile: BACKEND } }));
   });
 });

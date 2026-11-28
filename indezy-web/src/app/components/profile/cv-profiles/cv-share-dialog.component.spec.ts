@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { CvProfile, CvShare } from '../../../models';
 import { CvShareService } from '../../../services/cv-profile/cv-share.service';
@@ -65,5 +66,18 @@ describe('CvShareDialogComponent', () => {
     component.share();
     expect(notifications.error).toHaveBeenCalledWith('cvShares.createError');
     expect(component.sharing).toBeFalse();
+  });
+
+  it('says which names keep an anonymized CV from being shared', () => {
+    const { component, element, detect } = create();
+    service.create.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409,
+      error: { message: 'The anonymized CV still names Alice Corp, Julie Durand: change its wording before sharing it' } })));
+    component.recipient = 'ESN';
+    component.layout = 'ANONYMOUS';
+    component.share();
+    expect(component.leak).toBe('Alice Corp, Julie Durand');
+    expect(notifications.error).not.toHaveBeenCalled();
+    detect();
+    expect(element.querySelector('[data-cv-share-leak]')).not.toBeNull();
   });
 });

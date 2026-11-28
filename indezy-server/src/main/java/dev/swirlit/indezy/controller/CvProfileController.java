@@ -6,6 +6,7 @@ import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.DossierFormat;
 import dev.swirlit.indezy.model.enums.DossierLayout;
 import dev.swirlit.indezy.service.AccessGuard;
+import dev.swirlit.indezy.service.CvAuditService;
 import dev.swirlit.indezy.service.CvProfileService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +36,7 @@ public class CvProfileController {
     private final CvProfileService profiles;
     private final AccessGuard accessGuard;
     private final CvProfileTranslationAiService translations;
+    private final CvAuditService audits;
 
     @Operation(summary = "The CV profiles, the oldest first, each with what changed in the facts it relies on since it was last saved or reviewed")
     @GetMapping("/users/cv-profiles")
@@ -84,6 +86,14 @@ public class CvProfileController {
     @PutMapping("/users/cv-profiles/{id}/archived")
     public CvProfileDtos.Profile archive(@PathVariable Long id, @RequestBody Archiving archiving) {
         return profiles.archive(accessGuard.requireWorkspace(null), id, archiving.archived());
+    }
+
+    @Operation(summary = "Check a CV profile's dossier before it goes out, without AI",
+        description = "Anonymized: no client, contact, employer, nor the freelancer's own name or contact named; then weak phrasing, missions " +
+            "without a figure, gaps, blocks in the other language, missing essentials and length")
+    @GetMapping("/users/cv-profiles/{id}/audit")
+    public CvAuditService.Audit audit(@PathVariable Long id, @RequestParam(defaultValue = "ANONYMOUS") DossierLayout layout) {
+        return audits.audit(SecurityUtils.getCurrentUserId(), accessGuard.requireWorkspace(null), id, layout);
     }
 
     @Operation(summary = "Make a CV profile the default, drawn wherever none is chosen")

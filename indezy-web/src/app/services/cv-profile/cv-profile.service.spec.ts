@@ -26,6 +26,8 @@ describe('CvProfileService', () => {
     expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles/3/archived')).request.body).toEqual({ archived: true });
     service.makeDefault(3).subscribe();
     http.expectOne(call => call.url.endsWith('/users/cv-profiles/3/default'));
+    service.audit(3, 'ANONYMOUS').subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles/3/audit')).request.params.get('layout')).toBe('ANONYMOUS');
     service.translate(3).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/users/cv-profiles/3/translate')).request.method).toBe('POST');
     service.remove(3).subscribe();

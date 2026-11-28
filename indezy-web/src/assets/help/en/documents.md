@@ -104,6 +104,8 @@ A profile's menu also has **Duplicate**, to start a new one from it, and **Archi
 
 **Share by link** in a profile's menu makes a link for an ESN or a recruiter: say who it is for, named or anonymized, and for how many days, then copy the link, shown this once. Whoever opens it downloads this CV as a PDF or a Word document without an account. The same dialog lists the profile's links with how often each was opened and downloaded, and **Revoke** closes one at once.
 
+**Check this CV** in a profile's menu checks it before it goes out, anonymized or named: a client, contact, employer or your own name left in an anonymized CV first (an anonymized link cannot be made while one is), then weak phrasing, missions without a figure, gaps between missions, text in the other language, what is missing (summary, city, availability) and its length.
+
 ## Tailor your dossier to a job posting
 
 To answer a posting you received by email or found on a site the feed does not collect, without adding it to your pipeline:

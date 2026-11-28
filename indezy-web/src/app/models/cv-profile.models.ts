@@ -84,3 +84,19 @@ export interface PublicCvShare {
   layout: 'NAMED' | 'ANONYMOUS';
   expiresAt: string;
 }
+
+/** One finding of a CV's audit. */
+export interface CvAuditFinding {
+  check: 'LEAK' | 'WEAK_PHRASING' | 'NO_FIGURE' | 'DATE_GAP' | 'OTHER_LANGUAGE' | 'MISSING_SUMMARY' | 'NO_SKILLS' | 'MISSING_CITY'
+    | 'MISSING_AVAILABILITY' | 'NO_DESCRIPTION' | 'LONG';
+  severity: 'ERROR' | 'WARNING' | 'INFO';
+  block: string | null;
+  detail: string | null;
+}
+
+/** A CV's audit: its estimated length and its findings, the most serious first. */
+export interface CvAudit {
+  pages: number;
+  findings: CvAuditFinding[];
+}
+

@@ -94,6 +94,18 @@ for (const language of ['en', 'fr']) {
     await card.locator('[data-cv-profile-restore="8"]').click();
     await expect(card.locator('[data-cv-profile="8"]')).toBeVisible();
 
+    // Checked before it goes out: an anonymized CV that still names its client says so.
+    await page.route(/\/api\/users\/cv-profiles\/7\/audit/, route => route.fulfill({ json: { pages: 2, findings: [
+      { check: 'LEAK', severity: 'ERROR', block: 'Lead Kafka', detail: 'Acme' }, { check: 'NO_FIGURE', severity: 'INFO', block: 'Lead Kafka', detail: null }] } }));
+    await card.locator('[data-cv-profile-menu="7"]').click();
+    await page.locator('[data-cv-profile-audit]').click();
+    const auditDialog = page.locator('mat-dialog-container');
+    await expect(auditDialog.locator('[data-cv-audit-finding="LEAK"]')).toContainText('Acme');
+    const checkAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
+    expect(checkAudit.violations.map(violation => violation.id)).toEqual([]);
+    await auditDialog.getByRole('button', { name: language === 'en' ? 'Close' : 'Fermer' }).click();
+    await expect(auditDialog).toHaveCount(0);
+
     // Shared by a link of its own, shown once.
     const shared: unknown[] = [];
     await page.route(/\/api\/users\/cv-shares$/, route => {

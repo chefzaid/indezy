@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Vérifier un CV avant son envoi
+
+**Vérifier ce CV** repère un nom de client ou de contact resté dans un CV anonymisé, les formulations faibles, les missions sans chiffre, les trous et l'essentiel manquant ; un lien anonymisé n'est pas créé tant qu'un nom reste. Voir [Documents](/help/documents).
+
 ### Partager un profil de CV par lien
 
 Envoyez à une ESN un lien vers l'un de vos profils de CV, nominatif ou anonymisé, valable quelques jours : il s'ouvre et se télécharge sans compte, vous voyez chaque ouverture et téléchargement, et pouvez le révoquer. Voir [Documents](/help/documents).

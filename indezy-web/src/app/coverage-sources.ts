@@ -175,6 +175,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/profile/career/profile-career.component',
   'components/profile/cv-card/profile-cv-card.component',
   'components/profile/cv-import/profile-cv-import-dialog.component',
+  'components/profile/cv-profiles/cv-audit-dialog.component',
   'components/profile/cv-profiles/cv-profile-dialog.component',
   'components/profile/cv-profiles/cv-share-dialog.component',
   'components/profile/cv-profiles/profile-cv-profiles.component',

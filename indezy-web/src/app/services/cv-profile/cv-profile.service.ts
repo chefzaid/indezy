@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CvProfile, CvProfileDetails, CvProfileSources, DocumentLanguage } from '../../models';
+import { CvAudit, CvProfile, CvProfileDetails, CvProfileSources, DocumentLanguage } from '../../models';
 
 /** The workspace's CV profiles (see docs/features.md#cv-profiles). */
 @Injectable({ providedIn: 'root' })
@@ -45,6 +45,11 @@ export class CvProfileService {
 
   makeDefault(id: number): Observable<CvProfile> {
     return this.http.put<CvProfile>(`${this.url}/${id}/default`, null);
+  }
+
+  /** The profile's dossier checked before it goes out, named or anonymized; no AI. */
+  audit(id: number, layout: 'NAMED' | 'ANONYMOUS'): Observable<CvAudit> {
+    return this.http.get<CvAudit>(`${this.url}/${id}/audit`, { params: { layout } });
   }
 
   /** Writes (or rewrites) the profile's twin in the other language with AI. */

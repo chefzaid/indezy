@@ -75,4 +75,32 @@ class CvShareIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(exchange("/public/cv-shares", HttpMethod.GET, linked(other), String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.GET, "/users/cv-shares", null, List.class).getBody()).isEmpty();
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void refusesToShareAnAnonymizedCvThatStillNamesAClientAndSaysWhere() {
+        call(alice, HttpMethod.PUT, "/users/profile", Map.of("firstName", "Alice", "lastName", "Martin", "email", aliceEmail, "skills",
+            List.of("Java")), Map.class);
+        long mission = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Kafka", "dailyRate", 650, "status", "WON",
+            "clientId", aliceClientId, "startDate", "2025-03-01", "techStack", "Kafka", "description", "Flux."), Map.class));
+        long profile = idOf(call(alice, HttpMethod.POST, "/users/cv-profiles", Map.of("name", "Backend", "missions",
+            List.of(Map.of("id", mission, "text", "Flux de paie pour Alice Corp, avec 12 équipes."))), Map.class));
+
+        Map<String, Object> audit = call(alice, HttpMethod.GET, "/users/cv-profiles/" + profile + "/audit", null, Map.class).getBody();
+        assertThat((List<Map<String, Object>>) audit.get("findings")).first()
+            .satisfies(finding -> assertThat(finding).containsEntry("check", "LEAK").containsEntry("severity", "ERROR")
+                .containsEntry("block", "Lead Kafka").containsEntry("detail", "Alice Corp"));
+        // Named, the client is meant to be there.
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/cv-profiles/" + profile + "/audit?layout=NAMED", null, Map.class)
+            .getBody().get("findings")).noneSatisfy(finding -> assertThat(finding).containsEntry("check", "LEAK"));
+
+        ResponseEntity<Map> refused = call(alice, HttpMethod.POST, "/users/cv-shares", Map.of("profileId", profile, "recipient", "ESN",
+            "layout", "ANONYMOUS"), Map.class);
+        assertThat(refused.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat((String) refused.getBody().get("message")).contains("still names Alice Corp");
+        assertThat(call(alice, HttpMethod.POST, "/users/cv-shares", Map.of("profileId", profile, "recipient", "ESN", "layout", "NAMED"), Map.class)
+            .getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(call(bob, HttpMethod.GET, "/users/cv-profiles/" + profile + "/audit", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }

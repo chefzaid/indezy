@@ -305,6 +305,15 @@ from the profile as it is then. Each opening and download is counted on the link
 link** dialog (`GET /api/users/cv-shares`), and **Revoke** (`PUT /api/users/cv-shares/{id}/revoke`) closes it for good;
 an unknown, expired or revoked link answers 404. Deleting a profile deletes its links.
 
+**Check this CV** (`GET /api/users/cv-profiles/{id}/audit?layout=ANONYMOUS|NAMED`, no AI) checks the profile's dossier as
+drawn, the most serious finding first: for an anonymized one, any workspace client, contact (full name or last name),
+employer, or the freelancer's own name or contact detail still named in its text (accents and case aside, whole words
+only) must be fixed; then weak phrasing ("participé à", "worked on"), the 5 latest missions without a figure, gaps of
+more than 3 months between the missions and positions, a block of six words or more reading clearly in the other
+language, a missing summary, skills, city or availability date, a mission without description, and a dossier of more
+than 3 pages (about 2,800 characters a page). An anonymized link is refused (409) while the check finds a name in it,
+the dialog saying which.
+
 ### Experience And Education
 
 The personal information tab of **Profile** lists, under the form, the positions held before or outside Indezy and the

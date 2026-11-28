@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Check a CV before it goes out
+
+**Check this CV** finds a client or contact name left in an anonymized CV, weak phrasing, missions without a figure, gaps and missing essentials; an anonymized link is not made while a name is left. See [Documents](/help/documents).
+
 ### Share a CV profile by link
 
 Send an ESN a link of its own to one of your CV profiles, named or anonymized, valid a few days: it opens and downloads without an account, you see each opening and download, and you can revoke it. See [Documents](/help/documents).

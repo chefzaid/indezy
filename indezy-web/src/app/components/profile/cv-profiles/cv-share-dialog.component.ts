@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { FormsModule } from '@angular/forms';
@@ -55,6 +56,9 @@ import { NotificationService } from '../../../services/notification/notification
           </mat-form-field>
         </div>
       }
+      @if (leak) {
+        <p class="leak" role="alert" data-cv-share-leak>{{ 'cvShares.leak' | translate:{ names: leak } }}</p>
+      }
       @if (shares.length) {
         <h3>{{ 'cvShares.existing' | translate }}</h3>
         <ul class="shares">
@@ -99,6 +103,7 @@ import { NotificationService } from '../../../services/notification/notification
     .link p { margin: 0; }
     h3 { margin: 16px 0 4px; font-size: 1rem; }
     .shares { list-style: none; margin: 0; padding: 0; }
+    .leak { color: var(--mat-sys-error); }
     .shares li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--mat-sys-outline-variant); }
     .shares .text { flex: 1; display: flex; flex-direction: column; min-width: 0; }
   `],
@@ -117,6 +122,8 @@ export class CvShareDialogComponent {
   days = 7;
   sharing = false;
   shares: CvShare[] = [];
+  /** The names an anonymized CV still gives, when it was refused for them. */
+  leak: string | null = null;
   /** The link just made, shown this once. */
   link: { recipient: string; url: string } | null = null;
 
@@ -146,9 +153,14 @@ export class CvShareDialogComponent {
         this.link = { recipient: created.share.recipient, url: `${globalThis.location.origin}/shared-cv#${created.token}` };
         this.load();
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.sharing = false;
-        this.notifications.error('cvShares.createError');
+        // An anonymized CV that still names a client or a contact is not shared: the audit says where.
+        const message: string = error.error?.message ?? '';
+        this.leak = message.startsWith('The anonymized CV still names') ? message.replace(/^The anonymized CV still names (.*): .*$/, '$1') : null;
+        if (!this.leak) {
+          this.notifications.error('cvShares.createError');
+        }
         this.changes.markForCheck();
       }
     });

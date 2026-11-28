@@ -35,6 +35,7 @@ public class CvShareService {
 
     private final CvShareRepository shares;
     private final CvProfileService profiles;
+    private final CvAuditService audits;
     private final Clock clock;
 
     @Transactional(readOnly = true)
@@ -51,13 +52,21 @@ public class CvShareService {
         if (list(freelanceId).stream().filter(CvShareDtos.Share::active).count() >= MAX_ACTIVE) {
             throw new InvalidStateException("Up to " + MAX_ACTIVE + " links can be open at once: revoke one first");
         }
+        DossierLayout layout = request.layout() == null ? DossierLayout.NAMED : request.layout();
+        if (layout == DossierLayout.ANONYMOUS) {
+            List<String> leaks = audits.audit(userId, freelanceId, profile.id(), layout).findings().stream()
+                .filter(finding -> finding.check() == CvAuditService.Check.LEAK).map(CvAuditService.Finding::detail).toList();
+            if (!leaks.isEmpty()) {
+                throw new InvalidStateException("The anonymized CV still names " + String.join(", ", leaks) + ": change its wording before sharing it");
+            }
+        }
         String token = Tokens.random();
         CvShare share = new CvShare();
         share.setFreelanceId(freelanceId);
         share.setUserId(userId);
         share.setProfileId(profile.id());
         share.setRecipient(request.recipient().strip());
-        share.setLayout(request.layout() == null ? DossierLayout.NAMED : request.layout());
+        share.setLayout(layout);
         share.setTokenHash(Tokens.sha256Hex(token));
         share.setExpiresAt(clock.instant().plus(Duration.ofDays(request.days() == null ? DEFAULT_DAYS : request.days())));
         return new CvShareDtos.CreatedShare(dto(shares.save(share), Map.of(profile.id(), profile.name())), token);

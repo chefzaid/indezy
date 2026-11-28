@@ -16,6 +16,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { saveBlob } from '../../../shared/utils/download-file';
 import { CvProfileDialogComponent } from './cv-profile-dialog.component';
 import { CvShareDialogComponent } from './cv-share-dialog.component';
+import { CvAuditDialogComponent } from './cv-audit-dialog.component';
 
 /**
  * The CV profiles (see docs/features.md#cv-profiles): named positionings of the profile ("Java / Cloud backend", "Tech
@@ -70,6 +71,9 @@ import { CvShareDialogComponent } from './cv-share-dialog.component';
               </button>
             }
             <mat-divider></mat-divider>
+            <button mat-menu-item type="button" (click)="check(profile)" data-cv-profile-audit>
+              <mat-icon>fact_check</mat-icon><span>{{ 'cvAudit.open' | translate }}</span>
+            </button>
             <button mat-menu-item type="button" (click)="share(profile)" data-cv-profile-share>
               <mat-icon>link</mat-icon><span>{{ 'cvShares.open' | translate }}</span>
             </button>
@@ -160,6 +164,11 @@ export class ProfileCvProfilesComponent implements OnInit {
 
   get archived(): CvProfile[] {
     return this.profiles.filter(profile => profile.archived);
+  }
+
+  /** Checks the profile's dossier before it goes out. */
+  check(profile: CvProfile): void {
+    this.dialog.open(CvAuditDialogComponent, { data: { profile }, width: '600px', maxWidth: '95vw' });
   }
 
   /** Shares the profile through a link of its own, or revokes one of its links. */
