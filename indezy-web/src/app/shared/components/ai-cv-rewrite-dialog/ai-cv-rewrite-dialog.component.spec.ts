@@ -3,11 +3,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { TranslateModule } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
-import { AiCvRewrite, ProfileCv } from '../../../models';
+import { Subject, of, throwError } from 'rxjs';
+import { AiCvRewrite, CvProfile, ProfileCv } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ProfileCvService } from '../../../services/profile-cv/profile-cv.service';
+import { CvProfileService } from '../../../services/cv-profile/cv-profile.service';
 import { AiCvRewriteDialogComponent, CvReviewData, ReviewBlock } from './ai-cv-rewrite-dialog.component';
 
 const REWRITE: AiCvRewrite = {
@@ -24,16 +25,18 @@ describe('AiCvRewriteDialogComponent', () => {
   let ai: jasmine.SpyObj<AiService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let dialogRef: jasmine.SpyObj<MatDialogRef<AiCvRewriteDialogComponent, boolean>>;
+  let cvProfiles: jasmine.SpyObj<CvProfileService> & { changed: Subject<void> };
 
   function create(data: CvReviewData | null = null, cv: ProfileCv | null = null): { component: AiCvRewriteDialogComponent; element: () => HTMLElement } {
     ai = jasmine.createSpyObj('AiService', ['rewriteCv', 'rewrittenCv', 'approveCv', 'refineCv', 'cvQuestions']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    cvProfiles = Object.assign(jasmine.createSpyObj<CvProfileService>('CvProfileService', ['create']), { changed: new Subject<void>() });
     TestBed.configureTestingModule({
       imports: [AiCvRewriteDialogComponent, TranslateModule.forRoot()],
       providers: [{ provide: AiService, useValue: ai }, { provide: NotificationService, useValue: notifications },
         { provide: MatDialogRef, useValue: dialogRef }, { provide: MAT_DIALOG_DATA, useValue: data },
-        { provide: ProfileCvService, useValue: { info: () => of(cv) } }]
+        { provide: ProfileCvService, useValue: { info: () => of(cv) } }, { provide: CvProfileService, useValue: cvProfiles }]
     });
     const fixture = TestBed.createComponent(AiCvRewriteDialogComponent);
     fixture.detectChanges();
@@ -272,5 +275,35 @@ describe('AiCvRewriteDialogComponent', () => {
   it('offers no file without one kept', () => {
     const { element } = create();
     expect(element().querySelector('[data-ai-cv-from-file]')).toBeNull();
+  });
+
+  it('saves the review as a CV profile, every mission and position in its order with the wording kept', () => {
+    const { component } = create();
+    ai.rewriteCv.and.returnValue(of({ ...REWRITE, missions: [{ ...REWRITE.missions[0], id: 10 }, { ...REWRITE.missions[1], id: 11 }] }));
+    component.positioning = 'Lead Java';
+    component.start();
+    expect(component.profileName).toBe('Lead Java');
+    block(component, 'position-1').keep = false;
+    const changed = jasmine.createSpy('changed');
+    cvProfiles.changed.subscribe(changed);
+    cvProfiles.create.and.returnValue(of({ id: 1 } as CvProfile));
+
+    component.saveProfile();
+
+    expect(cvProfiles.create).toHaveBeenCalledWith({ name: 'Lead Java', language: 'FR', headline: 'Lead Java / Kafka', summary: null,
+      skills: ['Kafka', 'Java'], missions: [{ id: 10, text: 'Migration du SI vers Kafka.' }, { id: 11, text: null }], positions: null });
+    expect(notifications.success).toHaveBeenCalledWith('ai.cv.profileSaved', undefined, { name: 'Lead Java' });
+    expect(changed).toHaveBeenCalled();
+  });
+
+  it('says when the CV profile could not be saved', () => {
+    const { component } = create();
+    ai.rewriteCv.and.returnValue(of(REWRITE));
+    component.start();
+    component.profileName = 'Backend';
+    cvProfiles.create.and.returnValue(throwError(() => new Error('full')));
+    component.saveProfile();
+    expect(notifications.error).toHaveBeenCalledWith('cvProfiles.saveError');
+    expect(component.savingProfile).toBeFalse();
   });
 });

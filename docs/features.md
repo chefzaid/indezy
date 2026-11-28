@@ -257,6 +257,22 @@ line kept), for the ESNs that paste it into their own template: **Word (.docx), 
 reviewed dossiers of **Rewrite my CV (AI)** and the tailored ones download as Word too (`POST /api/ai/cv/pdf?format=DOCX`). The **Tailored dossier
 (AI)** on an opportunity's page and **Rewrite my CV (AI)** on the profile are the AI versions (see [AI Features](#ai-features)).
 
+### CV Profiles
+
+A few named positionings of the same profile ("Java / Cloud backend", "Tech Lead", "English / International"), kept
+under **CV profiles** on the profile's personal information, 20 at most per workspace (`/api/users/cv-profiles`). A
+profile holds only wording and choices: a name, a language, a headline and a summary (the profile's when left empty),
+which skills show and in what order, which [won missions and past positions](#experience-and-education) show, in what
+order and with what wording of their own. The facts (dates, clients, roles, stacks, certifications, education) are
+always read from the profile when its [dossier](#dossier-de-competences) is drawn, so a fact fixed once is right in
+every profile; a skill, mission or position since removed from the profile is left out. Each downloads named or
+anonymized, as a PDF or a Word document, in its language (`GET /api/users/cv-profiles/{id}/dossier`). The first one
+is the **default**, changeable (`PUT /api/users/cv-profiles/{id}/default`); the default draws the plain **Dossier de
+compétences** download too, and when it is deleted the oldest one left takes its place. `GET /api/users/cv-profiles/sources`
+gives what a profile is written from. **Save as a CV profile** in the review of **Rewrite my CV (AI)** keeps the review
+as a profile: its headline, summary and skills order kept, every mission and position shown with the rewritten wording
+where it was kept. Profiles are part of the data export and go with the account.
+
 ### Experience And Education
 
 The personal information tab of **Profile** lists, under the form, the positions held before or outside Indezy and the

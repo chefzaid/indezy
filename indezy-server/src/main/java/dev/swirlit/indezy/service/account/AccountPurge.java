@@ -35,7 +35,7 @@ public class AccountPurge {
         "invoice_counters", "activity_reports", "quote_lines", "quotes", "quote_counters", "expenses", "testimonials", "projects",
         "pipeline_template_steps", "pipeline_templates", "contacts", "clients", "sources", "seasons", "email_templates",
         "offer_board_visits", "offer_publisher_blocks", "offer_site_exclusions", "offer_suggestion_dismissals",
-        "saved_offer_searches", "trainings", "profile_experiences", "profile_educations", "profile_cvs", "booking_windows", "bookings", "booking_pages", "compliance_pack_documents",
+        "saved_offer_searches", "trainings", "profile_experiences", "profile_educations", "profile_cvs", "cv_profiles", "booking_windows", "bookings", "booking_pages", "compliance_pack_documents",
         "compliance_packs", "compliance_documents", "document_logos", "document_terms_files", "document_font_files", "document_templates", "document_letterheads",
         "freelances", "api_token_scopes", "api_tokens", "account_sessions",
         "account_events", "user_skills", "user_skill_details", "user_languages", "users");
@@ -189,7 +189,8 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM booking_windows WHERE page_id IN (SELECT id FROM booking_pages WHERE freelance_id = ?)", f);
         rows += jdbc.update("DELETE FROM compliance_pack_documents WHERE pack_id IN (SELECT id FROM compliance_packs WHERE freelance_id = ?)", f);
         for (String table : List.of("clients", "sources", "seasons", "email_templates", "offer_board_visits", "offer_publisher_blocks",
-            "offer_site_exclusions", "offer_suggestion_dismissals", "saved_offer_searches", "trainings", "profile_experiences", "profile_educations", "profile_cvs", "bookings", "booking_pages",
+            "offer_site_exclusions", "offer_suggestion_dismissals", "saved_offer_searches", "trainings", "profile_experiences", "profile_educations", "profile_cvs",
+            "cv_profiles", "bookings", "booking_pages",
             "compliance_packs", "compliance_documents", "document_logos", "document_terms_files", "document_font_files", "document_templates", "document_letterheads")) {
             rows += jdbc.update("DELETE FROM " + table + " WHERE freelance_id = ?", f);
         }

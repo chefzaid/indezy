@@ -19,6 +19,7 @@ import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-i
 import { ProfileCareerComponent } from './career/profile-career.component';
 import { BillingTemplatesComponent } from './billing-templates/billing-templates.component';
 import { ProfileCvCardComponent } from './cv-card/profile-cv-card.component';
+import { ProfileCvProfilesComponent } from './cv-profiles/profile-cv-profiles.component';
 import { BlockedPublishersComponent } from './blocked-publishers/blocked-publishers.component';
 import { EmailTemplatesSettingsComponent } from './email-templates-settings/email-templates-settings.component';
 import { LANGUAGE_STORAGE_KEY, fromIsoDate, getSavedLanguage, toIsoDate } from '../../shared/locale/app-locale';
@@ -51,7 +52,7 @@ const PROFILE_TABS_BEFORE_NETWORK = 7;
     imports: [AiSettingsComponent, InboxWatcherComponent, DossierButtonComponent, CvRewriteButtonComponent, PageHeaderComponent,
     ProfileDataImportComponent, ProfilePublicPageComponent, ProfileNetworkComponent, ProfilePrivacyComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
     ProfileWebhooksComponent, ProfileAccountDeletionComponent,
-    ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent, ProfileCareerComponent, ProfileCvCardComponent, BillingTemplatesComponent,
+    ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent, ProfileCareerComponent, ProfileCvCardComponent, ProfileCvProfilesComponent, BillingTemplatesComponent,
     BlockedPublishersComponent, EmailTemplatesSettingsComponent, ReactiveFormsModule, FormsModule, TranslateModule,
     MatCardModule, MatButtonModule, MatIconModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatSlideToggleModule, MatProgressSpinnerModule

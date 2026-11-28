@@ -85,6 +85,17 @@ Il reprend votre nom et votre titre, votre ville, vos coordonnées (version nomi
 
 > **Astuce :** complétez la description et la stack de vos missions gagnées : ce sont elles qui remplissent le dossier.
 
+## Garder des profils de CV
+
+Les **Profils de CV**, sur la page Profil sous votre CV conservé, sont quelques positionnements du même profil : backend Java, Tech Lead, anglais pour les clients internationaux…
+
+1. Cliquez sur **Nouveau profil de CV** et nommez-le.
+2. Choisissez sa langue, et rédigez son titre et son résumé, ou laissez-les vides pour garder ceux de votre profil.
+3. Décochez les compétences, missions et postes passés qu'il écarte, ordonnez le reste avec les flèches, et formulez une mission ou un poste pour ce profil si vous le souhaitez.
+4. Cliquez sur **Enregistrer**.
+
+Depuis le menu d'un profil, téléchargez son dossier nominatif ou anonymisé, en PDF ou en Word, ou **Mettre par défaut** : le profil par défaut est celui que **Dossier de compétences** télécharge. Les dates, clients et stacks viennent toujours de votre profil : en corriger un le corrige dans chaque profil. Dans la vérification de **Réécrire mon CV (IA)**, **Enregistrer comme profil de CV** garde la réécriture comme profil.
+
 ## Adapter votre dossier à une annonce
 
 Pour répondre à une annonce reçue par e-mail ou trouvée sur un site que le flux ne collecte pas, sans l'ajouter à votre pipeline :

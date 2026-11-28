@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### CV profiles
+
+Keep a few positionings of your profile, each with its own headline, summary, skills and missions, downloaded as its own dossier; the default one is what **Dossier de compétences** downloads, and a CV rewritten by AI can be saved as one. See [Documents](/help/documents).
+
 ### Rewrite your CV with the details of your kept CV file
 
 When your profile keeps a CV file richer than your profile, **Rewrite my CV (AI)** and **Tailor to a job posting (AI)…** can bring in what it states about your missions and positions, your name, contact details, clients and employers taken out of it first. See [Documents](/help/documents).

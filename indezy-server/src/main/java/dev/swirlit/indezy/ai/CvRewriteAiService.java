@@ -165,6 +165,17 @@ public class CvRewriteAiService {
             return new CvRewrite(headline, summary, skillsBefore, skills, missions, positions, covered, fileText);
         }
 
+        /** The won missions with their opportunity's id, given in the dossier's order. */
+        CvRewrite withMissionIds(List<Long> ids) {
+            List<Item> identified = new ArrayList<>();
+            for (int index = 0; index < missions.size(); index++) {
+                Item item = missions.get(index);
+                identified.add(new Item(item.number(), index < ids.size() ? ids.get(index) : item.id(), item.title(), item.before(), item.after(),
+                    item.stack()));
+            }
+            return new CvRewrite(headline, summary, skillsBefore, skills, identified, positions, coverage, fileText);
+        }
+
         CvRewrite withFile(String text) {
             return new CvRewrite(headline, summary, skillsBefore, skills, missions, positions, coverage, text);
         }
@@ -307,7 +318,7 @@ public class CvRewriteAiService {
         String file = fromFile ? fileText(userId, freelanceId) : null;
         Rewriting rewriting = ai.structured(userId, AiFeature.DOSSIER, SYSTEM, context(dossier, positioning, style, language) + fileContext(file),
             Rewriting.class, MAX_TOKENS, OutputConfig.Effort.LOW);
-        return review(dossier, experiences, rewriting).withFile(file);
+        return review(dossier, experiences, rewriting).withFile(file).withMissionIds(dossiers.missionIds(freelanceId));
     }
 
     /**

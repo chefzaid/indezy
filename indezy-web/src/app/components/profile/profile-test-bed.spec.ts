@@ -15,6 +15,7 @@ import { NotificationService } from '../../services/notification/notification.se
 import { PublicProfileService } from '../../services/public-profile/public-profile.service';
 import { AccountSecurityService } from '../../services/account-security/account-security.service';
 import { ProfileCvService } from '../../services/profile-cv/profile-cv.service';
+import { CvProfileService } from '../../services/cv-profile/cv-profile.service';
 import { CareerService } from '../../services/career/career.service';
 import { WebhookService } from '../../services/webhook/webhook.service';
 import { UserManagementService } from '../../services/user-management/user-management.service';
@@ -75,6 +76,7 @@ export function profileTestBed(): ProfileTestBed {
           { provide: AiService, useValue: { status: () => NEVER, inboxWatcher: () => of({ available: false, address: null, recent: [] }) } },
           { provide: CareerService, useValue: { experiences: () => of([]), educations: () => of([]), changed: NEVER } },
           { provide: ProfileCvService, useValue: { info: () => of(null), changed: NEVER } },
+          { provide: CvProfileService, useValue: { list: () => of([]), changed: NEVER } },
           { provide: TestimonialService, useValue: { list: () => of([]) } },
           { provide: ContactService, useValue: { getForCurrentFreelance: () => of([]) } },
           { provide: NetworkService, useValue: { membership: () => of({ joined: false, handle: 'john', card: null, privateCard: false,

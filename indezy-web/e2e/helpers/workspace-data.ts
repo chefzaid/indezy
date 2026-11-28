@@ -27,6 +27,7 @@ export async function mockWorkspaceData(page: Page, language: string): Promise<v
         completedSteps: 0, failedSteps: 0 }],
       OFFER: [], LOST: [], WITHDRAWN: [], WON: [] } }],
     [/\/api\/projects\/by-freelance\/1$/, [project, other]],
+    [/\/api\/users\/cv-profiles$/, []],
     [/\/api\/projects\/42$/, project],
     [/\/api\/interview-steps\/by-project\/42\/ordered$/, ['TO_PLAN', 'PLANNED', 'CANCELED', 'WAITING_FEEDBACK', 'VALIDATED',
       'FAILED'].map((status, i) => ({ id: i + 1, title: `Step ${i + 1}`, status, date: '2026-11-03T10:00:00', projectId: 42 }))],

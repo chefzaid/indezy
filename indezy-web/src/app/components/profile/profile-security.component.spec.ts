@@ -10,6 +10,7 @@ import { NEVER, of, throwError } from 'rxjs';
 import { UserNotificationSettings, UserPreferences, UserProfile } from '../../models/user-management.models';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProfileCvService } from '../../services/profile-cv/profile-cv.service';
+import { CvProfileService } from '../../services/cv-profile/cv-profile.service';
 import { CareerService } from '../../services/career/career.service';
 import { PublicProfileService } from '../../services/public-profile/public-profile.service';
 import { WebhookService } from '../../services/webhook/webhook.service';
@@ -61,6 +62,7 @@ describe('ProfileComponent security', () => {
         { provide: PublicProfileService, useValue: { settings: () => of({ enabled: false, slug: null }) } },
         { provide: CareerService, useValue: { experiences: () => of([]), educations: () => of([]), changed: NEVER } },
           { provide: ProfileCvService, useValue: { info: () => of(null), changed: NEVER } },
+          { provide: CvProfileService, useValue: { list: () => of([]), changed: NEVER } },
         { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }),
           apiTokens: () => of([]) } },
         { provide: WebhookService, useValue: { list: () => of([]) } },

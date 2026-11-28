@@ -138,6 +138,17 @@
           }
         </ng-template>
       </mat-menu>
+      @if (!tailored) {
+        <div class="save-profile">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ 'ai.cv.profileName' | translate }}</mat-label>
+            <input matInput [(ngModel)]="profileName" maxlength="80" [placeholder]="'cvProfiles.nameHint' | translate" data-ai-cv-profile-name>
+          </mat-form-field>
+          <button mat-stroked-button type="button" (click)="saveProfile()" [disabled]="!profileName.trim() || savingProfile" data-ai-cv-save-profile>
+            <mat-icon>bookmark_add</mat-icon>{{ 'ai.cv.saveProfile' | translate }}
+          </button>
+        </div>
+      }
       <p class="disclaimer">{{ 'ai.disclaimer' | translate }}</p>
     </section>
   } @else {

@@ -14,7 +14,7 @@ for (const language of ['en', 'fr']) {
         headline: { before: 'Développeur Java', after: 'Lead Java / Kafka' },
         summary: { before: 'Dix ans de Java.', after: 'Expert Java et Kafka, dix ans de SI bancaires.' },
         skillsBefore: ['Java', 'Kafka'], skills: ['Kafka', 'Java'],
-        missions: [{ number: 1, id: null, title: 'Lead Java', before: 'Migration vers Kafka.', after: 'Migration du SI vers Kafka.' }],
+        missions: [{ number: 1, id: 42, title: 'Lead Java', before: 'Migration vers Kafka.', after: 'Migration du SI vers Kafka.' }],
         positions: [{ number: 1, id: 70, title: 'Développeur', before: 'Paie en Java.', after: 'Logiciel de paie en Java.' }]
       } });
     });
@@ -55,6 +55,21 @@ for (const language of ['en', 'fr']) {
     await page.locator('[data-ai-cv-docx="NAMED"]').click();
     expect((await word).suggestedFilename()).toBe('dossier-competences.docx');
     expect(pdf[1].search).toBe('?layout=NAMED&language=FR&format=DOCX');
+
+    // The review kept as a CV profile, named after the positioning.
+    const saved: Record<string, unknown>[] = [];
+    await page.route(/\/api\/users\/cv-profiles$/, route => {
+      if (route.request().method() === 'POST') {
+        saved.push(route.request().postDataJSON());
+        return route.fulfill({ status: 201, json: { id: 9, name: 'Lead Java, Kafka', isDefault: true } });
+      }
+      return route.fulfill({ json: [] });
+    });
+    await expect(page.locator('[data-ai-cv-profile-name]')).toHaveValue('Lead Java, Kafka');
+    await page.locator('[data-ai-cv-save-profile]').click();
+    await expect.poll(() => saved.length).toBe(1);
+    expect(saved[0]).toEqual(expect.objectContaining({ name: 'Lead Java, Kafka', headline: 'Staff Java', summary: null,
+      missions: [{ id: 42, text: 'Migration du SI vers Kafka.' }], positions: [{ id: 70, text: 'Logiciel de paie en Java.' }] }));
 
     await page.locator('[data-ai-cv-approve]').click();
     await expect(page.locator('mat-dialog-container')).toHaveCount(0);

@@ -59,9 +59,7 @@ public class DossierService {
                 return new DossierDto.Skill(skill, detail == null ? null : detail.level(), detail == null ? null : detail.years());
             })
             .toList();
-        List<DossierDto.Mission> missions = projects.findByFreelanceId(freelanceId).stream()
-            .filter(project -> project.getStatus() == ProjectStatus.WON)
-            .sorted(Comparator.comparing(Project::getStartDate, Comparator.nullsLast(Comparator.reverseOrder())))
+        List<DossierDto.Mission> missions = won(freelanceId).stream()
             .map(project -> new DossierDto.Mission(project.getRole(),
                 named && project.getClient() != null ? project.getClient().getCompanyName() : null,
                 project.getStartDate(), project.lastDay(), blankToNull(project.getTechStack()), excerpt(project.getDescription())))
@@ -74,6 +72,19 @@ public class DossierService {
                 excerpt(experience.description()))).toList(),
             career.educations(freelanceId).stream().map(school -> new DossierDto.Education(school.school(), school.degree(),
                 school.startYear(), school.endYear())).toList());
+    }
+
+    /** The won missions' ids, in the dossier's order: the latest first. */
+    @Transactional(readOnly = true)
+    public List<Long> missionIds(Long freelanceId) {
+        return won(freelanceId).stream().map(Project::getId).toList();
+    }
+
+    private List<Project> won(Long freelanceId) {
+        return projects.findByFreelanceId(freelanceId).stream()
+            .filter(project -> project.getStatus() == ProjectStatus.WON)
+            .sorted(Comparator.comparing(Project::getStartDate, Comparator.nullsLast(Comparator.reverseOrder())))
+            .toList();
     }
 
     @Transactional(readOnly = true)

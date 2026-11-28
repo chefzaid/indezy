@@ -5588,7 +5588,10 @@
       "namedWord": "Nominatif, Word (.docx)",
       "anonymousWord": "Anonymisé, Word (.docx)",
       "fromFile": "Reprendre des détails de mon CV conservé ({{name}})",
-      "fromFileHint": "Son texte est lu après en avoir retiré votre nom, vos coordonnées, vos clients et vos employeurs ; l'IA n'ajoute que ce qu'il dit des mêmes blocs."
+      "fromFileHint": "Son texte est lu après en avoir retiré votre nom, vos coordonnées, vos clients et vos employeurs ; l'IA n'ajoute que ce qu'il dit des mêmes blocs.",
+      "profileName": "Enregistrer comme profil de CV nommé",
+      "saveProfile": "Enregistrer comme profil de CV",
+      "profileSaved": "Enregistré comme profil de CV « {{name}} »"
     },
     "rate": {
       "ask": "Suggérer un TJM (IA)",
@@ -5878,6 +5881,38 @@
     "removeTitle": "Supprimer votre CV ?",
     "removeMessage": "Le CV gardé dans votre profil est supprimé.",
     "removeError": "Votre CV n'a pas pu être supprimé."
+  },
+  "cvProfiles": {
+    "title": "Profils de CV",
+    "add": "Nouveau profil de CV",
+    "intro": "Gardez quelques positionnements du même profil (backend Java, Tech Lead, anglais…), chacun avec son titre, son résumé, ses compétences et ses missions. Celui par défaut sert au téléchargement du Dossier de compétences. Les dates, clients et stacks viennent toujours de votre profil.",
+    "none": "Aucun profil de CV : le dossier est construit à partir de votre profil tel quel.",
+    "default": "Par défaut · {{language}}",
+    "other": "{{language}}",
+    "actions": "Actions pour {{name}}",
+    "download": {
+      "NAMED_PDF": "Nominatif, PDF",
+      "ANONYMOUS_PDF": "Anonymisé, PDF",
+      "NAMED_DOCX": "Nominatif, Word (.docx)",
+      "ANONYMOUS_DOCX": "Anonymisé, Word (.docx)"
+    },
+    "makeDefault": "Mettre par défaut",
+    "removeTitle": "Supprimer ce profil de CV ?",
+    "removeMessage": "« {{name}} » est supprimé ; votre profil lui-même ne change pas.",
+    "newTitle": "Nouveau profil de CV",
+    "editTitle": "Modifier le profil de CV",
+    "hint": "Laissés vides, le titre et le résumé sont ceux de votre profil. Décochez ce que ce profil écarte, ordonnez le reste, et formulez une mission ou un poste pour lui.",
+    "name": "Nom",
+    "nameHint": "ex. Backend Java / Cloud",
+    "skills": "Compétences",
+    "missions": "Missions gagnées",
+    "positions": "Postes passés",
+    "up": "Monter {{name}}",
+    "down": "Descendre {{name}}",
+    "wording": "Sa formulation dans ce profil (vide : telle que votre profil la dit)",
+    "saved": "Profil de CV enregistré",
+    "saveError": "Le profil de CV n'a pas pu être enregistré",
+    "loadError": "Les profils de CV n'ont pas pu être chargés"
   },
   "billingTemplates": {
     "title": "Modèles Word et formulaires PDF",

@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Profils de CV
+
+Gardez quelques positionnements de votre profil, chacun avec son titre, son résumé, ses compétences et ses missions, téléchargé comme son propre dossier ; celui par défaut est celui que **Dossier de compétences** télécharge, et un CV réécrit par l'IA peut être enregistré comme profil. Voir [Documents](/help/documents).
+
 ### Réécrire votre CV avec les détails de votre CV conservé
 
 Quand votre profil conserve un fichier CV plus riche que votre profil, **Réécrire mon CV (IA)** et **Adapter à une annonce (IA)…** peuvent reprendre ce qu'il dit de vos missions et postes, après en avoir retiré votre nom, vos coordonnées, vos clients et vos employeurs. Voir [Documents](/help/documents).

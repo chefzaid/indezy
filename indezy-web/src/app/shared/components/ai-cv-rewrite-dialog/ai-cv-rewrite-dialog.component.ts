@@ -20,6 +20,7 @@ import { AiCvItem, AiCvRefinement, AiCvRewrite, AiCvStyle, DocumentLanguage } fr
 import { AiService, aiBlobErrorKey, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ProfileCvService } from '../../../services/profile-cv/profile-cv.service';
+import { CvProfileService } from '../../../services/cv-profile/cv-profile.service';
 import { saveBlob } from '../../utils/download-file';
 import { DiffSegment, changed, wordDiff } from '../../utils/word-diff';
 import { newFacts } from '../../utils/fact-check';
@@ -85,6 +86,10 @@ export class AiCvRewriteDialogComponent {
   private readonly dialogRef = inject<MatDialogRef<AiCvRewriteDialogComponent, boolean>>(MatDialogRef);
   private readonly data = inject<CvReviewData | null>(MAT_DIALOG_DATA, { optional: true }) ?? {};
   private readonly cvFiles = inject(ProfileCvService);
+  private readonly cvProfiles = inject(CvProfileService);
+  /** The name to save the review under as a CV profile. */
+  profileName = '';
+  savingProfile = false;
 
   readonly max = POSITIONING_MAX;
   readonly focusMax = FOCUS_MAX;
@@ -136,6 +141,7 @@ export class AiCvRewriteDialogComponent {
     this.ai.rewriteCv(this.positioning.trim(), this.style, this.language, this.fromFile && !!this.keptFile).subscribe({
       next: rewrite => {
         this.rewriting = false;
+        this.profileName = this.profileName || this.positioning.trim().slice(0, 80);
         this.show(rewrite);
         this.changes.markForCheck();
       },
@@ -320,6 +326,38 @@ export class AiCvRewriteDialogComponent {
       error: () => {
         this.approving = false;
         this.notifications.error('ai.cv.approveError');
+        this.changes.markForCheck();
+      }
+    });
+  }
+
+  /**
+   * The review kept as a CV profile, named as asked: the headline, summary and skills order kept, every mission and
+   * position shown in the profile's order, with the rewritten wording where it was kept.
+   */
+  saveProfile(): void {
+    const name = this.profileName.trim();
+    const rewrite = this.rewrite;
+    if (!name || !rewrite || this.savingProfile) {
+      return;
+    }
+    const items = (kind: 'mission' | 'position', list: AiCvItem[]): { id: number; text: string | null }[] | null => {
+      const kept = new Map(this.keptItems(kind).map(({ item, description }) => [item.number, description]));
+      return kept.size ? list.filter(item => item.id !== null).map(item => ({ id: item.id!, text: kept.get(item.number) ?? null })) : null;
+    };
+    this.savingProfile = true;
+    this.cvProfiles.create({ name, language: this.language, headline: this.kept('headline'), summary: this.kept('summary'),
+      skills: this.keepSkills ? rewrite.skills : null, missions: items('mission', rewrite.missions), positions: items('position', rewrite.positions)
+    }).subscribe({
+      next: () => {
+        this.savingProfile = false;
+        this.notifications.success('ai.cv.profileSaved', undefined, { name });
+        this.cvProfiles.changed.next();
+        this.changes.markForCheck();
+      },
+      error: () => {
+        this.savingProfile = false;
+        this.notifications.error('cvProfiles.saveError');
         this.changes.markForCheck();
       }
     });

@@ -60,6 +60,7 @@ public class UserDataExportService {
     private final TrainingService trainingService;
     private final CareerService careerService;
     private final ProfileCvService profileCvService;
+    private final CvProfileService cvProfileService;
     private final TestimonialService testimonialService;
     private final BookingService bookingService;
     private final SupportService supportService;
@@ -101,6 +102,7 @@ public class UserDataExportService {
         export.put("experiences", careerService.experiences(freelanceId));
         export.put("educations", careerService.educations(freelanceId));
         profileCvService.info(freelanceId).ifPresent(cv -> export.put("cv", cv));
+        export.put("cvProfiles", cvProfileService.list(freelanceId));
         export.put("testimonials", testimonialService.list(freelanceId));
         export.put("compliancePacks", compliancePackService.list(freelanceId));
         export.put("bookingPage", bookingService.page(freelanceId));

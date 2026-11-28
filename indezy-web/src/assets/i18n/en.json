@@ -5588,7 +5588,10 @@
       "namedWord": "Named, Word (.docx)",
       "anonymousWord": "Anonymized, Word (.docx)",
       "fromFile": "Bring in details from my kept CV ({{name}})",
-      "fromFileHint": "Its text is read with your name, contact details, clients and employers taken out first; the AI only adds what it states about the same blocks."
+      "fromFileHint": "Its text is read with your name, contact details, clients and employers taken out first; the AI only adds what it states about the same blocks.",
+      "profileName": "Save as a CV profile named",
+      "saveProfile": "Save as a CV profile",
+      "profileSaved": "Saved as the CV profile “{{name}}”"
     },
     "rate": {
       "ask": "Suggest a rate (AI)",
@@ -5878,6 +5881,38 @@
     "removeTitle": "Remove your CV?",
     "removeMessage": "The CV kept in your profile is deleted.",
     "removeError": "Your CV could not be removed."
+  },
+  "cvProfiles": {
+    "title": "CV profiles",
+    "add": "New CV profile",
+    "intro": "Keep a few positionings of the same profile (Java backend, Tech Lead, English…), each with its own headline, summary, skills and missions. The default one draws the Dossier de compétences download. Dates, clients and stacks always come from your profile.",
+    "none": "No CV profile yet: the dossier is drawn from your profile as it is.",
+    "default": "Default · {{language}}",
+    "other": "{{language}}",
+    "actions": "Actions for {{name}}",
+    "download": {
+      "NAMED_PDF": "Named, PDF",
+      "ANONYMOUS_PDF": "Anonymized, PDF",
+      "NAMED_DOCX": "Named, Word (.docx)",
+      "ANONYMOUS_DOCX": "Anonymized, Word (.docx)"
+    },
+    "makeDefault": "Make default",
+    "removeTitle": "Delete this CV profile?",
+    "removeMessage": "“{{name}}” is deleted; your profile itself does not change.",
+    "newTitle": "New CV profile",
+    "editTitle": "Edit the CV profile",
+    "hint": "Left empty, the headline and summary are your profile's. Untick what this profile leaves out, order the rest, and word a mission or position for it.",
+    "name": "Name",
+    "nameHint": "e.g. Java / Cloud backend",
+    "skills": "Skills",
+    "missions": "Won missions",
+    "positions": "Past positions",
+    "up": "Move {{name}} up",
+    "down": "Move {{name}} down",
+    "wording": "Its wording in this profile (empty: as your profile says)",
+    "saved": "CV profile saved",
+    "saveError": "The CV profile could not be saved",
+    "loadError": "The CV profiles could not be loaded"
   },
   "billingTemplates": {
     "title": "Word templates and PDF forms",
