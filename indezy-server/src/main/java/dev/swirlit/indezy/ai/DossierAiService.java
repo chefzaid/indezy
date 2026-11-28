@@ -106,6 +106,40 @@ public class DossierAiService {
         return pdf(userId, freelanceId, Target.posting(text), layout, language);
     }
 
+    /** Tailored to an opportunity, block by block before and after, to review before downloading it. */
+    @Transactional(readOnly = true)
+    public CvRewriteAiService.CvRewrite reviewProject(Long userId, Long freelanceId, Long projectId, DocumentLanguage language) {
+        Project project = projects.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+        return review(userId, freelanceId, Target.of(project), language);
+    }
+
+    /** Tailored to a feed offer, block by block, the offer left out of the pipeline. */
+    @Transactional(readOnly = true)
+    public CvRewriteAiService.CvRewrite reviewOffer(Long userId, Long freelanceId, Long offerId, DocumentLanguage language) {
+        JobOffer offer = offers.findById(offerId).orElseThrow(() -> new ResourceNotFoundException("Offer not found"));
+        return review(userId, freelanceId, Target.of(offer), language);
+    }
+
+    /** Tailored to a pasted posting, block by block; nothing is kept. */
+    @Transactional(readOnly = true)
+    public CvRewriteAiService.CvRewrite reviewPosting(Long userId, Long freelanceId, String text, DocumentLanguage language) {
+        return review(userId, freelanceId, Target.posting(text), language);
+    }
+
+    /**
+     * The tailoring as the whole-CV rewrite shows it: the summary, the skill order and the missions before and after (the
+     * headline and the past positions as they are), rendered as reviewed by {@link CvRewriteAiService#pdf}. Anonymized, as
+     * what the AI reads is.
+     */
+    CvRewriteAiService.CvRewrite review(Long userId, Long freelanceId, Target target, DocumentLanguage language) {
+        DossierDto dossier = dossiers.dossier(userId, freelanceId, DossierLayout.ANONYMOUS);
+        Tailoring tailoring = ai.structured(userId, AiFeature.DOSSIER, SYSTEM, context(target, dossier, language), Tailoring.class,
+            MAX_TOKENS, OutputConfig.Effort.LOW);
+        return CvRewriteAiService.review(dossier, List.of(), new CvRewriteAiService.Rewriting(null, tailoring.summary(), tailoring.skills(),
+            tailoring.missions().stream().filter(Objects::nonNull).map(text -> new CvRewriteAiService.Text(text.number(), text.description()))
+                .toList(), List.of()));
+    }
+
     private ActivityReportService.PdfFile pdf(Long userId, Long freelanceId, Target target, DossierLayout layout, DocumentLanguage language) {
         return dossiers.render(tailored(userId, freelanceId, target, layout, language), language);
     }

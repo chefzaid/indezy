@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @RestController
@@ -304,6 +305,51 @@ public class AiController {
         accessGuard.requireProject(projectId);
         Long freelanceId = accessGuard.requireWorkspace(null);
         return PdfResponses.attachment(dossiers.pdf(SecurityUtils.getCurrentUserId(), freelanceId, projectId, layout, language));
+    }
+
+    @Operation(summary = "The dossier tailored to an opportunity, block by block before and after, to review before rendering it",
+        description = "Render the blocks kept with POST /ai/cv/pdf")
+    @PostMapping("/dossier/{projectId}/review")
+    public CvRewriteAiService.CvRewrite reviewDossier(@PathVariable Long projectId, @RequestParam(defaultValue = "FR") DocumentLanguage language) {
+        accessGuard.requireProject(projectId);
+        Long freelanceId = accessGuard.requireWorkspace(null);
+        return dossiers.reviewProject(SecurityUtils.getCurrentUserId(), freelanceId, projectId, language);
+    }
+
+    @Operation(summary = "The dossier tailored to a feed offer, block by block, the offer left out of the pipeline",
+        description = "Render the blocks kept with POST /ai/cv/pdf")
+    @PostMapping("/offers/{offerId}/dossier/review")
+    public CvRewriteAiService.CvRewrite reviewOfferDossier(@PathVariable Long offerId, @RequestParam(defaultValue = "FR") DocumentLanguage language) {
+        Long freelanceId = accessGuard.requireWorkspace(null);
+        return dossiers.reviewOffer(SecurityUtils.getCurrentUserId(), freelanceId, offerId, language);
+    }
+
+    @Operation(summary = "The dossier tailored to a job posting pasted as text, block by block", description = "Nothing is kept")
+    @PostMapping("/dossier/posting/review")
+    public CvRewriteAiService.CvRewrite reviewPostingDossier(@RequestParam(defaultValue = "FR") DocumentLanguage language,
+                                                             @Valid @RequestBody PostingRequest request) {
+        Long freelanceId = accessGuard.requireWorkspace(null);
+        return dossiers.reviewPosting(SecurityUtils.getCurrentUserId(), freelanceId, request.text(), language);
+    }
+
+    /** One block of the CV to refine, its locked phrases kept as written. */
+    public record RefineRequest(@NotBlank @Size(max = CvRewriteAiService.REFINE_TEXT_MAX) String text,
+                                @NotNull CvRewriteAiService.Refinement refinement, @Size(max = CvRewriteAiService.FOCUS_MAX) String focus,
+                                @Size(max = CvRewriteAiService.LOCKED_MAX) List<@Size(max = CvRewriteAiService.LOCKED_LENGTH) String> locked,
+                                DocumentLanguage language) {
+
+        public RefineRequest {
+            locked = locked == null ? List.of() : List.copyOf(locked.stream().filter(Objects::nonNull).toList());
+        }
+    }
+
+    @Operation(summary = "Refine one block of the CV: shorter, more technical, plainer, translated, or bringing something out",
+        description = "Refused with 409 when the AI changed a locked phrase")
+    @PostMapping("/cv/refine")
+    public CvRewriteAiService.Refined refineCv(@Valid @RequestBody RefineRequest request) {
+        accessGuard.requireWorkspace(null);
+        return new CvRewriteAiService.Refined(cvRewrites.refine(SecurityUtils.getCurrentUserId(), request.text(), request.refinement(),
+            request.focus(), request.locked(), request.language() == null ? DocumentLanguage.FR : request.language()));
     }
 
     @Operation(summary = "The dossier de compétences tailored to a feed offer, as a PDF, without adding the offer to the pipeline",

@@ -89,7 +89,8 @@ To answer a posting you received by email or found on a site the feed does not c
 
 1. On the Profile page, click **Dossier de compétences**, then **Tailor to a job posting (AI)…**.
 2. Paste the posting, or click **From a PDF** to read its text from the PDF brief.
-3. Choose **Named dossier** or **Anonymized dossier** and the language, then click **Download the tailored dossier**.
+3. Choose the language, then click **Tailor to this posting**.
+4. Review the dossier (see below), then download it named or anonymized.
 
 The AI rewrites your summary, the order of your skills and your missions' descriptions for the posting, from your profile's facts only. Nothing is kept. For an offer of the feed, use **Tailored dossier (AI)** on its page (see [Offers](/help/offers)).
 
@@ -99,7 +100,19 @@ The AI rewrites your summary, the order of your skills and your missions' descri
 
 1. Type a **Positioning** (for example "Lead Java developer, Kafka and AWS"), or leave it empty to keep your current one.
 2. Choose a **Style**: results and impact, concise, technical depth or leadership, then the language of the CV, and click **Rewrite**.
-3. Check each block: your headline, your summary, the order of your skills, then each mission and past position. The current wording is crossed out, the rewritten one is below it and can be edited. Untick a block to keep it as it is.
+3. Check each block: your headline, your summary, the order of your skills, then each mission and past position (see below).
 4. Click **Download PDF** for the named or anonymized dossier with the blocks you kept, or **Apply to my profile** to save the kept headline, summary and past positions on your profile.
 
 The AI only rewords: no date, client, employer, skill or stack is added, a skill your profile lacks is dropped, and your name, contact details, clients and employers are never sent to it. Won missions keep their own description on their opportunity: only the downloaded dossier carries their rewritten wording.
+
+## Review a rewritten dossier
+
+Whether the AI tailored your dossier to an opportunity, a feed offer or a posting, or rewrote your whole CV, you see only the blocks it changed:
+
+- In each block, the words removed are struck through and the words added are highlighted. The new wording is below, and you can edit it.
+- Untick a block to keep it as your profile says.
+- **Lock this block** (the padlock) keeps it as it reads now: no refinement changes it.
+- **Refine with AI** (the wand) rewrites one block in one click: **Shorter**, **More technical**, **Less jargon**, **Translate**, or **Bring out** what you typed in the field of that name (for example "Kubernetes"), only where the block already says it.
+- **Phrases to keep as written**: type a phrase and press Enter. Every refinement keeps it word for word; when the AI changes one anyway, the block stays as it was and you are told.
+
+Then **Download PDF** gives the named or anonymized dossier with the blocks as you left them.

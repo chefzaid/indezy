@@ -1,152 +1,71 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
-import { AiCvItem, AiCvRewrite, AiCvStyle, DocumentLanguage } from '../../../models';
+import { AiCvItem, AiCvRefinement, AiCvRewrite, AiCvStyle, DocumentLanguage } from '../../../models';
 import { AiService, aiBlobErrorKey, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { saveBlob } from '../../utils/download-file';
+import { DiffSegment, changed, wordDiff } from '../../utils/word-diff';
 
 /** The longest positioning asked for, as the server reads it. */
 export const POSITIONING_MAX = 120;
+const FOCUS_MAX = 80;
+const LOCKED_MAX = 10;
+const LOCKED_LENGTH = 200;
 
-/** A block being reviewed: kept or not, and its wording as edited. */
-interface Draft {
-  keep: boolean;
-  text: string;
+/** What opens the review: nothing for the whole-CV rewrite, or a dossier tailored to an opportunity, an offer or a posting. */
+export interface CvReviewData {
+  /** The tailoring the AI made, in the language it was asked in. */
+  tailored?: { rewrite: AiCvRewrite; language: DocumentLanguage };
+  /** Each dossier downloaded from the review, as the file saved. */
+  made?: (file: File) => void;
 }
 
-/** A mission or position being reviewed. */
-interface ItemDraft extends Draft {
-  item: AiCvItem;
+/** A block being reviewed: kept or not, its wording as edited, locked against refinements or not. */
+export interface ReviewBlock {
+  key: string;
+  label: string;
+  params?: Record<string, string>;
+  before: string | null;
+  text: string;
+  keep: boolean;
+  locked: boolean;
+  refining: boolean;
+  refinable: boolean;
+  multiline: boolean;
+  max: number;
+  item?: AiCvItem;
+  /** The diff last shown, for the text it was computed from. */
+  shown?: { text: string; segments: DiffSegment[] };
 }
 
 /**
- * Rewrites the whole CV with AI for a positioning and a style, tied to no opportunity (see docs/features.md#ai-features):
- * each block before and after, kept or not and editable, then the dossier de compétences downloaded as reviewed, and the
- * headline, summary and past positions kept written back to the profile.
+ * Reviews the CV the AI rewrote (see docs/features.md#ai-features), for a positioning and a style or tailored to an
+ * opportunity, an offer or a posting: each block before and after with the words changed marked, kept or not, edited,
+ * locked, or refined in one click (shorter, more technical, plainer, translated, bringing something out) with phrases
+ * the AI must keep; then the dossier de compétences downloaded as reviewed and, for the whole-CV rewrite, the headline,
+ * summary and past positions kept written back to the profile.
  */
 @Component({
   selector: 'app-ai-cv-rewrite-dialog',
-  imports: [FormsModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatDialogModule, MatFormFieldModule, MatIconModule,
-    MatInputModule, MatMenuModule, MatProgressSpinnerModule, MatSelectModule, TranslateModule],
-  template: `
-    <h2 mat-dialog-title>{{ 'ai.cv.title' | translate }}</h2>
-    <mat-dialog-content>
-      @if (rewriting) {
-        <div class="busy"><mat-spinner diameter="28" [attr.aria-label]="'ai.cv.busy' | translate"></mat-spinner></div>
-      } @else if (rewrite) {
-        <section data-ai-cv-review>
-          <p class="intro">{{ 'ai.cv.review' | translate }}</p>
-          <div class="block" data-ai-cv-block="headline">
-            <mat-checkbox [(ngModel)]="headline.keep" data-ai-cv-keep="headline">{{ 'ai.cv.headline' | translate }}</mat-checkbox>
-            <p class="before">{{ rewrite.headline.before || ('ai.cv.empty' | translate) }}</p>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-              <mat-label>{{ 'ai.cv.rewritten' | translate }}</mat-label>
-              <input matInput [(ngModel)]="headline.text" [disabled]="!headline.keep" maxlength="120" data-ai-cv-text="headline">
-            </mat-form-field>
-          </div>
-          <div class="block" data-ai-cv-block="summary">
-            <mat-checkbox [(ngModel)]="summary.keep" data-ai-cv-keep="summary">{{ 'ai.cv.summary' | translate }}</mat-checkbox>
-            <p class="before">{{ rewrite.summary.before || ('ai.cv.empty' | translate) }}</p>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-              <mat-label>{{ 'ai.cv.rewritten' | translate }}</mat-label>
-              <textarea matInput rows="4" [(ngModel)]="summary.text" [disabled]="!summary.keep" maxlength="900" data-ai-cv-text="summary"></textarea>
-            </mat-form-field>
-          </div>
-          <div class="block" data-ai-cv-block="skills">
-            <mat-checkbox [(ngModel)]="keepSkills" data-ai-cv-keep="skills">{{ 'ai.cv.skills' | translate }}</mat-checkbox>
-            <p class="before">{{ rewrite.skillsBefore.join(', ') }}</p>
-            <p class="after" data-ai-cv-skills>{{ rewrite.skills.join(', ') }}</p>
-          </div>
-          @for (draft of missions; track draft.item.number) {
-            <div class="block" [attr.data-ai-cv-block]="'mission-' + draft.item.number">
-              <mat-checkbox [(ngModel)]="draft.keep">{{ 'ai.cv.mission' | translate:{ title: draft.item.title } }}</mat-checkbox>
-              <p class="before">{{ draft.item.before }}</p>
-              <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>{{ 'ai.cv.rewritten' | translate }}</mat-label>
-                <textarea matInput rows="3" [(ngModel)]="draft.text" [disabled]="!draft.keep" maxlength="600"></textarea>
-              </mat-form-field>
-            </div>
-          }
-          @for (draft of positions; track draft.item.number) {
-            <div class="block" [attr.data-ai-cv-block]="'position-' + draft.item.number">
-              <mat-checkbox [(ngModel)]="draft.keep">{{ 'ai.cv.position' | translate:{ title: draft.item.title } }}</mat-checkbox>
-              <p class="before">{{ draft.item.before }}</p>
-              <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>{{ 'ai.cv.rewritten' | translate }}</mat-label>
-                <textarea matInput rows="3" [(ngModel)]="draft.text" [disabled]="!draft.keep" maxlength="600"></textarea>
-              </mat-form-field>
-            </div>
-          }
-          <p class="disclaimer">{{ 'ai.disclaimer' | translate }}</p>
-        </section>
-      } @else {
-        <p class="intro">{{ 'ai.cv.intro' | translate }}</p>
-        <mat-form-field appearance="outline" class="wide">
-          <mat-label>{{ 'ai.cv.positioning' | translate }}</mat-label>
-          <input matInput [(ngModel)]="positioning" [maxlength]="max" [placeholder]="'ai.cv.positioningHint' | translate" data-ai-cv-positioning>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="wide">
-          <mat-label>{{ 'ai.cv.style' | translate }}</mat-label>
-          <mat-select [(ngModel)]="style" data-ai-cv-style>
-            @for (option of styles; track option) {
-              <mat-option [value]="option">{{ 'ai.cv.styles.' + option | translate }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-button-toggle-group [(ngModel)]="language" [attr.aria-label]="'ai.cv.language' | translate" data-ai-cv-language>
-          <mat-button-toggle value="FR">Français</mat-button-toggle>
-          <mat-button-toggle value="EN">English</mat-button-toggle>
-        </mat-button-toggle-group>
-        @if (errorKey) {
-          <p class="error" role="alert">{{ errorKey | translate }}</p>
-        }
-      }
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      @if (rewrite) {
-        <button mat-button type="button" (click)="rewrite = null" data-ai-cv-again>{{ 'ai.cv.again' | translate }}</button>
-        <button mat-stroked-button type="button" (click)="approve()" [disabled]="approving" data-ai-cv-approve>
-          <mat-icon>person</mat-icon>{{ 'ai.cv.approve' | translate }}
-        </button>
-        <button mat-flat-button color="primary" type="button" [matMenuTriggerFor]="pdfMenu" [disabled]="downloading" data-ai-cv-download>
-          <mat-icon>download</mat-icon>{{ 'ai.cv.download' | translate }}
-        </button>
-        <mat-menu #pdfMenu="matMenu">
-          <button mat-menu-item type="button" (click)="download('NAMED')" data-ai-cv-pdf="NAMED"><mat-icon>person</mat-icon>{{ 'ai.cv.named' | translate }}</button>
-          <button mat-menu-item type="button" (click)="download('ANONYMOUS')" data-ai-cv-pdf="ANONYMOUS"><mat-icon>visibility_off</mat-icon>{{ 'ai.cv.anonymous' | translate }}</button>
-        </mat-menu>
-      } @else {
-        <button mat-button type="button" mat-dialog-close>{{ 'common.close' | translate }}</button>
-        <button mat-flat-button color="primary" type="button" (click)="start()" [disabled]="rewriting" data-ai-cv-rewrite>
-          <mat-icon>auto_awesome</mat-icon>{{ 'ai.cv.rewrite' | translate }}
-        </button>
-      }
-    </mat-dialog-actions>
-  `,
-  styles: [`
-    .busy { display: flex; justify-content: center; padding: 24px; }
-    .intro { margin: 0 0 12px; color: var(--mat-sys-on-surface-variant); }
-    .wide { width: 100%; }
-    .block { display: flex; flex-direction: column; gap: 4px; padding: 8px 0; border-top: 1px solid var(--mat-sys-outline-variant); }
-    .block mat-form-field { width: 100%; }
-    .before { margin: 0; color: var(--mat-sys-on-surface-variant); font-size: .875rem; white-space: pre-line; text-decoration: line-through;
-      text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
-    .after { margin: 0; }
-    .disclaimer { margin: 12px 0 0; color: var(--mat-sys-on-surface-variant); font-size: .8125rem; }
-    .error { color: var(--mat-sys-error); }
-  `],
+  imports: [FormsModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatChipsModule, MatDialogModule, MatFormFieldModule,
+    MatIconModule, MatInputModule, MatMenuModule, MatProgressSpinnerModule, MatSelectModule, MatTooltipModule, TranslateModule],
+  templateUrl: './ai-cv-rewrite-dialog.component.html',
+  styleUrls: ['./ai-cv-rewrite-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class AiCvRewriteDialogComponent {
@@ -154,22 +73,35 @@ export class AiCvRewriteDialogComponent {
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly dialogRef = inject<MatDialogRef<AiCvRewriteDialogComponent, boolean>>(MatDialogRef);
+  private readonly data = inject<CvReviewData | null>(MAT_DIALOG_DATA, { optional: true }) ?? {};
 
   readonly max = POSITIONING_MAX;
+  readonly focusMax = FOCUS_MAX;
+  readonly phraseKeys = [ENTER, COMMA] as const;
   readonly styles: AiCvStyle[] = ['IMPACT', 'CONCISE', 'TECHNICAL', 'EXECUTIVE'];
+  readonly refinements: AiCvRefinement[] = ['SHORTER', 'TECHNICAL', 'PLAIN', 'TRANSLATE', 'HIGHLIGHT'];
+  /** Tailored to an opportunity, an offer or a posting: reviewed and downloaded, never written to the profile. */
+  readonly tailored = !!this.data.tailored;
   positioning = '';
   style: AiCvStyle = 'IMPACT';
-  language: DocumentLanguage = 'FR';
+  language: DocumentLanguage = this.data.tailored?.language ?? 'FR';
   rewrite: AiCvRewrite | null = null;
   rewriting = false;
   downloading = false;
   approving = false;
   errorKey: string | null = null;
-  headline: Draft = { keep: false, text: '' };
-  summary: Draft = { keep: false, text: '' };
+  blocks: ReviewBlock[] = [];
   keepSkills = true;
-  missions: ItemDraft[] = [];
-  positions: ItemDraft[] = [];
+  /** What the HIGHLIGHT refinement brings out. */
+  focus = '';
+  /** Phrases every refinement keeps exactly as written. */
+  lockedPhrases: string[] = [];
+
+  constructor() {
+    if (this.data.tailored) {
+      this.show(this.data.tailored.rewrite);
+    }
+  }
 
   start(): void {
     this.rewriting = true;
@@ -188,34 +120,94 @@ export class AiCvRewriteDialogComponent {
     });
   }
 
-  /** Each block kept when the AI changed it, its wording ready to edit. */
+  /** Each block the AI changed, kept, its wording ready to edit; the ones it left as they were are not shown. */
   private show(rewrite: AiCvRewrite): void {
     this.rewrite = rewrite;
-    const draft = (before: string | null, after: string | null): Draft => ({ keep: !!after && after !== before, text: after ?? '' });
-    this.headline = draft(rewrite.headline.before, rewrite.headline.after);
-    this.summary = draft(rewrite.summary.before, rewrite.summary.after);
+    const block = (key: string, label: string, before: string | null, after: string | null, options: Partial<ReviewBlock>): ReviewBlock => ({
+      key, label, before, text: after ?? '', keep: !!after && changed(before, after), locked: false, refining: false, refinable: true,
+      multiline: true, max: 600, ...options });
+    const items = (list: AiCvItem[], kind: 'mission' | 'position'): ReviewBlock[] => list
+      .filter(item => !!item.after && changed(item.before, item.after))
+      .map(item => block(`${kind}-${item.number}`, `ai.cv.${kind}`, item.before, item.after, { params: { title: item.title ?? '' }, item }));
+    this.blocks = [
+      ...(changed(rewrite.headline.before, rewrite.headline.after) && rewrite.headline.after ?
+        [block('headline', 'ai.cv.headline', rewrite.headline.before, rewrite.headline.after, { refinable: false, multiline: false, max: 120 })] : []),
+      ...(changed(rewrite.summary.before, rewrite.summary.after) && rewrite.summary.after ?
+        [block('summary', 'ai.cv.summary', rewrite.summary.before, rewrite.summary.after, { max: 900 })] : []),
+      ...items(rewrite.missions, 'mission'),
+      ...items(rewrite.positions, 'position')
+    ];
     this.keepSkills = rewrite.skills.join() !== rewrite.skillsBefore.join();
-    const items = (list: AiCvItem[]): ItemDraft[] => list.filter(item => !!item.after && item.after !== item.before)
-      .map(item => ({ item, ...draft(item.before, item.after) }));
-    this.missions = items(rewrite.missions);
-    this.positions = items(rewrite.positions);
+  }
+
+  /** The words changed between the block as it was and as it reads now. */
+  segments(block: ReviewBlock): DiffSegment[] {
+    if (block.shown?.text !== block.text) {
+      block.shown = { text: block.text, segments: wordDiff(block.before, block.text) };
+    }
+    return block.shown.segments;
+  }
+
+  addPhrase(event: MatChipInputEvent): void {
+    const phrase = event.value.trim().slice(0, LOCKED_LENGTH);
+    if (phrase && !this.lockedPhrases.includes(phrase) && this.lockedPhrases.length < LOCKED_MAX) {
+      this.lockedPhrases = [...this.lockedPhrases, phrase];
+    }
+    event.chipInput.clear();
+  }
+
+  removePhrase(phrase: string): void {
+    this.lockedPhrases = this.lockedPhrases.filter(kept => kept !== phrase);
+  }
+
+  /** One block refined as asked, the locked phrases kept; a block locked is never sent. */
+  refine(block: ReviewBlock, refinement: AiCvRefinement): void {
+    const text = block.text.trim();
+    if (block.locked || !block.keep || !text || block.refining) {
+      return;
+    }
+    block.refining = true;
+    this.ai.refineCv({ text, refinement, focus: refinement === 'HIGHLIGHT' ? this.focus.trim() || null : null, locked: this.lockedPhrases,
+      language: this.language }).subscribe({
+      next: ({ text: refined }) => {
+        block.refining = false;
+        block.text = refined.slice(0, block.max);
+        this.changes.markForCheck();
+      },
+      error: (error: HttpErrorResponse) => {
+        block.refining = false;
+        this.notifications.error(aiErrorKey(error));
+        this.changes.markForCheck();
+      }
+    });
+  }
+
+  private kept(key: string): string | null {
+    const block = this.blocks.find(candidate => candidate.key === key);
+    return block?.keep ? block.text.trim() || null : null;
+  }
+
+  private keptItems(kind: 'mission' | 'position'): { block: ReviewBlock; item: AiCvItem; description: string }[] {
+    return this.blocks.filter(block => block.item && block.key.startsWith(kind + '-') && block.keep && block.text.trim())
+      .map(block => ({ block, item: block.item!, description: block.text.trim() }));
   }
 
   /** The dossier as reviewed, the blocks left out as the profile says. */
   download(layout: 'NAMED' | 'ANONYMOUS'): void {
-    const kept = (drafts: ItemDraft[]): { number: number; description: string }[] => drafts.filter(draft => draft.keep && draft.text.trim())
-      .map(draft => ({ number: draft.item.number, description: draft.text.trim() }));
     this.downloading = true;
     this.ai.rewrittenCv({
-      headline: this.headline.keep ? this.headline.text.trim() || null : null,
-      summary: this.summary.keep ? this.summary.text.trim() || null : null,
+      headline: this.kept('headline'),
+      summary: this.kept('summary'),
       skills: this.keepSkills && this.rewrite ? this.rewrite.skills : [],
-      missions: kept(this.missions),
-      positions: kept(this.positions)
+      missions: this.keptItems('mission').map(({ item, description }) => ({ number: item.number, description })),
+      positions: this.keptItems('position').map(({ item, description }) => ({ number: item.number, description }))
     }, layout, this.language).subscribe({
       next: file => {
         this.downloading = false;
-        saveBlob(file, `${this.language === 'EN' ? 'skills-profile' : 'dossier-competences'}${layout === 'ANONYMOUS' ? '-anonymous' : ''}.pdf`);
+        const name = `${this.language === 'EN' ? 'skills-profile' : 'dossier-competences'}${layout === 'ANONYMOUS' ? '-anonymous' : ''}` +
+          `${this.tailored ? '-tailored' : ''}.pdf`;
+        saveBlob(file, name);
+        this.data.made?.(new File([file], name, { type: 'application/pdf' }));
         this.changes.markForCheck();
       },
       error: (error: unknown) => {
@@ -228,13 +220,11 @@ export class AiCvRewriteDialogComponent {
 
   /** Writes the kept headline, summary and past positions to the profile; won missions stay their opportunities'. */
   approve(): void {
-    const positions = this.positions.filter(draft => draft.keep && draft.text.trim() && draft.item.id !== null)
-      .map(draft => ({ id: draft.item.id!, description: draft.text.trim() }));
     this.approving = true;
     this.ai.approveCv({
-      headline: this.headline.keep ? this.headline.text.trim() || null : null,
-      summary: this.summary.keep ? this.summary.text.trim() || null : null,
-      positions
+      headline: this.kept('headline'),
+      summary: this.kept('summary'),
+      positions: this.keptItems('position').filter(({ item }) => item.id !== null).map(({ item, description }) => ({ id: item.id!, description }))
     }).subscribe({
       next: () => {
         this.approving = false;
@@ -247,5 +237,11 @@ export class AiCvRewriteDialogComponent {
         this.changes.markForCheck();
       }
     });
+  }
+
+  /** Back to the positioning and style, the review dropped. */
+  again(): void {
+    this.rewrite = null;
+    this.blocks = [];
   }
 }

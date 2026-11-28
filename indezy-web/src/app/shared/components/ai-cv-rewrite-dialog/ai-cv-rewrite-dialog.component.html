@@ -1,0 +1,138 @@
+<h2 mat-dialog-title>{{ (tailored ? 'ai.cv.tailoredTitle' : 'ai.cv.title') | translate }}</h2>
+<mat-dialog-content>
+  @if (rewriting) {
+    <div class="busy"><mat-spinner diameter="28" [attr.aria-label]="'ai.cv.busy' | translate"></mat-spinner></div>
+  } @else if (rewrite) {
+    <section data-ai-cv-review>
+      <p class="intro">{{ 'ai.cv.review' | translate }}</p>
+      <div class="tools">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'ai.cv.focus' | translate }}</mat-label>
+          <input matInput [(ngModel)]="focus" [maxlength]="focusMax" [placeholder]="'ai.cv.focusHint' | translate" data-ai-cv-focus>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'ai.cv.lockedPhrases' | translate }}</mat-label>
+          <mat-chip-grid #phraseGrid [attr.aria-label]="'ai.cv.lockedPhrases' | translate">
+            @for (phrase of lockedPhrases; track phrase) {
+              <mat-chip-row (removed)="removePhrase(phrase)" data-ai-cv-phrase>
+                {{ phrase }}
+                <button matChipRemove type="button" [attr.aria-label]="'ai.cv.removePhrase' | translate:{ phrase }"><mat-icon>cancel</mat-icon></button>
+              </mat-chip-row>
+            }
+          </mat-chip-grid>
+          <!-- Beside the grid rather than in it: a grid holds rows only. -->
+          <input [matChipInputFor]="phraseGrid" [matChipInputSeparatorKeyCodes]="phraseKeys" (matChipInputTokenEnd)="addPhrase($event)"
+            [placeholder]="'ai.cv.lockedHint' | translate" data-ai-cv-phrase-input>
+        </mat-form-field>
+      </div>
+      @for (block of blocks; track block.key) {
+        <div class="block" [attr.data-ai-cv-block]="block.key">
+          <div class="head">
+            <mat-checkbox [(ngModel)]="block.keep" [attr.data-ai-cv-keep]="block.key">{{ block.label | translate:block.params }}</mat-checkbox>
+            <span class="spacer"></span>
+            <button mat-icon-button type="button" (click)="block.locked = !block.locked" [disabled]="!block.keep" [attr.aria-pressed]="block.locked"
+              [attr.aria-label]="(block.locked ? 'ai.cv.unlock' : 'ai.cv.lock') | translate" [matTooltip]="(block.locked ? 'ai.cv.unlock' : 'ai.cv.lock') | translate"
+              [attr.data-ai-cv-lock]="block.key">
+              <mat-icon>{{ block.locked ? 'lock' : 'lock_open' }}</mat-icon>
+            </button>
+            @if (block.refinable) {
+              <button mat-icon-button type="button" [matMenuTriggerFor]="refineMenu" [matMenuTriggerData]="{ block: block }"
+                [disabled]="!block.keep || block.locked || block.refining" [attr.aria-label]="'ai.cv.refine' | translate"
+                [matTooltip]="'ai.cv.refine' | translate" [attr.data-ai-cv-refine]="block.key">
+                @if (block.refining) {
+                  <mat-spinner diameter="18" [attr.aria-label]="'ai.cv.refining' | translate"></mat-spinner>
+                } @else {
+                  <mat-icon>auto_fix_high</mat-icon>
+                }
+              </button>
+            }
+          </div>
+          @if (block.keep) {
+            <p class="diff" data-ai-cv-diff>
+              <span class="cdk-visually-hidden">{{ 'ai.cv.changes' | translate }}</span>
+              @for (segment of segments(block); track $index) {
+                @switch (segment.kind) {
+                  @case ('removed') { <del>{{ segment.text }}</del> }
+                  @case ('added') { <ins>{{ segment.text }}</ins> }
+                  @default { <span>{{ segment.text }}</span> }
+                }
+              }
+            </p>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>{{ 'ai.cv.rewritten' | translate }}</mat-label>
+              @if (block.multiline) {
+                <textarea matInput rows="3" [(ngModel)]="block.text" [readonly]="block.locked" [maxlength]="block.max"
+                  [attr.data-ai-cv-text]="block.key"></textarea>
+              } @else {
+                <input matInput [(ngModel)]="block.text" [readonly]="block.locked" [maxlength]="block.max" [attr.data-ai-cv-text]="block.key">
+              }
+            </mat-form-field>
+          } @else {
+            <p class="kept">{{ block.before || ('ai.cv.empty' | translate) }}</p>
+          }
+        </div>
+      }
+      <div class="block" data-ai-cv-block="skills">
+        <mat-checkbox [(ngModel)]="keepSkills" data-ai-cv-keep="skills">{{ 'ai.cv.skills' | translate }}</mat-checkbox>
+        <p class="kept">{{ rewrite.skillsBefore.join(', ') }}</p>
+        <p class="after" data-ai-cv-skills>{{ rewrite.skills.join(', ') }}</p>
+      </div>
+      <mat-menu #refineMenu="matMenu">
+        <ng-template matMenuContent let-block="block">
+          @for (refinement of refinements; track refinement) {
+            <button mat-menu-item type="button" (click)="refine(block, refinement)" [disabled]="refinement === 'HIGHLIGHT' && !focus.trim()"
+              [attr.data-ai-cv-refinement]="refinement">
+              {{ 'ai.cv.refinements.' + refinement | translate:{ focus: focus.trim(), language: language === 'EN' ? 'English' : 'français' } }}
+            </button>
+          }
+        </ng-template>
+      </mat-menu>
+      <p class="disclaimer">{{ 'ai.disclaimer' | translate }}</p>
+    </section>
+  } @else {
+    <p class="intro">{{ 'ai.cv.intro' | translate }}</p>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>{{ 'ai.cv.positioning' | translate }}</mat-label>
+      <input matInput [(ngModel)]="positioning" [maxlength]="max" [placeholder]="'ai.cv.positioningHint' | translate" data-ai-cv-positioning>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>{{ 'ai.cv.style' | translate }}</mat-label>
+      <mat-select [(ngModel)]="style" data-ai-cv-style>
+        @for (option of styles; track option) {
+          <mat-option [value]="option">{{ 'ai.cv.styles.' + option | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-button-toggle-group [(ngModel)]="language" [attr.aria-label]="'ai.cv.language' | translate" data-ai-cv-language>
+      <mat-button-toggle value="FR">Français</mat-button-toggle>
+      <mat-button-toggle value="EN">English</mat-button-toggle>
+    </mat-button-toggle-group>
+    @if (errorKey) {
+      <p class="error" role="alert">{{ errorKey | translate }}</p>
+    }
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  @if (rewrite) {
+    @if (tailored) {
+      <button mat-button type="button" mat-dialog-close data-ai-cv-close>{{ 'common.close' | translate }}</button>
+    } @else {
+      <button mat-button type="button" (click)="again()" data-ai-cv-again>{{ 'ai.cv.again' | translate }}</button>
+      <button mat-stroked-button type="button" (click)="approve()" [disabled]="approving" data-ai-cv-approve>
+        <mat-icon>person</mat-icon>{{ 'ai.cv.approve' | translate }}
+      </button>
+    }
+    <button mat-flat-button color="primary" type="button" [matMenuTriggerFor]="pdfMenu" [disabled]="downloading" data-ai-cv-download>
+      <mat-icon>download</mat-icon>{{ 'ai.cv.download' | translate }}
+    </button>
+    <mat-menu #pdfMenu="matMenu">
+      <button mat-menu-item type="button" (click)="download('NAMED')" data-ai-cv-pdf="NAMED"><mat-icon>person</mat-icon>{{ 'ai.cv.named' | translate }}</button>
+      <button mat-menu-item type="button" (click)="download('ANONYMOUS')" data-ai-cv-pdf="ANONYMOUS"><mat-icon>visibility_off</mat-icon>{{ 'ai.cv.anonymous' | translate }}</button>
+    </mat-menu>
+  } @else {
+    <button mat-button type="button" mat-dialog-close>{{ 'common.close' | translate }}</button>
+    <button mat-flat-button color="primary" type="button" (click)="start()" [disabled]="rewriting" data-ai-cv-rewrite>
+      <mat-icon>auto_awesome</mat-icon>{{ 'ai.cv.rewrite' | translate }}
+    </button>
+  }
+</mat-dialog-actions>

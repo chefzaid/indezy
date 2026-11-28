@@ -5381,7 +5381,8 @@
       "keyRefused": "Anthropic refused your key: check it in Profile → Preferences.",
       "tooLong": "The answer was cut short: shorten the text.",
       "failed": "The AI could not answer for now: try again in a moment.",
-      "variables": "The AI changed the message's variables: polish it again or edit it by hand."
+      "variables": "The AI changed the message's variables: polish it again or edit it by hand.",
+      "locked": "The AI changed a phrase you locked: refine the block again or edit it by hand."
     },
     "posting": {
       "open": "Fill in from a pasted posting (AI)",
@@ -5510,9 +5511,12 @@
       "posting": {
         "open": "Tailor to a job posting (AI)…",
         "title": "Dossier tailored to a job posting",
-        "hint": "Paste the posting as you received it, or read it from its PDF: the AI rewrites the summary, the order of the skills and the missions' descriptions for it, from your profile's facts only. Nothing is added to the pipeline and nothing is kept.",
-        "layout": "Named or anonymized",
-        "make": "Download the tailored dossier"
+        "hint": "Paste the posting as you received it, or read it from its PDF: the AI rewrites the summary, the order of the skills and the missions' descriptions for it, from your profile's facts only, for you to review before downloading. Nothing is added to the pipeline and nothing is kept.",
+        "make": "Tailor to this posting"
+      },
+      "in": {
+        "FR": "In French",
+        "EN": "In English"
       }
     },
     "cv": {
@@ -5531,7 +5535,7 @@
       "language": "Language of the CV",
       "rewrite": "Rewrite",
       "busy": "The AI is rewriting the CV",
-      "review": "Check each block: the current wording is crossed out above, the rewritten one below. Untick a block to keep it as it is; edit a rewritten one as you like.",
+      "review": "Check each block: removed words are struck through, added ones highlighted. Untick a block to keep it as it is, edit the new wording, lock a block so no refinement changes it, or refine it in one click.",
       "headline": "Headline",
       "summary": "Summary",
       "skills": "Order of the skills",
@@ -5545,7 +5549,25 @@
       "anonymous": "Anonymized dossier",
       "approve": "Apply to my profile",
       "approved": "The headline, summary and past positions kept are saved on your profile",
-      "approveError": "The rewritten wording could not be saved on your profile"
+      "approveError": "The rewritten wording could not be saved on your profile",
+      "tailoredTitle": "Review the tailored dossier",
+      "focus": "Bring out",
+      "focusHint": "e.g. Kubernetes",
+      "lockedPhrases": "Phrases to keep as written",
+      "lockedHint": "Type a phrase, then Enter",
+      "removePhrase": "Remove “{{phrase}}”",
+      "lock": "Lock this block",
+      "unlock": "Unlock this block",
+      "refine": "Refine with AI",
+      "refining": "The AI is refining the block",
+      "changes": "Changes:",
+      "refinements": {
+        "SHORTER": "Shorter",
+        "TECHNICAL": "More technical",
+        "PLAIN": "Less jargon",
+        "TRANSLATE": "Translate into {{language}}",
+        "HIGHLIGHT": "Bring out {{focus}}"
+      }
     },
     "rate": {
       "ask": "Suggest a rate (AI)",

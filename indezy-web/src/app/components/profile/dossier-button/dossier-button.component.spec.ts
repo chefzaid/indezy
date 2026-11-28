@@ -1,26 +1,31 @@
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
+import { AiCvRewrite } from '../../../models';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
-import { MatDialog } from '@angular/material/dialog';
+import { AiCvRewriteDialogComponent, CvReviewData } from '../../../shared/components/ai-cv-rewrite-dialog/ai-cv-rewrite-dialog.component';
 import { DossierButtonComponent } from './dossier-button.component';
 import { PostingDossierDialogComponent } from './posting-dossier-dialog.component';
+
+const REWRITE = { headline: { before: null, after: null }, summary: { before: null, after: null }, skillsBefore: [], skills: [],
+  missions: [], positions: [] } as AiCvRewrite;
 
 describe('DossierButtonComponent', () => {
   let users: jasmine.SpyObj<UserManagementService>;
   let ai: jasmine.SpyObj<AiService>;
   let notifications: jasmine.SpyObj<NotificationService>;
-
   let dialog: jasmine.SpyObj<MatDialog>;
 
-  function create(projectId: number | null = null, offerId: number | null = null): DossierButtonComponent {
+  function create(projectId: number | null = null, offerId: number | null = null, closedWith: unknown = undefined): DossierButtonComponent {
     users = jasmine.createSpyObj('UserManagementService', ['downloadDossier']);
-    ai = jasmine.createSpyObj('AiService', ['tailoredDossier', 'offerDossier']);
-    dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
+    ai = jasmine.createSpyObj('AiService', ['reviewDossier', 'reviewOfferDossier']);
     notifications = jasmine.createSpyObj('NotificationService', ['error']);
+    dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
+    dialog.open.and.returnValue({ afterClosed: () => of(closedWith) } as never);
     TestBed.configureTestingModule({
       imports: [DossierButtonComponent, TranslateModule.forRoot()],
       providers: [{ provide: UserManagementService, useValue: users }, { provide: AiService, useValue: ai },
@@ -32,6 +37,12 @@ describe('DossierButtonComponent', () => {
     fixture.componentInstance.offerId = offerId;
     fixture.detectChanges();
     return fixture.componentInstance;
+  }
+
+  function reviewData(): CvReviewData {
+    const [component, config] = dialog.open.calls.mostRecent().args;
+    expect(component).toBe(AiCvRewriteDialogComponent);
+    return config!.data as CvReviewData;
   }
 
   it('downloads the dossier chosen, named after its language and layout', () => {
@@ -56,54 +67,46 @@ describe('DossierButtonComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('profile.dossier.error');
   });
 
-  it('asks the AI for the dossier tailored to an opportunity', () => {
+  it('has the AI tailor the dossier to an opportunity, then opens it to review', () => {
     const component = create(7);
-    const link = document.createElement('a');
-    spyOn(document, 'createElement').and.returnValue(link);
-    spyOn(link, 'click');
-    ai.tailoredDossier.and.returnValue(of(new Blob(['%PDF'])));
-
-    component.download('NAMED', 'EN');
-    expect(ai.tailoredDossier).toHaveBeenCalledWith(7, 'NAMED', 'EN');
-    expect(users.downloadDossier).not.toHaveBeenCalled();
-    expect(link.download).toBe('skills-profile-tailored.pdf');
+    ai.reviewDossier.and.returnValue(of(REWRITE));
+    component.tailor('EN');
+    expect(ai.reviewDossier).toHaveBeenCalledWith(7, 'EN');
+    expect(reviewData().tailored).toEqual({ rewrite: REWRITE, language: 'EN' });
     expect(component.busy).toBeFalse();
   });
 
-  it('says why the AI could not tailor the dossier', async () => {
-    const component = create(7);
-    const error = new HttpErrorResponse({ status: 409, error: new Blob(['{"message":"The AI declined this request"}']) });
-    ai.tailoredDossier.and.returnValue(throwError(() => error));
-    component.download('ANONYMOUS', 'FR');
-    expect(component.busy).toBeFalse();
-    await new Promise(resolve => setTimeout(resolve, 20));
-    expect(notifications.error).toHaveBeenCalledWith('ai.errors.declined');
-  });
-
-  it('tailors the dossier to a feed offer and hands the file on', () => {
+  it('tailors it to a feed offer and hands on each file downloaded from the review', () => {
     const component = create(null, 5);
-    const link = document.createElement('a');
-    spyOn(document, 'createElement').and.returnValue(link);
-    spyOn(link, 'click');
-    ai.offerDossier.and.returnValue(of(new Blob(['%PDF'])));
+    ai.reviewOfferDossier.and.returnValue(of(REWRITE));
     const made = jasmine.createSpy('made');
     component.made.subscribe(made);
-
-    component.download('ANONYMOUS', 'FR');
-    expect(ai.offerDossier).toHaveBeenCalledWith(5, 'ANONYMOUS', 'FR');
-    expect(link.download).toBe('dossier-competences-anonymous-tailored.pdf');
-    expect((made.calls.mostRecent().args[0] as File).name).toBe('dossier-competences-anonymous-tailored.pdf');
+    component.tailor('FR');
+    expect(ai.reviewOfferDossier).toHaveBeenCalledWith(5, 'FR');
+    const file = new File(['%PDF'], 'dossier-competences-tailored.pdf');
+    reviewData().made!(file);
+    expect(made).toHaveBeenCalledWith(file);
   });
 
-  it('hands on no file for the profile\'s own dossier, and offers to tailor it to a pasted posting', () => {
-    const component = create();
-    users.downloadDossier.and.returnValue(of(new Blob(['%PDF'])));
-    spyOn(HTMLAnchorElement.prototype, 'click');
-    const made = jasmine.createSpy('made');
-    component.made.subscribe(made);
-    component.download('NAMED', 'FR');
-    expect(made).not.toHaveBeenCalled();
+  it('says why the AI could not tailor the dossier', () => {
+    const component = create(7);
+    ai.reviewDossier.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'The AI declined this request' } })));
+    component.tailor('FR');
+    expect(component.busy).toBeFalse();
+    expect(notifications.error).toHaveBeenCalledWith('ai.errors.declined');
+    expect(dialog.open).not.toHaveBeenCalled();
+  });
+
+  it('reviews the dossier tailored to a pasted posting once its dialog gives it back', () => {
+    const component = create(null, null, { rewrite: REWRITE, language: 'FR' });
     component.tailorToPosting();
-    expect(dialog.open).toHaveBeenCalledWith(PostingDossierDialogComponent, jasmine.any(Object));
+    expect(dialog.open.calls.first().args[0]).toBe(PostingDossierDialogComponent);
+    expect(reviewData().tailored).toEqual({ rewrite: REWRITE, language: 'FR' });
+  });
+
+  it('reviews nothing when the posting dialog was closed', () => {
+    const component = create();
+    component.tailorToPosting();
+    expect(dialog.open).toHaveBeenCalledTimes(1);
   });
 });

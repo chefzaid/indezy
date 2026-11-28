@@ -4,6 +4,7 @@ import com.anthropic.models.messages.OutputConfig;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import dev.swirlit.indezy.dto.CareerDtos;
 import dev.swirlit.indezy.dto.DossierDto;
+import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
@@ -40,6 +41,17 @@ public class CvRewriteAiService {
     static final int POSITIONING_MAX = 120;
     private static final int EXPERIENCE_DESCRIPTION_MAX = 2_000;
     private static final long MAX_TOKENS = 10_000;
+    /** A block refined is at most this long, as a past position's description is. */
+    public static final int REFINE_TEXT_MAX = EXPERIENCE_DESCRIPTION_MAX;
+    public static final int FOCUS_MAX = 80;
+    public static final int LOCKED_MAX = 10;
+    public static final int LOCKED_LENGTH = 200;
+    private static final long REFINE_TOKENS = 2_000;
+    private static final String REFINE_SYSTEM = """
+        You refine one block of a French freelance IT consultant's CV (dossier de compétences) as asked. Reword only what the
+        block says: never add a skill, a tool, a figure, a client, a date, a responsibility or a result that is not written in
+        it. Keep every phrase given as locked exactly as written. Write in the language asked, in the third person or without a
+        subject as French dossiers do, plainly, without superlatives. Answer with the block's new text only.""";
     private static final String SYSTEM = """
         You rewrite a French freelance IT consultant's whole CV (dossier de compétences) for the positioning and the style
         asked, tied to no mission in particular. Reword only what the CV says: never add a skill, a tool, a figure, a client,
@@ -126,6 +138,52 @@ public class CvRewriteAiService {
 
     /** A past position's approved description, by its id in the profile. */
     public record PositionText(Long id, String description) {
+    }
+
+    /** A one-click refinement of a single block. */
+    public enum Refinement {
+        SHORTER, TECHNICAL, PLAIN, TRANSLATE, HIGHLIGHT
+    }
+
+    /** The block refined. */
+    public record Refined(@JsonPropertyDescription("The block's new text") String text) {
+    }
+
+    /**
+     * One block refined as asked ({@code focus}: what to bring out, for {@link Refinement#HIGHLIGHT}), keeping the
+     * {@code locked} phrases exactly; refused when the AI dropped one or wrote nothing.
+     */
+    public String refine(Long userId, String text, Refinement refinement, String focus, List<String> locked, DocumentLanguage language) {
+        List<String> kept = locked == null ? List.of() : locked.stream().filter(Objects::nonNull).map(String::strip)
+            .filter(phrase -> !phrase.isEmpty() && phrase.length() <= LOCKED_LENGTH && text.contains(phrase)).distinct().limit(LOCKED_MAX).toList();
+        Refined refined = ai.structured(userId, AiFeature.DOSSIER, REFINE_SYSTEM, refineContext(text, refinement, focus, kept, language),
+            Refined.class, REFINE_TOKENS, OutputConfig.Effort.LOW);
+        String result = cut(clean(refined.text()), REFINE_TEXT_MAX);
+        if (result == null || kept.stream().anyMatch(phrase -> !result.contains(phrase))) {
+            throw new InvalidStateException("The AI changed a locked phrase: refine the block again or edit it by hand");
+        }
+        return result;
+    }
+
+    static String refineContext(String text, Refinement refinement, String focus, List<String> locked, DocumentLanguage language) {
+        String english = language == DocumentLanguage.EN ? "English" : "French";
+        String target = Objects.toString(focus, "").strip();
+        String asked = switch (refinement == null ? Refinement.SHORTER : refinement) {
+            case SHORTER -> "Make it shorter, keeping the facts that matter most.";
+            case TECHNICAL -> "Make it more technical: bring out the stacks, architecture and practices it names.";
+            case PLAIN -> "Use less jargon: plain words a non-technical client understands.";
+            case TRANSLATE -> "Translate it into " + english + ", keeping its meaning and its technical terms.";
+            case HIGHLIGHT -> "Bring out " + (target.isEmpty() ? "what matters most" : target.substring(0, Math.min(target.length(), FOCUS_MAX))) +
+                ", only where the block states it.";
+        };
+        StringBuilder context = new StringBuilder("Answer in ").append(english).append(".\n").append(asked).append("\n<block>\n")
+            .append(text.strip()).append("\n</block>\n");
+        if (!locked.isEmpty()) {
+            context.append("<locked>\n");
+            locked.forEach(phrase -> context.append("- ").append(phrase).append('\n'));
+            context.append("</locked>\n");
+        }
+        return context.toString();
     }
 
     /** The whole CV rewritten for {@code positioning} in {@code style}, to review block by block. */

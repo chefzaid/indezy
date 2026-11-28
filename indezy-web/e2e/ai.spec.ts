@@ -89,16 +89,31 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.keyboard.press('Escape');
     await expect(weighing).toHaveCount(0);
 
+    // The dossier tailored to the opportunity, reviewed block by block, then downloaded as reviewed.
     let tailoredUrl = '';
-    await page.route(/\/api\/ai\/dossier\/42/, route => {
+    await page.route(/\/api\/ai\/dossier\/42\/review/, route => {
       tailoredUrl = route.request().url();
+      return route.fulfill({ json: { headline: { before: 'Lead Java', after: 'Lead Java' }, summary: { before: 'Ten years of Java.',
+        after: 'Ten years of Java and Kafka.' }, skillsBefore: ['Java', 'Kafka'], skills: ['Kafka', 'Java'], missions: [], positions: [] } });
+    });
+    let reviewed: unknown = null;
+    await page.route('**/api/ai/cv/pdf?*', route => {
+      reviewed = route.request().postDataJSON();
       return route.fulfill({ body: '%PDF-1.7', contentType: 'application/pdf' });
     });
     await page.locator('[data-dossier="tailored"]').click();
+    await page.locator('[data-dossier-choice="EN"]').click();
+    await expect(page.locator('[data-ai-cv-review]')).toBeVisible();
+    expect(tailoredUrl).toContain('/api/ai/dossier/42/review?language=EN');
+    await expect(page.locator('[data-ai-cv-block="summary"] [data-ai-cv-diff] del')).toHaveText('Java.');
+    await expect(page.locator('[data-ai-cv-block="summary"] [data-ai-cv-diff] ins')).toHaveText('Java and Kafka.');
+    await page.locator('[data-ai-cv-download]').click();
     const download = page.waitForEvent('download');
-    await page.locator('[data-dossier-choice="ANONYMOUS-EN"]').click();
+    await page.locator('[data-ai-cv-pdf="ANONYMOUS"]').click();
     expect((await download).suggestedFilename()).toBe('skills-profile-anonymous-tailored.pdf');
-    expect(tailoredUrl).toContain('/api/ai/dossier/42?layout=ANONYMOUS&language=EN');
+    expect(reviewed).toEqual({ headline: null, summary: 'Ten years of Java and Kafka.', skills: ['Kafka', 'Java'], missions: [], positions: [] });
+    await page.locator('[data-ai-cv-close]').click();
+    await expect(page.locator('mat-dialog-container')).toHaveCount(0);
     await expect(page.locator('[data-dossier="tailored"]')).toBeEnabled();
 
     const notes: unknown[] = [];

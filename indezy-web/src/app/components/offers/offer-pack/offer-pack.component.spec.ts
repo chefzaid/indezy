@@ -24,7 +24,7 @@ describe('OfferPackComponent', () => {
     rate: 620, rateReasons: ['Kotlin rare'] };
 
   function create() {
-    ai = jasmine.createSpyObj('AiService', ['applicationPack', 'offerDossier']);
+    ai = jasmine.createSpyObj('AiService', ['applicationPack']);
     attachments = jasmine.createSpyObj('ProjectAttachmentService', ['upload']);
     offers = jasmine.createSpyObj('OfferService', ['importOffer']);
     projects = jasmine.createSpyObj('ProjectService', ['addProjectNote']);

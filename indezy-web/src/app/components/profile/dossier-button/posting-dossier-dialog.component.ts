@@ -3,20 +3,25 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
-import { DocumentLanguage } from '../../../models';
-import { AiService, aiBlobErrorKey, postingPdfErrorKey } from '../../../services/ai/ai.service';
-import { saveBlob } from '../../../shared/utils/download-file';
+import { AiCvRewrite, DocumentLanguage } from '../../../models';
+import { AiService, aiErrorKey, postingPdfErrorKey } from '../../../services/ai/ai.service';
 import { PDF_MAX_BYTES, TEXT_MAX } from '../../projects/project-form/ai-posting-dialog/ai-posting-dialog.component';
+
+/** The posting's tailoring, to review, in the language asked. */
+export interface PostingReview {
+  rewrite: AiCvRewrite;
+  language: DocumentLanguage;
+}
 
 /**
  * The dossier de compétences tailored with AI to a job posting pasted as text or read from its PDF, without adding it
- * to the pipeline (see docs/features.md#ai-features): nothing is kept, the PDF is downloaded.
+ * to the pipeline (see docs/features.md#ai-features): closes with the tailoring, reviewed before it is downloaded; nothing is kept.
  */
 @Component({
   selector: 'app-posting-dossier-dialog',
@@ -46,10 +51,6 @@ import { PDF_MAX_BYTES, TEXT_MAX } from '../../projects/project-form/ai-posting-
         <mat-error>{{ 'ai.posting.textError' | translate }}</mat-error>
       </mat-form-field>
       <div class="row">
-        <mat-button-toggle-group [(ngModel)]="layout" [attr.aria-label]="'ai.dossier.posting.layout' | translate" data-posting-dossier-layout>
-          <mat-button-toggle value="NAMED">{{ 'ai.cv.named' | translate }}</mat-button-toggle>
-          <mat-button-toggle value="ANONYMOUS">{{ 'ai.cv.anonymous' | translate }}</mat-button-toggle>
-        </mat-button-toggle-group>
         <mat-button-toggle-group [(ngModel)]="language" [attr.aria-label]="'ai.cv.language' | translate" data-posting-dossier-language>
           <mat-button-toggle value="FR">Français</mat-button-toggle>
           <mat-button-toggle value="EN">English</mat-button-toggle>
@@ -66,7 +67,7 @@ import { PDF_MAX_BYTES, TEXT_MAX } from '../../projects/project-form/ai-posting-
         @if (making) {
           <mat-spinner diameter="18" [attr.aria-label]="'ai.dossier.busy' | translate"></mat-spinner>
         } @else {
-          <mat-icon>download</mat-icon>
+          <mat-icon>auto_awesome</mat-icon>
         }
         {{ 'ai.dossier.posting.make' | translate }}
       </button>
@@ -84,10 +85,10 @@ import { PDF_MAX_BYTES, TEXT_MAX } from '../../projects/project-form/ai-posting-
 export class PostingDossierDialogComponent {
   private readonly ai = inject(AiService);
   private readonly changes = inject(ChangeDetectorRef);
+  private readonly dialogRef = inject<MatDialogRef<PostingDossierDialogComponent, PostingReview>>(MatDialogRef);
 
   readonly max = TEXT_MAX;
   readonly text = new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(TEXT_MAX)] });
-  layout: 'NAMED' | 'ANONYMOUS' = 'NAMED';
   language: DocumentLanguage = 'FR';
   making = false;
   loadingPdf = false;
@@ -131,18 +132,12 @@ export class PostingDossierDialogComponent {
     }
     this.making = true;
     this.errorKey = null;
-    this.ai.postingDossier(text, this.layout, this.language).subscribe({
-      next: file => {
+    const language = this.language;
+    this.ai.reviewPostingDossier(text, language).subscribe({
+      next: rewrite => this.dialogRef.close({ rewrite, language }),
+      error: (error: HttpErrorResponse) => {
         this.making = false;
-        saveBlob(file, `${this.language === 'EN' ? 'skills-profile' : 'dossier-competences'}${this.layout === 'ANONYMOUS' ? '-anonymous' : ''}-tailored.pdf`);
-        this.changes.markForCheck();
-      },
-      error: (error: unknown) => {
-        this.making = false;
-        void aiBlobErrorKey(error).then(key => {
-          this.errorKey = key;
-          this.changes.markForCheck();
-        });
+        this.errorKey = aiErrorKey(error);
         this.changes.markForCheck();
       }
     });

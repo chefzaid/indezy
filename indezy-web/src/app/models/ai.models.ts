@@ -348,3 +348,16 @@ export interface AiProspectionMessage {
   contactId: number;
   body: string;
 }
+
+/** A one-click refinement of a single block of the CV. */
+export type AiCvRefinement = 'SHORTER' | 'TECHNICAL' | 'PLAIN' | 'TRANSLATE' | 'HIGHLIGHT';
+
+/** One block of the CV to refine, its locked phrases kept as written. */
+export interface AiCvRefine {
+  text: string;
+  refinement: AiCvRefinement;
+  focus: string | null;
+  locked: string[];
+  language: DocumentLanguage;
+}
+

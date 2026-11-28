@@ -89,7 +89,8 @@ Pour répondre à une annonce reçue par e-mail ou trouvée sur un site que le f
 
 1. Sur la page Profil, cliquez sur **Dossier de compétences**, puis sur **Adapter à une annonce (IA)…**.
 2. Collez l'annonce, ou cliquez sur **Depuis un PDF** pour lire son texte depuis le PDF.
-3. Choisissez **Dossier nominatif** ou **Dossier anonymisé** et la langue, puis cliquez sur **Télécharger le dossier adapté**.
+3. Choisissez la langue, puis cliquez sur **Adapter à cette annonce**.
+4. Vérifiez le dossier (voir plus bas), puis téléchargez-le nominatif ou anonymisé.
 
 L'IA réécrit votre résumé, l'ordre de vos compétences et les descriptions de vos missions pour l'annonce, à partir des seuls faits de votre profil. Rien n'est conservé. Pour une offre du flux, utilisez **Dossier adapté (IA)** sur sa page (voir [Offres](/help/offers)).
 
@@ -99,7 +100,19 @@ L'IA réécrit votre résumé, l'ordre de vos compétences et les descriptions d
 
 1. Saisissez un **Positionnement** (par exemple « Lead développeur Java, Kafka et AWS »), ou laissez-le vide pour garder le vôtre.
 2. Choisissez un **Style** : résultats et impact, concis, profondeur technique ou leadership, puis la langue du CV, et cliquez sur **Réécrire**.
-3. Vérifiez chaque bloc : votre titre, votre résumé, l'ordre de vos compétences, puis chaque mission et poste passé. La formulation actuelle est barrée, la réécrite est en dessous et modifiable. Décochez un bloc pour le garder tel quel.
+3. Vérifiez chaque bloc : votre titre, votre résumé, l'ordre de vos compétences, puis chaque mission et poste passé (voir plus bas).
 4. Cliquez sur **Télécharger le PDF** pour le dossier nominatif ou anonymisé avec les blocs retenus, ou sur **Appliquer à mon profil** pour enregistrer le titre, le résumé et les postes passés retenus sur votre profil.
 
 L'IA ne fait que reformuler : aucune date, aucun client, employeur, compétence ni stack n'est ajouté, une compétence absente de votre profil est écartée, et votre nom, vos coordonnées, vos clients et vos employeurs ne lui sont jamais envoyés. Les missions gagnées gardent leur propre description sur leur opportunité : seul le dossier téléchargé porte leur formulation réécrite.
+
+## Vérifier un dossier réécrit
+
+Que l'IA ait adapté votre dossier à une opportunité, à une offre du flux ou à une annonce, ou réécrit tout votre CV, vous ne voyez que les blocs qu'elle a modifiés :
+
+- Dans chaque bloc, les mots retirés sont barrés et les mots ajoutés surlignés. La nouvelle formulation est en dessous, et vous pouvez la modifier.
+- Décochez un bloc pour le garder tel que votre profil le dit.
+- **Verrouiller ce bloc** (le cadenas) le garde tel qu'il se lit : aucun affinage ne le change.
+- **Affiner avec l'IA** (la baguette) réécrit un bloc en un clic : **Plus court**, **Plus technique**, **Moins de jargon**, **Traduire**, ou **Mettre en avant** ce que vous avez saisi dans le champ de ce nom (par exemple « Kubernetes »), seulement là où le bloc le dit déjà.
+- **Phrases à garder telles quelles** : saisissez une phrase et appuyez sur Entrée. Chaque affinage la garde mot pour mot ; si l'IA en change une malgré tout, le bloc reste tel quel et vous êtes prévenu.
+
+Ensuite, **Télécharger le PDF** donne le dossier nominatif ou anonymisé avec les blocs tels que vous les avez laissés.

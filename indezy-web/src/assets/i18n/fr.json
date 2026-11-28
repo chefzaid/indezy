@@ -5381,7 +5381,8 @@
       "keyRefused": "Anthropic a refusé votre clé : vérifiez-la dans Profil → Préférences.",
       "tooLong": "La réponse a été coupée : raccourcissez le texte.",
       "failed": "L'IA ne peut pas répondre pour l'instant : réessayez dans un moment.",
-      "variables": "L'IA a modifié les variables du message : améliorez-le à nouveau ou modifiez-le vous-même."
+      "variables": "L'IA a modifié les variables du message : améliorez-le à nouveau ou modifiez-le vous-même.",
+      "locked": "L'IA a modifié une phrase verrouillée : affinez de nouveau le bloc ou modifiez-le à la main."
     },
     "posting": {
       "open": "Remplir depuis une annonce collée (IA)",
@@ -5510,9 +5511,12 @@
       "posting": {
         "open": "Adapter à une annonce (IA)…",
         "title": "Dossier adapté à une annonce",
-        "hint": "Collez l'annonce telle que vous l'avez reçue, ou lisez-la depuis son PDF : l'IA réécrit le résumé, l'ordre des compétences et les descriptions des missions pour elle, à partir des seuls faits de votre profil. Rien n'est ajouté au pipeline ni conservé.",
-        "layout": "Nominatif ou anonymisé",
-        "make": "Télécharger le dossier adapté"
+        "hint": "Collez l'annonce telle que vous l'avez reçue, ou lisez-la depuis son PDF : l'IA réécrit le résumé, l'ordre des compétences et les descriptions des missions pour elle, à partir des seuls faits de votre profil, à vérifier avant de télécharger. Rien n'est ajouté au pipeline ni conservé.",
+        "make": "Adapter à cette annonce"
+      },
+      "in": {
+        "FR": "En français",
+        "EN": "En anglais"
       }
     },
     "cv": {
@@ -5531,7 +5535,7 @@
       "language": "Langue du CV",
       "rewrite": "Réécrire",
       "busy": "L'IA réécrit le CV",
-      "review": "Vérifiez chaque bloc : la formulation actuelle est barrée au-dessus, la réécrite en dessous. Décochez un bloc pour le garder tel quel ; modifiez une réécriture à votre guise.",
+      "review": "Vérifiez chaque bloc : les mots retirés sont barrés, les mots ajoutés surlignés. Décochez un bloc pour le garder tel quel, modifiez la nouvelle formulation, verrouillez un bloc pour qu'aucun affinage ne le change, ou affinez-le en un clic.",
       "headline": "Titre",
       "summary": "Résumé",
       "skills": "Ordre des compétences",
@@ -5545,7 +5549,25 @@
       "anonymous": "Dossier anonymisé",
       "approve": "Appliquer à mon profil",
       "approved": "Le titre, le résumé et les postes passés retenus sont enregistrés sur votre profil",
-      "approveError": "La formulation réécrite n'a pas pu être enregistrée sur votre profil"
+      "approveError": "La formulation réécrite n'a pas pu être enregistrée sur votre profil",
+      "tailoredTitle": "Vérifier le dossier adapté",
+      "focus": "Mettre en avant",
+      "focusHint": "ex. Kubernetes",
+      "lockedPhrases": "Phrases à garder telles quelles",
+      "lockedHint": "Saisissez une phrase, puis Entrée",
+      "removePhrase": "Retirer « {{phrase}} »",
+      "lock": "Verrouiller ce bloc",
+      "unlock": "Déverrouiller ce bloc",
+      "refine": "Affiner avec l'IA",
+      "refining": "L'IA affine le bloc",
+      "changes": "Modifications :",
+      "refinements": {
+        "SHORTER": "Plus court",
+        "TECHNICAL": "Plus technique",
+        "PLAIN": "Moins de jargon",
+        "TRANSLATE": "Traduire en {{language}}",
+        "HIGHLIGHT": "Mettre en avant {{focus}}"
+      }
     },
     "rate": {
       "ask": "Suggérer un TJM (IA)",

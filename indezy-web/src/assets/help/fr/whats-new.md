@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Vérifier et affiner un dossier réécrit
+
+Un dossier adapté ne se télécharge plus à l'aveugle : sur une opportunité, une offre du flux ou une annonce collée, vous voyez d'abord chaque bloc modifié par l'IA, les mots retirés barrés et les mots ajoutés surlignés. Gardez, modifiez ou verrouillez chaque bloc, affinez-en un en un clic (plus court, plus technique, moins de jargon, traduit, ou en mettant quelque chose en avant), et gardez mot pour mot les phrases choisies. Voir [Documents](/help/documents).
+
 ### Adapter votre dossier à toute offre ou annonce
 
 **Dossier adapté (IA)** fonctionne désormais sur la page d'une offre du flux, sans ajouter l'offre au pipeline, et le dossier téléchargé est joint à l'opportunité quand vous l'ajoutez avec sa candidature. Depuis la page Profil, **Adapter à une annonce (IA)…** fait de même pour une annonce collée ou lue depuis son PDF. Voir [Offres](/help/offers) et [Documents](/help/documents).

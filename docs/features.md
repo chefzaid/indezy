@@ -807,15 +807,26 @@ never saved or sent on its own:
   description, notes, steps and latest journal entries are its context, the last 20 turns go back with each question
   (2,000 characters at most), and the history stays with the opportunity, cleared on request, deleted with it and part of
   the data export.
-- **Tailored dossier (AI)** on an opportunity's page (`POST /api/ai/dossier/{projectId}?layout=NAMED|ANONYMOUS&language=FR|EN`):
-  the [dossier de compétences](#dossier-de-competences) as a PDF with its summary rewritten for the opportunity, the
+- **Tailored dossier (AI)** on an opportunity's page (`POST /api/ai/dossier/{projectId}/review?language=FR|EN`), reviewed
+  block by block before it is rendered (see **Review a rewritten dossier** below; the one-shot PDF stays in the API as
+  `POST /api/ai/dossier/{projectId}?layout=NAMED|ANONYMOUS&language=FR|EN`):
+  the [dossier de compétences](#dossier-de-competences) with its summary rewritten for the opportunity, the
   skills it asks for first and the descriptions of the 15 latest missions bringing out what matters for it, in the
   dossier's language. The AI only rewords: a skill it names that the profile lacks is dropped, a mission without a
   description gets none, the summary is cut at 900 characters, and the name, contact details and clients are never sent
   to it. Nothing is kept. The same tailoring works on a [feed offer](#freelance-offer-feed) (see **Prepare my application (AI)**) and,
   from the profile's **Dossier de compétences** menu, **Tailor to a job posting (AI)…** on a posting pasted or read from
-  its PDF (`POST /api/ai/dossier/posting?layout&language` with its text, 20,000 characters at most, the PDF read by
-  `POST /api/ai/posting/pdf` first), nothing added to the pipeline.
+  its PDF (`POST /api/ai/dossier/posting/review?language` with its text, 20,000 characters at most, the PDF read by
+  `POST /api/ai/posting/pdf` first), nothing added to the pipeline; for the offer, `POST /api/ai/offers/{offerId}/dossier/review`.
+  The one-shot PDFs stay in the API (`POST /api/ai/offers/{offerId}/dossier`, `POST /api/ai/dossier/posting`).
+- **Review a rewritten dossier**: the tailored dossiers and **Rewrite my CV (AI)** answer the same review, each block (the
+  headline, the summary, each mission and past position) before and after; only the blocks the AI changed are shown, the
+  words removed struck through and the words added marked (a word diff in the browser). Each block is kept or not,
+  edited, **locked** against refinements, or refined in one click (`POST /api/ai/cv/refine`: `SHORTER`, `TECHNICAL`,
+  `PLAIN`, `TRANSLATE` into the dossier's language, or `HIGHLIGHT` with what to bring out, 80 characters at most; the
+  block 2,000 characters at most), keeping **locked phrases** word for word (10 at most, 200 characters each; only those
+  the block holds are sent): when the AI dropped one, the refinement is refused (409) and the block stays as it was. The
+  dossier is then rendered with the blocks kept by `POST /api/ai/cv/pdf`, without AI.
 - **Rewrite my CV (AI)** at the top of the profile (`POST /api/ai/cv/rewrite`, a positioning of at most 120 characters, a
   style `IMPACT|CONCISE|TECHNICAL|EXECUTIVE` and a language): the whole [dossier de compétences](#dossier-de-competences)
   rewritten for that positioning, tied to no opportunity: the headline (120 characters at most), the summary (900), the

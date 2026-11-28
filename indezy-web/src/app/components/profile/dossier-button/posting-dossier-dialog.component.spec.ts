@@ -1,18 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
+import { AiCvRewrite } from '../../../models';
 import { of, throwError } from 'rxjs';
 import { AiService } from '../../../services/ai/ai.service';
 import { PostingDossierDialogComponent } from './posting-dossier-dialog.component';
 
 describe('PostingDossierDialogComponent', () => {
   let ai: jasmine.SpyObj<AiService>;
+  let dialogRef: jasmine.SpyObj<MatDialogRef<PostingDossierDialogComponent>>;
 
   function create(): PostingDossierDialogComponent {
-    ai = jasmine.createSpyObj('AiService', ['postingDossier', 'postingPdfText']);
+    ai = jasmine.createSpyObj('AiService', ['reviewPostingDossier', 'postingPdfText']);
+    dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     TestBed.configureTestingModule({
       imports: [PostingDossierDialogComponent, TranslateModule.forRoot()],
-      providers: [{ provide: AiService, useValue: ai }]
+      providers: [{ provide: AiService, useValue: ai }, { provide: MatDialogRef, useValue: dialogRef }]
     });
     const fixture = TestBed.createComponent(PostingDossierDialogComponent);
     fixture.detectChanges();
@@ -25,22 +29,18 @@ describe('PostingDossierDialogComponent', () => {
     return { target: input } as unknown as Event;
   }
 
-  it('downloads the dossier tailored to the posting pasted, in the layout and language chosen', () => {
+  it('has the AI tailor the dossier to the posting pasted, in the language chosen, then gives it back to review', () => {
     const component = create();
-    const link = document.createElement('a');
-    spyOn(document, 'createElement').and.returnValue(link);
-    spyOn(link, 'click');
-    ai.postingDossier.and.returnValue(of(new Blob(['%PDF'])));
+    const rewrite = { skills: [] } as unknown as AiCvRewrite;
+    ai.reviewPostingDossier.and.returnValue(of(rewrite));
 
     component.make();
-    expect(ai.postingDossier).not.toHaveBeenCalled();
+    expect(ai.reviewPostingDossier).not.toHaveBeenCalled();
     component.text.setValue('  Mission Kafka, 12 mois. ');
-    component.layout = 'ANONYMOUS';
     component.language = 'EN';
     component.make();
-    expect(ai.postingDossier).toHaveBeenCalledWith('Mission Kafka, 12 mois.', 'ANONYMOUS', 'EN');
-    expect(link.download).toBe('skills-profile-anonymous-tailored.pdf');
-    expect(component.making).toBeFalse();
+    expect(ai.reviewPostingDossier).toHaveBeenCalledWith('Mission Kafka, 12 mois.', 'EN');
+    expect(dialogRef.close).toHaveBeenCalledWith({ rewrite, language: 'EN' });
   });
 
   it('reads the posting from its PDF, and says why one cannot be read', () => {
@@ -58,13 +58,14 @@ describe('PostingDossierDialogComponent', () => {
     expect(component.errorKey).toBe('ai.posting.pdfTooLarge');
   });
 
-  it('says why the AI could not tailor the dossier', async () => {
+  it('says why the AI could not tailor the dossier', () => {
     const component = create();
     component.text.setValue('Mission Kafka');
-    ai.postingDossier.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409,
-      error: new Blob(['{"message":"The AI declined this request"}']) })));
+    ai.reviewPostingDossier.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409,
+      error: { message: 'The AI declined this request' } })));
     component.make();
-    await new Promise(resolve => setTimeout(resolve, 20));
     expect(component.errorKey).toBe('ai.errors.declined');
+    expect(component.making).toBeFalse();
+    expect(dialogRef.close).not.toHaveBeenCalled();
   });
 });

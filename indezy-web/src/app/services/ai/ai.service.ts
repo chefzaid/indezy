@@ -3,7 +3,7 @@ import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http
 import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AiAutopilotQueue, AiCvApproved, AiCvReviewed, AiCvRewrite, AiCvStyle, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiDebrief, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage, InboxWatcher } from '../../models';
+import { AiAutopilotQueue, AiCvApproved, AiCvRefine, AiCvReviewed, AiCvRewrite, AiCvStyle, AiSearchHit, AiApplicationPack, AiProfileImport, AiOfferBrief, AiAvailability, AiProspectionMessage, AiChatTurn, AiDebrief, AiFit, AiInterview, AiNegotiation, AiPolishTone, AiRateRequest, AiRateSuggestion, AiOfferVerdict, AiMessageDraft, AiMessageKind, AiModel, AiPosting, AiTask, AiStatus, AiPackChannel, DocumentLanguage, InboxWatcher } from '../../models';
 
 /** The AI features: whether they can be used, the member's own key, and each feature. */
 @Injectable({
@@ -158,19 +158,27 @@ export class AiService {
     return this.http.put<void>(`${this.API_URL}/cv/profile`, approved);
   }
 
-  /** The dossier de compétences tailored to an opportunity, as a PDF. */
-  tailoredDossier(projectId: number, layout: 'NAMED' | 'ANONYMOUS', language: DocumentLanguage): Observable<Blob> {
-    return this.http.post(`${this.API_URL}/dossier/${projectId}`, null, { params: { layout, language }, responseType: 'blob' });
+
+
+
+  /** The dossier tailored to an opportunity, block by block before and after, to review before downloading it. */
+  reviewDossier(projectId: number, language: DocumentLanguage): Observable<AiCvRewrite> {
+    return this.http.post<AiCvRewrite>(`${this.API_URL}/dossier/${projectId}/review`, null, { params: { language } });
   }
 
-  /** The dossier de compétences tailored to an offer of the feed, as a PDF, the offer left out of the pipeline. */
-  offerDossier(offerId: number, layout: 'NAMED' | 'ANONYMOUS', language: DocumentLanguage): Observable<Blob> {
-    return this.http.post(`${this.API_URL}/offers/${offerId}/dossier`, null, { params: { layout, language }, responseType: 'blob' });
+  /** The dossier tailored to an offer of the feed, block by block, the offer left out of the pipeline. */
+  reviewOfferDossier(offerId: number, language: DocumentLanguage): Observable<AiCvRewrite> {
+    return this.http.post<AiCvRewrite>(`${this.API_URL}/offers/${offerId}/dossier/review`, null, { params: { language } });
   }
 
-  /** The dossier de compétences tailored to a job posting pasted as text, as a PDF; nothing is kept. */
-  postingDossier(text: string, layout: 'NAMED' | 'ANONYMOUS', language: DocumentLanguage): Observable<Blob> {
-    return this.http.post(`${this.API_URL}/dossier/posting`, { text }, { params: { layout, language }, responseType: 'blob' });
+  /** The dossier tailored to a job posting pasted as text, block by block; nothing is kept. */
+  reviewPostingDossier(text: string, language: DocumentLanguage): Observable<AiCvRewrite> {
+    return this.http.post<AiCvRewrite>(`${this.API_URL}/dossier/posting/review`, { text }, { params: { language } });
+  }
+
+  /** One block of the CV refined as asked, its locked phrases kept; refused (409) when the AI changed one. */
+  refineCv(request: AiCvRefine): Observable<{ text: string }> {
+    return this.http.post<{ text: string }>(`${this.API_URL}/cv/refine`, request);
   }
 
   draftMessage(projectId: number, kind: AiMessageKind, language: DocumentLanguage, notes: string | null): Observable<AiMessageDraft> {
@@ -221,6 +229,9 @@ function aiMessageKey(message: string): string {
   }
   if (message.startsWith("The AI changed the message's variables")) {
     return 'ai.errors.variables';
+  }
+  if (message.startsWith('The AI changed a locked phrase')) {
+    return 'ai.errors.locked';
   }
   if (message.startsWith('The AI answer was cut short')) {
     return 'ai.errors.tooLong';

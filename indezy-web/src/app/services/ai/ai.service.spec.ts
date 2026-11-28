@@ -51,11 +51,14 @@ describe('AiService', () => {
     expect(http.expectOne(`${url}/availability?language=EN`).request.method).toBe('POST');
     service.polish('point', 'bonjour', 'FORMAL').subscribe();
     expect(http.expectOne(`${url}/polish`).request.body).toEqual({ subject: 'point', body: 'bonjour', tone: 'FORMAL' });
-    service.tailoredDossier(4, 'ANONYMOUS', 'EN').subscribe(pdf => expect(pdf.size).toBe(4));
-    const dossier = http.expectOne(`${url}/dossier/4?layout=ANONYMOUS&language=EN`);
-    expect(dossier.request.method).toBe('POST');
-    expect(dossier.request.responseType).toBe('blob');
-    dossier.flush(new Blob(['%PDF']));
+    service.reviewDossier(4, 'EN').subscribe();
+    expect(http.expectOne(`${url}/dossier/4/review?language=EN`).request.method).toBe('POST');
+    service.reviewOfferDossier(5, 'FR').subscribe();
+    expect(http.expectOne(`${url}/offers/5/dossier/review?language=FR`).request.method).toBe('POST');
+    service.reviewPostingDossier('Mission Kafka', 'FR').subscribe();
+    expect(http.expectOne(`${url}/dossier/posting/review?language=FR`).request.body).toEqual({ text: 'Mission Kafka' });
+    service.refineCv({ text: 'Paie.', refinement: 'SHORTER', focus: null, locked: ['Paie'], language: 'FR' }).subscribe();
+    expect(http.expectOne(`${url}/cv/refine`).request.body.locked).toEqual(['Paie']);
     http.verify();
   });
 
@@ -68,6 +71,7 @@ describe('AiService', () => {
     expect(aiErrorKey(failed('The AI key was refused: check it'))).toBe('ai.errors.keyRefused');
     expect(aiErrorKey(failed('The AI answer was cut short: shorten the text'))).toBe('ai.errors.tooLong');
     expect(aiErrorKey(failed("The AI changed the message's variables: polish it again"))).toBe('ai.errors.variables');
+    expect(aiErrorKey(failed('The AI changed a locked phrase: refine the block again or edit it by hand'))).toBe('ai.errors.locked');
     expect(aiErrorKey(failed())).toBe('ai.errors.failed');
   });
 

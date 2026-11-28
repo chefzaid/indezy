@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Review and refine a rewritten dossier
+
+A tailored dossier is no longer downloaded blind: on an opportunity, a feed offer or a pasted posting, you first see each block the AI changed, the words removed struck through and the words added highlighted. Keep, edit or lock each block, refine one in a click (shorter, more technical, less jargon, translated, or bringing something out), and keep the phrases you choose word for word. See [Documents](/help/documents).
+
 ### Tailor your dossier to any offer or posting
 
 **Tailored dossier (AI)** now works on a feed offer's page, without adding the offer to the pipeline, and the dossier you downloaded is attached to the opportunity when you add it with its application pack. From the Profile page, **Tailor to a job posting (AI)…** does the same for a posting you paste or read from its PDF. See [Offers](/help/offers) and [Documents](/help/documents).

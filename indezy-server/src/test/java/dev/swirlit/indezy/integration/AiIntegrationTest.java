@@ -83,6 +83,8 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
                 answer = message("{\"skills\":[\"Java\",\" Kafka \",\"Java\"],\"rateMin\":650,\"minRemoteDays\":2,\"workModes\":[\"HYBRID\"]," +
                     "\"regions\":[\"Île-de-France\",\"Atlantide\"],\"startBefore\":\"2027-03-01\",\"durationMin\":0,\"keywords\":\"\"," +
                     "\"avoid\":[\"banque\"]}", "end_turn");
+            } else if (body.contains("You refine one block")) {
+                answer = message("{\"text\":\" Migration de la paie vers Kafka. \"}", "end_turn");
             } else if (body.contains("You rewrite a French freelance IT consultant's whole CV")) {
                 answer = message("{\"headline\":\" Lead Java / Kafka \",\"summary\":\"Dix ans de Java et de flux.\",\"skills\":[\"Kafka\",\"Cobol\"]," +
                     "\"missions\":[{\"number\":1,\"description\":\"Migration de la paie vers Kafka.\"}]," +
@@ -453,6 +455,45 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM projects", Integer.class)).isEqualTo(opportunities);
         jdbcTemplate.update("DELETE FROM job_offer_skills WHERE offer_id = ?", offerId);
         offers.deleteById(offerId);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void reviewsATailoredDossierBlockByBlockAndRefinesOneBlockKeepingItsLockedPhrases() {
+        call(alice, HttpMethod.PUT, "/ai/key", Map.of("apiKey", "sk-ant-alice-own"), Map.class);
+        call(alice, HttpMethod.PUT, "/users/profile", Map.of("firstName", "Alice", "lastName", "Martin", "email", aliceEmail, "position", "Développeuse Java",
+            "bio", "Dix ans de Java.", "skills", List.of("Java", "Kafka")), Map.class);
+        long project = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "WON",
+            "clientId", aliceClientId, "startDate", "2025-03-01", "techStack", "Java, Kafka", "description", "Paie migrée vers Kafka."), Map.class));
+
+        Map<String, Object> review = call(alice, HttpMethod.POST, "/ai/dossier/" + project + "/review?language=FR", null, Map.class).getBody();
+        assertThat((Map<String, Object>) review.get("headline")).containsEntry("before", "Développeuse Java").containsEntry("after", "Développeuse Java");
+        assertThat((Map<String, Object>) review.get("summary")).containsEntry("after", "Développeur Java tourné vers les flux de paie.");
+        assertThat((List<Map<String, Object>>) review.get("missions")).first().satisfies(item ->
+            assertThat(item).containsEntry("before", "Paie migrée vers Kafka.").containsEntry("after", "Migration de la paie vers Kafka, au cœur des flux."));
+        assertThat(BODIES.getLast()).contains("You tailor", "Role: Lead Java").doesNotContain(aliceEmail, "Alice Corp", "Martin");
+        assertThat(call(bob, HttpMethod.POST, "/ai/dossier/" + project + "/review", null, String.class).getStatusCode())
+            .isIn(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND);
+
+        long offerId = offers.save(offer()).getId();
+        assertThat(call(alice, HttpMethod.POST, "/ai/offers/" + offerId + "/dossier/review", null, Map.class).getBody()).containsKey("skills");
+        assertThat(BODIES.getLast()).contains("Role: Lead Kotlin");
+        assertThat(call(alice, HttpMethod.POST, "/ai/dossier/posting/review?language=EN", Map.of("text", "Mission Kafka, 12 mois."), Map.class)
+            .getBody()).containsKey("missions");
+        assertThat(BODIES.getLast()).contains("Answer in English", "Mission Kafka, 12 mois.");
+        jdbcTemplate.update("DELETE FROM job_offer_skills WHERE offer_id = ?", offerId);
+        offers.deleteById(offerId);
+
+        // One block refined, a locked phrase kept; one the AI dropped is refused.
+        assertThat(call(alice, HttpMethod.POST, "/ai/cv/refine", Map.of("text", "Paie migrée vers Kafka.", "refinement", "HIGHLIGHT",
+            "focus", "Kafka", "locked", List.of("Kafka")), Map.class).getBody()).containsEntry("text", "Migration de la paie vers Kafka.");
+        assertThat(BODIES.getLast()).contains("You refine one block", "Bring out Kafka", "<locked>\\n- Kafka\\n</locked>");
+        ResponseEntity<Map> refused = call(alice, HttpMethod.POST, "/ai/cv/refine", Map.of("text", "Paie migrée vers Kafka.",
+            "refinement", "SHORTER", "locked", List.of("Paie migrée")), Map.class);
+        assertThat(refused.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(refused.getBody()).containsEntry("message", "The AI changed a locked phrase: refine the block again or edit it by hand");
+        assertThat(call(alice, HttpMethod.POST, "/ai/cv/refine", Map.of("text", " ", "refinement", "SHORTER"), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test

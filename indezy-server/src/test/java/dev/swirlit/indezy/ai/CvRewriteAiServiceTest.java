@@ -1,7 +1,9 @@
 package dev.swirlit.indezy.ai;
 
 import dev.swirlit.indezy.dto.CareerDtos;
+import com.anthropic.models.messages.OutputConfig;
 import dev.swirlit.indezy.dto.DossierDto;
+import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.repository.UserRepository;
@@ -14,7 +16,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -114,5 +119,29 @@ class CvRewriteAiServiceTest {
         verify(career).updateExperience(eq(9L), eq(70L), eq(new CareerDtos.ExperienceDetails("Banque X", "Développeuse",
             LocalDate.of(2015, 9, 1), LocalDate.of(2022, 12, 31), "Paie.", "Java", false)));
         verify(career, never()).updateExperience(eq(9L), eq(99L), any());
+    }
+
+    @Test
+    void asksForOneRefinementKeepingTheLockedPhrasesThatAreInTheBlock() {
+        String context = CvRewriteAiService.refineContext("Migration vers Kafka.", CvRewriteAiService.Refinement.HIGHLIGHT, " Kubernetes ",
+            List.of("Kafka"), DocumentLanguage.EN);
+        assertThat(context).startsWith("Answer in English.\nBring out Kubernetes, only where the block states it.")
+            .contains("<block>\nMigration vers Kafka.\n</block>", "<locked>\n- Kafka\n</locked>");
+        assertThat(CvRewriteAiService.refineContext("Texte.", CvRewriteAiService.Refinement.TRANSLATE, null, List.of(), DocumentLanguage.FR))
+            .contains("Translate it into French").doesNotContain("<locked>");
+    }
+
+    @Test
+    void refusesARefinementThatChangedALockedPhrase() {
+        AiService ai = mock(AiService.class);
+        CvRewriteAiService service = new CvRewriteAiService(ai, mock(DossierService.class), mock(CareerService.class), mock(UserRepository.class));
+        when(ai.structured(eq(3L), eq(AiFeature.DOSSIER), anyString(), anyString(), eq(CvRewriteAiService.Refined.class), anyLong(),
+            any(OutputConfig.Effort.class))).thenReturn(new CvRewriteAiService.Refined(" Migration du SI vers Kafka. "));
+
+        // A phrase the block does not hold is not asked for.
+        assertThat(service.refine(3L, "Migration vers Kafka.", CvRewriteAiService.Refinement.SHORTER, null, List.of("Kafka", "Rust", " "),
+            DocumentLanguage.FR)).isEqualTo("Migration du SI vers Kafka.");
+        assertThatThrownBy(() -> service.refine(3L, "Migration vers Kafka.", CvRewriteAiService.Refinement.SHORTER, null,
+            List.of("Migration vers"), DocumentLanguage.FR)).isInstanceOf(InvalidStateException.class).hasMessageContaining("locked phrase");
     }
 }
