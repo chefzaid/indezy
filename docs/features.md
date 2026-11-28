@@ -812,7 +812,10 @@ never saved or sent on its own:
   skills it asks for first and the descriptions of the 15 latest missions bringing out what matters for it, in the
   dossier's language. The AI only rewords: a skill it names that the profile lacks is dropped, a mission without a
   description gets none, the summary is cut at 900 characters, and the name, contact details and clients are never sent
-  to it. Nothing is kept.
+  to it. Nothing is kept. The same tailoring works on a [feed offer](#freelance-offer-feed) (see **Prepare my application (AI)**) and,
+  from the profile's **Dossier de compétences** menu, **Tailor to a job posting (AI)…** on a posting pasted or read from
+  its PDF (`POST /api/ai/dossier/posting?layout&language` with its text, 20,000 characters at most, the PDF read by
+  `POST /api/ai/posting/pdf` first), nothing added to the pipeline.
 - **Rewrite my CV (AI)** at the top of the profile (`POST /api/ai/cv/rewrite`, a positioning of at most 120 characters, a
   style `IMPACT|CONCISE|TECHNICAL|EXECUTIVE` and a language): the whole [dossier de compétences](#dossier-de-competences)
   rewritten for that positioning, tied to no opportunity: the headline (120 characters at most), the summary (900), the
@@ -843,8 +846,11 @@ never saved or sent on its own:
   the message in the channel's format (an ESN email with its subject, a Malt proposal, a LinkedIn message cut to 300
   characters), editable and copied, the answers to the usual screening questions (availability, notice, rate, remote)
   and a rate to propose with its reasons, from the offer, the profile, its availability date and the feed's median for
-  the offer's first skill. **Add to pipeline with this pack** adds the offer as a Contact-stage opportunity, keeps the
-  pack in its journal and opens it, where **Tailored dossier (AI)** is.
+  the offer's first skill. **Tailored dossier (AI)** beside it (`POST /api/ai/offers/{offerId}/dossier?layout=NAMED|ANONYMOUS&language=FR|EN`)
+  tailors the dossier to the offer as on an opportunity (its title as the role, its skills as the stack, its
+  description), without preparing the pack nor adding the offer to the pipeline. **Add to pipeline with this pack** adds
+  the offer as a Contact-stage opportunity, keeps the pack in its journal and the latest dossier tailored to the offer in
+  its files (said so when it cannot be attached, the opportunity added all the same), and opens it.
 - **Should I apply? (AI)** on a feed offer's page (`GET`/`POST /api/ai/offers/{offerId}/verdict`): one line on whether
   the offer is worth applying to for the profile (skills, target rate, town) and its deal-breakers (on site every day, a
   rate under the target, a permanent job posted as freelance, portage required, a start date passed, required skills the

@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.ai;
 
 import dev.swirlit.indezy.dto.DossierDto;
+import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import org.junit.jupiter.api.Test;
@@ -62,8 +63,22 @@ class DossierAiServiceTest {
         project.setRole("Lead Kafka");
         project.setTechStack("Kafka");
         project.setDescription("Flux temps réel.");
-        String context = DossierAiService.context(project, dossier("Dix ans de Java.", List.of(mission("Lead Java", "Paie."))), DocumentLanguage.EN);
+        String context = DossierAiService.context(DossierAiService.Target.of(project), dossier("Dix ans de Java.", List.of(mission("Lead Java", "Paie."))), DocumentLanguage.EN);
         assertThat(context).contains("Answer in English", "Lead Kafka", "Flux temps réel.", "1. Lead Java (2025-01-01 to now), stack: Java",
             "Description: Paie.", "- Java, 8 years", "Certifications: AWS").doesNotContain("A. M.", "Banque X");
+    }
+
+    @Test
+    void tailorsToAFeedOfferOrAPastedPostingLikeAnOpportunity() {
+        JobOffer offer = new JobOffer();
+        offer.setTitle("Tech lead Kafka");
+        offer.setSkills(List.of("Kafka", "Java"));
+        offer.setDescription("Plateforme de paiement.");
+        DossierDto base = dossier("Dix ans de Java.", List.of(mission("Lead Java", "Paie.")));
+
+        assertThat(DossierAiService.context(DossierAiService.Target.of(offer), base, DocumentLanguage.FR))
+            .contains("Answer in French", "Role: Tech lead Kafka", "Stack: Kafka, Java", "Description: Plateforme de paiement.");
+        String pasted = DossierAiService.context(DossierAiService.Target.posting("x".repeat(7_000)), base, DocumentLanguage.EN);
+        assertThat(pasted).contains("Role: \nStack: \nDescription: " + "x".repeat(6_000) + "\n</mission>");
     }
 }

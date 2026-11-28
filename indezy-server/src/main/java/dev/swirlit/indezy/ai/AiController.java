@@ -306,6 +306,24 @@ public class AiController {
         return PdfResponses.attachment(dossiers.pdf(SecurityUtils.getCurrentUserId(), freelanceId, projectId, layout, language));
     }
 
+    @Operation(summary = "The dossier de compétences tailored to a feed offer, as a PDF, without adding the offer to the pipeline",
+        description = "Its summary, skill order and mission descriptions reworded for the offer; named or anonymized, in French or English")
+    @PostMapping("/offers/{offerId}/dossier")
+    public ResponseEntity<byte[]> offerDossier(@PathVariable Long offerId, @RequestParam(defaultValue = "NAMED") DossierLayout layout,
+                                               @RequestParam(defaultValue = "FR") DocumentLanguage language) {
+        Long freelanceId = accessGuard.requireWorkspace(null);
+        return PdfResponses.attachment(dossiers.offerPdf(SecurityUtils.getCurrentUserId(), freelanceId, offerId, layout, language));
+    }
+
+    @Operation(summary = "The dossier de compétences tailored to a job posting pasted as text, as a PDF", description = "Nothing is kept")
+    @PostMapping("/dossier/posting")
+    public ResponseEntity<byte[]> postingDossier(@RequestParam(defaultValue = "NAMED") DossierLayout layout,
+                                                 @RequestParam(defaultValue = "FR") DocumentLanguage language,
+                                                 @Valid @RequestBody PostingRequest request) {
+        Long freelanceId = accessGuard.requireWorkspace(null);
+        return PdfResponses.attachment(dossiers.postingPdf(SecurityUtils.getCurrentUserId(), freelanceId, request.text(), layout, language));
+    }
+
     /** What the whole CV is rewritten for: a positioning (a target role) and a style. */
     public record CvRewriteRequest(@Size(max = CvRewriteAiService.POSITIONING_MAX) String positioning, CvRewriteAiService.Style style,
                                    DocumentLanguage language) {

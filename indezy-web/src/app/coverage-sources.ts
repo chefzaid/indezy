@@ -178,6 +178,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/profile/cv-rewrite-button/cv-rewrite-button.component',
   'components/profile/data-import/profile-data-import.component',
   'components/profile/dossier-button/dossier-button.component',
+  'components/profile/dossier-button/posting-dossier-dialog.component',
   'components/profile/email-templates-settings/email-templates-settings.component',
   'components/profile/inbox-watcher/inbox-watcher.component',
   'components/profile/network/follow-requests/profile-follow-requests.component',

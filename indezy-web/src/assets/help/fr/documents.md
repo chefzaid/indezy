@@ -83,6 +83,16 @@ Il reprend votre nom et votre titre, votre ville, vos coordonnées (version nomi
 
 > **Astuce :** complétez la description et la stack de vos missions gagnées : ce sont elles qui remplissent le dossier.
 
+## Adapter votre dossier à une annonce
+
+Pour répondre à une annonce reçue par e-mail ou trouvée sur un site que le flux ne collecte pas, sans l'ajouter à votre pipeline :
+
+1. Sur la page Profil, cliquez sur **Dossier de compétences**, puis sur **Adapter à une annonce (IA)…**.
+2. Collez l'annonce, ou cliquez sur **Depuis un PDF** pour lire son texte depuis le PDF.
+3. Choisissez **Dossier nominatif** ou **Dossier anonymisé** et la langue, puis cliquez sur **Télécharger le dossier adapté**.
+
+L'IA réécrit votre résumé, l'ordre de vos compétences et les descriptions de vos missions pour l'annonce, à partir des seuls faits de votre profil. Rien n'est conservé. Pour une offre du flux, utilisez **Dossier adapté (IA)** sur sa page (voir [Offres](/help/offers)).
+
 ## Réécrire votre CV avec l'IA
 
 **Réécrire mon CV (IA)**, en haut de la page Profil, réécrit tout votre CV selon la façon dont vous voulez vous présenter, sans choisir d'opportunité.

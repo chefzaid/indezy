@@ -5,24 +5,31 @@ import { of, throwError } from 'rxjs';
 import { AiService } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
+import { MatDialog } from '@angular/material/dialog';
 import { DossierButtonComponent } from './dossier-button.component';
+import { PostingDossierDialogComponent } from './posting-dossier-dialog.component';
 
 describe('DossierButtonComponent', () => {
   let users: jasmine.SpyObj<UserManagementService>;
   let ai: jasmine.SpyObj<AiService>;
   let notifications: jasmine.SpyObj<NotificationService>;
 
-  function create(projectId: number | null = null): DossierButtonComponent {
+  let dialog: jasmine.SpyObj<MatDialog>;
+
+  function create(projectId: number | null = null, offerId: number | null = null): DossierButtonComponent {
     users = jasmine.createSpyObj('UserManagementService', ['downloadDossier']);
-    ai = jasmine.createSpyObj('AiService', ['tailoredDossier']);
+    ai = jasmine.createSpyObj('AiService', ['tailoredDossier', 'offerDossier']);
+    dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
     notifications = jasmine.createSpyObj('NotificationService', ['error']);
     TestBed.configureTestingModule({
       imports: [DossierButtonComponent, TranslateModule.forRoot()],
       providers: [{ provide: UserManagementService, useValue: users }, { provide: AiService, useValue: ai },
         { provide: NotificationService, useValue: notifications }]
     });
+    TestBed.overrideProvider(MatDialog, { useValue: dialog });
     const fixture = TestBed.createComponent(DossierButtonComponent);
     fixture.componentInstance.projectId = projectId;
+    fixture.componentInstance.offerId = offerId;
     fixture.detectChanges();
     return fixture.componentInstance;
   }
@@ -71,5 +78,32 @@ describe('DossierButtonComponent', () => {
     expect(component.busy).toBeFalse();
     await new Promise(resolve => setTimeout(resolve, 20));
     expect(notifications.error).toHaveBeenCalledWith('ai.errors.declined');
+  });
+
+  it('tailors the dossier to a feed offer and hands the file on', () => {
+    const component = create(null, 5);
+    const link = document.createElement('a');
+    spyOn(document, 'createElement').and.returnValue(link);
+    spyOn(link, 'click');
+    ai.offerDossier.and.returnValue(of(new Blob(['%PDF'])));
+    const made = jasmine.createSpy('made');
+    component.made.subscribe(made);
+
+    component.download('ANONYMOUS', 'FR');
+    expect(ai.offerDossier).toHaveBeenCalledWith(5, 'ANONYMOUS', 'FR');
+    expect(link.download).toBe('dossier-competences-anonymous-tailored.pdf');
+    expect((made.calls.mostRecent().args[0] as File).name).toBe('dossier-competences-anonymous-tailored.pdf');
+  });
+
+  it('hands on no file for the profile\'s own dossier, and offers to tailor it to a pasted posting', () => {
+    const component = create();
+    users.downloadDossier.and.returnValue(of(new Blob(['%PDF'])));
+    spyOn(HTMLAnchorElement.prototype, 'click');
+    const made = jasmine.createSpy('made');
+    component.made.subscribe(made);
+    component.download('NAMED', 'FR');
+    expect(made).not.toHaveBeenCalled();
+    component.tailorToPosting();
+    expect(dialog.open).toHaveBeenCalledWith(PostingDossierDialogComponent, jasmine.any(Object));
   });
 });

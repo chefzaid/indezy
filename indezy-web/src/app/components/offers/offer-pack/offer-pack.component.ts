@@ -10,21 +10,24 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { switchMap } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { AiApplicationPack, AiPackChannel } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { OfferService } from '../../../services/offer/offer.service';
 import { ProjectService } from '../../../services/project/project.service';
+import { ProjectAttachmentService } from '../../../services/project/project-attachment.service';
+import { DossierButtonComponent } from '../../profile/dossier-button/dossier-button.component';
 
 /**
  * Prepares the application to a feed offer with AI (see docs/features.md#ai-features): the message for the channel
  * chosen, editable and copied, the screening answers and a rate to propose; **Add to pipeline with this pack** adds the
- * offer as an opportunity, the pack kept in its journal, where the tailored dossier is one click away.
+ * offer as an opportunity, the pack kept in its journal; the dossier tailored to the offer beside it is attached to the
+ * opportunity once downloaded.
  */
 @Component({
   selector: 'app-offer-pack',
-  imports: [ReactiveFormsModule, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [DossierButtonComponent, ReactiveFormsModule, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule],
   template: `
     <section class="pack" data-offer-pack aria-labelledby="offer-pack-title">
@@ -43,7 +46,11 @@ import { ProjectService } from '../../../services/project/project.service';
           }
           {{ (pack ? 'ai.pack.again' : 'ai.pack.write') | translate }}
         </button>
+        <app-dossier-button [offerId]="offerId" (made)="dossier = $event"></app-dossier-button>
       </div>
+      @if (dossier && pack) {
+        <p class="disclaimer" data-offer-pack-dossier>{{ 'ai.pack.dossierKept' | translate:{ name: dossier.name } }}</p>
+      }
       @if (pack; as pack) {
         @if (pack.subject) {
           <p class="subject"><strong>{{ 'ai.pack.subject' | translate }}</strong> {{ pack.subject }}</p>
@@ -100,6 +107,7 @@ export class OfferPackComponent {
   private readonly ai = inject(AiService);
   private readonly offers = inject(OfferService);
   private readonly projects = inject(ProjectService);
+  private readonly attachments = inject(ProjectAttachmentService);
   private readonly notifications = inject(NotificationService);
   private readonly clipboard = inject(Clipboard);
   private readonly translate = inject(TranslateService);
@@ -110,6 +118,8 @@ export class OfferPackComponent {
   readonly channel = new FormControl<AiPackChannel>('ESN_EMAIL', { nonNullable: true });
   readonly message = new FormControl('', { nonNullable: true });
   pack: AiApplicationPack | null = null;
+  /** The latest dossier tailored to the offer, attached to the opportunity it becomes. */
+  dossier: File | null = null;
   preparing = false;
   adding = false;
 
@@ -138,9 +148,10 @@ export class OfferPackComponent {
     }
   }
 
-  /** Adds the offer to the pipeline and keeps the pack in the new opportunity's journal, then opens it. */
+  /** Adds the offer to the pipeline, keeps the pack in the new opportunity's journal and the tailored dossier in its files, then opens it. */
   addToPipeline(): void {
     const pack = this.pack;
+    const dossier = this.dossier;
     if (!pack || this.adding) {
       return;
     }
@@ -151,11 +162,18 @@ export class OfferPackComponent {
       ...(pack.rate ? [`### ${t('rate', { rate: pack.rate })}`, pack.rateReasons.map(reason => `- ${reason}`).join('\n')] : [])].join('\n\n');
     this.adding = true;
     this.offers.importOffer(this.offerId).pipe(
-      switchMap(project => this.projects.addProjectNote(project.id!, note).pipe(switchMap(() => [project])))
+      switchMap(project => this.projects.addProjectNote(project.id!, note).pipe(switchMap(() => [project]))),
+      // The opportunity is there either way: a dossier that could not be attached is said so, to attach by hand.
+      switchMap(project => !dossier ? of({ project, attached: true }) : this.attachments.upload(project.id!, dossier).pipe(
+        map(() => ({ project, attached: true })), catchError(() => of({ project, attached: false }))))
     ).subscribe({
-      next: project => {
+      next: ({ project, attached }) => {
         this.adding = false;
-        this.notifications.success('ai.pack.added');
+        if (attached) {
+          this.notifications.success('ai.pack.added');
+        } else {
+          this.notifications.error('ai.pack.attachError');
+        }
         void this.router.navigate(['/projects', project.id]);
       },
       error: () => {

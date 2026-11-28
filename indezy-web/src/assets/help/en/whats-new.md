@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Tailor your dossier to any offer or posting
+
+**Tailored dossier (AI)** now works on a feed offer's page, without adding the offer to the pipeline, and the dossier you downloaded is attached to the opportunity when you add it with its application pack. From the Profile page, **Tailor to a job posting (AI)…** does the same for a posting you paste or read from its PDF. See [Offers](/help/offers) and [Documents](/help/documents).
+
 ### Rewrite your CV with AI
 
 **Rewrite my CV (AI)** on the Profile page rewrites your headline, summary, skills order, missions and past positions for a positioning and a style you choose, block by block: keep, edit or drop each one, then download the dossier or apply the wording to your profile. See [Documents](/help/documents).

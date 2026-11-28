@@ -88,7 +88,9 @@ The publisher's name on a card opens what that publisher puts in the feed: its o
 
 ## Prepare my application (AI)
 
-On an offer's page, **Prepare my application (AI)** writes the message for an ESN email, a Malt proposal or a LinkedIn message (300 characters), your answers to the usual screening questions and a rate to propose with its reasons. Edit and copy the message, then **Add to pipeline with this pack** to keep it in the new opportunity's journal, where **Tailored dossier (AI)** downloads the dossier for it.
+On an offer's page, **Prepare my application (AI)** writes the message for an ESN email, a Malt proposal or a LinkedIn message (300 characters), your answers to the usual screening questions and a rate to propose with its reasons. Edit and copy the message, then **Add to pipeline with this pack** to keep it in the new opportunity's journal.
+
+**Tailored dossier (AI)**, beside **Prepare my application (AI)**, downloads your dossier de compétences rewritten for the offer, named or anonymized, in French or English, without adding the offer to the pipeline. When you then click **Add to pipeline with this pack**, the latest dossier you downloaded is attached to the new opportunity's files, so you know exactly what you sent.
 
 ## Publishers you know
 

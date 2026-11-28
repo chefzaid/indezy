@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Adapter votre dossier à toute offre ou annonce
+
+**Dossier adapté (IA)** fonctionne désormais sur la page d'une offre du flux, sans ajouter l'offre au pipeline, et le dossier téléchargé est joint à l'opportunité quand vous l'ajoutez avec sa candidature. Depuis la page Profil, **Adapter à une annonce (IA)…** fait de même pour une annonce collée ou lue depuis son PDF. Voir [Offres](/help/offers) et [Documents](/help/documents).
+
 ### Réécrire votre CV avec l'IA
 
 **Réécrire mon CV (IA)** sur la page Profil réécrit votre titre, votre résumé, l'ordre de vos compétences, vos missions et vos postes passés pour le positionnement et le style choisis, bloc par bloc : gardez, modifiez ou écartez chacun, puis téléchargez le dossier ou appliquez la formulation à votre profil. Voir [Documents](/help/documents).

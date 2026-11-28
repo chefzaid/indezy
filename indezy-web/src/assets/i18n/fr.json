@@ -5506,7 +5506,14 @@
     },
     "dossier": {
       "open": "Dossier adapté (IA)",
-      "busy": "L'IA adapte le dossier"
+      "busy": "L'IA adapte le dossier",
+      "posting": {
+        "open": "Adapter à une annonce (IA)…",
+        "title": "Dossier adapté à une annonce",
+        "hint": "Collez l'annonce telle que vous l'avez reçue, ou lisez-la depuis son PDF : l'IA réécrit le résumé, l'ordre des compétences et les descriptions des missions pour elle, à partir des seuls faits de votre profil. Rien n'est ajouté au pipeline ni conservé.",
+        "layout": "Nominatif ou anonymisé",
+        "make": "Télécharger le dossier adapté"
+      }
     },
     "cv": {
       "open": "Réécrire mon CV (IA)",
@@ -5636,7 +5643,9 @@
       "rate": "TJM à proposer : {{rate}} €",
       "add": "Ajouter au pipeline avec cette candidature",
       "added": "Ajoutée au pipeline, avec la candidature dans son journal",
-      "addError": "L'offre n'a pas pu être ajoutée au pipeline."
+      "addError": "L'offre n'a pas pu être ajoutée au pipeline.",
+      "dossierKept": "{{name}} sera joint à l'opportunité.",
+      "attachError": "L'opportunité est ajoutée, mais le dossier adapté n'a pas pu être joint : joignez-le depuis les fichiers de l'opportunité."
     },
     "brief": {
       "open": "Décrire ma recherche (IA)",

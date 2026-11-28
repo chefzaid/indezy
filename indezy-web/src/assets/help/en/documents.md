@@ -83,6 +83,16 @@ It holds your name and title, your city, your contact details (named version onl
 
 > **Tip:** fill in the description and tech stack of your won missions: they are what fills the dossier.
 
+## Tailor your dossier to a job posting
+
+To answer a posting you received by email or found on a site the feed does not collect, without adding it to your pipeline:
+
+1. On the Profile page, click **Dossier de compétences**, then **Tailor to a job posting (AI)…**.
+2. Paste the posting, or click **From a PDF** to read its text from the PDF brief.
+3. Choose **Named dossier** or **Anonymized dossier** and the language, then click **Download the tailored dossier**.
+
+The AI rewrites your summary, the order of your skills and your missions' descriptions for the posting, from your profile's facts only. Nothing is kept. For an offer of the feed, use **Tailored dossier (AI)** on its page (see [Offers](/help/offers)).
+
 ## Rewrite your CV with AI
 
 **Rewrite my CV (AI)**, at the top of the Profile page, rewrites your whole CV for the way you want to come across, without choosing an opportunity.

@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AiPosting } from '../../../../models';
-import { AiService, aiErrorKey } from '../../../../services/ai/ai.service';
+import { AiService, aiErrorKey, postingPdfErrorKey } from '../../../../services/ai/ai.service';
 
 /** What the dialog gives back: the posting read, and its text to keep as the description. */
 export interface AiPostingResult {
@@ -18,8 +18,8 @@ export interface AiPostingResult {
   text: string;
 }
 
-const TEXT_MAX = 20_000;
-const PDF_MAX_BYTES = 5 * 1024 * 1024;
+export const TEXT_MAX = 20_000;
+export const PDF_MAX_BYTES = 5 * 1024 * 1024;
 
 /** Reads a job posting pasted as text into the new opportunity's fields, with AI. */
 @Component({
@@ -65,9 +65,7 @@ export class AiPostingDialogComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.loadingPdf = false;
-        const message: string = error.error?.validationErrors?.file ?? error.error?.message ?? '';
-        this.errorKey = message.includes('protected') ? 'ai.posting.pdfProtected' : message.includes('no text') ? 'ai.posting.pdfNoText' :
-          'ai.posting.pdfUnreadable';
+        this.errorKey = postingPdfErrorKey(error);
         this.changes.markForCheck();
       }
     });

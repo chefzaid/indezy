@@ -163,6 +163,16 @@ export class AiService {
     return this.http.post(`${this.API_URL}/dossier/${projectId}`, null, { params: { layout, language }, responseType: 'blob' });
   }
 
+  /** The dossier de compétences tailored to an offer of the feed, as a PDF, the offer left out of the pipeline. */
+  offerDossier(offerId: number, layout: 'NAMED' | 'ANONYMOUS', language: DocumentLanguage): Observable<Blob> {
+    return this.http.post(`${this.API_URL}/offers/${offerId}/dossier`, null, { params: { layout, language }, responseType: 'blob' });
+  }
+
+  /** The dossier de compétences tailored to a job posting pasted as text, as a PDF; nothing is kept. */
+  postingDossier(text: string, layout: 'NAMED' | 'ANONYMOUS', language: DocumentLanguage): Observable<Blob> {
+    return this.http.post(`${this.API_URL}/dossier/posting`, { text }, { params: { layout, language }, responseType: 'blob' });
+  }
+
   draftMessage(projectId: number, kind: AiMessageKind, language: DocumentLanguage, notes: string | null): Observable<AiMessageDraft> {
     return this.http.post<AiMessageDraft>(`${this.API_URL}/message`, { projectId, kind, language, notes });
   }
@@ -171,6 +181,13 @@ export class AiService {
 /** The translation key telling why an AI request failed, from the server's message. */
 export function aiErrorKey(error: HttpErrorResponse): string {
   return aiMessageKey(error.error?.message ?? '');
+}
+
+/** Why a posting's PDF could not be read: protected, without text (a scan), or not a PDF. */
+export function postingPdfErrorKey(error: HttpErrorResponse): string {
+  const message: string = error.error?.validationErrors?.file ?? error.error?.message ?? '';
+  return message.includes('protected') ? 'ai.posting.pdfProtected' : message.includes('no text') ? 'ai.posting.pdfNoText' :
+    'ai.posting.pdfUnreadable';
 }
 
 /** As {@link aiErrorKey} for a request answered with a file, whose error body comes as a blob. */

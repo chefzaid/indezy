@@ -428,6 +428,34 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
     }
 
     @Test
+    void tailorsTheDossierToAFeedOfferOrAPastedPostingWithoutAddingItToThePipeline() throws IOException {
+        call(alice, HttpMethod.PUT, "/ai/key", Map.of("apiKey", "sk-ant-alice-own"), Map.class);
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "WON", "clientId", aliceClientId,
+            "startDate", "2025-03-01", "techStack", "Java, Kafka", "description", "Paie migrée vers Kafka."), Map.class);
+        Integer opportunities = jdbcTemplate.queryForObject("SELECT count(*) FROM projects", Integer.class);
+        long offerId = offers.save(offer()).getId();
+
+        ResponseEntity<byte[]> forOffer = call(alice, HttpMethod.POST, "/ai/offers/" + offerId + "/dossier?layout=ANONYMOUS&language=FR", null,
+            byte[].class);
+        assertThat(forOffer.getHeaders().getContentType().toString()).isEqualTo("application/pdf");
+        assertThat(text(forOffer.getBody())).contains("Développeur Java tourné vers les flux de paie.").doesNotContain("Inventée", "Cobol");
+        assertThat(BODIES.getLast()).contains("You tailor", "Role: Lead Kotlin", "Stack: Kotlin", "Sur site 5 jours")
+            .doesNotContain(aliceEmail, "Alice Corp", "Conseil Z");
+
+        ResponseEntity<byte[]> forPosting = call(alice, HttpMethod.POST, "/ai/dossier/posting?layout=NAMED&language=EN",
+            Map.of("text", "Mission Kafka chez un assureur, 12 mois."), byte[].class);
+        assertThat(forPosting.getHeaders().getContentType().toString()).isEqualTo("application/pdf");
+        assertThat(BODIES.getLast()).contains("Answer in English", "Mission Kafka chez un assureur, 12 mois.").doesNotContain(aliceEmail, "Alice Corp");
+        assertThat(call(alice, HttpMethod.POST, "/ai/dossier/posting", Map.of("text", " "), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(alice, HttpMethod.POST, "/ai/offers/0/dossier", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        // Neither adds anything to the pipeline.
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM projects", Integer.class)).isEqualTo(opportunities);
+        jdbcTemplate.update("DELETE FROM job_offer_skills WHERE offer_id = ?", offerId);
+        offers.deleteById(offerId);
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     void readsPdfsPolishesMessagesAndSuggestsRates() throws IOException {
         // Alice's own key: no allowance to mind here.

@@ -88,7 +88,9 @@ Le nom de l'éditeur sur une carte ouvre ce qu'il publie dans le fil : ses missi
 
 ## Préparer ma candidature (IA)
 
-Sur la page d'une offre, **Préparer ma candidature (IA)** rédige le message pour un e-mail à l'ESN, une proposition Malt ou un message LinkedIn (300 caractères), vos réponses aux questions de présélection habituelles et un TJM à proposer avec ses raisons. Modifiez et copiez le message, puis **Ajouter au pipeline avec cette candidature** pour la garder dans le journal de la nouvelle opportunité, où **Dossier adapté (IA)** télécharge le dossier pour elle.
+Sur la page d'une offre, **Préparer ma candidature (IA)** rédige le message pour un e-mail à l'ESN, une proposition Malt ou un message LinkedIn (300 caractères), vos réponses aux questions de présélection habituelles et un TJM à proposer avec ses raisons. Modifiez et copiez le message, puis **Ajouter au pipeline avec cette candidature** pour la garder dans le journal de la nouvelle opportunité.
+
+**Dossier adapté (IA)**, à côté de **Préparer ma candidature (IA)**, télécharge votre dossier de compétences réécrit pour l'offre, nominatif ou anonymisé, en français ou en anglais, sans ajouter l'offre au pipeline. Quand vous cliquez ensuite sur **Ajouter au pipeline avec cette candidature**, le dernier dossier téléchargé est joint aux fichiers de la nouvelle opportunité : vous savez exactement ce que vous avez envoyé.
 
 ## Les éditeurs que vous connaissez
 

@@ -4,9 +4,11 @@ import com.anthropic.models.messages.OutputConfig;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import dev.swirlit.indezy.dto.DossierDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.DossierLayout;
+import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.service.ActivityReportService;
 import dev.swirlit.indezy.service.DossierService;
@@ -22,7 +24,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * The dossier de compétences tailored to an opportunity (see docs/features.md#ai-features): the same profile, skills,
+ * The dossier de compétences tailored to an opportunity, a feed offer or a pasted job posting (see
+ * docs/features.md#ai-features), none of them added to the pipeline for it: the same profile, skills,
  * certifications and won missions, with the summary rewritten for the opportunity, the skills it asks for first and each
  * mission's description bringing out what matters for it. The AI only rewords what the dossier already says: a skill it
  * names that the profile lacks is dropped, a mission without a description gets none, and nothing else changes.
@@ -44,7 +47,24 @@ public class DossierAiService {
 
     private final AiService ai;
     private final ProjectRepository projects;
+    private final JobOfferRepository offers;
     private final DossierService dossiers;
+
+    /** What the dossier is tailored to: an opportunity, a feed offer or a pasted posting (its text as the description). */
+    public record Target(String role, String stack, String description) {
+
+        static Target of(Project project) {
+            return new Target(project.getRole(), project.getTechStack(), project.getDescription());
+        }
+
+        static Target of(JobOffer offer) {
+            return new Target(offer.getTitle(), String.join(", ", offer.getSkills()), offer.getDescription());
+        }
+
+        static Target posting(String text) {
+            return new Target(null, null, text);
+        }
+    }
 
     /** The rewording the AI proposes. */
     public record Tailoring(
@@ -69,24 +89,40 @@ public class DossierAiService {
 
     @Transactional(readOnly = true)
     public ActivityReportService.PdfFile pdf(Long userId, Long freelanceId, Long projectId, DossierLayout layout, DocumentLanguage language) {
-        return dossiers.render(tailored(userId, freelanceId, projectId, layout, language), language);
+        Project project = projects.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+        return pdf(userId, freelanceId, Target.of(project), layout, language);
     }
 
+    /** Tailored to an offer of the feed, without adding it to the pipeline. */
     @Transactional(readOnly = true)
-    public DossierDto tailored(Long userId, Long freelanceId, Long projectId, DossierLayout layout, DocumentLanguage language) {
-        Project project = projects.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+    public ActivityReportService.PdfFile offerPdf(Long userId, Long freelanceId, Long offerId, DossierLayout layout, DocumentLanguage language) {
+        JobOffer offer = offers.findById(offerId).orElseThrow(() -> new ResourceNotFoundException("Offer not found"));
+        return pdf(userId, freelanceId, Target.of(offer), layout, language);
+    }
+
+    /** Tailored to a job posting pasted as text or read from its PDF; nothing is kept. */
+    @Transactional(readOnly = true)
+    public ActivityReportService.PdfFile postingPdf(Long userId, Long freelanceId, String text, DossierLayout layout, DocumentLanguage language) {
+        return pdf(userId, freelanceId, Target.posting(text), layout, language);
+    }
+
+    private ActivityReportService.PdfFile pdf(Long userId, Long freelanceId, Target target, DossierLayout layout, DocumentLanguage language) {
+        return dossiers.render(tailored(userId, freelanceId, target, layout, language), language);
+    }
+
+    DossierDto tailored(Long userId, Long freelanceId, Target target, DossierLayout layout, DocumentLanguage language) {
         DossierDto dossier = dossiers.dossier(userId, freelanceId, layout);
-        Tailoring tailoring = ai.structured(userId, AiFeature.DOSSIER, SYSTEM, context(project, dossier, language), Tailoring.class,
+        Tailoring tailoring = ai.structured(userId, AiFeature.DOSSIER, SYSTEM, context(target, dossier, language), Tailoring.class,
             MAX_TOKENS, OutputConfig.Effort.LOW);
         return apply(dossier, tailoring);
     }
 
     /** What the AI reads: the mission, then the profile without its author's name or contact, nor its clients. */
-    static String context(Project project, DossierDto dossier, DocumentLanguage language) {
-        String description = Objects.toString(project.getDescription(), "");
+    static String context(Target target, DossierDto dossier, DocumentLanguage language) {
+        String description = Objects.toString(target.description(), "");
         StringBuilder context = new StringBuilder("Answer in ").append(language == DocumentLanguage.EN ? "English" : "French").append(".\n<mission>\n")
-            .append("Role: ").append(Objects.toString(project.getRole(), "")).append('\n')
-            .append("Stack: ").append(Objects.toString(project.getTechStack(), "")).append('\n')
+            .append("Role: ").append(Objects.toString(target.role(), "")).append('\n')
+            .append("Stack: ").append(Objects.toString(target.stack(), "")).append('\n')
             .append("Description: ").append(description, 0, Math.min(description.length(), DESCRIPTION_MAX)).append("\n</mission>\n<profile>\n")
             .append("Position: ").append(Objects.toString(dossier.position(), "")).append('\n')
             .append("Summary: ").append(Objects.toString(dossier.summary(), "")).append('\n')
