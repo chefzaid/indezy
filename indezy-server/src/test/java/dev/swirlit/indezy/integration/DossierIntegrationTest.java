@@ -39,6 +39,12 @@ class DossierIntegrationTest extends TwoAccountsIntegrationTest {
         byte[] anonymous = call(alice, HttpMethod.GET, "/users/dossier?layout=ANONYMOUS", null, byte[].class).getBody();
         assertThat(text(anonymous)).contains("Client communiqué sur demande").doesNotContain("Alice Corp", aliceEmail);
 
+        ResponseEntity<byte[]> word = call(alice, HttpMethod.GET, "/users/dossier?layout=ANONYMOUS&format=DOCX", null, byte[].class);
+        assertThat(word.getHeaders().getContentType().toString()).isEqualTo("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        assertThat(word.getHeaders().getContentDisposition().getFilename()).startsWith("dossier-competences-").endsWith(".docx");
+        assertThat(new String(dev.swirlit.indezy.pdf.BillingDocxTest.parts(word.getBody()).get("word/document.xml"),
+            java.nio.charset.StandardCharsets.UTF_8)).contains("Client communiqué sur demande").doesNotContain("Alice Corp", aliceEmail);
+
         assertThat(call(alice, HttpMethod.GET, "/users/dossier?layout=OTHER", null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(exchange("/users/dossier", HttpMethod.GET, HttpEntity.EMPTY, String.class).getStatusCode().is4xxClientError()).isTrue();

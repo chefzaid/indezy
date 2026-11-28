@@ -23,6 +23,11 @@ public final class PdfResponses {
         return attachment(file.fileName(), DOCX, file.content());
     }
 
+    /** A generated document, a Word one when its name says {@code .docx}, else a PDF. */
+    public static ResponseEntity<byte[]> document(PdfFile file) {
+        return file.fileName().endsWith(".docx") ? attachment(file.fileName(), DOCX, file.content()) : attachment(file);
+    }
+
     public static ResponseEntity<byte[]> attachment(PdfFile file) {
         return attachment(file.fileName(), MediaType.APPLICATION_PDF_VALUE, file.content());
     }

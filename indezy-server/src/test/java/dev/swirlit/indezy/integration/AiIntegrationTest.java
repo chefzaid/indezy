@@ -417,6 +417,11 @@ class AiIntegrationTest extends TwoAccountsIntegrationTest {
             byte[].class);
         assertThat(pdf.getHeaders().getContentType().toString()).isEqualTo("application/pdf");
         assertThat(text(pdf.getBody())).contains("Lead Java / Kafka", "Dix ans de Java et de flux.", "Logiciel de paie.");
+        ResponseEntity<byte[]> word = call(alice, HttpMethod.POST, "/ai/cv/pdf?layout=ANONYMOUS&language=FR&format=DOCX", Map.of("headline", "Lead Java / Kafka"),
+            byte[].class);
+        assertThat(word.getHeaders().getContentDisposition().getFilename()).endsWith(".docx");
+        assertThat(new String(dev.swirlit.indezy.pdf.BillingDocxTest.parts(word.getBody()).get("word/document.xml"),
+            java.nio.charset.StandardCharsets.UTF_8)).contains("Lead Java / Kafka").doesNotContain("Martin");
         assertThat(BODIES).hasSize(asked);
 
         // Approved: the profile's headline and the past position change; another workspace's position is not touched.

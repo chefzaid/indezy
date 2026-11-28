@@ -1750,7 +1750,8 @@
       "ANONYMOUS": {
         "FR": "En français, anonymisé",
         "EN": "En anglais, anonymisé"
-      }
+      },
+      "word": "Word (.docx), modifiable"
     },
     "testimonials": {
       "title": "Recommandations",
@@ -5544,9 +5545,8 @@
       "rewritten": "Réécrit",
       "empty": "Non renseigné",
       "again": "Recommencer",
-      "download": "Télécharger le PDF",
-      "named": "Dossier nominatif",
-      "anonymous": "Dossier anonymisé",
+      "named": "Nominatif, PDF",
+      "anonymous": "Anonymisé, PDF",
       "approve": "Appliquer à mon profil",
       "approved": "Le titre, le résumé et les postes passés retenus sont enregistrés sur votre profil",
       "approveError": "La formulation réécrite n'a pas pu être enregistrée sur votre profil",
@@ -5583,7 +5583,10 @@
       "facts": {
         "check": "À vérifier : votre profil ne l'indique pas.",
         "none": "Vérification : aucun chiffre, date ni nom que votre profil n'indique pas."
-      }
+      },
+      "downloadFile": "Télécharger",
+      "namedWord": "Nominatif, Word (.docx)",
+      "anonymousWord": "Anonymisé, Word (.docx)"
     },
     "rate": {
       "ask": "Suggérer un TJM (IA)",

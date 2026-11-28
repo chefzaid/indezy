@@ -149,8 +149,10 @@ export class AiService {
   }
 
   /** The dossier de compétences with the reviewed wording, as a PDF; no AI is asked. */
-  rewrittenCv(reviewed: AiCvReviewed, layout: 'NAMED' | 'ANONYMOUS', language: DocumentLanguage): Observable<Blob> {
-    return this.http.post(`${this.API_URL}/cv/pdf`, reviewed, { params: { layout, language }, responseType: 'blob' });
+  /** The dossier with the reviewed wording, as a PDF or, for {@code DOCX}, an editable Word document; no AI is asked. */
+  rewrittenCv(reviewed: AiCvReviewed, layout: 'NAMED' | 'ANONYMOUS', language: DocumentLanguage, format: 'PDF' | 'DOCX' = 'PDF'): Observable<Blob> {
+    return this.http.post(`${this.API_URL}/cv/pdf`, reviewed, { params: { layout, language, ...(format === 'DOCX' ? { format } : {}) },
+      responseType: 'blob' });
   }
 
   /** Writes the approved headline, summary and past positions' descriptions to the profile. */

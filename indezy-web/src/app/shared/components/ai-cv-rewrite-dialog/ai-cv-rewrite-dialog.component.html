@@ -21,7 +21,7 @@
             }
           </mat-chip-grid>
           <!-- Beside the grid rather than in it: a grid holds rows only. -->
-          <input [matChipInputFor]="phraseGrid" [matChipInputSeparatorKeyCodes]="phraseKeys" (matChipInputTokenEnd)="addPhrase($event)"
+          <input [matChipInputFor]="phraseGrid" [matChipInputSeparatorKeyCodes]="phraseKeys" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addPhrase($event)"
             [placeholder]="'ai.cv.lockedHint' | translate" data-ai-cv-phrase-input>
         </mat-form-field>
         <button mat-stroked-button type="button" class="ask" (click)="askQuestions()" [disabled]="asking" data-ai-cv-ask>
@@ -174,11 +174,14 @@
       </button>
     }
     <button mat-flat-button color="primary" type="button" [matMenuTriggerFor]="pdfMenu" [disabled]="downloading" data-ai-cv-download>
-      <mat-icon>download</mat-icon>{{ 'ai.cv.download' | translate }}
+      <mat-icon>download</mat-icon>{{ 'ai.cv.downloadFile' | translate }}
     </button>
     <mat-menu #pdfMenu="matMenu">
       <button mat-menu-item type="button" (click)="download('NAMED')" data-ai-cv-pdf="NAMED"><mat-icon>person</mat-icon>{{ 'ai.cv.named' | translate }}</button>
       <button mat-menu-item type="button" (click)="download('ANONYMOUS')" data-ai-cv-pdf="ANONYMOUS"><mat-icon>visibility_off</mat-icon>{{ 'ai.cv.anonymous' | translate }}</button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item type="button" (click)="download('NAMED', 'DOCX')" data-ai-cv-docx="NAMED"><mat-icon>description</mat-icon>{{ 'ai.cv.namedWord' | translate }}</button>
+      <button mat-menu-item type="button" (click)="download('ANONYMOUS', 'DOCX')" data-ai-cv-docx="ANONYMOUS"><mat-icon>description</mat-icon>{{ 'ai.cv.anonymousWord' | translate }}</button>
     </mat-menu>
   } @else {
     <button mat-button type="button" mat-dialog-close>{{ 'common.close' | translate }}</button>

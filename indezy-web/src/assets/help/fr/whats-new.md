@@ -2,6 +2,10 @@ Les nouveautés d'Indezy, les plus récentes d'abord. Chaque fonctionnalité a s
 
 ## Novembre 2026
 
+### Votre dossier en document Word
+
+Le dossier de compétences se télécharge aussi en document Word (.docx) modifiable, nominatif ou anonymisé, en français ou en anglais, pour les ESN qui le collent dans leur propre modèle ; les dossiers réécrits ou adaptés par l'IA aussi. Voir [Documents](/help/documents).
+
 ### Vérifier un dossier réécrit face à l'offre et à vos faits
 
 La vérification d'un dossier réécrit montre désormais ce que l'offre demande (dans votre profil, seulement dans vos missions, ou absent), signale tout chiffre ou nom que votre profil n'indique pas, et demande ce qu'un bloc vague laisse de côté, en intégrant votre réponse. Voir [Documents](/help/documents).

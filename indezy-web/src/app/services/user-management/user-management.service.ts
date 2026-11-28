@@ -21,6 +21,9 @@ export interface TwoFactorSetup {
   otpauthUri: string;
 }
 
+/** The file a dossier de compétences is downloaded as. */
+export type DossierFormat = 'PDF' | 'DOCX';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -100,8 +103,9 @@ export class UserManagementService {
   }
 
   /** The dossier de compétences as a PDF: named or anonymized, in French or English. */
-  downloadDossier(layout: 'NAMED' | 'ANONYMOUS', language: 'FR' | 'EN'): Observable<Blob> {
-    return this.http.get(`${this.API_URL}/dossier`, { params: { layout, language }, responseType: 'blob' });
+  /** The dossier de compétences as a PDF, or as an editable Word document for {@code DOCX}. */
+  downloadDossier(layout: 'NAMED' | 'ANONYMOUS', language: 'FR' | 'EN', format: DossierFormat = 'PDF'): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/dossier`, { params: { layout, language, ...(format === 'DOCX' ? { format } : {}) }, responseType: 'blob' });
   }
 
   exportUserData(): Observable<Blob> {

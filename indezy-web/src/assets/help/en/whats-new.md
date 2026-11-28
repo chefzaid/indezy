@@ -2,6 +2,10 @@ What's new in Indezy, the most recent first. Each feature has its article in the
 
 ## November 2026
 
+### Your dossier as a Word document
+
+The dossier de compétences downloads as an editable Word (.docx) document too, named or anonymized, in French or English, for the ESNs that paste it into their own template; so do the dossiers rewritten or tailored by AI. See [Documents](/help/documents).
+
 ### Check a rewritten dossier against the offer and your facts
 
 The review of a rewritten dossier now shows what the offer asks for (in your profile, only in your missions, or missing), flags any number or name your profile does not state, and asks what a vague block leaves out, weaving your answer in. See [Documents](/help/documents).

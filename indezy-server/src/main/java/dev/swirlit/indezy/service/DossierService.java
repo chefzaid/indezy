@@ -5,6 +5,7 @@ import dev.swirlit.indezy.dto.SkillDetailDto;
 import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DossierFormat;
 import dev.swirlit.indezy.model.enums.DossierLayout;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.pdf.DossierPdfRenderer;
@@ -80,11 +81,24 @@ public class DossierService {
         return render(dossier(userId, freelanceId, layout), language);
     }
 
+    /** The dossier as a PDF or as an editable Word document. */
+    @Transactional(readOnly = true)
+    public ActivityReportService.PdfFile file(Long userId, Long freelanceId, DossierLayout layout, DocumentLanguage language, DossierFormat format) {
+        return render(dossier(userId, freelanceId, layout), language, format);
+    }
+
     /** A dossier as a PDF named after its author, e.g. one tailored to an opportunity. */
     public ActivityReportService.PdfFile render(DossierDto dossier, DocumentLanguage language) {
-        byte[] content = renderer.render(dossier, language, LocalDate.now(clock.withZone(PARIS)));
+        return render(dossier, language, DossierFormat.PDF);
+    }
+
+    /** A dossier as a PDF or a {@code .docx} file named after its author. */
+    public ActivityReportService.PdfFile render(DossierDto dossier, DocumentLanguage language, DossierFormat format) {
+        LocalDate today = LocalDate.now(clock.withZone(PARIS));
+        boolean word = format == DossierFormat.DOCX;
+        byte[] content = word ? renderer.docx(dossier, language, today) : renderer.render(dossier, language, today);
         String prefix = language == DocumentLanguage.EN ? "skills-profile" : "dossier-competences";
-        return new ActivityReportService.PdfFile(prefix + "-" + fileWord(dossier.name()) + ".pdf", content);
+        return new ActivityReportService.PdfFile(prefix + "-" + fileWord(dossier.name()) + (word ? ".docx" : ".pdf"), content);
     }
 
     /**

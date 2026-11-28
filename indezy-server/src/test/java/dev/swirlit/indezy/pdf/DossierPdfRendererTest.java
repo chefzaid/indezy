@@ -84,4 +84,16 @@ class DossierPdfRendererTest {
             assertThat(new PDFTextStripper().getText(document)).contains("Mission 39");
         }
     }
+
+    @Test
+    void writesTheSameDossierAsAnEditableWordDocument() throws IOException {
+        java.util.Map<String, byte[]> parts = BillingDocxTest.parts(renderer.docx(dossier(null, null), DocumentLanguage.FR, TODAY));
+        String document = new String(parts.get("word/document.xml"), java.nio.charset.StandardCharsets.UTF_8);
+        String text = document.replaceAll("<[^>]+>", "");
+
+        assertThat(text).contains("Alice Martin", "Dossier de compétences", "Lead Java · Paris", "alice@example.com",
+            "Java (expert, 15 an(s)) · Kafka", "Français, Anglais", "CKA", "Lead Java · Client communiqué sur demande",
+            "Mars 2025 – février 2026", "Refonte du SI de paiement.", "Environnement : Java 21, Kafka", "Généré par Indezy le 14 novembre 2026");
+        assertThat(new String(parts.get("docProps/core.xml"), java.nio.charset.StandardCharsets.UTF_8)).contains("Alice Martin");
+    }
 }

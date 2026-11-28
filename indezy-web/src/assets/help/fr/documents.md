@@ -79,6 +79,8 @@ Le **Dossier de compétences** est un PDF A4 construit à partir de votre profil
 2. En haut de la page, cliquez sur **Dossier de compétences**.
 3. Choisissez **En français, nominatif**, **En anglais, nominatif**, **En français, anonymisé** ou **En anglais, anonymisé**.
 
+Pour un fichier à modifier, comme beaucoup d'ESN le demandent pour le coller dans leur propre modèle, choisissez **Word (.docx), modifiable**, puis la langue et la version : le même dossier en document Word. Un dossier réécrit ou adapté par l'IA se télécharge aussi en Word, depuis **Télécharger** dans sa vérification.
+
 Il reprend votre nom et votre titre, votre ville, vos coordonnées (version nominative seulement), votre présentation, vos compétences avec leur niveau et leurs années, vos langues, vos certifications valides, puis vos missions gagnées, de la plus récente à la plus ancienne. Dans la version anonymisée, vos initiales remplacent votre nom et chaque client devient « Client communiqué sur demande ». Rien n'y est rédigé par une IA.
 
 > **Astuce :** complétez la description et la stack de vos missions gagnées : ce sont elles qui remplissent le dossier.

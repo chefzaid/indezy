@@ -21,5 +21,13 @@ for (const language of ['en', 'fr']) {
     await page.locator('[data-dossier-choice="ANONYMOUS-EN"]').click();
     expect((await download).suggestedFilename()).toBe('skills-profile-anonymous.pdf');
     expect(asked).toEqual(['?layout=ANONYMOUS&language=EN']);
+
+    // The same dossier as an editable Word document, from its submenu.
+    await page.locator('[data-dossier]').click();
+    await page.locator('[data-dossier-word]').click();
+    const word = page.waitForEvent('download');
+    await page.locator('[data-dossier-word-choice="NAMED-FR"]').click();
+    expect((await word).suggestedFilename()).toBe('dossier-competences.docx');
+    expect(asked[1]).toBe('?layout=NAMED&language=FR&format=DOCX');
   });
 }

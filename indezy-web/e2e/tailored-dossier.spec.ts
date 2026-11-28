@@ -92,6 +92,8 @@ for (const language of ['en', 'fr']) {
     await expect(review.locator('[data-ai-cv-fact="mission-1"]')).toContainText('SI');
 
     // The mission refined in one click, bringing Kubernetes out and keeping "Kafka" as written; then the summary locked.
+    // The dialog moves focus to its first field once open: type after that.
+    await expect(review.locator('[data-ai-cv-focus]')).toBeFocused();
     await review.locator('[data-ai-cv-focus]').fill('Kubernetes');
     await review.locator('[data-ai-cv-phrase-input]').fill('Kafka');
     await review.locator('[data-ai-cv-phrase-input]').press('Enter');

@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 import { AiCvRewrite, DocumentLanguage } from '../../../models';
 import { AiService, aiErrorKey } from '../../../services/ai/ai.service';
 import { NotificationService } from '../../../services/notification/notification.service';
-import { UserManagementService } from '../../../services/user-management/user-management.service';
+import { DossierFormat, UserManagementService } from '../../../services/user-management/user-management.service';
 import { saveBlob } from '../../../shared/utils/download-file';
 import { AiCvRewriteDialogComponent, CvReviewData } from '../../../shared/components/ai-cv-rewrite-dialog/ai-cv-rewrite-dialog.component';
 import { PostingDossierDialogComponent, PostingReview } from './posting-dossier-dialog.component';
@@ -53,10 +53,23 @@ type Layout = 'NAMED' | 'ANONYMOUS';
             <span>{{ 'profile.dossier.' + choice.layout + '.' + choice.language | translate }}</span>
           </button>
         }
+        <button mat-menu-item type="button" [matMenuTriggerFor]="wordMenu" data-dossier-word>
+          <mat-icon>description</mat-icon>
+          <span>{{ 'profile.dossier.word' | translate }}</span>
+        </button>
         <mat-divider></mat-divider>
         <button mat-menu-item type="button" (click)="tailorToPosting()" data-dossier-posting>
           <mat-icon>auto_awesome</mat-icon>
           <span>{{ 'ai.dossier.posting.open' | translate }}</span>
+        </button>
+      }
+    </mat-menu>
+    <mat-menu #wordMenu="matMenu">
+      @for (choice of choices; track choice.layout + choice.language) {
+        <button mat-menu-item type="button" (click)="download(choice.layout, choice.language, 'DOCX')"
+          [attr.data-dossier-word-choice]="choice.layout + '-' + choice.language">
+          <mat-icon>{{ choice.layout === 'NAMED' ? 'person' : 'visibility_off' }}</mat-icon>
+          <span>{{ 'profile.dossier.' + choice.layout + '.' + choice.language | translate }}</span>
         </button>
       }
     </mat-menu>
@@ -90,13 +103,14 @@ export class DossierButtonComponent {
     return !!this.projectId || !!this.offerId;
   }
 
-  /** The profile's own dossier, as it is: nothing is written by AI. */
-  download(layout: Layout, language: DocumentLanguage): void {
+  /** The profile's own dossier, as it is, a PDF or an editable Word document: nothing is written by AI. */
+  download(layout: Layout, language: DocumentLanguage, format: DossierFormat = 'PDF'): void {
     this.busy = true;
-    this.users.downloadDossier(layout, language).subscribe({
+    this.users.downloadDossier(layout, language, format).subscribe({
       next: file => {
         this.done();
-        saveBlob(file, `${language === 'EN' ? 'skills-profile' : 'dossier-competences'}${layout === 'ANONYMOUS' ? '-anonymous' : ''}.pdf`);
+        saveBlob(file, `${language === 'EN' ? 'skills-profile' : 'dossier-competences'}${layout === 'ANONYMOUS' ? '-anonymous' : ''}` +
+          (format === 'DOCX' ? '.docx' : '.pdf'));
       },
       error: () => {
         this.done();

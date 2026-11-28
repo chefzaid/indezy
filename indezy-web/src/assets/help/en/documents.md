@@ -79,6 +79,8 @@ The **Dossier de compétences** is an A4 PDF built from your profile.
 2. At the top of the page, click **Dossier de compétences**.
 3. Choose **In French, named**, **In English, named**, **In French, anonymized** or **In English, anonymized**.
 
+For a file to edit, as many ESNs ask to paste it into their own template, choose **Word (.docx), to edit**, then the language and layout: the same dossier as a Word document. A dossier rewritten or tailored by AI downloads as Word too, from **Download** in its review.
+
 It holds your name and title, your city, your contact details (named version only), your presentation, your skills with their level and years, your languages, your valid certifications, then your won missions, the latest first. In the anonymized version, your initials replace your name and each client reads "Client communiqué sur demande". Nothing in it is written by AI.
 
 > **Tip:** fill in the description and tech stack of your won missions: they are what fills the dossier.

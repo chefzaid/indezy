@@ -47,6 +47,12 @@ for (const language of ['en', 'fr']) {
     expect(pdf).toEqual([{ search: '?layout=ANONYMOUS&language=FR', body: { headline: 'Staff Java', summary: null, skills: ['Kafka', 'Java'],
       missions: [{ number: 1, description: 'Migration du SI vers Kafka.' }], positions: [{ number: 1, description: 'Logiciel de paie en Java.' }] } }]);
 
+    await page.locator('[data-ai-cv-download]').click();
+    const word = page.waitForEvent('download');
+    await page.locator('[data-ai-cv-docx="NAMED"]').click();
+    expect((await word).suggestedFilename()).toBe('dossier-competences.docx');
+    expect(pdf[1].search).toBe('?layout=NAMED&language=FR&format=DOCX');
+
     await page.locator('[data-ai-cv-approve]').click();
     await expect(page.locator('mat-dialog-container')).toHaveCount(0);
     expect(approved).toEqual([{ headline: 'Staff Java', summary: null, positions: [{ id: 70, description: 'Logiciel de paie en Java.' }] }]);

@@ -10,6 +10,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
@@ -28,6 +29,7 @@ const FOCUS_MAX = 80;
 const LOCKED_MAX = 10;
 const LOCKED_LENGTH = 200;
 const ANSWER_MAX = 500;
+const DOCX_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 /** What opens the review: nothing for the whole-CV rewrite, or a dossier tailored to an opportunity, an offer or a posting. */
 export interface CvReviewData {
@@ -69,7 +71,7 @@ export interface ReviewBlock {
  */
 @Component({
   selector: 'app-ai-cv-rewrite-dialog',
-  imports: [FormsModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatChipsModule, MatDialogModule, MatFormFieldModule,
+  imports: [FormsModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatChipsModule, MatDialogModule, MatDividerModule, MatFormFieldModule,
     MatIconModule, MatInputModule, MatMenuModule, MatProgressSpinnerModule, MatSelectModule, MatTooltipModule, TranslateModule],
   templateUrl: './ai-cv-rewrite-dialog.component.html',
   styleUrls: ['./ai-cv-rewrite-dialog.component.scss'],
@@ -263,7 +265,7 @@ export class AiCvRewriteDialogComponent {
   }
 
   /** The dossier as reviewed, the blocks left out as the profile says. */
-  download(layout: 'NAMED' | 'ANONYMOUS'): void {
+  download(layout: 'NAMED' | 'ANONYMOUS', format: 'PDF' | 'DOCX' = 'PDF'): void {
     this.downloading = true;
     this.ai.rewrittenCv({
       headline: this.kept('headline'),
@@ -271,13 +273,13 @@ export class AiCvRewriteDialogComponent {
       skills: this.keepSkills && this.rewrite ? this.rewrite.skills : [],
       missions: this.keptItems('mission').map(({ item, description }) => ({ number: item.number, description })),
       positions: this.keptItems('position').map(({ item, description }) => ({ number: item.number, description }))
-    }, layout, this.language).subscribe({
+    }, layout, this.language, format).subscribe({
       next: file => {
         this.downloading = false;
         const name = `${this.language === 'EN' ? 'skills-profile' : 'dossier-competences'}${layout === 'ANONYMOUS' ? '-anonymous' : ''}` +
-          `${this.tailored ? '-tailored' : ''}.pdf`;
+          `${this.tailored ? '-tailored' : ''}${format === 'DOCX' ? '.docx' : '.pdf'}`;
         saveBlob(file, name);
-        this.data.made?.(new File([file], name, { type: 'application/pdf' }));
+        this.data.made?.(new File([file], name, { type: format === 'DOCX' ? DOCX_TYPE : 'application/pdf' }));
         this.changes.markForCheck();
       },
       error: (error: unknown) => {

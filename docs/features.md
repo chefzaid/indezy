@@ -251,7 +251,10 @@ won missions, the latest first, with their period ("depuis mars 2026" while one 
 dossier "Client communiqué sur demande", and initials instead of the name), the description cut at 600 characters and
 the tech stack; then the [past positions](#experience-and-education) under "Expériences antérieures" (the experience
 itself when no mission was won), their employer hidden the same way when anonymized, and the schools under "Formation".
-Nothing in it is written by AI (`GET /api/users/dossier?layout=NAMED|ANONYMOUS&language=FR|EN`); the **Tailored dossier
+Nothing in it is written by AI (`GET /api/users/dossier?layout=NAMED|ANONYMOUS&language=FR|EN`). With `format=DOCX` it is an
+editable Word document instead, laid out the same in plain paragraphs and headings (its title, author and the footer
+line kept), for the ESNs that paste it into their own template: **Word (.docx), to edit** in the dossier's menu; the
+reviewed dossiers of **Rewrite my CV (AI)** and the tailored ones download as Word too (`POST /api/ai/cv/pdf?format=DOCX`). The **Tailored dossier
 (AI)** on an opportunity's page and **Rewrite my CV (AI)** on the profile are the AI versions (see [AI Features](#ai-features)).
 
 ### Experience And Education

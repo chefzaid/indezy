@@ -54,10 +54,14 @@ describe('DossierButtonComponent', () => {
 
     expect(component.choices.length).toBe(4);
     component.download('ANONYMOUS', 'EN');
-    expect(users.downloadDossier).toHaveBeenCalledWith('ANONYMOUS', 'EN');
+    expect(users.downloadDossier).toHaveBeenCalledWith('ANONYMOUS', 'EN', 'PDF');
     expect(link.download).toBe('skills-profile-anonymous.pdf');
     component.download('NAMED', 'FR');
     expect(link.download).toBe('dossier-competences.pdf');
+    // As an editable Word document.
+    component.download('ANONYMOUS', 'FR', 'DOCX');
+    expect(users.downloadDossier).toHaveBeenCalledWith('ANONYMOUS', 'FR', 'DOCX');
+    expect(link.download).toBe('dossier-competences-anonymous.docx');
   });
 
   it('says when the dossier cannot be made', () => {

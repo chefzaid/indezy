@@ -8,6 +8,7 @@ import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DossierFormat;
 import dev.swirlit.indezy.model.enums.DossierLayout;
 import dev.swirlit.indezy.repository.UserRepository;
 import dev.swirlit.indezy.service.ActivityReportService;
@@ -359,10 +360,14 @@ public class CvRewriteAiService {
         return reviewed;
     }
 
-    /** The dossier de compétences with the wording the freelancer kept, as a PDF; no AI is asked. */
+    /** How a reviewed dossier is rendered: named or anonymized, its language, a PDF or a Word document. */
+    public record Rendering(DossierLayout layout, DocumentLanguage language, DossierFormat format) {
+    }
+
+    /** The dossier with the wording the freelancer kept, as a PDF or an editable Word document; no AI is asked. */
     @Transactional(readOnly = true)
-    public ActivityReportService.PdfFile pdf(Long userId, Long freelanceId, DossierLayout layout, DocumentLanguage language, Reviewed reviewed) {
-        return dossiers.render(apply(dossiers.dossier(userId, freelanceId, layout), reviewed), language);
+    public ActivityReportService.PdfFile file(Long userId, Long freelanceId, Rendering rendering, Reviewed reviewed) {
+        return dossiers.render(apply(dossiers.dossier(userId, freelanceId, rendering.layout()), reviewed), rendering.language(), rendering.format());
     }
 
     /** The dossier with the reviewed wording, keeping only what may change: the headline, the summary, the order and the texts. */

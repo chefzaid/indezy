@@ -1750,7 +1750,8 @@
       "ANONYMOUS": {
         "FR": "In French, anonymized",
         "EN": "In English, anonymized"
-      }
+      },
+      "word": "Word (.docx), to edit"
     },
     "testimonials": {
       "title": "Testimonials",
@@ -5544,9 +5545,8 @@
       "rewritten": "Rewritten",
       "empty": "Not filled in",
       "again": "Start again",
-      "download": "Download PDF",
-      "named": "Named dossier",
-      "anonymous": "Anonymized dossier",
+      "named": "Named, PDF",
+      "anonymous": "Anonymized, PDF",
       "approve": "Apply to my profile",
       "approved": "The headline, summary and past positions kept are saved on your profile",
       "approveError": "The rewritten wording could not be saved on your profile",
@@ -5583,7 +5583,10 @@
       "facts": {
         "check": "Check these: your profile does not state them.",
         "none": "Fact check: no number, date or name your profile does not state."
-      }
+      },
+      "downloadFile": "Download",
+      "namedWord": "Named, Word (.docx)",
+      "anonymousWord": "Anonymized, Word (.docx)"
     },
     "rate": {
       "ask": "Suggest a rate (AI)",

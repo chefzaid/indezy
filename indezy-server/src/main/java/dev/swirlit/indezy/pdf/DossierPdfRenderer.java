@@ -22,6 +22,11 @@ public final class DossierPdfRenderer {
     private final byte[] regularFont = PdfFonts.read(PdfFonts.REGULAR);
     private final byte[] boldFont = PdfFonts.read(PdfFonts.BOLD);
 
+    /** The same dossier as an editable Word document (a {@code .docx} file), for an ESN to paste into its template. */
+    public byte[] docx(DossierDto dossier, DocumentLanguage language, LocalDate today) {
+        return DossierDocx.render(dossier, language, today);
+    }
+
     public byte[] render(DossierDto dossier, DocumentLanguage language, LocalDate today) {
         try (PDDocument document = new PDDocument()) {
             PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(regularFont));

@@ -2,6 +2,7 @@ package dev.swirlit.indezy.ai;
 
 import dev.swirlit.indezy.controller.PdfResponses;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.DossierFormat;
 import dev.swirlit.indezy.model.enums.DossierLayout;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.AccessGuard;
@@ -409,13 +410,16 @@ public class AiController {
             request.language() == null ? DocumentLanguage.FR : request.language());
     }
 
-    @Operation(summary = "The dossier de compétences with the reviewed rewriting, as a PDF", description = "No AI is asked; named or anonymized")
+    @Operation(summary = "The dossier de compétences with the reviewed rewriting, as a PDF or an editable Word document",
+        description = "No AI is asked; named or anonymized; format=DOCX for a .docx file")
     @PostMapping("/cv/pdf")
     public ResponseEntity<byte[]> rewrittenCv(@RequestParam(defaultValue = "NAMED") DossierLayout layout,
                                               @RequestParam(defaultValue = "FR") DocumentLanguage language,
+                                              @RequestParam(defaultValue = "PDF") DossierFormat format,
                                               @RequestBody CvRewriteAiService.Reviewed reviewed) {
         Long freelanceId = accessGuard.requireWorkspace(null);
-        return PdfResponses.attachment(cvRewrites.pdf(SecurityUtils.getCurrentUserId(), freelanceId, layout, language, reviewed));
+        return PdfResponses.document(cvRewrites.file(SecurityUtils.getCurrentUserId(), freelanceId,
+            new CvRewriteAiService.Rendering(layout, language, format), reviewed));
     }
 
     @Operation(summary = "Write the approved headline, summary and past positions' descriptions to the profile")

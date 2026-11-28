@@ -93,7 +93,7 @@ describe('AiCvRewriteDialogComponent', () => {
     component.download('ANONYMOUS');
 
     expect(ai.rewrittenCv).toHaveBeenCalledWith({ headline: 'Staff Java', summary: null, skills: [],
-      missions: [{ number: 1, description: 'Migration du SI vers Kafka.' }], positions: [] }, 'ANONYMOUS', 'FR');
+      missions: [{ number: 1, description: 'Migration du SI vers Kafka.' }], positions: [] }, 'ANONYMOUS', 'FR', 'PDF');
     expect(link.download).toBe('dossier-competences-anonymous.pdf');
     expect(component.downloading).toBeFalse();
   });
@@ -171,6 +171,11 @@ describe('AiCvRewriteDialogComponent', () => {
     expect(ai.rewrittenCv.calls.mostRecent().args[2]).toBe('EN');
     expect(link.download).toBe('skills-profile-tailored.pdf');
     expect((made.calls.mostRecent().args[0] as File).name).toBe('skills-profile-tailored.pdf');
+    // As an editable Word document, handed on as such.
+    component.download('ANONYMOUS', 'DOCX');
+    expect(ai.rewrittenCv.calls.mostRecent().args[3]).toBe('DOCX');
+    expect(link.download).toBe('skills-profile-anonymous-tailored.docx');
+    expect((made.calls.mostRecent().args[0] as File).type).toBe('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
   });
 
   it('says why the reviewed PDF could not be made', async () => {
@@ -180,7 +185,10 @@ describe('AiCvRewriteDialogComponent', () => {
     ai.rewrittenCv.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409,
       error: new Blob(['{"message":"The AI declined this request"}']) })));
     component.download('NAMED');
-    await new Promise(resolve => setTimeout(resolve, 20));
+    // The error body is read from its blob first: wait for it rather than for a fixed time.
+    for (let tries = 0; tries < 100 && !notifications.error.calls.count(); tries++) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
     expect(notifications.error).toHaveBeenCalledWith('ai.errors.declined');
   });
 

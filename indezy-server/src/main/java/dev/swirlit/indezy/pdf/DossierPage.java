@@ -22,13 +22,11 @@ final class DossierPage {
     private final PdfPageWriter writer;
     private final DossierDto dossier;
     private final DocumentLanguage language;
-    private final DateTimeFormatter monthYear;
 
     DossierPage(PdfPageWriter writer, DossierDto dossier, DocumentLanguage language) {
         this.writer = writer;
         this.dossier = dossier;
         this.language = language;
-        this.monthYear = DateTimeFormatter.ofPattern("MMMM yyyy", language.locale());
     }
 
     String title() {
@@ -141,16 +139,26 @@ final class DossierPage {
         }
     }
 
-    /** "mars 2025 – février 2026", or "depuis mars 2025" while it runs open-ended; empty without a start. */
     private String period(DossierDto.Mission mission) {
+        return period(mission, language);
+    }
+
+    /** "mars 2025 – février 2026", or "depuis mars 2025" while it runs open-ended; empty without a start. */
+    static String period(DossierDto.Mission mission, DocumentLanguage language) {
         if (mission.startsOn() == null) {
             return "";
         }
-        String start = capitalized(mission.startsOn().format(monthYear));
+        DateTimeFormatter monthYear = DateTimeFormatter.ofPattern("MMMM yyyy", language.locale());
+        String start = capitalized(mission.startsOn().format(monthYear), language);
         return mission.endsOn() == null ? DossierLabel.SINCE.format(language, start) : start + " – " + mission.endsOn().format(monthYear);
     }
 
     private String skill(DossierDto.Skill skill) {
+        return skill(skill, language);
+    }
+
+    /** "Java (Expert, 8 ans)": the skill with its level and years. */
+    static String skill(DossierDto.Skill skill, DocumentLanguage language) {
         List<String> details = new ArrayList<>();
         if (skill.level() != null) {
             details.add(DossierLabel.level(skill.level(), language));
@@ -161,7 +169,7 @@ final class DossierPage {
         return details.isEmpty() ? skill.name() : skill.name() + " (" + String.join(", ", details) + ")";
     }
 
-    private String capitalized(String text) {
+    private static String capitalized(String text, DocumentLanguage language) {
         return text.isEmpty() ? text : text.substring(0, 1).toUpperCase(language.locale()) + text.substring(1).toLowerCase(Locale.ROOT);
     }
 }
